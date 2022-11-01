@@ -11,5 +11,7 @@
     },
     "terminal.integrated.env.windows":{
         "PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"        
-    },       
+    },
+    "git.alwaysSignOff": true,
+    
 }
