@@ -1,0 +1,127 @@
+# Copyright 2022 RTDIP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: 'Release'
+
+on:
+  # Trigger the workflow on release published
+  release:
+    types: [published]
+
+jobs:
+  job_run_unit_tests_and_sonarqube:
+    uses: rtdip/core/.github/workflows/test.yml@main
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  job_build_python_whl:
+    runs-on: ubuntu-latest
+    needs: job_run_unit_tests_and_sonarqube
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python 
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install twine
+          pip install build
+          python -m build --wheel
+        env:
+          RTDIP_SDK_NEXT_VER: ${{ github.ref_name }}
+      - name: Upload Python wheel as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: rtdip_sdk_whl 
+          path: ./dist/*.whl
+      - name: Publish distribution 📦 to PyPI
+        run: |
+          twine upload --username __token__ --password ${{ secrets.PYPI_API_TOKEN }} --verbose dist/*
+
+  push_to_registries:
+    name: Push Docker image to multiple registries
+    needs: job_build_python_whl
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            rtdip/api
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}},prefix=azure-,value=${{ github.refname }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./src/api/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  job_deploy_mkdocs_github_pages:
+    runs-on: ubuntu-latest
+    needs: job_build_python_whl
+    env:
+      PYTHONPATH: home/runner/work/core/    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python 
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+
+      - name: Install Boost
+        run: |
+          sudo apt update
+          sudo apt install -y libboost-all-dev
+
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+          
+      - name: Install dependencies
+        run: |
+          conda env update --file environment.yml --name base
+
+      - name: Deploy
+        run: |
+          mkdocs gh-deploy --force --remote-branch gh-pages-main
+        
