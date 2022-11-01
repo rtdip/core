@@ -111,14 +111,11 @@ jobs:
           sudo apt update
           sudo apt install -y libboost-all-dev
 
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
-          
-      - name: Install dependencies
-        run: |
-          conda env update --file environment.yml --name base
+      - name: Install Conda environment with Micromamba
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: environment.yml
+          environment-name: base
 
       - name: Deploy
         run: |

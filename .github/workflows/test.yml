@@ -36,13 +36,11 @@ jobs:
           sudo apt update
           sudo apt install -y libboost-all-dev
 
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          conda env update --file environment.yml --name base
+      - name: Install Conda environment with Micromamba
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: environment.yml
+          environment-name: base
 
       - name: Test
         run: |
@@ -52,7 +50,8 @@ jobs:
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
           echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
         env:
-          RTDIP_SDK_NEXT_VER: "0.0.1"        
+          RTDIP_SDK_NEXT_VER: "0.0.1"
+
       - name: Override Coverage Source Path for Sonar   
         run: |
           sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
