@@ -1,0 +1,12 @@
+# Do not include azure-functions-worker as it may conflict with the Azure Functions platform
+azure-functions
+fastapi
+nest_asyncio
+strawberry-graphql[fastapi]
+databricks-sql-connector
+azure-identity==1.11.0
+oauthlib>=3.2.1
+pandas==1.4.2
+numpy>=1.22.0
+jinja2==3.0.3 
+jinjasql==0.1.8
