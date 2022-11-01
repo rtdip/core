@@ -51,8 +51,7 @@ jobs:
         run: |
           twine upload --username __token__ --password ${{ secrets.PYPI_API_TOKEN }} --verbose dist/*
 
-  push_to_registries:
-    name: Push Docker image to multiple registries
+  job_push_to_registries:
     needs: job_build_python_whl
     runs-on: ubuntu-latest
     permissions:
