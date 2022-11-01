@@ -57,6 +57,10 @@ jobs:
         run: |
           sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
 
+      - name: Mkdocs Test
+        run: |
+          mkdocs build --strict
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
