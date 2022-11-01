@@ -34,7 +34,7 @@ dependencies:
     - databricks-sql-connector==2.1.0
     - azure-identity==1.11.0
     - pyodbc==4.0.34
-    - mkdocstrings[python]>=0.19.0
+    - mkdocstrings==0.17.0
     - fastapi==0.85.1
     - pygments>=2.10,<2.12
     - pymdown-extensions<9.3
