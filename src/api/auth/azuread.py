@@ -14,17 +14,20 @@
 
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
+import os
+
+tenant_id = os.environ.get("TENANT_ID")
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl = "https://login.microsoftonline.com/xxxxx/oauth2/v2.0/authorize", 
-    tokenUrl= "https://login.microsoftonline.com/xxxxx/oauth2/v2.0/token", 
-    refreshUrl="https://login.microsoftonline.com/xxxxx/oauth2/v2.0/refresh",
+    authorizationUrl = "https://login.microsoftonline.com/{}/oauth2/v2.0/authorize".format(tenant_id), 
+    tokenUrl= "https://login.microsoftonline.com/{}/oauth2/v2.0/token".format(tenant_id), 
+    refreshUrl="https://login.microsoftonline.com/{}/oauth2/v2.0/refresh".format(tenant_id),
 )
 
 def get_azure_ad_token(authorization = None):
     if authorization == None or authorization == "No Token":
         access_token = DefaultAuth().authenticate()
-        token = access_token.get_token("xxxxx").token
+        token = access_token.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
     else:
         token = authorization.replace("Bearer ", "")
 

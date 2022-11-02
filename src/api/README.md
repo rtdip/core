@@ -26,7 +26,7 @@ Ensure that you setup the **local.settings.json** file with the relevant paramet
 |Encvironment Variable| Value |
 |---------|-------|
 |DATABRICKS_SQL_SERVER_HOSTNAME|adb-xxxxx.x.azuredatabricks.net|
-|DATABRICKS_SQL_HTTP_PATH|/sql/1.0/endpoints/xxx|
+|DATABRICKS_SQL_HTTP_PATH|/sql/1.0/warehouses/xxx|
 
 ### Swagger and Redoc
 
