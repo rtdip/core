@@ -15,7 +15,6 @@
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html, get_swagger_ui_oauth2_redirect_html
-from fastapi.security import OAuth2AuthorizationCodeBearer
 from fastapi.middleware.gzip import GZipMiddleware
 import os
 
@@ -33,12 +32,6 @@ tags_metadata = [
     } 
 ]
 
-oauth2_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl = "https://login.microsoftonline.com/xxxxx/oauth2/v2.0/authorize", 
-    tokenUrl= "https://login.microsoftonline.com/xxxxx/oauth2/v2.0/token", 
-    refreshUrl="https://login.microsoftonline.com/xxxxx/oauth2/v2.0/refresh",
-)
-
 description = """
 APIs to interact with Real Time Data Ingestion Platform.  
 
@@ -52,8 +45,8 @@ Important Azure AD Values for Authentication are below.
 
 | Parameter | Value |
 |-----------|-------|
-| Token Url | https://login.microsoftonline.com/xxxxx/oauth2/v2.0/token |
-| Scope     | xxxxx |
+| Token Url | https://login.microsoftonline.com/{}/oauth2/v2.0/token |
+| Scope     | 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default |
 
 ## Documentation
 
@@ -62,7 +55,7 @@ Please refer to the following links for further information about these APIs and
 [ReDoc](/redoc)
 
 [Real Time Data Ingestion Platform](https://www.rtdip.io/)
-"""
+""".format(os.environ.get("TENANT_ID"))
 
 app=FastAPI(
     title=TITLE,
@@ -86,11 +79,11 @@ async def swagger_ui_html():
     return get_swagger_ui_html(
         openapi_url="api/openapi.json",
         title=TITLE + " - Swagger",
-        swagger_favicon_url="xxxxx",
+        swagger_favicon_url="https://github.com/rtdip/core/blob/fe5c851b75a84ffc45d597b8785097cdd26769cc/docs/assets/favicon.png",
         init_oauth={
             "usePkceWithAuthorizationCodeGrant": True, 
             "clientId": client_id,
-            "scopes": "xxxxx"
+            "scopes": "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default"
         },
         oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url
     )
@@ -104,5 +97,5 @@ async def redoc_ui_html():
     return get_redoc_html(
         openapi_url="api/openapi.json",
         title=TITLE + " - ReDoc",
-        redoc_favicon_url="xxxxx"
+        redoc_favicon_url="https://github.com/rtdip/core/blob/fe5c851b75a84ffc45d597b8785097cdd26769cc/docs/assets/favicon.png"
     )
