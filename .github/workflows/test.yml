@@ -44,6 +44,7 @@ jobs:
       - name: Install Conda environment with Micromamba
         uses: mamba-org/provision-with-micromamba@main
         with:
+          micromamba-version: "0.27.0"
           environment-file: environment.yml
           environment-name: base
           cache-env: true
