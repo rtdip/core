@@ -50,7 +50,6 @@ jobs:
         uses: mamba-org/provision-with-micromamba@main
         with:
           environment-file: environment.yml
-          environment-name: base
           cache-env: true
 
       - name: Test
