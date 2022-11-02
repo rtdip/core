@@ -22,9 +22,14 @@ on:
 
 jobs:
   job_test_python:
+    defaults:
+      run:
+        shell: bash -l {0}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
 
       - name: Setup Python 
         uses: actions/setup-python@v3
@@ -41,6 +46,7 @@ jobs:
         with:
           environment-file: environment.yml
           environment-name: base
+          cache-env: true
 
       - name: Test
         run: |
@@ -52,13 +58,13 @@ jobs:
         env:
           RTDIP_SDK_NEXT_VER: "0.0.1"
 
-      - name: Override Coverage Source Path for Sonar   
-        run: |
-          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
-
       - name: Mkdocs Test
         run: |
           mkdocs build --strict
+
+      - name: Override Coverage Source Path for Sonar   
+        run: |
+          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
