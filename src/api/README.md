@@ -23,7 +23,7 @@ It is also possible to debug using the standard debugger in VS Code. The `.vscod
 
 Ensure that you setup the **local.settings.json** file with the relevant parameters to execute the code on your machine. The below Databricks SQL settings are available in Databricks workspaces.
 
-|Encvironment Variable| Value |
+|Environment Variable| Value |
 |---------|-------|
 |DATABRICKS_SQL_SERVER_HOSTNAME|adb-xxxxx.x.azuredatabricks.net|
 |DATABRICKS_SQL_HTTP_PATH|/sql/1.0/endpoints/xxx|
