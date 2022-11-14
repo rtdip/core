@@ -13,11 +13,9 @@
 # limitations under the License.
 
 import logging
-import sys
-sys.path.insert(0, 'src/sdk/python')
 import pandas as pd
-from rtdip_sdk.functions.raw import get as raw_get
-from rtdip_sdk.functions.metadata import get as metadata_get
+from .raw import get as raw_get
+from .metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np

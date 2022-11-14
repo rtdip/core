@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-sys.path.insert(0, 'src/sdk/python')
 from abc import ABCMeta, abstractmethod
-from rtdip_sdk.odbc.cursor_interface import CursorInterface
+from .cursor_interface import CursorInterface
 
 class ConnectionInterface(metaclass=ABCMeta):
 

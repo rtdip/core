@@ -1,16 +1,31 @@
 {
+    "azureFunctions.scmDoBuildDuringDeployment": true,
+    "azureFunctions.pythonVenv": "${workspaceFolder}/src/api/.venv",
+    "azureFunctions.projectLanguage": "Python",
+    "azureFunctions.projectRuntime": "~4",				
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.formatting.autopep8Path": "/opt/conda/bin/autopep8",
+    "python.formatting.yapfPath": "/opt/conda/bin/yapf",
+    "python.linting.flake8Path": "/opt/conda/bin/flake8",
+    "python.linting.pycodestylePath": "/opt/conda/bin/pycodestyle",
+    "python.linting.pydocstylePath": "/opt/conda/bin/pydocstyle",
+    "python.linting.pylintPath": "/opt/conda/bin/pylint",
     "python.testing.pytestArgs": [
         "tests"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.analysis.extraPaths": ["${workspaceFolder}"],
-    "python.envFile": "${workspaceFolder}/.env",
+    "python.defaultInterpreterPath": "/opt/conda/envs/rtdip-sdk/bin/python",
     "terminal.integrated.env.osx":{
+        "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
+    },    
+    "terminal.integrated.env.linux":{
         "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
     },
     "terminal.integrated.env.windows":{
         "PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"        
-    },
-    "git.alwaysSignOff": true,
+    },    				
+    "git.alwaysSignOff": true
 }

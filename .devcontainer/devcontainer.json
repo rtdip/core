@@ -1,7 +1,7 @@
 {
 	"name": "rtdip",
 	"image": "mcr.microsoft.com/azure-functions/python:4-python3.9-core-tools",
-	"forwardPorts": [ 7071 ],
+	"forwardPorts": [ 7071, 9091 ],
 
 	"customizations": {
 		"vscode": {
@@ -11,11 +11,13 @@
 				"ms-python.python",
 				"GitHub.vscode-pull-request-github",
 				"GitHub.copilot",
-				"GitHub.codespaces",
-				"SonarSource.sonarlint-vscode"
+				"GitHub.codespaces"
 			],
-			"settings": { 
-				"python.defaultInterpreterPath": "/opt/conda/bin/python",
+			"settings": {
+				"azureFunctions.scmDoBuildDuringDeployment": true,
+				"azureFunctions.pythonVenv": "${workspaceFolder}/src/api/.venv",
+				"azureFunctions.projectLanguage": "Python",
+				"azureFunctions.projectRuntime": "~4",				
 				"python.linting.enabled": true,
 				"python.linting.pylintEnabled": true,
 				"python.formatting.autopep8Path": "/opt/conda/bin/autopep8",
@@ -30,20 +32,16 @@
 				"python.testing.unittestEnabled": false,
 				"python.testing.pytestEnabled": true,
 				"python.analysis.extraPaths": ["${workspaceFolder}"],
-				"python.envFile": "${workspaceFolder}/.env",
-				"python.pythonPath": "/opt/conda/envs/rtdip-sdk/bin/python",
-				"terminal.integrated.env.osx":{
+				"python.defaultInterpreterPath": "/opt/conda/envs/rtdip-sdk/bin/python",
+				"terminal.integrated.env.linux":{
 					"PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
-				},
-				"terminal.integrated.env.windows":{
-					"PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"        
-				},
+				},				
 				"git.alwaysSignOff": true
-			},			
+			}			
 		}
 	},
 	
-	"postCreateCommand": "mamba env create -f environment.yml",
+	"postCreateCommand": "mamba env create -f environment.yml && python -m venv src/api/.venv",
 
 	"remoteUser": "vscode",
 	"features": {
@@ -51,7 +49,6 @@
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/devcontainers/features/terraform:1": {},
-		"ghcr.io/rocker-org/devcontainer-features/miniforge:0": {},
-		"ghcr.io/devcontainers/features/java:1": {"version": "latest"}
+		"ghcr.io/rocker-org/devcontainer-features/miniforge:0": {}
 	}
 }

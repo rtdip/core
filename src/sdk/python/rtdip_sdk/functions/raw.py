@@ -13,11 +13,9 @@
 # limitations under the License.
 
 import logging
-import sys
 import pytz
-sys.path.insert(0, 'src/sdk/python')
 import pandas as pd
-from rtdip_sdk.functions._query_builder import _query_builder
+from ._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''

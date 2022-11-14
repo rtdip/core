@@ -10,4 +10,3 @@ pandas==1.4.2
 numpy>=1.22.0
 jinja2==3.0.3 
 jinjasql==0.1.8
-numpy>=1.22.0
