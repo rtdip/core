@@ -13,5 +13,4 @@
         "PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"        
     },
     "git.alwaysSignOff": true,
-    
 }

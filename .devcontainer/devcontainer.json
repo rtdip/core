@@ -1,20 +1,19 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.245.2/containers/python-3-anaconda
 {
-	"name": "Anaconda (Python 3)",
-	"build": { 
-		"context": "..",
-		"dockerfile": "Dockerfile",
-		"args": {
-			"NODE_VERSION": "none"
-		}
-	},
+	"name": "rtdip",
+	"image": "mcr.microsoft.com/azure-functions/python:4-python3.9-core-tools",
+	"forwardPorts": [ 7071 ],
 
-	// Configure tool-specific properties.
 	"customizations": {
-		// Configure properties specific to VS Code.
 		"vscode": {
-			// Set *default* container specific settings.json values on container create.
+			"extensions": [
+				"ms-azuretools.vscode-azurefunctions",
+				"ms-azuretools.vscode-docker",
+				"ms-python.python",
+				"GitHub.vscode-pull-request-github",
+				"GitHub.copilot",
+				"GitHub.codespaces",
+				"SonarSource.sonarlint-vscode"
+			],
 			"settings": { 
 				"python.defaultInterpreterPath": "/opt/conda/bin/python",
 				"python.linting.enabled": true,
@@ -32,6 +31,7 @@
 				"python.testing.pytestEnabled": true,
 				"python.analysis.extraPaths": ["${workspaceFolder}"],
 				"python.envFile": "${workspaceFolder}/.env",
+				"python.pythonPath": "/opt/conda/envs/rtdip-sdk/bin/python",
 				"terminal.integrated.env.osx":{
 					"PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
 				},
@@ -39,27 +39,19 @@
 					"PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"        
 				},
 				"git.alwaysSignOff": true
-			},
-			
-			// Add the IDs of extensions you want installed when the container is created.
-			"extensions": [
-				"ms-python.python",
-				"ms-python.vscode-pylance",
-				"SonarSource.sonarlint-vscode"
-			]
+			},			
 		}
 	},
+	
+	"postCreateCommand": "mamba env create -f environment.yml",
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "python --version",
-
-	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"features": {
-		"docker-in-docker": "latest",
-		"git": "latest"
+		"ghcr.io/devcontainers/features/docker-in-docker:1": {},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/devcontainers/features/terraform:1": {},
+		"ghcr.io/rocker-org/devcontainer-features/miniforge:0": {},
+		"ghcr.io/devcontainers/features/java:1": {"version": "latest"}
 	}
 }
