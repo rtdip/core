@@ -23,6 +23,7 @@ changelog:
       - question
     authors:
       - dependabot[bot]
+      - mend-bolt-for-github[bot]
   categories:
     - title: Major Release
       labels:
