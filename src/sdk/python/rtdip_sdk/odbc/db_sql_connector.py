@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-sys.path.insert(0, 'src/sdk/python')
 from databricks import sql
 import pandas as pd
-from rtdip_sdk.odbc.connection_interface import ConnectionInterface
-from rtdip_sdk.odbc.cursor_interface import CursorInterface
+from .connection_interface import ConnectionInterface
+from .cursor_interface import CursorInterface
 import logging
 
 class DatabricksSQLConnection(ConnectionInterface):

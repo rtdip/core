@@ -1,0 +1,54 @@
+{
+	"name": "rtdip",
+	"image": "mcr.microsoft.com/azure-functions/python:4-python3.9-core-tools",
+	"forwardPorts": [ 7071, 9091 ],
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-azurefunctions",
+				"ms-azuretools.vscode-docker",
+				"ms-python.python",
+				"GitHub.vscode-pull-request-github",
+				"GitHub.copilot",
+				"GitHub.codespaces"
+			],
+			"settings": {
+				"azureFunctions.scmDoBuildDuringDeployment": true,
+				"azureFunctions.pythonVenv": "${workspaceFolder}/src/api/.venv",
+				"azureFunctions.projectLanguage": "Python",
+				"azureFunctions.projectRuntime": "~4",				
+				"python.linting.enabled": true,
+				"python.linting.pylintEnabled": true,
+				"python.formatting.autopep8Path": "/opt/conda/bin/autopep8",
+				"python.formatting.yapfPath": "/opt/conda/bin/yapf",
+				"python.linting.flake8Path": "/opt/conda/bin/flake8",
+				"python.linting.pycodestylePath": "/opt/conda/bin/pycodestyle",
+				"python.linting.pydocstylePath": "/opt/conda/bin/pydocstyle",
+				"python.linting.pylintPath": "/opt/conda/bin/pylint",
+				"python.testing.pytestArgs": [
+					"tests"
+				],
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestEnabled": true,
+				"python.analysis.extraPaths": ["${workspaceFolder}"],
+				"python.defaultInterpreterPath": "/opt/conda/envs/rtdip-sdk/bin/python",
+				"terminal.integrated.env.linux":{
+					"PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
+				},				
+				"git.alwaysSignOff": true
+			}			
+		}
+	},
+	
+	"postCreateCommand": "mamba env create -f environment.yml && python -m venv src/api/.venv",
+
+	"remoteUser": "vscode",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:1": {},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/devcontainers/features/terraform:1": {},
+		"ghcr.io/rocker-org/devcontainer-features/miniforge:0": {}
+	}
+}
