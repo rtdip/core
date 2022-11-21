@@ -28,7 +28,7 @@ def time_weighted_average_events_get(base_query_parameters, raw_query_parameters
 get_description = """
 ## Time Weighted Average 
 
-Time weighted average of raw timeseries data. Refer to the following [documentation](https://ssip-docs.shell.com/sdk/code-reference/time-weighted-average/) for further information.
+Time weighted average of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/time-weighted-average/) for further information.
 """
 
 @api_v1_router.get(
