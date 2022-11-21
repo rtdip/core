@@ -149,4 +149,15 @@ class InterpolateQueryParams:
         self,
         interpolation_method: str = Query(..., description="Interpolation Method", examples={"forward_fill": {"value": "forward_fill"}, "backward_fill": {"value": "backward_fill"}}),
     ):
-        self.interpolation_method = interpolation_method    
+        self.interpolation_method = interpolation_method
+
+class TimeWeightedAverageQueryParams:
+    def __init__(
+        self,
+        window_size_mins: str = Query(..., description="Window Size Mins", example="20"),
+        window_length: str = Query(..., description="Window Length", examples="10"),
+        step: str = Query(..., description="step", examples={"Pi": {"value": "Pi"}, "True": {"value": True}, "False": {"value": False}}),   
+    ):
+        self.window_size_mins = window_size_mins
+        self.window_length = window_length
+        self.step = step
