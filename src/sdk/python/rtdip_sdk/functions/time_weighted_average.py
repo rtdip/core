@@ -44,7 +44,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         window_size_mins (int): Window size in minutes
         window_length (int): (Optional) add longer window time for the start or end of specified date to cater for edge cases
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        step (str/bool): data points with step "enabled" or "disabled". The options for step are "Pi" (string), True or False (bool)
+        step (str/bool): data points with step "enabled" or "disabled". The options for step are "metadata_step" (string), True or False (bool)
 
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
@@ -89,7 +89,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         preprocess_df["EventTime"] = preprocess_df["EventTime"].round("S")
         preprocess_df.set_index(["EventTime", "TagName", "EventDate"], inplace=True)
         preprocess_df = preprocess_df.join(boundaries_df, how="outer", rsuffix="right")
-        if parameters_dict["step"] == "pi" or parameters_dict["step"] == "Pi":
+        if parameters_dict["step"].lower() == "metadata_step":
             metadata_df = metadata_get(connection, parameters_dict)
             metadata_df.set_index("TagName", inplace=True)
             metadata_df = metadata_df.loc[:, "Step"]
@@ -125,3 +125,29 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with time weighted average function')
         raise e
+
+from rtdip_sdk.authentication.authenticate import DefaultAuth
+from rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+from rtdip_sdk.functions import time_weighted_average
+import pandas as pd
+auth = DefaultAuth().authenticate()
+token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+connection = DatabricksSQLConnection("adb-1096942540610930.10.azuredatabricks.net", "/sql/1.0/endpoints/66e64f32c705a279", token)
+dict = {
+"business_unit": "tradingsupply",
+"region": "americas",
+"asset": "sena",
+"data_security_level": "confidential",
+"data_type": "float",
+"tag_names": ["BRAZOS EAST NET MW"],
+#"Prospero GEN2 Net Generation MW", "Deer Park G1 GPF MW"
+#"KIAMICHI PB1 HIGH SUSTAINED LIMIT"
+#"BRAZOS EAST NET MW"
+"start_date": "2022-06-18",
+"end_date": "2022-06-22",
+"window_size_mins": 15,
+"window_length": 20,
+"include_bad_data": "metadata_step"
+}
+x = time_weighted_average.get(connection, dict)
+print(x)

@@ -14,9 +14,9 @@
 
 import azure.functions as func
 from fastapi import Depends
-from ..FastAPIApp import app, api_v1_router
-from . import metadata, raw, resample, interpolate, time_weighted_average, graphql
-from ..auth.azuread import oauth2_scheme
+from src.api.FastAPIApp import app, api_v1_router
+from src.api.v1 import metadata, raw, resample, interpolate, time_weighted_average, graphql
+from src.api.auth.azuread import oauth2_scheme
 
 app.include_router(api_v1_router)
 app.include_router(graphql.graphql_router, prefix="/graphql", include_in_schema=False, dependencies=[Depends(oauth2_scheme)])
