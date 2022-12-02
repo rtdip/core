@@ -70,28 +70,24 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             y = parameters_dict["start_date"]
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format)
             parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format) 
-            print(parameters_dict["start_date"])
         else:
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
             parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
 
-
         pandas_df = raw_get(connection, parameters_dict)
-        print(pandas_df)
 
         pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
 
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName", "Value", "EventDate"])
-        a = pd.to_datetime(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone(utc))
-        b = datetime.strptime(parameters_dict["start_date"], datetime_format).date()
-
 
         for tag in parameters_dict["tag_names"]:
-            boundaries_df = boundaries_df.append({"EventTime": pd.to_datetime(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone(utc)), "TagName": tag, "Value": 0, "EventDate": datetime.strptime(parameters_dict["start_date"], datetime_format).date()}, ignore_index=True)
-            boundaries_df = boundaries_df.append({"EventTime": pd.to_datetime(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone(utc)), "TagName": tag, "Value": 0, "EventDate": datetime.strptime(parameters_dict["end_date"], datetime_format).date()}, ignore_index=True)
+            start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone(utc)), tag, 0, datetime.strptime(parameters_dict["start_date"], datetime_format).date()]], columns=["EventTime", "TagName", "Value", "EventDate"])
+            end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone(utc)), tag, 0, datetime.strptime(parameters_dict["end_date"], datetime_format).date()]], columns=["EventTime", "TagName", "Value", "EventDate"])
+            boundaries_df = pd.concat([boundaries_df, start_date_new_row, end_date_new_row], ignore_index=True)
         boundaries_df.set_index(pd.DatetimeIndex(boundaries_df["EventTime"]), inplace=True)
         boundaries_df.drop(columns="EventTime", inplace=True)
-        boundaries_df = boundaries_df.groupby(["TagName"]).resample("{}T".format(str(parameters_dict["window_size_mins"]))).mean().drop(columns="Value")
+        boundaries_df = boundaries_df.groupby(["TagName"]).resample("{}T".format(str(parameters_dict["window_size_mins"]))).ffill().drop(columns='TagName')
+        print(boundaries_df)
 
         #preprocess - add boundaries and time interpolate missing boundary values
         preprocess_df = pandas_df.copy()
