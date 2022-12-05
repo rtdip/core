@@ -84,26 +84,24 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             boundaries_df = pd.concat([boundaries_df, start_date_new_row, end_date_new_row], ignore_index=True)
         boundaries_df.set_index(pd.DatetimeIndex(boundaries_df["EventTime"]), inplace=True)
         boundaries_df.drop(columns="EventTime", inplace=True)
-        print(boundaries_df)
         boundaries_df = boundaries_df.groupby(["TagName"]).resample("{}T".format(str(parameters_dict["window_size_mins"]))).ffill().drop(columns='TagName')
-        print(boundaries_df)
 
         #preprocess - add boundaries and time interpolate missing boundary values
         preprocess_df = pandas_df.copy()
         preprocess_df["EventTime"] = preprocess_df["EventTime"].round("S")
         preprocess_df.set_index(["EventTime", "TagName", "EventDate"], inplace=True)
         preprocess_df = preprocess_df.join(boundaries_df, how="outer", rsuffix="right")
-        print(preprocess_df)
-        if parameters_dict["step"] == "metadata" or parameters_dict["step"] == "Metadata":
+        if isinstance(parameters_dict["step"], str) and parameters_dict["step"].lower() == "metadata":
             metadata_df = metadata_get(connection, parameters_dict)
             metadata_df.set_index("TagName", inplace=True)
             metadata_df = metadata_df.loc[:, "Step"]
             preprocess_df = preprocess_df.merge(metadata_df, left_index=True, right_index=True)
-            print(preprocess_df)
         elif parameters_dict["step"] == True:
             preprocess_df["Step"] =  True
         elif parameters_dict["step"] == False:
             preprocess_df["Step"] = False
+        else:
+            raise Exception('Unexpected step value', parameters_dict["step"])
 
         def process_time_weighted_averages_step(pandas_df):
             if pandas_df["Step"].any() == False:
@@ -130,5 +128,5 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         return time_weighted_averages
         
     except Exception as e:
-        logging.exception('error with time weighted average function')
+        logging.exception('error with time weighted average function', str(e))
         raise e

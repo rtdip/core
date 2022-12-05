@@ -19,7 +19,7 @@ def time_weighted_average_events_get(base_query_parameters, raw_query_parameters
         )
 
         data = time_weighted_average.get(connection, parameters)
-        response = data.to_json(orient="table", index=False)
+        response = data.to_json(orient="table", index=True)
         return ResampleInterpolateResponse(**json.loads(response))
     except Exception as e:
         logging.error(str(e))

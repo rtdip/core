@@ -156,7 +156,8 @@ class TimeWeightedAverageQueryParams:
         self,
         window_size_mins: int = Query(..., description="Window Size Mins", example=20),
         window_length: int = Query(..., description="Window Length", examples=10),
-        step: str = Query(..., description="step", examples={"metadata": {"value": "metadata"}, "True": {"value": True}, "False": {"value": False}}),   
+        step: Union[bool, str] = Query(..., description="step" )
+        #examples={"metadata": {"value": "metadata"}, "True": {"value": True}, "False": {"value": False}}),   
     ):
         self.window_size_mins = window_size_mins
         self.window_length = window_length
