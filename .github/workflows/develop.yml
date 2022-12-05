@@ -124,7 +124,6 @@ jobs:
         with:
           images: |
             rtdip/prerelease
-            ghcr.io/prerelease
           tags: |
             type=semver,pattern={{version}},prefix=api-azure-,value=${{ steps.next_ver.outputs.rtdip_sdk_next_ver }}
       
