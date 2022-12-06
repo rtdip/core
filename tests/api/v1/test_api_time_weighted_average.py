@@ -25,7 +25,7 @@ MOCK_API_NAME = "/api/v1/events/timeweightedaverage"
 def test_api_time_weighted_average_get_success(mocker: MockerFixture):
     client = TestClient(app) 
 
-    test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]})
+    test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}).set_index("EventTime", inplace=True)
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
     
     response = client.get(MOCK_API_NAME, headers=TEST_HEADERS, params=TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_DICT)
