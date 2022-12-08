@@ -14,18 +14,12 @@
 
 import azure.functions as func
 from fastapi import Depends
-
 from src.api.FastAPIApp import app, api_v1_router
-import src.api.v1.metadata
-import src.api.v1.raw
-import src.api.v1.resample
-import src.api.v1.interpolate
-import src.api.v1.graphql
-from src.api.v1.graphql import graphql_router
+from src.api.v1 import metadata, raw, resample, interpolate, graphql
 from src.api.auth.azuread import oauth2_scheme
 
 app.include_router(api_v1_router)
-app.include_router(graphql_router, prefix="/graphql", include_in_schema=False, dependencies=[Depends(oauth2_scheme)])
+app.include_router(graphql.graphql_router, prefix="/graphql", include_in_schema=False, dependencies=[Depends(oauth2_scheme)])
 
-def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
-    return func.AsgiMiddleware(app).handle(req, context)
+async def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+    return await func.AsgiMiddleware(app).handle_async(req, context)

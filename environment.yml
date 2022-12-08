@@ -30,7 +30,8 @@ dependencies:
     - turbodbc==4.5.5
     - numpy>=1.22.0
     - pandas==1.4.2
-    - oauthlib>=3.2.1
+    - oauthlib>=3.2.2
+    - cryptography>=38.0.3
     - databricks-sql-connector==2.1.0
     - azure-identity==1.11.0
     - pyodbc==4.0.34

@@ -47,7 +47,7 @@ setup(
     package_dir={'': 'src/sdk/python'},
     packages=find_packages(where='src/sdk/python'),
     python_requires='>=3.8, <4',
-    install_requires=['databricks-sql-connector','azure-identity','azure-storage-file-datalake','pyodbc','pandas', 'jinja2==3.0.3', 'jinjasql==0.1.8'],
+    install_requires=['databricks-sql-connector','azure-identity','azure-storage-file-datalake','pyodbc','pandas','jinja2==3.0.3','jinjasql==0.1.8'],
     setup_requires=['pytest-runner','setuptools_scm'],
     tests_require=['pytest'],
     test_suite='tests',

@@ -22,9 +22,14 @@ on:
 
 jobs:
   job_test_python:
+    defaults:
+      run:
+        shell: bash -l {0}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
 
       - name: Setup Python 
         uses: actions/setup-python@v3
@@ -40,9 +45,12 @@ jobs:
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          conda env update --file environment.yml --name base
+
+      - name: Install Conda environment with Micromamba
+        uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: environment.yml
+          cache-env: true
 
       - name: Test
         run: |
@@ -52,14 +60,15 @@ jobs:
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
           echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
         env:
-          RTDIP_SDK_NEXT_VER: "0.0.1"        
-      - name: Override Coverage Source Path for Sonar   
-        run: |
-          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
+          RTDIP_SDK_NEXT_VER: "0.0.1"
 
       - name: Mkdocs Test
         run: |
           mkdocs build --strict
+
+      - name: Override Coverage Source Path for Sonar   
+        run: |
+          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

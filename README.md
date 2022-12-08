@@ -1,5 +1,11 @@
 # Real Time Data Ingestion Platform (RTDIP)
 
+| Branch | Workflow Status | Code Coverage | Vulnerabilities | Bugs |
+|--------|-----------------|---------------|----------|------|
+| main | [![Main](https://github.com/rtdip/core/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rtdip/core/actions/workflows/main.yml) | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=coverage&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=vulnerabilities&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=bugs&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) |
+| develop | [![Develop](https://github.com/rtdip/core/actions/workflows/develop.yml/badge.svg)](https://github.com/rtdip/core/actions/workflows/develop.yml) | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=coverage&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=vulnerabilities&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=bugs&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) |
+| feature | [![.github/workflows/pr.yml](https://github.com/rtdip/core/actions/workflows/pr.yml/badge.svg)](https://github.com/rtdip/core/actions/workflows/pr.yml) |
+
 This repository contains Real Time Data Ingestion Platform SDK functions and documentation. This README will be a developer guide to understand the repository.
 
 ## What is RTDIP SDK?
@@ -9,12 +15,6 @@ This repository contains Real Time Data Ingestion Platform SDK functions and doc
 The RTDIP SDK will give the end user the power to use some of the convenience methods for frequency conversions and resampling of Pi data all through a self-service platform. RTDIP is offering a flexible product with the ability to authenticate and connect to Databricks SQL Warehouses given the end users preferences. RTDIP have taken the initiative to cut out the middle man and instead wrap these commonly requested methods in a simple python module so that you can instead focus on the data. 
 
 See [RTDIP Documentation](https://www.rtdip.io/) for more information on how to use the SDK.
-
-| Branch | Status |
-|--------|--------|
-| main | [![Main](https://github.com/rtdip/core/actions/workflows/main.yml/badge.svg?branch=develop)](https://github.com/rtdip/core/actions/workflows/main.yml) |
-| develop | [![Develop](https://github.com/rtdip/core/actions/workflows/develop.yml/badge.svg)](https://github.com/rtdip/core/actions/workflows/develop.yml) |
-| feature | [![.github/workflows/pr.yml](https://github.com/rtdip/core/actions/workflows/pr.yml/badge.svg)](https://github.com/rtdip/core/actions/workflows/pr.yml) |
 
 # Repository Guidelines
 The structure of this repository is shown below in the tree diagram.
