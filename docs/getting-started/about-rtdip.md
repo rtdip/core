@@ -1,6 +1,6 @@
 # About RTDIP
 
-![timeseries](images/timeseries.gif){width=100%}
+![timeseries](images/rtdip-horizontal-color.png){width=100%}
 
 ## What is Real Time Data Ingestion Platform
 
