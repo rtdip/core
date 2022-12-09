@@ -16,7 +16,7 @@ import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
 from datetime import datetime
-from tests.api.v1.api_test_objects import RAW_MOCKED_PARAMETER_DICT, RAW_MOCKED_PARAMETER_ERROR_DICT, RAW_POST_MOCKED_PARAMETER_DICT, RAW_POST_BODY_MOCKED_PARAMETER_DICT, mocker_setup, TEST_HEADERS
+from tests.api.v1.api_test_objects import RAW_MOCKED_PARAMETER_DICT, RAW_MOCKED_PARAMETER_ERROR_DICT, RAW_POST_MOCKED_PARAMETER_DICT, RAW_POST_BODY_MOCKED_PARAMETER_DICT, mocker_setup, TEST_HEADERS, BASE_URL
 from httpx import AsyncClient
 from src.api.v1 import app
 import json
@@ -30,7 +30,7 @@ async def test_api_raw_get_success(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Status": ["Good"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_DICT)
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
@@ -42,7 +42,7 @@ async def test_api_raw_get_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Status": ["Good"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)  
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_ERROR_DICT)
     actual = response.text  
 
@@ -53,7 +53,7 @@ async def test_api_raw_get_error(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Status": ["Good"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database"))  
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_DICT)
     actual = response.text
 
@@ -64,7 +64,7 @@ async def test_api_raw_post_success(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Status": ["Good"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_POST_MOCKED_PARAMETER_DICT, json=RAW_POST_BODY_MOCKED_PARAMETER_DICT)
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")    
@@ -76,7 +76,7 @@ async def test_api_raw_post_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Status": ["Good"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)  
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_ERROR_DICT, json=RAW_POST_BODY_MOCKED_PARAMETER_DICT)
     actual = response.text  
 
@@ -87,7 +87,7 @@ async def test_api_raw_post_error(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Status": ["Good"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database"))  
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_DICT, json=RAW_POST_BODY_MOCKED_PARAMETER_DICT)
     actual = response.text
 

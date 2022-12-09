@@ -18,7 +18,7 @@ import pandas as pd
 from datetime import datetime
 from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection
 from tests.sdk.python.rtdip_sdk.functions.test_raw import DATABRICKS_SQL_CONNECT
-from tests.api.v1.api_test_objects import RESAMPLE_MOCKED_PARAMETER_DICT, RESAMPLE_MOCKED_PARAMETER_ERROR_DICT, RESAMPLE_POST_MOCKED_PARAMETER_DICT, RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT, mocker_setup, TEST_HEADERS
+from tests.api.v1.api_test_objects import RESAMPLE_MOCKED_PARAMETER_DICT, RESAMPLE_MOCKED_PARAMETER_ERROR_DICT, RESAMPLE_POST_MOCKED_PARAMETER_DICT, RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT, mocker_setup, TEST_HEADERS, BASE_URL
 from httpx import AsyncClient
 from src.api.v1 import app
 
@@ -31,7 +31,7 @@ async def test_api_resample_get_success(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=RESAMPLE_MOCKED_PARAMETER_DICT)
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
@@ -44,7 +44,7 @@ async def test_api_resample_get_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=RESAMPLE_MOCKED_PARAMETER_ERROR_DICT)  
     actual = response.text
 
@@ -55,7 +55,7 @@ async def test_api_resample_get_error(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database"))
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=RESAMPLE_MOCKED_PARAMETER_DICT)    
     actual = response.text
 
@@ -66,7 +66,7 @@ async def test_api_resample_post_success(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(MOCK_API_NAME, headers=TEST_HEADERS, params=RESAMPLE_POST_MOCKED_PARAMETER_DICT, json=RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT)    
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")       
@@ -78,19 +78,18 @@ async def test_api_resample_post_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(MOCK_API_NAME, headers=TEST_HEADERS, params=RESAMPLE_MOCKED_PARAMETER_ERROR_DICT, json=RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT)
     actual = response.text
 
     assert response.status_code == 422
     assert actual == '{"detail":[{"loc":["query","start_date"],"msg":"field required","type":"value_error.missing"}]}'
-    assert 1 == 1
 
 async def test_api_resample_post_error(mocker: MockerFixture):
     test_data = pd.DataFrame({"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]})
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database"))
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(MOCK_API_NAME, headers=TEST_HEADERS, params=RESAMPLE_MOCKED_PARAMETER_DICT, json=RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT)
     actual = response.text
 
