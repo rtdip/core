@@ -28,7 +28,7 @@ dependencies:
     - pytest-cov==4.0.0
     - pip==22.3.0
     - turbodbc==4.5.5
-    - numpy>=1.22.0
+    - numpy==1.22.0
     - pandas==1.5.2
     - oauthlib>=3.2.2
     - cryptography>=38.0.3
