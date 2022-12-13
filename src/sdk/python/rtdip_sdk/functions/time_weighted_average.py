@@ -44,7 +44,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         window_size_mins (int): Window size in minutes
         window_length (int): (Optional) add longer window time for the start or end of specified date to cater for edge cases
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        step (str/bool): data points with step "enabled" or "disabled". The options for step are "Pi" (string), True or False (bool)
+        step (str/bool): data points with step "enabled" or "disabled". The options for step are "metadata" (string), True or False (bool)
 
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
@@ -66,30 +66,32 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             original_end_date = datetime.strptime(parameters_dict["end_date"], datetime_format)
 
         if "window_length" in parameters_dict:       
-            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = parameters_dict["window_length"])).strftime(datetime_format)
-            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = parameters_dict["window_length"])).strftime(datetime_format) 
+            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format)
+            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format) 
         else:
-            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = parameters_dict["window_size_mins"])).strftime(datetime_format)
-            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = parameters_dict["window_size_mins"])).strftime(datetime_format)
+            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
+            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
 
         pandas_df = raw_get(connection, parameters_dict)
 
-        pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date
+        pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
 
-        boundaries_df = pd.DataFrame(columns=["EventTime", "TagName", "Value", "EventDate"])
+        boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
+
         for tag in parameters_dict["tag_names"]:
-            boundaries_df = boundaries_df.append({"EventTime": pd.to_datetime(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone(utc)), "TagName": tag, "Value": 0, "EventDate": datetime.strptime(parameters_dict["start_date"], datetime_format).date()}, ignore_index=True)
-            boundaries_df = boundaries_df.append({"EventTime": pd.to_datetime(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone(utc)), "TagName": tag, "Value": 0, "EventDate": datetime.strptime(parameters_dict["end_date"], datetime_format).date()}, ignore_index=True)
+            start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
+            end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
+            boundaries_df = pd.concat([boundaries_df, start_date_new_row, end_date_new_row], ignore_index=True)
         boundaries_df.set_index(pd.DatetimeIndex(boundaries_df["EventTime"]), inplace=True)
         boundaries_df.drop(columns="EventTime", inplace=True)
-        boundaries_df = boundaries_df.groupby(["TagName"]).resample("{}T".format(str(parameters_dict["window_size_mins"]))).mean().drop(columns="Value")
+        boundaries_df = boundaries_df.groupby(["TagName"]).resample("{}T".format(str(parameters_dict["window_size_mins"]))).ffill().drop(columns='TagName')
 
         #preprocess - add boundaries and time interpolate missing boundary values
         preprocess_df = pandas_df.copy()
         preprocess_df["EventTime"] = preprocess_df["EventTime"].round("S")
         preprocess_df.set_index(["EventTime", "TagName", "EventDate"], inplace=True)
         preprocess_df = preprocess_df.join(boundaries_df, how="outer", rsuffix="right")
-        if parameters_dict["step"] == "pi" or parameters_dict["step"] == "Pi":
+        if isinstance(parameters_dict["step"], str) and parameters_dict["step"].lower() == "metadata":
             metadata_df = metadata_get(connection, parameters_dict)
             metadata_df.set_index("TagName", inplace=True)
             metadata_df = metadata_df.loc[:, "Step"]
@@ -98,6 +100,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             preprocess_df["Step"] =  True
         elif parameters_dict["step"] == False:
             preprocess_df["Step"] = False
+        else:
+            raise Exception('Unexpected step value', parameters_dict["step"])
 
         def process_time_weighted_averages_step(pandas_df):
             if pandas_df["Step"].any() == False:
@@ -119,9 +123,10 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
         weighted_averages_timezones = np.array([z.replace(tzinfo=pytz.timezone(utc)) for z in time_weighted_averages_datetime])
         time_weighted_averages = time_weighted_averages[(original_start_date.replace(tzinfo=pytz.timezone(utc)) < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date.replace(tzinfo=pytz.timezone(utc)) + timedelta(seconds = 1))]
-        
+        pd.set_option('display.max_rows', None)
+        print(time_weighted_averages)
         return time_weighted_averages
         
     except Exception as e:
-        logging.exception('error with time weighted average function')
+        logging.exception('error with time weighted average function', str(e))
         raise e
