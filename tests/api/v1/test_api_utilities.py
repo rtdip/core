@@ -12,28 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
 from pytest_mock import MockerFixture
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
+from tests.api.v1.api_test_objects import BASE_URL
 from src.api.v1 import app
 
-def test_api_home(mocker: MockerFixture):   
-    client = TestClient(app) 
-    
-    response = client.get("/")
+pytestmark = pytest.mark.anyio
+
+async def test_api_home(mocker: MockerFixture):   
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        response = await ac.get("/")
+
+    assert response.status_code == 307
+    assert response.next_request.url == BASE_URL + "/docs"
+
+async def test_api_docs(mocker: MockerFixture):   
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        response = await ac.get("/docs")
 
     assert response.status_code == 200
 
-def test_api_docs(mocker: MockerFixture):   
-    client = TestClient(app) 
-    
-    response = client.get("/docs")
-
-    assert response.status_code == 200
-
-def test_api_redoc(mocker: MockerFixture):   
-    client = TestClient(app) 
-    
-    response = client.get("/redoc")
+async def test_api_redoc(mocker: MockerFixture):   
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        response = await ac.get("/redoc")
 
     assert response.status_code == 200    
     

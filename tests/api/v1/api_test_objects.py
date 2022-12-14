@@ -16,6 +16,8 @@ from pytest_mock import MockerFixture
 from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection
 from tests.sdk.python.rtdip_sdk.functions.test_raw import DATABRICKS_SQL_CONNECT
 
+BASE_URL = "https://test"
+
 BASE_MOCKED_PARAMETER_DICT = {
         "business_unit": "mocked-buiness-unit",
         "region": "mocked-region",
