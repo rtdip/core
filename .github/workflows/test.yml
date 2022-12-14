@@ -26,15 +26,18 @@ jobs:
       run:
         shell: bash -l {0}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]    
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0 
 
       - name: Setup Python 
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
       
       - name: Install Boost
         run: |
@@ -77,6 +80,7 @@ jobs:
             -Dsonar.organization=rtdip
             -Dsonar.projectKey=rtdip_core
             -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
+            -Dsoner.python.version=3.8,3.9,3.10,3.11
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
