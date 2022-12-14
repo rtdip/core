@@ -30,7 +30,7 @@ def resample_events_get(base_query_parameters, raw_query_parameters, tag_query_p
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(base_query_parameters, raw_query_parameters=raw_query_parameters, tag_query_parameters=tag_query_parameters,resample_query_parameters=resample_parameters)
 
         data = resample.get(connection, parameters)
-        response = data.to_json(orient="table", index=False)
+        response = data.to_json(orient="table", index=False, date_unit="us")
         return ResampleInterpolateResponse(**json.loads(response))
     except Exception as e:
         logging.error(str(e))

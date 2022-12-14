@@ -34,7 +34,7 @@ def interpolate_events_get(base_query_parameters, raw_query_parameters, tag_quer
         )
 
         data = interpolate.get(connection, parameters)
-        response = data.to_json(orient="table", index=False)
+        response = data.to_json(orient="table", index=False, date_unit="us")
         return ResampleInterpolateResponse(**json.loads(response))
     except Exception as e:
         logging.error(str(e))
