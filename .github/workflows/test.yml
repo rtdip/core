@@ -21,7 +21,7 @@ on:
         required: true
 
 jobs:
-  job_test_python_latest:
+  job_test_python_latest_version:
     defaults:
       run:
         shell: bash -l {0}
@@ -82,7 +82,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  job_test_python_previous:
+  job_test_python_previous_version:
       defaults:
         run:
           shell: bash -l {0}
