@@ -82,46 +82,46 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-job_test_python_previous:
-    defaults:
-      run:
-        shell: bash -l {0}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.8", "3.9", "3.10"]    
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 
+  job_test_python_previous:
+      defaults:
+        run:
+          shell: bash -l {0}
+      runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          python-version: ["3.8", "3.9", "3.10"]    
+      steps:
+        - uses: actions/checkout@v3
+          with:
+            fetch-depth: 0 
 
-      - name: Setup Python 
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      
-      - name: Install Boost
-        run: |
-          sudo apt update
-          sudo apt install -y libboost-all-dev
+        - name: Setup Python 
+          uses: actions/setup-python@v4
+          with:
+            python-version: ${{ matrix.python-version }}
+        
+        - name: Install Boost
+          run: |
+            sudo apt update
+            sudo apt install -y libboost-all-dev
 
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
+        - name: Add conda to system path
+          run: |
+            # $CONDA is an environment variable pointing to the root of the miniconda directory
+            echo $CONDA/bin >> $GITHUB_PATH
 
-      - name: Install Conda environment with Micromamba
-        uses: mamba-org/provision-with-micromamba@main
-        with:
-          environment-file: environment.yml
-          cache-env: true
+        - name: Install Conda environment with Micromamba
+          uses: mamba-org/provision-with-micromamba@main
+          with:
+            environment-file: environment.yml
+            cache-env: true
 
-      - name: Test
-        run: |
-          python setup.py pytest
-          mkdir -p coverage-reports-previous
-          coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
-          coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports-previous/coverage-unittests.xml
-          echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
-        env:
-          RTDIP_SDK_NEXT_VER: "0.0.1"
+        - name: Test
+          run: |
+            python setup.py pytest
+            mkdir -p coverage-reports-previous
+            coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
+            coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports-previous/coverage-unittests.xml
+            echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
+          env:
+            RTDIP_SDK_NEXT_VER: "0.0.1"
