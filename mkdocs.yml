@@ -121,7 +121,8 @@ nav:
                 - Azure: api/deployment/azure.md
     - Roadmaps:
           - Overview: roadmap/roadmap-overview.md
-          - 2022 Development Roadmap: roadmap/yearly-roadmaps/2022-development-roadmap.md
+          - 2023: roadmap/yearly-roadmaps/2023-development-roadmap.md
+          - 2022: roadmap/yearly-roadmaps/2022-development-roadmap.md
     - Releases:
           - Overview: releases/releases.md
     - Blog:
