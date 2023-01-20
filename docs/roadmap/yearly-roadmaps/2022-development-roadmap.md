@@ -14,16 +14,16 @@ We welcome and encourage projects, developers, users and applications to contrib
 
 A brief summary of development and innovation items planned for 2022.
 
-    | Item | Description | Estimated Quarter for Delivery |
-    |------|-------------|--------------------------------|
-    | Power BI | Enable querying of RTDIP data via Power BI. While some work has started on this in 2021, this item explores rolling it out further and how users can combine RTDIP data with other data sources | Q1 2022 |
-    | Seeq Connector | Enable querying of RTDIP data via Seeq. Scope is limited to simply querying RTDIP data, we may look at what else is possible with the connector once the base capability has been achieved | Q1 2022 |
-    | Delta Live Tables | Leverage [Delta Live Tables](https://docs.microsoft.com/en-us/azure/databricks/data-engineering/delta-live-tables/) for ingestion of RTDIP data into Delta Format. Provides better processing, merging, data cleansing and monitoring capabilities to the RTDIP Delta Ingestion Pipelines | Q1-Q2 2022 |
-    | Multicloud | Build certain existing RTDIP Azure capabilities on AWS. Enables RTDIP in the clouds aligned with the business but also to ensure multicloud is cost effective and that products in the architecture work in Cloud Environments | Q1-Q3 2022 |
-    | SDK | An open source python SDK is developed to assist users with a simple python library for connecting, authenticating and querying RTDIP data | Q1-Q4 2022 |
-    | REST API | Wrap the python SDK in a REST API to allow non Python users to get similar functionality to the python SDK | Q1-Q4 2022 |
-    | Unity Catalog | Provides a multi-region Catalog of all data in RTDIP. Enables easier navigation and exploration of what datasets are available in RTDIP | Q3 2022 |
-    | Delta Sharing | Enables sharing of Delta data via a managed service that handles security, authentication and delivery of data. Particularly useful for sharing RTDIP data with third parties | Q4 2022 |
+| Item | Description | Estimated Quarter for Delivery |
+|------|-------------|--------------------------------|
+| Power BI | Enable querying of RTDIP data via Power BI. While some work has started on this in 2021, this item explores rolling it out further and how users can combine RTDIP data with other data sources | Q1 2022 |
+| Seeq Connector | Enable querying of RTDIP data via Seeq. Scope is limited to simply querying RTDIP data, we may look at what else is possible with the connector once the base capability has been achieved | Q1 2022 |
+| Delta Live Tables | Leverage [Delta Live Tables](https://docs.microsoft.com/en-us/azure/databricks/data-engineering/delta-live-tables/) for ingestion of RTDIP data into Delta Format. Provides better processing, merging, data cleansing and monitoring capabilities to the RTDIP Delta Ingestion Pipelines | Q1-Q2 2022 |
+| Multicloud | Build certain existing RTDIP Azure capabilities on AWS. Enables RTDIP in the clouds aligned with the business but also to ensure multicloud is cost effective and that products in the architecture work in Cloud Environments | Q1-Q3 2022 |
+| SDK | An open source python SDK is developed to assist users with a simple python library for connecting, authenticating and querying RTDIP data | Q1-Q4 2022 |
+| REST API | Wrap the python SDK in a REST API to allow non Python users to get similar functionality to the python SDK | Q1-Q4 2022 |
+| Unity Catalog | Provides a multi-region Catalog of all data in RTDIP. Enables easier navigation and exploration of what datasets are available in RTDIP | Q3 2022 |
+| Delta Sharing | Enables sharing of Delta data via a managed service that handles security, authentication and delivery of data. Particularly useful for sharing RTDIP data with third parties | Q4 2022 |
 
 ## Power BI
 
