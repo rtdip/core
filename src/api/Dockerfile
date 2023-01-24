@@ -13,7 +13,6 @@
 # limitations under the License.
 
 # To enable ssh & remote debugging on app service change the base image to the one below
-# FROM mcr.microsoft.com/azure-functions/python:3.0-python3.8-appservice
 FROM mcr.microsoft.com/azure-functions/python:4-python3.10
 
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \

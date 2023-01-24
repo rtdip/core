@@ -34,7 +34,7 @@ There are a few things to note before using the RTDIP SDK. The following prerequ
             - conda-forge
             - defaults
             dependencies:
-            - python==3.8.8
+            - python==3.11
             - pip==22.0.2
             - pip:
                 - rtdip-sdk

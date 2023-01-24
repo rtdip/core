@@ -1,6 +1,6 @@
 # RTDIP Development Roadmap in 2022
 
-![roadmap](images/roadmap.png)
+![roadmap](images/roadmap.png){: .image-center}
 
 
 Defining a list of development items for RTDIP is always difficult because so much can change within  Digital Technologies in 12 months. However, as we head towards the end of the year of 2021, we have outlined themes of what RTDIP will look at in the Development and Innovation space in 2022.
@@ -27,7 +27,7 @@ A brief summary of development and innovation items planned for 2022.
 
 ## Power BI
 
-![power-bi](images/power-bi.png)
+![power-bi](images/power-bi.png){: .image-center}
 
 Power BI is a popular tool amongst RTDIP End Users for querying and plotting RTDIP data. The use of Delta and Databricks SQL Warehouses in the RTDIP Platform brings native Power BI integration using connectors already available in Power BI versions after May 2021.
 
@@ -35,13 +35,13 @@ The aim is to enable Power BI connectivity to RTDIP so that users can query thei
 
 ## Seeq
 
-![seeq](images/seeq.png)
+![seeq](images/seeq.png){: .image-center}
 
 Similar to Power BI, Seeq is a popular tool amongst real time users to query and manipulate RTDIP data. Seeq and RTDIP are currently working on a connector that allows Seeq to query RTDIP data via the same Databricks SQL Warehouse that Power BI will use for querying data by the end of Q1 2022.
 
 ## Delta Live Tables
 
-![delta-live-tables](images/delta-live-tables.png)
+![delta-live-tables](images/delta-live-tables.png){: .image-center}
 
 For more information about the advantages of Delta Live Tables, please see this [link](https://docs.microsoft.com/en-us/azure/databricks/data-engineering/delta-live-tables/) and if you would like to see Bryce Bartmann, RTDIP team member, talking about Delta Live Tables at the Data & AI Summit 2021, please see the session [here](https://databricks.com/session_na21/make-reliable-etl-easy-on-delta-lake).
 
@@ -56,7 +56,7 @@ The RTDIP Team has actively worked with Databricks to build Delta Live Tables. W
 
 ## Multicloud
 
-![multicloud](images/multicloud.jpeg)
+![multicloud](images/multicloud.jpeg){: .image-center}
 
 As clouds mature, one of the most asked questions is how customers can leverage more than one cloud to provide a better and more economical solution to their customers. Even though this is a fairly new area to explore, there are a number of cloud agnostic technologies that are trying to help customers take advantage of and manage environments in more than one cloud.
 
@@ -64,7 +64,7 @@ Multicloud design can be complex and requires significant analysis of existing t
 
 ## SDK and REST API
 
-![sdk-vs-api](images/sdk-vs-api.png)
+![sdk-vs-api](images/sdk-vs-api.png){: .image-center}
 
 A common theme we are seeing amongst applications and users of RTDIP data is a simple way to authenticate, query and manipulate RTDIP data. In an effort to also build a stronger developer community around RTDIP, we will be building a python SDK that python users can use in their code for performing common functions with RTDIP Data:
 
@@ -80,13 +80,13 @@ For non python users, we plan to wrap the SDK in a REST API. This facilitates a 
 
 ## Unity Catalog
 
-![unity-catalog](images/delta-unity-catalog.png)
+![unity-catalog](images/delta-unity-catalog.png){: .image-center}
 
 Cataloging data is a common activity when building data lakes that contain data from multiple sources and from multiple geographic regions. RTDIP will explore and deploy a catalog of all data sources currently being ingested into the platform.
 
 ## Delta Sharing
 
-![delta-sharing](images/delta-sharing.png)
+![delta-sharing](images/delta-sharing.png){: .image-center}
 
 One of the most common requests the RTDIP team receive is how to share RTDIP data with third parties. Delta Sharing is an open source capability that allows sharing of Delta data via a managed service that provides authentication, connection management and supply of Delta data to third parties. 
 
