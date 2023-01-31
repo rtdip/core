@@ -1,17 +1,18 @@
 {
 	"name": "rtdip",
-	"image": "mcr.microsoft.com/azure-functions/python:4-python3.9-core-tools",
+	"image": "mcr.microsoft.com/azure-functions/python:4-python3.10-core-tools",
 	"forwardPorts": [ 7071, 9091 ],
 
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"ms-azuretools.vscode-azurefunctions",
-				"ms-azuretools.vscode-docker",
+				//"ms-azuretools.vscode-docker",
 				"ms-python.python",
 				"GitHub.vscode-pull-request-github",
 				"GitHub.copilot",
-				"GitHub.codespaces"
+				"GitHub.codespaces",
+				"ryanluker.vscode-coverage-gutters"
 			],
 			"settings": {
 				"azureFunctions.scmDoBuildDuringDeployment": true,
@@ -45,10 +46,11 @@
 
 	"remoteUser": "vscode",
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:1": {},
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/devcontainers/features/terraform:1": {},
-		"ghcr.io/rocker-org/devcontainer-features/miniforge:0": {}
+		// "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/java:1": {"version": "11"},
+		"ghcr.io/rocker-org/devcontainer-features/miniforge:1": {}
 	}
 }
