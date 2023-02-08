@@ -27,7 +27,6 @@ import os
 here = pathlib.Path(__file__).parent.resolve()
 
 long_description = (here / "PYPI-README.md").read_text()
-packaging.version.Version = packaging.version.LegacyVersion
 
 setup(
     name='rtdip-sdk',
