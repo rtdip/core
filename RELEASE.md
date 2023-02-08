@@ -17,7 +17,7 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
 
 ## Checklist
 
-This checklict guides you through preparing, testing and documenting a release.
+This checklist guides you through preparing, testing and documenting a release.
 
 ```
 Please ensure to SQUASH MERGE to DEVELOP and MERGE to MAIN
