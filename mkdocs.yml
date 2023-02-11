@@ -80,9 +80,16 @@ markdown_extensions:
   - meta
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
         alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 # Page tree
 nav:
@@ -128,4 +135,5 @@ nav:
     - Blog:
           - Overview: blog/overview.md
           - Posts:
+                - RTDIP Ingestion Pipelines: blog/rtdip_ingestion_pipelines.md
                 - Delta Lakehouse and RTDIP: blog/delta_and_rtdip.md
