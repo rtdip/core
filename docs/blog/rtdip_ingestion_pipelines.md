@@ -101,6 +101,7 @@ The Real Time Data Ingestion Pipeline Framework will support the following compo
 - Transformers - perform transformations on data, including data cleansing, data enrichment, data aggregation, data masking, data encryption, data decryption, data validation, data conversion, data normalization, data de-normalization, data partitioning etc
 - Destinations - connectors to sink/destination systems 
 - Utilities - components that perform utility functions such as logging, error handling, data object creation, authentication, maintenance etc
+- Edge - components that will perform edge functionality such as connectors to protocols like OPC
 
 ### Pipeline Component Types
 
@@ -181,6 +182,15 @@ Utilities are components that perform utility functions such as logging, error h
 | Great Expectations|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
 
 *:heavy_check_mark: - target to deliver in the following quarter
+
+### Edge
+
+Edge components are designed to provide a lightweight, low latency, low resource consumption, data ingestion framework for edge devices. These components will be designed to run on edge devices such as Raspberry Pi, Jetson Nano, etc. For cloud providers, this will be designed to run on AWS Greengrass and Azure IoT Edge.
+
+|Edge Type|Azure IoT Edge|AWS Greengrass|Target|
+|---------|--------------|--------------|------|
+| OPC Publisher|:heavy_check_mark:||Q3-Q4 2023|
+| Greengrass OPC UA||:heavy_check_mark:|Q4 2023|
 
 ## Conclusion
 
