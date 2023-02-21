@@ -1,10 +1,10 @@
-# Real Time Ingestion Pipeline Framework
+# RTDIP Ingestion Pipeline Framework
 
-One of the most anticipated features of the Real Time Data Ingestion Platform for 2023 is the ability to create real time ingestion pipelines as this will enable users to ingest real time data according to their real time system and process requirements. 
+RTDIP has been built to simplify ingesting and querying time series data. One of the most anticipated features of the Real Time Data Ingestion Platform for 2023 is the ability to create streaming and batch ingestion pipelines according to requirements of the source of the data and needs of the data consumer. Of equal importance is the need to query this data and an article that focuses on egress will follow in due course. 
 
 ## Overview
 
-The goal of the Real Time Data Ingestion Pipeline framework is:
+The goal of the RTDIP Ingestion Pipeline framework is:
 
 1. Support python and pyspark to build pipeline components
 1. Enable execution of sources, transformers, sinks/destinations and utilities components in a framework that can execute them in a defined order
@@ -14,7 +14,7 @@ The goal of the Real Time Data Ingestion Pipeline framework is:
 
 ## Pipeline Jobs
 
-The Real Time Data Ingestion Pipeline Framework will follow the typical convention of a job that users will be familiar with if they have used orchestration engines such as Apache Airflow or Databricks Workflows.
+The RTDIP Data Ingestion Pipeline Framework will follow the typical convention of a job that users will be familiar with if they have used orchestration engines such as Apache Airflow or Databricks Workflows.
 
 A pipline job consists of the following components:
 
@@ -32,7 +32,6 @@ erDiagram
     string description
     string depends_on_task
     list step_list
-    string provide_output_to_task
     bool batch_task
   }
   STEP {
@@ -51,7 +50,7 @@ As per the above, a pipeline job consists of a list of tasks. Each task consists
 
 |Python|Apache Spark|Databricks|Delta Live Tables|
 |---------------------------|----------------------|--------------------------------------------------|-------|
-|![python](images/python.png)|![pyspark](images/apachespark.png)|![databricks](images/databricks_horizontal.png)|![delta](images/dlt.svg)
+|![python](images/python.png){: .image-center}|![pyspark](images/apachespark.png){: .image-center}|![databricks](images/databricks_horizontal.png){: .image-center}|![delta](images/dlt.svg){: .image-center}
 
 Pipelines will be able to run in multiple environment types. These will include:
 
@@ -68,7 +67,7 @@ Runtimes will take precedence depending on the list of components in a pipeline 
 
 ## Pipeline Clouds
 
-![azure-aws-gcp](images/aws-azure-gcp.png){: .center}
+![azure-aws-gcp](images/aws-azure-gcp.png){: .image-center}
 
 Certain components are related to cloud providers and in the tables below, it is indicated which cloud provider is related to its specific component. It does not mean that the component can only run in that cloud, instead its highlighting that the component is related to that cloud provider.
 
@@ -88,7 +87,7 @@ Pipelines will be able to be deployed to orchestration engines so that users can
 
 |Orchestration Engine|Target|
 |--------------------|------|
-| Databricks Workflows|Q1 2023|
+| Databricks Workflows|Q2 2023|
 | Airflow|Q2 2023|
 | Delta Live Tables|Q3 2023|
 | Dagster|Q4 2023|
