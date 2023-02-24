@@ -27,5 +27,8 @@
     "terminal.integrated.env.windows":{
         "PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"        
     },    				
-    "git.alwaysSignOff": true
+    "git.alwaysSignOff": true,
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "develop"
+    ]
 }
