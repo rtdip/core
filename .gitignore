@@ -129,3 +129,10 @@ dmypy.json
 .pyre/
 
 *.DS_Store
+
+# Spark
+spark-warehouse/
+spark-checkpoints/
+
+# Delta Sharing
+config.share

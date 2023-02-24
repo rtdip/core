@@ -48,3 +48,7 @@
   display: block;
   margin: 0 auto;
 }
+
+.mermaid {
+  text-align: center;
+}
