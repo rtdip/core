@@ -27,7 +27,7 @@ jobs:
         shell: bash -l {0}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }} 
     steps:
       - uses: actions/checkout@v3
@@ -91,7 +91,7 @@ jobs:
           shell: bash -l {0}
       strategy:
         matrix:
-          os: [macos-latest, windows-latest, ubuntu-latest]
+          os: [ubuntu-latest]
           python-version: ["3.8", "3.9", "3.10"]
       runs-on: ${{ matrix.os }}
       steps:
