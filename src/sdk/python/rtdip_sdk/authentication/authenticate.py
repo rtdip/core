@@ -132,14 +132,3 @@ class DefaultAuth:
         except Exception as e:
             logging.exception('error returning default azure credential')
             raise e
-
-class Authenticator:
-    """
-    The class used to authenticate to different systems.
-    
-    Args:
-        auth_class: Authentication class containing the users credentials
-    """
-    
-    def __init__(self, auth_class) -> None:
-        self.auth_class = auth_class
