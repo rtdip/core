@@ -74,6 +74,8 @@ plugins:
     - search
     - autorefs
     - mkdocstrings
+    - macros:
+        module_name: docs/macros
 
 markdown_extensions:
   - attr_list
@@ -132,7 +134,7 @@ nav:
           - 2023: roadmap/yearly-roadmaps/2023-development-roadmap.md
           - 2022: roadmap/yearly-roadmaps/2022-development-roadmap.md
     - Releases:
-          - Overview: releases/releases.md
+          - core: releases/core.md
     - Blog:
           - Overview: blog/overview.md
           - Posts:
