@@ -37,7 +37,7 @@ class MockRepository():
         ]
 
 class MockGithub():
-    def get_repo(owner, repo):
+    def get_repo(self, owner, repo=None):
         return MockRepository()
     
     def render_markdown(self, text, context=None):
