@@ -102,6 +102,8 @@ nav:
           - Why RTDIP: getting-started/why-rtdip.md
           - Installation: 
                 - RTDIP SDK: getting-started/installation.md
+    - Data Model:
+          - Scada: data-models/scada.md                
     - Integration:
           - Power BI: integration/power-bi.md
     - SDK:
