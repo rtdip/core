@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from github import Github
+import arrow
 
 def define_env(env):
     @env.macro
@@ -24,7 +25,7 @@ def define_env(env):
             title_markdown = "##[{}]({})".format(release.title, release.html_url)
             
             subtitle_markdown = ":octicons-tag-24:[{}]({}) ".format(release.tag_name, release.html_url)
-            subtitle_markdown += ":octicons-calendar-24: Published {} ".format(release.published_at)
+            subtitle_markdown += ":octicons-calendar-24: {} ".format(arrow.get(release.published_at).humanize())
             if release.draft:
                 subtitle_markdown += ":octicons-file-diff-24: Draft "
             if release.prerelease:
