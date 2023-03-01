@@ -4,6 +4,12 @@
 
 Overview of the Scada Data Model
 
+Overview of the Scada Data Model
+
+Overview of the Scada Data Model
+
+Overview of the Scada Data Model
+
 ## References
 
 | Reference  | Description        |
@@ -20,7 +26,7 @@ erDiagram
     string TagName PK
     string description
     string UoM
-    dict AdditionalProperties "Key Value pairs for system specific metadata"
+    dict Properties "Key Value pairs for system specific metadata"
   }
   EVENTS {
     date EventDate PK "Delta Partition Key"
@@ -36,7 +42,8 @@ erDiagram
 
 ### OPC UA
 
-| From | To Data Model | Details |
-|------|----|---------|
-| Time | EventTime| Maps as a timestamp|
+| From Data Model | From Field | From Type | To Data Model |To Field| To Type | Mapping Logic |
+|------|----|---------|------|------|--------|-----------|
+| OPCUA | Time | timestamp | EVENTS| EventTime | timestamp | Maps as a timestamp |
+| OPCUA | Value | string | EVENTS | Value | float | Convert string to float |
 
