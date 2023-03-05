@@ -25,18 +25,18 @@ class Fields(BaseModel):
     name: str
     type: str
 
-# @strawberry.pydantic.type(model=Fields, all_fields=True)
-# class FieldsQL:
-#     pass
+@strawberry.experimental.pydantic.type(model=Fields, all_fields=True)
+class FieldsQL:
+    pass
 
 class FieldSchema(BaseModel):
     fields: List[Fields]
     pandas_version: str
 
-# @strawberry.type
-# class FieldSchemaQL:
-#     fields: List[FieldsQL]
-#     pandas_version: str
+@strawberry.type
+class FieldSchemaQL:
+    fields: List[FieldsQL]
+    pandas_version: str
 
 class MetadataRow(BaseModel):
     TagName: str
@@ -66,10 +66,10 @@ class RawResponse(BaseModel):
     field_schema: FieldSchema = Field(None, alias='schema')
     data: List[RawRow]
 
-# @strawberry.type
-# class RawResponseQL:
-#     schema: FieldSchemaQL
-#     data: List[RawRowQL]
+@strawberry.type
+class RawResponseQL:
+    schema: FieldSchemaQL
+    data: List[RawRowQL]
 
 class ResampleInterpolateRow(BaseModel):
     EventTime: datetime
