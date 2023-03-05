@@ -33,6 +33,8 @@ tags_metadata = [
 ]
 
 description = """
+![rtdip](https://raw.githubusercontent.com/lf-energy/lfenergy-landscape/main/hosted_logos/rtdip.svg)
+
 APIs to interact with Real Time Data Ingestion Platform.  
 
 ## Authentication

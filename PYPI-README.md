@@ -1,3 +1,5 @@
+![rtdip](https://raw.githubusercontent.com/lf-energy/lfenergy-landscape/main/hosted_logos/rtdip.svg)
+
 # What is RTDIP SDK?
 
 ​​**Real Time Data Ingestion Platform (RTDIP) SDK** is a software development kit built to easily access some of RTDIP's transformation functions.
