@@ -66,10 +66,10 @@ class RawResponse(BaseModel):
     field_schema: FieldSchema = Field(None, alias='schema')
     data: List[RawRow]
 
-@strawberry.type
-class RawResponseQL:
-    schema: FieldSchemaQL
-    data: List[RawRowQL]
+# @strawberry.type
+# class RawResponseQL:
+#     schema: FieldSchemaQL
+#     data: List[RawRowQL]
 
 class ResampleInterpolateRow(BaseModel):
     EventTime: datetime
