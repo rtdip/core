@@ -1,4 +1,4 @@
-![rtdip](https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png)
+<center><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></center>
 
 # What is the RTDIP SDK?
 
