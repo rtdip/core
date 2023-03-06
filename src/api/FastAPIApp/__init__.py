@@ -37,9 +37,6 @@ description = """
 
 <p align="center"> <b> APIs to interact with Real Time Data Ingestion Platform </b></p>
 
-
-
-
 ## Authentication
 
 The below APIs use OAuth 2.0 authentication and Bearer tokens for authentication. For more information, please refer to our [documentation](https://www.rtdip.io/api/authentication/) for further information and examples on how to authenticate with the APIs.
