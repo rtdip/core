@@ -33,6 +33,8 @@ tags_metadata = [
 ]
 
 description = """
+<center><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></center>
+
 APIs to interact with Real Time Data Ingestion Platform.  
 
 ## Authentication
@@ -79,7 +81,7 @@ async def swagger_ui_html():
     return get_swagger_ui_html(
         openapi_url="api/openapi.json",
         title=TITLE + " - Swagger",
-        swagger_favicon_url="https://github.com/rtdip/core/blob/fe5c851b75a84ffc45d597b8785097cdd26769cc/docs/assets/favicon.png",
+        swagger_favicon_url="https://raw.githubusercontent.com/rtdip/core/develop/docs/assets/favicon.png",
         init_oauth={
             "usePkceWithAuthorizationCodeGrant": True, 
             "clientId": client_id,
@@ -97,5 +99,5 @@ async def redoc_ui_html():
     return get_redoc_html(
         openapi_url="api/openapi.json",
         title=TITLE + " - ReDoc",
-        redoc_favicon_url="https://github.com/rtdip/core/blob/fe5c851b75a84ffc45d597b8785097cdd26769cc/docs/assets/favicon.png"
+        redoc_favicon_url="https://raw.githubusercontent.com/rtdip/core/develop/docs/assets/favicon.png"
     )

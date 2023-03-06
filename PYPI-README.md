@@ -1,4 +1,6 @@
-# What is RTDIP SDK?
+<center><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></center>
+
+# What is the RTDIP SDK?
 
 ​​**Real Time Data Ingestion Platform (RTDIP) SDK** is a software development kit built to easily access some of RTDIP's transformation functions.
 
