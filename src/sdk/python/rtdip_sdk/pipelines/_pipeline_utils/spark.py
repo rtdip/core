@@ -15,8 +15,8 @@
 import logging
 from pyspark.sql import SparkSession
 from dotenv import load_dotenv
-from src.sdk.python.rtdip_sdk.pipelines.interfaces import PipelineComponentBaseInterface
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from ..interfaces import PipelineComponentBaseInterface
+from .models import Libraries, SystemType
 
 class SparkClient():
     spark_configuration: dict
@@ -34,7 +34,7 @@ class SparkClient():
             temp_spark_configuration = self.spark_configuration.copy()
             
             spark = SparkSession.builder
-            spark_app_name = "spark.app.name"
+            spark_app_name = "spark.app.name" 
             spark_master = "spark.master"
 
             if spark_app_name in temp_spark_configuration:
@@ -52,8 +52,22 @@ class SparkClient():
                 spark = spark.config(configuration[0], configuration[1])
 
             spark_session = spark.getOrCreate()
+            # TODO: Implemented in DBR 11 but not yet available in pyspark
+            # spark_session.streams.addListener(SparkStreamingListener())
             return spark_session
 
         except Exception as e:
             logging.exception('error with spark session function', e.__traceback__)
             raise e
+
+# # TODO: Implemented in DBR 11 but not yet available in open source pyspark
+# from pyspark.sql.streaming import StreamingQueryListener
+# class SparkStreamingListener(StreamingQueryListener):
+#     def onQueryStarted(self, event):
+#         logging.info("Query started: {} {}".format(event.id, event.name))
+
+#     def onQueryProgress(self, event):
+#         logging.info("Query Progress: {}".format(event))
+
+#     def onQueryTerminated(self, event):
+#         logging.info("Query terminated: {} {}".format(event.id, event.name))
