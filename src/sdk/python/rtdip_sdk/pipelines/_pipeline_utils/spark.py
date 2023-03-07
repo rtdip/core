@@ -34,14 +34,16 @@ class SparkClient():
             temp_spark_configuration = self.spark_configuration.copy()
             
             spark = SparkSession.builder
+            spark_app_name = "spark.app.name"
+            spark_master = "spark.master"
 
-            if "spark.app.name" in temp_spark_configuration:
-                spark = spark.appName(temp_spark_configuration["spark.app.name"])
-                temp_spark_configuration.pop("spark.app.name")
+            if spark_app_name in temp_spark_configuration:
+                spark = spark.appName(temp_spark_configuration[spark_app_name])
+                temp_spark_configuration.pop(spark_app_name)
 
-            if "spark.master" in temp_spark_configuration:
-                spark = spark.master(temp_spark_configuration["spark.master"])
-                temp_spark_configuration.pop("spark.master")
+            if spark_master in temp_spark_configuration:
+                spark = spark.master(temp_spark_configuration[spark_master])
+                temp_spark_configuration.pop(spark_master)
 
             if len(self.spark_libraries.maven_libraries) > 0:
                 temp_spark_configuration["spark.jars.packages"] = ','.join(maven_package.to_string() for maven_package in self.spark_libraries.maven_libraries)
@@ -50,22 +52,8 @@ class SparkClient():
                 spark = spark.config(configuration[0], configuration[1])
 
             spark_session = spark.getOrCreate()
-            # TODO: Implemented in DBR 11 but not yet available in pyspark
-            # spark_session.streams.addListener(SparkStreamingListener())
             return spark_session
 
         except Exception as e:
             logging.exception('error with spark session function', e.__traceback__)
             raise e
-
-# # TODO: Implemented in DBR 11 but not yet available in open source pyspark
-# from pyspark.sql.streaming import StreamingQueryListener
-# class SparkStreamingListener(StreamingQueryListener):
-#     def onQueryStarted(self, event):
-#         logging.info("Query started: {} {}".format(event.id, event.name))
-
-#     def onQueryProgress(self, event):
-#         logging.info("Query Progress: {}".format(event))
-
-#     def onQueryTerminated(self, event):
-#         logging.info("Query terminated: {} {}".format(event.id, event.name))
