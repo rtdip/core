@@ -39,19 +39,20 @@ dependencies:
     - httpx==0.23.1
     - trio==0.22.0
     - pyspark==3.3.2
-    - delta-spark>=2.2.0
+    - delta-spark==2.2.0
     - openjdk==11.0.15    
-    - python-dotenv>=0.21.1
+    - python-dotenv==1.0.0
     - mkdocstrings==0.20.0
     - mkdocstrings-python==0.8.3
     - mkdocs-macros-plugin==0.7.0
-    - pygments>=2.14
-    - pymdown-extensions>=9.9.2
+    - pygments==2.14
+    - pymdown-extensions==9.10
+    - airflow[databricks]==2.5.1
     - pip:
-          - dependency-injector>=4.41.0
+          - dependency-injector==4.41.0
           - azure-functions==1.12.0
-          - dbx==0.8.9
           - databricks-sql-connector==2.4.0
+          - dbx==0.8.9
           - pygithub==1.58.0
           - strawberry-graphql[fastapi]==0.159.0
           - nest_asyncio==1.5.6
