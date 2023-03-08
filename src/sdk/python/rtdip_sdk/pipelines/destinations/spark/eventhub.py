@@ -14,19 +14,18 @@
 
 import logging
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.types import StructType, StructField, BinaryType, StringType, LongType, TimestampType, MapType
+from py4j.protocol import Py4JJavaError
 
-from ..interfaces import SourceInterface
+from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, MavenLibrary, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
-class SparkEventhubSource(SourceInterface):
+class SparkEventhubDestination(DestinationInterface):
     '''
-    This Spark source class is used to read batch or streaming data from Event Hubs. Event Hub configurations need to be specified as options in a dictionary.
+    This Spark destination class is used to write batch or streaming data to Event Hubs. Event Hub configurations need to be specified as options in a dictionary.
     Additionally, there are more optional configuration which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration)
     If using startingPosition or endingPosition make sure to check out **Event Position** section for more details and examples.
     Args:
-        spark: Spark Session
         options: A dictionary of Event Hub configurations (See Attributes table below)
 
     Attributes:
@@ -34,27 +33,12 @@ class SparkEventhubSource(SourceInterface):
         eventhubs.consumerGroup (str): A consumer group is a view of an entire event hub. Consumer groups enable multiple consuming applications to each have a separate view of the event stream, and to read the stream independently at their own pace and with their own offsets.
         eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition.
         eventhubs.endingPosition: (JSON str): The ending position of a batch query. This works the same as startingPosition.
-        maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume.
-    
+        maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. 
     '''
-    spark: SparkSession
     options: dict
 
-    def __init__(self, spark: SparkSession, options: dict) -> None:
-        self.spark = spark
+    def __init__(self,options: dict) -> None:
         self.options = options
-        self.schema = StructType(
-            [StructField('body', BinaryType(), True), 
-             StructField('partition', StringType(), True), 
-             StructField('offset', StringType(), True), 
-             StructField('sequenceNumber', LongType(), True), 
-             StructField('enqueuedTime', TimestampType(), True), 
-             StructField('publisher', StringType(), True), 
-             StructField('partitionKey', StringType(), True), 
-             StructField('properties', MapType(StringType(), StringType(), True), True), 
-             StructField('systemProperties', MapType(StringType(), StringType(), True), True)]
-        )
-
 
     @staticmethod
     def system_type():
@@ -68,53 +52,52 @@ class SparkEventhubSource(SourceInterface):
     
     @staticmethod
     def settings() -> dict:
-        return {}
+        return {
+            "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
+            "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+        }
     
-    def pre_read_validation(self) -> bool:
+    def pre_write_validation(self):
         return True
     
-    def post_read_validation(self, df: DataFrame) -> bool:
-        assert df.schema == self.schema
+    def post_write_validation(self):
         return True
 
-    def read_batch(self) -> DataFrame:
+    def write_batch(self, df: DataFrame):
         '''
-        Reads batch data from Event Hubs.
+        Writes batch data to Event Hubs.
         '''
         try:
-            if "eventhubs.connectionString" in self.options:
-                sc = self.spark.sparkContext
-                self.options["eventhubs.connectionString"] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(self.options["eventhubs.connectionString"])
-
-            return (self.spark
-                .read
+            return (
+                df
+                .write
                 .format("eventhubs")
                 .options(**self.options)
-                .load()
+                .save()
             )
 
+        except Py4JJavaError as e:
+            logging.exception('error with spark write function', e.errmsg)
+            raise e
         except Exception as e:
-            print(e)
-            logging.exception("error with spark read batch eventhub function")
+            logging.exception('error with spark write batch delta function', e.__traceback__)
             raise e
         
-    def read_stream(self) -> DataFrame:
+    def write_stream(self, df: DataFrame, options: dict, mode: str = "append") -> DataFrame:
         '''
-        Reads streaming data from Event Hubs.
+        Writes steaming data to Event Hubs.
         '''
         try:
-            if "eventhubs.connectionString" in self.options:
-                sc = self.spark.sparkContext
-                self.options["eventhubs.connectionString"] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(self.options["eventhubs.connectionString"])
-
-            return (self.spark
-                .readStream
+            return (df
+                .writeStream
                 .format("eventhubs")
                 .options(**self.options)
-                .load()
+                .start()
             )
 
+        except Py4JJavaError as e:
+            logging.exception('error with spark write function', e.errmsg)
+            raise e
         except Exception as e:
-            print(e)
-            logging.exception("error with spark read stream eventhub function")
+            logging.exception('error with spark write stream delta function', e.__traceback__)
             raise e
