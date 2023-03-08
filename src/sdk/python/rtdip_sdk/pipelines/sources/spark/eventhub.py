@@ -22,6 +22,20 @@ from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class SparkEventhubSource(SourceInterface):
     '''
+    This Spark source class is used to read batch or streaming data from Event Hubs. Event Hub configurations will need to specified as options in a dictionary.
+    Additionally, there are more optional configuration which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration)
+    If using startingPosition or endingPosition make sure to check out **Event Position** section for more details and examples.
+    Args:
+        spark: Spark Session
+        options: A dictionary of Event Hub configurations (See Attributes table below)
+
+    Attributes:
+        eventhubs.connectionString (str):  Event Hubs connection string is required to connect to the Event Hubs service.
+        eventhubs.consumerGroup (str): A consumer group is a view of an entire event hub. Consumer groups enable multiple consuming applications to each have a separate view of the event stream, and to read the stream independently at their own pace and with their own offsets.
+        eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition.
+        eventhubs.endingPosition: (JSON str): The ending position of a batch query. This works the same as startingPosition.
+        maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume.
+    
     '''
     spark: SparkSession
     options: dict
@@ -65,6 +79,7 @@ class SparkEventhubSource(SourceInterface):
 
     def read_batch(self) -> DataFrame:
         '''
+        Reads batch data from Event Hubs.
         '''
         try:
             if "eventhubs.connectionString" in self.options:
@@ -84,6 +99,9 @@ class SparkEventhubSource(SourceInterface):
             raise e
         
     def read_stream(self) -> DataFrame:
+        '''
+        Reads batch data from Event Hubs.
+        '''
         try:
             if "eventhubs.connectionString" in self.options:
                 sc = self.spark.sparkContext
