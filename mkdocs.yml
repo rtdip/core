@@ -126,6 +126,9 @@ nav:
                       - Sources:
                             - Spark:
                                  - Eventhub: sdk/code-reference/pipelines/sources/spark/eventhub.md
+                      - Destinations:
+                            - Spark:
+                                 - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
 
     - API:
           - Overview: api/overview.md
