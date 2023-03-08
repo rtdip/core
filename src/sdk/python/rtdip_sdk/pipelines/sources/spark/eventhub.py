@@ -85,6 +85,10 @@ class SparkEventhubSource(SourceInterface):
             raise e
         
     def read_stream(self) -> DataFrame:
+        '''
+        test read stream documentation doc strings
+
+        '''
         try:
             if "eventhubs.connectionString" in self.options:
                 sc = self.spark.sparkContext

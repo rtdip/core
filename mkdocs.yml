@@ -110,18 +110,25 @@ nav:
           - SQL Warehouses: sdk/sqlwarehouses/sql-warehouses.md
           - Troubleshooting: sdk/troubleshooting.md
           - Code Reference:
-                - Connectors:
-                      - Databricks SQL Connector: sdk/code-reference/db-sql-connector.md
-                      - PYODBC SQL Connector: sdk/code-reference/pyodbc-sql-connector.md
-                      - TURBODBC SQL Connector: sdk/code-reference/turbodbc-sql-connector.md
-                - Authenticators:
-                      - Authentication: sdk/code-reference/authenticate.md
-                - Functions:
-                      - Resample: sdk/code-reference/resample.md
-                      - Interpolate: sdk/code-reference/interpolate.md
-                      - Raw: sdk/code-reference/raw.md
-                      - Time Weighted Average: sdk/code-reference/time-weighted-average.md
-                      - Metadata: sdk/code-reference/metadata.md
+                - Queries:
+                      - Connectors:
+                            - Databricks SQL Connector: sdk//code-reference/query/db-sql-connector.md
+                            - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
+                            - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
+                      - Authenticators:
+                            - Authentication: sdk/code-reference/query/authenticate.md
+                      - Functions:
+                            - Resample: sdk/code-reference/query/resample.md
+                            - Interpolate: sdk/code-reference/query/interpolate.md
+                            - Raw: sdk/code-reference/query/raw.md
+                            - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
+                            - Metadata: sdk/code-reference/query/metadata.md
+                - Pipelines:
+                      - Sources:
+                            - Spark:
+                                 - Delta: sdk/code-reference/pipelines/sources/spark/delta.md 
+                                 - Delta Sharing: sdk/code-reference/pipelines/sources/spark/delta_sharing.md
+                                 - Eventhub: sdk/code-reference/pipelines/sources/spark/eventhub.md
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md
