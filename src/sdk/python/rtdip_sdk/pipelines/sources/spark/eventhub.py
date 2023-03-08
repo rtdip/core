@@ -100,7 +100,7 @@ class SparkEventhubSource(SourceInterface):
         
     def read_stream(self) -> DataFrame:
         '''
-        Reads batch data from Event Hubs.
+        Reads streaming data from Event Hubs.
         '''
         try:
             if "eventhubs.connectionString" in self.options:
