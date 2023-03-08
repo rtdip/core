@@ -20,7 +20,6 @@ site_author: Real Time Data Ingestion Platform
 site_description: >-
   Easy access to high volume, historical and real time process data 
   for analytics applications, engineers, and data scientists wherever they are.
-
 # Repository
 repo_name: rtdip/core
 repo_url: https://github.com/rtdip/core/
@@ -41,7 +40,7 @@ theme:
         - content.code.annotate
         - content.tabs.link
         - content.tooltips
-        - navigation.expand
+        #- navigation.expand
         - navigation.indexes
         - navigation.instant
         - navigation.sections
@@ -126,9 +125,8 @@ nav:
                 - Pipelines:
                       - Sources:
                             - Spark:
-                                 - Delta: sdk/code-reference/pipelines/sources/spark/delta.md 
-                                 - Delta Sharing: sdk/code-reference/pipelines/sources/spark/delta_sharing.md
                                  - Eventhub: sdk/code-reference/pipelines/sources/spark/eventhub.md
+
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md

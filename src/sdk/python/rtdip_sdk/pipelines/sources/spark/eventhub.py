@@ -65,7 +65,6 @@ class SparkEventhubSource(SourceInterface):
 
     def read_batch(self) -> DataFrame:
         '''
-        test read batch documentation doc strings
         '''
         try:
             if "eventhubs.connectionString" in self.options:
@@ -85,10 +84,6 @@ class SparkEventhubSource(SourceInterface):
             raise e
         
     def read_stream(self) -> DataFrame:
-        '''
-        test read stream documentation doc strings
-
-        '''
         try:
             if "eventhubs.connectionString" in self.options:
                 sc = self.spark.sparkContext
