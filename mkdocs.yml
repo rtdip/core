@@ -20,7 +20,6 @@ site_author: Real Time Data Ingestion Platform
 site_description: >-
   Easy access to high volume, historical and real time process data 
   for analytics applications, engineers, and data scientists wherever they are.
-
 # Repository
 repo_name: rtdip/core
 repo_url: https://github.com/rtdip/core/
@@ -41,7 +40,7 @@ theme:
         - content.code.annotate
         - content.tabs.link
         - content.tooltips
-        - navigation.expand
+        #- navigation.expand
         - navigation.indexes
         - navigation.instant
         - navigation.sections
@@ -110,18 +109,27 @@ nav:
           - SQL Warehouses: sdk/sqlwarehouses/sql-warehouses.md
           - Troubleshooting: sdk/troubleshooting.md
           - Code Reference:
-                - Connectors:
-                      - Databricks SQL Connector: sdk/code-reference/db-sql-connector.md
-                      - PYODBC SQL Connector: sdk/code-reference/pyodbc-sql-connector.md
-                      - TURBODBC SQL Connector: sdk/code-reference/turbodbc-sql-connector.md
-                - Authenticators:
-                      - Authentication: sdk/code-reference/authenticate.md
-                - Functions:
-                      - Resample: sdk/code-reference/resample.md
-                      - Interpolate: sdk/code-reference/interpolate.md
-                      - Raw: sdk/code-reference/raw.md
-                      - Time Weighted Average: sdk/code-reference/time-weighted-average.md
-                      - Metadata: sdk/code-reference/metadata.md
+                - Queries:
+                      - Connectors:
+                            - Databricks SQL Connector: sdk//code-reference/query/db-sql-connector.md
+                            - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
+                            - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
+                      - Authenticators:
+                            - Authentication: sdk/code-reference/query/authenticate.md
+                      - Functions:
+                            - Resample: sdk/code-reference/query/resample.md
+                            - Interpolate: sdk/code-reference/query/interpolate.md
+                            - Raw: sdk/code-reference/query/raw.md
+                            - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
+                            - Metadata: sdk/code-reference/query/metadata.md
+                - Pipelines:
+                      - Sources:
+                            - Spark:
+                                 - Eventhub: sdk/code-reference/pipelines/sources/spark/eventhub.md
+                      - Destinations:
+                            - Spark:
+                                 - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
+
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md
