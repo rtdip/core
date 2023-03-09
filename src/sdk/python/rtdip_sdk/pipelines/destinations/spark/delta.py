@@ -31,8 +31,8 @@ class SparkDeltaDestination(DestinationInterface):
         table_name: Name of the Hive Metastore or Unity Catalog Delta Table
         options: Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options available is [here](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source)
         mode: Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
-        trigger: Frequency of the write operation
-        query_name: 
+        trigger (str): Frequency of the write operation
+        query_name (str): Unique name for the query in associated SparkSession
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files.
