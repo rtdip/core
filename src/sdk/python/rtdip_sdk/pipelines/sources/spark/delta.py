@@ -23,18 +23,16 @@ class SparkDeltaSource(SourceInterface):
     '''
     The Spark Delta Source is used to read data from a Delta table. 
 
-    The connection class represents a connection to a database and uses the Databricks SQL Connector API's for Python to intereact with cluster/jobs.
-    To find details for SQL warehouses server_hostname and http_path location to the SQL Warehouse tab in the documentation.
     Args:
         spark: Spark Session required to read data from a Delta table
-        options: Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options available is [here](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source)
+        options: Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table) and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source).
         table_name: Name of the Hive Metastore or Unity Catalog Delta Table
 
     Attributes:
         maxFilesPerTrigger (int): How many new files to be considered in every micro-batch. The default is 1000.
         maxBytesPerTrigger (int): How much data gets processed in each micro-batch.
-        ignoreDeletes (bool str): ignore transactions that delete data at partition boundaries.
-        ignoreChanges (bool str): re-process updates if files had to be rewritten in the source table due to a data changing operation.
+        ignoreDeletes (bool str): Ignore transactions that delete data at partition boundaries.
+        ignoreChanges (bool str): Pre-process updates if files had to be rewritten in the source table due to a data changing operation.
         startingVersion (int str): The Delta Lake version to start from.
         startingTimestamp (datetime str): The timestamp to start from.
         withEventTimeOrder (bool str): Whether the initial snapshot should be processed with event time order.

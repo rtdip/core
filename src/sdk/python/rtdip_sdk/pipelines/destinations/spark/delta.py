@@ -25,11 +25,9 @@ class SparkDeltaDestination(DestinationInterface):
     '''
     The Spark Delta Source is used to write data to a Delta table. 
 
-    The connection class represents a connection to a database and uses the Databricks SQL Connector API's for Python to intereact with cluster/jobs.
-    To find details for SQL warehouses server_hostname and http_path location to the SQL Warehouse tab in the documentation.
     Args:
         table_name: Name of the Hive Metastore or Unity Catalog Delta Table
-        options: Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options available is [here](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source)
+        options: Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table) and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink).
         mode: Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
