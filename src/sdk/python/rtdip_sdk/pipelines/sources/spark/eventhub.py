@@ -81,10 +81,11 @@ class SparkEventhubSource(SourceInterface):
         '''
         Reads batch data from Event Hubs.
         '''
+        eventhub_connection_string = "eventhubs.connectionString"
         try:
-            if "eventhubs.connectionString" in self.options:
+            if eventhub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options["eventhubs.connectionString"] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(self.options["eventhubs.connectionString"])
+                self.options[eventhub_connection_string] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(self.options[eventhub_connection_string])
 
             return (self.spark
                 .read
@@ -102,10 +103,11 @@ class SparkEventhubSource(SourceInterface):
         '''
         Reads streaming data from Event Hubs.
         '''
+        eventhub_connection_string = "eventhubs.connectionString"
         try:
-            if "eventhubs.connectionString" in self.options:
+            if eventhub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options["eventhubs.connectionString"] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(self.options["eventhubs.connectionString"])
+                self.options[eventhub_connection_string] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(self.options[eventhub_connection_string])
 
             return (self.spark
                 .readStream
