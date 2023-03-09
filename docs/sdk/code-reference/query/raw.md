@@ -29,4 +29,4 @@ print(x)
 This example is using [```DefaultAuth()```](authenticate.md) and [```DatabricksSQLConnection()```](db-sql-connector.md) to authenticate and connect. You can find other ways to authenticate [here](authenticate.md). The alternative built in connection methods are either by [```PYODBCSQLConnection()```](pyodbc-sql-connector.md) or [```TURBODBCSQLConnection()```](turbodbc-sql-connector.md). 
 
 !!! note "Note"
-    </b>```server_hostname``` and ```http_path``` can be found on the [SQL Warehouses Page](../sqlwarehouses/sql-warehouses.md). <br />
+    </b>```server_hostname``` and ```http_path``` can be found on the [SQL Warehouses Page](../../sqlwarehouses/sql-warehouses.md). <br />
