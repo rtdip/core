@@ -29,11 +29,11 @@ class SparkEventhubDestination(DestinationInterface):
         options: A dictionary of Event Hub configurations (See Attributes table below)
 
     Attributes:
-        eventhubs.connectionString (str):  Event Hubs connection string is required to connect to the Event Hubs service.
-        eventhubs.consumerGroup (str): A consumer group is a view of an entire event hub. Consumer groups enable multiple consuming applications to each have a separate view of the event stream, and to read the stream independently at their own pace and with their own offsets.
-        eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition.
-        eventhubs.endingPosition: (JSON str): The ending position of a batch query. This works the same as startingPosition.
-        maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. 
+        eventhubs.connectionString (str):  Event Hubs connection string is required to connect to the Event Hubs service. (Streaming and Batch)
+        eventhubs.consumerGroup (str): A consumer group is a view of an entire event hub. Consumer groups enable multiple consuming applications to each have a separate view of the event stream, and to read the stream independently at their own pace and with their own offsets. (Streaming and Batch)
+        eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition. (Streaming and Batch)
+        eventhubs.endingPosition: (JSON str): The ending position of a batch query. This works the same as startingPosition. (Batch)
+        maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. (Stream)
     '''
     options: dict
 
