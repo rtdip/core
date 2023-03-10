@@ -29,15 +29,15 @@ class SparkDeltaSource(SourceInterface):
         table_name: Name of the Hive Metastore or Unity Catalog Delta Table
 
     Attributes:
-        maxFilesPerTrigger (int): How many new files to be considered in every micro-batch. The default is 1000.
-        maxBytesPerTrigger (int): How much data gets processed in each micro-batch.
-        ignoreDeletes (bool str): Ignore transactions that delete data at partition boundaries.
-        ignoreChanges (bool str): Pre-process updates if files had to be rewritten in the source table due to a data changing operation.
-        startingVersion (int str): The Delta Lake version to start from.
-        startingTimestamp (datetime str): The timestamp to start from.
-        withEventTimeOrder (bool str): Whether the initial snapshot should be processed with event time order.
-        timestampAsOf (datetime str): Query the Delta Table from a specific point in time.
-        versionAsOf (int str): Query the Delta Table from a specific version.
+        maxFilesPerTrigger (int): How many new files to be considered in every micro-batch. The default is 1000. (Streaming)
+        maxBytesPerTrigger (int): How much data gets processed in each micro-batch. (Streaming)
+        ignoreDeletes (bool str): Ignore transactions that delete data at partition boundaries. (Streaming)
+        ignoreChanges (bool str): Pre-process updates if files had to be rewritten in the source table due to a data changing operation. (Streaming)
+        startingVersion (int str): The Delta Lake version to start from. (Streaming)
+        startingTimestamp (datetime str): The timestamp to start from. (Streaming)
+        withEventTimeOrder (bool str): Whether the initial snapshot should be processed with event time order. (Streaming)
+        timestampAsOf (datetime str): Query the Delta Table from a specific point in time. (Batch)
+        versionAsOf (int str): Query the Delta Table from a specific version. (Batch)
     ''' 
     spark: SparkSession
     options: dict
@@ -70,7 +70,7 @@ class SparkDeltaSource(SourceInterface):
 
     def read_batch(self):
         '''
-        Reads batch data from Delta.
+        Reads batch data from Delta. Most of the options provided by the Apache Spark DataFrame read API are supported for performing batch reads on Delta tables.
         '''
         try:
             return (self.spark
@@ -86,7 +86,7 @@ class SparkDeltaSource(SourceInterface):
         
     def read_stream(self) -> DataFrame:
         '''
-        Reads streaming data from Delta.
+        Reads streaming data from Delta. All of the data in the table is processed as well as any new data that arrives after the stream started. .load() can take table name or path.
         '''
         try:
             return (self.spark

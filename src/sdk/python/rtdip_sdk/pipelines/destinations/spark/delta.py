@@ -33,13 +33,13 @@ class SparkDeltaDestination(DestinationInterface):
         query_name (str): Unique name for the query in associated SparkSession
 
     Attributes:
-        checkpointLocation (str): Path to checkpoint files.
-        txnAppId (str): A unique string that you can pass on each DataFrame write.
-        txnVersion (str): A monotonically increasing number that acts as transaction version.
-        maxRecordsPerFile (int str): Specify the maximum number of records to write to a single file for a Delta Lake table. 
-        replaceWhere (str): Condition(s) for overwriting.
-        partitionOverwriteMode (str): When set to dynamic, overwrites all existing data in each logical partition for which the write will commit new data. Default is static.
-        overwriteSchema (bool str): If True, overwrites the schema as well as the table data.
+        checkpointLocation (str): Path to checkpoint files. (Streaming)
+        txnAppId (str): A unique string that you can pass on each DataFrame write. (Batch & Streaming)
+        txnVersion (str): A monotonically increasing number that acts as transaction version. (Batch & Streaming)
+        maxRecordsPerFile (int str): Specify the maximum number of records to write to a single file for a Delta Lake table. (Batch)
+        replaceWhere (str): Condition(s) for overwriting. (Batch)
+        partitionOverwriteMode (str): When set to dynamic, overwrites all existing data in each logical partition for which the write will commit new data. Default is static. (Batch)
+        overwriteSchema (bool str): If True, overwrites the schema as well as the table data. (Batch)
     '''
     table_name: str
     options: dict
@@ -79,7 +79,7 @@ class SparkDeltaDestination(DestinationInterface):
 
     def write_batch(self, df: DataFrame):
         '''
-        Writes batch data to Delta.
+        Writes batch data to Delta. Most of the options provided by the Apache Spark DataFrame write API are supported for performing batch writes on tables.
         '''
         try:
             return (
@@ -100,7 +100,7 @@ class SparkDeltaDestination(DestinationInterface):
         
     def write_stream(self, df: DataFrame) -> DataFrame:
         '''
-        Writes steaming data to Delta.
+        Writes streaming data to Delta. Exactly-once processing is guaranteed
         '''
         try:
             query = (df
