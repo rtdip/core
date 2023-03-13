@@ -23,7 +23,7 @@ from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 class SparkEventhubDestination(DestinationInterface):
     '''
     This Spark destination class is used to write batch or streaming data to Event Hubs. Event Hub configurations need to be specified as options in a dictionary.
-    Additionally, there are more optional configuration which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration)
+    Additionally, there are more optional configuration which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
     If using startingPosition or endingPosition make sure to check out **Event Position** section for more details and examples.
     Args:
         options: A dictionary of Event Hub configurations (See Attributes table below)

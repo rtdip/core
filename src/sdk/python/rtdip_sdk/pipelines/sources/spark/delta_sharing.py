@@ -14,39 +14,41 @@
 
 import logging
 from pyspark.sql import DataFrame, SparkSession
+from py4j.protocol import Py4JJavaError
 
 from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, MavenLibrary, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
-class SparkDeltaSource(SourceInterface):
+class SparkDeltaSharingSource(SourceInterface):
     '''
-    The Spark Delta Source is used to read data from a Delta table. 
+    The Spark Delta Sharing Source is used to read data from a Delta table where Delta sharing is configured 
 
     Args:
         spark: Spark Session required to read data from a Delta table
-        options: Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source){ target="_blank" }.
-        table_name: Name of the Hive Metastore or Unity Catalog Delta Table
+        options: Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available [here](https://docs.databricks.com/data-sharing/read-data-open.html#apache-spark-read-shared-data){ target="_blank" }
+        table_path: Path to credentials file and Delta table to query
 
     Attributes:
-        maxFilesPerTrigger (int): How many new files to be considered in every micro-batch. The default is 1000. (Streaming)
-        maxBytesPerTrigger (int): How much data gets processed in each micro-batch. (Streaming)
         ignoreDeletes (bool str): Ignore transactions that delete data at partition boundaries. (Streaming)
         ignoreChanges (bool str): Pre-process updates if files had to be rewritten in the source table due to a data changing operation. (Streaming)
         startingVersion (int str): The Delta Lake version to start from. (Streaming)
         startingTimestamp (datetime str): The timestamp to start from. (Streaming)
-        withEventTimeOrder (bool str): Whether the initial snapshot should be processed with event time order. (Streaming)
+        maxFilesPerTrigger (int): How many new files to be considered in every micro-batch. The default is 1000. (Streaming)
+        maxBytesPerTrigger (int): How much data gets processed in each micro-batch. (Streaming)
+        readChangeFeed (bool str): Stream read the change data feed of the shared table. (Batch & Streaming)
         timestampAsOf (datetime str): Query the Delta Table from a specific point in time. (Batch)
         versionAsOf (int str): Query the Delta Table from a specific version. (Batch)
     ''' 
+    
     spark: SparkSession
     options: dict
-    table_name: str
+    table_path: str
 
-    def __init__(self, spark: SparkSession, options: dict, table_name: str) -> None:
+    def __init__(self, spark: SparkSession, options: dict, table_path: str) -> None:
         self.spark = spark
         self.options = options
-        self.table_name = table_name
+        self.table_path = table_path
 
     @staticmethod
     def system_type():
@@ -55,7 +57,7 @@ class SparkDeltaSource(SourceInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
+        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_sharing"])
         return libraries
     
     @staticmethod
@@ -75,13 +77,16 @@ class SparkDeltaSource(SourceInterface):
         try:
             return (self.spark
                 .read
-                .format("delta")
+                .format("deltaSharing")
                 .options(**self.options)
-                .table(self.table_name)
+                .table(self.table_path)
             )
 
+        except Py4JJavaError as e:
+            logging.exception('error with spark read batch delta sharing function', e.errmsg)
+            raise e
         except Exception as e:
-            logging.exception('error with spark read batch delta function', e.__traceback__)
+            logging.exception('error with spark read batch delta sharing function', e.__traceback__)
             raise e
         
     def read_stream(self) -> DataFrame:
@@ -91,11 +96,14 @@ class SparkDeltaSource(SourceInterface):
         try:
             return (self.spark
                 .readStream
-                .format("delta")
+                .format("deltaSharing")
                 .options(**self.options)
-                .load(self.table_name)
+                .load(self.table_path)
             )
-
+        
+        except Py4JJavaError as e:
+            logging.exception('error with spark read stream delta sharing function', e.errmsg)
+            raise e
         except Exception as e:
-            logging.exception('error with spark read stream delta function', e.__traceback__)
+            logging.exception('error with spark read stream delta sharing function', e.__traceback__)
             raise e
