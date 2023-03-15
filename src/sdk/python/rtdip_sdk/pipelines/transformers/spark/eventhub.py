@@ -19,9 +19,16 @@ from ..._pipeline_utils.models import Libraries, SystemType
 
 class EventhubBodyBinaryToString(TransformerInterface):
     '''
+    Converts the Eventhub dataframe body column from a binary to a string.
+
+
     ''' 
     @staticmethod
     def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''
         return SystemType.PYSPARK
 
     @staticmethod
@@ -41,6 +48,11 @@ class EventhubBodyBinaryToString(TransformerInterface):
 
     def transform(self, df: DataFrame) -> DataFrame:
         '''
+        Args:
+            df (DataFrame): A dataframe based on the structure of the Spark Eventhub connector.
+
+        Returns:
+            DataFrame: A dataframe with the body column converted to string.
         '''
         return (
             df
