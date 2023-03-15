@@ -132,7 +132,9 @@ nav:
                             - Spark:
                                  - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
                                  - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
-
+                      - Transformers:
+                            - Spark:
+                                 - Eventhub: sdk/code-reference/pipelines/transformers/spark/eventhub.md
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md
