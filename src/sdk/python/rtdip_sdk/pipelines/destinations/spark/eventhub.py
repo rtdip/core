@@ -22,15 +22,15 @@ from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class SparkEventhubDestination(DestinationInterface):
     '''
-    This Spark destination class is used to write batch or streaming data to Event Hubs. Event Hub configurations need to be specified as options in a dictionary.
+    This Spark destination class is used to write batch or streaming data to Eventhubs. Eventhub configurations need to be specified as options in a dictionary.
     Additionally, there are more optional configuration which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
     If using startingPosition or endingPosition make sure to check out **Event Position** section for more details and examples.
     Args:
-        options: A dictionary of Event Hub configurations (See Attributes table below)
+        options: A dictionary of Eventhub configurations (See Attributes table below)
 
     Attributes:
-        eventhubs.connectionString (str):  Event Hubs connection string is required to connect to the Event Hubs service. (Streaming and Batch)
-        eventhubs.consumerGroup (str): A consumer group is a view of an entire event hub. Consumer groups enable multiple consuming applications to each have a separate view of the event stream, and to read the stream independently at their own pace and with their own offsets. (Streaming and Batch)
+        eventhubs.connectionString (str):  Eventhubs connection string is required to connect to the Eventhubs service. (Streaming and Batch)
+        eventhubs.consumerGroup (str): A consumer group is a view of an entire eventhub. Consumer groups enable multiple consuming applications to each have a separate view of the event stream, and to read the stream independently at their own pace and with their own offsets. (Streaming and Batch)
         eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition. (Streaming and Batch)
         eventhubs.endingPosition: (JSON str): The ending position of a batch query. This works the same as startingPosition. (Batch)
         maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. (Stream)
@@ -65,7 +65,7 @@ class SparkEventhubDestination(DestinationInterface):
 
     def write_batch(self, df: DataFrame):
         '''
-        Writes batch data to Event Hubs.
+        Writes batch data to Eventhubs.
         '''
         try:
             return (
@@ -77,15 +77,15 @@ class SparkEventhubDestination(DestinationInterface):
             )
 
         except Py4JJavaError as e:
-            logging.exception('error with spark write function', e.errmsg)
+            logging.exception('error with spark write batch eventhub function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark write batch delta function', e.__traceback__)
+            logging.exception('error with spark write batch eventhub function', e.__traceback__)
             raise e
         
     def write_stream(self, df: DataFrame, options: dict, mode: str = "append") -> DataFrame:
         '''
-        Writes steaming data to Event Hubs.
+        Writes steaming data to Eventhubs.
         '''
         try:
             return (df
@@ -96,8 +96,8 @@ class SparkEventhubDestination(DestinationInterface):
             )
 
         except Py4JJavaError as e:
-            logging.exception('error with spark write function', e.errmsg)
+            logging.exception('error with spark write stream eventhub function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark write stream delta function', e.__traceback__)
+            logging.exception('error with spark write stream eventhub function', e.__traceback__)
             raise e
