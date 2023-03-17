@@ -34,20 +34,3 @@ class Clients(containers.DeclarativeContainer):
         spark_libraries=Configs.spark_libraries,
     )
 
-# class Factories(containers.DeclarativeContainer):
-#     """Container for pipeline factories."""
-
-#     source_spark_eventhub_factory = providers.Factory(
-#         SparkEventhubSource,
-#         spark=Clients.spark_client().spark_session,
-#         options=Configs.component_configuration,
-#     )
-
-# def ComponentContainer():
-#     """Container for pipeline components."""
-
-#     components = containers.DynamicContainer()
-#     components.source_spark_eventhub = Factories.source_spark_eventhub_factory()
-
-#     return component_container
-# component_container = containers.DynamicContainer()

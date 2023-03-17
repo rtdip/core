@@ -31,7 +31,6 @@ def test_pipeline_job_execute(spark_session: SparkSession, mocker: MockerFixture
     step_list = []
 
     # read step
-    # connection_string_secret = PipelineSecrets(type="AzureKeyVault", name="azasex", secret_name="eventhub-connection-string")
     connection_string = "Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;EntityPath=test"
     eventhub_configuration = {
         "eventhubs.connectionString": connection_string, 
