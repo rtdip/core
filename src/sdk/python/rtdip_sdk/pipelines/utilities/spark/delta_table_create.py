@@ -19,7 +19,8 @@ from py4j.protocol import Py4JJavaError
 from delta.tables import DeltaTable
 
 from ..interfaces import UtilitiesInterface
-from ..._pipeline_utils.models import Libraries, MavenLibrary, SystemType
+from ..._pipeline_utils.models import Libraries, SystemType
+from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class DeltaTableCreateUtility(UtilitiesInterface):
     '''
@@ -58,20 +59,14 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_maven_library(
-            MavenLibrary(
-                group_id="io.delta",
-                artifact_id="delta-core_2.12",
-                version="2.2.0"
-            )
-        )
+        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
         return libraries
     
     @staticmethod
     def settings() -> dict:
         return {}
 
-    def execute(self):
+    def execute(self) -> bool:
         try:
             delta_table = (
                 DeltaTable
@@ -94,7 +89,8 @@ class DeltaTableCreateUtility(UtilitiesInterface):
                 delta_table = delta_table.comment(self.comment)
 
             delta_table.execute()
-
+            return True
+        
         except Py4JJavaError as e:
             logging.exception('error with spark delta table create function', e.errmsg)
             raise e
