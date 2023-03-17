@@ -18,7 +18,7 @@ from pyspark.sql.types import StructType, StructField, BinaryType, StringType, L
 
 from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, MavenLibrary, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from ..._pipeline_utils.constants import DEFAULT_PACKAGES, EVENTHUB_SCHEMA
 
 class SparkEventhubSource(SourceInterface):
     '''
@@ -43,17 +43,7 @@ class SparkEventhubSource(SourceInterface):
     def __init__(self, spark: SparkSession, options: dict) -> None:
         self.spark = spark
         self.options = options
-        self.schema = StructType(
-            [StructField('body', BinaryType(), True), 
-             StructField('partition', StringType(), True), 
-             StructField('offset', StringType(), True), 
-             StructField('sequenceNumber', LongType(), True), 
-             StructField('enqueuedTime', TimestampType(), True), 
-             StructField('publisher', StringType(), True), 
-             StructField('partitionKey', StringType(), True), 
-             StructField('properties', MapType(StringType(), StringType(), True), True), 
-             StructField('systemProperties', MapType(StringType(), StringType(), True), True)]
-        )
+        self.schema = EVENTHUB_SCHEMA
 
 
     @staticmethod

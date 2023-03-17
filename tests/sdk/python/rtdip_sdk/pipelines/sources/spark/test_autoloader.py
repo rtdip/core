@@ -18,7 +18,6 @@ import pytest
 from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.autoloader import DataBricksAutoLoaderSource
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
-import json
 from pyspark.sql import DataFrame, SparkSession
 
 def test_databricks_autoloader_read_batch(spark_session: SparkSession):

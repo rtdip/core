@@ -24,12 +24,22 @@ from ..destinations.interfaces import DestinationInterface
 from ..utilities.interfaces import UtilitiesInterface
 
 class PipelineJobExecute():
+    '''
+    Executes Pipeline components in their intended order as a complete data pipeline. It ensures that components dependencies are injected as needed.
+
+    Args:
+        job (PipelineJob): Contains the steps and tasks of a PipelineJob to be executed
+        batch_job (bool): Specifies if the job is to be executed as a batch job
+    '''
     job: PipelineJob
 
     def __init__(self, job: PipelineJob, batch_job: bool = False):
         self.job = job
 
     def _tasks_order(self, task_list: list[PipelineTask]):
+        '''
+        Orders tasks within a job
+        '''
         ordered_task_list = []
         temp_task_list = task_list.copy()
         while len(temp_task_list) > 0:
@@ -46,6 +56,9 @@ class PipelineJobExecute():
         return ordered_task_list
     
     def _steps_order(self, step_list: list[PipelineStep]):
+        '''
+        Orders steps within a task
+        '''        
         ordered_step_list = []
         temp_step_list = step_list.copy()
         while len(temp_step_list) > 0:
@@ -54,14 +67,17 @@ class PipelineJobExecute():
                     ordered_step_list.append(step)
                     temp_step_list.remove(step)
                 else:
-                    for ordered_step in ordered_step_list:
-                        if step.depends_on_step == ordered_step.name:
-                            ordered_step_list.append(step)
-                            temp_step_list.remove(step)
-                            break
+                    ordered_step_names = [x.name for x in ordered_step_list]
+                    if all(item in ordered_step_names for item in step.depends_on_step):
+                        ordered_step_list.append(step)
+                        temp_step_list.remove(step)
+                        break
         return ordered_step_list
 
     def _task_setup_dependency_injection(self, step_list: list[PipelineStep]):
+        '''
+        Determines the dependencies to be injected into each component 
+        '''
         container = containers.DynamicContainer()
         task_libraries = Libraries()
         task_step_configuration = {}
@@ -107,8 +123,10 @@ class PipelineJobExecute():
             )
         return container
 
-    def run(self):
-        
+    def run(self) -> bool:
+        '''
+        Executes all the steps and tasks in a pipeline job as per the job definition.
+        '''
         ordered_task_list = self._tasks_order(self.job.task_list)
 
         for task in ordered_task_list:
@@ -144,4 +162,6 @@ class PipelineJobExecute():
                 if step.provide_output_to_step is not None:
                     for step in step.provide_output_to_step:
                         task_results[step] = result
+
+        return True
                     

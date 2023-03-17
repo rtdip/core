@@ -14,19 +14,20 @@
 
 import sys
 sys.path.insert(0, '.')
+import json
+from pytest_mock import MockerFixture
+from pyspark.sql import SparkSession
 
-from pyspark.sql.types import StructField, TimestampType, StringType, FloatType, DateType
-
-# from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta import TableCreateUtility
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import EVENTHUB_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines.execute.models import PipelineJob, PipelineStep, PipelineTask
 from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.eventhub import EventhubBodyBinaryToString
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
-# from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta_sharing import SparkDeltaSharingSource
-import json
 
-def test_pipeline_job_execute():
+from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
+
+def test_pipeline_job_execute(spark_session: SparkSession, mocker: MockerFixture):
     step_list = []
 
     # read step
@@ -44,7 +45,8 @@ def test_pipeline_job_execute():
         component_parameters={"options": eventhub_configuration},
         provide_output_to_step=["test_step2"]
     ))
-
+    expected_df = spark_session.createDataFrame(data=[], schema=EVENTHUB_SCHEMA)
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch", return_value=expected_df)
     # transform step
     step_list.append(PipelineStep(
         name="test_step2",
@@ -86,74 +88,4 @@ def test_pipeline_job_execute():
 
     result = pipeline.run()
     
-    assert True
-
-# def test_pipeline_delta_sharing_job_execute():
-#     step_list = []
-
-#     # create table
-#     step_list.append(PipelineStep(
-#         name="test_step1",
-#         description="test_step1",
-#         component=TableCreateUtility,
-#         component_parameters={
-#             "table_name": "test_table_delta_sharing",
-#             "columns": [
-#                 StructField("EventDate", DateType(), False, {"delta.generationExpression": "CAST(EventTime AS DATE)"}),
-#                 StructField("TagName", StringType(), False),
-#                 StructField("EventTime", TimestampType(), False),
-#                 StructField("Status", StringType(), True),
-#                 StructField("Value", FloatType(), True),
-#             ],
-#             "partitioned_by": ["EventDate"],
-#             "properties": {"delta.logRetentionDuration": "7 days", "delta.enableChangeDataFeed": "true"},
-#             "comment": "Test Table for Delta Sharing"
-#         }
-#     ))
-
-#     # read step  
-#     step_list.append(PipelineStep(
-#         name="test_step2",
-#         description="test_step2",
-#         component=SparkDeltaSharingSource,
-#         component_parameters={
-#             "table_path": "config.share#unity_catalog.schema.table",
-#             "options": {},
-#         },
-#         depends_on_step=["test_step1"],
-#         provide_output_to_step=["test_step3"]
-#     ))
-
-#     # write step
-#     step_list.append(PipelineStep(
-#         name="test_step3",
-#         description="test_step3",
-#         component=SparkDeltaDestination,
-#         component_parameters={
-#             "table_name": "test_table_delta_sharing",
-#             "options": {"checkpointLocation": "./spark-checkpoints/test-delta-sharing"},
-#             "mode": "append",
-#             "query_name": "test_query_name"
-#         },
-#         depends_on_step=["test_step2"]
-#     ))
-
-#     task = PipelineTask(
-#         name="test_task",
-#         description="test_task",
-#         step_list=step_list,
-#         batch_task=False
-#     )
-
-#     job = PipelineJob(
-#         name="test_job",
-#         description="test_job",
-#         version="0.0.1",
-#         task_list=[task]
-#     )
-
-#     pipeline = PipelineJobExecute(job)
-
-#     result = pipeline.run()
-    
-#     assert True    
+    assert result
