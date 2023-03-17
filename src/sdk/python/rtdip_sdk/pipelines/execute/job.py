@@ -15,8 +15,9 @@
 
 from dependency_injector import containers, providers
 
-from ..execute.container import Clients, Configs
-from .._pipeline_utils.models import Libraries, SystemType, PipelineJob, PipelineTask, PipelineStep
+from .container import Clients, Configs
+from .models import PipelineJob, PipelineTask, PipelineStep
+from .._pipeline_utils.models import Libraries, SystemType
 from ..sources.interfaces import SourceInterface
 from ..transformers.interfaces import TransformerInterface
 from ..destinations.interfaces import DestinationInterface

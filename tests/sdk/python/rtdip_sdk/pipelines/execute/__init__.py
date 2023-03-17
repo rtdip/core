@@ -12,22 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
-from ._pipeline_utils.models import Libraries, SystemType
-
-class PipelineComponentBaseInterface(ABC):
-        
-        @staticmethod
-        @abstractmethod
-        def system_type() -> SystemType:
-            pass
-        
-        @staticmethod
-        @abstractmethod
-        def libraries() -> Libraries:
-            pass
-        
-        @staticmethod
-        @abstractmethod
-        def settings() -> dict:
-            pass

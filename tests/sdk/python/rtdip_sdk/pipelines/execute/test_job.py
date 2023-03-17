@@ -18,7 +18,8 @@ sys.path.insert(0, '.')
 from pyspark.sql.types import StructField, TimestampType, StringType, FloatType, DateType
 
 # from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta import TableCreateUtility
-from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJob, PipelineJobExecute, PipelineStep, PipelineTask
+from src.sdk.python.rtdip_sdk.pipelines.execute.models import PipelineJob, PipelineStep, PipelineTask
+from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.eventhub import EventhubBodyBinaryToString
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
