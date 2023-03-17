@@ -21,7 +21,7 @@ from delta.tables import DeltaTable
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, MavenLibrary, SystemType
 
-class TableCreateUtility(UtilitiesInterface):
+class DeltaTableCreateUtility(UtilitiesInterface):
     '''
     Creates a Delta Table in a Hive Metastore or in Databricks Unity Catalog.
 
