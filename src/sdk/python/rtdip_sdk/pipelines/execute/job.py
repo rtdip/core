@@ -12,44 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Type, Union
+
 from dependency_injector import containers, providers
-from dependency_injector.containers import DynamicContainer
-from pydantic import BaseModel
-from src.sdk.python.rtdip_sdk.pipelines.destinations.interfaces import DestinationInterface
-from src.sdk.python.rtdip_sdk.pipelines.execute.container import Clients, Configs
-from src.sdk.python.rtdip_sdk.pipelines.sources.interfaces import SourceInterface
-from src.sdk.python.rtdip_sdk.pipelines.interfaces import PipelineComponentBaseInterface
-from src.sdk.python.rtdip_sdk.pipelines.transformers.interfaces import TransformerInterface
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 
-from src.sdk.python.rtdip_sdk.pipelines.utilities.interfaces import UtilitiesInterface
-
-class PipelineStep(BaseModel):
-    name: str
-    description: str
-    depends_on_step: Optional[list[str]]
-    component: Union[Type[SourceInterface], Type[TransformerInterface], Type[DestinationInterface], Type[UtilitiesInterface]]
-    component_parameters: Optional[dict]
-    provide_output_to_step: Optional[list[str]]
-
-    class Config:
-        json_encoders = {
-            Union[Type[SourceInterface], Type[TransformerInterface], Type[DestinationInterface], Type[UtilitiesInterface]]: lambda x: x.__name__
-        }
-
-class PipelineTask(BaseModel):
-    name: str
-    description: str
-    depends_on_task: Optional[list[str]]
-    step_list: list[PipelineStep]
-    batch_task: Optional[bool]
-
-class PipelineJob(BaseModel):
-    name: str
-    description: str
-    version: str
-    task_list: list[PipelineTask]
+from ..execute.container import Clients, Configs
+from .._pipeline_utils.models import Libraries, SystemType, PipelineJob, PipelineTask, PipelineStep
+from ..sources.interfaces import SourceInterface
+from ..transformers.interfaces import TransformerInterface
+from ..destinations.interfaces import DestinationInterface
+from ..utilities.interfaces import UtilitiesInterface
 
 class PipelineJobExecute():
     job: PipelineJob
