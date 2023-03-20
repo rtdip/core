@@ -13,8 +13,7 @@
 # limitations under the License.
 
 from enum import Enum
-from typing import Optional, List
-
+from typing import Optional
 from pydantic import BaseModel
 
 class SystemType(Enum):

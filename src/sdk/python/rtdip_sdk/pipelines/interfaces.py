@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from ._pipeline_utils.models import Libraries, SystemType
 
 class PipelineComponentBaseInterface(ABC):
         

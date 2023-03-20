@@ -12,6 +12,7 @@
 # limitations under the License.
 
 from .models import MavenLibrary, PyPiLibrary
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, FloatType, DateType, BinaryType, LongType, MapType
 
 DEFAULT_PACKAGES = {
     "spark_delta_core": MavenLibrary(
@@ -34,3 +35,15 @@ DEFAULT_PACKAGES = {
                 version="0.1.4"
             )
 }
+
+EVENTHUB_SCHEMA = StructType(
+            [StructField('body', BinaryType(), True), 
+             StructField('partition', StringType(), True), 
+             StructField('offset', StringType(), True), 
+             StructField('sequenceNumber', LongType(), True), 
+             StructField('enqueuedTime', TimestampType(), True), 
+             StructField('publisher', StringType(), True), 
+             StructField('partitionKey', StringType(), True), 
+             StructField('properties', MapType(StringType(), StringType(), True), True), 
+             StructField('systemProperties', MapType(StringType(), StringType(), True), True)]
+        )
