@@ -14,16 +14,19 @@
 
 import sys
 sys.path.insert(0, '.')
+import pytest 
+from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.eventhub import SparkEventhubDestination
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
-from pyspark.sql.functions import lit
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql.types import StructType, StructField, StringType
 
-def test_spark_eventhub_write_batch(spark_session: SparkSession):
-    #expected_df = spark_session.createDataFrame([{"id": "1"}])
-    mock_eventhub = ""
-    delta_destination = SparkEventhubDestination("test_spark_delta_write_batch", {}, "overwrite")
-    delta_destination.write_batch(expected_df)
-    actual_df = spark_session.table("test_spark_delta_write_batch")
-    assert expected_df.schema == actual_df.schema
-    assert expected_df.collect() == actual_df.collect()
+def test_spark_eventhub_write_batch(spark_session: SparkSession, mocker: MockerFixture):
+    mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(return_value=None))))))))
+   
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    eventhub_destination = SparkEventhubDestination({})
+    
+    actual = eventhub_destination.write_batch(expected_df)
+    assert actual is None

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import time
 from pyspark.sql import DataFrame, SparkSession
 from py4j.protocol import Py4JJavaError
 
@@ -37,7 +38,7 @@ class SparkEventhubDestination(DestinationInterface):
     '''
     options: dict
 
-    def __init__(self,options: dict) -> None:
+    def __init__(self, options: dict) -> None:
         self.options = options
 
     @staticmethod
@@ -88,12 +89,17 @@ class SparkEventhubDestination(DestinationInterface):
         Writes steaming data to Eventhubs.
         '''
         try:
-            return (df
+            query = (df
                 .writeStream
                 .format("eventhubs")
                 .options(**self.options)
                 .start()
             )
+        
+            while query.isActive:
+                if query.lastProgress:
+                    logging.info(query.lastProgress)
+                time.sleep(30)
 
         except Py4JJavaError as e:
             logging.exception('error with spark write stream eventhub function', e.errmsg)
