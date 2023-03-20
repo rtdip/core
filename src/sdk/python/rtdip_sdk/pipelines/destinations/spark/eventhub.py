@@ -84,7 +84,7 @@ class SparkEventhubDestination(DestinationInterface):
             logging.exception('error with spark write batch eventhub function', e.__traceback__)
             raise e
         
-    def write_stream(self, df: DataFrame, options: dict, mode: str = "append") -> DataFrame:
+    def write_stream(self, df: DataFrame) -> DataFrame:
         '''
         Writes steaming data to Eventhubs.
         '''
@@ -95,7 +95,6 @@ class SparkEventhubDestination(DestinationInterface):
                 .options(**self.options)
                 .start()
             )
-        
             while query.isActive:
                 if query.lastProgress:
                     logging.info(query.lastProgress)
