@@ -12,7 +12,7 @@
 # limitations under the License.
 
 from .models import MavenLibrary, PyPiLibrary
-from pyspark.sql.types import StructType, StructField, TimestampType, StringType, FloatType, DateType, BinaryType, LongType, MapType
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType
 
 DEFAULT_PACKAGES = {
     "spark_delta_core": MavenLibrary(
@@ -32,7 +32,7 @@ DEFAULT_PACKAGES = {
             ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
-                version="0.1.4"
+                version="0.1.7"
             )
 }
 
