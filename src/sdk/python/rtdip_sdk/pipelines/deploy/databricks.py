@@ -12,17 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-import logging
 import json
-import pickle
 from importlib_metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from dbx.commands.deploy import deploy as dbx_deploy
 from dbx.commands.launch import launch as dbx_launch
 from dbx.api.auth import ProfileEnvConfigProvider
-from dbx.api.configure import ProjectConfigurationManager
-from dbx.models.deployment import DeploymentConfig, EnvironmentDeploymentInfo, Deployment
 from databricks_cli.sdk.api_client import ApiClient
 from databricks_cli.jobs.api import JobsApi
 
@@ -74,9 +70,9 @@ class DatabricksDBXDeploy(DeployInterface):
 
             try:
                 rtdip_version = version("rtdip-sdk")
-                databricks_job_task.libraries.append(DatabricksLibraries(pypi=DatbricksLibrariesPypi(package="rtdip-sdk=={}".format(rtdip_version))))
+                databricks_job_task.libraries.append(DatabricksLibraries(pypi=DatbricksLibrariesPypi(package="rtdip-sdk[pipelines]=={}".format(rtdip_version))))
             except PackageNotFoundError as e:
-                databricks_job_task.libraries.append(DatabricksLibraries(pypi=DatbricksLibrariesPypi(package="rtdip-sdk")))
+                databricks_job_task.libraries.append(DatabricksLibraries(pypi=DatbricksLibrariesPypi(package="rtdip-sdk[pipelines]")))
 
             databricks_job_task.spark_python_task = DatabricksSparkPythonTask(
                 python_file="file://{}".format(task_python_file_location),

@@ -14,9 +14,7 @@
 
 import logging
 from pyspark.sql import SparkSession
-from dotenv import load_dotenv
-from ..interfaces import PipelineComponentBaseInterface
-from .models import Libraries, SystemType
+from .models import Libraries
 
 class SparkClient():
     spark_configuration: dict
