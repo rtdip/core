@@ -13,22 +13,20 @@
 # limitations under the License.
 
 import sys
-import json
 from rtdip.tasks.common import Task
-from rtdip_sdk.pipelines.execute.models import PipelineJob
+from rtdip_sdk.pipelines.execute import *
+from rtdip_sdk.pipelines.sources import *
+from rtdip_sdk.pipelines.transformers import *
+from rtdip_sdk.pipelines.destinations import *
+from rtdip_sdk.pipelines.utilities import *
 
 class RTDIPPipelineTask(Task):
     def launch(self):
         self.logger.info("Launching RTDIP Pipeline Task")
         self.logger.info("Job to execute {}".format(sys.argv[0]))
-        pipeline_job = json.loads(sys.argv[0], object_hook= lambda d: PipelineJob(**d))
-        # pipeline_job = json.loads(sys.argv[0])
-        # for task in pipeline_job.task_list:
-        #     for step in task.step_list:
-        #         step.component = type(step.component)
-        # pipeline = PipelineJobExecute(pipeline_job)
-        # pipeline.run()
-        self.logger.info("Sample ETL task finished!")
+        pipeline_job = PipelineJobFromJson(sys.argv[0])
+        pipeline_job.run()
+        self.logger.info("RTDIP Pipeline Task finished!")
         
 # if you're using python_wheel_task, you'll need the entrypoint function to be used in setup.py
 def entrypoint():  # pragma: no cover

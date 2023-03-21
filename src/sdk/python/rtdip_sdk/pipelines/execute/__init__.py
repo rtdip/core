@@ -13,3 +13,4 @@
 # limitations under the License.
 
 from .models import *
+from .job import *
