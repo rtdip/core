@@ -123,8 +123,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
         weighted_averages_timezones = np.array([z.replace(tzinfo=pytz.timezone(utc)) for z in time_weighted_averages_datetime])
         time_weighted_averages = time_weighted_averages[(original_start_date.replace(tzinfo=pytz.timezone(utc)) < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date.replace(tzinfo=pytz.timezone(utc)) + timedelta(seconds = 1))]
-        pd.set_option('display.max_rows', None)
-        print(time_weighted_averages)
         return time_weighted_averages
         
     except Exception as e:
