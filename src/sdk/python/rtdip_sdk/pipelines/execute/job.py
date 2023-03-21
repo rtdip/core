@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import sys
+import json
 from dependency_injector import containers, providers
 
 from .container import Clients, Configs
@@ -165,3 +166,25 @@ class PipelineJobExecute():
 
         return True
                     
+class PipelineJobFromJson():
+    '''
+    Converts a json string into a Pipeline Jobs
+
+    Args:
+        pipeline_json: Json representing PipelineJob information, including tasks and related steps 
+    '''
+    pipeline_json: str
+
+    def init(self, pipeline_json: str):
+        self.pipeline_json = pipeline_json
+
+    def convert(self) -> PipelineJob:
+        pipeline_job_dict = json.loads(self.pipeline_json)
+
+        # convert string component to class
+        for task in pipeline_job_dict["task_list"]:
+            for step in task["step_list"]:
+                step["component"] = getattr(sys.modules[__name__], step["component"])
+
+        return PipelineJob(**pipeline_job_dict)
+    

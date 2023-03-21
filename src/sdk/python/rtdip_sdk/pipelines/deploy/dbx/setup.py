@@ -11,3 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from setuptools import find_packages, setup
+
+PACKAGE_REQUIREMENTS = ["pyyaml"]
+
+setup(
+    name="rtdip",
+    packages=find_packages(exclude=["tests", "tests.*"]),
+    setup_requires=["setuptools","wheel"],
+    install_requires=PACKAGE_REQUIREMENTS,
+    entry_points = {
+        "console_scripts": [
+            "etl = dbx.rtdip.tasks.pipeline_task:entrypoint",
+    ]},
+    version="0.0.1",
+    description="",
+    author="",
+)
