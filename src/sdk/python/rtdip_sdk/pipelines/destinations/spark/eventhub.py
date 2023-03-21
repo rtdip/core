@@ -53,10 +53,7 @@ class SparkEventhubDestination(DestinationInterface):
     
     @staticmethod
     def settings() -> dict:
-        return {
-            "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
-            "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
-        }
+        return {}
     
     def pre_write_validation(self):
         return True
@@ -81,10 +78,10 @@ class SparkEventhubDestination(DestinationInterface):
             logging.exception('error with spark write batch eventhub function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark write batch eventhub function', e.__traceback__)
+            logging.exception(str(e))
             raise e
         
-    def write_stream(self, df: DataFrame) -> DataFrame:
+    def write_stream(self, df: DataFrame):
         '''
         Writes steaming data to Eventhubs.
         '''
@@ -104,5 +101,5 @@ class SparkEventhubDestination(DestinationInterface):
             logging.exception('error with spark write stream eventhub function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark write stream eventhub function', e.__traceback__)
+            logging.exception(str(e))
             raise e

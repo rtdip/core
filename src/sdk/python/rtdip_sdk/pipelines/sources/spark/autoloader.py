@@ -79,5 +79,5 @@ class DataBricksAutoLoaderSource(SourceInterface):
             )
 
         except Exception as e:
-            logging.exception('error with spark read stream auto loader function', e.__traceback__)
+            logging.exception(str(e))
             raise e

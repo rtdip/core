@@ -21,6 +21,9 @@ from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_co
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.streaming import StreamingQuery
 
+class TestStreamingQueryClass():
+    isActive: bool = False
+
 def test_spark_eventhub_write_batch(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(return_value=None))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
@@ -29,10 +32,8 @@ def test_spark_eventhub_write_batch(spark_session: SparkSession, mocker: MockerF
     assert actual is None
 
 def test_spark_eventhub_write_stream(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(return_value=StreamingQuery))))))))
+    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(return_value=TestStreamingQueryClass()))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     eventhub_destination = SparkEventhubDestination({})
     actual = eventhub_destination.write_stream(expected_df)
-    assert eventhub_destination.pre_write_validation()
-    assert actual is StreamingQuery
-    assert eventhub_destination.post_write_validation()
+    assert actual is None
