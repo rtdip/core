@@ -14,16 +14,15 @@
 
 import sys
 import json
-from typing import Optional
 from rtdip.tasks.common import Task
-
-
+from rtdip_sdk.pipelines.execute.models import PipelineJob
 
 class RTDIPPipelineTask(Task):
     def launch(self):
         self.logger.info("Launching RTDIP Pipeline Task")
-        pipeline_job = json.loads(sys.argv[0])
         self.logger.info("Job to execute {}".format(sys.argv[0]))
+        pipeline_job = json.loads(sys.argv[0], object_hook= lambda d: PipelineJob(**d))
+        # pipeline_job = json.loads(sys.argv[0])
         # for task in pipeline_job.task_list:
         #     for step in task.step_list:
         #         step.component = type(step.component)

@@ -37,18 +37,21 @@ INSTALL_REQUIRES = [
   "jinjasql==0.1.8"
 ]
 
-PIPELINE_PACKAGES = [
+PYSPARK_PACKAGES = [
   "pyspark==3.3.2",
   "delta-spark==2.2.0",
-  "openjdk==11.0.15",   
-  "python-dotenv==0.21.1",
+  "openjdk==11.0.15"
+]
+
+PIPELINE_PACKAGES = [
   "dependency-injector==4.41.0",
   "dbx==0.8.9",
-  "airflow==2.5.1"
+  "pydantic==1.10.6"
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
-  "pipelines": PIPELINE_PACKAGES
+  "pipelines": PIPELINE_PACKAGES,
+  "pyspark": PYSPARK_PACKAGES
 }
 
 setup(

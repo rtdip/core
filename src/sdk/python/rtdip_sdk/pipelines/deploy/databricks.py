@@ -19,6 +19,7 @@ from importlib_metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from dbx.commands.deploy import deploy as dbx_deploy
+from dbx.commands.launch import launch as dbx_launch
 from dbx.api.auth import ProfileEnvConfigProvider
 from dbx.api.configure import ProjectConfigurationManager
 from dbx.models.deployment import DeploymentConfig, EnvironmentDeploymentInfo, Deployment
@@ -44,7 +45,7 @@ class DatabricksDBXDeploy(DeployInterface):
         self.host = host
         self.token = token
     
-    def deploy(self):
+    def deploy(self) -> bool:
         # create Databricks Job Tasks
         databricks_tasks = []
         task_python_file_location = dbx_path = os.path.dirname(os.path.abspath(__file__)) + "/dbx/rtdip/tasks/pipeline_task.py"
@@ -130,11 +131,38 @@ class DatabricksDBXDeploy(DeployInterface):
             debug=False,
         )
         os.chdir(current_dir)
+
+        return True
                             
-    def launch(self, job_id):
-        api_client = ApiClient(host=self.host, token=self.token)
-        jobs_api = JobsApi(api_client)
-        jobs_api.run_now(job_id)
+    def launch(self):
+        # set authentication environment variables
+        os.environ["DATABRICKS_HOST"] = self.host
+        os.environ["DATABRICKS_TOKEN"] = self.token
+
+        #launch job        
+        current_dir = os.getcwd()
+        dbx_path = os.path.dirname(os.path.abspath(__file__)) + "/dbx"
+        os.chdir(dbx_path)
+        dbx_launch(
+            workflow_name=self.pipeline_job.name,
+            environment_name="rtdip",
+            job_name=None,
+            is_pipeline=False,
+            trace=False,
+            kill_on_sigterm=False,
+            existing_runs="pass",
+            as_run_submit=False,
+            from_assets=False,
+            tags=[],
+            branch_name=None,
+            include_output=None,
+            headers=None,
+            parameters=None,
+            debug=None
+        )
+        os.chdir(current_dir)
+
+        return True
 
 class DataBricksDeploy(DeployInterface):
     '''
