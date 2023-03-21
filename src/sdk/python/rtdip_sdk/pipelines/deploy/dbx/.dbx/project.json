@@ -1,0 +1,15 @@
+{
+    "environments": {
+        "rtdip": {
+            "profile": "rtdip",
+            "storage_type": "mlflow",
+            "properties": {
+                "workspace_directory": "/rtdip/",
+                "artifact_location": "dbfs:/rtdip/projects/rtdip"
+            }
+        }
+    },
+    "inplace_jinja_support": true,
+    "failsafe_cluster_reuse_with_assets": false,
+    "context_based_upload_for_execute": false
+}
