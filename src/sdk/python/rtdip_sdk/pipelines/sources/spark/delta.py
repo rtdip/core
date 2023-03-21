@@ -81,7 +81,7 @@ class SparkDeltaSource(SourceInterface):
             )
 
         except Exception as e:
-            logging.exception('error with spark read batch delta function', e.__traceback__)
+            logging.exception(str(e))
             raise e
         
     def read_stream(self) -> DataFrame:
@@ -97,5 +97,5 @@ class SparkDeltaSource(SourceInterface):
             )
 
         except Exception as e:
-            logging.exception('error with spark read stream delta function', e.__traceback__)
+            logging.exception(str(e))
             raise e

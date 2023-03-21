@@ -95,5 +95,5 @@ class DeltaTableCreateUtility(UtilitiesInterface):
             logging.exception('error with spark delta table create function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark delta table create function', e.__traceback__)
+            logging.exception(str(e))
             raise e

@@ -17,6 +17,7 @@ import pytest
 import os
 import shutil
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
+from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.eventhub import SparkEventhubDestination
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSource
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta_sharing import SparkDeltaSharingSource
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
@@ -34,7 +35,7 @@ SPARK_TESTING_CONFIGURATION = {
 
 @pytest.fixture(scope="session")
 def spark_session():
-    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination("test_table", {}), SparkEventhubSource(None, {})]
+    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination("test_table", {}), SparkEventhubSource(None, {}), SparkEventhubDestination({})]
     task_libraries = Libraries()
     task_libraries.get_libraries_from_components(component_list)
     spark_configuration = SPARK_TESTING_CONFIGURATION.copy()

@@ -85,8 +85,7 @@ class SparkEventhubSource(SourceInterface):
             )
 
         except Exception as e:
-            print(e)
-            logging.exception("error with spark read batch eventhub function")
+            logging.exception(str(e))
             raise e
         
     def read_stream(self) -> DataFrame:
@@ -107,6 +106,5 @@ class SparkEventhubSource(SourceInterface):
             )
 
         except Exception as e:
-            print(e)
-            logging.exception("error with spark read stream eventhub function")
+            logging.exception(str(e))
             raise e

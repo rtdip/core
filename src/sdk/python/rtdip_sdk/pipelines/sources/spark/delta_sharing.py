@@ -86,7 +86,7 @@ class SparkDeltaSharingSource(SourceInterface):
             logging.exception('error with spark read batch delta sharing function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark read batch delta sharing function', e.__traceback__)
+            logging.exception(str(e))
             raise e
         
     def read_stream(self) -> DataFrame:
@@ -105,5 +105,5 @@ class SparkDeltaSharingSource(SourceInterface):
             logging.exception('error with spark read stream delta sharing function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark read stream delta sharing function', e.__traceback__)
+            logging.exception(str(e))
             raise e

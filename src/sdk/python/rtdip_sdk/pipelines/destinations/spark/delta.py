@@ -95,7 +95,7 @@ class SparkDeltaDestination(DestinationInterface):
             logging.exception('error with spark write batch delta function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark write batch delta function', e.__traceback__)
+            logging.exception(str(e))
             raise e
         
     def write_stream(self, df: DataFrame) -> DataFrame:
@@ -122,5 +122,5 @@ class SparkDeltaDestination(DestinationInterface):
             logging.exception('error with spark write stream delta function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark write stream delta function', e.__traceback__)
+            logging.exception(str(e))
             raise e

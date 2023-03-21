@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import time
 from pyspark.sql import DataFrame, SparkSession
 from py4j.protocol import Py4JJavaError
 
@@ -37,7 +38,7 @@ class SparkEventhubDestination(DestinationInterface):
     '''
     options: dict
 
-    def __init__(self,options: dict) -> None:
+    def __init__(self, options: dict) -> None:
         self.options = options
 
     @staticmethod
@@ -52,10 +53,7 @@ class SparkEventhubDestination(DestinationInterface):
     
     @staticmethod
     def settings() -> dict:
-        return {
-            "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
-            "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
-        }
+        return {}
     
     def pre_write_validation(self):
         return True
@@ -80,24 +78,28 @@ class SparkEventhubDestination(DestinationInterface):
             logging.exception('error with spark write batch eventhub function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark write batch eventhub function', e.__traceback__)
+            logging.exception(str(e))
             raise e
         
-    def write_stream(self, df: DataFrame, options: dict, mode: str = "append") -> DataFrame:
+    def write_stream(self, df: DataFrame):
         '''
         Writes steaming data to Eventhubs.
         '''
         try:
-            return (df
+            query = (df
                 .writeStream
                 .format("eventhubs")
                 .options(**self.options)
                 .start()
             )
+            while query.isActive:
+                if query.lastProgress:
+                    logging.info(query.lastProgress)
+                time.sleep(30)
 
         except Py4JJavaError as e:
             logging.exception('error with spark write stream eventhub function', e.errmsg)
             raise e
         except Exception as e:
-            logging.exception('error with spark write stream eventhub function', e.__traceback__)
+            logging.exception(str(e))
             raise e
