@@ -25,7 +25,8 @@ class RTDIPPipelineTask(Task):
         self.logger.info("Launching RTDIP Pipeline Task")
         self.logger.info("Job to execute {}".format(sys.argv[0]))
         pipeline_job = PipelineJobFromJson(sys.argv[0])
-        pipeline_job.run()
+        pipeline_job_execute = PipelineJobExecute(pipeline_job)
+        pipeline_job_execute.run()
         self.logger.info("RTDIP Pipeline Task finished!")
         
 # if you're using python_wheel_task, you'll need the entrypoint function to be used in setup.py
