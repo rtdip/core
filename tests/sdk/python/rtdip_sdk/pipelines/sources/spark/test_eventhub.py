@@ -31,3 +31,16 @@ def test_spark_eventhub_read_batch(spark_session: SparkSession):
     df = eventhub_source.read_batch()
     assert isinstance(df, DataFrame)
     assert eventhub_source.post_read_validation(df)
+
+def test_spark_eventhub_read_stream(spark_session: SparkSession):
+    connection_string = "Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;EntityPath=test"
+    eventhub_configuration = {
+        "eventhubs.connectionString": connection_string, 
+        "eventhubs.consumerGroup": "$Default",
+        "eventhubs.startingPosition": json.dumps({"offset": "0", "seqNo": -1, "enqueuedTime": None, "isInclusive": True})
+    }
+    eventhub_source = SparkEventhubSource(spark_session, eventhub_configuration)
+    assert eventhub_source.pre_read_validation()
+    df = eventhub_source.read_stream()
+    assert isinstance(df, DataFrame)
+    assert eventhub_source.post_read_validation(df)
