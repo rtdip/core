@@ -107,7 +107,7 @@ class PipelineJobExecute():
         for step in step_list:
             # setup factory provider for component
             provider = providers.Factory(step.component)
-            attributes = step.component.__annotations__.items()
+            attributes = getattr(step.component, '__annotations__', {}).items()
             # add spark session, if needed
             for key, value in attributes:
                 # if isinstance(value, SparkSession): # TODO: fix this as value does not seem to be an instance of SparkSession

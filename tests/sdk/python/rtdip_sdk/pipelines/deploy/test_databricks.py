@@ -21,7 +21,7 @@ from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEvent
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.eventhub import EventhubBodyBinaryToString
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta_sharing import SparkDeltaSharingSource
-from src.sdk.python.rtdip_sdk.pipelines.deploy.databricks import DataBricksDeploy, DatabricksDBXDeploy
+from src.sdk.python.rtdip_sdk.pipelines.deploy.databricks import DatabricksDBXDeploy
 from src.sdk.python.rtdip_sdk.pipelines.deploy.models.databricks import DatabricksCluster, DatabricksJobCluster, DatabricksJobForPipelineJob, DatabricksTaskForPipelineTask
 
 
