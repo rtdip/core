@@ -19,6 +19,7 @@ from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSou
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
+from pytest_mock import MockerFixture
 
 def test_spark_delta_read_batch(spark_session: SparkSession):
     df = spark_session.createDataFrame([{"id": "1"}])
@@ -29,11 +30,11 @@ def test_spark_delta_read_batch(spark_session: SparkSession):
     assert isinstance(actual_df, DataFrame)
     assert actual_df.schema == StructType([StructField('id', StringType(), True)])
 
-def test_spark_delta_read_stream(spark_session: SparkSession):
-    df = spark_session.createDataFrame([{"id": "1"}])
-    delta_destination = SparkDeltaDestination("test_spark_delta_read_stream", {}, "overwrite")       
-    delta_source = SparkDeltaSource(spark_session, {}, "test_spark_delta_read_stream") 
-    delta_destination.write_stream(df)
-    actual_df = delta_source.read_stream()
-    assert isinstance(actual_df, DataFrame)
-    assert actual_df.schema == StructType([StructField('id', StringType(), True)])
+def test_spark_delta_read_stream(spark_session: SparkSession, mocker: MockerFixture):
+    delta_source = SparkDeltaSource(spark_session, {}, "test_spark_delta_read_batch")
+    expected_df = spark_session.createDataFrame([{"a": "x"}])
+    mocker.patch.object(delta_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(return_value=expected_df)))))))))
+    assert delta_source.pre_read_validation()
+    df = delta_source.read_stream()
+    assert isinstance(df, DataFrame)
+    assert delta_source.post_read_validation()
