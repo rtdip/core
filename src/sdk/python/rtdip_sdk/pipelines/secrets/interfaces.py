@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from ..interfaces import PipelineComponentBaseInterface
 
-class SecretsInterface(ABC):
+class SecretsInterface(PipelineComponentBaseInterface):
     
     @abstractmethod
     def get(self):

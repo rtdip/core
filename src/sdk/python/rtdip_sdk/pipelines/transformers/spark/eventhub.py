@@ -20,8 +20,6 @@ from ..._pipeline_utils.models import Libraries, SystemType
 class EventhubBodyBinaryToString(TransformerInterface):
     '''
     Converts the Eventhub dataframe body column from a binary to a string.
-
-
     ''' 
     @staticmethod
     def system_type():

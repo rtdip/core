@@ -54,6 +54,10 @@ class DeltaTableCreateUtility(UtilitiesInterface):
 
     @staticmethod
     def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''            
         return SystemType.PYSPARK
 
     @staticmethod

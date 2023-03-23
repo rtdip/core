@@ -41,6 +41,10 @@ class DataBricksAutoLoaderSource(SourceInterface):
 
     @staticmethod
     def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK on Databricks
+        '''        
         return SystemType.PYSPARK_DATABRICKS
 
     @staticmethod

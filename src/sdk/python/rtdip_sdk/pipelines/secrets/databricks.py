@@ -15,6 +15,7 @@
 from .interfaces import SecretsInterface
 from pyspark.sql import SparkSession
 from .._pipeline_utils.spark import get_dbutils
+from .._pipeline_utils.models import Libraries, SystemType
 
 class DatabricksSecrets(SecretsInterface):
     '''
@@ -34,6 +35,23 @@ class DatabricksSecrets(SecretsInterface):
         self.vault = vault
         self.key = key
 
+    @staticmethod
+    def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK on Databricks
+        '''        
+        return SystemType.PYSPARK_DATABRICKS
+
+    @staticmethod
+    def libraries():
+        libraries = Libraries()
+        return libraries
+    
+    @staticmethod
+    def settings() -> dict:
+        return {}
+    
     def get(self):
         '''
         Retrieves the secret from the Databricks Secret Scope
