@@ -64,7 +64,6 @@ class SparkEventhubSource(SourceInterface):
         return True
     
     def post_read_validation(self, df: DataFrame) -> bool:
-        # assert df.schema == self.schema
         return True
 
     def read_batch(self) -> DataFrame:
