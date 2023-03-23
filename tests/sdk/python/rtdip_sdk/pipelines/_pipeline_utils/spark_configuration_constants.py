@@ -13,9 +13,14 @@
 
 import sys
 sys.path.insert(0, '.')
+from typing import Iterator
 import pytest
 import os
+from pathlib import Path
 import shutil
+from dataclasses import dataclass
+from unittest.mock import patch
+
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.eventhub import SparkEventhubDestination
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSource
@@ -53,3 +58,61 @@ def spark_session():
     spark.stop()
     if os.path.isdir(path):
         shutil.rmtree(path)
+
+@dataclass
+class FileInfoFixture:
+    """
+    This class mocks the DBUtils FileInfo object
+    """
+    path: str
+    name: str
+    size: int
+    modificationTime: int
+
+class DBUtilsFSFixture:
+    """
+    This class is used for mocking the behaviour of DBUtils inside tests.
+    """
+    def __init__(self):
+        self.fs = self
+
+    def cp(self, src: str, dest: str, recurse: bool = False):
+        copy_func = shutil.copytree if recurse else shutil.copy
+        copy_func(src, dest)
+
+    def ls(self, path: str):
+        _paths = Path(path).glob("*")
+        _objects = [
+            FileInfoFixture(str(p.absolute()), p.name, p.stat().st_size, int(p.stat().st_mtime)) for p in _paths
+        ]
+        return _objects
+
+    def mkdirs(self, path: str):
+        Path(path).mkdir(parents=True, exist_ok=True)
+
+    def mv(self, src: str, dest: str, recurse: bool = False):
+        copy_func = shutil.copytree if recurse else shutil.copy
+        shutil.move(src, dest, copy_function=copy_func)
+
+    def put(self, path: str, content: str, overwrite: bool = False):
+        _f = Path(path)
+
+        if _f.exists() and not overwrite:
+            raise FileExistsError("File already exists")
+
+        _f.write_text(content, encoding="utf-8")
+
+    def rm(self, path: str, recurse: bool = False):
+        deletion_func = shutil.rmtree if recurse else os.remove
+        deletion_func(path)
+
+class DBUtilsSecretsFixture:
+    """
+    This class is used for mocking the behaviour of DBUtils inside tests.
+    """
+    def __init__(self, secret_value):
+        self.secrets = self
+        self.secret_value = secret_value
+
+    def get(self, scope: str, key: str):
+        return self.secret_value

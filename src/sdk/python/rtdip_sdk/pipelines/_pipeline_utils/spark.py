@@ -55,9 +55,23 @@ class SparkClient():
             return spark_session
 
         except Exception as e:
-            logging.exception('error with spark session function', e.__traceback__)
+            logging.exception(str(e))
             raise e
 
+def get_dbutils(
+    spark: SparkSession,
+):  # please note that this function is used in mocking by its name
+    try:
+        from pyspark.dbutils import DBUtils  # noqa
+
+        if "dbutils" not in locals():
+            utils = DBUtils(spark)
+            return utils
+        else:
+            return locals().get("dbutils")
+    except ImportError:
+        return None
+    
 # # TODO: Implemented in DBR 11 but not yet available in open source pyspark
 # from pyspark.sql.streaming import StreamingQueryListener
 # class SparkStreamingListener(StreamingQueryListener):

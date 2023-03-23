@@ -1,5 +1,4 @@
 # Copyright 2022 RTDIP
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,24 +11,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-sys.path.insert(0, '.')
 import json
-from pytest_mock import MockerFixture
-from pyspark.sql import SparkSession
 
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import EVENTHUB_SCHEMA
-from src.sdk.python.rtdip_sdk.pipelines.execute.models import PipelineJob, PipelineStep, PipelineTask
-from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
+from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJob, PipelineJobExecute, PipelineStep, PipelineTask
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.eventhub import EventhubBodyBinaryToString
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
+def get_spark_pipeline_job():
 
-def test_pipeline_job_execute(spark_session: SparkSession, mocker: MockerFixture):
     step_list = []
-
     # read step
     connection_string = "Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;EntityPath=test"
     eventhub_configuration = {
@@ -44,8 +35,7 @@ def test_pipeline_job_execute(spark_session: SparkSession, mocker: MockerFixture
         component_parameters={"options": eventhub_configuration},
         provide_output_to_step=["test_step2"]
     ))
-    expected_df = spark_session.createDataFrame(data=[], schema=EVENTHUB_SCHEMA)
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch", return_value=expected_df)
+
     # transform step
     step_list.append(PipelineStep(
         name="test_step2",
@@ -76,15 +66,11 @@ def test_pipeline_job_execute(spark_session: SparkSession, mocker: MockerFixture
         batch_task=True
     )
 
-    job = PipelineJob(
+    pipeline_job = PipelineJob(
         name="test_job",
-        description="test_job",
+        description="test_job", 
         version="0.0.1",
         task_list=[task]
     )
 
-    pipeline = PipelineJobExecute(job)
-
-    result = pipeline.run()
-    
-    assert result
+    return pipeline_job

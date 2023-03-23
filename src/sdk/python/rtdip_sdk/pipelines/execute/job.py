@@ -23,6 +23,8 @@ from ..sources.interfaces import SourceInterface
 from ..transformers.interfaces import TransformerInterface
 from ..destinations.interfaces import DestinationInterface
 from ..utilities.interfaces import UtilitiesInterface
+from ..secrets.interfaces import SecretsInterface
+from ..secrets.models import PipelineSecret
 
 class PipelineJobExecute():
     '''
@@ -37,6 +39,21 @@ class PipelineJobExecute():
     def __init__(self, job: PipelineJob, batch_job: bool = False):
         self.job = job
 
+    def _get_provider_attributes(self, provider: providers.Factory, component: object) -> providers.Factory:
+        attributes = getattr(component, '__annotations__', {}).items()
+        # add spark session, if needed
+        for key, value in attributes:
+            # if isinstance(value, SparkSession): # TODO: fix this as value does not seem to be an instance of SparkSession
+            if key == "spark":
+                provider.add_kwargs(spark=Clients.spark_client().spark_session)
+        return provider
+
+    def _get_secret_provider_attributes(self, pipeline_secret: PipelineSecret) -> providers.Factory:
+        secret_provider = providers.Factory(pipeline_secret.type)
+        secret_provider = self._get_provider_attributes(secret_provider, pipeline_secret.type)
+        secret_provider.add_kwargs(vault=pipeline_secret.vault, key=pipeline_secret.key)
+        return secret_provider
+    
     def _tasks_order(self, task_list: list[PipelineTask]):
         '''
         Orders tasks within a job
@@ -107,16 +124,23 @@ class PipelineJobExecute():
         for step in step_list:
             # setup factory provider for component
             provider = providers.Factory(step.component)
-            attributes = getattr(step.component, '__annotations__', {}).items()
-            # add spark session, if needed
-            for key, value in attributes:
-                # if isinstance(value, SparkSession): # TODO: fix this as value does not seem to be an instance of SparkSession
-                if key == "spark":
-                    provider.add_kwargs(spark=Clients.spark_client().spark_session)
+            provider = self._get_provider_attributes(provider, step.component)
+
             # add parameters
             if isinstance(step.component, DestinationInterface):
                 step.component_parameters["query_name"] = step.name
+
+            # get secrets
+            for param_key, param_value in step.component_parameters.items():
+                if isinstance(param_value, PipelineSecret):
+                    step.component_parameters[param_key] = self._get_secret_provider_attributes(param_value)().get()
+                if isinstance(param_value, dict):
+                    for key, value in param_value.items():
+                        if isinstance(value, PipelineSecret):
+                            step.component_parameters[param_key][key] = self._get_secret_provider_attributes(value)().get()
+
             provider.add_kwargs(**step.component_parameters)
+
             # set provider
             container.set_provider(
                 step.name,
@@ -175,7 +199,7 @@ class PipelineJobFromJson():
     '''
     pipeline_json: str
 
-    def init(self, pipeline_json: str):
+    def __init__(self, pipeline_json: str):
         self.pipeline_json = pipeline_json
 
     def convert(self) -> PipelineJob:
@@ -185,6 +209,9 @@ class PipelineJobFromJson():
         for task in pipeline_job_dict["task_list"]:
             for step in task["step_list"]:
                 step["component"] = getattr(sys.modules[__name__], step["component"])
+                # for key, value in step["component_parameters"]:
+                #     if isinstance(value, SecretsInterface):
+                #         key = 
 
         return PipelineJob(**pipeline_job_dict)
     

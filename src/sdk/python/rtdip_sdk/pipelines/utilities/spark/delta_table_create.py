@@ -92,7 +92,7 @@ class DeltaTableCreateUtility(UtilitiesInterface):
             return True
         
         except Py4JJavaError as e:
-            logging.exception('error with spark delta table create function', e.errmsg)
+            logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))
