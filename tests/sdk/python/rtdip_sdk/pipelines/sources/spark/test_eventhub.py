@@ -18,6 +18,7 @@ from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEvent
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 import json
 from pyspark.sql import DataFrame, SparkSession
+from pytest_mock import MockerFixture
 
 def test_spark_eventhub_read_batch(spark_session: SparkSession):
     connection_string = "Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;EntityPath=test"
@@ -43,4 +44,13 @@ def test_spark_eventhub_read_stream(spark_session: SparkSession):
     assert eventhub_source.pre_read_validation()
     df = eventhub_source.read_stream()
     assert isinstance(df, DataFrame)
+    assert eventhub_source.post_read_validation(df)
+
+def test_spark_eventhub_read_stream_2(spark_session: SparkSession, mocker: MockerFixture):
+    eventhub_source = SparkEventhubSource(spark_session, {})
+    expected_df = spark_session.createDataFrame([{"a": "x"}])
+    mocker.patch.object(eventhub_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(return_value=expected_df)))))))))
+    assert eventhub_source.pre_read_validation()
+    df = eventhub_source.read_stream()
+    assert isinstance(df, DataFrame) 
     assert eventhub_source.post_read_validation(df)
