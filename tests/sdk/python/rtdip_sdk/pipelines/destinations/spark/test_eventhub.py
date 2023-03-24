@@ -37,3 +37,17 @@ def test_spark_eventhub_write_stream(spark_session: SparkSession, mocker: Mocker
     eventhub_destination = SparkEventhubDestination({})
     actual = eventhub_destination.write_stream(expected_df)
     assert actual is None
+
+def test_spark_eventhub_write_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
+    mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(side_effect=Exception))))))))
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    eventhub_destination = SparkEventhubDestination({})
+    with pytest.raises(Exception):
+        eventhub_destination.write_batch(expected_df)
+
+def test_spark_eventhub_write_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
+    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    eventhub_destination = SparkEventhubDestination({})
+    with pytest.raises(Exception):
+        eventhub_destination.write_stream(expected_df)

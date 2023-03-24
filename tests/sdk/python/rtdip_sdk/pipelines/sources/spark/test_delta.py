@@ -14,6 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
+import pytest
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSource
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
@@ -31,10 +32,25 @@ def test_spark_delta_read_batch(spark_session: SparkSession):
     assert actual_df.schema == StructType([StructField('id', StringType(), True)])
 
 def test_spark_delta_read_stream(spark_session: SparkSession, mocker: MockerFixture):
-    delta_source = SparkDeltaSource(spark_session, {}, "test_spark_delta_read_batch")
+    delta_source = SparkDeltaSource(spark_session, {}, "test_spark_delta_read_stream")
     expected_df = spark_session.createDataFrame([{"a": "x"}])
     mocker.patch.object(delta_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(return_value=expected_df)))))))))
     assert delta_source.pre_read_validation()
     df = delta_source.read_stream()
     assert isinstance(df, DataFrame)
     assert delta_source.post_read_validation()
+
+def test_spark_delta_read_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
+    delta_source = SparkDeltaSource(spark_session, {}, "test_spark_delta_read_batch")
+    mocker.patch.object(delta_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(read=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(table=mocker.Mock(side_effect=Exception)))))))))
+    
+    with pytest.raises(Exception):
+        delta_source.read_batch()
+
+
+def test_spark_delta_read_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
+    delta_source = SparkDeltaSource(spark_session, {}, "test_spark_delta_read_stream")
+    mocker.patch.object(delta_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(side_effect=Exception)))))))))
+    
+    with pytest.raises(Exception):
+        delta_source.read_stream()
