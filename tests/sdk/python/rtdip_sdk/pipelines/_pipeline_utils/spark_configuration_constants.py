@@ -115,4 +115,6 @@ class DBUtilsSecretsFixture:
         self.secret_value = secret_value
 
     def get(self, scope: str, key: str):
+        assert type(scope) == str
+        assert type(key) == str
         return self.secret_value
