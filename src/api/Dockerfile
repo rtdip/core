@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # To enable ssh & remote debugging on app service change the base image to the one below
-FROM mcr.microsoft.com/azure-functions/python:4-python3.10
+FROM mcr.microsoft.com/azure-functions/python:4-nightly-python3.10
 
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
@@ -21,6 +21,7 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
 RUN rm -rf /var/lib/apt/lists/partial \
     && apt-get clean \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
+    && apt-get upgrade \
     && apt-get install -y gcc g++ odbcinst1debian2 libodbc1 odbcinst unixodbc-dev libsasl2-dev libsasl2-modules-gssapi-mit \
     && apt-get install -y ca-certificates curl
 
