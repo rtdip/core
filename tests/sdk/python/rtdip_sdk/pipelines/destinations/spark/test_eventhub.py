@@ -22,7 +22,7 @@ from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.streaming import StreamingQuery
 
 class TestStreamingQueryClass():
-    isActive: bool = False
+    isActive: bool = False  # NOSONAR
 
 def test_spark_eventhub_write_batch(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(return_value=None))))))))

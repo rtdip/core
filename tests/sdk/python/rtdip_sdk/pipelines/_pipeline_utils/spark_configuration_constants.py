@@ -67,7 +67,7 @@ class FileInfoFixture:
     path: str
     name: str
     size: int
-    modificationTime: int
+    modificationTime: int # NOSONAR
 
 class DBUtilsFSFixture:
     """
