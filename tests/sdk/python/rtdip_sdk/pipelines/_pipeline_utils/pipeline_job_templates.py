@@ -18,7 +18,7 @@ from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEvent
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.eventhub import EventhubBodyBinaryToString
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 
-def get_spark_pipeline_job():
+def get_spark_pipeline_job() -> PipelineJob:
 
     step_list = []
     # read step

@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, List, Type, Union
+from typing import Optional, Type, Union
 from pydantic import BaseModel
-
+from abc import ABCMeta
 from ..sources.interfaces import SourceInterface
 from ..transformers.interfaces import TransformerInterface
 from ..destinations.interfaces import DestinationInterface
 from ..utilities.interfaces import UtilitiesInterface
+from ..secrets.models import PipelineSecret
 
 class PipelineStep(BaseModel):
     name: str
@@ -30,7 +31,8 @@ class PipelineStep(BaseModel):
 
     class Config:
         json_encoders = {
-            Union[Type[SourceInterface], Type[TransformerInterface], Type[DestinationInterface], Type[UtilitiesInterface]]: lambda x: x.__name__
+            ABCMeta: lambda x: x.__name__,
+            PipelineSecret: lambda x: {'__type__': "PipelineSecret", "__values__": x.dict()}
         }
 
 class PipelineTask(BaseModel):
@@ -40,8 +42,20 @@ class PipelineTask(BaseModel):
     step_list: list[PipelineStep]
     batch_task: Optional[bool]
 
+    class Config:
+        json_encoders = {
+            ABCMeta: lambda x: x.__name__,
+            PipelineSecret: lambda x: {'__type__': "PipelineSecret", "__values__": x.dict()}
+        }
+
 class PipelineJob(BaseModel):
     name: str
     description: str
     version: str
     task_list: list[PipelineTask]
+
+    class Config:
+        json_encoders = {
+            ABCMeta: lambda x: x.__name__,
+            PipelineSecret: lambda x: {'__type__': "PipelineSecret", "__values__": x.dict()}
+        }    
