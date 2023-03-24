@@ -14,6 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
+import pytest
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql.functions import lit
@@ -37,3 +38,17 @@ def test_spark_delta_write_stream(spark_session: SparkSession, mocker: MockerFix
     eventhub_destination = SparkDeltaDestination("test_spark_delta_write_stream", {}, "overwrite")
     actual = eventhub_destination.write_stream(expected_df)
     assert actual is None
+
+def test_spark_delta_write_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
+    mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(mode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(saveAsTable=mocker.Mock(side_effect=Exception))))))))))
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    eventhub_destination = SparkDeltaDestination("test_spark_delta_write_batch", {}, "overwrite")
+    with pytest.raises(Exception):
+        eventhub_destination.write_batch(expected_df)
+
+def test_spark_delta_write_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
+    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(toTable=mocker.Mock(side_effect=Exception))))))))))))))
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    eventhub_destination = SparkDeltaDestination("test_spark_delta_write_stream", {}, "overwrite")
+    with pytest.raises(Exception):
+        eventhub_destination.write_stream(expected_df)
