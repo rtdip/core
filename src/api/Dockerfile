@@ -18,6 +18,9 @@ FROM mcr.microsoft.com/azure-functions/python:4-nightly-python3.10
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 
+RUN sed -i '/jessie/d' /etc/apt/sources.list \
+ && apt-get update
+ 
 RUN rm -rf /var/lib/apt/lists/partial \
     && apt-get clean \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
