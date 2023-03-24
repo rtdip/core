@@ -34,3 +34,10 @@ def test_databricks_autoloader_read_stream(spark_session: SparkSession, mocker: 
     df = autoloader_source.read_stream()
     assert isinstance(df, DataFrame)
     assert autoloader_source.post_read_validation(df)
+
+def test_databricks_autoloader_read_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
+    autoloader_source = DataBricksAutoLoaderSource(spark_session, {}, "/path", "parquet")
+    mocker.patch.object(autoloader_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(side_effect= Exception)))))))))
+    
+    with pytest.raises(Exception):
+        autoloader_source.read_stream()

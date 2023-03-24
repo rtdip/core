@@ -14,6 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
+import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 import json
@@ -45,3 +46,18 @@ def test_spark_eventhub_read_stream(spark_session: SparkSession):
     df = eventhub_source.read_stream()
     assert isinstance(df, DataFrame)
     assert eventhub_source.post_read_validation(df)
+
+def test_spark_eventhub_read_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
+    eventhub_source = SparkEventhubSource(spark_session, {})
+    mocker.patch.object(eventhub_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(read=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(side_effect=Exception)))))))))
+    assert eventhub_source.pre_read_validation()
+    with pytest.raises(Exception):
+        eventhub_source.read_batch()
+
+def test_spark_eventhub_read_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
+    eventhub_source = SparkEventhubSource(spark_session, {})
+    mocker.patch.object(eventhub_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(side_effect=Exception)))))))))
+    assert eventhub_source.pre_read_validation()
+    with pytest.raises(Exception):
+        eventhub_source.read_stream()
+
