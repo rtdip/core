@@ -213,7 +213,7 @@ class PipelineJobFromJson():
             if "type" in value:
                 value["type"] = getattr(sys.modules[__name__], value["type"])
             return PipelineSecret.parse_obj(value)
-        except:
+        except: # NOSONAR
             return value
 
     def convert(self) -> PipelineJob:
