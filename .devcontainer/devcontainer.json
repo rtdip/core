@@ -28,13 +28,15 @@
 				"python.linting.pydocstylePath": "/opt/conda/bin/pydocstyle",
 				"python.linting.pylintPath": "/opt/conda/bin/pylint",
 				"python.testing.pytestArgs": [
+					"--cov=.",
+					"--cov-report=xml:cov.xml",					
 					"tests"
 				],
 				"python.testing.unittestEnabled": false,
 				"python.testing.pytestEnabled": true,
 				"python.testing.cwd": "${workspaceFolder}",
 				"python.analysis.extraPaths": ["${workspaceFolder}"],
-				"python.defaultInterpreterPath": "/opt/conda/envs/rtdip-sdk/bin/python",
+				"python.defaultInterpreterPath": "~/micromamba/envs/rtdip-sdk/bin/python",
 				"terminal.integrated.env.linux":{
 					"PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
 				},				

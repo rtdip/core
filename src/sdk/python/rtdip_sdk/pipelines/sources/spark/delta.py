@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
 
 from ..interfaces import SourceInterface
@@ -50,6 +51,10 @@ class SparkDeltaSource(SourceInterface):
 
     @staticmethod
     def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''            
         return SystemType.PYSPARK
 
     @staticmethod
@@ -80,6 +85,9 @@ class SparkDeltaSource(SourceInterface):
                 .table(self.table_name)
             )
 
+        except Py4JJavaError as e:
+            logging.exception(e.errmsg)
+            raise e
         except Exception as e:
             logging.exception(str(e))
             raise e
@@ -96,6 +104,9 @@ class SparkDeltaSource(SourceInterface):
                 .load(self.table_name)
             )
 
+        except Py4JJavaError as e:
+            logging.exception(e.errmsg)
+            raise e
         except Exception as e:
             logging.exception(str(e))
             raise e

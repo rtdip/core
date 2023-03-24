@@ -43,6 +43,10 @@ class SparkEventhubDestination(DestinationInterface):
 
     @staticmethod
     def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''             
         return SystemType.PYSPARK
 
     @staticmethod
@@ -75,7 +79,7 @@ class SparkEventhubDestination(DestinationInterface):
             )
 
         except Py4JJavaError as e:
-            logging.exception('error with spark write batch eventhub function', e.errmsg)
+            logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))
@@ -98,7 +102,7 @@ class SparkEventhubDestination(DestinationInterface):
                 time.sleep(30)
 
         except Py4JJavaError as e:
-            logging.exception('error with spark write stream eventhub function', e.errmsg)
+            logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))

@@ -56,6 +56,10 @@ class SparkDeltaDestination(DestinationInterface):
 
     @staticmethod
     def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''             
         return SystemType.PYSPARK
 
     @staticmethod
@@ -92,7 +96,7 @@ class SparkDeltaDestination(DestinationInterface):
             )
 
         except Py4JJavaError as e:
-            logging.exception('error with spark write batch delta function', e.errmsg)
+            logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))
@@ -119,7 +123,7 @@ class SparkDeltaDestination(DestinationInterface):
                 time.sleep(30)
 
         except Py4JJavaError as e:
-            logging.exception('error with spark write stream delta function', e.errmsg)
+            logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))

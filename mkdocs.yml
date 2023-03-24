@@ -139,6 +139,8 @@ nav:
                       - Utilities:
                             - Spark:
                                  - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
+                      - Secrets:
+                            - Databricks: sdk/code-reference/pipelines/secrets/databricks.md
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md

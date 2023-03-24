@@ -52,6 +52,10 @@ class SparkDeltaSharingSource(SourceInterface):
 
     @staticmethod
     def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''          
         return SystemType.PYSPARK
 
     @staticmethod
@@ -83,7 +87,7 @@ class SparkDeltaSharingSource(SourceInterface):
             )
 
         except Py4JJavaError as e:
-            logging.exception('error with spark read batch delta sharing function', e.errmsg)
+            logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))
@@ -102,7 +106,7 @@ class SparkDeltaSharingSource(SourceInterface):
             )
         
         except Py4JJavaError as e:
-            logging.exception('error with spark read stream delta sharing function', e.errmsg)
+            logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))

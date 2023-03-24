@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StructType, StructField, BinaryType, StringType, LongType, TimestampType, MapType
 
@@ -48,6 +49,10 @@ class SparkEventhubSource(SourceInterface):
 
     @staticmethod
     def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''            
         return SystemType.PYSPARK
 
     @staticmethod
@@ -84,6 +89,9 @@ class SparkEventhubSource(SourceInterface):
                 .load()
             )
 
+        except Py4JJavaError as e:
+            logging.exception(e.errmsg)
+            raise e
         except Exception as e:
             logging.exception(str(e))
             raise e
@@ -105,6 +113,9 @@ class SparkEventhubSource(SourceInterface):
                 .load()
             )
 
+        except Py4JJavaError as e:
+            logging.exception(e.errmsg)
+            raise e
         except Exception as e:
             logging.exception(str(e))
             raise e

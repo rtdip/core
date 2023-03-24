@@ -64,9 +64,6 @@ class DatabricksDBXDeploy(DeployInterface):
                     databricks_job_task.libraries.append(DatabricksLibraries(maven=DatabricksLibrariesMaven(coordinates=maven_library.to_string(), repo=maven_library.repo)))
                 for wheel_library in libraries.pythonwheel_libraries:
                     databricks_job_task.libraries.append(DatabricksLibraries(whl=wheel_library))
-                    
-                # convert to string for json conversion later
-                step.component = step.component.__name__
 
             try:
                 rtdip_version = version("rtdip-sdk")
