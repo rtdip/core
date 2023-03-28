@@ -11,15 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import logging
 import pandas as pd
-from .raw import get as raw_get
-from .metadata import get as metadata_get
+from src.sdk.python.rtdip_sdk.functions.raw import get as raw_get
+from src.sdk.python.rtdip_sdk.functions.metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np
-
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     A function that recieves a dataframe of raw tag data and performs a timeweighted average, returning the results. 
@@ -31,7 +29,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     Args:
         connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
         parameters_dict (dict): A dictionary of parameters (see Attributes table below)
-
     Attributes:
         business_unit (str): Business unit 
         region (str): Region
@@ -45,39 +42,32 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         window_length (int): (Optional) add longer window time for the start or end of specified date to cater for edge cases
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         step (str): data points with step "enabled" or "disabled". The options for step are "metadata" (string), True or False (bool)
-
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
     '''
     try:
         datetime_format = "%Y-%m-%dT%H:%M:%S"
         utc="Etc/UTC"
-
         if len(parameters_dict["start_date"]) == 10:
             original_start_date = datetime.strptime(parameters_dict["start_date"] + "T00:00:00", datetime_format)
             parameters_dict["start_date"] = parameters_dict["start_date"] + "T00:00:00"
         else:
             original_start_date = datetime.strptime(parameters_dict["start_date"], datetime_format)
-
         if len(parameters_dict["end_date"]) == 10:
             original_end_date = datetime.strptime(parameters_dict["end_date"] + "T23:59:59", datetime_format) 
             parameters_dict["end_date"] = parameters_dict["end_date"] + "T23:59:59"
         else: 
             original_end_date = datetime.strptime(parameters_dict["end_date"], datetime_format)
-
         if "window_length" in parameters_dict:       
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format)
             parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format) 
         else:
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
             parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
-
         pandas_df = raw_get(connection, parameters_dict)
 
         pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
-
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
-
         for tag in parameters_dict["tag_names"]:
             start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
             end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
@@ -85,7 +75,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         boundaries_df.set_index(pd.DatetimeIndex(boundaries_df["EventTime"]), inplace=True)
         boundaries_df.drop(columns="EventTime", inplace=True)
         boundaries_df = boundaries_df.groupby(["TagName"]).resample("{}T".format(str(parameters_dict["window_size_mins"]))).ffill().drop(columns='TagName')
-
         #preprocess - add boundaries and time interpolate missing boundary values
         preprocess_df = pandas_df.copy()
         preprocess_df["EventTime"] = preprocess_df["EventTime"].round("S")
@@ -102,7 +91,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             preprocess_df["Step"] = False
         else:
             raise Exception('Unexpected step value', parameters_dict["step"])
-
         def process_time_weighted_averages_step(pandas_df):
             if pandas_df["Step"].any() == False:
                 pandas_df = pandas_df.reset_index(level=["TagName", "EventDate"]).sort_index().interpolate(method='time')
@@ -116,15 +104,49 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
                 shift_raw_df["CalcValue"] = (shift_raw_df.index.to_series().diff().dt.seconds/86400) * shift_raw_df.Value.shift(1)
                 time_weighted_averages = shift_raw_df.resample("{}T".format(str(parameters_dict["window_size_mins"])), closed="right", label="right").CalcValue.sum() / parameters_dict["window_size_mins"] * 24 * 60
                 return time_weighted_averages
-
+            
         #calculate time weighted averages
         time_weighted_averages = preprocess_df.groupby(["TagName"]).apply(process_time_weighted_averages_step).reset_index()
-        time_weighted_averages = time_weighted_averages.melt(id_vars="TagName", var_name="EventTime", value_name="Value").set_index("EventTime").sort_values(by=["TagName", "EventTime"])
+
+        if "CalcValue" not in time_weighted_averages.columns:
+            time_weighted_averages = time_weighted_averages.melt(id_vars="TagName", var_name="EventTime", value_name="Value")
+        else: 
+            time_weighted_averages = time_weighted_averages.rename(columns={"CalcValue": "Value"})
+            
+        time_weighted_averages = time_weighted_averages.set_index("EventTime").sort_values(by=["TagName", "EventTime"])
+        
         time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
         weighted_averages_timezones = np.array([z.replace(tzinfo=pytz.timezone(utc)) for z in time_weighted_averages_datetime])
         time_weighted_averages = time_weighted_averages[(original_start_date.replace(tzinfo=pytz.timezone(utc)) < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date.replace(tzinfo=pytz.timezone(utc)) + timedelta(seconds = 1))]
         return time_weighted_averages
+    
         
     except Exception as e:
         logging.exception('error with time weighted average function', str(e))
         raise e
+
+from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
+from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+#testing 
+auth = DefaultAuth(exclude_cli_credential=True,exclude_powershell_credential=True,exclude_shared_token_cache_credential=True,logging_enable=True,exclude_visual_studio_code_credential=True).authenticate()
+token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
+dict = {
+"business_unit": "downstream",
+"region": "EMEA", 
+"asset": "pernis", 
+"data_security_level": "restricted", 
+"data_type": "float", 
+"tag_names": ['GEFAC:980TJ16.PV', 'HYCON:15TJ050.PV'],      
+        # , 'COF2:41TJ096.PV''HYCON:980TJ002.PV', 'CD5:505FC003.PV'], 
+#"tag_names": ['QSGTL_A10MOV18008.SWITCHA.OP', 'QSGTL_A10FC18005.PIDA.OP', 'QSGTL_A20FY10003.DACA.PV', 'QSGTL_130TDZ32055E.PV', 'QSGTL_130TDZ32056A.PV'], 
+"start_date": "2023-03-10", 
+"end_date": "2023-03-14", 
+"window_size_mins": 1440, 
+"window_length": 20, 
+"include_bad_data": False, 
+"step": True
+}
+x = get(connection, dict)
+print(x)
+
