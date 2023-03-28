@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import sys
-from rtdip.tasks.common import Task
+from rtdip_sdk.pipelines.deploy.dbx.rtdip.tasks.common import Task
 from rtdip_sdk.pipelines.execute import *
 from rtdip_sdk.pipelines.sources import *
 from rtdip_sdk.pipelines.transformers import *
