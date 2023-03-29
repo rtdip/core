@@ -72,7 +72,9 @@ extra:
 plugins:
     - search
     - autorefs
-    - mkdocstrings
+    - mkdocstrings:
+        watch:
+            - src/sdk/python/rtdip_sdk    
     - macros:
         module_name: docs/macros
 
@@ -139,8 +141,12 @@ nav:
                       - Utilities:
                             - Spark:
                                  - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
+                      - Converters:
+                            - Json: sdk/code-reference/pipelines/converters/pipeline_job_json.md    
                       - Secrets:
                             - Databricks: sdk/code-reference/pipelines/secrets/databricks.md
+                      - Deploy:
+                            - Databricks DBX: sdk/code-reference/pipelines/deploy/databricks_dbx.md                          
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md

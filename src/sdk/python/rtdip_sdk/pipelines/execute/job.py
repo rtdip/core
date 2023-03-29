@@ -12,22 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-import json
 from dependency_injector import containers, providers
-
 from .container import Clients, Configs
 from .models import PipelineJob, PipelineTask, PipelineStep
 from .._pipeline_utils.models import Libraries, SystemType
-from ..sources import * # NOSONAR
 from ..sources.interfaces import SourceInterface
-from ..transformers import * # NOSONAR
 from ..transformers.interfaces import TransformerInterface
-from ..destinations import * # NOSONAR
 from ..destinations.interfaces import DestinationInterface
-from ..utilities import * # NOSONAR
 from ..utilities.interfaces import UtilitiesInterface
-from ..secrets import * # NOSONAR
 from ..secrets.models import PipelineSecret
 
 
@@ -195,39 +187,3 @@ class PipelineJobExecute():
                         task_results[step] = result
 
         return True
-                    
-class PipelineJobFromJson():
-    '''
-    Converts a json string into a Pipeline Jobs
-
-    Args:
-        pipeline_json: Json representing PipelineJob information, including tasks and related steps 
-    '''
-    pipeline_json: str
-
-    def __init__(self, pipeline_json: str):
-        self.pipeline_json = pipeline_json
-    
-    def _try_convert_to_pipeline_secret(self, value):
-        try:
-            if "type" in value:
-                value["type"] = getattr(sys.modules[__name__], value["type"])
-            return PipelineSecret.parse_obj(value)
-        except: # NOSONAR
-            return value
-
-    def convert(self) -> PipelineJob:
-        pipeline_job_dict = json.loads(self.pipeline_json)
-
-        # convert string component to class
-        for task in pipeline_job_dict["task_list"]:
-            for step in task["step_list"]:
-                step["component"] = getattr(sys.modules[__name__], step["component"])
-                for param_key, param_value in step["component_parameters"].items():
-                    step["component_parameters"][param_key] = self._try_convert_to_pipeline_secret(param_value)
-                    if not isinstance(step["component_parameters"][param_key], PipelineSecret) and isinstance(param_value, dict):
-                        for key, value in param_value.items():
-                            step["component_parameters"][param_key][key] = self._try_convert_to_pipeline_secret(value) 
-
-        return PipelineJob(**pipeline_job_dict)
-    

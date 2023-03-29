@@ -26,7 +26,7 @@ def get_spark_pipeline_job() -> PipelineJob:
     eventhub_configuration = {
         "eventhubs.connectionString": connection_string, 
         "eventhubs.consumerGroup": "$Default",
-        "eventhubs.startingPosition": json.dumps({"offset": "0", "seqNo": -1, "enqueuedTime": None, "isInclusive": True})
+        "eventhubs.startingPosition": {"offset": "0", "seqNo": -1, "enqueuedTime": None, "isInclusive": True}
     }    
     step_list.append(PipelineStep(
         name="test_step1",
