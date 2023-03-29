@@ -42,11 +42,11 @@ class PipelineStep(BaseModel):
     component_parameters: Optional[dict]
     provide_output_to_step: Optional[list[str]]
 
-    # class Config:
-    #     json_encoders = {
-    #         ABCMeta: lambda x: x.__name__,
-    #         PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
-    #     }
+    class Config:
+        json_encoders = {
+            ABCMeta: lambda x: x.__name__,
+            PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
+        }
 
     #validators
     _validate_name = validator("name", allow_reuse=True, always=True)(validate_name)
@@ -60,11 +60,11 @@ class PipelineTask(BaseModel):
     step_list: list[PipelineStep]
     batch_task: Optional[bool]
 
-    # class Config:
-    #     json_encoders = {
-    #         ABCMeta: lambda x: x.__name__,
-    #         PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
-    #     }
+    class Config:
+        json_encoders = {
+            ABCMeta: lambda x: x.__name__,
+            PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
+        }
 
     #validators
     _validate_name = validator("name", allow_reuse=True)(validate_name)
@@ -76,11 +76,11 @@ class PipelineJob(BaseModel):
     version: str
     task_list: list[PipelineTask]
 
-    # class Config:
-    #     json_encoders = {
-    #         ABCMeta: lambda x: x.__name__,
-    #         PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
-    #     }
+    class Config:
+        json_encoders = {
+            ABCMeta: lambda x: x.__name__,
+            PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
+        }
 
     #validators
     _validate_name = validator("name", allow_reuse=True)(validate_name)

@@ -45,6 +45,9 @@ class PipelineJobFromJson(ConverterInterface):
             return value
 
     def convert(self) -> PipelineJob:
+        '''
+        Converts a json string to a Pipeline Job
+        '''
         pipeline_job_dict = json.loads(self.pipeline_json)
 
         # convert string component to class
@@ -72,6 +75,9 @@ class PipelineJobToJson(ConverterInterface):
         self.pipeline_job = pipeline_job
     
     def convert(self):
+        '''
+        Converts a Pipeline Job to a json string
+        '''
         # required because pydantic does not use encoders in subclasses
         for task in self.pipeline_job.task_list:
             step_dict_list = []
