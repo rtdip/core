@@ -158,7 +158,7 @@ Destinations are components that connect to sink/destination systems and write d
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|---------|
 | Delta Append|*:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q1 2023|
 | Eventhub|*:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:||Q1 2023|
-| Delta Merge||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q1 2023|
+| Delta Merge||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
 | Kafka|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
 | Kinesis||:heavy_check_mark:|:heavy_check_mark:||:heavy_check_mark:|Q2 2023|
 | Rest API|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
@@ -193,4 +193,4 @@ Edge components are designed to provide a lightweight, low latency, low resource
 
 ## Conclusion
 
-This is a very high level overview of the framework and the components that will be developed. As the framework is open source, the lists defined above and timelines can change depending on circumstances and resource availability. Its an exciting year for 2023 for the Real Time Data Ingestion Platform. Check back in regularly for updates and new features! If you would like to contribute, please visit our repository onn Github and connect with us on our Slack channel on the LF Energy Foundation Slack workspace.
+This is a very high level overview of the framework and the components that will be developed. As the framework is open source, the lists defined above and timelines can change depending on circumstances and resource availability. Its an exciting year for 2023 for the Real Time Data Ingestion Platform. Check back in regularly for updates and new features! If you would like to contribute, please visit our repository on Github and connect with us on our Slack channel on the LF Energy Foundation Slack workspace.

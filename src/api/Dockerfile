@@ -17,10 +17,12 @@ FROM mcr.microsoft.com/azure-functions/python:4-python3.10
 
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
-
-RUN rm -rf /var/lib/apt/lists/partial \
+ 
+RUN sed -i '/jessie/d' /etc/apt/sources.list \ 
+    && rm -rf /var/lib/apt/lists/partial \
     && apt-get clean \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
+    && apt-get upgrade -y \
     && apt-get install -y gcc g++ odbcinst1debian2 libodbc1 odbcinst unixodbc-dev libsasl2-dev libsasl2-modules-gssapi-mit \
     && apt-get install -y ca-certificates curl
 

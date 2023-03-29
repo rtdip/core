@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pytest_mock import MockerFixture
-from src.sdk.python.rtdip_sdk.authentication.authenticate import CertificateAuth, ClientSecretAuth, Authenticator, DefaultAuth
+from src.sdk.python.rtdip_sdk.authentication.authenticate import CertificateAuth, ClientSecretAuth, DefaultAuth
 import pytest
 
 TENANT_ID = "tenantid123"

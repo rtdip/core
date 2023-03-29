@@ -20,7 +20,6 @@ site_author: Real Time Data Ingestion Platform
 site_description: >-
   Easy access to high volume, historical and real time process data 
   for analytics applications, engineers, and data scientists wherever they are.
-
 # Repository
 repo_name: rtdip/core
 repo_url: https://github.com/rtdip/core/
@@ -41,7 +40,7 @@ theme:
         - content.code.annotate
         - content.tabs.link
         - content.tooltips
-        - navigation.expand
+        #- navigation.expand
         - navigation.indexes
         - navigation.instant
         - navigation.sections
@@ -73,7 +72,11 @@ extra:
 plugins:
     - search
     - autorefs
-    - mkdocstrings
+    - mkdocstrings:
+        watch:
+            - src/sdk/python/rtdip_sdk    
+    - macros:
+        module_name: docs/macros
 
 markdown_extensions:
   - attr_list
@@ -108,18 +111,42 @@ nav:
           - SQL Warehouses: sdk/sqlwarehouses/sql-warehouses.md
           - Troubleshooting: sdk/troubleshooting.md
           - Code Reference:
-                - Connectors:
-                      - Databricks SQL Connector: sdk/code-reference/db-sql-connector.md
-                      - PYODBC SQL Connector: sdk/code-reference/pyodbc-sql-connector.md
-                      - TURBODBC SQL Connector: sdk/code-reference/turbodbc-sql-connector.md
-                - Authenticators:
-                      - Authentication: sdk/code-reference/authenticate.md
-                - Functions:
-                      - Resample: sdk/code-reference/resample.md
-                      - Interpolate: sdk/code-reference/interpolate.md
-                      - Raw: sdk/code-reference/raw.md
-                      - Time Weighted Average: sdk/code-reference/time-weighted-average.md
-                      - Metadata: sdk/code-reference/metadata.md
+                - Queries:
+                      - Connectors:
+                            - Databricks SQL Connector: sdk//code-reference/query/db-sql-connector.md
+                            - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
+                            - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
+                      - Authenticators:
+                            - Authentication: sdk/code-reference/query/authenticate.md
+                      - Functions:
+                            - Resample: sdk/code-reference/query/resample.md
+                            - Interpolate: sdk/code-reference/query/interpolate.md
+                            - Raw: sdk/code-reference/query/raw.md
+                            - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
+                            - Metadata: sdk/code-reference/query/metadata.md
+                - Pipelines:
+                      - Sources:
+                            - Spark:
+                                 - Eventhub: sdk/code-reference/pipelines/sources/spark/eventhub.md
+                                 - Delta: sdk/code-reference/pipelines/sources/spark/delta.md
+                                 - Delta Sharing: sdk/code-reference/pipelines/sources/spark/delta_sharing.md
+                                 - Autoloader: sdk/code-reference/pipelines/sources/spark/autoloader.md
+                      - Transformers:
+                            - Spark:
+                                 - Eventhub: sdk/code-reference/pipelines/transformers/spark/eventhub.md                                 
+                      - Destinations:
+                            - Spark:
+                                 - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
+                                 - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
+                      - Utilities:
+                            - Spark:
+                                 - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
+                      - Converters:
+                            - Json: sdk/code-reference/pipelines/converters/pipeline_job_json.md    
+                      - Secrets:
+                            - Databricks: sdk/code-reference/pipelines/secrets/databricks.md
+                      - Deploy:
+                            - Databricks DBX: sdk/code-reference/pipelines/deploy/databricks_dbx.md                          
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md
@@ -132,7 +159,7 @@ nav:
           - 2023: roadmap/yearly-roadmaps/2023-development-roadmap.md
           - 2022: roadmap/yearly-roadmaps/2022-development-roadmap.md
     - Releases:
-          - Overview: releases/releases.md
+          - core: releases/core.md
     - Blog:
           - Overview: blog/overview.md
           - Posts:
