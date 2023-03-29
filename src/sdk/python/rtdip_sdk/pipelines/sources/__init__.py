@@ -20,3 +20,8 @@ from .spark.iot_hub import *
 from .spark.kafka import *
 from .spark.kinesis import *
 from .spark.iso import *
+
+from .spark.autoloader import *
+from .spark.delta import *
+from .spark.delta_sharing import *
+from .spark.eventhub import *
