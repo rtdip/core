@@ -52,7 +52,7 @@ dependencies:
           - dependency-injector==4.41.0
           - azure-functions==1.12.0
           - databricks-sql-connector==2.4.0
-          - dbx==0.8.9
+          - dbx==0.8.10
           - pygithub==1.58.0
           - strawberry-graphql[fastapi]==0.159.0
           - nest_asyncio==1.5.6

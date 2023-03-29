@@ -12,21 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from setuptools import find_packages, setup
+from abc import ABC, abstractmethod
 
-PACKAGE_REQUIREMENTS = ["pyyaml"]
+class ConverterInterface(ABC):
 
-setup(
-    name=os.environ.get("RTDIP_PACKAGE_NAME"),
-    packages=find_packages(exclude=["tests", "tests.*"]),
-    setup_requires=["setuptools","wheel"],
-    install_requires=PACKAGE_REQUIREMENTS,
-    entry_points = {
-        "console_scripts": [
-            "pipeline = dbx.rtdip.tasks.pipeline_task:entrypoint",
-    ]},
-    version=os.environ.get("RTDIP_PACKAGE_VERSION"),
-    description=os.environ.get("RTDIP_PACKAGE_DESCRIPTION"),
-    author="",
-)
+    @abstractmethod
+    def convert(self):
+        pass  

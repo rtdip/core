@@ -6,7 +6,19 @@ import pathlib
 from pyspark.sql import SparkSession
 import sys
 
-from ....._pipeline_utils.spark import get_dbutils
+def get_dbutils(
+    spark: SparkSession,
+):  # please note that this function is used in mocking by its name
+    try:
+        from pyspark.dbutils import DBUtils  # noqa
+
+        if "dbutils" not in locals():
+            utils = DBUtils(spark)
+            return utils
+        else:
+            return locals().get("dbutils")
+    except ImportError:
+        return None
 
 class Task(ABC):
     """

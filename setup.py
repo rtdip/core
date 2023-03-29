@@ -45,7 +45,7 @@ PYSPARK_PACKAGES = [
 
 PIPELINE_PACKAGES = [
   "dependency-injector==4.41.0",
-  "dbx==0.8.9",
+  "dbx==0.8.10",
   "pydantic==1.10.6"
 ]
 

@@ -14,11 +14,12 @@
 
 import sys
 from rtdip.tasks.common import Task
-from rtdip_sdk.pipelines.execute import *
-from rtdip_sdk.pipelines.sources import *
-from rtdip_sdk.pipelines.transformers import *
-from rtdip_sdk.pipelines.destinations import *
-from rtdip_sdk.pipelines.utilities import *
+from rtdip_sdk.pipelines.execute import * # NOSONAR
+from rtdip_sdk.pipelines.sources import * # NOSONAR
+from rtdip_sdk.pipelines.transformers import * # NOSONAR
+from rtdip_sdk.pipelines.destinations import * # NOSONAR
+from rtdip_sdk.pipelines.utilities import * # NOSONAR
+from rtdip_sdk.pipelines.converters import * # NOSONAR
 
 class RTDIPPipelineTask(Task):
     def launch(self):
