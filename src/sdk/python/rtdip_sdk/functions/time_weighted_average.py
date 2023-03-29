@@ -13,8 +13,8 @@
 # limitations under the License.
 import logging
 import pandas as pd
-from src.sdk.python.rtdip_sdk.functions.raw import get as raw_get
-from src.sdk.python.rtdip_sdk.functions.metadata import get as metadata_get
+from .raw import get as raw_get
+from .metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np
@@ -124,29 +124,3 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with time weighted average function', str(e))
         raise e
-
-from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-#testing 
-auth = DefaultAuth(exclude_cli_credential=True,exclude_powershell_credential=True,exclude_shared_token_cache_credential=True,logging_enable=True,exclude_visual_studio_code_credential=True).authenticate()
-token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
-dict = {
-"business_unit": "downstream",
-"region": "EMEA", 
-"asset": "pernis", 
-"data_security_level": "restricted", 
-"data_type": "float", 
-"tag_names": ['GEFAC:980TJ16.PV', 'HYCON:15TJ050.PV'],      
-        # , 'COF2:41TJ096.PV''HYCON:980TJ002.PV', 'CD5:505FC003.PV'], 
-#"tag_names": ['QSGTL_A10MOV18008.SWITCHA.OP', 'QSGTL_A10FC18005.PIDA.OP', 'QSGTL_A20FY10003.DACA.PV', 'QSGTL_130TDZ32055E.PV', 'QSGTL_130TDZ32056A.PV'], 
-"start_date": "2023-03-10", 
-"end_date": "2023-03-14", 
-"window_size_mins": 1440, 
-"window_length": 20, 
-"include_bad_data": False, 
-"step": True
-}
-x = get(connection, dict)
-print(x)
-
