@@ -12,14 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Type, Union
-from pydantic import BaseModel
+from typing import Optional, Type, Union, Dict
+import re
+from pydantic import BaseConfig, BaseModel, validator
 from abc import ABCMeta
 from ..sources.interfaces import SourceInterface
 from ..transformers.interfaces import TransformerInterface
 from ..destinations.interfaces import DestinationInterface
 from ..utilities.interfaces import UtilitiesInterface
 from ..secrets.models import PipelineSecret
+
+
+BaseConfig.json_encoders = {
+    ABCMeta: lambda x: x.__name__,
+    PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
+}
+
+def validate_name(name: str) -> str:
+    if re.match("^[a-z0-9_]*$", name) == None:
+        raise ValueError('Can only contain lower case letters, numbers and underscores')
+    else:
+        return name
 
 class PipelineStep(BaseModel):
     name: str
@@ -29,11 +42,16 @@ class PipelineStep(BaseModel):
     component_parameters: Optional[dict]
     provide_output_to_step: Optional[list[str]]
 
-    class Config:
-        json_encoders = {
-            ABCMeta: lambda x: x.__name__,
-            PipelineSecret: lambda x: {'__type__': "PipelineSecret", "__values__": x.dict()}
-        }
+    # class Config:
+    #     json_encoders = {
+    #         ABCMeta: lambda x: x.__name__,
+    #         PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
+    #     }
+
+    #validators
+    _validate_name = validator("name", allow_reuse=True, always=True)(validate_name)
+    _validate_depends_on_step = validator("depends_on_step", allow_reuse=True, each_item=True)(validate_name)
+    _validate_provide_output_to_step = validator("provide_output_to_step", allow_reuse=True, each_item=True)(validate_name)
 
 class PipelineTask(BaseModel):
     name: str
@@ -42,11 +60,15 @@ class PipelineTask(BaseModel):
     step_list: list[PipelineStep]
     batch_task: Optional[bool]
 
-    class Config:
-        json_encoders = {
-            ABCMeta: lambda x: x.__name__,
-            PipelineSecret: lambda x: {'__type__': "PipelineSecret", "__values__": x.dict()}
-        }
+    # class Config:
+    #     json_encoders = {
+    #         ABCMeta: lambda x: x.__name__,
+    #         PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
+    #     }
+
+    #validators
+    _validate_name = validator("name", allow_reuse=True)(validate_name)
+    _validate_depends_on_step = validator("depends_on_task", allow_reuse=True, each_item=True)(validate_name)
 
 class PipelineJob(BaseModel):
     name: str
@@ -54,8 +76,11 @@ class PipelineJob(BaseModel):
     version: str
     task_list: list[PipelineTask]
 
-    class Config:
-        json_encoders = {
-            ABCMeta: lambda x: x.__name__,
-            PipelineSecret: lambda x: {'__type__': "PipelineSecret", "__values__": x.dict()}
-        }    
+    # class Config:
+    #     json_encoders = {
+    #         ABCMeta: lambda x: x.__name__,
+    #         PipelineSecret: lambda x: {"pipeline_secret": x.dict()}
+    #     }
+
+    #validators
+    _validate_name = validator("name", allow_reuse=True)(validate_name)

@@ -24,6 +24,7 @@ from dbx.api.auth import ProfileEnvConfigProvider
 from .interfaces import DeployInterface
 from .models.databricks import DatabricksJob, DatabricksJobForPipelineJob, DatabricksSparkPythonTask, DatabricksTask, DatabricksLibraries, DatabricksLibrariesMaven, DatbricksLibrariesPypi, DatabricksDBXProject
 from ..execute.job import PipelineJob
+from ..converters.pipeline_job_json import PipelineJobToJson
 
 __name__: str
 __version__: str
@@ -56,8 +57,8 @@ class DatabricksDBXDeploy(DeployInterface):
             job_cluster_key="test_job_cluster", 
             new_cluster=DatabricksCluster(
                 spark_version = "11.3.x-scala2.12",
-                virtual_cluster_size = "VirtualSmall",
-                enable_serverless_compute = True
+                node_type_id = "Standard_D3_v2",
+                num_workers = 2
             )
         )
 
@@ -170,7 +171,7 @@ class DatabricksDBXDeploy(DeployInterface):
 
             databricks_job_task.spark_python_task = DatabricksSparkPythonTask(
                 python_file="file://{}".format("rtdip/tasks/pipeline_task.py"), #.format(task_python_file_location),
-                parameters=[self.pipeline_job.json(exclude_none=True)]
+                parameters=[PipelineJobToJson(self.pipeline_job).convert()]
             )
             databricks_tasks.append(databricks_job_task)
 
