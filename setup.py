@@ -74,7 +74,7 @@ setup(
     version=sic(os.environ["RTDIP_SDK_NEXT_VER"]),
     package_dir={"": "src/sdk/python"},
     packages=find_packages(where="src/sdk/python"),
-    python_requires=">=3.8, <=3.10",
+    python_requires=">=3.8, <3.11",
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_DEPENDENCIES,
     setup_requires=["pytest-runner","setuptools_scm"],

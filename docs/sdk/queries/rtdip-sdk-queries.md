@@ -1,11 +1,11 @@
-# Getting started with using the RTDIP SDK
+# Queries using the RTDIP SDK
 
-This article provides a guide on how to use RTDIP SDK. Before you get started, ensure you have installed the [RTDIP Python Package](https://pypi.org/project/rtdip-sdk/) and check the [RTDIP Installation Page](../getting-started/installation.md) for all the required prerequisites.
+This article provides a guide on how to use RTDIP SDK to query data. Before you get started, ensure you have installed the [RTDIP Python Package](https://pypi.org/project/rtdip-sdk/) and check the [RTDIP Installation Page](../../getting-started/installation.md) for all the required prerequisites.
 
 
 ## How to use the SDK
 
-The RTDIP SDK has many functionalities, such as allowing the user to authenticate, connect and/or use the most commonly requested methods.
+The RTDIP SDK has many functionalities, such as allowing the user to authenticate, connect and/or use the most commonly requested methods for manipulating time series data.
 
 ### Authenticate
 
@@ -31,7 +31,7 @@ The RTDIP SDK has many functionalities, such as allowing the user to authenticat
     
     access_token = DefaultAzureCredential.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
 
-### Sample Authentication Code:
+### Sample Authentication Code
 
 ```python
 from rtdip_sdk.authentication import authenticate as auth
@@ -40,10 +40,10 @@ authentication = auth.DefaultAuth().authenticate()
 access_token = authentication.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
 ```
 
-For more information about each of the authentication methods, see [Code Reference](code-reference/query/authenticate.md) and navigate to the required section.
+For more information about each of the authentication methods, see [Code Reference](../code-reference/query/authenticate.md) and navigate to the required section.
 
 !!! note "Note"
-    </b>If you are experiencing any trouble authenticating please see [Troubleshooting - Authentication](troubleshooting.md)<br />
+    </b>If you are experiencing any trouble authenticating please see [Troubleshooting - Authentication](../troubleshooting.md)<br />
 
 ### Connect to RTDIP
 
@@ -77,7 +77,7 @@ connection = d.DatabricksSQLConnection(server_hostname: str, http_path: str, acc
 
 * Microsoft Visual C++ 14.0 or greater is required. Get it from [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 
-* Driver paths can be found on [PYODBC Driver Paths](code-reference/query/pyodbc-sql-connector.md)
+* Driver paths can be found on [PYODBC Driver Paths](../code-reference/query/pyodbc-sql-connector.md)
 
 ```python
 from rtdip_sdk.authentication import authenticate as auth
@@ -96,7 +96,7 @@ connection = p.PYODBCSQLConnection(driver_path: str, sever_hostname: str, http_p
 #### TURBODBC SQL Connect
 
 * [ODBC](https://databricks.com/spark/odbc-drivers-download) or [JDBC](https://databricks.com/spark/jdbc-drivers-download) are required to leverage TURBODBC. Follow these [instructions](https://docs.databricks.com/integrations/jdbc-odbc-bi.html) to install the drivers in your environment.
-* [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) needs to be installed locally to use the [TURBODBC SQL Connector](code-reference/query/turbodbc-sql-connector.md) (<em>Optional</em>)
+* [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) needs to be installed locally to use the [TURBODBC SQL Connector](../code-reference/query/turbodbc-sql-connector.md) (<em>Optional</em>)
 
 ```python
 from rtdip_sdk.authentication import authenticate as auth
@@ -111,7 +111,7 @@ access_token = authentication.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.d
 connection = t.TURBODBCSQLConnection(server_hostname: str, http_path: str, access_token: str)
 ```
 
-For more information about each of the connection methods, please see [Code Reference](code-reference/query/db-sql-connector.md) and navigate to the required section.
+For more information about each of the connection methods, please see [Code Reference](../code-reference/query/db-sql-connector.md) and navigate to the required section.
 
 ### Functions
 
@@ -144,11 +144,11 @@ from rtdip_sdk.functions import metadata
 #### Metadata
     metadata.get(connection, parameter_dict)
 
-For more information about the function parameters see [Code Reference](code-reference/query/resample.md) and navigate through the required function.
+For more information about the function parameters see [Code Reference](../code-reference/query/resample.md) and navigate through the required function.
 
 ### Example
 
-This is a code example of the RTDIP SDK Interpolate function. You will need to replace the parameters with your own requirements and details. If you are unsure on the options please see [Code Reference - Interpolate](code-reference/query/interpolate.md) and navigate to the attributes section. 
+This is a code example of the RTDIP SDK Interpolate function. You will need to replace the parameters with your own requirements and details. If you are unsure on the options please see [Code Reference - Interpolate](../code-reference/query/interpolate.md) and navigate to the attributes section. 
 
 ```python
 from rtdip_sdk.authentication import authenticate as auth
@@ -179,7 +179,7 @@ result = interpolate.get(connection, dict)
 print(result)
 ```
 !!! note "Note"
-    </b>If you are having problems please see [Troubleshooting](troubleshooting.md) for more information.<br />
+    </b>If you are having problems please see [Troubleshooting](../troubleshooting.md) for more information.<br />
 
 ### Conclusion
 
