@@ -103,6 +103,10 @@ nav:
           - Why RTDIP: getting-started/why-rtdip.md
           - Installation: 
                 - RTDIP SDK: getting-started/installation.md
+    - Domains:
+          - Weather:
+                - Overview: domains/weather/overview.md
+                - Data Model: domains/weather/data-model.md                
     - Integration:
           - Power BI: integration/power-bi.md
     - SDK:
