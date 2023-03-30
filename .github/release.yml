@@ -36,7 +36,10 @@ changelog:
         - bug            
     - title: Documentation
       labels:
-        - documentation      
+        - documentation
+    - title: Ingestion Framework
+      labels:
+        - ingestion framework      
     - title: Other Changes
       labels:
         - "*"
