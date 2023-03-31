@@ -11,20 +11,29 @@ The RTDIP SDK has rich support of querying data using Databricks SQL, such as al
 
 === "Azure Active Directory"
 
+    Refer to the [Azure Active Directory](../../authentication/azure.md) documentation for further options to perform Azure AD authentication, such as Service Principal authentication using certificates or secrets. Below is an example of performing default authentication that retrieives a token for Azure Databricks. 
 
-Refer to the [Azure Active Directory](../../authentication/azure.md) documentation for further options to perform Azure AD authentication, such as Service Principal authentication using certificates or secrets. Below is an example of performing default authentication that retrieives a token for Azure Databricks. 
+    Please also refer to the [Code Reference](../../code-reference/authentication/azure.md) for further technical information.
 
-Please also refer to the [Code Reference](../../code-reference/authentication/azure.md) for further technical information.
+    ```python
+    from rtdip_sdk.authentication import authenticate as auth
 
-```python
-from rtdip_sdk.authentication import authenticate as auth
+    authentication = auth.DefaultAuth().authenticate()
+    access_token = authentication.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+    ```
 
-authentication = auth.DefaultAuth().authenticate()
-access_token = authentication.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-```
+    !!! note "Note"
+        </b>If you are experiencing any trouble authenticating please see [Troubleshooting - Authentication](troubleshooting.md)<br />
 
-!!! note "Note"
-    </b>If you are experiencing any trouble authenticating please see [Troubleshooting - Authentication](troubleshooting.md)<br />
+=== "Databricks"
+
+    Refer to the [Databricks](../../authentication/databricks.md) documentation for further information about generating a Databricks PAT Token. Below is an example of performing default authentication that retrieives a token for a Databricks Workspace. 
+
+    Provide your `dbapi.....` token to the `access_token` in the examples below.
+
+    ```python
+    access_token = "dbapi.........."
+    ```
 
 ### Connect to Databricks SQL
 
