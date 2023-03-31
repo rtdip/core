@@ -1,6 +1,6 @@
 **LF Energy RTDIP **
 
-[ToDo add image 1]
+![Alt text](domains/images/rtdip-horizontal-color.png){width=100%}
 
 Organizations need data for day-to-day operations and to support advanced Data Science, Statistical and Machine Learning capabilities such as Optimization, Surveillance, Forecasting, and Predictive Analytics. **Real Time Data** forms a major part of the total data utilized in these activities.
 
