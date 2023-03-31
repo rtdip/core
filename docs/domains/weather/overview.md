@@ -348,13 +348,6 @@ Enhanced 15-day Forecast:
 
     }
 
-What are the questions/gaps? 
-
-1: Will Weather Data be treated as a separate module within RTDIP ingestion? 
-
-2: Multiple Sources/Formats - Mapping between sources -> pre-defined RTDIP schema? 
-
-3: Transformer for each weather reporting format: METAR, Ocean, CLIMAT etc
 
 
 [1] METAR
