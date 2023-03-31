@@ -32,7 +32,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        buisness_unit (str): Business unit 
+        business_unit (str): Business unit 
         region (str): Region
         asset (str): Asset 
         data_security_level (str): Level of data security

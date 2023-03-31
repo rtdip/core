@@ -99,10 +99,8 @@ markdown_extensions:
 nav:
     - Home: index.md
     - Getting started:
+          - Installation: getting-started/installation.md
           - About RTDIP: getting-started/about-rtdip.md
-          - Why RTDIP: getting-started/why-rtdip.md
-          - Installation: 
-                - RTDIP SDK: getting-started/installation.md
     - Domains:
           - Weather:
                 - Overview: domains/weather/overview.md
@@ -111,23 +109,16 @@ nav:
           - Power BI: integration/power-bi.md
     - SDK:
           - Overview: sdk/overview.md
-          - Getting Started: sdk/rtdip-sdk-usage.md
-          - SQL Warehouses: sdk/sqlwarehouses/sql-warehouses.md
-          - Troubleshooting: sdk/troubleshooting.md
+          - Queries:
+                - Functions: sdk/queries/functions.md
+                - Connectors: sdk/queries/connectors.md
+                - Databricks:
+                      - Databricks SQL: sdk/queries/databricks/databricks-sql.md
+                      - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
+                      - Troubleshooting: sdk/queries/databricks/troubleshooting.md
+          - Authentication:
+                - Azure Active Directory: sdk/authentication/azure.md             
           - Code Reference:
-                - Queries:
-                      - Connectors:
-                            - Databricks SQL Connector: sdk//code-reference/query/db-sql-connector.md
-                            - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
-                            - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
-                      - Authenticators:
-                            - Authentication: sdk/code-reference/query/authenticate.md
-                      - Functions:
-                            - Resample: sdk/code-reference/query/resample.md
-                            - Interpolate: sdk/code-reference/query/interpolate.md
-                            - Raw: sdk/code-reference/query/raw.md
-                            - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
-                            - Metadata: sdk/code-reference/query/metadata.md
                 - Pipelines:
                       - Sources:
                             - Spark:
@@ -150,7 +141,20 @@ nav:
                       - Secrets:
                             - Databricks: sdk/code-reference/pipelines/secrets/databricks.md
                       - Deploy:
-                            - Databricks DBX: sdk/code-reference/pipelines/deploy/databricks_dbx.md                          
+                            - Databricks DBX: sdk/code-reference/pipelines/deploy/databricks_dbx.md
+                - Queries:
+                      - Functions:
+                            - Resample: sdk/code-reference/query/resample.md
+                            - Interpolate: sdk/code-reference/query/interpolate.md
+                            - Raw: sdk/code-reference/query/raw.md
+                            - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
+                            - Metadata: sdk/code-reference/query/metadata.md
+                      - Connectors:
+                            - Databricks SQL Connector: sdk/code-reference/query/db-sql-connector.md
+                            - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
+                            - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md                            
+                - Authentication:
+                            - Azure Active Directory: sdk/code-reference/authentication/azure.md                                                     
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md
