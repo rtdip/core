@@ -27,13 +27,13 @@ Weather Data Standards
 
 Weather data is a broad data category. It can be divided into subcategories based on temporal and geographical coverage. There are multiple available forms of reporting weather information, such as METAR [1], CLIMAT, BUFR, TAF[2] etc.
 
-Raw METAR is the most common format in the world for the transmission of observational weather data. It is highly standardized through the International Civil Aviation Organization (ICAO), which allows it to be understood throughout most of the world. [3][4]
+Raw METAR is the most common format in the world for the transmission of observational weather data. It is highly standardized through the International Civil Aviation Organization (ICAO), which allows it to be understood throughout most of the world. [3]
 
 Innowatts is using Historical METAR data, containing a set of selected standard weather variables (temperature, cloud cover, humidity etc).  Aggregated METAR weather information is used in IW Models. This data comes from permanent weather observation stations on a typical report cadence of 15min to 1hr.
 
 Historical Data is used to calculate Normals which is an average of 21 years and TMY (Typical Meteorological Year).
 
-Forecast data is using TAF format, which is similar to METAR but contains extra forecast variables from IBM GRAF[5] (IBM Global High-Resolution Atmospheric Forecasting System) 
+Forecast data is using TAF format, which is similar to METAR but contains extra forecast variables from IBM GRAF[4] (IBM Global High-Resolution Atmospheric Forecasting System) 
 
 
 
@@ -356,6 +356,7 @@ What are the questions/gaps?
 
 3: Transformer for each weather reporting format: METAR, Ocean, CLIMAT etc
 
+
 [1] METAR
 
 [https://www.aviationweather.gov/dataserver/output?datatype=metar](https://www.aviationweather.gov/dataserver/output?datatype=metar)
@@ -368,10 +369,7 @@ What are the questions/gaps?
 
 [https://en.wikipedia.org/wiki/METAR](https://en.wikipedia.org/wiki/METAR)
 
-[4] METAR ICAO
 
-[https://en.wikipedia.org/wiki/METAR](https://en.wikipedia.org/wiki/METAR)
+[4] IBM GRAF
 
-[5] IBM GRAF
-
-https://www.ibm.com/weather/industries/cross-industry/graf
+[https://www.ibm.com/weather/industries/cross-industry/graf](https://www.ibm.com/weather/industries/cross-industry/graf)
