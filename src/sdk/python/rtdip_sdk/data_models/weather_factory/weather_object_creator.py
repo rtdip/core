@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..metadata.Constants import weather_constants
+from ..constants import weather_constants
 from ..weather.AtmosphericG215minForecastV1 import AtmosphericG215minForecastV1
 
 

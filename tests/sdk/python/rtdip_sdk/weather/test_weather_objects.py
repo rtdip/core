@@ -1,12 +1,11 @@
 from src.sdk.python.rtdip_sdk.data_models.weather_factory.weather_object_creator import WeatherObjectCreator
 from src.sdk.python.rtdip_sdk.data_models.constants import weather_constants
 from src.sdk.python.rtdip_sdk.data_models.utils import utils
-import pytest
 
 
-def test_create_AtmosphericG215minForecastV1(self):
-# Random values. Not value/type checking. 
-# Will check if this value is set properly in the object attributes
+def test_create_AtmosphericG215minForecastV1():
+    # Random values. Not value/type checking. 
+    # Will check if this value is set properly in the object attributes
     temp_value_int: int = utils.generate_random_int_number(0, 100)
 
     # Create the object via the factory
@@ -54,6 +53,6 @@ def test_create_AtmosphericG215minForecastV1(self):
         wxman=utils.generate_random_alpha_num_string())
 
 
-    self.assertTrue(a_g2_15min_for_v1_instance.temp == temp_value_int)
+    assert a_g2_15min_for_v1_instance.temp == temp_value_int
 
  
