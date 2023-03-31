@@ -146,4 +146,4 @@ The following provides examples of how to install the RTDIP SDK package with Pip
 Once the installation is complete you can learn how to use the SDK [here.](../sdk/overview.md)
 
 !!! note "Note"
-    </b>If you are having trouble installing the SDK, ensure you have installed all of the prerequisites. If problems persist please see [Troubleshooting](../sdk/troubleshooting.md) for more information. Please also reach out to the RTDIP team via Issues, we are always looking to improve the SDK and value your input.<br />
+    </b>If you are having trouble installing the SDK, ensure you have installed all of the prerequisites. If problems persist please see [Troubleshooting](../sdk/queries/databricks/troubleshooting.md) for more information. Please also reach out to the RTDIP team via Issues, we are always looking to improve the SDK and value your input.<br />

@@ -1,3 +1,0 @@
-# Queries using RTDIP SDK
-
-#

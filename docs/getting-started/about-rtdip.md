@@ -6,7 +6,7 @@
 
 By providing frameworks and reference implementations, [LF Energy](https://www.lfenergy.org/) minimizes pain points such as cybersecurity, interoperability, control, automation, virtualization, and the orchestration of supply and demand.
 
-[RTDIP](https://www.lfenergy.org/projects/real-time-data-ingestion-platform-rtdip/) is an LF Energy project and forms part of an overall open source energy ecosystem. To find out more about projects in LF Energy, please click [here.](https://www.lfenergy.org/projects/).
+[RTDIP](https://www.lfenergy.org/projects/real-time-data-ingestion-platform-rtdip/) is an LF Energy project and forms part of an overall open source energy ecosystem. To find out more about projects in LF Energy, please click [here.](https://www.lfenergy.org/projects/)
 
 ## What is Real Time Data Ingestion Platform
 
