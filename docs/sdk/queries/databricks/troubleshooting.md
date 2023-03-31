@@ -53,7 +53,7 @@ print(result)
 
 #### General Troubleshooting
 
-Most issues related to the installation or performance of the ODBC/JDBC driver are documented [here](https://docs.microsoft.com/en-us/azure/databricks/kb/bi/jdbc-odbc-troubleshooting)
+Most issues related to the installation or performance of the ODBC/JDBC driver are documented [here.](https://docs.microsoft.com/en-us/azure/databricks/kb/bi/jdbc-odbc-troubleshooting)
 
 #### ODBC with a proxy
 
