@@ -96,9 +96,6 @@ class DatabricksDBXDeploy(DeployInterface):
         token (str): Token for authenticating with Databricks such as a Databricks PAT Token or Azure AD Token
         workspace_directory (str, optional): Determines the folder location in the Databricks Workspace. Defaults to /rtdip 
         artifacts_directory (str, optional): Determines the folder location in the Databricks Workspace. Defaults to dbfs:/rtdip/projects
-
-
-
     '''
     pipeline_job: PipelineJob
     databricks_job_for_pipeline_job: DatabricksJobForPipelineJob
@@ -170,7 +167,7 @@ class DatabricksDBXDeploy(DeployInterface):
                 databricks_job_task.libraries.append(DatabricksLibraries(pypi=DatbricksLibrariesPypi(package="rtdip-sdk[pipelines]")))
 
             databricks_job_task.spark_python_task = DatabricksSparkPythonTask(
-                python_file="file://{}".format("rtdip/tasks/pipeline_task.py"), #.format(task_python_file_location),
+                python_file="file://{}".format("rtdip/tasks/pipeline_task.py"),
                 parameters=[PipelineJobToJson(self.pipeline_job).convert()]
             )
             databricks_tasks.append(databricks_job_task)
