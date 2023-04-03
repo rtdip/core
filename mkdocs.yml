@@ -106,12 +106,12 @@ nav:
     - SDK:
           - Overview: sdk/overview.md
           - Pipelines:
+                - Overview: sdk/pipelines/framework.md
+                - Components: sdk/pipelines/components.md                
                 - Jobs: sdk/pipelines/jobs.md
-                - Execute: sdk/pipelines/execute.md
-                - Components: sdk/pipelines/components.md
-                - Secrets: sdk/pipelines/secrets.md
                 - Deploy:
-                      - Databricks: sdk/pipelines/deploy/databricks.md
+                      - Databricks Workflows: sdk/pipelines/deploy/databricks.md
+                      - Apache Airflow: sdk/pipelines/deploy/apache-airflow.md
           - Queries:
                 - Functions: sdk/queries/functions.md
                 - Connectors: sdk/queries/connectors.md

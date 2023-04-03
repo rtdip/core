@@ -13,7 +13,7 @@ The RTDIP SDK has rich support of querying data using Databricks SQL, such as al
 
     Refer to the [Azure Active Directory](../../authentication/azure.md) documentation for further options to perform Azure AD authentication, such as Service Principal authentication using certificates or secrets. Below is an example of performing default authentication that retrieives a token for Azure Databricks. 
 
-    Please also refer to the [Code Reference](../../code-reference/authentication/azure.md) for further technical information.
+    Also refer to the [Code Reference](../../code-reference/authentication/azure.md) for further technical information.
 
     ```python
     from rtdip_sdk.authentication import authenticate as auth

@@ -188,7 +188,7 @@ Edge components are designed to provide a lightweight, low latency, low resource
 
 |Edge Type|Azure IoT Edge|AWS Greengrass|Target|
 |---------|--------------|--------------|------|
-| OPC Publisher|:heavy_check_mark:||Q3-Q4 2023|
+| OPC CloudPublisher|:heavy_check_mark:||Q3-Q4 2023|
 | Greengrass OPC UA||:heavy_check_mark:|Q4 2023|
 
 ## Conclusion
