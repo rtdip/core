@@ -1,6 +1,25 @@
+# Copyright 2022 RTDIP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import sys
+sys.path.insert(0, '.')
+
 from src.sdk.python.rtdip_sdk.data_models.weather_factory.weather_object_creator import WeatherObjectCreator
 from src.sdk.python.rtdip_sdk.data_models.constants import weather_constants
 from src.sdk.python.rtdip_sdk.data_models.utils import utils
+
+import pytest
 
 
 def test_create_AtmosphericG215minForecastV1():
@@ -51,7 +70,6 @@ def test_create_AtmosphericG215minForecastV1():
         wdir_cardinal=utils.generate_random_alpha_num_string(),
         wspd=utils.generate_random_int_number(0, 100),
         wxman=utils.generate_random_alpha_num_string())
-
 
     assert a_g2_15min_for_v1_instance.temp == temp_value_int
 

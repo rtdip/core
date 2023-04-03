@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from data_models.series.SeriesType import SeriesType
-from data_models.series import SeriesType
+from ..series.SeriesType import SeriesType
+from ..series import SeriesType
 from datetime import date, timezone
 from dateutil import tz
 import datetime

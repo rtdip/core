@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from data_models.weather_factory.weather_object_factory import WeatherObjectFactory
+from ..weather_factory.weather_object_factory import WeatherObjectFactory
 from datetime import datetime
 
 class AtmosphericG215minForecastV1(WeatherObjectFactory):
