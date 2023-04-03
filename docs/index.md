@@ -76,7 +76,7 @@ hide:
           <div class="row"> 
             <div class="col">
               <a
-                href="getting-started/about-rtdip/"
+                href="getting-started/installation/"
                 title="Getting Started"
                 class="md-button"
               >

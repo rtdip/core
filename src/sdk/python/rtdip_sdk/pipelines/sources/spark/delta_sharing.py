@@ -17,7 +17,7 @@ from pyspark.sql import DataFrame, SparkSession
 from py4j.protocol import Py4JJavaError
 
 from ..interfaces import SourceInterface
-from ..._pipeline_utils.models import Libraries, MavenLibrary, SystemType
+from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class SparkDeltaSharingSource(SourceInterface):
