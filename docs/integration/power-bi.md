@@ -5,7 +5,7 @@
 Microsoft Power BI is a business analytics service that provides interactive visualizations with self-service business intelligence capabilities
 that enable end users to create reports and dashboards by themselves without having to depend on information technology staff or database administrators.
 
-<center>![Power BI Databricks](images/databricks_powerbi.png){width=100%}</center>
+<center>![Power BI Databricks](images/databricks_powerbi.png){width=50%}</center>
 
 When you use Azure Databricks as a data source with Power BI, you can bring the advantages of Azure Databricks performance and technology beyond data scientists and data engineers to all business users.
 

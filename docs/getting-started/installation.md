@@ -38,7 +38,7 @@ Installing the RTDIP can be done using a package installer, such as [Pip](https:
 === "Conda"
 
     Check which version of Conda is installed with the following command:
-        
+    
         conda --version
 
     If necessary, upgrade Conda as follows:
@@ -64,11 +64,43 @@ If you plan to use pyodbc, Microsoft Visual C++ 14.0 or greater is required. Get
 #### Turbodbc
 To use turbodbc python library, ensure to follow the [Turbodbc Getting Started](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) section and ensure that [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) is installed correctly.
 
+### Java
+If you are planning to use the RTDIP Pipelines in your own environment that leverages [pyspark](https://spark.apache.org/docs/latest/api/python/getting_started/install.html) for a component, Java 8 or later is a [prerequisite](https://spark.apache.org/docs/latest/api/python/getting_started/install.html#dependencies). See below for suggestions to install Java in your development environment.
+
+=== "Conda"
+    A fairly simple option is to use the conda **openjdk** package to install Java into your python virtual environment. An example of a conda **environment.yml** file to achieve this is below.
+
+    ```yaml
+    name: rtdip-sdk
+    channels:
+        - conda-forge
+        - defaults
+    dependencies:
+        - python==3.10
+        - pip==23.0.1
+        - openjdk==11.0.15
+        - pip:
+            - rtdip-sdk
+    ```
+    
+    !!! note "Pypi"
+        This package is not available from Pypi.
+
+=== "Java"
+    Follow the official Java JDK installation documentation [here.](https://docs.oracle.com/en/java/javase/11/install/overview-jdk-installation.html)
+
+    - [Windows](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-microsoft-windows-platforms.html)
+    - [Mac OS](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-macos.html)
+    - [Linux](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-linux-platforms.html)
+
+    !!! note "Windows"
+        Windows requires an additional installation of a file called **winutils.exe**. Please see this [repo](https://github.com/steveloughran/winutils) for more information.
+
 ## Installing the RTDIP SDK
 
 RTDIP SDK is a PyPi package that can be found [here](https://pypi.org/project/rtdip-sdk/). On this page you can find the **project description**,  **release history**, **statistics**, **project links** and **maintainers**.
 
-Features of the SDK can be installed using different extras statements when installing the `rtdip-sdk` package:
+Features of the SDK can be installed using different extras statements when installing the **rtdip-sdk** package:
 
 === "Queries"
     When installing the package for only quering data, simply specify  in your preferred python package installer:
@@ -76,15 +108,17 @@ Features of the SDK can be installed using different extras statements when inst
         rtdip-sdk
 
 === "Pipelines"
-    When installing the package for only quering data, simply specify  in your preferred python package installer:
+    RTDIP SDK can be installed to include the packages required to build, execute and deploy pipelines. Specify the following extra **[pipelines]** when installing RTDIP SDK so that the required python packages are included during installation.
 
         rtdip-sdk[pipelines]
 
 === "Pipelines + Pyspark"
-    When installing the package for only quering data, simply specify in your preferred python package installer:
+    RTDIP SDK can also execute pyspark functions as a part of the pipelines functionality. Specify the following extra **[pipelines,pyspark]** when installing RTDIP SDK so that the required pyspark python packages are included during installation.
 
         rtdip-sdk[pipelines,pyspark]
 
+    !!! note "Java"
+        Ensure that Java is installed prior to installing the rtdip-sdk with the **[pipelines,pyspark]**. See [here](#java) for more information.
 
 The following provides examples of how to install the RTDIP SDK package with Pip, Conda or Micromamba. Please note the section above to update any extra packages to be installed as part of the RTDIP SDK.
 
@@ -101,16 +135,18 @@ The following provides examples of how to install the RTDIP SDK package with Pip
 === "Conda"
 
     To create an environment, you will need to create a **environment.yml** file with the following:
-
-        name: rtdip-sdk
-        channels:
+    
+    ```yaml
+    name: rtdip-sdk
+    channels:
         - conda-forge
         - defaults
-        dependencies:
+    dependencies:
         - python==3.10
         - pip==23.0.1
         - pip:
             - rtdip-sdk
+    ```
 
     Run the following command:
 
@@ -124,15 +160,17 @@ The following provides examples of how to install the RTDIP SDK package with Pip
 
     To create an environment, you will need to create a **environment.yml** file with the following:
 
-        name: rtdip-sdk
-        channels:
+    ```yaml
+    name: rtdip-sdk
+    channels:
         - conda-forge
         - defaults
-        dependencies:
+    dependencies:
         - python==3.10
         - pip==23.0.1
         - pip:
             - rtdip-sdk
+    ```
 
     Run the following command:
 
