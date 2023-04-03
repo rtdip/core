@@ -105,6 +105,13 @@ nav:
           - Power BI: integration/power-bi.md
     - SDK:
           - Overview: sdk/overview.md
+          - Pipelines:
+                - Overview: sdk/pipelines/framework.md
+                - Components: sdk/pipelines/components.md                
+                - Jobs: sdk/pipelines/jobs.md
+                - Deploy:
+                      - Databricks Workflows: sdk/pipelines/deploy/databricks.md
+                      - Apache Airflow: sdk/pipelines/deploy/apache-airflow.md
           - Queries:
                 - Functions: sdk/queries/functions.md
                 - Connectors: sdk/queries/connectors.md
@@ -113,7 +120,8 @@ nav:
                       - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
                       - Troubleshooting: sdk/queries/databricks/troubleshooting.md
           - Authentication:
-                - Azure Active Directory: sdk/authentication/azure.md             
+                - Azure Active Directory: sdk/authentication/azure.md
+                - Databricks: sdk/authentication/databricks.md             
           - Code Reference:
                 - Pipelines:
                       - Sources:
@@ -150,7 +158,7 @@ nav:
                             - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
                             - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md                            
                 - Authentication:
-                            - Azure Active Directory: sdk/code-reference/authentication/azure.md                                                     
+                            - Azure Active Directory: sdk/code-reference/authentication/azure.md                                                    
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md
