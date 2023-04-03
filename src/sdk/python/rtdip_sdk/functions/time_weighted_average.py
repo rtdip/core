@@ -13,8 +13,8 @@
 # limitations under the License.
 import logging
 import pandas as pd
-from .raw import get as raw_get
-from .metadata import get as metadata_get
+from src.sdk.python.rtdip_sdk.functions.raw import get as raw_get
+from src.sdk.python.rtdip_sdk.functions.metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np
@@ -46,24 +46,28 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         DataFrame: A dataframe containing the time weighted averages.
     '''
     try:
-        datetime_format = "%Y-%m-%dT%H:%M:%S"
+        datetime_format = "%Y-%m-%dT%H:%M:%S%z"
         utc="Etc/UTC"
         if len(parameters_dict["start_date"]) == 10:
             original_start_date = datetime.strptime(parameters_dict["start_date"] + "T00:00:00", datetime_format)
             parameters_dict["start_date"] = parameters_dict["start_date"] + "T00:00:00"
         else:
             original_start_date = datetime.strptime(parameters_dict["start_date"], datetime_format)
+
         if len(parameters_dict["end_date"]) == 10:
             original_end_date = datetime.strptime(parameters_dict["end_date"] + "T23:59:59", datetime_format) 
             parameters_dict["end_date"] = parameters_dict["end_date"] + "T23:59:59"
         else: 
             original_end_date = datetime.strptime(parameters_dict["end_date"], datetime_format)
+
         if "window_length" in parameters_dict:       
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format)
             parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format) 
         else:
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
             parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
+        
+        timezone =  original_start_date.astimezone
         pandas_df = raw_get(connection, parameters_dict)
 
         pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
@@ -115,12 +119,35 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             
         time_weighted_averages = time_weighted_averages.set_index("EventTime").sort_values(by=["TagName", "EventTime"])
         
-        time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
-        weighted_averages_timezones = np.array([z.replace(tzinfo=pytz.timezone(utc)) for z in time_weighted_averages_datetime])
-        time_weighted_averages = time_weighted_averages[(original_start_date.replace(tzinfo=pytz.timezone(utc)) < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date.replace(tzinfo=pytz.timezone(utc)) + timedelta(seconds = 1))]
+        # time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
+        # weighted_averages_timezones = np.array([z.replace(tzinfo=pytz.timezone(utc)) for z in time_weighted_averages_datetime])
+        # time_weighted_averages = time_weighted_averages[(original_start_date.replace(tzinfo=pytz.timezone(utc)) < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date.replace(tzinfo=pytz.timezone(utc)) + timedelta(seconds = 1))]
         return time_weighted_averages
     
         
     except Exception as e:
         logging.exception('error with time weighted average function', str(e))
         raise e
+    
+from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
+from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+#testing 
+auth = DefaultAuth(exclude_cli_credential=True,exclude_powershell_credential=True,exclude_shared_token_cache_credential=True,logging_enable=True,exclude_visual_studio_code_credential=True).authenticate()
+token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
+dict = {
+"business_unit": "downstream",
+"region": "EMEA", 
+"asset": "pernis", 
+"data_security_level": "restricted", 
+"data_type": "float", 
+"tag_names": ['GEFAC:980TJ16.PV', 'HYCON:15TJ050.PV', 'SGHP:610TJ123.PV'],
+"start_date": "2023-03-10", 
+"end_date": "2023-03-14", 
+"window_size_mins": 1440, 
+"window_length": 20, 
+"include_bad_data": False, 
+"step": True
+}
+x = get(connection, dict)
+print(x)

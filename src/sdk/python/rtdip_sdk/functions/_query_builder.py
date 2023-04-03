@@ -16,6 +16,7 @@
 from jinjasql import JinjaSql
 from six import string_types
 from copy import deepcopy
+from datetime import datetime
 
 def _fix_dates(parameters_dict):
     if len(parameters_dict['start_date']) == 10:
@@ -23,6 +24,10 @@ def _fix_dates(parameters_dict):
 
     if len(parameters_dict['end_date']) == 10:
         parameters_dict['end_date'] = parameters_dict['end_date']+'T23:59:59'
+    
+    time_zone = datetime(parameters_dict['start_date']).astimezone().tzname()
+    if time_zone != None and time_zone != "+00:00":
+        parameters_dict["time_zone"] = time_zone
     
     return parameters_dict
 
@@ -53,8 +58,14 @@ def _get_sql_from_template(query: str, bind_params: dict) -> str:
 
 def _raw_query(parameters_dict: dict) -> str:
 
+    if "time_zone" in parameters_dict:
+        #time_zone = parameters_dict["time_zone"]
+        select_from = "SELECT from_utc_timestamp(EventTime, {{ time_zone | sqlsafe }}), TagName, Status, Value FROM "
+    else:
+        select_from = "SELECT EventTime, TagName, Status, Value FROM "
+
     raw_query = (
-        "SELECT EventTime, TagName, Status, Value FROM "
+        select_from +
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
         "WHERE EventDate BETWEEN to_date({{ start_date }}) AND to_date({{ end_date }}) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
         "{% if include_bad_data is defined and include_bad_data == false %}"
@@ -71,7 +82,8 @@ def _raw_query(parameters_dict: dict) -> str:
         "start_date": parameters_dict['start_date'],
         "end_date": parameters_dict['end_date'],
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
-        "include_bad_data": parameters_dict['include_bad_data']  
+        "include_bad_data": parameters_dict['include_bad_data'],
+        "time_zone": parameters_dict["time_zone"]
     }
 
     sql_template = JinjaSql(param_style='pyformat')
