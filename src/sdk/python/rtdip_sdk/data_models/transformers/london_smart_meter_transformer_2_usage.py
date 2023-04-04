@@ -1,4 +1,3 @@
-
 # Copyright 2022 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +13,13 @@
 # limitations under the License.
 
 
-from src.sdk.python.rtdip_sdk.data_models.transformers import transformers
 import datetime
 import hashlib
 import time
 
 series_id_str = 'usage_series_id_001'
 output_header_str: str = 'uid,series_id,timestamp,interval_timestamp,value'
-transformer_method_str: str = transformers.LAMBDA_TRANSFORM_METHOD_CHECK
+
 
 
 def anonymizer(input_str: str) -> str:
