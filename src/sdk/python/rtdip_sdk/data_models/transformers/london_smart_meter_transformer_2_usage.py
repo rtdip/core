@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..utils import transformers
 
 import datetime
 import hashlib
@@ -20,7 +21,7 @@ import time
 series_id_str = 'usage_series_id_001'
 output_header_str: str = 'uid,series_id,timestamp,interval_timestamp,value'
 
-
+transformer_method_str: str = transformers.LAMBDA_TRANSFORM_METHOD_CHECK
 
 def anonymizer(input_str: str) -> str:
     result = hashlib.md5(input_str.encode())
