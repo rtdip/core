@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from data_models.series import SeriesType
-from data_models.usage import ValueType
-from data_models.usage import ModelType
-from dataclasses import dataclass
+from ..series import SeriesType
+from ..usage import ValueType
+from ..usage import ModelType
+from ..usage import UomUsage
 from pydantic import BaseModel
 
 class MetaData(BaseModel):
@@ -24,7 +24,7 @@ class MetaData(BaseModel):
     series_id: str  # Unique Identifier for a particular time series (TS)
     series_parent_id: str  # Hierarchy (Sequence) of this TS associated to the same group of TS
     name: str  # Name of the sensor
-    uom: int  # Unit of measure for this sensor
+    uom: UomUsage.UomUsage  # Unit of measure for this sensor
     description: str  # Short description
     timestamp_start: int  # Timestamp of the creation of the record and start of the timeseries. UTC
     timestamp_end: int  # Timestamp of end of the timeseries. UTC

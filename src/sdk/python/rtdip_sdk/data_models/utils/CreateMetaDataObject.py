@@ -18,7 +18,6 @@ from ..metadata.MetaData import MetaData
 from ..usage.ValueType import ValueType
 from ..usage.ModelType import ModelType
 from ..usage.UomUsage import UomUsage
-import logging
 
 
 def create_metadata_VO(uid: str,
@@ -35,21 +34,22 @@ def create_metadata_VO(uid: str,
                        model_type: ModelType,
                        value_type: ValueType,
                        properties: dict):
+    
     try:
-        return MetaData(uid,
-                        series_id,
-                        series_parent_id,
-                        name,
-                        uom,
-                        description,
-                        timestamp_start,
-                        timestamp_end,
-                        time_zone,
-                        version,
-                        series_type,
-                        model_type,
-                        value_type,
-                        properties)
+        return MetaData(uid = uid,
+                        series_id = series_id,
+                        series_parent_id = series_parent_id,
+                        name = name,
+                        uom = uom,
+                        description = description,
+                        timestamp_start = timestamp_start,
+                        timestamp_end = timestamp_end,
+                        time_zone = time_zone,
+                        version = version,
+                        series_type = series_type,
+                        model_type = model_type,
+                        value_type = value_type,
+                        properties = properties)
     except Exception as ex:
-        error_msg_str: str = 'Could not create Usage Value Object: {}'.format(ex)
+        error_msg_str: str = 'Could not create Metadata Value Object: {}'.format(ex)
         raise SystemError(error_msg_str)
