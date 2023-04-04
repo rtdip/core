@@ -18,6 +18,7 @@ import datetime
 import hashlib
 import time
 
+
 series_id_str = 'usage_series_id_001'
 output_header_str: str = 'uid,series_id,timestamp,interval_timestamp,value'
 

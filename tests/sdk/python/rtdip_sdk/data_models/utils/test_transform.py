@@ -27,7 +27,7 @@ logger = logging.getLogger("test_transform")
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
+formatter = logging.Formatter("%(asctime)s ; %(levelname)s ; %(message)s")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 logger.info('Started')
@@ -41,15 +41,16 @@ test_data_smart_meters_london_dir: \
 
 def get_test_data_directory(path_list: list) -> str:
     current_dir: str = os.path.dirname(os.path.realpath(__file__))
-    logger.debug('Current Dir: %s', current_dir)
+    logger.debug('Current Dir: {}'.format(current_dir))
     os.chdir(current_dir)
     dir_full_path_str: str = os.path.join(current_dir, *path_list)
-    logger.debug('Checking if dir exist: %s', dir_full_path_str)
+    logger.debug('Checking if dir exist: {}'.format(dir_full_path_str))
     if os.path.exists(dir_full_path_str):
         logger.debug('\tDir exist: %s', dir_full_path_str)
         return dir_full_path_str
+    else:
+         logger.error('\tDir does not exist: %s', dir_full_path_str)
     return None
-
 
 
 
@@ -60,7 +61,7 @@ def test_transformer_smart_meter_london_2_LF_Energy_Usage():
 
     # Configure Source (local file)
     test_data_dir_list: list = test_data_smart_meters_london_dir
-    logger.debug(test_data_dir_list)
+    logger.debug('Building test data dir path: {}'.format(test_data_dir_list))
     csv_input_file_cc_lcl_fulldata_str: str = os.path.join(get_test_data_directory(test_data_dir_list),
                                                                 "CC_LCL-FullData.csv")
     logger.debug('Test File: {}'.format(csv_input_file_cc_lcl_fulldata_str))
