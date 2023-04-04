@@ -23,7 +23,6 @@ import pytest
 import numpy
 import os
 
-
 logger = logging.getLogger("test_transform")
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
@@ -31,8 +30,9 @@ ch.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
-
 logger.info('Started')
+
+
 
 
 test_data_smart_meters_london_dir: \
