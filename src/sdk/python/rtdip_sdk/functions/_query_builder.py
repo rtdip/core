@@ -20,14 +20,19 @@ from datetime import datetime
 
 def _fix_dates(parameters_dict):
     if len(parameters_dict['start_date']) == 10:
-        parameters_dict['start_date'] = parameters_dict['start_date']+'T00:00:00'
+        parameters_dict['start_date'] = parameters_dict['start_date']+'T00:00:00' + "+00:00"
 
     if len(parameters_dict['end_date']) == 10:
-        parameters_dict['end_date'] = parameters_dict['end_date']+'T23:59:59'
+        parameters_dict['end_date'] = parameters_dict['end_date']+'T23:59:59' + "+00:00"
     
-    time_zone = datetime(parameters_dict['start_date']).astimezone().tzname()
+    time_zone = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
+    # x=time_zone.astimezone().tzname()
+    # y=time_zone.strftime("%z")
+    # print(y)
+
     if time_zone != None and time_zone != "+00:00":
         parameters_dict["time_zone"] = time_zone
+        print(parameters_dict["time_zone"])
     
     return parameters_dict
 
@@ -59,8 +64,9 @@ def _get_sql_from_template(query: str, bind_params: dict) -> str:
 def _raw_query(parameters_dict: dict) -> str:
 
     if "time_zone" in parameters_dict:
+        print(parameters_dict["time_zone"])
         #time_zone = parameters_dict["time_zone"]
-        select_from = "SELECT from_utc_timestamp(EventTime, {{ time_zone | sqlsafe }}), TagName, Status, Value FROM "
+        select_from = "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
     else:
         select_from = "SELECT EventTime, TagName, Status, Value FROM "
 

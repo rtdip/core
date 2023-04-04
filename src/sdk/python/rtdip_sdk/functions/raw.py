@@ -52,9 +52,10 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor = connection.cursor()
             cursor.execute(query)
             df = cursor.fetch_all()
-            if df['EventTime'][0].tzinfo is None:
-                df['EventTime'] = df['EventTime'].apply(lambda x: x.replace(tzinfo=pytz.timezone("Etc/UTC")))
+            # if df['EventTime'][0].tzinfo is None:
+            #     df['EventTime'] = df['EventTime'].apply(lambda x: x.replace(tzinfo=pytz.timezone("Etc/UTC")))
             cursor.close()
+            print(df)
             return df
         except Exception as e:
             logging.exception('error returning dataframe')
