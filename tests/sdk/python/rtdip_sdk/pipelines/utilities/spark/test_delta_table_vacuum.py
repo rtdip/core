@@ -40,7 +40,7 @@ def test_spark_delta_table_optimize(spark_session: SparkSession):
     delta_table_vacuum = DeltaTableVacuumUtility(
         spark=spark_session,
         table_name="test_table_delta_vacuum",
-        retention_hours=1
+        retention_hours=168
     )
 
     result = delta_table_vacuum.execute()
