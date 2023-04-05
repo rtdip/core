@@ -16,6 +16,7 @@ import sys
 sys.path.insert(0, '.')
 import pytest
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql.functions import lit
 from pyspark.sql import SparkSession
@@ -23,6 +24,18 @@ from pytest_mock import MockerFixture
 
 class TestStreamingQueryClass():
     isActive: bool = False
+
+def test_spark_delta_write_setup():
+    delta_destination = SparkDeltaDestination("test_delta_destination_setup", {}, "overwrite")
+    assert delta_destination.system_type().value == 2
+    assert delta_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
+                group_id="io.delta",
+                artifact_id="delta-core_2.12",
+                version="2.2.0"
+            )], pypi_libraries=[], pythonwheel_libraries=[])
+    assert isinstance(delta_destination.settings(), dict)
+    assert delta_destination.pre_write_validation()
+    assert delta_destination.post_write_validation()
 
 def test_spark_delta_write_batch(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame([{"id": "1"}])
