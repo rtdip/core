@@ -45,34 +45,58 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
     '''
-    try:
-        datetime_format = "%Y-%m-%dT%H:%M:%S%z"
-        utc="Etc/UTC"
-        if len(parameters_dict["start_date"]) == 10:
-            #original_start_date = datetime.strptime(parameters_dict["start_date"] + "T00:00:00" + "+00:00", datetime_format)
-            parameters_dict["start_date"] = parameters_dict["start_date"] + "T00:00:00" + "+00:00"
+    try:  
+        dtz_format = "%Y-%m-%dT%H:%M:%S%z"
+        
+        def is_date_format(dt, format):
+            try:
+                return datetime.strptime(dt , format)
+            except:
+                return False
+            
+        def fix_dates(dt, is_end_date = False):
+            if is_date_format(dt, "%Y-%m-%d"):
+                _time = "T23:59:59" if is_end_date == True else "T00:00:00"
+                return dt + _time + "+00:00"
+            elif is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
+                return dt + "+00:00"
+            elif is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
+                return dt
+            else: 
+                raise ValueError(f"Inputted datetime: '{dt}', is not in the correct format")
+
+        parameters_dict["start_date"] = fix_dates(parameters_dict["start_date"])
+        parameters_dict["end_date"] = fix_dates(parameters_dict["end_date"], True)
+
+        print(parameters_dict["start_date"])
+        print(parameters_dict["end_date"])
+
+        # if len(parameters_dict["start_date"]) == 10:
+        #     #original_start_date = datetime.strptime(parameters_dict["start_date"] + "T00:00:00" + "+00:00", datetime_format)
+        #     parameters_dict["start_date"] = parameters_dict["start_date"] + "T00:00:00" + "+00:00"
         # else:
         #     original_start_date = datetime.strptime(parameters_dict["start_date"], datetime_format)
 
-        if len(parameters_dict["end_date"]) == 10:
-            #original_end_date = datetime.strptime(parameters_dict["end_date"] + "T23:59:59" + "+00:00", datetime_format) 
-            parameters_dict["end_date"] = parameters_dict["end_date"] + "T23:59:59" + "+00:00"
-        # else: 
-        #     original_end_date = datetime.strptime(parameters_dict["end_date"], datetime_format)
+        # if len(parameters_dict["end_date"]) == 10:
+        #     #original_end_date = datetime.strptime(parameters_dict["end_date"] + "T23:59:59" + "+00:00", datetime_format) 
+        #     parameters_dict["end_date"] = parameters_dict["end_date"] + "T23:59:59" + "+00:00"
+        # # else: 
+        # #     original_end_date = datetime.strptime(parameters_dict["end_date"], datetime_format)
 
         if "window_length" in parameters_dict:       
-            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format)
-            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format) 
+            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], dtz_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(dtz_format)
+            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], dtz_format) + timedelta(minutes = int(parameters_dict["window_length"]))).strftime(dtz_format) 
         else:
-            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
-            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
+            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], dtz_format) - timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(dtz_format)
+            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], dtz_format) + timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(dtz_format)
         
 
         pandas_df = raw_get(connection, parameters_dict)
 
         pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
-        print(parameters_dict["start_date"])
-        print(pd.to_datetime(parameters_dict["start_date"]))
+        #pd.set_option('display.max_rows', None)
+        print(pandas_df)
+
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
         for tag in parameters_dict["tag_names"]:
             start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"]), tag]], columns=["EventTime", "TagName"])
@@ -89,8 +113,11 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         #preprocess - add boundaries and time interpolate missing boundary values
         preprocess_df = pandas_df.copy()
         preprocess_df["EventTime"] = preprocess_df["EventTime"].round("S")
+        print(preprocess_df)
         preprocess_df.set_index(["EventTime", "TagName", "EventDate"], inplace=True)
+        print(preprocess_df)
         preprocess_df = preprocess_df.join(boundaries_df, how="outer", rsuffix="right")
+        print(preprocess_df)
         if isinstance(parameters_dict["step"], str) and parameters_dict["step"].lower() == "metadata":
             metadata_df = metadata_get(connection, parameters_dict)
             metadata_df.set_index("TagName", inplace=True)
@@ -102,7 +129,11 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             preprocess_df["Step"] = False
         else:
             raise Exception('Unexpected step value', parameters_dict["step"])
+        print(preprocess_df)
+
         def process_time_weighted_averages_step(pandas_df):
+            print(pandas_df)
+            print(pandas_df.dtypes)
             if pandas_df["Step"].any() == False:
                 pandas_df = pandas_df.reset_index(level=["TagName", "EventDate"]).sort_index().interpolate(method='time')
                 shift_raw_df = pandas_df.copy()
@@ -149,8 +180,10 @@ dict = {
 "data_security_level": "restricted", 
 "data_type": "float", 
 "tag_names": ['GEFAC:980TJ16.PV', 'HYCON:15TJ050.PV', 'SGHP:610TJ123.PV'],
-"start_date": "2023-03-10T04:00:00+05:30", 
-"end_date": "2023-03-14T06:00:00+05:30", 
+"start_date": "2023-03-10",
+#"2023-03-10T04:00:00+05:30", 
+"end_date": "2023-03-14",
+#"2023-03-14T06:00:00+05:30", 
 "window_size_mins": 30, 
 "window_length": 20, 
 "include_bad_data": False, 
