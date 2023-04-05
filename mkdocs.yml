@@ -140,6 +140,8 @@ nav:
                       - Utilities:
                             - Spark:
                                  - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
+                                 - Delta Table Optimize: sdk/code-reference/pipelines/utilities/spark/delta_table_optimize.md
+                                 - Delta Table Vacuum: sdk/code-reference/pipelines/utilities/spark/delta_table_vacuum.md
                       - Converters:
                             - Json: sdk/code-reference/pipelines/converters/pipeline_job_json.md    
                       - Secrets:
