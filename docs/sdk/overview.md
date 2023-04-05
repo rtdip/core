@@ -11,8 +11,3 @@
 ## Installation
 
 To get started with the RTDIP SDK, follow these [installation instructions.](../getting-started/installation.md)
-
-
-
-
-
