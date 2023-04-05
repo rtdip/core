@@ -68,8 +68,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict["start_date"] = fix_dates(parameters_dict["start_date"])
         parameters_dict["end_date"] = fix_dates(parameters_dict["end_date"], True)
 
-        #print(parameters_dict["start_date"])
-        #print(parameters_dict["end_date"])
+        print(parameters_dict["start_date"])
+        print(parameters_dict["end_date"])
 
         # if len(parameters_dict["start_date"]) == 10:
         #     #original_start_date = datetime.strptime(parameters_dict["start_date"] + "T00:00:00" + "+00:00", datetime_format)
@@ -96,12 +96,18 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
         pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
         #pandas_df.to_csv("/Users/chloe.ching/raw_feature")
-        print(pandas_df)
+        #print(pandas_df)
 
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
         for tag in parameters_dict["tag_names"]:
-            start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"]), tag]], columns=["EventTime", "TagName"])
-            end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"]), tag]], columns=["EventTime", "TagName"])
+            dti = pd.to_datetime([parameters_dict["start_date"]])
+            print(dti)
+            dti2 = pd.to_datetime(["2023-03-10T00:00:00+00:00"])
+            print(dti2)
+            #ERROR HERE WITH REPLACE
+            #.replace(tzinfo=pytz.timezone("Etc/UTC"))
+            start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"], format = "%Y-%m-%dT%H:%M:%S%z"), tag]], columns=["EventTime", "TagName"])
+            end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"], format = "%Y-%m-%dT%H:%M:%S%z"), tag]], columns=["EventTime", "TagName"])
             boundaries_df = pd.concat([boundaries_df, start_date_new_row, end_date_new_row], ignore_index=True)
         print(boundaries_df)
         boundaries_df.set_index(pd.DatetimeIndex(boundaries_df["EventTime"]), inplace=True)
