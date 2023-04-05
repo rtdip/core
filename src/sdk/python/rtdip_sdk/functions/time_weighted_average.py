@@ -93,8 +93,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
         pandas_df = raw_get(connection, parameters_dict)
 
+
         pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
-        pandas_df.to_csv("/Users/chloe.ching/raw_feature")
+        #pandas_df.to_csv("/Users/chloe.ching/raw_feature")
         print(pandas_df)
 
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
@@ -102,25 +103,20 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"]), tag]], columns=["EventTime", "TagName"])
             end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"]), tag]], columns=["EventTime", "TagName"])
             boundaries_df = pd.concat([boundaries_df, start_date_new_row, end_date_new_row], ignore_index=True)
-        #print(boundaries_df)
+        print(boundaries_df)
         boundaries_df.set_index(pd.DatetimeIndex(boundaries_df["EventTime"]), inplace=True)
-        #print(boundaries_df)
+        print(boundaries_df)
         boundaries_df.drop(columns="EventTime", inplace=True)
-        #print(boundaries_df)
+        print(boundaries_df)
         boundaries_df = boundaries_df.groupby(["TagName"]).resample("{}T".format(str(parameters_dict["window_size_mins"]))).ffill().drop(columns='TagName')
         print(boundaries_df)
         
         #preprocess - add boundaries and time interpolate missing boundary values
         preprocess_df = pandas_df.copy()
         preprocess_df["EventTime"] = preprocess_df["EventTime"].round("S")
-        print(preprocess_df.dtypes)
-        print(preprocess_df.describe())
-        print(preprocess_df.index.dtype)
+        #print(preprocess_df.index.dtype)
 
         preprocess_df.set_index(["EventTime", "TagName", "EventDate"], inplace=True)
-        print(preprocess_df.dtypes)
-        print(preprocess_df.describe())
-        print(preprocess_df.index.dtype)
         #print(preprocess_df)
         preprocess_df = preprocess_df.join(boundaries_df, how="outer", rsuffix="right")
         #print(preprocess_df)
@@ -135,12 +131,12 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             preprocess_df["Step"] = False
         else:
             raise Exception('Unexpected step value', parameters_dict["step"])
-        print(preprocess_df)
-        print(preprocess_df.dtypes)
+        # print(preprocess_df)
+        # print(preprocess_df.dtypes)
 
         def process_time_weighted_averages_step(pandas_df):
-            print(pandas_df)
-            print(pandas_df.index.dtype)
+            # print(pandas_df)
+            # print(pandas_df.index.dtype)
             if pandas_df["Step"].any() == False:
                 pandas_df = pandas_df.reset_index(level=["TagName", "EventDate"]).sort_index().interpolate(method='time')
                 shift_raw_df = pandas_df.copy()
@@ -148,8 +144,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
                 time_weighted_averages = shift_raw_df.resample("{}T".format(str(parameters_dict["window_size_mins"])), closed="right", label="right").CalcValue.sum() * 0.5 / parameters_dict["window_size_mins"] * 24 * 60
                 return time_weighted_averages
             else:
-                print(pandas_df.index.inferred_type)
-                pandas_df.to_csv("/Users/chloe.ching/pandas_df_feature")
+                #print(pandas_df.index.inferred_type)
+                #pandas_df.to_csv("/Users/chloe.ching/pandas_df_feature")
+                print(pandas_df)
                 pandas_df = pandas_df.reset_index(level=["TagName", "EventDate"]).sort_index().interpolate(method='pad', limit_direction='forward')
                 shift_raw_df = pandas_df.copy()
                 shift_raw_df["CalcValue"] = (shift_raw_df.index.to_series().diff().dt.seconds/86400) * shift_raw_df.Value.shift(1)
@@ -158,7 +155,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             
         #calculate time weighted averages
         time_weighted_averages = preprocess_df.groupby(["TagName"]).apply(process_time_weighted_averages_step).reset_index()
-        print(time_weighted_averages)
+        #print(time_weighted_averages)
         if "CalcValue" not in time_weighted_averages.columns:
             time_weighted_averages = time_weighted_averages.melt(id_vars="TagName", var_name="EventTime", value_name="Value")
         else: 
