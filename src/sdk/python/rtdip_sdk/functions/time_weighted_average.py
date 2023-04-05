@@ -94,7 +94,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         pandas_df = raw_get(connection, parameters_dict)
 
         pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
-        #pd.set_option('display.max_rows', None)
+        pandas_df.to_csv("/Users/chloe.ching/raw_feature")
         print(pandas_df)
 
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
@@ -149,6 +149,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
                 return time_weighted_averages
             else:
                 print(pandas_df.index.inferred_type)
+                pandas_df.to_csv("/Users/chloe.ching/pandas_df_feature")
                 pandas_df = pandas_df.reset_index(level=["TagName", "EventDate"]).sort_index().interpolate(method='pad', limit_direction='forward')
                 shift_raw_df = pandas_df.copy()
                 shift_raw_df["CalcValue"] = (shift_raw_df.index.to_series().diff().dt.seconds/86400) * shift_raw_df.Value.shift(1)
