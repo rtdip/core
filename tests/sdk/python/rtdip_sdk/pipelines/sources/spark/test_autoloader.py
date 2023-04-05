@@ -23,7 +23,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 path = "/path"
 
-def test_spark_autoloader_setup(spark_session: SparkSession):
+def test_databricks_autoloader_setup(spark_session: SparkSession):
     autoloader_source = DataBricksAutoLoaderSource(spark_session, {}, path, "parquet")
     assert autoloader_source.system_type().value == 3
     assert autoloader_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
