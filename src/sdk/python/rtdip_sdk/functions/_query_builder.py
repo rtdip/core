@@ -18,19 +18,43 @@ from six import string_types
 from copy import deepcopy
 from datetime import datetime
 
-def _fix_dates(parameters_dict):
-    if len(parameters_dict['start_date']) == 10:
-        parameters_dict['start_date'] = parameters_dict['start_date']+'T00:00:00' + "+00:00"
+def _is_date_format(dt, format):
+    try:
+        return datetime.strptime(dt , format)
+    except:
+        return False
 
-    if len(parameters_dict['end_date']) == 10:
-        parameters_dict['end_date'] = parameters_dict['end_date']+'T23:59:59' + "+00:00"
+def _fix_date(dt, is_end_date = False):
+    if _is_date_format(dt, "%Y-%m-%d"):
+        _time = "T23:59:59" if is_end_date == True else "T00:00:00"
+        return dt + _time + "+00:00"
+    elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
+        return dt + "+00:00"
+    elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
+        return dt
+    else: 
+        raise ValueError(f"Inputted datetime: '{dt}', is not in the correct format")
+        
+def _fix_dates(parameters_dict):
+        
+    parameters_dict["start_date"] = _fix_date(parameters_dict["start_date"])
+    parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
+
+    print(parameters_dict["start_date"])
+    print(parameters_dict["end_date"])
+
+    # if len(parameters_dict['start_date']) == 10:
+    #     parameters_dict['start_date'] = parameters_dict['start_date']+'T00:00:00'
+
+    # if len(parameters_dict['end_date']) == 10:
+    #     parameters_dict['end_date'] = parameters_dict['end_date']+'T23:59:59'
     
     time_zone = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
     # x=time_zone.astimezone().tzname()
     # y=time_zone.strftime("%z")
     # print(y)
 
-    if time_zone != None and time_zone != "+00:00":
+    if time_zone != None and time_zone != "+00:00" or time_zone != "+0000":
         parameters_dict["time_zone"] = time_zone
         print(parameters_dict["time_zone"])
     
@@ -65,7 +89,6 @@ def _raw_query(parameters_dict: dict) -> str:
 
     if "time_zone" in parameters_dict:
         print(parameters_dict["time_zone"])
-        #time_zone = parameters_dict["time_zone"]
         select_from = "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
     else:
         select_from = "SELECT EventTime, TagName, Status, Value FROM "
