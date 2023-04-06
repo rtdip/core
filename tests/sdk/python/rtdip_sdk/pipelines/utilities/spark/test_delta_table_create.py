@@ -16,7 +16,6 @@ import sys
 sys.path.insert(0, '.')
 
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSource
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, TimestampType, StringType, FloatType, DateType
