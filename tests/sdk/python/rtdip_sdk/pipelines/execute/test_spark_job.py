@@ -16,6 +16,7 @@ import sys
 sys.path.insert(0, '.')
 from pytest_mock import MockerFixture
 from pyspark.sql import SparkSession
+import pytest
 
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import EVENTHUB_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
@@ -33,3 +34,13 @@ def test_pipeline_job_execute(spark_session: SparkSession, mocker: MockerFixture
     result = pipeline.run()
     
     assert result
+
+def test_pipeline_job_execute_fails(mocker: MockerFixture):
+    pipeline_job = get_spark_pipeline_job()
+    pipeline = PipelineJobExecute(pipeline_job)
+
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch", side_effect=Exception)
+
+
+    with pytest.raises(Exception):
+        pipeline.run()
