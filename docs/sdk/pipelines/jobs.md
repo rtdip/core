@@ -14,7 +14,7 @@ Ensure that you have followed the installation instructions as specified in the 
 !!! note "RTDIP SDK installation"
     Ensure you have installed the RTDIP SDK, as a minimum, as follows:
     ```
-    pip install rtdip-sdk[pipelines]
+    pip install "rtdip-sdk[pipelines]"
     ```
 
     For all installation options please see the RTDIP SDK installation [instructions.](../../getting-started/installation.md#installing-the-rtdip-sdk)
@@ -29,6 +29,7 @@ from rtdip_sdk.pipelines.sources import SparkEventhubSource
 from rtdip_sdk.pipelines.transformers import EventhubBodyBinaryToString
 from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
 from rtdip_sdk.pipelines.secrets import PipelineSecret, DatabricksSecrets
+import json
 ```
 
 ### Steps
@@ -52,7 +53,7 @@ step_list = []
 eventhub_configuration = {
     "eventhubs.connectionString": PipelineSecret(type=DatabricksSecrets, vault="test_vault", key="test_key"),
     "eventhubs.consumerGroup": "$Default",
-    "eventhubs.startingPosition": {"offset": "0", "seqNo": -1, "enqueuedTime": None, "isInclusive": True}
+    "eventhubs.startingPosition": json.dumps({"offset": "0", "seqNo": -1, "enqueuedTime": None, "isInclusive": True})
 }    
 step_list.append(PipelineStep(
     name="test_step1",
