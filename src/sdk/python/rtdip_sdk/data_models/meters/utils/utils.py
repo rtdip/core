@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..series.SeriesType import SeriesType
-from ..series import SeriesType
+from ..ami_meters import SeriesType
 from datetime import date, timezone
 from dateutil import tz
 import datetime
@@ -35,11 +34,11 @@ type_checks = [
 ]
 
 
-def get_interval(series_type_st: SeriesType.SeriesType, timestamp_datetime: datetime):
-    if series_type_st == SeriesType.SeriesType.minutes_15:
+def get_interval(series_type_st: SeriesType, timestamp_datetime: datetime):
+    if series_type_st == SeriesType.minutes_15:
         minute_of_the_day_int = get_minute_of_the_day(timestamp_datetime)
         return int(minute_of_the_day_int / 15)
-    elif series_type_st == SeriesType.SeriesType.hour:
+    elif series_type_st == SeriesType.hour:
         minute_of_the_day_int = get_minute_of_the_day(timestamp_datetime)
         return int(minute_of_the_day_int / 60)
     else:
@@ -47,7 +46,7 @@ def get_interval(series_type_st: SeriesType.SeriesType, timestamp_datetime: date
         raise SystemError(error_msg_str)
 
 
-def get_intervals(series_type_st: SeriesType.SeriesType, timestamp_date: date):
+def get_intervals(series_type_st: SeriesType, timestamp_date: date):
     # TODO implement this method
     timestamp_next_day_date = timestamp_date + datetime.timedelta(days=1)
 
@@ -67,7 +66,7 @@ def get_intervals(series_type_st: SeriesType.SeriesType, timestamp_date: date):
         i = i + 1
 
 
-def get_intervals(series_type_st: SeriesType.SeriesType,
+def get_intervals(series_type_st: SeriesType,
                   timestamp_date: date,
                   time_zone=timezone.utc):
     now_local_datetime: datetime.datetime = datetime.datetime.combine(timestamp_date,

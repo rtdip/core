@@ -16,15 +16,15 @@ import sys
 sys.path.insert(0, '.')
 
 
-from src.sdk.python.rtdip_sdk.data_models.series.SeriesType import SeriesType
-from src.sdk.python.rtdip_sdk.data_models.utils import CreateMetaDataObject
-from src.sdk.python.rtdip_sdk.data_models.metadata.MetaData import MetaData
-from src.sdk.python.rtdip_sdk.data_models.usage.ValueType import ValueType
-from src.sdk.python.rtdip_sdk.data_models.usage.ModelType import ModelType
-from src.sdk.python.rtdip_sdk.data_models.utils import CreateUsageObject
-from src.sdk.python.rtdip_sdk.data_models.usage.UomUsage import UomUsage
-from src.sdk.python.rtdip_sdk.data_models.usage.Usage import Usage
-from src.sdk.python.rtdip_sdk.data_models.utils import utils
+from src.sdk.python.rtdip_sdk.data_models.meters.utils import CreateMetaDataObject
+from src.sdk.python.rtdip_sdk.data_models.meters.utils import CreateUsageObject
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import SeriesType
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import MetaData
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import ValueType
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import ModelType
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import UomUsage
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import Usage
+from src.sdk.python.rtdip_sdk.data_models.meters.utils import utils
 from uuid import uuid4
 import datetime
 import logging
@@ -45,7 +45,7 @@ def test_generate_timeseries_objects_creation():
     timestamp_end_int: int = timestamp_start_int
     timezone_str: str = str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo)
     name_str: str = 'name_' + str(uuid4())
-    uom = UomUsage.kw
+    uom = UomUsage.kwh
 
     series_type = SeriesType.minutes_10
     model_type = ModelType.default

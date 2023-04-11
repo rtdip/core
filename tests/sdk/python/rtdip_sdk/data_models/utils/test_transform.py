@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, '.')
 
 from src.sdk.python.rtdip_sdk.data_models.transformers import london_smart_meter_transformer_2_usage
-from src.sdk.python.rtdip_sdk.data_models.utils import transform
+from src.sdk.python.rtdip_sdk.data_models.meters.utils import transform
 import pandas as pd
 import logging
 import pytest

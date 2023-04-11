@@ -16,8 +16,8 @@ import sys
 sys.path.insert(0, '.')
 
 from src.sdk.python.rtdip_sdk.data_models.weather_factory.weather_object_creator import WeatherObjectCreator
-from src.sdk.python.rtdip_sdk.data_models.constants import weather_constants
-from src.sdk.python.rtdip_sdk.data_models.utils import utils
+from src.sdk.python.rtdip_sdk.data_models.weather import constants
+from src.sdk.python.rtdip_sdk.data_models.meters.utils import utils
 
 import pytest
 
@@ -29,7 +29,7 @@ def test_create_AtmosphericG215minForecastV1():
 
     # Create the object via the factory
     a_g2_15min_for_v1_instance = WeatherObjectCreator.create_object(
-        version=weather_constants.AtmosphericG215minForecastV1,
+        version=constants.AtmosphericG215minForecastV1,
         clas=utils.generate_random_alpha_num_string(),
         clds=utils.generate_random_int_number(0, 100),
         day_ind=utils.generate_random_alpha_num_string(),

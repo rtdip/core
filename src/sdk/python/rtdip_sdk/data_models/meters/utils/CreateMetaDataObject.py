@@ -13,11 +13,11 @@
 # limitations under the License.
 
 
-from ..series.SeriesType import SeriesType
-from ..metadata.MetaData import MetaData
-from ..usage.ValueType import ValueType
-from ..usage.ModelType import ModelType
-from ..usage.UomUsage import UomUsage
+from ..ami_meters import SeriesType
+from ..ami_meters import MetaData
+from ..ami_meters import ValueType
+from ..ami_meters import ModelType
+from ..ami_meters import UomUsage
 
 
 def create_metadata_VO(uid: str,

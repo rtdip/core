@@ -12,12 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pydantic import BaseModel
+
+from ..ami_meters import Usage
+
+def create_usage_VO(uid: str,
+                    series_id: str,
+                    timestamp: int,
+                    interval_timestamp: int,
+                    value: float):
+    try:
+        return Usage(uid = uid,
+                        series_id = series_id,
+                        timestamp=timestamp,
+                        interval_timestamp = interval_timestamp,
+                        value = value)
+
+    except Exception as ex:
+        error_msg_str: str = 'Could not create Usage Value Object: {}'.format(ex)
 
 
-class Usage(BaseModel):
-    uid: str  # A unique identifier tied to a timeseries of data.
-    series_id: str  # Identifier for a particular timeseries set
-    timestamp: int  # Creation time. Always UTC. Seconds since EPOCH
-    interval_timestamp: int  # The timestamp for the interval. Always UTC. Seconds since EPOCH.
-    value: float  # The actual value of the measurement
+

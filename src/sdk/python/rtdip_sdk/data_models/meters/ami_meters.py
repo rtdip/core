@@ -16,8 +16,6 @@
 from enum import IntFlag, auto
 from pydantic import BaseModel
 from enum import Enum
-from enum import IntFlag, auto
-
 
 
 class ModelType(IntFlag):
@@ -98,14 +96,14 @@ class MetaData(BaseModel):
     series_id: str  # Unique Identifier for a particular time series (TS)
     series_parent_id: str  # Hierarchy (Sequence) of this TS associated to the same group of TS
     name: str  # Name of the sensor
-    uom: UomUsage.UomUsage  # Unit of measure for this sensor
+    uom: UomUsage  # Unit of measure for this sensor
     description: str  # Short description
     timestamp_start: int  # Timestamp of the creation of the record and start of the timeseries. UTC
     timestamp_end: int  # Timestamp of end of the timeseries. UTC
     time_zone: str  # Time zone of where the sensor or where the series has started
     version: str  # Version of this uid/series_id
     series_type: SeriesType  # Type of time series (e.g. pure time series, interval type, etc.)
-    model_type: ModelType.ModelType  # Type for this series (sensor type, measurement type, forecast type, etc)
-    value_type: ValueType.ValueType
+    model_type: ModelType  # Type for this series (sensor type, measurement type, forecast type, etc)
+    value_type: ValueType
     # for this time_series id
     properties: dict  # Any Additional properties (Key/Value)

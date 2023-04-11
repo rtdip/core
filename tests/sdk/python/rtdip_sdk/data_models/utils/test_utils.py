@@ -15,8 +15,8 @@
 import sys
 sys.path.insert(0, '.')
 
-from src.sdk.python.rtdip_sdk.data_models.utils import utils
-from src.sdk.python.rtdip_sdk.data_models.series import SeriesType
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import SeriesType
+from src.sdk.python.rtdip_sdk.data_models.meters.utils import utils
 from datetime import timezone
 from dateutil import tz
 import datetime
@@ -35,7 +35,7 @@ def test_timeseries_15min():
     for i in range(intervals_in_one_day_int):
         now_utc_datetime_plus: datetime.datetime = now_utc_datetime_plus + \
                                                     datetime.timedelta(minutes=interval_minutes_int)
-        interval_int: int = utils.get_interval(SeriesType.SeriesType.minutes_15, now_utc_datetime_plus)
+        interval_int: int = utils.get_interval(SeriesType.minutes_15, now_utc_datetime_plus)
         arr_list[interval_int] = 0
         interval_list.append('interval_' + str(interval_int).zfill(2))
     assert (sum(arr_list) == 0)
@@ -54,7 +54,7 @@ def test_timeseries_1h():
     for i in range(intervals_in_one_day_int):
         now_utc_datetime_plus: datetime.datetime = now_utc_datetime_plus + \
                                                     datetime.timedelta(minutes=interval_minutes_int)
-        interval_int: int = utils.get_interval(SeriesType.SeriesType.hour, now_utc_datetime_plus)
+        interval_int: int = utils.get_interval(SeriesType.hour, now_utc_datetime_plus)
         interval_list[interval_int] = 0
         key_str: str = 'interval_' + str(interval_int).zfill(2)
         interval_dict[key_str] = now_utc_datetime_plus
@@ -71,7 +71,7 @@ def test_timeseries_not_implemented():
     now_utc_datetime_plus = now_utc_datetime
 
     try:
-        utils.get_interval(SeriesType.SeriesType.test, now_utc_datetime_plus)
+        utils.get_interval(SeriesType.test, now_utc_datetime_plus)
         pytest.fail()
     except SystemError as ex:
         logging.info('Exception catched: {}'.format(ex))

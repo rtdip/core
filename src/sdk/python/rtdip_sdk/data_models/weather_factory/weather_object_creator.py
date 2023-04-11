@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..constants import weather_constants
+from ..weather import constants
 from ..weather.AtmosphericG215minForecastV1 import AtmosphericG215minForecastV1
 
 
 class WeatherObjectCreator:
     @staticmethod
     def create_object(**kwargs):
-        version_str: str = kwargs[weather_constants.version]
-        if version_str == weather_constants.AtmosphericG215minForecastV1:
+        version_str: str = kwargs[constants.version]
+        if version_str == constants.AtmosphericG215minForecastV1:
             instance_obj = AtmosphericG215minForecastV1()
             return instance_obj.create_object(**kwargs)
         else:
