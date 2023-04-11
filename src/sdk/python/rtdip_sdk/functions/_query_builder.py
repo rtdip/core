@@ -40,19 +40,7 @@ def _fix_dates(parameters_dict):
     parameters_dict["start_date"] = _fix_date(parameters_dict["start_date"])
     parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
 
-    print(parameters_dict["start_date"])
-    print(parameters_dict["end_date"])
-
-    # if len(parameters_dict['start_date']) == 10:
-    #     parameters_dict['start_date'] = parameters_dict['start_date']+'T00:00:00'
-
-    # if len(parameters_dict['end_date']) == 10:
-    #     parameters_dict['end_date'] = parameters_dict['end_date']+'T23:59:59'
-    
     time_zone = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
-    # x=time_zone.astimezone().tzname()
-    # y=time_zone.strftime("%z")
-    # print(y)
 
     if time_zone != None and time_zone != "+00:00" or time_zone != "+0000":
         parameters_dict["time_zone"] = time_zone
