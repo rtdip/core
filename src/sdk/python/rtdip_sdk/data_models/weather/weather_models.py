@@ -13,11 +13,10 @@
 # limitations under the License.
 
 
-from ..weather_factory.weather_object_factory import WeatherObjectFactory
+from pydantic import BaseModel
 from datetime import datetime
 
-class AtmosphericG215minForecastV1(WeatherObjectFactory):
-    version: str  # Version of this model
+class AtmosphericG215minForecastV1(BaseModel):
     clas: str  # Data identifier: example: fod_long_range_hourly
     clds: int  # Cloud Cover: Hourly average cloud cover expressed as a percentage: range: 0 to 100
     day_ind: str  # DayOrNight: range: D, N, X   X=Missing
@@ -58,13 +57,7 @@ class AtmosphericG215minForecastV1(WeatherObjectFactory):
     wdir_cardinal: str  # enum: N , NNE , NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW, CALM, VAR
     wspd: int
     wxman: str
-
-    def create_object(self, **kwargs):
-        self.__dict__.update(kwargs)
-        return self
-
-    def get_version(self):
-        return self.version
+    
 
 
 

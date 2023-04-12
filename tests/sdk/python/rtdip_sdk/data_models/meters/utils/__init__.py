@@ -12,17 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..weather import constants
-from ..weather.AtmosphericG215minForecastV1 import AtmosphericG215minForecastV1
-
-
-class WeatherObjectCreator:
-    @staticmethod
-    def create_object(**kwargs):
-        version_str: str = kwargs[constants.version]
-        if version_str == constants.AtmosphericG215minForecastV1:
-            instance_obj = AtmosphericG215minForecastV1()
-            return instance_obj.create_object(**kwargs)
-        else:
-            raise 'Version Not Implemented [{}]'.format(version_str)
-
