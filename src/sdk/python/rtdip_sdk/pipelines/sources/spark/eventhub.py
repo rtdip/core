@@ -23,7 +23,7 @@ from ..._pipeline_utils.constants import DEFAULT_PACKAGES, EVENTHUB_SCHEMA
 class SparkEventhubSource(SourceInterface):
     '''
     This Spark source class is used to read batch or streaming data from Eventhubs. Eventhub configurations need to be specified as options in a dictionary.
-    Additionally, there are more optional configuration which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
+    Additionally, there are more optional configurations which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
     If using startingPosition or endingPosition make sure to check out **Event Position** section for more details and examples.
     Args:
         spark: Spark Session
