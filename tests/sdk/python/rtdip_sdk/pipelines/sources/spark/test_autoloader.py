@@ -17,11 +17,24 @@ sys.path.insert(0, '.')
 import pytest
 from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.autoloader import DataBricksAutoLoaderSource
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
 
 path = "/path"
 
+def test_databricks_autoloader_setup(spark_session: SparkSession):
+    autoloader_source = DataBricksAutoLoaderSource(spark_session, {}, path, "parquet")
+    assert autoloader_source.system_type().value == 3
+    assert autoloader_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
+                group_id="io.delta",
+                artifact_id="delta-core_2.12",
+                version="2.2.0"
+            )], pypi_libraries=[], pythonwheel_libraries=[])
+    assert isinstance(autoloader_source.settings(), dict)
+    assert autoloader_source.pre_read_validation()
+    assert autoloader_source.post_read_validation(spark_session.createDataFrame([{"a": "x"}]))
+    
 def test_databricks_autoloader_read_batch(spark_session: SparkSession):
     with pytest.raises(NotImplementedError) as excinfo:
         autoloader_source = DataBricksAutoLoaderSource(spark_session, {}, path, "parquet")

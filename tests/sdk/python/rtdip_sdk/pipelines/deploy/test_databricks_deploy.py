@@ -16,6 +16,7 @@ import sys
 
 sys.path.insert(0, '.')
 from pytest_mock import MockerFixture
+import pytest
 
 from src.sdk.python.rtdip_sdk.pipelines.deploy.databricks import DatabricksDBXDeploy
 from src.sdk.python.rtdip_sdk.pipelines.deploy.models.databricks import DatabricksCluster, DatabricksJobCluster, DatabricksJobForPipelineJob, DatabricksTaskForPipelineTask
@@ -52,3 +53,31 @@ def test_pipeline_job_deploy(mocker: MockerFixture):
     launch_result = databricks_job.launch()
     assert launch_result
     
+def test_pipeline_job_deploy_fails(mocker: MockerFixture):
+    pipeline_job = get_spark_pipeline_job()
+
+    databricks_job_cluster = DatabricksJobCluster(
+        job_cluster_key="test_job_cluster", 
+        new_cluster=DatabricksCluster(
+            spark_version = "11.3.x-scala2.12",
+            virtual_cluster_size = "VirtualSmall",
+            enable_serverless_compute = True
+        )
+    )
+
+    databricks_task = DatabricksTaskForPipelineTask(name="test_task", job_cluster_key="test_job_cluster")
+
+    databricks_job = DatabricksJobForPipelineJob(
+        job_clusters=[databricks_job_cluster],
+        databricks_task_for_pipeline_task_list=[databricks_task]
+    )
+
+    databricks_job = DatabricksDBXDeploy(pipeline_job=pipeline_job, databricks_job_for_pipeline_job=databricks_job, host="https://test.databricks.net", token="test_token")
+
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.dbx_deploy", side_effect=Exception)
+    with pytest.raises(Exception):
+        databricks_job.deploy()
+
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.dbx_launch", side_effect=Exception)
+    with pytest.raises(Exception):
+        databricks_job.launch()
