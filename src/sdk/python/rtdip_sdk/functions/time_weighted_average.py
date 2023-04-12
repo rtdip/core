@@ -54,7 +54,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             except:
                 return False
             
-        def fix_dates(dt, is_end_date = False):
+        def set_dtz(dt, is_end_date = False):
             if is_date_format(dt, "%Y-%m-%d"):
                 _time = "T23:59:59" if is_end_date == True else "T00:00:00"
                 return dt + _time + "+00:00"
@@ -64,9 +64,12 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
                 return dt
             else: 
                 raise ValueError(f"Inputted datetime: '{dt}', is not in the correct format")
+            
+        parameters_dict["start_date"] = set_dtz(parameters_dict["start_date"])
+        parameters_dict["end_date"] = set_dtz(parameters_dict["end_date"], True)
 
-        parameters_dict["start_date"] = fix_dates(parameters_dict["start_date"])
-        parameters_dict["end_date"] = fix_dates(parameters_dict["end_date"], True)
+        original_start_date = datetime.strptime(parameters_dict["start_date"], dtz_format)
+        original_end_date = datetime.strptime(parameters_dict["end_date"], dtz_format)
 
         if "window_length" in parameters_dict:       
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], dtz_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(dtz_format)
@@ -81,8 +84,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
         for tag in parameters_dict["tag_names"]:
-            # dti = pd.to_datetime([parameters_dict["start_date"]])
-            # print(dti)
             start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"], utc=True).replace(tzinfo=pytz.timezone("Etc/UTC")), tag]], columns=["EventTime", "TagName"])
             end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"], utc=True).replace(tzinfo=pytz.timezone("Etc/UTC")), tag]], columns=["EventTime", "TagName"])
             boundaries_df = pd.concat([boundaries_df, start_date_new_row, end_date_new_row], ignore_index=True)
@@ -130,9 +131,13 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             time_weighted_averages = time_weighted_averages.rename(columns={"CalcValue": "Value"})
         
         time_weighted_averages = time_weighted_averages.set_index("EventTime").sort_values(by=["TagName", "EventTime"])
-        # time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
-        # weighted_averages_timezones = np.array([z.replace(tzinfo=pytz.timezone(utc)) for z in time_weighted_averages_datetime])
-        # time_weighted_averages = time_weighted_averages[(original_start_date.replace(tzinfo=pytz.timezone(utc)) < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date.replace(tzinfo=pytz.timezone(utc)) + timedelta(seconds = 1))]
+        time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
+        weighted_averages_timezones = np.array([z for z in time_weighted_averages_datetime])
+        print(weighted_averages_timezones)
+        print(original_start_date)
+        print()
+        time_weighted_averages = time_weighted_averages[(original_start_date < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date + timedelta(seconds = 1))]
+        print(time_weighted_averages)
         return time_weighted_averages
         
     except Exception as e:
@@ -151,12 +156,12 @@ dict = {
 "asset": "QSGTL", 
 "data_security_level": "confidential", 
 "data_type": "float", 
-"tag_names": ['QSGTL_A10MOV18008.SWITCHA.OP'],
-"start_date": "2022-03-10T00:00:00+05:30",
+"tag_names": ['QSGTL_240FI10025.DACA.PV'],
+"start_date": "2022-03-08T00:00:00+05:30",
 #"2023-03-10T04:00:00+05:30", 
-"end_date": "2022-03-15T00:00:00+05:30",
+"end_date": "2022-03-09T00:00:00+05:30",
 #"2023-03-14T06:00:00+05:30", 
-"window_size_mins": 1440, 
+"window_size_mins": 60, 
 "window_length": 20, 
 "include_bad_data": False, 
 "step": True
