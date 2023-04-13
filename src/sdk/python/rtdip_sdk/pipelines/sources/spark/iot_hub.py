@@ -37,14 +37,14 @@ class SparkIoThubSource(SourceInterface):
         maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. (Stream)
     
     '''
-    spark: SparkSession
+
     options: dict
+    spark: SparkSession
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         self.spark = spark
-        self.options = options
         self.schema = EVENTHUB_SCHEMA
-
+        self.options = options
 
     @staticmethod
     def system_type():
@@ -53,6 +53,10 @@ class SparkIoThubSource(SourceInterface):
             SystemType (Environment): Requires PYSPARK
         '''            
         return SystemType.PYSPARK
+    
+    @staticmethod
+    def settings() -> dict:
+        return {}
 
     @staticmethod
     def libraries():
@@ -60,9 +64,6 @@ class SparkIoThubSource(SourceInterface):
         spark_libraries.add_maven_library(DEFAULT_PACKAGES["spark_azure_eventhub"])
         return spark_libraries
     
-    @staticmethod
-    def settings() -> dict:
-        return {}
     
     def pre_read_validation(self) -> bool:
         return True
