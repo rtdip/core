@@ -15,8 +15,8 @@
 name: 'PR'
 
 on:
-  # Trigger the workflow on pull request. pull_request_target allows pull requests from forked repos
-  pull_request_target:
+  # Trigger the workflow on pull request.
+  pull_request:
     branches: [main, develop, hotfix/00145]
     types: [opened, synchronize, reopened]
 
