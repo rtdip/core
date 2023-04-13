@@ -36,8 +36,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         data_security_level (str): Level of data security 
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (list): List of tagname or tagnames
-        start_date (str): Start date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS)
-        end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS)
+        start_date (str): Start date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+        end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:z)
         window_size_mins (int): Window size in minutes
         window_length (int): (Optional) add longer window time for the start or end of specified date to cater for edge cases
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
@@ -68,8 +68,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict["start_date"] = set_dtz(parameters_dict["start_date"])
         parameters_dict["end_date"] = set_dtz(parameters_dict["end_date"], True)
 
-        original_start_date = datetime.strptime(parameters_dict["start_date"], dtz_format)
-        original_end_date = datetime.strptime(parameters_dict["end_date"], dtz_format)
+        #used to only return data between start and end date (at the end of function)
+        original_start_date = datetime.fromisoformat(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone("Etc/UTC"))
+        original_end_date = datetime.fromisoformat(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone("Etc/UTC"))
 
         if "window_length" in parameters_dict:       
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], dtz_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(dtz_format)
@@ -133,38 +134,59 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_weighted_averages = time_weighted_averages.set_index("EventTime").sort_values(by=["TagName", "EventTime"])
         time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
         weighted_averages_timezones = np.array([z for z in time_weighted_averages_datetime])
-        print(weighted_averages_timezones)
-        print(original_start_date)
-        print()
         time_weighted_averages = time_weighted_averages[(original_start_date < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date + timedelta(seconds = 1))]
-        print(time_weighted_averages)
         return time_weighted_averages
         
     except Exception as e:
         logging.exception('error with time weighted average function', str(e))
         raise e
     
+# from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
+# from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+# #testing 
+# auth = DefaultAuth(exclude_cli_credential=True,exclude_powershell_credential=True,exclude_shared_token_cache_credential=True,logging_enable=True,exclude_visual_studio_code_credential=True).authenticate()
+# token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+# connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
+# dict = {
+# "business_unit": "IntegratedGas",
+# "region": "EMEA", 
+# "asset": "QSGTL", 
+# "data_security_level": "confidential", 
+# "data_type": "float", 
+# "tag_names": ['QSGTL_240FI10025.DACA.PV'],
+# "start_date": "2022-03-08T00:00:00+05:30",
+# #"2023-03-10T04:00:00+05:30", 
+# "end_date": "2022-03-09T00:00:00+05:30",
+# #"2023-03-14T06:00:00+05:30", 
+# "window_size_mins": 60, 
+# "window_length": 20, 
+# "include_bad_data": False, 
+# "step": True
+# }
+# x = get(connection, dict)
+# print(x)
+
 from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
 from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-#testing 
+import pandas as pd
+
 auth = DefaultAuth(exclude_cli_credential=True,exclude_powershell_credential=True,exclude_shared_token_cache_credential=True,logging_enable=True,exclude_visual_studio_code_credential=True).authenticate()
 token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
+connection = DatabricksSQLConnection("adb-1096942540610930.10.azuredatabricks.net", "/sql/1.0/endpoints/66e64f32c705a279", token)
 dict = {
-"business_unit": "IntegratedGas",
-"region": "EMEA", 
-"asset": "QSGTL", 
-"data_security_level": "confidential", 
-"data_type": "float", 
-"tag_names": ['QSGTL_240FI10025.DACA.PV'],
-"start_date": "2022-03-08T00:00:00+05:30",
-#"2023-03-10T04:00:00+05:30", 
-"end_date": "2022-03-09T00:00:00+05:30",
-#"2023-03-14T06:00:00+05:30", 
-"window_size_mins": 60, 
-"window_length": 20, 
-"include_bad_data": False, 
+"business_unit": "tradingsupply",
+"region": "americas",
+"asset": "sena",
+"data_security_level": "confidential",
+"data_type": "float",
+"tag_names": ["Prospero GEN2 Net Generation MW"],
+"start_date": "2022-07-22",
+"end_date": "2022-07-22",
+"window_size_mins": 15,
+"window_length": 20,
+"include_bad_data": True,
 "step": True
 }
 x = get(connection, dict)
+pd.set_option('display.max_rows', None)
 print(x)

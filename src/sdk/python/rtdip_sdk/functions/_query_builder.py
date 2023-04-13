@@ -44,7 +44,6 @@ def _fix_dates(parameters_dict):
 
     if time_zone != None and time_zone != "+00:00" or time_zone != "+0000":
         parameters_dict["time_zone"] = time_zone
-        print(parameters_dict["time_zone"])
     
     return parameters_dict
 
@@ -76,7 +75,6 @@ def _get_sql_from_template(query: str, bind_params: dict) -> str:
 def _raw_query(parameters_dict: dict) -> str:
 
     if "time_zone" in parameters_dict:
-        print(parameters_dict["time_zone"])
         select_from = "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
     else:
         select_from = "SELECT EventTime, TagName, Status, Value FROM "
