@@ -16,8 +16,8 @@ name: 'PR'
 
 on:
   # Trigger the workflow on pull request
-  pull_request:
-    branches: [main, develop, hotfix/00145]
+  pull_request_target:
+    branches: [main, develop]
     types: [opened, synchronize, reopened]
 
 jobs:
