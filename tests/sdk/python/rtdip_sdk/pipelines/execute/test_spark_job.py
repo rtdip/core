@@ -24,12 +24,15 @@ from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_co
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import get_spark_pipeline_job
 
 read_stream_path = "src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_stream"
+read_batch_path = "src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch"
+
 
 def test_pipeline_job_execute_batch(spark_session: SparkSession, mocker: MockerFixture):
     pipeline_job = get_spark_pipeline_job()
 
     expected_df = spark_session.createDataFrame(data=[], schema=EVENTHUB_SCHEMA)
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch", return_value=expected_df)
+    mocker.patch(read_batch_path, return_value=expected_df)
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta.SparkDeltaDestination.write_batch", return_value=None)
 
     pipeline = PipelineJobExecute(pipeline_job)
 
