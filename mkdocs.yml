@@ -130,6 +130,7 @@ nav:
                                  - Delta: sdk/code-reference/pipelines/sources/spark/delta.md
                                  - Delta Sharing: sdk/code-reference/pipelines/sources/spark/delta_sharing.md
                                  - Autoloader: sdk/code-reference/pipelines/sources/spark/autoloader.md
+                                 - IoT Hub: sdk/code-reference/pipelines/sources/spark/iot_hub.md
                       - Transformers:
                             - Spark:
                                  - Eventhub: sdk/code-reference/pipelines/transformers/spark/eventhub.md                                 
