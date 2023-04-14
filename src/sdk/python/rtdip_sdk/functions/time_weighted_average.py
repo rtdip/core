@@ -13,8 +13,8 @@
 # limitations under the License.
 import logging
 import pandas as pd
-from src.sdk.python.rtdip_sdk.functions.raw import get as raw_get
-from src.sdk.python.rtdip_sdk.functions.metadata import get as metadata_get
+from .raw import get as raw_get
+from .metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np
@@ -140,28 +140,3 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with time weighted average function', str(e))
         raise e
-    
-from src.sdk.python.rtdip_sdk.authentication.authenticate import ClientSecretAuth
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-#testing 
-auth = ClientSecretAuth("db1e96a8-a3da-442a-930b-235cac24cd5c", "9bcd280a-f10e-4964-b164-15073db032d6", "Goz8Q~U9JQ8vRIR161AvARAgAHMGVKpgNnrFfaJz").authenticate()
-token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
-dict = {
-"business_unit": "IntegratedGas",
-"region": "EMEA", 
-"asset": "QSGTL", 
-"data_security_level": "confidential", 
-"data_type": "float", 
-"tag_names": ['QSGTL_242FC10008.PIDA.PV'],
-"start_date": "2022-03-10T00:00:00+05:30",
-#"2023-03-10T04:00:00+05:30", 
-"end_date": "2022-03-11T00:00:00+05:30",
-#"2023-03-14T06:00:00+05:30", 
-"window_size_mins": 30, 
-"window_length": 60, 
-"include_bad_data": True, 
-"step": True
-}
-x = get(connection, dict)
-print(x)
