@@ -103,7 +103,7 @@ nav:
           - About RTDIP: getting-started/about-rtdip.md
     - Domains:
           - Weather:
-                - Overview: domains/weather/overview.md
+                - Overview: domains/weather/overview.md 
                 - Data Model: domains/weather/data-model.md  
     - Integration:
           - Power BI: integration/power-bi.md
