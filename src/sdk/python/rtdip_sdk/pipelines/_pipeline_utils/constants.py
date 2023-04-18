@@ -34,6 +34,16 @@ DEFAULT_PACKAGES = {
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
                 version="0.1.7"
+            ),
+    # "spark_kinesis1": MavenLibrary(
+    #             group_id="com.amazonaws",
+    #             artifact_id="amazon-kinesis-client",
+    #             version="1.14.10"
+    #         ),
+    "spark_kinesis": MavenLibrary(
+                group_id="org.apache.spark",
+                artifact_id="spark-streaming-kinesis-asl_2.12",
+                version="3.4.0"
             )
 }
 
@@ -48,3 +58,12 @@ EVENTHUB_SCHEMA = StructType(
              StructField('properties', MapType(StringType(), StringType(), True), True), 
              StructField('systemProperties', MapType(StringType(), StringType(), True), True)]
         )
+
+KINESIS_SCHEMA = StructType(
+           [StructField('partitionKey', StringType(), True),
+            StructField('data', BinaryType(), True),
+            StructField('stream', StringType(), True),
+            StructField('shardId', StringType(), True),
+            StructField('sequenceNumber', StringType(), True),
+            StructField('approximateArrivalTimestamp', TimestampType(), True)]
+       )
