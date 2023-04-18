@@ -123,12 +123,8 @@ The CoD data feed returns a similar set of data elements as traditional site-bas
 
 
 
-            Enhanced 15-day Forecast datasource output (API)
 
-<!-- <figure markdown>
-  ![IW Historical Actuals](images/image4.png "IW Historical Actuals"){ width=100%}
-  <figcaption>IW Historical Actuals (METAR) Mapping Example</figcaption>
-</figure> -->
+Below code snippet demonstrates transformation of direct API output within data service.
 
 ```python
         for record in weather_hours:
