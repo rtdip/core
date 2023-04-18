@@ -36,13 +36,13 @@ This document will summarize the most popular Weather Data formats, its usage in
 
 Weather data standards refer to a set of guidelines and protocols for collecting, processing, and disseminating weather data. These standards are important for ensuring that weather data is accurate, consistent, and can be easily shared and analyzed by different organizations and systems.
 
-One of the most widely used weather data standards is the METAR (Meteorological Aerodrome Report) [1]  ICAO[2] [3] (International Civil Aviation Organization) standard. This standard is used by meteorological agencies and aviation organizations around the world to report weather conditions at airports and other aviation facilities. 
+One of the most widely used weather data standards is the METAR (Meteorological Aerodrome Report) and ICAO (International Civil Aviation Organization) standard. This standard is used by meteorological agencies and aviation organizations around the world to report weather conditions at airports and other aviation facilities. 
 
 The METAR ICAO standard includes a set of codes and abbreviations that describe weather conditions in a standardized format. These codes include information such as temperature, wind speed and direction, visibility, cloud cover, and precipitation. The standard also includes codes for reporting special weather phenomena, such as thunderstorms or volcanic ash.
 
 The METAR ICAO standard is designed to be easily understood and used by pilots, air traffic controllers, and meteorologists. It provides a common language for reporting weather conditions, allowing aviation organizations to make informed decisions about flight operations and safety.
 
-In addition to the METAR ICAO standard, there are other weather data standards used for different purposes. For example, the WMO [4] (World Meteorological Organization) has developed standards for exchanging weather data between national meteorological agencies, while the NOAA [5] (National Oceanic and Atmospheric Administration) has developed standards for collecting and processing weather data in the United States.
+In addition to the METAR ICAO standard, there are other weather data standards used for different purposes. For example, the WMO (World Meteorological Organization) has developed standards for exchanging weather data between national meteorological agencies, while the NOAA (National Oceanic and Atmospheric Administration) has developed standards for collecting and processing weather data in the United States.
 
 Innowatts is using Historical METAR data, containing a set of selected standard weather variables (temperature, cloud cover, humidity etc).  Aggregated METAR weather information is used in IW Models. This data comes from permanent weather observation stations on a typical report cadence of 15min to 1hr.
 
@@ -51,7 +51,7 @@ Innowatts is using Historical METAR data, containing a set of selected standard 
 
 Historical Data is used to calculate Normals which is an average of 21 years and TMY (Typical Meteorological Year).
 
-Forecast data is using TAF [6] format, which is similar to METAR but contains extra forecast variables from IBM GRAF [7] (IBM Global High-Resolution Atmospheric Forecasting System) 
+Forecast data is using TAF format, which is similar to METAR but contains extra forecast variables from IBM GRAF (IBM Global High-Resolution Atmospheric Forecasting System) 
 
 System Diagram [Diagram 1] describes a high level architecture design of Weather Data ingestion considering multiple weather data sources based on METAR ICAO type. All sources (Historical, Forecast and CoD) share similar schemas. More details will be provided later in this document. 
 
@@ -75,7 +75,7 @@ System Diagram [Diagram 1] describes a high level architecture design of Weather
 * Load scheduling
 * Risk Mgmt
 * Profitability
-* Wholesale settlements \
+* Wholesale settlements
 
 
 **Innowatts Weather Data** - Load forecasting i.e. predicting the consumption patterns of electrical users going forward is the primary service within Innowatts. Load forecasting is essential for the electrical domain to meet the demand and supply equilibrium**.**
