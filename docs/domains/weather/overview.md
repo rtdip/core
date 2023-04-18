@@ -1,11 +1,9 @@
 
-# RTDIP - Weather Data 
+# Weather Data 
 
-# LF Energy - RTDIP
+![lf-energy-rtdip](images/image1.png "lf-energy-rtdip"){width=100%}
 
-![this is alt text](images/image1.png "image_tooltip"){width=100%}
-
-Organizations need data for day-to-day operations and to support advanced Data Science, Statistical and Machine Learning capabilities such as Optimization, Surveillance, Forecasting, and Predictive Analytics. Real Time Data & batch data forms a major part of the total data utilized in these activities.
+Organizations need data for day-to-day operations and to support advanced Data Science, Statistical and Machine Learning capabilities such as Optimization, Surveillance, Forecasting, and Predictive Analytics. Real time data & batch data forms a major part of the total data utilized in these activities.
 
 Data enables organizations to detect and respond to changes in their systems thus improving the efficiency of their operations. Additionally, batch and mini-batch data form the crux of many organisational offerings. This range of data needs to be available in scalable and secure data platforms.
 
@@ -17,7 +15,7 @@ A primary aim for RTDIP in 2023 is to demonstrate how the platform can be utiliz
 
 Weather data is a primary driver of variance in load forecasting. RTDIP aims to ingest, transform, store and provide access to such generic data which can then be utilised in a domain specific context.
 
-This document will summarize the most popular Weather Data formats, its usage in IW & Shell Services & expand to describe how weather data can be supported within RTDIP. 
+This document will summarize the most popular Weather Data formats, its usage in Business Services and expand to describe how weather data can be supported within RTDIP. 
 
 # Weather Data
 
@@ -41,7 +39,7 @@ Historical Data is used to calculate Normals which is an average of 21 years and
 
 Forecast data is using TAF format, which is similar to METAR but contains extra forecast variables from IBM GRAF (IBM Global High-Resolution Atmospheric Forecasting System) 
 
-System Diagram [Diagram 1] describes a high level architecture design of Weather Data ingestion considering multiple weather data sources based on METAR ICAO type. All sources (Historical, Forecast and CoD) share similar schemas. More details will be provided later in this document. 
+Diagram 1 describes a high level architecture design of Weather Data ingestion considering multiple weather data sources based on METAR ICAO type. All sources (Historical, Forecast and CoD) share similar schemas. More details will be provided later in this document. 
 
 <figure markdown>
   ![Weather Data Ingestion](images/image2.png "Weather Data Ingestion"){ width=100%}
@@ -58,36 +56,33 @@ System Diagram [Diagram 1] describes a high level architecture design of Weather
 * Profitability
 * Wholesale settlements
 
-
 **Innowatts Weather Data** - Load forecasting i.e. predicting the consumption patterns of electrical users going forward is the primary service within Innowatts. Load forecasting is essential for the electrical domain to meet the demand and supply equilibrium**.**
 
-The Innowatts weather service ingests METAR data, stores it in S3 & loads it into AWS Redshift  where it is queryable via an API service.[Diagram 2]
+The Innowatts weather service ingests METAR data, stores it in S3 and loads it into AWS Redshift where it is queryable via an API service. <em>See Diagram 3</em>.
+
+<figure markdown>
+  ![Innowatts Weather Service](images/image3.png "Innowatts Weather Service"){ width=100%}
+  <figcaption>Diagram 3: Innowatts Weather Service</figcaption>
+</figure>
 
 This ingestion process is orchestrated by Airflow and DAG’s are scheduled according to source Data availability
-
-
 
 * Historical Actuals: DAG runs twice a day
 * 15-day Enhanced Forecast: DAG runs hourly
 * Currents On Demand (CoD): DAG runs every 15min
 
-The data is available for hundreds to thousands of METAR stations across the globe
+The data is available for hundreds to thousands of METAR stations across the globe.
 
 
 ## IW Weather Data Types
 
-**CoD:** CoD is an external system that, at request time, assimilates a variety of meteorological inputs to derive a current condition value precise to the requested location on the Earth's surface. The meteorological inputs include physical surface observations, radar, satellite, lightning and short-term forecast models.  The CoD system spatially and temporally blends each input appropriately at request-time, producing a result that improves upon any individual input used on its own.  
+**CoD:** CoD is an external system that, at request time, assimilates a variety of meteorological inputs to derive a current condition value precise to the requested location on the Earth's surface. The meteorological inputs include physical surface observations, radar, satellite, lightning and short-term forecast models. The CoD system spatially and temporally blends each input appropriately at request-time, producing a result that improves upon any individual input used on its own.  
 
 The CoD data feed returns a similar set of data elements as traditional site-based observations. The API provides information on temperature, precipitation, wind, barometric pressure, visibility
 
 **15-Day Enhanced Forecast:** The Hourly Forecast returns weather forecasts starting with the current day at a 4 km resolution and includes relevant temperature, wind and precipitation features. 
 
 **Cleaned Historical Actuals:** Provides a variety of observed and derived historical meteorological parameters including temperature, dewpoint, air pressure, wind speed and direction, relative humidity, degree day variables, as well as a set of specialized variables including soil moisture, sea level pressure, wind gust, cloud cover and others. Variables are available by latitude/longitude or specific location code.
-
-<figure markdown>
-  ![Innowatts Weather Service](images/image2.png "Innowatts Weather Service"){ width=100%}
-  <figcaption>Diagram 2: Innowatts Weather Service</figcaption>
-</figure>
 
 |Name |Description|
 |--------------------|------|
