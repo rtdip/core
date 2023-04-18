@@ -1,24 +1,15 @@
 
-
-
 # RTDIP - Weather Data 
-
 
 # LF Energy - RTDIP
 
-
-
-
-
 ![this is alt text](images/image1.png "image_tooltip"){width=100%}
-
 
 Organizations need data for day-to-day operations and to support advanced Data Science, Statistical and Machine Learning capabilities such as Optimization, Surveillance, Forecasting, and Predictive Analytics. Real Time Data & batch data forms a major part of the total data utilized in these activities.
 
 Data enables organizations to detect and respond to changes in their systems thus improving the efficiency of their operations. Additionally, batch and mini-batch data form the crux of many organisational offerings. This range of data needs to be available in scalable and secure data platforms.
 
 **Real Time Data Ingestion Platform (RTDIP)** is a **PaaS** (Platform as a Service) which coupled with some custom components provides Data Ingestion, Data Transformation, and Data Sharing as a service. RTDIP can interface with several data sources to ingest many different data types which include time series, alarms, video, photos and audio being provided from sources such as Historians, OPC Servers and Rest APIs, as well as data being sent from hardware such as IoT Sensors, Robots and Drones
-
 
 # Introduction
 
@@ -28,9 +19,7 @@ Weather data is a primary driver of variance in load forecasting. RTDIP aims to 
 
 This document will summarize the most popular Weather Data formats, its usage in IW & Shell Services & expand to describe how weather data can be supported within RTDIP. 
 
-
 # Weather Data
-
 
 ## Weather Data Standards
 
@@ -46,7 +35,6 @@ In addition to the METAR ICAO standard, there are other weather data standards u
 
 Innowatts is using Historical METAR data, containing a set of selected standard weather variables (temperature, cloud cover, humidity etc).  Aggregated METAR weather information is used in IW Models. This data comes from permanent weather observation stations on a typical report cadence of 15min to 1hr.
 
-
 ## Innowatts Weather Data Formats
 
 Historical Data is used to calculate Normals which is an average of 21 years and TMY (Typical Meteorological Year).
@@ -55,15 +43,15 @@ Forecast data is using TAF format, which is similar to METAR but contains extra 
 
 System Diagram [Diagram 1] describes a high level architecture design of Weather Data ingestion considering multiple weather data sources based on METAR ICAO type. All sources (Historical, Forecast and CoD) share similar schemas. More details will be provided later in this document. 
 
-
-
-
-
+<!-- 
 ![alt_text](images/image2.png "image_tooltip"){width=100%}
 
+[Diagram 1] High level Weather Data Ingestion  -->
 
-[Diagram 1] High level Weather Data Ingestion 
-
+<figure markdown>
+  ![Weather Data Ingestion](images/image2.png "Weather Data Ingestion"){ width=100%}
+  <figcaption>Diagram 1: High level Weather Data Ingestion</figcaption>
+</figure>
 
 # Innowatts
 
@@ -103,14 +91,14 @@ The CoD data feed returns a similar set of data elements as traditional site-bas
 
 **Cleaned Historical Actuals:** Provides a variety of observed and derived historical meteorological parameters including temperature, dewpoint, air pressure, wind speed and direction, relative humidity, degree day variables, as well as a set of specialized variables including soil moisture, sea level pressure, wind gust, cloud cover and others. Variables are available by latitude/longitude or specific location code.
 
+<!-- ![alt_text](images/image3.png "image_tooltip"){width=100%}
 
+[Diagram 2] Innowatts Weather Service -->
 
-
-![alt_text](images/image3.png "image_tooltip"){width=100%}
-
-
-[Diagram 2] Innowatts Weather Service
-
+<figure markdown>
+  ![Innowatts Weather Service](images/image2.png "Innowatts Weather Service"){ width=100%}
+  <figcaption>Diagram 2: Innowatts Weather Service</figcaption>
+</figure>
 
 <table>
   <tr>
