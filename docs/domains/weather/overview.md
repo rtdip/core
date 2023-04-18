@@ -43,11 +43,6 @@ Forecast data is using TAF format, which is similar to METAR but contains extra 
 
 System Diagram [Diagram 1] describes a high level architecture design of Weather Data ingestion considering multiple weather data sources based on METAR ICAO type. All sources (Historical, Forecast and CoD) share similar schemas. More details will be provided later in this document. 
 
-<!-- 
-![alt_text](images/image2.png "image_tooltip"){width=100%}
-
-[Diagram 1] High level Weather Data Ingestion  -->
-
 <figure markdown>
   ![Weather Data Ingestion](images/image2.png "Weather Data Ingestion"){ width=100%}
   <figcaption>Diagram 1: High level Weather Data Ingestion</figcaption>
@@ -56,8 +51,6 @@ System Diagram [Diagram 1] describes a high level architecture design of Weather
 # Innowatts
 
 **Innowatts Competitive Edge **- is a SaaS offering providing data analytic services to the Energy domain, primarily the electrical domain. The platform offers services with respect to, but not limited to:
-
-
 
 * Load forecasting
 * Load scheduling
@@ -90,10 +83,6 @@ The CoD data feed returns a similar set of data elements as traditional site-bas
 **15-Day Enhanced Forecast:** The Hourly Forecast returns weather forecasts starting with the current day at a 4 km resolution and includes relevant temperature, wind and precipitation features. 
 
 **Cleaned Historical Actuals:** Provides a variety of observed and derived historical meteorological parameters including temperature, dewpoint, air pressure, wind speed and direction, relative humidity, degree day variables, as well as a set of specialized variables including soil moisture, sea level pressure, wind gust, cloud cover and others. Variables are available by latitude/longitude or specific location code.
-
-<!-- ![alt_text](images/image3.png "image_tooltip"){width=100%}
-
-[Diagram 2] Innowatts Weather Service -->
 
 <figure markdown>
   ![Innowatts Weather Service](images/image2.png "Innowatts Weather Service"){ width=100%}
@@ -313,8 +302,6 @@ The CoD data feed returns a similar set of data elements as traditional site-bas
   </tr>
 </table>
 
-
-
             METAR (Historical Actuals) data example
 
     {
@@ -354,24 +341,16 @@ The CoD data feed returns a similar set of data elements as traditional site-bas
 
             Enhanced 15-day Forecast datasource output (API)
 
-
-
-
-
-![alt_text](images/image4.png "image_tooltip"){width=100%}
-
-
-
-            IW Historical Actuals (METAR) Mapping Example
-
+<figure markdown>
+  ![IW Historical Actuals](images/image4.png "IW Historical Actuals"){ width=100%}
+  <figcaption>IW Historical Actuals (METAR) Mapping Example</figcaption>
+</figure>
 
 # RTDIP - Weather Data Ingestion Process
 
 Its proposed that weather data (being domain agnostic) be ingested within RTDIP following the standard ETL (Extract Transform Load) process outlined in the documentation. It extracts data from various sources, transforms it into a format that is suitable for utilization, and then loads data into a warehouse of other storage systems. Finally, data should be accessible by end services by enabling querying methods or API’s. 
 
 In the context of weather data, the ETL process using a transformer may involve the following steps:
-
-
 
 1. Extraction: The first step in the ETL process is to extract the weather data from various sources, such as weather stations or online weather services. The data is typically in a raw format, such as CSV or JSON.
 2. Transformation: The next step is to transform the extracted data into a format that is suitable for analysis. The transformer applies a set of rules or transformations to the data, such as cleaning and filtering the data, converting units of measure, aggregating the data, and creating new features or variables.
@@ -390,23 +369,16 @@ Once the data has been transferred to the data lake and stored in a queryable fo
 
 Example of connector [Code 1] takes in API key as input, which is used to make API call to the OpenWeatherMap API. It then creates Pandas DataFrame with extracted data and returns it. 
 
-
-
-
-
-![alt_text](images/image5.png "image_tooltip"){width=100%}
-
-
-
-            Example of a weather data connector [Code 1]
+<figure markdown>
+  ![Weather Data Connector](images/image5.png "Weather Data Connector"){ width=100%}
+  <figcaption>Code 1: Example of a weather data connector</figcaption>
+</figure>
 
 **A transformer** is a component in the ETL process that is responsible for the data transformation step. The transformer takes the extracted data, applies a set of rules or transformations to it, and then outputs the transformed data in a format that is suitable for loading into the target system.
 
 The transformer plays a critical role in the ETL process, as it is responsible for the data transformation step, which can be complex and time-consuming. The transformer may be implemented using various technologies, such as SQL scripts, Python scripts, or ETL tools such as Apache NiFi, Apache Kafka or Apache Storm.
 
 Example of Transformer [Code 2] takes in a pandas DataFrame containing weather data with columns date and temperature and transforms it in the following ways:
-
-
 
 * Converts the date column to datetime format
 * Splits the date column into separate year, month, and day columns
@@ -415,26 +387,15 @@ Example of Transformer [Code 2] takes in a pandas DataFrame containing weather d
 * Fills in missing values in the temperature_celsius column with the mean temperature
 * Groups the data by year, month, and day and calculates the mean temperature for each group
 
-
-
-
-
-![alt_text](images/image6.png "image_tooltip"){width=100%}
-
-
-
-            Example of a simple transformation [Code 2]
-
+<figure markdown>
+  ![Simple Transformation](images/image6.png "Simple Transformation"){ width=100%}
+  <figcaption>Code 2: Example of a simple transformation</figcaption>
+</figure>
 
 ## Accessibility & Egress
 
 Once weather data has been loaded into a data lake, it can be made accessible to various systems and services through several methods:
 
-
-
 1. Querying with SQL: If the weather data has been loaded into a relational database or a data lake with a SQL-based query engine, users can query the data using SQL statements. SQL is a widely used language for querying and analyzing data, and many data visualization tools and reporting platforms support SQL.
 2. Using RESTful APIs: Many data lakes provide RESTful APIs that allow users to access and retrieve data programmatically. Users can interact with the API by making HTTP requests and receiving responses in a variety of formats, such as JSON, CSV, or XML.
 3. Integrating with Business Intelligence (BI) Tools: Business intelligence tools, such as Tableau, Power BI, or QlikView, can be integrated with a data lake to access and visualize weather data. These tools provide a variety of data visualization and exploration capabilities, allowing users to create dashboards and reports that provide insights into the weather data.
-
-
-
