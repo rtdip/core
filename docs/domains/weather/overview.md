@@ -122,49 +122,52 @@ The CoD data feed returns a similar set of data elements as traditional site-bas
 | dateHrGmt | Greenwich Mean Time (GMT) date-time (also known as Universal Time) |
 
 
-            METAR (Historical Actuals) data example
-
-    {
-        "v3-wx-forecast-hourly-2day": {
-            "cloudCover": [30,45],
-            "dayOfWeek": ["Saturday","Saturday"]
-            "dayOrNight": ["D","D"],
-            “temperatureDewPoint”: [60,100],
-            "expirationTimeUtc": [1474132031,1474132031],
-            "iconCode": [30,30],
-            "iconCodeExtend": [3000,3000],
-            "precipChance": [0,0],
-            "precipType": ["rain","rain" ],
-            "pressureMeanSeaLevel": [30.1,30.07 ],
-            "qpf": [0,0 ],
-            "qpfSnow": [0,0 ],
-            "relativeHumidity": [56,50 ],
-            "temperature": [84,86 ],
-            "temperatureFeelsLike": [87,89 ],
-            "temperatureHeatIndex": [87,89 ],
-            "temperatureWindChill": [84,86 ],
-            "uvDescription": ["Very High","Very High" ],
-            "uvIndex": [8,8 ],
-            "validTimeLocal": ["2016-09-17T13:00:00-0400","2016-09-17T14:00:00-0400" ],
-            "validTimeUtc": [1474131600,1474135200 ],
-            "visibility": [10,10 ],
-            "windDirection": [129,137 ],
-            "windDirectionCardinal": ["SE","SE" ],
-            "windGust": [null,null ],
-            "windSpeed": [8,7 ],
-            "wxPhraseLong": ["Partly Cloudy","Partly Cloudy" ],
-            "wxPhraseShort": ["P Cloudy","P Cloudy" ],
-            "wxSeverity": [1,1 ]
-        }
-    }
-
 
             Enhanced 15-day Forecast datasource output (API)
 
-<figure markdown>
+<!-- <figure markdown>
   ![IW Historical Actuals](images/image4.png "IW Historical Actuals"){ width=100%}
   <figcaption>IW Historical Actuals (METAR) Mapping Example</figcaption>
-</figure>
+</figure> -->
+
+```python
+        for record in weather_hours:
+            date_time = datetime.strptime(
+                record["dateHrLwt"], "%m/%d/%Y %H:%M:%S")
+
+            r = OrderedDict(
+                [
+                    ("weather_id", weatherstation),
+                    ("weather_day", date_time.strftime("%Y-%m-%d")),
+                    ("weather_hour", date_time.hour + 1),
+                    ("weather_type", "A"),
+                    ("processed_date", processed_date),
+                    (
+                        "temperature",
+                        float(record["surfaceTemperatureFahrenheit"])
+                        if float(record["surfaceTemperatureFahrenheit"])
+                        else None,
+                    ),
+                    (
+                        "dew_point",
+                        float(record["surfaceDewpointTemperatureFahrenheit"])
+                        if float(record["surfaceDewpointTemperatureFahrenheit"])
+                        else None,
+                    ),
+                    (
+                        "humidity",
+                        float(record["relativeHumidityPercent"])
+                        if float(record["relativeHumidityPercent"])
+                        else None,
+                    ),
+                    (
+                        "heat_index",
+                        float(record["heatIndexFahrenheit"])
+                        if float(record["heatIndexFahrenheit"])
+                        else None,
+                    ),
+```
+<figcaption>IW Historical Actuals (METAR) Mapping Example</figcaption>
 
 # RTDIP - Weather Data Ingestion Process
 
@@ -188,11 +191,48 @@ The connector may also need to perform additional processing steps, such as data
 Once the data has been transferred to the data lake and stored in a queryable format, it can be easily accessed and analyzed by various services, such as data visualization tools or machine learning algorithms. The data lake may also provide additional features and services, such as data cataloging or data governance, to help users manage and analyze the data more effectively.
 
 Example of connector [Code 1] takes in API key as input, which is used to make API call to the OpenWeatherMap API. It then creates Pandas DataFrame with extracted data and returns it. 
-
+<!-- 
 <figure markdown>
   ![Weather Data Connector](images/image5.png "Weather Data Connector"){ width=100%}
   <figcaption>Code 1: Example of a weather data connector</figcaption>
-</figure>
+</figure> -->
+
+```python
+import requests
+import pandas as pd
+
+class WeatherDataConnector:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        
+    def get_data(self, city, country):
+        url = f'https://api.openweathermap.org/data/2.5/weather?q={city},{country}&appid={self.api_key}'
+        response = requests.get(url)
+        data = response.json()
+
+        # Extract relevant data from the API response
+        temperature = data['main']['temp']
+        pressure = data['main']['pressure']
+        humidity = data['main']['humidity']
+        wind_speed = data['wind']['speed']
+        wind_direction = data['wind']['deg']
+        weather_condition = data['weather'][0]['main']
+
+        # Create a pandas DataFrame with the extracted data
+        weather_data = pd.DataFrame({
+            'city': [city],
+            'country': [country],
+            'temperature': [temperature],
+            'pressure': [pressure],
+            'humidity': [humidity],
+            'wind_speed': [wind_speed],
+            'wind_direction': [wind_direction],
+            'weather_condition': [weather_condition]
+        })
+
+        return weather_data
+```
+<figcaption>Code 1: Example of a weather data connector</figcaption>
 
 **A transformer** is a component in the ETL process that is responsible for the data transformation step. The transformer takes the extracted data, applies a set of rules or transformations to it, and then outputs the transformed data in a format that is suitable for loading into the target system.
 
@@ -207,10 +247,44 @@ Example of Transformer [Code 2] takes in a pandas DataFrame containing weather d
 * Fills in missing values in the temperature_celsius column with the mean temperature
 * Groups the data by year, month, and day and calculates the mean temperature for each group
 
-<figure markdown>
+<!-- <figure markdown>
   ![Simple Transformation](images/image6.png "Simple Transformation"){ width=100%}
   <figcaption>Code 2: Example of a simple transformation</figcaption>
-</figure>
+</figure> -->
+
+```python
+import pandas as pd
+import numpy as np
+
+class WeatherDataTransformer:
+    def __init__(self):
+        pass
+    
+    def transform(self, data):
+        # Convert date column to datetime format
+        data['date'] = pd.to_datetime(data['date'], format='%Y-%m-%d')
+
+        # Split date into year, month, and day columns
+        data['year'] = data['date'].dt.year
+        data['month'] = data['date'].dt.month
+        data['day'] = data['date'].dt.day
+
+        # Convert temperature from Fahrenheit to Celsius
+        data['temperature_celsius'] = (data['temperature'] - 32) * 5/9
+
+        # Drop date and temperature columns
+        data = data.drop(columns=['date', 'temperature'])
+
+        # Fill missing values with mean temperature
+        mean_temperature = np.mean(data['temperature_celsius'])
+        data['temperature_celsius'] = data['temperature_celsius'].fillna(mean_temperature)
+
+        # Group by year, month, and day and calculate mean temperature
+        data = data.groupby(['year', 'month', 'day'], as_index=False).mean()
+
+        return data
+```
+<figcaption>Code 2: Example of a simple transformation</figcaption>
 
 ## Accessibility & Egress
 
