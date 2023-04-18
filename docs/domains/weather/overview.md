@@ -74,7 +74,7 @@ This ingestion process is orchestrated by Airflow and DAG’s are scheduled acco
 The data is available for hundreds to thousands of METAR stations across the globe
 
 
-## IW Weather Data Types
+## Examples of Weather Data Types
 
 **CoD:** CoD is an external system that, at request time, assimilates a variety of meteorological inputs to derive a current condition value precise to the requested location on the Earth's surface. The meteorological inputs include physical surface observations, radar, satellite, lightning and short-term forecast models.  The CoD system spatially and temporally blends each input appropriately at request-time, producing a result that improves upon any individual input used on its own.  
 
@@ -84,10 +84,10 @@ The CoD data feed returns a similar set of data elements as traditional site-bas
 
 **Cleaned Historical Actuals:** Provides a variety of observed and derived historical meteorological parameters including temperature, dewpoint, air pressure, wind speed and direction, relative humidity, degree day variables, as well as a set of specialized variables including soil moisture, sea level pressure, wind gust, cloud cover and others. Variables are available by latitude/longitude or specific location code.
 
-<figure markdown>
+<!-- <figure markdown>
   ![Innowatts Weather Service](images/image2.png "Innowatts Weather Service"){ width=100%}
   <figcaption>Diagram 2: Innowatts Weather Service</figcaption>
-</figure>
+</figure> -->
 
 <table>
   <tr>
