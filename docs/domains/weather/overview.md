@@ -4,10 +4,6 @@
 # RTDIP - Weather Data 
 
 
-[TOC]
-
-
-
 # LF Energy - RTDIP
 
 
@@ -24,9 +20,9 @@ Data enables organizations to detect and respond to changes in their systems thu
 **Real Time Data Ingestion Platform (RTDIP)** is a **PaaS** (Platform as a Service) which coupled with some custom components provides Data Ingestion, Data Transformation, and Data Sharing as a service. RTDIP can interface with several data sources to ingest many different data types which include time series, alarms, video, photos and audio being provided from sources such as Historians, OPC Servers and Rest APIs, as well as data being sent from hardware such as IoT Sensors, Robots and Drones
 
 
-# Introduction (test)
+# Introduction
 
-A primary aim for RTDIP in 2023 is to demonstrate how the platform can be ustilsied for domain specific services such as load forecasting in the Energy Domain. Load forecasting is a technique used by power or energy-providing companies to predict the power/energy needed to meet the demand and supply equilibrium.
+A primary aim for RTDIP in 2023 is to demonstrate how the platform can be utilized for domain specific services such as load forecasting in the Energy Domain. Load forecasting is a technique used by power or energy-providing companies to predict the power/energy needed to meet the demand and supply equilibrium.
 
 Weather data is a primary driver of variance in load forecasting. RTDIP aims to ingest, transform, store and provide access to such generic data which can then be utilised in a domain specific context.
 
@@ -453,48 +449,4 @@ Once weather data has been loaded into a data lake, it can be made accessible to
 3. Integrating with Business Intelligence (BI) Tools: Business intelligence tools, such as Tableau, Power BI, or QlikView, can be integrated with a data lake to access and visualize weather data. These tools provide a variety of data visualization and exploration capabilities, allowing users to create dashboards and reports that provide insights into the weather data.
 
 
-## RTDIP - Weather Data Architecture
 
-RTDIP Weather Data will use a similar approach as Innowatts. 
-
-
-
-1. Connector will handle data source connectivity, and transfer of data
-2. Depending on weather data format, it must be mapped into RTDIP schema. This step will be handled by the transformer by applying a set of pre-defined logic. 
-3. Once data is mapped, it will be loaded into RTDIP storage (Databricks, Azure, AWS etc)
-4. Final step is to expose this data via queries or API’s. 
-
-To-Do:
-
-Decide on Egress  (API, SQL etc)
-
-
-# References
-
-[1] METAR
-
-[https://www.aviationweather.gov/dataserver/output?datatype=metar](https://www.aviationweather.gov/dataserver/output?datatype=metar)
-
-[2] METAR ICAO
-
-[https://en.wikipedia.org/wiki/METAR](https://en.wikipedia.org/wiki/METAR)
-
-[3] METAR ICAO
-
-[https://en.wikipedia.org/wiki/METAR](https://en.wikipedia.org/wiki/METAR)
-
-[4] WMO
-
-https://community.wmo.int/en/activity-areas/wmo-space-programme-wsp/satellite-data-formats-standards#:~:text=The%20WMO%20Binary%20Universal%20Form,of%20meteorological%20and%20oceanographic%20data.
-
-[5] NOOA
-
-[https://www.ncdc.noaa.gov/cdo-web/](https://www.ncdc.noaa.gov/cdo-web/)
-
-[6] TAF
-
- [https://www.aviationweather.gov/dataserver/output?datatype=taf](https://www.aviationweather.gov/dataserver/output?datatype=taf)
-
-[7] IBM GRAF
-
-https://www.ibm.com/weather/industries/cross-industry/graf
