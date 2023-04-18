@@ -31,7 +31,7 @@ def test_spark_delta_write_setup():
     assert delta_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version="2.2.0"
+                version="2.3.0"
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(delta_destination.settings(), dict)
     assert delta_destination.pre_write_validation()

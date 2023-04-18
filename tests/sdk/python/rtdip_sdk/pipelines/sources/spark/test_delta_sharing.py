@@ -29,7 +29,7 @@ def test_spark_delta_sharing_read_setup(spark_session: SparkSession):
     assert delta_sharing_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-sharing-spark_2.12",
-                version="0.6.2"
+                version="0.6.3"
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(delta_sharing_source.settings(), dict)
     assert delta_sharing_source.pre_read_validation()

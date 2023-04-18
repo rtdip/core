@@ -14,6 +14,7 @@
 
 import logging
 from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType
 from .models import Libraries
 
 class SparkClient():
@@ -83,3 +84,29 @@ def get_dbutils(
 
 #     def onQueryTerminated(self, event):
 #         logging.info("Query terminated: {} {}".format(event.id, event.name))
+
+EVENTHUB_SCHEMA = StructType([
+    StructField('body', BinaryType(), True), 
+    StructField('partition', StringType(), True), 
+    StructField('offset', StringType(), True), 
+    StructField('sequenceNumber', LongType(), True), 
+    StructField('enqueuedTime', TimestampType(), True), 
+    StructField('publisher', StringType(), True), 
+    StructField('partitionKey', StringType(), True), 
+    StructField('properties', MapType(StringType(), StringType(), True), True), 
+    StructField('systemProperties', MapType(StringType(), StringType(), True), True)
+])
+
+OPCUA_SCHEMA = StructType([
+    StructField('ApplicationUri',StringType(),True),
+    StructField('DisplayName',StringType(),True),
+    StructField('NodeId', StringType(),True),
+    StructField('Value', StructType([
+        StructField('SourceTimestamp',StringType(),True),
+        StructField('StatusCode', StructType([
+            StructField('Code', LongType(),True),
+            StructField('Symbol', StringType(),True)
+        ]), True),
+        StructField('Value',StringType(),True)
+    ]),True)
+])
