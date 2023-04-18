@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .models import MavenLibrary, PyPiLibrary
-from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, IntegerType, ArrayType, MapType
 
 DEFAULT_PACKAGES = {
     "spark_delta_core": MavenLibrary(
@@ -35,11 +35,11 @@ DEFAULT_PACKAGES = {
                 name="rtdip_sdk",
                 version="0.1.7"
             ),
-    # "spark_sql_kafka": MavenLibrary(
-    #             group_id="org.apache.spark", 
-    #             artifact_id="spark-sql-kafka-0-10_2.12",
-    #             version="3.4.0"
-    #         ),
+    "spark_sql_kafka": MavenLibrary(
+                group_id="org.apache.spark", 
+                artifact_id="spark-sql-kafka-0-10_2.12:3.1.2",
+                version="2.8.1"
+            ),
 }
 
 EVENTHUB_SCHEMA = StructType(
@@ -55,11 +55,12 @@ EVENTHUB_SCHEMA = StructType(
         )
 
 KAFKA_SCHEMA = StructType(
-            [StructField('key', BinaryType(), True), 
-             StructField('value', BinaryType(), True), 
-             StructField('topic', StringType(), True), 
-             StructField('partition', int(), True), 
-             StructField('offset', LongType(), True), 
-             StructField('timestamp', TimestampType(), True), 
-             StructField('timestampType', int(), True)]
-        )
+           [StructField('key', BinaryType(), True),
+            StructField('value', BinaryType(), True),
+            StructField('topic', StringType(), True),
+            StructField('partition', IntegerType(), True),
+            StructField('offset', LongType(), True),
+            StructField('timestamp', TimestampType(), True),
+            StructField('timestampType', IntegerType(), True)]
+       )
+
