@@ -89,218 +89,43 @@ The CoD data feed returns a similar set of data elements as traditional site-bas
   <figcaption>Diagram 2: Innowatts Weather Service</figcaption>
 </figure>
 
-<table>
-  <tr>
-   <td><strong>Name</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td><strong>dateHrGmt</strong>
-   </td>
-   <td>Greenwich Mean Time (GMT) date-time (also known as Universal Time)
-   </td>
-  </tr>
-  <tr>
-   <td><strong>dateHrLwt</strong>
-   </td>
-   <td>Valid local date-time (Local wall time {includes daylight savings time})
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceTemperatureFahrenheit</strong>
-   </td>
-   <td>Surface air (dry bulb) temperature at 2 meters
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceDewpointTemperatureFahrenheit</strong>
-   </td>
-   <td>Atmospheric humidity metric (temperature at which dew will form)
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceWetBulbTemperatureFahrenheit</strong>
-   </td>
-   <td>Atmospheric humidity metric (evaporative cooling potential of moist surface)
-   </td>
-  </tr>
-  <tr>
-   <td><strong>relativeHumidityPercent</strong>
-   </td>
-   <td>Percent of water vapor in the air relative to its saturation point
-   </td>
-  </tr>
-  <tr>
-   <td><strong>apparentTemperatureFahrenheit</strong>
-   </td>
-   <td>Air temperature that includes impact of wind and humidity
-   </td>
-  </tr>
-  <tr>
-   <td><strong>windChillTemperatureFahrenheit</strong>
-   </td>
-   <td>Air temperature that includes impact of wind
-   </td>
-  </tr>
-  <tr>
-   <td><strong>heatIndexFahrenheit</strong>
-   </td>
-   <td>Air temperature that includes the impact of humidity
-   </td>
-  </tr>
-  <tr>
-   <td><strong>precipitationPreviousHourInches</strong>
-   </td>
-   <td>Liquid equivalent for types: warm rain, freezing rain, sleet, snow
-   </td>
-  </tr>
-  <tr>
-   <td><strong>snowfallInches</strong>
-   </td>
-   <td>Total Snowfall
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceAirPressureMillibars</strong>
-   </td>
-   <td>Atmospheric pressure at the Surface
-   </td>
-  </tr>
-  <tr>
-   <td><strong>mslPressureMillibars</strong>
-   </td>
-   <td>Mean Sea Level Pressure
-   </td>
-  </tr>
-  <tr>
-   <td><strong>cloudCoveragePercent</strong>
-   </td>
-   <td>Percentage of the sky covered by clouds
-   </td>
-  </tr>
-  <tr>
-   <td><strong>windSpeedMph</strong>
-   </td>
-   <td>Unobstructed wind speed at 10 meters
-   </td>
-  </tr>
-  <tr>
-   <td><strong>windDirectionDegrees</strong>
-   </td>
-   <td>Upwind direction (e.g., wind from east = 90, from south = 180, etc.) at 10 meters
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceWindGustsMph</strong>
-   </td>
-   <td>Unobstructed wind gusts at 10 meters
-   </td>
-  </tr>
-  <tr>
-   <td><strong>diffuseHorizontalRadiationWsqm</strong>
-   </td>
-   <td>Diffuse (indirect) solar radiation flux on a plane parallel to the Earth's surface
-   </td>
-  </tr>
-  <tr>
-   <td><strong>directNormalIrradianceWsqm</strong>
-   </td>
-   <td>Direct solar radiation flux on a surface 90 deg to the sun
-   </td>
-  </tr>
-  <tr>
-   <td><strong>downwardSolarRadiationWsqm</strong>
-   </td>
-   <td>Total solar radiation flux on a plane parallel to the Earth's surface
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceTemperatureCelsius</strong>
-   </td>
-   <td>Surface air (dry bulb) temperature at 2 meters
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceDewpointTemperatureCelsius</strong>
-   </td>
-   <td>Atmospheric humidity metric (temperature at which dew will form)
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceWetBulbTemperatureCelsius</strong>
-   </td>
-   <td>Atmospheric humidity metric (evaporative cooling potential of moist surface)
-   </td>
-  </tr>
-  <tr>
-   <td><strong>apparentTemperatureCelsius</strong>
-   </td>
-   <td>Air temperature that includes impact of wind and humidity
-   </td>
-  </tr>
-  <tr>
-   <td><strong>windChillTemperatureCelsius</strong>
-   </td>
-   <td>Air temperature that includes impact of wind
-   </td>
-  </tr>
-  <tr>
-   <td><strong>heatIndexCelsius</strong>
-   </td>
-   <td>Air temperature that includes the impact of humidity
-   </td>
-  </tr>
-  <tr>
-   <td><strong>snowfallCentimeters</strong>
-   </td>
-   <td>Total Snowfall
-   </td>
-  </tr>
-  <tr>
-   <td><strong>precipitationPreviousHourCentimeters</strong>
-   </td>
-   <td>Liquid equivalent for types: warm rain, freezing rain, sleet, snow
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceAirPressureKilopascals</strong>
-   </td>
-   <td>Atmospheric pressure
-   </td>
-  </tr>
-  <tr>
-   <td><strong>mslPressureKilopascals</strong>
-   </td>
-   <td>Mean Sea Level Pressure
-   </td>
-  </tr>
-  <tr>
-   <td><strong>surfaceWindGustsKph</strong>
-   </td>
-   <td>Unobstructed wind gusts at 10 meters
-   </td>
-  </tr>
-  <tr>
-   <td><strong>windSpeedKph</strong>
-   </td>
-   <td>Unobstructed wind speed at 10 meters
-   </td>
-  </tr>
-  <tr>
-   <td><strong>referenceEvapotranspiration</strong>
-   </td>
-   <td>Reference Evapotranspiration (inches/hour)
-   </td>
-  </tr>
-  <tr>
-   <td><strong>dateHrGmt</strong>
-   </td>
-   <td>Greenwich Mean Time (GMT) date-time (also known as Universal Time)
-   </td>
-  </tr>
-</table>
+|Name |Description|
+|--------------------|------|
+| dateHrGmt |Greenwich Mean Time (GMT) date-time (also known as Universal Time)|
+| dateHrLwt |Valid local date-time (Local wall time {includes daylight savings time})|
+| surfaceTemperatureFahrenheit | Surface air (dry bulb) temperature at 2 meters|
+| surfaceDewpointTemperatureFahrenheit |Atmospheric humidity metric (temperature at which dew will form)|
+| surfaceWetBulbTemperatureFahrenheit | Atmospheric humidity metric (evaporative cooling potential of moist surface)|
+| relativeHumidityPercent | Percent of water vapor in the air relative to its saturation point |
+| apparentTemperatureFahrenheit | Air temperature that includes impact of wind and humidity |
+| windChillTemperatureFahrenheit | Air temperature that includes impact of wind |
+| heatIndexFahrenheit | Air temperature that includes the impact of humidity |
+| precipitationPreviousHourInches | Liquid equivalent for types: warm rain, freezing rain, sleet, snow |
+| snowfallInches | Total Snowfall |
+| surfaceAirPressureMillibars | Atmospheric pressure at the Surface |
+| mslPressureMillibars | Mean Sea Level Pressure |
+| cloudCoveragePercent | Percentage of the sky covered by clouds |
+| windSpeedMph | Unobstructed wind speed at 10 meters | 
+| windDirectionDegrees | Upwind direction (e.g., wind from east = 90, from south = 180, etc.) at 10 meters |
+| surfaceWindGustsMph | Unobstructed wind gusts at 10 meters |
+| diffuseHorizontalRadiationWsqm | Diffuse (indirect) solar radiation flux on a plane parallel to the Earth's surface |
+| directNormalIrradianceWsqm | Direct solar radiation flux on a surface 90 deg to the sun |
+| downwardSolarRadiationWsqm | Total solar radiation flux on a plane parallel to the Earth's surface |
+| surfaceTemperatureCelsius | Surface air (dry bulb) temperature at 2 meters |
+| surfaceDewpointTemperatureCelsius | Atmospheric humidity metric (temperature at which dew will form) |
+| surfaceWetBulbTemperatureCelsius | Atmospheric humidity metric (evaporative cooling potential of moist surface) |
+| apparentTemperatureCelsius | Air temperature that includes impact of wind and humidity |
+| windChillTemperatureCelsius | Air temperature that includes impact of wind |
+| heatIndexCelsius | Air temperature that includes the impact of humidity |
+| snowfallCentimeters | Total Snowfall | 
+| precipitationPreviousHourCentimeters | Liquid equivalent for types: warm rain, freezing rain, sleet, snow |
+| surfaceAirPressureKilopascals | Atmospheric pressure |
+| mslPressureKilopascals | Mean Sea Level Pressure |
+| surfaceWindGustsKph | Unobstructed wind gusts at 10 meters |
+| windSpeedKph | Unobstructed wind speed at 10 meters |
+| referenceEvapotranspiration | Reference Evapotranspiration (inches/hour) |
+| dateHrGmt | Greenwich Mean Time (GMT) date-time (also known as Universal Time) |
+
 
             METAR (Historical Actuals) data example
 
