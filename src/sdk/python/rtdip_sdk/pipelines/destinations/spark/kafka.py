@@ -29,13 +29,13 @@ class SparkKafkaDestination(DestinationInterface):
     
     Args:
         spark: Spark Session
-        options: A dictionary of Kafka configurations (See Attributes tables below)
+        options: A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
     The following options must be set for the Kafka destination for both batch and streaming queries.
 
     Attributes:
-        kafka.bootstrap.servers: (A comma-separated list of host:port): The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
-    
+        kafka.bootstrap.servers (A comma-separated list of host︰port): The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
+       
     The following configurations are optional:
 
     Attributes:
