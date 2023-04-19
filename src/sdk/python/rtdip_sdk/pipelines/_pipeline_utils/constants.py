@@ -31,15 +31,15 @@ DEFAULT_PACKAGES = {
                 artifact_id="azure-eventhubs-spark_2.12",
                 version="2.3.22"
             ),
+    "spark_sql_kafka": MavenLibrary(
+                group_id="org.apache.spark", 
+                artifact_id="spark-sql-kafka-0-10_2.12",
+                version="3.4.0"
+            ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
                 version="0.1.7"
-            ),
-    "spark_sql_kafka": MavenLibrary(
-                group_id="org.apache.spark", 
-                artifact_id="spark-sql-kafka-0-10_2.12:3.1.2",
-                version="2.8.1"
-            ),
+            )
 }
 
 EVENTHUB_SCHEMA = StructType(

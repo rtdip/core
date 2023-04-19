@@ -41,10 +41,33 @@ def test_spark_kafka_read_setup(spark_session: SparkSession):
     df = spark_session.createDataFrame(data=[], schema=KAFKA_SCHEMA)
     assert kafka_source.post_read_validation(df)
 
-def test_spark_eventhub_read_batch(spark_session: SparkSession):
+def test_spark_kafka_read_batch(spark_session: SparkSession):
     kafka_configuration = kafka_configuration_dict
     kafka_source = SparkKafkaSource(spark_session, kafka_configuration)
-    #assert kafka_source.pre_read_validation()
+    assert kafka_source.pre_read_validation()
     df = kafka_source.read_batch()
     assert isinstance(df, DataFrame)
-    #assert kafka_source.post_read_validation(df)
+    assert kafka_source.post_read_validation(df)
+
+def test_spark_kafka_read_stream(spark_session: SparkSession):
+    kafka_configuration = kafka_configuration_dict
+    kafka_source = SparkKafkaSource(spark_session, kafka_configuration)
+    assert kafka_source.pre_read_validation()
+    df = kafka_source.read_stream()
+    assert isinstance(df, DataFrame)
+    assert kafka_source.post_read_validation(df)
+
+def test_spark_kafka_read_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
+    kafka_source = SparkKafkaSource(spark_session, {})
+    mocker.patch.object(kafka_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(read=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(side_effect=Exception)))))))))
+    assert kafka_source.pre_read_validation()
+    with pytest.raises(Exception):
+        kafka_source.read_batch()
+
+def test_spark_kafka_read_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
+    kafka_source = SparkKafkaSource(spark_session, {})
+    mocker.patch.object(kafka_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(side_effect=Exception)))))))))
+    assert kafka_source.pre_read_validation()
+    with pytest.raises(Exception):
+        kafka_source.read_stream()
+

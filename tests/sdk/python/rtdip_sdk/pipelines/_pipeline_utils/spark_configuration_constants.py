@@ -23,9 +23,11 @@ from unittest.mock import patch
 
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.eventhub import SparkEventhubDestination
+from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.kafka import SparkKafkaDestination
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSource
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta_sharing import SparkDeltaSharingSource
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.kafka import SparkKafkaSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import SparkClient
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import DEFAULT_PACKAGES
@@ -40,7 +42,7 @@ SPARK_TESTING_CONFIGURATION = {
 
 @pytest.fixture(scope="session")
 def spark_session():
-    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination("test_table", {}), SparkEventhubSource(None, {}), SparkEventhubDestination({})]
+    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination("test_table", {}), SparkEventhubSource(None, {}), SparkEventhubDestination({}),  SparkKafkaSource(None, {}), SparkKafkaDestination({})]
     task_libraries = Libraries()
     task_libraries.get_libraries_from_components(component_list)
     spark_configuration = SPARK_TESTING_CONFIGURATION.copy()
