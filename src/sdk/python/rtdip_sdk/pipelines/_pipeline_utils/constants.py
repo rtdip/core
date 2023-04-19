@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .models import MavenLibrary, PyPiLibrary
-from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, IntegerType, ArrayType, MapType
 
 DEFAULT_PACKAGES = {
     "spark_delta_core": MavenLibrary(
@@ -30,6 +30,11 @@ DEFAULT_PACKAGES = {
                 group_id="com.microsoft.azure", 
                 artifact_id="azure-eventhubs-spark_2.12",
                 version="2.3.22"
+            ),
+    "spark_sql_kafka": MavenLibrary(
+                group_id="org.apache.spark", 
+                artifact_id="spark-sql-kafka-0-10_2.12",
+                version="3.4.0"
             ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
@@ -48,3 +53,14 @@ EVENTHUB_SCHEMA = StructType(
              StructField('properties', MapType(StringType(), StringType(), True), True), 
              StructField('systemProperties', MapType(StringType(), StringType(), True), True)]
         )
+
+KAFKA_SCHEMA = StructType(
+           [StructField('key', BinaryType(), True),
+            StructField('value', BinaryType(), True),
+            StructField('topic', StringType(), True),
+            StructField('partition', IntegerType(), True),
+            StructField('offset', LongType(), True),
+            StructField('timestamp', TimestampType(), True),
+            StructField('timestampType', IntegerType(), True)]
+       )
+
