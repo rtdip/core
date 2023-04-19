@@ -22,7 +22,7 @@ from ..._pipeline_utils.constants import DEFAULT_PACKAGES, KAFKA_SCHEMA
 
 class SparkKafkaSource(SourceInterface):
     '''
-    # This Spark source class is used to read batch or streaming data from Kafka. Required and optional configurations can be found in the Attributes tables below. 
+    This Spark source class is used to read batch or streaming data from Kafka. Required and optional configurations can be found in the Attributes tables below. 
     
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
     
@@ -30,13 +30,19 @@ class SparkKafkaSource(SourceInterface):
         spark: Spark Session
         options: A dictionary of Kafka configurations (See Attributes tables below)
 
-    The following options must be set for the Kafka source for both batch and streaming queries.
+    The following options are the most common configurations for Kafka. 
+    
+    The only configuration that must be set for the Kafka source for both batch and streaming queries is listed below.
+ 
+    Attributes:
+        kafka.bootstrap.servers \(A comma-separated list of host:port\):  The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
 
+    There are multiple ways of specifying which topics to subscribe to. You should provide only one of these parameters:
+     
     Attributes:
         assign (json string {"topicA":[0,1],"topicB":[2,4]}):  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
         subscribe (A comma-separated list of topics): The topic list to subscribe. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
         subscribePattern (Java regex string): The pattern used to subscribe to topic(s). Only one of "assign, "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
-        kafka.bootstrap.servers: (A comma-separated list of host:port): The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
     
     The following configurations are optional:
 
@@ -49,6 +55,7 @@ class SparkKafkaSource(SourceInterface):
         endingOffsets (latest or JSON str): The end point when a batch query is ended, either "latest" which is just referred to the latest, or a json string specifying an ending offset for each TopicPartition. In the json, -1 as an offset can be used to refer to latest, and -2 (earliest) as an offset is not allowed. (Batch)
         maxOffsetsPerTrigger (long): Rate limit on maximum number of offsets processed per trigger interval. The specified total number of offsets will be proportionally split across topicPartitions of different volume. (Streaming)
         minOffsetsPerTrigger (long): Minimum number of offsets to be processed per trigger interval. The specified total number of offsets will be proportionally split across topicPartitions of different volume. (Streaming)
+        failOnDataLoss (true or false): Whether to fail the query when it's possible that data is lost (e.g., topics are deleted, or offsets are out of range). This may be a false alarm. You can disable it when it doesn't work as you expected.
         minPartitions (int): Desired minimum number of partitions to read from Kafka. By default, Spark has a 1-1 mapping of topicPartitions to Spark partitions consuming from Kafka. (Streaming and Batch)
         includeHeaders (bool): Whether to include the Kafka headers in the row. (Streaming and Batch)
     
