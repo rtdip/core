@@ -14,3 +14,5 @@
 
 from .spark.delta import *
 from .spark.eventhub import *
+from .spark.kafka import *
+from .spark.kinesis import *
