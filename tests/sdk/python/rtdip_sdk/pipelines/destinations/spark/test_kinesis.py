@@ -35,12 +35,8 @@ kinesis_configuration_dict = {
 def test_spark_kinesis_write_setup(spark_session: SparkSession):
     kinesis_configuration = kinesis_configuration_dict
     kinesis_source = SparkKinesisDestination(spark_session, kinesis_configuration)
-    assert kinesis_source.system_type().value == 2
-    assert kinesis_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
-                 group_id="org.apache.spark",
-                 artifact_id="spark-streaming-kinesis-asl_2.12",
-                 version="3.4.0"
-             )], pypi_libraries=[], pythonwheel_libraries=[])
+    assert kinesis_source.system_type().value == 3
+    assert kinesis_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(kinesis_source.settings(), dict)
     assert kinesis_source.pre_write_validation()
     assert kinesis_source.post_write_validation()

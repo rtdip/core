@@ -20,8 +20,7 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 class SparkKinesisDestination(DestinationInterface):
    '''
-   This Kinesis destination class is used to write batch or streaming data to Amazon Kinesis Data Streams. Kinesis configurations need to be specified as options in a dictionary.
-   Additionally, there are more optional configurations which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
+   This Kinesis destination class is used to write batch or streaming data to Kinesis. Kinesis configurations need to be specified as options in a dictionary.
    Args:
        options (dict): A dictionary of Kinesis configurations (See Attributes table below). All Configuration options for Kinesis can be found [here.](https://github.com/qubole/kinesis-sql#kinesis-sink-configuration){ target="_blank" }
        mode (str): Method of writing to Kinesis - append, complete, update
@@ -43,13 +42,12 @@ class SparkKinesisDestination(DestinationInterface):
    def system_type():
        '''
        Attributes:
-           SystemType (Environment): Requires PYSPARK
+           SystemType (Environment): Requires PYSPARK_DATABRICKS
        '''
-       return SystemType.PYSPARK
+       return SystemType.PYSPARK_DATABRICKS
    @staticmethod
    def libraries():
        spark_libraries = Libraries()
-       spark_libraries.add_maven_library(DEFAULT_PACKAGES["spark_kinesis"])
        return spark_libraries
    @staticmethod
    def settings() -> dict:

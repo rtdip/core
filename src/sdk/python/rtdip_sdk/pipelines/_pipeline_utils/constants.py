@@ -34,11 +34,6 @@ DEFAULT_PACKAGES = {
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
                 version="0.1.7"
-            ),
-    "spark_kinesis": MavenLibrary(
-                 group_id="org.apache.spark",
-                 artifact_id="spark-streaming-kinesis-asl_2.12",
-                 version="3.4.0"
             )
 }
 
