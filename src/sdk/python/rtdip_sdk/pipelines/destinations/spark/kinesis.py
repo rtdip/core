@@ -34,77 +34,77 @@ class SparkKinesisDestination(DestinationInterface):
         awsSecretKey (str): AWS secret access key corresponding to the access key.
         streamName (List[str]): Name of the streams in Kinesis to write to.
     '''
-options: dict
-mode: str
-trigger: str
+    options: dict
+    mode: str
+    trigger: str
 
-def __init__(self, options: dict, mode:str = "update", trigger:str= "10 seconds") -> None:
-    self.options = options
-    self.mode = mode
-    self.trigger = trigger
+    def __init__(self, options: dict, mode:str = "update", trigger:str= "10 seconds") -> None:
+        self.options = options
+        self.mode = mode
+        self.trigger = trigger
 
-@staticmethod
-def system_type():
-    '''
-    Attributes:
-        SystemType (Environment): Requires PYSPARK_DATABRICKS
-    '''
-    return SystemType.PYSPARK_DATABRICKS
+    @staticmethod
+    def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK_DATABRICKS
+        '''
+        return SystemType.PYSPARK_DATABRICKS
 
-@staticmethod
-def libraries():
-    spark_libraries = Libraries()
-    return spark_libraries
+    @staticmethod
+    def libraries():
+        spark_libraries = Libraries()
+        return spark_libraries
 
-@staticmethod
-def settings() -> dict:
-    return {}
+    @staticmethod
+    def settings() -> dict:
+        return {}
 
-def pre_write_validation(self):
-    return True
+    def pre_write_validation(self):
+        return True
 
-def post_write_validation(self):
-    return True
+    def post_write_validation(self):
+        return True
 
-def write_batch(self, df: DataFrame):
-    '''
-    Writes batch data to Kinesis.
-    '''
-    try:
-        return (
-            df
-            .write
-            .format("kinesis")
-            .options(**self.options)
-            .save()
-        )
-    except Py4JJavaError as e:
-        logging.exception(e.errmsg)
-        raise e
-    except Exception as e:
-        logging.exception(str(e))
-        raise e
-    
-def write_stream(self, df: DataFrame):
-    '''
-    Writes steaming data to Kinesis.
-    '''
-    try:
-        query = (df
-            .writeStream
-            .trigger(processingTime=self.trigger)
-            .format("kinesis")
-            .outputMode(self.mode)
-            .options(**self.options)
-            .start()
-        )
-        while query.isActive:
-            if query.lastProgress:
-                logging.info(query.lastProgress)
-            time.sleep(10)
-    except Py4JJavaError as e:
-        logging.exception(e.errmsg)
-        raise e
-    except Exception as e:
-        logging.exception(str(e))
-        raise e
+    def write_batch(self, df: DataFrame):
+        '''
+        Writes batch data to Kinesis.
+        '''
+        try:
+            return (
+                df
+                .write
+                .format("kinesis")
+                .options(**self.options)
+                .save()
+            )
+        except Py4JJavaError as e:
+            logging.exception(e.errmsg)
+            raise e
+        except Exception as e:
+            logging.exception(str(e))
+            raise e
+        
+    def write_stream(self, df: DataFrame):
+        '''
+        Writes steaming data to Kinesis.
+        '''
+        try:
+            query = (df
+                .writeStream
+                .trigger(processingTime=self.trigger)
+                .format("kinesis")
+                .outputMode(self.mode)
+                .options(**self.options)
+                .start()
+            )
+            while query.isActive:
+                if query.lastProgress:
+                    logging.info(query.lastProgress)
+                time.sleep(10)
+        except Py4JJavaError as e:
+            logging.exception(e.errmsg)
+            raise e
+        except Exception as e:
+            logging.exception(str(e))
+            raise e

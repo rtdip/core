@@ -32,7 +32,7 @@ kinesis_configuration_dict = {
 
 def test_spark_kinesis_read_setup(spark_session: SparkSession):
     kinesis_configuration = kinesis_configuration_dict
-    kinesis_source = SparkKinesisSource(kinesis_configuration)
+    kinesis_source = SparkKinesisSource(spark_session, kinesis_configuration)
     assert kinesis_source.system_type().value == 3
     assert kinesis_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(kinesis_source.settings(), dict)

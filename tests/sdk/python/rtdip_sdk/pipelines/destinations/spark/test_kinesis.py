@@ -32,7 +32,7 @@ kinesis_configuration_dict = {
         "region": "testRegion"
 }
 
-def test_spark_kinesis_write_setup(spark_session: SparkSession):
+def test_spark_kinesis_write_setup():
     kinesis_configuration = kinesis_configuration_dict
     kinesis_source = SparkKinesisDestination(kinesis_configuration)
     assert kinesis_source.system_type().value == 3
