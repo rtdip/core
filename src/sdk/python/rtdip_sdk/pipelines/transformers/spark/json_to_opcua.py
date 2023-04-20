@@ -14,7 +14,7 @@
 
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import from_json, col, explode
-from pyspark.sql.types import ArrayType
+from pyspark.sql.types import ArrayType, StringType
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -26,8 +26,8 @@ class JsonToOPCUA(TransformerInterface):
 
     Args:
         source_column_name (str): Spark Dataframe column containing the Json OPC UA data
-        target_column_name (str): Column name to be used for the structyred OPC UA data. Defaults to OPCUA
-        multiple_rows_per_message (bool): Each Dataframe Row contains an array of/multiple OPC UA messages. Defaults to True
+        target_column_name (str): Column name to be used for the structyred OPC UA data.
+        multiple_rows_per_message (bool): Each Dataframe Row contains an array of/multiple OPC UA messages. The list of Json will be exploded into rows in the Dataframe.
     '''
 
     source_column_name: str
@@ -36,7 +36,7 @@ class JsonToOPCUA(TransformerInterface):
 
     def __init__(self, source_column_name: str, target_column_name: str = "OPCUA", multiple_rows_per_message: bool = True) -> None:
         self.source_column_name = source_column_name
-        self.prefix = target_column_name
+        self.target_column_name = target_column_name
         self.multiple_rows_per_message = multiple_rows_per_message
 
     @staticmethod
@@ -70,11 +70,10 @@ class JsonToOPCUA(TransformerInterface):
         Returns:
             DataFrame: A dataframe with the specified column converted to OPC UA
         '''
-        opcua_schema_for_df = OPCUA_SCHEMA
         if self.multiple_rows_per_message:
-            opcua_schema_for_df = ArrayType(OPCUA_SCHEMA, True)
+            df = (df
+                  .withColumn(self.source_column_name, from_json(col(self.source_column_name), ArrayType(StringType())))
+                  .withColumn(self.source_column_name, explode(self.source_column_name))
+            )
 
-        return (df
-            .withColumn(self.target_column_name, from_json(col(self.source_column_name), opcua_schema_for_df))
-            .withColumn(self.target_column_name, explode(self.target_column_name))
-        )
+        return df.withColumn(self.target_column_name, from_json(col(self.source_column_name), OPCUA_SCHEMA))
