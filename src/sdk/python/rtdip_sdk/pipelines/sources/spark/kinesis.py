@@ -29,7 +29,7 @@ class SparkKinesisSource(SourceInterface):
        streamName (List[str]): The stream names to subscribe to.
        region (str): The region the streams are defined in.
        endpoint (str): The regional endpoint for Kinesis Data Streams.
-       initialPosition (str): The point to start reading from; earliest, latest, or at_timestamp.
+       initialPosition (str): The point to start reading from.
    '''
    spark: SparkSession
    options: dict
@@ -47,7 +47,6 @@ class SparkKinesisSource(SourceInterface):
    @staticmethod
    def libraries():
        libraries = Libraries()
-       libraries.add_maven_library(DEFAULT_PACKAGES["spark_kinesis"])
        return libraries
    @staticmethod
    def settings() -> dict:

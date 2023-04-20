@@ -36,11 +36,7 @@ def test_spark_kinesis_write_setup(spark_session: SparkSession):
     kinesis_configuration = kinesis_configuration_dict
     kinesis_source = SparkKinesisDestination(spark_session, kinesis_configuration)
     assert kinesis_source.system_type().value == 2
-    assert kinesis_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
-                group_id="com.amazonaws",
-                artifact_id="amazon-kinesis-client",
-                version="1.14.10"
-            )], pypi_libraries=[], pythonwheel_libraries=[])
+    assert kinesis_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(kinesis_source.settings(), dict)
     assert kinesis_source.pre_write_validation()
     assert kinesis_source.post_write_validation()

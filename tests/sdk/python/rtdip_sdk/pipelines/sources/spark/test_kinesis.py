@@ -34,11 +34,7 @@ def test_spark_kinesis_read_setup(spark_session: SparkSession):
     kinesis_configuration = kinesis_configuration_dict
     kinesis_source = SparkKinesisSource(spark_session, kinesis_configuration)
     assert kinesis_source.system_type().value == 2
-    assert kinesis_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
-                group_id="com.amazonaws",
-                artifact_id="amazon-kinesis-client",
-                version="1.14.10"
-            )], pypi_libraries=[], pythonwheel_libraries=[])
+    assert kinesis_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(kinesis_source.settings(), dict)
     assert kinesis_source.pre_read_validation()
     df = spark_session.createDataFrame(data=[], schema=KINESIS_SCHEMA)
@@ -50,21 +46,15 @@ def test_spark_kinesis_read_batch(spark_session: SparkSession):
     df = kinesis_source.read_batch()
     assert isinstance(df, DataFrame)
 
-def test_spark_kinesis_read_stream(spark_session: SparkSession):
+def test_spark_kinesis_read_stream(spark_session: SparkSession, mocker: MockerFixture):
     kinesis_configuration = kinesis_configuration_dict
     kinesis_source = SparkKinesisSource(spark_session, kinesis_configuration)
+    expected_df = spark_session.createDataFrame(data=[], schema=KINESIS_SCHEMA)
+    mocker.patch.object(kinesis_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(return_value=expected_df)))))))))
+    assert kinesis_source.pre_read_validation()
     df = kinesis_source.read_stream()
     assert isinstance(df, DataFrame)
-
-# def test_spark_kinesis_read_stream(spark_session: SparkSession, mocker: MockerFixture):
-#     kinesis_configuration = kinesis_configuration_dict
-#     kinesis_source = SparkKinesisSource(spark_session, kinesis_configuration)
-#     expected_df = spark_session.createDataFrame(data=[], schema=KINESIS_SCHEMA)
-#     mocker.patch.object(kinesis_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(return_value=expected_df)))))))))
-#     assert kinesis_source.pre_read_validation()
-#     df = kinesis_source.read_stream()
-#     assert isinstance(df, DataFrame)
-#     assert kinesis_source.post_read_validation(df)
+    assert kinesis_source.post_read_validation(df)
 
 def test_spark_kinesis_read_batch_fails(spark_session: SparkSession):
     kinesis_configuration = kinesis_configuration_dict
