@@ -44,7 +44,7 @@ SPARK_TESTING_CONFIGURATION = {
 
 @pytest.fixture(scope="session")
 def spark_session():
-    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination("test_table", {}), SparkEventhubSource(None, {}), SparkEventhubDestination({}),  SparkKafkaSource(None, {}), SparkKafkaDestination({}), SparkKinesisSource(None, {}), SparkKinesisDestination({})]
+    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination("test_table", {}), SparkEventhubSource(None, {}), SparkEventhubDestination({}),  SparkKafkaSource(None, {}), SparkKafkaDestination({})]
     task_libraries = Libraries()
     task_libraries.get_libraries_from_components(component_list)
     spark_configuration = SPARK_TESTING_CONFIGURATION.copy()
