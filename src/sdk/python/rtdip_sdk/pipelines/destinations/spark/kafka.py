@@ -28,7 +28,6 @@ class SparkKafkaDestination(DestinationInterface):
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
     
     Args:
-        spark: Spark Session
         options: A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
     The following options must be set for the Kafka destination for both batch and streaming queries.
