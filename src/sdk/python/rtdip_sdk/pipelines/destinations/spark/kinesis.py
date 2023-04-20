@@ -27,6 +27,7 @@ class SparkKinesisDestination(DestinationInterface):
         options (dict): A dictionary of Kinesis configurations (See Attributes table below). All Configuration options for Kinesis can be found [here.](https://github.com/qubole/kinesis-sql#kinesis-sink-configuration){ target="_blank" }
         mode (str): Method of writing to Kinesis - append, complete, update
         trigger (str): Frequency of the write operation
+        
     Attributes:
         endpointUrl (str): Endpoint of the kinesis stream.
         awsAccessKey (str): AWS access key.
