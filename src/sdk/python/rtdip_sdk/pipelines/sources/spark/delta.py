@@ -26,7 +26,7 @@ class SparkDeltaSource(SourceInterface):
 
     Args:
         spark (SparkSession): Spark Session required to read data from a Delta table
-        option (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source){ target="_blank" }.
+        options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source){ target="_blank" }.
         table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table
 
     Attributes:
