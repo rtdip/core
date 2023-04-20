@@ -26,8 +26,8 @@ class SparkEventhubSource(SourceInterface):
     Additionally, there are more optional configurations which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
     If using startingPosition or endingPosition make sure to check out the **Event Position** section for more details and examples.
     Args:
-        spark: Spark Session
-        options: A dictionary of Eventhub configurations (See Attributes table below)
+        spark (SparkSession): Spark Session
+        options (dict): A dictionary of Eventhub configurations (See Attributes table below)
 
     Attributes:
         eventhubs.connectionString (str):  Eventhubs connection string is required to connect to the Eventhubs service. (Streaming and Batch)

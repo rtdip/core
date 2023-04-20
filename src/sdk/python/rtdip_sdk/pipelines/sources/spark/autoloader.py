@@ -24,10 +24,10 @@ class DataBricksAutoLoaderSource(SourceInterface):
     The Spark Auto Loader is used to read new data files as they arrive in cloud storage. Further information on Auto Loader is available [here](https://docs.databricks.com/ingestion/auto-loader/index.html)
     
     Args:
-        spark: Spark Session required to read data from cloud storage
-        options: Options that can be specified for configuring the Auto Loader. Further information on the options available are [here](https://docs.databricks.com/ingestion/auto-loader/options.html)
-        path: The cloud storage path
-        format: Specifies the file format to be read. Supported formats are available [here](https://docs.databricks.com/ingestion/auto-loader/options.html#file-format-options)
+        spark (SparkSession): Spark Session required to read data from cloud storage
+        options (dict): Options that can be specified for configuring the Auto Loader. Further information on the options available are [here](https://docs.databricks.com/ingestion/auto-loader/options.html)
+        path (str): The cloud storage path
+        format (str): Specifies the file format to be read. Supported formats are available [here](https://docs.databricks.com/ingestion/auto-loader/options.html#file-format-options)
     ''' 
     spark: SparkSession
     options: dict
