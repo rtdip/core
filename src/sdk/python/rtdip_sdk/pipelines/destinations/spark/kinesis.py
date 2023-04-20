@@ -49,6 +49,7 @@ class SparkKinesisDestination(DestinationInterface):
    @staticmethod
    def libraries():
        spark_libraries = Libraries()
+       spark_libraries.add_maven_library(DEFAULT_PACKAGES["spark_kinesis"])
        return spark_libraries
    @staticmethod
    def settings() -> dict:

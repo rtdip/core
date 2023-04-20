@@ -33,7 +33,7 @@ kinesis_configuration_dict = {
 def test_spark_kinesis_read_setup(spark_session: SparkSession):
     kinesis_configuration = kinesis_configuration_dict
     kinesis_source = SparkKinesisSource(spark_session, kinesis_configuration)
-    assert kinesis_source.system_type().value == 2
+    assert kinesis_source.system_type().value == 3
     assert kinesis_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(kinesis_source.settings(), dict)
     assert kinesis_source.pre_read_validation()
@@ -41,10 +41,10 @@ def test_spark_kinesis_read_setup(spark_session: SparkSession):
     assert kinesis_source.post_read_validation(df)
 
 def test_spark_kinesis_read_batch(spark_session: SparkSession):
-    kinesis_configuration = kinesis_configuration_dict
-    kinesis_source = SparkKinesisSource(spark_session, kinesis_configuration)
-    df = kinesis_source.read_batch()
-    assert isinstance(df, DataFrame)
+    with pytest.raises(NotImplementedError) as excinfo:
+        kinesis_source = SparkKinesisSource(spark_session, kinesis_configuration_dict)
+        kinesis_source.read_batch()
+    assert str(excinfo.value) == 'Kinesis only supports streaming reads. To perform a batch read, use the read_stream method and specify Trigger on the write_stream as `availableNow=True`'
 
 def test_spark_kinesis_read_stream(spark_session: SparkSession, mocker: MockerFixture):
     kinesis_configuration = kinesis_configuration_dict
