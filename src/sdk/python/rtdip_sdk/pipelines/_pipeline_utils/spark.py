@@ -14,7 +14,7 @@
 
 import logging
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType
 from .models import Libraries
 
 class SparkClient():
@@ -110,3 +110,13 @@ OPCUA_SCHEMA = StructType([
         StructField('Value',StringType(),True)
     ]),True)
 ])
+
+KAFKA_SCHEMA = StructType(
+           [StructField('key', BinaryType(), True),
+            StructField('value', BinaryType(), True),
+            StructField('topic', StringType(), True),
+            StructField('partition', IntegerType(), True),
+            StructField('offset', LongType(), True),
+            StructField('timestamp', TimestampType(), True),
+            StructField('timestampType', IntegerType(), True)]
+       )

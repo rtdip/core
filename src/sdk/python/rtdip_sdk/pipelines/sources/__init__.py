@@ -16,3 +16,5 @@ from .spark.autoloader import *
 from .spark.delta import *
 from .spark.delta_sharing import *
 from .spark.eventhub import *
+from .spark.kafka import *
+from .spark.iot_hub import *
