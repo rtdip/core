@@ -32,7 +32,7 @@ class OPCUAToProcessControlDataModel(TransformerInterface):
     status_null_value: str
     timestamp_formats: list
 
-    def __init__(self, source_column_name: str = "OPCUA", status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None:
+    def __init__(self, source_column_name: str = "OPCUA", status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NO SONAR
         self.source_column_name = source_column_name
         self.status_null_value = status_null_value
         self.timestamp_formats = timestamp_formats
@@ -76,9 +76,10 @@ class OPCUAToProcessControlDataModel(TransformerInterface):
             .withColumn("Value", col("{}.Value.Value".format(self.source_column_name)))
         )
 
+        status_col_name = "{}.Value.StatusCode.Symbol".format(self.source_column_name)
         if self.status_null_value != None:
-            df = df.withColumn("Status", when(col("{}.Value.StatusCode.Symbol".format(self.source_column_name)).isNotNull(), col("{}.Value.StatusCode.Symbol".format(self.source_column_name))).otherwise(lit(self.status_null_value)))
+            df = df.withColumn("Status", when(col(status_col_name).isNotNull(), col(status_col_name)).otherwise(lit(self.status_null_value)))
         else:
-            df = df.withColumn("Status", col("{}.Value.StatusCode.Symbol".format(self.source_column_name)))
+            df = df.withColumn("Status", col(status_col_name))
 
         return df.select("EventDate", "TagName", "EventTime", "Status", "Value")
