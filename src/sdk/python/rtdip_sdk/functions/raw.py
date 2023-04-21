@@ -15,7 +15,7 @@
 import logging
 import pytz
 import pandas as pd
-from ._query_builder import _query_builder
+from src.sdk.python.rtdip_sdk.functions._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
@@ -53,7 +53,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor.execute(query)
             df = cursor.fetch_all()
             cursor.close()
-            print(df)
             return df
         except Exception as e:
             logging.exception('error returning dataframe')
@@ -62,3 +61,27 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with raw function')
         raise e
+    
+from src.sdk.python.rtdip_sdk.authentication.authenticate import ClientSecretAuth
+from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+from src.sdk.python.rtdip_sdk.functions import raw
+
+#testing 
+auth = auth = ClientSecretAuth("db1e96a8-a3da-442a-930b-235cac24cd5c", "9bcd280a-f10e-4964-b164-15073db032d6", "Goz8Q~U9JQ8vRIR161AvARAgAHMGVKpgNnrFfaJz").authenticate()
+token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
+
+dict = {
+    "business_unit": "downstream",
+    "region": "emea", 
+    "asset": "pernis", 
+    "data_security_level": "restricted", 
+    "data_type": "float",
+    "tag_names": ["SGHP:600XX533.PV"], 
+    "start_date": "2022-03-10T00:00:00+05:30",
+    "end_date": "2022-03-11T00:00:00+05:30",
+    "include_bad_data": True,
+}
+x = raw.get(connection, dict)
+#pd.set_option('display.max_rows', None)
+print(x)
