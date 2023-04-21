@@ -32,7 +32,7 @@ class OPCUAToProcessControlDataModel(TransformerInterface):
     status_null_value: str
     timestamp_formats: list
 
-    def __init__(self, source_column_name: str = "OPCUA", status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NO SONAR
+    def __init__(self, source_column_name: str = "OPCUA", status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
         self.source_column_name = source_column_name
         self.status_null_value = status_null_value
         self.timestamp_formats = timestamp_formats
