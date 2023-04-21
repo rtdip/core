@@ -25,9 +25,9 @@ class SparkDeltaSharingSource(SourceInterface):
     The Spark Delta Sharing Source is used to read data from a Delta table where Delta sharing is configured 
 
     Args:
-        spark: Spark Session required to read data from a Delta table
-        options: Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available [here](https://docs.databricks.com/data-sharing/read-data-open.html#apache-spark-read-shared-data){ target="_blank" }
-        table_path: Path to credentials file and Delta table to query
+        spark (SparkSession): Spark Session required to read data from a Delta table
+        options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available [here](https://docs.databricks.com/data-sharing/read-data-open.html#apache-spark-read-shared-data){ target="_blank" }
+        table_path (str): Path to credentials file and Delta table to query
 
     Attributes:
         ignoreDeletes (bool str): Ignore transactions that delete data at partition boundaries. (Streaming)

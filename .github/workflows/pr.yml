@@ -16,7 +16,7 @@ name: 'PR'
 
 on:
   # Trigger the workflow on pull request
-  pull_request_target:
+  pull_request:
     branches: [main, develop]
     types: [opened, synchronize, reopened]
 
