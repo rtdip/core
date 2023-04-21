@@ -120,3 +120,12 @@ KAFKA_SCHEMA = StructType(
             StructField('timestamp', TimestampType(), True),
             StructField('timestampType', IntegerType(), True)]
        )
+
+KINESIS_SCHEMA = StructType(
+           [StructField('partitionKey', StringType(), True),
+            StructField('data', BinaryType(), True),
+            StructField('stream', StringType(), True),
+            StructField('shardId', StringType(), True),
+            StructField('sequenceNumber', StringType(), True),
+            StructField('approximateArrivalTimestamp', TimestampType(), True)]
+       )
