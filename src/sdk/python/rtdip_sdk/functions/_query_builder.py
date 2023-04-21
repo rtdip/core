@@ -108,10 +108,15 @@ def _raw_query(parameters_dict: dict) -> str:
 
 def _sample_query(parameters_dict: dict) -> tuple:
 
+    if "time_zone" in parameters_dict:
+        select_from = "SELECT EventTime, WINDOW(from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\"), {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
+    else:
+        select_from = "SELECT EventTime, WINDOW(EventTime, {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
+
     sample_query = (
         "SELECT DISTINCT TagName, w.start AS EventTime, {{ agg_method | sqlsafe }}(Value) OVER "
-        "(PARTITION BY TagName, w.start ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS Value FROM ("
-        "SELECT EventTime, WINDOW(EventTime, {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
+        "(PARTITION BY TagName, w.start ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS Value FROM (" +
+        select_from +
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
         "WHERE EventDate BETWEEN to_date({{ start_date }}) AND to_date({{ end_date }}) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
         "{% if include_bad_data is defined and include_bad_data == false %}"
@@ -132,7 +137,8 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "include_bad_data": parameters_dict['include_bad_data'],
         "sample_rate": parameters_dict['sample_rate'],
         "sample_unit": parameters_dict['sample_unit'],
-        "agg_method": parameters_dict['agg_method']
+        "agg_method": parameters_dict['agg_method'],
+        "time_zone": parameters_dict["time_zone"]
     }
 
     sql_template = JinjaSql(param_style='pyformat')
