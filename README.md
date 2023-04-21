@@ -47,8 +47,10 @@ The structure of this repository is shown below in the tree diagram.
     │   │   ├── python
     │   │   │    ├── rtdip-sdk
     │   │   │    │   ├── authentication
+    │   │   │    │   ├── data_models
     │   │   │    │   ├── functions
     │   │   │    │   ├── odbc
+    │   │   │    │   ├── pipelines
     ├── tests
     │   ├── api
     │   │   ├── auth
@@ -59,8 +61,10 @@ The structure of this repository is shown below in the tree diagram.
     │   │   ├── python
     │   │   │    ├── rtdip-sdk
     │   │   │    │   ├── authentication
+    │   │   │    │   ├── data_models
     │   │   │    │   ├── functions
     │   │   │    │   ├── odbc
+    │   │   │    │   ├── pipelines
     ├── CODE_OF_CONDUCT.md  
     ├── CODEOWNERS.md 
     ├── CONTRIBUTING.md
