@@ -132,6 +132,7 @@ nav:
                                  - Autoloader: sdk/code-reference/pipelines/sources/spark/autoloader.md
                                  - IoT Hub: sdk/code-reference/pipelines/sources/spark/iot_hub.md
                                  - Kafka: sdk/code-reference/pipelines/sources/spark/kafka.md
+                                 - Kinesis: sdk/code-reference/pipelines/sources/spark/kinesis.md
                       - Transformers:
                             - Spark:
                                  - Eventhub: sdk/code-reference/pipelines/transformers/spark/eventhub.md
@@ -142,6 +143,7 @@ nav:
                                  - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
                                  - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
                                  - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
+                                 - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Utilities:
                             - Spark:
                                  - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
