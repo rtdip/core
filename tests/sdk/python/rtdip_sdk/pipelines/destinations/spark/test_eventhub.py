@@ -17,12 +17,25 @@ sys.path.insert(0, '.')
 import pytest 
 from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.eventhub import SparkEventhubDestination
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.streaming import StreamingQuery
 
 class TestStreamingQueryClass():
     isActive: bool = False  # NOSONAR
+
+def test_spark_eventhub_write_setup():
+    eventhub_destination = SparkEventhubDestination({})
+    assert eventhub_destination.system_type().value == 2
+    assert eventhub_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
+                group_id="com.microsoft.azure", 
+                artifact_id="azure-eventhubs-spark_2.12",
+                version="2.3.22"
+            )], pypi_libraries=[], pythonwheel_libraries=[])
+    assert isinstance(eventhub_destination.settings(), dict)
+    assert eventhub_destination.pre_write_validation()
+    assert eventhub_destination.post_write_validation()
 
 def test_spark_eventhub_write_batch(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(return_value=None))))))))

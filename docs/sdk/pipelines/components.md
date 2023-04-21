@@ -35,6 +35,9 @@ Sources are components that connect to source systems and extract data from them
 |[Delta Sharing](../code-reference/pipelines/sources/spark/delta_sharing.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Autoloader](../code-reference/pipelines/sources/spark/autoloader.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Eventhub](../code-reference/pipelines/sources/spark/eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:||
+|[IoT Hub](../code-reference/pipelines/sources/spark/iot_hub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:||
+|[Kafka](../code-reference/pipelines/sources/spark/kafka.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Kinesis](../code-reference/pipelines/sources/spark/kafka.md)|||:heavy_check_mark:||:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -45,7 +48,9 @@ Transformers are components that perform transformations on data. These will tar
 
 |Transformer Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
-|[Eventhub Body](../code-reference/pipelines/transformers/spark/eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:||
+|[Eventhub Body](../code-reference/pipelines/transformers/spark/eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Json To OPC UA](../code-reference/pipelines/transformers/spark/json_to_opcua.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[OPC UA To Process Control Data Model](../code-reference/pipelines/transformers/spark/opcua_to_process_control_data_model.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -57,7 +62,9 @@ Destinations are components that connect to sink/destination systems and write d
 |Destination Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
 |[Delta Append](../code-reference/pipelines/destinations/spark/delta.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[Eventhub](../code-reference/pipelines/destinations/spark/eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:||
+|[Eventhub](../code-reference/pipelines/destinations/spark/eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Kakfa](../code-reference/pipelines/destinations/spark/kafka.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Kinesis](../code-reference/pipelines/destinations/spark/kafka.md)|||:heavy_check_mark:||:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -69,6 +76,8 @@ Utilities are components that perform utility functions such as logging, error h
 |Utility Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
 |[Delta Table Create](../code-reference/pipelines/utilities/spark/delta_table_create.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Delta Table Optimize](../code-reference/pipelines/utilities/spark/delta_table_optimize.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Delta Table Vacuum](../code-reference/pipelines/utilities/spark/delta_table_vacuum.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
