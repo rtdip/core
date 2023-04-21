@@ -36,7 +36,7 @@ from rtdip_sdk.pipelines.deploy import DatabricksDBXDeploy, DatabricksCluster, D
 
 ## Deploy
 
-Deployments to Databricks are done using [DBX](https://dbx.readthedocs.io/en/latest/). DBX enables users to control exactly how they deploy their RTDIP Pipelines to Databricks. In The RTDIP SDK package, all Databricks Deployment 
+Deployments to Databricks are done using [DBX](https://dbx.readthedocs.io/en/latest/). DBX enables users to control exactly how they deploy their RTDIP Pipelines to Databricks.
 
 Any of the Classes below can be imported from the following location:
 

@@ -130,16 +130,25 @@ nav:
                                  - Delta: sdk/code-reference/pipelines/sources/spark/delta.md
                                  - Delta Sharing: sdk/code-reference/pipelines/sources/spark/delta_sharing.md
                                  - Autoloader: sdk/code-reference/pipelines/sources/spark/autoloader.md
+                                 - IoT Hub: sdk/code-reference/pipelines/sources/spark/iot_hub.md
+                                 - Kafka: sdk/code-reference/pipelines/sources/spark/kafka.md
+                                 - Kinesis: sdk/code-reference/pipelines/sources/spark/kinesis.md
                       - Transformers:
                             - Spark:
-                                 - Eventhub: sdk/code-reference/pipelines/transformers/spark/eventhub.md                                 
+                                 - Eventhub: sdk/code-reference/pipelines/transformers/spark/eventhub.md
+                                 - Json To OPC UA: sdk/code-reference/pipelines/transformers/spark/json_to_opcua.md
+                                 - OPC UA To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opcua_to_process_control_data_model.md                                 
                       - Destinations:
                             - Spark:
                                  - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
                                  - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
+                                 - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
+                                 - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Utilities:
                             - Spark:
                                  - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
+                                 - Delta Table Optimize: sdk/code-reference/pipelines/utilities/spark/delta_table_optimize.md
+                                 - Delta Table Vacuum: sdk/code-reference/pipelines/utilities/spark/delta_table_vacuum.md
                       - Converters:
                             - Json: sdk/code-reference/pipelines/converters/pipeline_job_json.md    
                       - Secrets:

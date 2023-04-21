@@ -14,7 +14,7 @@ Ensure that you have followed the installation instructions as specified in the 
 !!! note "RTDIP SDK installation"
     Ensure you have installed the RTDIP SDK, as a minimum, as follows:
     ```
-    pip install rtdip-sdk[pipelines]
+    pip install "rtdip-sdk[pipelines]"
     ```
 
     For all installation options please see the RTDIP SDK installation [instructions.](../../getting-started/installation.md#installing-the-rtdip-sdk)
@@ -29,6 +29,7 @@ from rtdip_sdk.pipelines.sources import SparkEventhubSource
 from rtdip_sdk.pipelines.transformers import EventhubBodyBinaryToString
 from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
 from rtdip_sdk.pipelines.secrets import PipelineSecret, DatabricksSecrets
+import json
 ```
 
 ### Steps
@@ -42,7 +43,7 @@ Pipeline steps are constructed from [components](components.md) and added to a P
 | Component | The component Class | Populate with the Class Name |
 | Component Parameters | Configures the component with specific information, such as connection information and component specific settings | Use Pipeline Secrets for sensitive Information |
 | Depends On Step | Specifies any component names that must be executed prior to this component | A python list of component names |
-| Provides Output To Step | Specifiers any component names that require this components output as an input | A python list of component names |
+| Provides Output To Step | Specifies any component names that require this component's output as an input | A python list of component names |
 
 ```python
 
@@ -50,9 +51,9 @@ step_list = []
 
 # read step
 eventhub_configuration = {
-    "eventhubs.connectionString": PipelineSecret(type=DatabricksSecrets, vault="test_vault", key="test_key")
+    "eventhubs.connectionString": PipelineSecret(type=DatabricksSecrets, vault="test_vault", key="test_key"),
     "eventhubs.consumerGroup": "$Default",
-    "eventhubs.startingPosition": {"offset": "0", "seqNo": -1, "enqueuedTime": None, "isInclusive": True}
+    "eventhubs.startingPosition": json.dumps({"offset": "0", "seqNo": -1, "enqueuedTime": None, "isInclusive": True})
 }    
 step_list.append(PipelineStep(
     name="test_step1",
@@ -131,7 +132,7 @@ pipeline_job = PipelineJob(
 Pipeline Jobs can be executed directly if the run environment where the code has been written facilitates it. To do so, the above Pipeline Job can be executed as follows:
 
 ```python
-from python.rtdip_sdk.pipelines.execute import PipelineJobExecute
+from rtdip_sdk.pipelines.execute import PipelineJobExecute
 
 pipeline = PipelineJobExecute(pipeline_job)
 
