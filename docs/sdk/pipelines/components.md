@@ -18,7 +18,7 @@ The Real Time Data Ingestion Pipeline Framework supports the following component
 
 Component Types determine system requirements to execute the component:
 
-- Python - components that are written in python and can be executed on a python runtime
+- Python - components that are written in Python and can be executed on a Python runtime
 - Pyspark - components that are written in pyspark can be executed on an open source Apache Spark runtime
 - Databricks - components that require a Databricks runtime
 
