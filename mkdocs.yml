@@ -135,7 +135,9 @@ nav:
                                  - Kinesis: sdk/code-reference/pipelines/sources/spark/kinesis.md
                       - Transformers:
                             - Spark:
-                                 - Eventhub: sdk/code-reference/pipelines/transformers/spark/eventhub.md                                 
+                                 - Eventhub: sdk/code-reference/pipelines/transformers/spark/eventhub.md
+                                 - Json To OPC UA: sdk/code-reference/pipelines/transformers/spark/json_to_opcua.md
+                                 - OPC UA To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opcua_to_process_control_data_model.md                                 
                       - Destinations:
                             - Spark:
                                  - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md

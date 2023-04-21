@@ -29,7 +29,7 @@ def test_spark_delta_read_setup(spark_session: SparkSession):
     assert delta_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version="2.2.0"
+                version="2.3.0"
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(delta_source.settings(), dict)
     assert delta_source.pre_read_validation()

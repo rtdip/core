@@ -39,7 +39,7 @@ dependencies:
     - httpx==0.23.1
     - trio==0.22.0
     - pyspark==3.3.2
-    - delta-spark==2.2.0
+    - delta-spark==2.3.0
     - openjdk==11.0.15    
     - python-dotenv==1.0.0
     - mkdocstrings==0.20.0
@@ -52,6 +52,7 @@ dependencies:
           - azure-functions==1.12.0
           - databricks-sql-connector==2.4.0
           - dbx==0.8.10
+          - deltalake==0.8.1
           - pygithub==1.58.0
           - strawberry-graphql[fastapi]==0.159.0
           - nest_asyncio==1.5.6

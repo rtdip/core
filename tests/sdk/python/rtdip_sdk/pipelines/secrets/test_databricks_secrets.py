@@ -21,7 +21,7 @@ from pyspark.sql import SparkSession
 from src.sdk.python.rtdip_sdk.pipelines.secrets.models import PipelineSecret
 from src.sdk.python.rtdip_sdk.pipelines.secrets.databricks import DatabricksSecrets
 from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import EVENTHUB_SCHEMA
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import EVENTHUB_SCHEMA
 
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import get_spark_pipeline_job
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session, DBUtilsSecretsFixture
