@@ -14,14 +14,14 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.eventhub import EventhubBodyBinaryToString
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.binary_to_string import BinaryToStringTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 from pyspark.sql import SparkSession, DataFrame
 
 def test_spark_eventhub_transform_body_to_string(spark_session: SparkSession):
-    eventhub_binary_to_string_transformer = EventhubBodyBinaryToString()
+    eventhub_binary_to_string_transformer = BinaryToStringTransformer(source_column_name="body", target_column_name="body")
     expected_df: DataFrame = spark_session.createDataFrame([{"body": "1"}])
     binary_df = expected_df.withColumn("body", expected_df["body"].cast("binary"))
     actual_df = eventhub_binary_to_string_transformer.transform(binary_df)

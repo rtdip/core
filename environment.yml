@@ -33,6 +33,7 @@ dependencies:
     - oauthlib>=3.2.2
     - cryptography>=38.0.3
     - azure-identity==1.11.0
+    - azure-storage-file-datalake==12.10.1
     - pyodbc==4.0.34
     - mkdocstrings==0.20.0
     - fastapi==0.92.0
