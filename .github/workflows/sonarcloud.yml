@@ -17,10 +17,6 @@ name: 'Sonarcloud'
 on:
   workflow_run:
     workflows: ["Reusable Test Workflow"]
-  workflow_call:
-    secrets:
-      SONAR_TOKEN:
-        required: true
 
 jobs:
   job_test_python_latest_version:

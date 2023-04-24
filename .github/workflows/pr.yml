@@ -23,5 +23,3 @@ on:
 jobs:
   job_run_unit_tests_and_sonarqube:
     uses: rtdip/core/.github/workflows/test.yml@develop
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
