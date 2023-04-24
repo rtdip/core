@@ -16,75 +16,15 @@ name: 'Sonarcloud'
 
 on:
   workflow_run:
-    workflows: ["Reusable Test Workflow"]
-    types:
-      - completed
+    workflows: [Reusable Test Workflow]
+    types: [completed]
     branches-ignore:
       - "develop"
       - "main"
       - "release/**"
 
 jobs:
-  job_test_python_latest_version:
-    defaults:
-      run:
-        shell: bash -l {0}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }} 
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 
-
-      - name: Setup Python 
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-      
-      - name: Install Boost
-        run: |
-          sudo apt update
-          sudo apt install -y libboost-all-dev
-
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
-
-      - name: Install Conda environment with Micromamba
-        uses: mamba-org/provision-with-micromamba@main
-        with:
-          environment-file: environment.yml
-          cache-env: true
-
-      - name: Test
-        run: |
-          python setup.py pytest
-          mkdir -p coverage-reports
-          coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
-          coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
-          echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
-        env:
-          RTDIP_SDK_NEXT_VER: "0.0.1"
-
-      - name: Mkdocs Test
-        run: |
-          mkdocs build --strict
-
-      - name: Override Coverage Source Path for Sonar   
-        run: |
-          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.organization=rtdip
-            -Dsonar.projectKey=rtdip_core
-            -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
-            -Dsoner.python.version=3.11
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  job_run_unit_tests_and_sonarqube:
+    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
