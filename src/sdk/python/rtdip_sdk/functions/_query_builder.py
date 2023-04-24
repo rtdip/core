@@ -40,10 +40,10 @@ def _fix_dates(parameters_dict):
     parameters_dict["start_date"] = _fix_date(parameters_dict["start_date"])
     parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
 
-    time_zone = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
-
-    if time_zone != None and time_zone != "+00:00" or time_zone != "+0000":
-        parameters_dict["time_zone"] = time_zone
+    parameters_dict["time_zone"] = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
+    print(parameters_dict["time_zone"])
+    # if time_zone != None and time_zone != "+00:00" and time_zone != "+0000":
+    #     parameters_dict["time_zone"] = time_zone
     
     return parameters_dict
 
@@ -74,13 +74,13 @@ def _get_sql_from_template(query: str, bind_params: dict) -> str:
 
 def _raw_query(parameters_dict: dict) -> str:
 
-    if "time_zone" in parameters_dict:
-        select_from = "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
-    else:
-        select_from = "SELECT EventTime, TagName, Status, Value FROM "
+    # if "time_zone" in parameters_dict:
+    #     select_from = "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
+    # else:
+    #     select_from = "SELECT EventTime, TagName, Status, Value FROM "
 
     raw_query = (
-        select_from +
+        "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
         "WHERE EventDate BETWEEN to_date({{ start_date }}) AND to_date({{ end_date }}) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
         "{% if include_bad_data is defined and include_bad_data == false %}"
@@ -108,15 +108,15 @@ def _raw_query(parameters_dict: dict) -> str:
 
 def _sample_query(parameters_dict: dict) -> tuple:
 
-    if "time_zone" in parameters_dict:
-        select_from = "SELECT EventTime, WINDOW(from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\"), {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
-    else:
-        select_from = "SELECT EventTime, WINDOW(EventTime, {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
+    # if "time_zone" in parameters_dict:
+    #     select_from = "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, WINDOW(EventTime, {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
+    # else:
+    #     select_from = "SELECT EventTime, WINDOW(EventTime, {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
 
     sample_query = (
         "SELECT DISTINCT TagName, w.start AS EventTime, {{ agg_method | sqlsafe }}(Value) OVER "
         "(PARTITION BY TagName, w.start ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS Value FROM (" +
-        select_from +
+        "SELECT EventTime, WINDOW(from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\"), {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
         "WHERE EventDate BETWEEN to_date({{ start_date }}) AND to_date({{ end_date }}) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
         "{% if include_bad_data is defined and include_bad_data == false %}"
@@ -156,8 +156,13 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
 
     interpolation_options = interpolation_method.split('/')
 
+    # if "time_zone" in parameters_dict:
+    #     select_from = "SELECT from_utc_timestamp(a.EventTime, \"{{ time_zone | sqlsafe }}\"), a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
+    # else:
+    #     select_from = "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
+
     interpolate_query = (
-        "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
+        "SELECT from_utc_timestamp(a.EventTime, \"{{ time_zone | sqlsafe }}\") AS EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
         "(SELECT explode(sequence(to_timestamp({{ start_date }}), to_timestamp({{ end_date }}), INTERVAL {{ sample_rate + ' ' + sample_unit }})) AS EventTime, explode(array({{ tag_name_string }})) AS TagName) a "
         f"LEFT OUTER JOIN ({sample_query}) b "
         "ON a.EventTime = b.EventTime "

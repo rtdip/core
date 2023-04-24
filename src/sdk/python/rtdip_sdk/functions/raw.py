@@ -77,11 +77,11 @@ dict = {
     "asset": "pernis", 
     "data_security_level": "restricted", 
     "data_type": "float",
-    "tag_names": ["SGHP:600XX533.PV"], 
-    "start_date": "2022-03-10T00:00:00+05:30",
-    "end_date": "2022-03-11T00:00:00+05:30",
+    "tag_names": ["PGP:720FY003.PV"], 
+    "start_date": "2023-03-10T00:00:00+05:30",
+    "end_date": "2023-03-10T23:59:59+05:30",
     "include_bad_data": True,
 }
 x = raw.get(connection, dict)
-#pd.set_option('display.max_rows', None)
+x.to_csv("/Users/chloe.ching/Documents/PGP:720FY003.PV.csv")
 print(x)
