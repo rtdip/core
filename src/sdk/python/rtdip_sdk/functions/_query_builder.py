@@ -41,7 +41,7 @@ def _fix_dates(parameters_dict):
     parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
 
     parameters_dict["time_zone"] = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
-    print(parameters_dict["time_zone"])
+    #print(parameters_dict["time_zone"])
     # if time_zone != None and time_zone != "+00:00" and time_zone != "+0000":
     #     parameters_dict["time_zone"] = time_zone
     
@@ -162,7 +162,7 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
     #     select_from = "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
 
     interpolate_query = (
-        "SELECT from_utc_timestamp(a.EventTime, \"{{ time_zone | sqlsafe }}\") AS EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
+        "SELECT from_utc_timestamp(a.EventTime, \"{{ time_zone | sqlsafe }}\") AS EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY from_utc_timestamp(a.EventTime, \"{{ time_zone | sqlsafe }}\") ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
         "(SELECT explode(sequence(to_timestamp({{ start_date }}), to_timestamp({{ end_date }}), INTERVAL {{ sample_rate + ' ' + sample_unit }})) AS EventTime, explode(array({{ tag_name_string }})) AS TagName) a "
         f"LEFT OUTER JOIN ({sample_query}) b "
         "ON a.EventTime = b.EventTime "
