@@ -17,42 +17,28 @@ sys.path.insert(0, '.')
 from pytest_mock import MockerFixture
 
 from src.sdk.python.rtdip_sdk.pipelines.utilities.azure.adls_gen2_acl import ADLSGen2DirectoryACLUtility
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
-from pyspark.sql import SparkSession
+from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.azure import MockDataLakeServiceClient     
 
-class MockDirectoryClient():
-
-    def get_access_control(self):
-        return {
-            "acl": "test_acl"
-        }
-
-    def set_access_control(self, acl):
-        return None
-
-class MockFileSystemClient():
-
-    def create_directory(self, directory: str):
-        return None
-    
-    def get_directory_client(self, path):
-        return MockDirectoryClient()
-
-class MockDataLakeServiceClient():
-
-    # def __init__(account_url: str, credential: str):
-    #     return None
-    
-    def get_file_system_client(self, file_system: str):
-        return MockFileSystemClient()
-        
-
-def test_adls_gen2_acl(mocker: MockerFixture):
+def test_adls_gen2_acl_multi_folder(mocker: MockerFixture):
     adls_gen2_acl_utility = ADLSGen2DirectoryACLUtility(
         storage_account="test_storage_account",
         container="test_container",
         credential="test_credential",
         directory="/test/directory",
+        group_object_id="test_group_object_id",
+        folder_permissions="rwx"
+    )
+
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.utilities.azure.adls_gen2_acl.DataLakeServiceClient", return_value=MockDataLakeServiceClient())
+    result = adls_gen2_acl_utility.execute()
+    assert result
+
+def test_adls_gen2_acl_single_folder(mocker: MockerFixture):
+    adls_gen2_acl_utility = ADLSGen2DirectoryACLUtility(
+        storage_account="test_storage_account",
+        container="test_container",
+        credential="test_credential",
+        directory="directory",
         group_object_id="test_group_object_id",
         folder_permissions="rwx"
     )
