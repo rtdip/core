@@ -22,7 +22,6 @@ on:
 
 jobs:
   job_run_unit_tests_previous_versions:
-  job_run_unit_tests_previous_versions:
     uses: rtdip/core/.github/workflows/test.yml@develop
 
   job_run_unit_tests_and_sonarqube:
