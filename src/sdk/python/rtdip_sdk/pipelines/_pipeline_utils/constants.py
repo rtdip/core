@@ -42,5 +42,9 @@ DEFAULT_PACKAGES = {
     "azure_adls_gen_2": PyPiLibrary(
                 name="azure-storage-file-datalake",
                 version="12.10.1"
-            )
+            ),
+    "aws_boto3": PyPiLibrary(
+                name="boto3",
+                version="1.26.118"
+            )            
 }

@@ -33,14 +33,14 @@ class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
         directory (str): Directory to be assign ACLS to in an ADLSS Gen 2
         group_object_id (str): Azure AD Group Object ID to be assigned to Directory
         folder_permissions (optional, str): Folder Permissions to Assign to directory 
-        parent_folder_permissions (optional, str): Folder Permissions to Assign to parent directories 
-        root_folder_permissions (optional, str): Folder Permissions to Assign to root directory
+        parent_folder_permissions (optional, str): Folder Permissions to Assign to parent directories. Parent Folder ACLs not set if None
+        root_folder_permissions (optional, str): Folder Permissions to Assign to root directory. Root Folder ACL not set if None
         set_as_default_acl (bool, optional): Sets the ACL as the default ACL on the folder
         create_directory_if_not_exists (bool, optional): Creates the directory(and Parent Directories) if it does not exist
     ''' 
     storage_account: str
     container: str
-    credential: TokenCredential
+    credential: str | Dict[str, str] | AzureNamedKeyCredential | AzureSasCredential | TokenCredential | None
     directory: str
     group_object_id: str
     folder_permissions: str
@@ -90,10 +90,10 @@ class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
             if group_object_id in acl:
                 acl_props_list.remove(acl)
 
-        acl_props_list.append(group_id_acl)
-
         if set_as_default_acl == True:
             acl_props_list.append("default:{}".format(group_id_acl))
+        else:
+            acl_props_list.append(group_id_acl)
 
         new_acl_props = ",".join(acl_props_list)
         acl_directory_client.set_access_control(acl=new_acl_props)
@@ -107,15 +107,19 @@ class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
 
             # Create directory if it doesn't already exist
             if self.create_directory_if_not_exists:
-                file_system_client.create_directory(self.directory)
+                directory_client = file_system_client.get_directory_client(self.directory)
+                if not directory_client.exists():
+                    file_system_client.create_directory(self.directory)
                 
             group_object_id = str(self.group_object_id)
             acl_path = ""
             directory_list = self.directory.split("/")
             
+            # Set Root Folder ACLs if specified
             if self.root_folder_permissions != None:
                 self._set_acl(file_system_client, "/", group_object_id, self.root_folder_permissions, False)
 
+            # Set Parent Folders ACLs if specified
             if self.parent_folder_permissions != None:
                 for directory in directory_list[:-1]:
                     if directory == "":
@@ -128,7 +132,8 @@ class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
 
                     self._set_acl(file_system_client, acl_path, group_object_id, self.parent_folder_permissions, False)
             
-            self._set_acl(file_system_client, acl_path, group_object_id, self.folder_permissions, self.set_as_default_acl)
+            # Set Folder ACLs
+            self._set_acl(file_system_client, self.directory, group_object_id, self.folder_permissions, self.set_as_default_acl)
 
             return True
         
