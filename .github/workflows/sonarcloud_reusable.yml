@@ -12,18 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 'Sonarcloud'
+name: 'Reusable Sonarcloud Scan'
 
 on:
-  workflow_run:
-    workflows: ["Reusable Test Workflow"]
-    types:
-      - completed
-    branches-ignore:
-      - "develop"
-      - "main"
-      - "release/**"
-
+  workflow_call:
+    secrets:
+      SONAR_TOKEN:
+        required: true
+        
 jobs:
   job_test_python_latest_version:
     defaults:

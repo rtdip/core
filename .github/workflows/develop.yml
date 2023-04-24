@@ -21,9 +21,14 @@ on:
       - develop
 
 jobs:
-  job_run_unit_tests_and_sonarqube:
+  job_run_unit_tests_previous_versions:
     uses: rtdip/core/.github/workflows/test.yml@develop
 
+  job_run_unit_tests_and_sonarqube:
+    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
   job_build_python_package_and_docker_container:
     runs-on: ubuntu-latest
     needs: job_run_unit_tests_and_sonarqube
