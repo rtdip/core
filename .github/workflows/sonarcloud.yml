@@ -16,7 +16,7 @@ name: 'Sonarcloud'
 
 on:
   workflow_run:
-    workflows: [Reusable Test Workflow]
+    workflows: [PR]
     types: [completed]
     branches-ignore:
       - "develop"
