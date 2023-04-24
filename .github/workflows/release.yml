@@ -22,8 +22,6 @@ on:
 jobs:
   job_run_unit_tests_and_sonarqube:
     uses: rtdip/core/.github/workflows/test.yml@main
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   job_build_python_whl:
     runs-on: ubuntu-latest
