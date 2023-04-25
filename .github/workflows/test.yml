@@ -55,10 +55,7 @@ jobs:
 
         - name: Test
           run: |
-            python setup.py pytest
             mkdir -p coverage-reports-previous
             coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
             coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports-previous/coverage-unittests.xml
             echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
-          env:
-            RTDIP_SDK_NEXT_VER: "0.0.1"

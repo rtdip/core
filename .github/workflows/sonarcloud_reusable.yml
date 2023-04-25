@@ -32,7 +32,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
 
       - name: Setup Python 
         uses: actions/setup-python@v4
@@ -57,13 +59,10 @@ jobs:
 
       - name: Test
         run: |
-          python setup.py pytest
           mkdir -p coverage-reports
           coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
           echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
-        env:
-          RTDIP_SDK_NEXT_VER: "0.0.1"
 
       - name: Mkdocs Test
         run: |
@@ -81,6 +80,10 @@ jobs:
             -Dsonar.projectKey=rtdip_core
             -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
             -Dsoner.python.version=3.11
+            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            -Dsonar.pullrequest.key=${{ github.event.workflow_run.pull_requests[0].number }}
+            -Dsonar.pullrequest.branch=${{ github.event.workflow_run.pull_requests[0].head.ref }}
+            -Dsonar.pullrequest.base=${{ github.event.workflow_run.pull_requests[0].base.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

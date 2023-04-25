@@ -20,17 +20,8 @@ on:
     types: [published]
 
 jobs:
-  job_run_unit_tests_previous_versions:
-    uses: rtdip/core/.github/workflows/test.yml@main
-  
-  job_run_unit_tests_and_sonarqube:
-    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@main
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   job_build_python_whl:
     runs-on: ubuntu-latest
-    needs: [job_run_unit_tests_and_sonarqube, job_run_unit_tests_previous_versions]
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python 
