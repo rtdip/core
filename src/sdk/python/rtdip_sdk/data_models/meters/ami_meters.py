@@ -68,9 +68,9 @@ class SeriesType(IntFlag):
     """
     30 minutes interval
     """
-    minutes_60 = auto()
+    hour = auto()
     """
-    60 minutes interval
+    60 minutes/1 hour interval
     """
     hours_2 = auto()
     """
@@ -135,7 +135,6 @@ class SeriesType(IntFlag):
     min_filter = auto()
     # Testing
     test = auto()
-
 
 
 
