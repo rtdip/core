@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 'Main'
+name: 'Sonarcloud Scan'
 
 on:
-  # Trigger the workflow on push to main
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: [PR]
+    types: [completed]
+    branches-ignore:
+      - "develop"
+      - "main"
+      - "release/**"
 
 jobs:
-  job_run_unit_tests_previous_versions:
-    uses: rtdip/core/.github/workflows/test.yml@main
-
   job_run_unit_tests_and_sonarqube:
-    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@main
+    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
