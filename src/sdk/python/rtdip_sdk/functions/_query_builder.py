@@ -74,15 +74,10 @@ def _get_sql_from_template(query: str, bind_params: dict) -> str:
 
 def _raw_query(parameters_dict: dict) -> str:
 
-    # if "time_zone" in parameters_dict:
-    #     select_from = "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
-    # else:
-    #     select_from = "SELECT EventTime, TagName, Status, Value FROM "
-
     raw_query = (
         "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
-        "WHERE EventDate BETWEEN to_date({{ start_date }}) AND to_date({{ end_date }}) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
+        "WHERE EventDate BETWEEN to_date(to_timestamp({{ start_date }})) AND to_date(to_timestamp({{ end_date }})) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
         "{% if include_bad_data is defined and include_bad_data == false %}"
         "AND Status = 'Good'"
         "{% endif %}"

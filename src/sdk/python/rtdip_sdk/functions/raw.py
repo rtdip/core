@@ -76,8 +76,8 @@ dict = {
     "data_security_level": "restricted", 
     "data_type": "float",
     "tag_names": ["PGP:720FY003.PV"], 
-    "start_date": "2023-03-10T06:00:00+05:30",
-    "end_date": "2023-03-10T23:59:59+05:30",
+    "start_date": "'2023-03-10T00:00:00+05:30'",
+    "end_date": "'2023-03-10T00:10:00+05:30'",
     "include_bad_data": True,
 }
 x = raw.get(connection, dict)
