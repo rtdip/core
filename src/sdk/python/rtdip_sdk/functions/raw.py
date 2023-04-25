@@ -61,4 +61,3 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with raw function')
         raise e
-    
