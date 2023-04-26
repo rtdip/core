@@ -41,9 +41,6 @@ def _fix_dates(parameters_dict):
     parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
 
     parameters_dict["time_zone"] = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
-    #print(parameters_dict["time_zone"])
-    # if time_zone != None and time_zone != "+00:00" and time_zone != "+0000":
-    #     parameters_dict["time_zone"] = time_zone
     
     return parameters_dict
 
