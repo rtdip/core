@@ -21,6 +21,6 @@ class MockS3Client():
     def get_bucket_policy(self, **kwargs): # NOSONAR
         return self.bucket_policy
     
-    def put_bucket_policy(self, Bucket, Policy):
+    def put_bucket_policy(self, Bucket, Policy): # NOSONAR
         self.put_bucket_name = Bucket
         self.put_bucket_policy = Policy
