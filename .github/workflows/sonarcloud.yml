@@ -26,7 +26,7 @@ on:
 jobs:
   job_download_pr_artifact:
       outputs:
-        pr_info: ${{ steps.pr.outputs.pr_info }}
+        pr_info: ${{ steps.pr.outputs.result }}
       runs-on: ubuntu-latest
       steps:
         - name: 'Download Artifact'
@@ -59,8 +59,8 @@ jobs:
           with:
             script: |
               let fs = require('fs');
-              let pr_data = fs.readFileSync('./pr_number');
-              echo "pr_info=$pr_data" >> "$GITHUB_OUTPUT";
+              return fs.readFileSync('./pr_number');
+            result-encoding: string
 
   job_run_unit_tests_and_sonarqube:
       needs: job_download_pr_artifact
