@@ -78,11 +78,6 @@ jobs:
         run: |
           mkdocs build --strict
 
-      - name: Download pr JSON
-        uses: actions/download-artifact@v3
-        with:
-          name: pr
-
       - name: Override Coverage Source Path for Sonar   
         run: |
           sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
