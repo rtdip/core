@@ -19,7 +19,7 @@ run-name: ${{ github.event.workflow_run.head_commit.message }}
 on:
   workflow_run:
     workflows: [PR]
-    types: [completed]
+    types: [requested]
     branches-ignore:
       - "develop"
       - "main"
