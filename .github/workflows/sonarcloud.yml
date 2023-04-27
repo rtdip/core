@@ -32,6 +32,8 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: 'Print Context'
+          env:
+            GITHUB_CONTEXT: ${{ toJson(github) }}
           run: echo "$GITHUB_CONTEXT"
 
         - name: 'Download Artifact'
