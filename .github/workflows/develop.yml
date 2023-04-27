@@ -26,6 +26,13 @@ jobs:
 
   job_run_unit_tests_and_sonarqube:
     uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
+    with:
+      REPO_NAME: ""
+      HEAD_BRANCH: ""
+      HEAD_SHA: ""
+      PR_NUMBER: ""
+      PR_HEAD_REF: ""
+      PR_BASE_REF: ""
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
