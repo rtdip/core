@@ -22,6 +22,11 @@ from pytest_mock import MockerFixture
 from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection, MockedCursor 
 from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
 
+class MockedMetadataFunction: 
+    def metadata_get(self) -> pd.DataFrame:
+        return pd.DataFrame
+
+    
 SERVER_HOSTNAME = "mock.cloud.databricks.com"
 HTTP_PATH = "sql/mock/mock-test"
 ACCESS_TOKEN = "mock_databricks_token"
@@ -32,9 +37,9 @@ MOCKED_PARAMETER_DICT = {
         "asset": "mocked-asset",
         "data_security_level": "mocked-data-security-level",
         "data_type": "mocked-data-type",
-        "tag_names": ["MOCKED-TAGNAME-1", "MOCKED-TAGNAME-2"],
-        "start_date": "2022-03-01T00:00:00",
-        "end_date": "2022-03-02T00:00:00",
+        "tag_names": ["MOCKED-TAGNAME-1"],
+        "start_date": "2022-03-01T00:00:00+00:00",
+        "end_date": "2022-03-02T23:59:59+00:00",
         "window_size_mins": 10,
         "include_bad_data": False,
         "step": True
@@ -42,7 +47,9 @@ MOCKED_PARAMETER_DICT = {
 
 df =  {"EventTime": [pd.to_datetime("2022-01-01 00:10:00+00:00").replace(tzinfo=pytz.timezone("Etc/UTC")), pd.to_datetime("2022-01-01 14:10:00+00:00").replace(tzinfo=pytz.timezone("Etc/UTC"))], "TagName": ["MOCKED-TAGNAME", "MOCKED-TAGNAME"], "Status": ["Good", "Good"], "Value":[177.09220, 160.01111]}
 
-def test_time_weighted_average_step_true(mocker: MockerFixture):
+def test_time_weighted_average_with_date_only(mocker: MockerFixture):
+    MOCKED_PARAMETER_DICT["start_date"]="2022-03-01"
+    MOCKED_PARAMETER_DICT["end_date"]="2022-03-02"
     mocker.patch.object(MockedCursor, "fetchall", return_value = pd.DataFrame(data=df))
     
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
@@ -53,14 +60,52 @@ def test_time_weighted_average_step_true(mocker: MockerFixture):
     
     assert isinstance(actual, pd.DataFrame)
 
-def test_time_weighted_average_step_false(mocker: MockerFixture):
+def test_time_weighted_average_with_datetime_only(mocker: MockerFixture):
+    MOCKED_PARAMETER_DICT["start_date"]="2022-03-01T00:00:00"
+    MOCKED_PARAMETER_DICT["end_date"]="2022-03-02T23:59:59"
+    mocker.patch.object(MockedCursor, "fetchall", return_value = pd.DataFrame(data=df))
+    
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
+   
+    mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
+
+    actual = time_weighted_get(mocked_connection, MOCKED_PARAMETER_DICT)
+    
+    assert isinstance(actual, pd.DataFrame)
+
+def test_time_weighted_average_with_datetimezone(mocker: MockerFixture):
+    MOCKED_PARAMETER_DICT["start_date"]="2022-03-01T00:00:00+00:00"
+    MOCKED_PARAMETER_DICT["end_date"]="2022-03-02T23:59:59+00:00"
+    mocker.patch.object(MockedCursor, "fetchall", return_value = pd.DataFrame(data=df))
+    
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
+   
+    mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
+
+    actual = time_weighted_get(mocked_connection, MOCKED_PARAMETER_DICT)
+    
+    assert isinstance(actual, pd.DataFrame)
+
+def test_time_weighted_average_step_enabled(mocker: MockerFixture):
+    MOCKED_PARAMETER_DICT["step"]=True
+    mocker.patch.object(MockedCursor, "fetchall", return_value = pd.DataFrame(data=df))
+    
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
+   
+    mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
+
+    actual = time_weighted_get(mocked_connection, MOCKED_PARAMETER_DICT)
+    
+    assert isinstance(actual, pd.DataFrame)
+
+def test_time_weighted_average_step_disabled(mocker: MockerFixture):
     MOCKED_PARAMETER_DICT["step"]=False
     mocker.patch.object(MockedCursor, "fetchall", return_value = pd.DataFrame(data=df))
     
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
    
     mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
-    
+
     actual = time_weighted_get(mocked_connection, MOCKED_PARAMETER_DICT)
     
     assert isinstance(actual, pd.DataFrame)
@@ -72,7 +117,7 @@ def test_time_weighted_average_with_window_length(mocker: MockerFixture):
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
    
     mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
-    
+
     actual = time_weighted_get(mocked_connection, MOCKED_PARAMETER_DICT)
     
     assert isinstance(actual, pd.DataFrame)
