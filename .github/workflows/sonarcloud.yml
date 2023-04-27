@@ -70,6 +70,6 @@ jobs:
       with:
         PR_NUMBER: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_number }}
         PR_HEAD_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_head_ref }}
-        PR_BASE_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info ).pr_base_ref }}
+        PR_BASE_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_base_ref }}
       secrets:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
