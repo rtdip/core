@@ -47,6 +47,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     try:  
         dtz_format = "%Y-%m-%dT%H:%M:%S%z"
+        utc = "Etc/UTC"
         
         def is_date_format(dt, format):
             try:
@@ -69,8 +70,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict["end_date"] = set_dtz(parameters_dict["end_date"], True)
 
         #used to only return data between start and end date (at the end of function)
-        original_start_date = datetime.fromisoformat(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone("Etc/UTC"))
-        original_end_date = datetime.fromisoformat(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone("Etc/UTC"))
+        original_start_date = datetime.fromisoformat(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone(utc))
+        original_end_date = datetime.fromisoformat(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone(utc))
 
         if "window_length" in parameters_dict:       
             parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], dtz_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(dtz_format)
@@ -85,8 +86,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
         for tag in parameters_dict["tag_names"]:
-            start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"], utc=True).replace(tzinfo=pytz.timezone("Etc/UTC")), tag]], columns=["EventTime", "TagName"])
-            end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"], utc=True).replace(tzinfo=pytz.timezone("Etc/UTC")), tag]], columns=["EventTime", "TagName"])
+            start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"], utc=True).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
+            end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"], utc=True).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
             boundaries_df = pd.concat([boundaries_df, start_date_new_row, end_date_new_row], ignore_index=True)
         boundaries_df.set_index(pd.DatetimeIndex(boundaries_df["EventTime"]), inplace=True)
         boundaries_df.drop(columns="EventTime", inplace=True)
