@@ -29,7 +29,7 @@ jobs:
         pr_info: ${{ steps.pr.outputs.pr_info }}
       runs-on: ubuntu-latest
       steps:
-        - name: 'Download artifact'
+        - name: 'Download Artifact'
           uses: actions/github-script@v6
           with:
             script: |
@@ -50,10 +50,10 @@ jobs:
               let fs = require('fs');
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr_number.zip`, Buffer.from(download.data));
 
-        - name: 'Unzip artifact'
+        - name: 'Unzip Artifact'
           run: unzip pr_number.zip
 
-        - name: 'Unzip artifact'
+        - name: 'Read Artifact'
           id: pr
           uses: actions/github-script@v6
           with:
