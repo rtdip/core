@@ -41,9 +41,9 @@ jobs:
             printf "$JSON_FMT" "$PR_NUMBER" "$PR_HEAD_REF" "$PR_BASE_REF"
             echo $JSON_FMT > ./pr/pr.json
 
-      - name: Upload pr JSON
-        uses: actions/upload-artifact@v3
-        with:
-          name: pr_info
-          path: pr/
-          retention-days: 5
+        - name: Upload pr JSON
+          uses: actions/upload-artifact@v3
+          with:
+            name: pr_info
+            path: pr/
+            retention-days: 5
