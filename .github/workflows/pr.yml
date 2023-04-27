@@ -21,5 +21,29 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  job_run_unit_tests_and_sonarqube:
+  job_run_unit_tests:
     uses: rtdip/core/.github/workflows/test.yml@develop
+
+  job_pr_artifact:
+      needs: job_run_unit_tests
+      defaults:
+        run:
+          shell: bash -l {0}
+      runs-on: ubuntu-latest
+      steps:
+        - name: Save PR number to file
+          env:
+            PR_NUMBER: ${{ github.event.number }}
+            PR_HEAD_REF: ${{ github.head_ref }}
+            PR_BASE_REF: ${{ github.base_ref }}
+          run: |
+            JSON_FMT='{"pr_number":"%s","pr_head_ref":"%s","pr_base_ref":"%s"}\n'
+            mkdir -p ./pr
+            printf "$JSON_FMT" "$PR_NUMBER" "$PR_HEAD_REF" "$PR_BASE_REF" > ./pr/pr_number
+
+        - name: Upload PR Json
+          uses: actions/upload-artifact@v3
+          with:
+            name: pr_number
+            path: pr/
+            retention-days: 5
