@@ -24,16 +24,15 @@ from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 import boto3
 import json
 
-class S3IAMPolicyUtility(UtilitiesInterface):
+class S3BucketPolicyUtility(UtilitiesInterface):
     '''
-    Assigns Azure AD Groups to ACLs on directories in an Azure Data Lake Store Gen 2 storage account
+    Assigns an IAM Bucket Policy to an S3 Bucket
 
     Args:
         bucket_name (str): S3 Bucket Name
         aws_access_key_id (str): AWS Access Key
         aws_secret_access_key (str): AWS Secret Key
         aws_session_token (str): AWS Session Token
-        directory (str): Directory to be assign S3 IAM Policy in an S3 Bucket
         sid (str): S3 Bucket Policy Sid to be updated
         effect (str): Effect to be applied to the policy
         principal (str): Principal to be applied to Policy

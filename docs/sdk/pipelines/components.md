@@ -79,7 +79,9 @@ Utilities are components that perform utility functions such as logging, error h
 |[Delta Table Create](../code-reference/pipelines/utilities/spark/delta_table_create.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Delta Table Optimize](../code-reference/pipelines/utilities/spark/delta_table_optimize.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Delta Table Vacuum](../code-reference/pipelines/utilities/spark/delta_table_vacuum.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[ADLS Gen 2 ACLs](../code-reference/pipelines/utilities/azure/adls_gen2_acl.md)|:heavy_check_mark:|||:heavy_check_mark:||
+|[AWS S3 Bucket Policy](../code-reference/pipelines/utilities/aws/s3_bucket_policy.md)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[ADLS Gen 2 ACLs](../code-reference/pipelines/utilities/azure/adls_gen2_acl.md)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
