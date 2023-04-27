@@ -14,9 +14,11 @@
 
 name: 'Reusable Sonarcloud Scan'
 
+run-name: ${{ inputs.RUN_NAME }}
+
 on:
   workflow_call:
-    inputs:
+    inputs: 
       PR_NUMBER:
         required: true
         type: string
