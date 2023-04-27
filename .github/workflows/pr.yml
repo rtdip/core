@@ -38,11 +38,10 @@ jobs:
             PR_BASE_REF: ${{ github.base_ref }}
           run: |
             JSON_FMT='{"pr_number":"%s","pr_head_ref":"%s","pr_base_ref":"%s"}\n'
-            printf "$JSON_FMT" "$PR_NUMBER" "$PR_HEAD_REF" "$PR_BASE_REF"
             mkdir -p ./pr
-            echo $JSON_FMT > ./pr/pr_number
+            printf "$JSON_FMT" "$PR_NUMBER" "$PR_HEAD_REF" "$PR_BASE_REF" > ./pr/pr_number
 
-        - name: Upload pr JSON
+        - name: Upload PR Json
           uses: actions/upload-artifact@v3
           with:
             name: pr_number
