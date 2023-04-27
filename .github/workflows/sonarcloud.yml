@@ -31,6 +31,9 @@ jobs:
         pr_info: ${{ steps.pr.outputs.result }}
       runs-on: ubuntu-latest
       steps:
+        - name: 'Print Context'
+          run: echo "$GITHUB_CONTEXT"
+
         - name: 'Download Artifact'
           uses: actions/github-script@v6
           with:
@@ -68,6 +71,9 @@ jobs:
       needs: job_download_pr_artifact
       uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
       with:
+        REPO_NAME: ${{ github.event.workflow_run.head_repository.full_name }}
+        HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         PR_NUMBER: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_number }}
         PR_HEAD_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_head_ref }}
         PR_BASE_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_base_ref }}
