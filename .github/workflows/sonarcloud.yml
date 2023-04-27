@@ -59,8 +59,8 @@ jobs:
           with:
             script: |
               let fs = require('fs');
-              let pr_data = String(fs.readFileSync('./pr_number'));
-              echo "pr_info=$pr_data" >> "$GITHUB_OUTPUT"
+              let pr_data = fs.readFileSync('./pr_number');
+              echo "pr_info=$pr_data" >> "$GITHUB_OUTPUT";
 
   job_run_unit_tests_and_sonarqube:
       needs: job_download_pr_artifact
