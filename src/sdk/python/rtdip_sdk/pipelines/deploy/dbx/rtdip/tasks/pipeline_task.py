@@ -25,7 +25,7 @@ class RTDIPPipelineTask(Task):
     def launch(self):
         self.logger.info("Launching RTDIP Pipeline Task")
         self.logger.info("Job to execute {}".format(sys.argv[0]))
-        pipeline_job = PipelineJobFromJson(sys.argv[0]).convert()
+        pipeline_job = PipelineJobFromJsonConverter(sys.argv[0]).convert()
         pipeline_job_execute = PipelineJobExecute(pipeline_job)
         pipeline_job_execute.run()
         self.logger.info("RTDIP Pipeline Task completed")
