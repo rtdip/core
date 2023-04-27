@@ -32,7 +32,7 @@ MOCKED_PARAMETER_DICT = {
         "asset": "mocked-asset",
         "data_security_level": "mocked-data-security-level",
         "data_type": "mocked-data-type",
-        "tag_names": ["MOCKED-TAGNAME"],
+        "tag_names": ["MOCKED-TAGNAME-1", "MOCKED-TAGNAME-2"],
         "start_date": "2022-01-01",
         "end_date": "2022-01-02",
         "window_size_mins": 10,
