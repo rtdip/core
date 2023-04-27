@@ -14,7 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.opcua_to_process_control_data_model import OPCUAToProcessControlDataModel
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.opcua_to_process_control_data_model import OPCUAToProcessControlDataModelTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import OPCUA_SCHEMA
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
@@ -25,7 +25,7 @@ from datetime import date, datetime
 import json
 
 def test_opcua_to_process_control_data_model(spark_session: SparkSession):
-    opcua_to_process_control_data_model_transformer = OPCUAToProcessControlDataModel(source_column_name="OPCUA", status_null_value="Good")
+    opcua_to_process_control_data_model_transformer = OPCUAToProcessControlDataModelTransformer(source_column_name="OPCUA", status_null_value="Good")
 
     opcua_schema = StructType([
         StructField("body", StringType(), True),

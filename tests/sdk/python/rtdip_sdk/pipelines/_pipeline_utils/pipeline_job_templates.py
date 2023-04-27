@@ -15,7 +15,7 @@ import json
 
 from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJob, PipelineStep, PipelineTask
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.eventhub import EventhubBodyBinaryToString
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.binary_to_string import BinaryToStringTransformer
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 
 def get_spark_pipeline_job() -> PipelineJob:
@@ -40,8 +40,11 @@ def get_spark_pipeline_job() -> PipelineJob:
     step_list.append(PipelineStep(
         name="test_step2",
         description="test_step2",
-        component=EventhubBodyBinaryToString,
-        component_parameters={},
+        component=BinaryToStringTransformer,
+        component_parameters={
+            "source_column_name": "body",
+            "target_column_name": "body"
+        },
         depends_on_step=["test_step1"],
         provide_output_to_step=["test_step3"]
     ))
