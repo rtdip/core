@@ -16,6 +16,16 @@ name: 'Reusable Sonarcloud Scan'
 
 on:
   workflow_call:
+    inputs:
+      PR_NUMBER:
+        required: true
+        type: string
+      PR_HEAD_REF:
+        required: true
+        type: string
+      PR_BASE_REF:
+        required: true
+        type: string                    
     secrets:
       SONAR_TOKEN:
         required: true
@@ -68,6 +78,11 @@ jobs:
         run: |
           mkdocs build --strict
 
+      - name: Download pr JSON
+        uses: actions/download-artifact@v3
+        with:
+          name: pr
+
       - name: Override Coverage Source Path for Sonar   
         run: |
           sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
@@ -81,9 +96,9 @@ jobs:
             -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
             -Dsoner.python.version=3.11
             -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
-            -Dsonar.pullrequest.key=${{ github.event.workflow_run.pull_requests[0].number }}
-            -Dsonar.pullrequest.branch=${{ github.event.workflow_run.pull_requests[0].head.ref }}
-            -Dsonar.pullrequest.base=${{ github.event.workflow_run.pull_requests[0].base.ref }}
+            -Dsonar.pullrequest.key=${{ inputs.PR_NUMBER }}
+            -Dsonar.pullrequest.branch=${{ inputs.PR_HEAD_REF }}
+            -Dsonar.pullrequest.base=${{ inputs.PR_BASE_REF }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
