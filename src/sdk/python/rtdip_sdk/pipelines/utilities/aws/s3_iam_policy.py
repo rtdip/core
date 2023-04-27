@@ -15,14 +15,14 @@
 import logging
 from typing import Dict
 
+from pydantic import BaseModel
+
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 import boto3
 import json
-
-# TODO: Test with S3 Buckets
 
 class S3IAMPolicyUtility(UtilitiesInterface):
     '''
@@ -35,36 +35,30 @@ class S3IAMPolicyUtility(UtilitiesInterface):
         aws_session_token (str): AWS Session Token
         directory (str): Directory to be assign S3 IAM Policy in an S3 Bucket
         sid (str): S3 Bucket Policy Sid to be updated
-        folder_permissions (optional, str): Folder Permissions to Assign to directory 
-        parent_folder_permissions (optional, str): Folder Permissions to Assign to parent directories. Parent Folder ACLs not set if None
-        root_folder_permissions (optional, str): Folder Permissions to Assign to root directory. Root Folder ACL not set if None
-        set_as_default_acl (bool, optional): Sets the ACL as the default ACL on the folder
-        create_directory_if_not_exists (bool, optional): Creates the directory(and Parent Directories) if it does not exist
+        effect (str): Effect to be applied to the policy
+        principal (str): Principal to be applied to Policy
+        resource (list[str]): List of resources to be applied to the policy
     ''' 
     bucket_name: str
     aws_access_key_id: str
     aws_secret_access_key: str
     aws_session_token: str
     sid: str
-    directory: str
-    folder_permissions: str
-    parent_folder_permissions: str
-    root_folder_permissions: str
-    set_as_default_acl: bool
-    create_directory_if_not_exists: bool
+    effect: str
+    principal: str
+    action: list[str]
+    resource: list[str]
 
-    def __init__(self, bucket_name: str, aws_access_key_id: str, aws_secret_access_key: str, aws_session_token: str, directory: str, sid: str, folder_permissions: str = "r-x", parent_folder_permissions: str | None = "r-x", root_folder_permissions: str | None = "r-x", set_as_default_acl: bool = True, create_directory_if_not_exists: bool = True) -> None:
+    def __init__(self, bucket_name: str, aws_access_key_id: str, aws_secret_access_key: str, aws_session_token: str, sid: str, principal: str, effect: str, action: list[str], resource: list[str]) -> None:
         self.bucket_name = bucket_name
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
         self.aws_session_token = aws_session_token
-        self.directory = directory
         self.sid = sid
-        self.folder_permissions = folder_permissions
-        self.parent_folder_permissions = parent_folder_permissions
-        self.root_folder_permissions = root_folder_permissions
-        self.set_as_default_acl = set_as_default_acl
-        self.create_directory_if_not_exists = create_directory_if_not_exists
+        self.effect = effect
+        self.principal = principal
+        self.action = action
+        self.resource = resource
 
     @staticmethod
     def system_type():
@@ -93,19 +87,46 @@ class S3IAMPolicyUtility(UtilitiesInterface):
                 aws_session_token=self.aws_session_token
             )
 
-            bucket_list = s3_client.list_buckets()
             bucket_policy = s3_client.get_bucket_policy(Bucket=self.bucket_name)
-            bucket_policy = {
-                'Version': '2012-10-17',
-                'Statement': [{
-                    'Sid': 'AddPerm',
-                    'Effect': 'Allow',
-                    'Principal': '*',
-                    'Action': ['s3:GetObject'],
-                    'Resource': f'arn:aws:s3:::{self.bucket_name}/{self.directory}/*'
-                }]
-            }
 
+            policy_statement = None
+            if "Policy" in bucket_policy and bucket_policy["Policy"] != None:
+                policy_statement = json.loads(bucket_policy["Policy"])
+
+            if policy_statement is None:
+                policy_statement = {
+                    "Version": "2012-10-17",
+                    "Statement": []
+                }
+
+            sid_found = False
+            for statement in policy_statement["Statement"]:
+                if statement["Sid"] == self.sid:
+                    sid_found = True
+                    statement["Effect"] = self.effect
+                    statement["Principal"] = self.principal
+                    statement["Action"] = self.action
+                    if isinstance(statement["Resource"], list):
+                        statement["Resource"] + self.resource
+                    else:
+                        self.resource.append(statement["Resource"])
+                        statement["Resource"] = self.resource
+                    statement["Resource"] = list(set(statement["Resource"]))
+
+            if not sid_found:
+                policy_statement["Statement"].append(
+                    {
+                        "Sid": self.sid,
+                        "Effect": self.effect,
+                        "Principal": self.principal,
+                        "Action": self.action,
+                        "Resource": self.resource
+                    }
+                )
+
+            policy = json.dumps(policy_statement)
+            s3_client.put_bucket_policy(Bucket=self.bucket_name, Policy=policy)
+            
             return True
         
         except Exception as e:
