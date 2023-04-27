@@ -17,6 +17,15 @@ name: 'Reusable Sonarcloud Scan'
 on:
   workflow_call:
     inputs:
+      REPO_NAME:
+        required: true
+        type: string
+      HEAD_BRANCH:
+        required: true
+        type: string
+      HEAD_SHA:
+        required: true
+        type: string                        
       PR_NUMBER:
         required: true
         type: string      
@@ -42,8 +51,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: ${{ github.event.workflow_run.head_repository.full_name }}
-          ref: ${{ github.event.workflow_run.head_branch }}
+          repository: ${{ inputs.REPO_NAME }}
+          ref: ${{ inputs.HEAD_BRANCH }}
           fetch-depth: 0
 
       - name: Setup Python 
@@ -90,7 +99,7 @@ jobs:
             -Dsonar.projectKey=rtdip_core
             -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
             -Dsoner.python.version=3.11
-            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            -Dsonar.scm.revision=${{ inputs.HEAD_SHA }}
             -Dsonar.pullrequest.key=${{ inputs.PR_NUMBER }}
             -Dsonar.pullrequest.branch=${{ inputs.PR_HEAD_REF }}
             -Dsonar.pullrequest.base=${{ inputs.PR_BASE_REF }}
