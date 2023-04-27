@@ -16,10 +16,6 @@ name: 'Reusable Sonarcloud Scan'
 
 on:
   workflow_call:
-    inputs:
-      PR_NUMBER:
-        required: true
-        type: string
       PR_HEAD_REF:
         required: true
         type: string

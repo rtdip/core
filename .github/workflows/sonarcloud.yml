@@ -14,6 +14,8 @@
 
 name: 'Sonarcloud Scan'
 
+run-name: ${{ github.event.workflow_run.head_commit.message }}
+
 on:
   workflow_run:
     workflows: [PR]
@@ -66,8 +68,8 @@ jobs:
       needs: job_download_pr_artifact
       uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
       with:
-        PR_NUMBER: ${{ fromJSON(needs.job_download_pr_artifact.outputs.result).pr_number }}
-        PR_HEAD_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.result).pr_head_ref }}
-        PR_BASE_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.result).pr_base_ref }}
+        PR_NUMBER: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_number }}
+        PR_HEAD_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_head_ref }}
+        PR_BASE_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_base_ref }}
       secrets:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
