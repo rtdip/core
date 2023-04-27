@@ -41,7 +41,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         window_size_mins (int): Window size in minutes
         window_length (int): (Optional) add longer window time for the start or end of specified date to cater for edge cases
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        step (bool/str): data points with step "enabled" or "disabled". The options for step are "metadata" (string), True or False (bool)
+        step (bool, str): data points with step "enabled" or "disabled". The options for step are "metadata" (string), True or False (bool)
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
     '''
