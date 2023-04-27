@@ -26,7 +26,7 @@ jobs:
 
   job_run_unit_tests_and_sonarqube:
     uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@main
-    inputs:
+    with:
       PR_NUMBER: ""
       PR_HEAD_REF: ""
       PR_BASE_REF: ""    
