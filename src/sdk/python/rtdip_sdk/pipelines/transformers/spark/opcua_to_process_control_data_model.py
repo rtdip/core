@@ -18,7 +18,7 @@ from pyspark.sql.functions import to_timestamp, col, regexp_replace, when, lit, 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
-class OPCUAToProcessControlDataModel(TransformerInterface):
+class OPCUAToProcessControlDataModelTransformer(TransformerInterface):
     '''
     Converts a Spark Dataframe column from a structured OPC UA schema to the RTDIP Process Control Data Model.
 

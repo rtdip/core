@@ -45,7 +45,9 @@ PYSPARK_PACKAGES = [
 PIPELINE_PACKAGES = [
   "dependency-injector==4.41.0",
   "dbx==0.8.10",
-  "pydantic==1.10.6"
+  "pydantic==1.10.6",
+  "azure-storage-file-datalake==12.10.1",
+  "boto3==1.26.118"
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {

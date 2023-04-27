@@ -24,7 +24,7 @@ from dbx.api.auth import ProfileEnvConfigProvider
 from .interfaces import DeployInterface
 from .models.databricks import DatabricksJob, DatabricksJobForPipelineJob, DatabricksSparkPythonTask, DatabricksTask, DatabricksLibraries, DatabricksLibrariesMaven, DatbricksLibrariesPypi, DatabricksDBXProject
 from ..execute.job import PipelineJob
-from ..converters.pipeline_job_json import PipelineJobToJson
+from ..converters.pipeline_job_json import PipelineJobToJsonConverter
 
 __name__: str
 __version__: str
@@ -168,7 +168,7 @@ class DatabricksDBXDeploy(DeployInterface):
 
             databricks_job_task.spark_python_task = DatabricksSparkPythonTask(
                 python_file="file://{}".format("rtdip/tasks/pipeline_task.py"),
-                parameters=[PipelineJobToJson(self.pipeline_job).convert()]
+                parameters=[PipelineJobToJsonConverter(self.pipeline_job).convert()]
             )
             databricks_tasks.append(databricks_job_task)
 

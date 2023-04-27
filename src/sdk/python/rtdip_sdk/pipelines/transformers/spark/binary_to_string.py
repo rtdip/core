@@ -17,10 +17,22 @@ from pyspark.sql import DataFrame
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
-class EventhubBodyBinaryToString(TransformerInterface):
+class BinaryToStringTransformer(TransformerInterface):
     '''
-    Converts the Eventhub dataframe body column from a binary to a string.
-    ''' 
+    Converts a dataframe body column from a binary to a string.
+
+    Args:
+        source_column_name (str): Spark Dataframe column containing the Binary data
+        target_column_name (str): Spark Dataframe column name to be used for the String data
+    '''
+
+    source_column_name: str
+    target_column_name: str
+
+    def __init__(self, source_column_name: str, target_column_name: str) -> None:
+        self.source_column_name = source_column_name
+        self.target_column_name = target_column_name
+
     @staticmethod
     def system_type():
         '''
@@ -47,12 +59,12 @@ class EventhubBodyBinaryToString(TransformerInterface):
     def transform(self, df: DataFrame) -> DataFrame:
         '''
         Args:
-            df (DataFrame): A dataframe based on the structure of the Spark Eventhub connector.
+            df (DataFrame): A dataframe containing a binary column.
 
         Returns:
             DataFrame: A dataframe with the body column converted to string.
         '''
         return (
             df
-            .withColumn("body", df["body"].cast("string"))
+            .withColumn(self.target_column_name, df[self.source_column_name].cast("string"))
         )
