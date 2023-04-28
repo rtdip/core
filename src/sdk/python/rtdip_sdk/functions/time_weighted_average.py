@@ -41,7 +41,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         window_size_mins (int): Window size in minutes
         window_length (int): (Optional) add longer window time for the start or end of specified date to cater for edge cases
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        step (bool, str): data points with step "enabled" or "disabled". The options for step are "metadata" (string), True or False (bool)
+        step (str): data points with step "enabled" or "disabled". The options for step are "metadata", "true" or "false". "metadata" will get the step requirements from the metadata table if applicable.
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
     '''
@@ -103,9 +103,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             metadata_df.set_index("TagName", inplace=True)
             metadata_df = metadata_df.loc[:, "Step"]
             preprocess_df = preprocess_df.merge(metadata_df, left_index=True, right_index=True)
-        elif parameters_dict["step"] == True:
+        elif parameters_dict["step"].lower() == "true":
             preprocess_df["Step"] =  True
-        elif parameters_dict["step"] == False:
+        elif parameters_dict["step"].lower() == "false":
             preprocess_df["Step"] = False
         else:
             raise Exception('Unexpected step value', parameters_dict["step"])

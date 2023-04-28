@@ -1,12 +1,20 @@
 {
   "version": "0.2.0",
-  "configurations": [
+  "configurations": 
+  [
     {
       "name": "Attach to Python Functions",
       "type": "python",
       "request": "attach",
       "port": 9091,
       "preLaunchTask": "func: host start",
+    },
+    {
+      "name": "Attach to API Python Functions",
+      "type": "python",
+      "request": "attach",
+      "port": 9091,
+      "preLaunchTask": "func: host start --prefix ./src/api"
     },
     {
       "name": "Python: Debug Tests",
@@ -19,6 +27,6 @@
           "PYTEST_ADDOPTS": "--no-cov"
       },
       "justMyCode": false
-  }    
+    },
   ]
 }
