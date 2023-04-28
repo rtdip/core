@@ -36,7 +36,7 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 [Metadata](../code-reference/query/metadata.md) queries provide contextual information for time series measurements and include information such as names, descriptions and units of measure.
 
 !!! note "Note"
-    </b>RTDIP are continuously adding more to this list so check back regularly!<br />
+    </b>RTDIP are continuously adding more to this list so check back regularly.<br />
 
 ## Query Examples
 

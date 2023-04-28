@@ -14,6 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
+from datetime import datetime
 from pytest_mock import MockerFixture
 from docs.macros import define_env
 from mkdocs_macros.plugin import MacrosPlugin
@@ -32,8 +33,8 @@ class MockRelease():
 class MockRepository():
     def get_releases(self):
         return [
-            MockRelease("title1", "url1", "tag1", "date1", False, False, "body1"),
-            MockRelease("title2", "url2", "tag2", "date2", False, False, "body2"),
+            MockRelease("title1", "url1", "tag1", datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'), False, False, "body1"),
+            MockRelease("title2", "url2", "tag2", datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'), False, False, "body2"),
         ]
 
 class MockGithub():
@@ -52,4 +53,4 @@ def test_github_releases(mocker: MockerFixture):
     define_env(env)
     result = env.macros["github_releases"]("owner", "repo")
 
-    assert result == '----\r\n##[title1](url1)\r\n:octicons-tag-24:[tag1](url1) :octicons-calendar-24: Published date1 \r\nbody1\r\n----\r\n##[title2](url2)\r\n:octicons-tag-24:[tag2](url2) :octicons-calendar-24: Published date2 \r\nbody2\r\n----\r\n'
+    assert result == '----\r\n##[title1](url1)\r\n:octicons-tag-24:[tag1](url1) :octicons-calendar-24: Published just now \r\nbody1\r\n----\r\n##[title2](url2)\r\n:octicons-tag-24:[tag2](url2) :octicons-calendar-24: Published just now \r\nbody2\r\n----\r\n'
