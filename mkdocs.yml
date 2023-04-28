@@ -136,7 +136,7 @@ nav:
                       - Transformers:
                             - Spark:
                                  - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
-                                 - Json To OPC UA: sdk/code-reference/pipelines/transformers/spark/json_to_opcua.md
+                                 - OPC Publihser Json To OPC UA: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_opcua.md
                                  - OPC UA To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opcua_to_process_control_data_model.md                                 
                       - Destinations:
                             - Spark:

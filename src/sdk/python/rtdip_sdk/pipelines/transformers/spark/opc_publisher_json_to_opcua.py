@@ -20,9 +20,9 @@ from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import OPCUA_SCHEMA
 
-class JsonToOPCUATransformer(TransformerInterface):
+class OPCPublisherJsonToOPCUATransformer(TransformerInterface):
     '''
-    Converts a Spark Dataframe column from a json string to OPC UA.
+    Converts a Spark Dataframe column containing a json string created by OPC Publisher to OPC UA.
 
     Args:
         source_column_name (str): Spark Dataframe column containing the Json OPC UA data
