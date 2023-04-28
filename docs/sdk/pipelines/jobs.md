@@ -134,6 +134,12 @@ pipeline_job = PipelineJob(
 
 Pipeline Jobs can be executed directly if the run environment where the code has been written facilitates it. To do so, the above Pipeline Job can be executed as follows:
 
+!!! note "Pyspark Installation"
+    Ensure you have [Java](../../getting-started/installation.md#java) installed in your environment and you have installed pyspark using the below command:
+    ```
+    pip install "rtdip-sdk[pipelines,pyspark]"
+    ```
+
 ```python
 from rtdip_sdk.pipelines.execute import PipelineJobExecute
 

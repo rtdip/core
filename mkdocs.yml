@@ -38,6 +38,8 @@ theme:
     language: en
     features:
         - content.code.annotate
+        - content.code.copy
+        - content.code.select
         - content.tabs.link
         - content.tooltips
         #- navigation.expand
