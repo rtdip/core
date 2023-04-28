@@ -1,5 +1,4 @@
 # Copyright 2022 RTDIP
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,7 +11,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .spark.delta_table_create import *
-from .spark.delta_table_optimize import *
-from .spark.delta_table_vacuum import *
-from .azure.adls_gen2_acl import *
+class MockS3Client():
+
+    put_bucket_name: str
+    put_bucket_policy: str
+    def __init__(self, bucket_policy=None):
+        self.bucket_policy = bucket_policy
+    
+    def get_bucket_policy(self, **kwargs): # NOSONAR
+        return self.bucket_policy
+    
+    def put_bucket_policy(self, Bucket, Policy): # NOSONAR
+        self.put_bucket_name = Bucket
+        self.put_bucket_policy = Policy
