@@ -19,7 +19,7 @@ run-name: ${{ github.event.workflow_run.display_title }}
 on:
   workflow_run:
     workflows: [PR]
-    types: [completed]
+    types: [requested]
     branches-ignore:
       - "develop"
       - "main"
