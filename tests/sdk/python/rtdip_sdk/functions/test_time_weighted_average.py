@@ -42,7 +42,7 @@ MOCKED_PARAMETER_DICT = {
         "end_date": "2022-03-02T23:59:59+00:00",
         "window_size_mins": 10,
         "include_bad_data": False,
-        "step": True
+        "step": "true"
         }
 
 df =  {"EventTime": [pd.to_datetime("2022-01-01 00:10:00+00:00").replace(tzinfo=pytz.timezone("Etc/UTC")), pd.to_datetime("2022-01-01 14:10:00+00:00").replace(tzinfo=pytz.timezone("Etc/UTC"))], "TagName": ["MOCKED-TAGNAME", "MOCKED-TAGNAME"], "Status": ["Good", "Good"], "Value":[177.09220, 160.01111]}
@@ -87,7 +87,7 @@ def test_time_weighted_average_with_datetimezone(mocker: MockerFixture):
     assert isinstance(actual, pd.DataFrame)
 
 def test_time_weighted_average_step_enabled(mocker: MockerFixture):
-    MOCKED_PARAMETER_DICT["step"]=True
+    MOCKED_PARAMETER_DICT["step"]="true"
     mocker.patch.object(MockedCursor, "fetchall", return_value = pd.DataFrame(data=df))
     
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
@@ -99,7 +99,7 @@ def test_time_weighted_average_step_enabled(mocker: MockerFixture):
     assert isinstance(actual, pd.DataFrame)
 
 def test_time_weighted_average_step_disabled(mocker: MockerFixture):
-    MOCKED_PARAMETER_DICT["step"]=False
+    MOCKED_PARAMETER_DICT["step"]="false"
     mocker.patch.object(MockedCursor, "fetchall", return_value = pd.DataFrame(data=df))
     
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
