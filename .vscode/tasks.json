@@ -3,7 +3,7 @@
   "tasks": [
     {
       "type": "func",
-      "command": "host start --prefix ./src/api",
+      "command": "host start",
       "problemMatcher": "$func-python-watch",
       "isBackground": true,
       "dependsOn": "pip install (functions)",

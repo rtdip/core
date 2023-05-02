@@ -10,13 +10,6 @@
       "preLaunchTask": "func: host start",
     },
     {
-      "name": "Attach to API Python Functions",
-      "type": "python",
-      "request": "attach",
-      "port": 9091,
-      "preLaunchTask": "func: host start --prefix ./src/api"
-    },
-    {
       "name": "Python: Debug Tests",
       "type": "python",
       "request": "launch",
