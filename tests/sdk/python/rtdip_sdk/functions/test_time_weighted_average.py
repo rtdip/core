@@ -43,7 +43,7 @@ MOCKED_PARAMETER_DICT = {
         "end_date": "2022-03-02T23:59:59+00:00",
         "window_size_mins": 10,
         "include_bad_data": False,
-        "step": True
+        "step": "true"
         }
 
 df =  {"EventTime": [pd.to_datetime("2022-01-01 00:10:00+00:00").replace(tzinfo=pytz.timezone("Etc/UTC")), pd.to_datetime("2022-01-01 14:10:00+00:00").replace(tzinfo=pytz.timezone("Etc/UTC"))], "TagName": ["MOCKED-TAGNAME", "MOCKED-TAGNAME"], "Status": ["Good", "Good"], "Value":[177.09220, 160.01111]}
