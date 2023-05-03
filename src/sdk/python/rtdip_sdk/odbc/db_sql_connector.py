@@ -17,7 +17,6 @@ import pandas as pd
 from .connection_interface import ConnectionInterface
 from .cursor_interface import CursorInterface
 import logging
-import time
 
 class DatabricksSQLConnection(ConnectionInterface):
   """
