@@ -40,7 +40,6 @@ class TURBODBCSQLConnection(ConnectionInterface):
         use_async_io=True)
     
     self.connection = connect(Driver="Simba Spark ODBC Driver",
-                              # Server=server_hostname,
                               Host=server_hostname,
                               Port=443,
                               SparkServerType=3,
