@@ -33,3 +33,18 @@ To deploy the RTDIP APIs from Docker Hub, follow the steps below:
     ```bash
     az functionapp config container set --name <function_app_name> --resource-group <resource_group_name> --docker-custom-image-name rtdip/api:azure-<version>
     ```
+
+### Environment Variables
+
+#### Azure Active Directory
+1. Once Authentication has been configured on the Azure Function App correctly, it is required to set the following Environment Variable with the Tenant ID of the relevant Active Directory:
+    - TENANT_ID
+
+#### Databricks
+1. The following Environment Variables are required and the values can be retrieved from your Databricks SQL Warehouse or Databricks Cluster:
+    - DATABRICKS_SQL_SERVER_HOSTNAME
+    - DATABRICKS_SQL_HTTP_PATH
+
+#### ODBC Driver
+1. To allow the APIs to leverage Turbodbc for connectivity and possible performance improvements, it is possible to set the following environment variable:
+    - RTDIP_ODBC_CONNECTION=turbodbc

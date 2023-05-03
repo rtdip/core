@@ -88,7 +88,7 @@ def test_time_weighted_average_with_datetimezone(mocker: MockerFixture):
     assert isinstance(actual, pd.DataFrame)
 
 def test_time_weighted_average_step_enabled(mocker: MockerFixture):
-    MOCKED_PARAMETER_DICT["step"]=True
+    MOCKED_PARAMETER_DICT["step"]="true"
     mocker.patch.object(MockedCursor, "fetchall_arrow", return_value = pa.Table.from_pandas(pd.DataFrame(data=df)))
     
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
@@ -100,7 +100,7 @@ def test_time_weighted_average_step_enabled(mocker: MockerFixture):
     assert isinstance(actual, pd.DataFrame)
 
 def test_time_weighted_average_step_disabled(mocker: MockerFixture):
-    MOCKED_PARAMETER_DICT["step"]=False
+    MOCKED_PARAMETER_DICT["step"]="false"
     mocker.patch.object(MockedCursor, "fetchall_arrow", return_value = pa.Table.from_pandas(pd.DataFrame(data=df)))
     
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
