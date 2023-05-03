@@ -168,14 +168,14 @@ class PipelineJobExecute():
                         
                 # transformer components
                 elif isinstance(factory(), TransformerInterface):
-                    result = factory().transform(task_results[step.name])
+                    result = factory(task_results[step.name]).transform()
 
                 # destination components
                 elif isinstance(factory(), DestinationInterface):
                     if task.batch_task:
-                        result = factory().write_batch(task_results[step.name])
+                        result = factory(data=task_results[step.name]).write_batch()
                     else:
-                        result = factory().write_stream(task_results[step.name])
+                        result = factory(data=task_results[step.name]).write_stream()
 
                 # utilities components
                 elif isinstance(factory(), UtilitiesInterface):

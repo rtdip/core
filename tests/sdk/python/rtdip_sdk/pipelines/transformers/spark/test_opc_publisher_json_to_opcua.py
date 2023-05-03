@@ -14,23 +14,23 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.opc_publisher_json_to_opcua import OPCPublisherJsonToOPCUATransformer
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.opc_publisher_json_to_pcdm import OPCPublisherJsonToPCDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import OPCUA_SCHEMA
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import OPC_PUBLISHER_SCHEMA
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, ArrayType, StringType
 import json
 
-def test_spark_json_to_opcua(spark_session: SparkSession):
-    eventhub_json_to_opcua_transformer = OPCPublisherJsonToOPCUATransformer(source_column_name="body")
+def test_spark_json_to_pcdm(spark_session: SparkSession):
+    eventhub_json_to_opcua_transformer = OPCPublisherJsonToPCDMTransformer(source_column_name="body")
     opcua_json_data = '[{"NodeId":"ns=2;s=Test1","EndpointUrl":"opc.tcp://test.ot.test.com:4840/","DisplayName":"Test1","Value":{"Value":1.0,"SourceTimestamp":"2023-04-19T16:41:55.002Z"}},{"NodeId":"ns=2;s=Test2","EndpointUrl":"opc.tcp://test.ot.test.com:4840/","DisplayName":"Test2","Value":{"Value":2.0,"StatusCode":{"Symbol":"BadCommunicationError","Code":3},"SourceTimestamp":"2023-04-19T16:41:55.056Z"}}]'
     opcua_df: DataFrame = spark_session.createDataFrame([{"body": opcua_json_data}])
 
     expected_schema = StructType([
         StructField("body", StringType(), True),
-        StructField("OPCUA", OPCUA_SCHEMA, True)
+        StructField("OPCUA", OPC_PUBLISHER_SCHEMA, True)
     ])
 
     expected_data = [
