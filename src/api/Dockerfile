@@ -33,9 +33,6 @@ RUN echo '[ODBC Drivers]' > /etc/odbcinst.ini \
     && echo '[Simba Spark ODBC Driver]' >> /etc/odbcinst.ini \
     && echo 'Driver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so' >> /etc/odbcinst.ini
 
-ENV DATABRICKS_SQL_SERVER_HOSTNAME=adb-3073476248944970.10.azuredatabricks.net
-ENV DATABRICKS_SQL_HTTP_PATH=/sql/1.0/warehouses/6b6f8386146bbfd4
-
 COPY src/api/requirements.txt /
 RUN pip install -r /requirements.txt
 
