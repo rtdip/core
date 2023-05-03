@@ -25,8 +25,7 @@ def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = No
     if odbc_connection == "turbodbc":
         connection = TURBODBCSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
     else:
-        connection = DatabricksSQLConnection("https://{}".format(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME")), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
-
+        connection = DatabricksSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
 
     parameters = base_query_parameters.__dict__
     
