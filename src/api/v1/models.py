@@ -136,9 +136,9 @@ class TagsBodyParams(BaseModel):
 class ResampleQueryParams:
     def __init__(
         self,
-        sample_rate: str = Query(..., description="Sample Rate", example="5"),
+        sample_rate: int = Query(..., description="Sample Rate", example=5),
         sample_unit: str = Query(..., description="Sample Unit", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
-        agg_method: str = Query(..., escription="Aggregation Method", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
+        agg_method: str = Query(..., description="Aggregation Method", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
     ):
         self.sample_rate = sample_rate
         self.sample_unit = sample_unit
@@ -155,8 +155,8 @@ class TimeWeightedAverageQueryParams:
     def __init__(
         self,
         window_size_mins: int = Query(..., description="Window Size Mins", example=20),
-        window_length: int = Query(..., description="Window Length", examples=10),
-        step: str = Query(..., description="step", examples={"metadata": {"value": "metadata"}, "true": {"value": "true"}, "false": {"value": "false"}}) 
+        window_length: int = Query(..., description="Window Length", example=10),
+        step: str = Query(..., description="Step", examples={"true": {"value": "true"}, "false": {"value": "false"}, "metadata": {"value": "metadata"}}) 
     ):
         self.window_size_mins = window_size_mins
         self.window_length = window_length

@@ -15,8 +15,10 @@
 from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLCursor
 import pandas as pd
+import pyarrow as pa
 from pytest_mock import MockerFixture
 import pytest
+import pyarrow as pa
 
 SERVER_HOSTNAME = "mock.cloud.databricks.com"
 HTTP_PATH = "sql/mock/mock-test"
@@ -37,6 +39,8 @@ class MockedCursor:
         return None
     def fetchall(self) -> list:  
         return list
+    def fetchall_arrow(self) -> list:  
+        return pa.Table
     def close(self) -> None: 
         return None
 
@@ -68,7 +72,7 @@ def test_cursor_execute(mocker: MockerFixture):
     mocked_execute.assert_called_with(mocker.ANY, query="test")
 
 def test_cursor_fetch_all(mocker: MockerFixture):
-    mocker.patch.object(MockedCursor, "fetchall", return_value = pd.DataFrame(data={'EventTime': [pd.to_datetime("2022-01-01 00:10:00+00:00")], 'TagName': ["MOCKED-TAGNAME"], 'Status': ["Good"], 'Value':[177.09220]}))
+    mocker.patch.object(MockedCursor, "fetchall_arrow", return_value = pa.Table.from_pandas(pd.DataFrame(data={'EventTime': [pd.to_datetime("2022-01-01 00:10:00+00:00")], 'TagName': ["MOCKED-TAGNAME"], 'Status': ["Good"], 'Value':[177.09220]})))
 
     mocked_cursor = DatabricksSQLCursor(MockedCursor())
     result = mocked_cursor.fetch_all()

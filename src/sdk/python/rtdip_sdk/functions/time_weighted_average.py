@@ -18,6 +18,7 @@ from .metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     A function that recieves a dataframe of raw tag data and performs a timeweighted average, returning the results. 
