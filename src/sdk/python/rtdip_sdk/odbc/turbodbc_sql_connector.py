@@ -55,7 +55,7 @@ class TURBODBCSQLConnection(ConnectionInterface):
                               ApplyFastSQLPrepareToAllQueries=1,
                               DisableLimitZero=1,                      
                               EnableAsyncExec=1,
-                              RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BATCH_SIZE", 500000),
+                              RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BLOCK_SIZE", 500000),
                               turbodbc_options=options)
 
   def close(self) -> None:
