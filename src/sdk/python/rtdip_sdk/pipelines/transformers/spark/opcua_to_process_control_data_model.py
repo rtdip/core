@@ -23,16 +23,18 @@ class OPCUAToProcessControlDataModelTransformer(TransformerInterface):
     Converts a Spark Dataframe column from a structured OPC UA schema to the RTDIP Process Control Data Model.
 
     Args:
+        data (DataFrame): A dataframe containing the column with Json OPC UA data
         source_column_name (str): Spark Dataframe column containing the OPC UA data.
         status_null_value (str): If populated, will replace null values in the Status column with the specified value.
         timestamp_formats (list[str]): Specifies the timestamp formats to be used for converting the timestamp string to a Timestamp Type. For more information on formats, refer to this [documentation.](https://spark.apache.org/docs/latest/sql-ref-datetime-pattern.html)
     '''
-
+    data: DataFrame
     source_column_name: str
     status_null_value: str
     timestamp_formats: list
 
-    def __init__(self, source_column_name: str = "OPCUA", status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
+    def __init__(self, data: DataFrame, source_column_name: str = "OPCUA", status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
+        self.data = data
         self.source_column_name = source_column_name
         self.status_null_value = status_null_value
         self.timestamp_formats = timestamp_formats
@@ -60,16 +62,13 @@ class OPCUAToProcessControlDataModelTransformer(TransformerInterface):
     def post_transform_validation(self):
         return True
 
-    def transform(self, df: DataFrame) -> DataFrame:
+    def transform(self) -> DataFrame:
         '''
-        Args:
-            df (DataFrame): A dataframe containing the column with Json OPC UA data
-
         Returns:
             DataFrame: A dataframe with the specified column converted to OPC UA
         '''
 
-        df = (df
+        df = (self.data
             .withColumn("TagName", (col("{}.DisplayName".format(self.source_column_name)))) # Will be in payload directly
             .withColumn("EventTime", coalesce(*[to_timestamp(col("{}.Value.SourceTimestamp".format(self.source_column_name)), f) for f in self.timestamp_formats]))
             .withColumn("EventDate", col("EventTime").cast("date"))     

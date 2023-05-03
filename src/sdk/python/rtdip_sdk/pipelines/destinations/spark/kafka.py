@@ -28,6 +28,7 @@ class SparkKafkaDestination(DestinationInterface):
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
     
     Args:
+        data (DataFrame): Dataframe to be written to Kafka
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
     The following options must be set for the Kafka destination for both batch and streaming queries.
@@ -42,9 +43,11 @@ class SparkKafkaDestination(DestinationInterface):
         includeHeaders (bool): Whether to include the Kafka headers in the row. (Streaming and Batch)
 
     '''
+    data: DataFrame
     options: dict
 
-    def __init__(self, options: dict) -> None:
+    def __init__(self, data: DataFrame, options: dict) -> None:
+        self.data = data
         self.options = options
 
     @staticmethod
@@ -77,7 +80,7 @@ class SparkKafkaDestination(DestinationInterface):
         '''
         try:
             return (
-                df
+                self.data
                 .write
                 .format("kafka")
                 .options(**self.options)
@@ -91,12 +94,13 @@ class SparkKafkaDestination(DestinationInterface):
             logging.exception(str(e))
             raise e
         
-    def write_stream(self, df: DataFrame):
+    def write_stream(self):
         '''
         Writes steaming data to Kafka.
         '''
         try:
-            query = (df
+            query = (
+                self.data
                 .writeStream
                 .format("kafka")
                 .options(**self.options)

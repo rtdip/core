@@ -25,16 +25,18 @@ class OPCPublisherJsonToOPCUATransformer(TransformerInterface):
     Converts a Spark Dataframe column containing a json string created by OPC Publisher to OPC UA.
 
     Args:
+        data (DataFrame): Dataframe containing the column with Json OPC UA data
         source_column_name (str): Spark Dataframe column containing the Json OPC UA data
         target_column_name (str): Column name to be used for the structured OPC UA data
         multiple_rows_per_message (bool): Each Dataframe Row contains an array of/multiple OPC UA messages. The list of Json will be exploded into rows in the Dataframe.
     '''
-
+    data: DataFrame
     source_column_name: str
     target_column_name: str
     multiple_rows_per_message: bool
 
-    def __init__(self, source_column_name: str, target_column_name: str = "OPCUA", multiple_rows_per_message: bool = True) -> None:
+    def __init__(self, data: DataFrame, source_column_name: str, target_column_name: str = "OPCUA", multiple_rows_per_message: bool = True) -> None:
+        self.data = data
         self.source_column_name = source_column_name
         self.target_column_name = target_column_name
         self.multiple_rows_per_message = multiple_rows_per_message
@@ -62,16 +64,13 @@ class OPCPublisherJsonToOPCUATransformer(TransformerInterface):
     def post_transform_validation(self):
         return True
 
-    def transform(self, df: DataFrame) -> DataFrame:
+    def transform(self) -> DataFrame:
         '''
-        Args:
-            df (DataFrame): A dataframe containing the column with Json OPC UA data
-
         Returns:
             DataFrame: A dataframe with the specified column converted to OPC UA
         '''
         if self.multiple_rows_per_message:
-            df = (df
+            df = (self.data
                   .withColumn(self.source_column_name, from_json(col(self.source_column_name), ArrayType(StringType())))
                   .withColumn(self.source_column_name, explode(self.source_column_name))
             )
