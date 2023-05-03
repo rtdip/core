@@ -28,8 +28,10 @@ nest_asyncio.apply()
 def metadata_retrieval_get(query_parameters, metadata_query_parameters):
     try:
         (connection, parameters) = common.common_api_setup_tasks(query_parameters, metadata_query_parameters=metadata_query_parameters)
+
         data = metadata.get(connection, parameters)
-        return MetadataResponse(data=data.to_dict(orient="records"))
+        response = data.to_json(orient="table", index=False)
+        return MetadataResponse(**json.loads(response))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

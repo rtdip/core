@@ -18,9 +18,8 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.testing.cwd": "${workspaceFolder}",
+    // "python.testing.cwd": "${workspaceFolder}",
     "python.analysis.extraPaths": ["${workspaceFolder}"],
-    // "python.defaultInterpreterPath": "~/micromamba/envs/rtdip-sdk/bin/python",
     "terminal.integrated.env.osx":{
         "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
     },    

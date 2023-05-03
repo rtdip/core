@@ -20,32 +20,32 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import OPC_PUBLISH
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StructType, StructField, ArrayType, StringType
-import json
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType
+from datetime import datetime
 
-def test_spark_json_to_pcdm(spark_session: SparkSession):
-    eventhub_json_to_opcua_transformer = OPCPublisherJsonToPCDMTransformer(source_column_name="body")
+def test_opc_publisher_json_to_pcdm(spark_session: SparkSession):
     opcua_json_data = '[{"NodeId":"ns=2;s=Test1","EndpointUrl":"opc.tcp://test.ot.test.com:4840/","DisplayName":"Test1","Value":{"Value":1.0,"SourceTimestamp":"2023-04-19T16:41:55.002Z"}},{"NodeId":"ns=2;s=Test2","EndpointUrl":"opc.tcp://test.ot.test.com:4840/","DisplayName":"Test2","Value":{"Value":2.0,"StatusCode":{"Symbol":"BadCommunicationError","Code":3},"SourceTimestamp":"2023-04-19T16:41:55.056Z"}}]'
     opcua_df: DataFrame = spark_session.createDataFrame([{"body": opcua_json_data}])
 
     expected_schema = StructType([
-        StructField("body", StringType(), True),
-        StructField("OPCUA", OPC_PUBLISHER_SCHEMA, True)
+        StructField("TagName", StringType(), True),
+        StructField("EventTime", TimestampType(), True),
+        StructField("Status", StringType(), True),
+        StructField("Value", StringType(), True),
+        StructField("DataType", StringType(), False),
     ])
 
     expected_data = [
-        {"body": '{"NodeId":"ns=2;s=Test1","EndpointUrl":"opc.tcp://test.ot.test.com:4840/","DisplayName":"Test1","Value":{"Value":1.0,"SourceTimestamp":"2023-04-19T16:41:55.002Z"}}',
-        "OPCUA": {"ApplicationUri": None, "DisplayName":"Test1", "NodeId":"ns=2;s=Test1", "Value":{"SourceTimestamp":"2023-04-19T16:41:55.002Z", "Value":1.0,"StatusCode":None}}},
-        {"body": '{"NodeId":"ns=2;s=Test2","EndpointUrl":"opc.tcp://test.ot.test.com:4840/","DisplayName":"Test2","Value":{"Value":2.0,"StatusCode":{"Symbol":"BadCommunicationError","Code":3},"SourceTimestamp":"2023-04-19T16:41:55.056Z"}}',
-        "OPCUA": {"ApplicationUri": None, "NodeId":"ns=2;s=Test2", "DisplayName":"Test2","Value":{"Value":2.0,"StatusCode":{"Symbol":"BadCommunicationError","Code":3},"SourceTimestamp":"2023-04-19T16:41:55.056Z"}}}
+        {"TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0", "DataType": "float"},
+        {"TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "BadCommunicationError", "Value": "2.0", "DataType": "float"},
     ]
-    
+
     expected_df: DataFrame = spark_session.createDataFrame(
         schema=expected_schema,
         data=expected_data
     )
-
-    actual_df = eventhub_json_to_opcua_transformer.transform(opcua_df)
+    eventhub_json_to_opcua_transformer = OPCPublisherJsonToPCDMTransformer(opcua_df, source_column_name="body", status_null_value="Good")
+    actual_df = eventhub_json_to_opcua_transformer.transform()
 
     assert eventhub_json_to_opcua_transformer.system_type() == SystemType.PYSPARK
     assert isinstance(eventhub_json_to_opcua_transformer.libraries(), Libraries)

@@ -44,6 +44,8 @@ class PipelineJobExecute():
             # if isinstance(value, SparkSession): # TODO: fix this as value does not seem to be an instance of SparkSession
             if key == "spark":
                 provider.add_kwargs(spark=Clients.spark_client().spark_session)
+            if key == "data":
+                provider.add_kwargs(data=None)
         return provider
 
     def _get_secret_provider_attributes(self, pipeline_secret: PipelineSecret) -> providers.Factory:
@@ -124,10 +126,6 @@ class PipelineJobExecute():
             provider = providers.Factory(step.component)
             provider = self._get_provider_attributes(provider, step.component)
 
-            # add parameters
-            if isinstance(step.component, DestinationInterface):
-                step.component_parameters["query_name"] = step.name
-
             # get secrets
             for param_key, param_value in step.component_parameters.items():
                 if isinstance(param_value, PipelineSecret):
@@ -168,14 +166,14 @@ class PipelineJobExecute():
                         
                 # transformer components
                 elif isinstance(factory(), TransformerInterface):
-                    result = factory(task_results[step.name]).transform()
+                    result = factory(data=task_results[step.name]).transform()
 
                 # destination components
                 elif isinstance(factory(), DestinationInterface):
                     if task.batch_task:
-                        result = factory(data=task_results[step.name]).write_batch()
+                        result = factory(data=task_results[step.name], query_name=step.name).write_batch()
                     else:
-                        result = factory(data=task_results[step.name]).write_stream()
+                        result = factory(data=task_results[step.name], query_name=step.name).write_stream()
 
                 # utilities components
                 elif isinstance(factory(), UtilitiesInterface):

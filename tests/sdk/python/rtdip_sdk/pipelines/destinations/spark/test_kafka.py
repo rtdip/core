@@ -26,7 +26,7 @@ class TestStreamingQueryClass():
     isActive: bool = False  # NOSONAR
 
 def test_spark_kafka_write_setup():
-    kafka_destination = SparkKafkaDestination({})
+    kafka_destination = SparkKafkaDestination(None, {})
     assert kafka_destination.system_type().value == 2
     assert kafka_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="org.apache.spark", 
@@ -40,27 +40,27 @@ def test_spark_kafka_write_setup():
 def test_spark_kafka_write_batch(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(return_value=None))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    kafka_destination = SparkKafkaDestination({})
-    actual = kafka_destination.write_batch(expected_df)
+    kafka_destination = SparkKafkaDestination(expected_df, {})
+    actual = kafka_destination.write_batch()
     assert actual is None
 
 def test_spark_kafka_write_stream(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(return_value=TestStreamingQueryClass()))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    kafka_destination = SparkKafkaDestination({})
-    actual = kafka_destination.write_stream(expected_df)
+    kafka_destination = SparkKafkaDestination(expected_df, {})
+    actual = kafka_destination.write_stream()
     assert actual is None
 
 def test_spark_kafka_write_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(side_effect=Exception))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    kafka_destination = SparkKafkaDestination({})
+    kafka_destination = SparkKafkaDestination(expected_df, {})
     with pytest.raises(Exception):
-        kafka_destination.write_batch(expected_df)
+        kafka_destination.write_batch()
 
 def test_spark_kafka_write_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    kafka_destination = SparkKafkaDestination({})
+    kafka_destination = SparkKafkaDestination(expected_df, {})
     with pytest.raises(Exception):
-        kafka_destination.write_stream(expected_df)
+        kafka_destination.write_stream()

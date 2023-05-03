@@ -17,9 +17,11 @@ def time_weighted_average_events_get(base_query_parameters, raw_query_parameters
             tag_query_parameters=tag_query_parameters,
             time_weighted_average_query_parameters=time_weighted_average_parameters
         )
+
         data = time_weighted_average.get(connection, parameters)
         data = data.reset_index()
-        return ResampleInterpolateResponse(data=data.to_dict(orient="records"))
+        response = data.to_json(orient="table", index=False, date_unit="us")
+        return ResampleInterpolateResponse(**json.loads(response))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

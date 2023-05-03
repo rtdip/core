@@ -74,7 +74,7 @@ class SparkKafkaDestination(DestinationInterface):
     def post_write_validation(self):
         return True
 
-    def write_batch(self, df: DataFrame):
+    def write_batch(self):
         '''
         Writes batch data to Kafka.
         '''

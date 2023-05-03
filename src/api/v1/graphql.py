@@ -62,7 +62,8 @@ class Query:
               "end_date": str(end_date),
           }
           data = raw.get(connection, parameters)
-          return RawResponse(data=data.to_dict(orient="records"))
+          response = data.to_json(orient="table", index=False)
+          return RawResponse(**json.loads(response))
       except Exception as e:
           logging.error(str(e))
           return HTTPException(status_code=500, detail=str(e))

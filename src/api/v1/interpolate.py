@@ -32,8 +32,10 @@ def interpolate_events_get(base_query_parameters, raw_query_parameters, tag_quer
             tag_query_parameters=tag_query_parameters,
             interpolate_query_parameters=interpolate_parameters
         )
+
         data = interpolate.get(connection, parameters)
-        return ResampleInterpolateResponse(data=data.to_dict(orient="records"))
+        response = data.to_json(orient="table", index=False, date_unit="us")
+        return ResampleInterpolateResponse(**json.loads(response))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
