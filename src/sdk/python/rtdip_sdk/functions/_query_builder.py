@@ -164,6 +164,36 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
     sql_query = _get_sql_from_template(query, bind_params)
     return sql_query
 
+def _interpolation_at_time(parameters_dict: dict, sample_query: str, sample_parameters: dict, tag_name_string: str) -> str:
+
+    if parameters_dict["interpolation_method"] == "forward_fill":
+        interpolation_method = 'last_value/UNBOUNDED PRECEDING/CURRENT ROW'
+
+    if parameters_dict["interpolation_method"] == "backward_fill":
+        interpolation_method = 'first_value/CURRENT ROW/UNBOUNDED FOLLOWING'
+
+    interpolation_options = interpolation_method.split('/')
+
+    interpolate_query = (
+        "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
+        "(SELECT explode(sequence(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"), INTERVAL {{ sample_rate + ' ' + sample_unit }})) AS EventTime, "
+        f"explode(array({tag_name_string})) AS TagName) a "
+        f"LEFT OUTER JOIN ({sample_query}) b "
+        "ON a.EventTime = b.EventTime "
+        "AND a.TagName = b.TagName"        
+    )
+    
+    interpolate_parameters = sample_parameters.copy()
+    interpolate_parameters["interpolation_options_0"] = interpolation_options[0]
+    interpolate_parameters["interpolation_options_1"] = interpolation_options[1]
+    interpolate_parameters["interpolation_options_2"] = interpolation_options[2]
+    interpolate_parameters["tag_name_string"] = tag_name_string
+
+    sql_template = JinjaSql(param_style='pyformat')
+    query, bind_params = sql_template.prepare_query(interpolate_query, interpolate_parameters)
+    sql_query = _get_sql_from_template(query, bind_params)
+    return sql_query
+
 def _metadata_query(parameters_dict: dict) -> str:
     
     metadata_query  = (
