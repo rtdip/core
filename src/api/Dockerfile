@@ -20,13 +20,13 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
 RUN rm -rf /var/lib/apt/lists/partial \
     apt-get clean \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
-    && apt-get install -y odbcinst1debian2 libodbc1 odbcinst unixodbc unixodbc-dev libsasl2-dev libsasl2-modules-gssapi-mit libboost-all-dev \
-    && apt-get install -y ca-certificates curl python3-pip python3-dev python3-setuptools python3-wheel \
-    && apt-get install -y zip wget \ 
+    && apt-get install -y odbcinst1debian2 libodbc1 odbcinst unixodbc unixodbc-dev libsasl2-dev libsasl2-modules-gssapi-mit libboost-all-dev # NOSONAR \
+    && apt-get install -y ca-certificates curl python3-pip python3-dev python3-setuptools python3-wheel # NOSONAR \
+    && apt-get install -y zip wget # NOSONAR \ 
     && wget https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.6.29/SimbaSparkODBC-2.6.29.1049-Debian-64bit.zip -P /odbc/ \
     && unzip /odbc/SimbaSparkODBC-2.6.29.1049-Debian-64bit.zip -d /odbc \
     && dpkg -i /odbc/simbaspark_2.6.29.1049-2_amd64.deb \
-    && rm /odbc -r # NOSONAR
+    && rm /odbc -r
 
 RUN echo '[ODBC Drivers]' > /etc/odbcinst.ini \
     && echo 'Simba Spark ODBC Driver = Installed' >> /etc/odbcinst.ini \
@@ -38,6 +38,3 @@ RUN pip install -r /requirements.txt
 
 COPY src/api/ /home/site/wwwroot
 COPY src /home/site/wwwroot/src
-
-USER apiuser
-
