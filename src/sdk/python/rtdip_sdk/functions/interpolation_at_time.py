@@ -14,7 +14,7 @@
 
 import logging
 import pandas as pd
-from ._query_builder import _query_builder
+from src.sdk.python.rtdip_sdk.functions._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
@@ -32,23 +32,19 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         asset (str):  Asset
         data_security_level (str): Level of data security 
         data_type (str): Type of the data (float, integer, double, string)
-        tag_names (list): List of tagname or tagnames ["tag_1", "tag_2"]
+        tag_name (str): Name of the tag
         start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS)
         end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS)
-        sample_rate (int): The resampling rate (numeric input)
-        sample_unit (str): The resampling unit (second, minute, day, hour)
-        agg_method (str): Aggregation Method (first, last, avg, min, max)
-        interpolation_method (str): Optional. Interpolation method (forward_fill, backward_fill)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
 
     Returns:
-        DataFrame: A resampled and interpolated dataframe.
+        DataFrame: A interpolated at time dataframe.
     '''
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
 
     try:
-        query = _query_builder(parameters_dict)
+        query = _query_builder(parameters_dict, metadata=False, interpolation_at_time=True)
 
         try:
             cursor = connection.cursor()
@@ -61,5 +57,21 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             raise e
 
     except Exception as e:
-        logging.exception('error with interpolate function')
+        logging.exception('error with interpolation at time function')
         raise e
+    
+from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
+from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+
+#testing 
+auth = DefaultAuth(exclude_cli_credential=True,exclude_powershell_credential=True,exclude_shared_token_cache_credential=True,logging_enable=True,exclude_visual_studio_code_credential=True).authenticate()
+token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+connection = DatabricksSQLConnection("adb-3073476248944970.10.azuredatabricks.net", "/sql/1.0/warehouses/f714de9e353afa66", token)
+
+dict = {
+    "tag_names": ["Tag1", "Tag2"], 
+    "start_date": "2023-04-30T13:57:30",
+    "end_date": "2023-04-30T14:05:00",
+}
+x = get(connection, dict)
+print(x)
