@@ -17,6 +17,7 @@ import pandas as pd
 from .connection_interface import ConnectionInterface
 from .cursor_interface import CursorInterface
 import logging
+import os
 
 class TURBODBCSQLConnection(ConnectionInterface):
   """
@@ -54,6 +55,7 @@ class TURBODBCSQLConnection(ConnectionInterface):
                               ApplyFastSQLPrepareToAllQueries=1,
                               DisableLimitZero=1,                      
                               EnableAsyncExec=1,
+                              RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BLOCK_SIZE", 500000),
                               turbodbc_options=options)
 
   def close(self) -> None:

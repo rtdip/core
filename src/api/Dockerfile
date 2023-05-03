@@ -34,7 +34,7 @@ RUN echo '[ODBC Drivers]' > /etc/odbcinst.ini \
     && echo 'Driver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so' >> /etc/odbcinst.ini
 
 COPY src/api/requirements.txt /
-RUN pip install -r /requirements.txt
+RUN pip install pyarrow==12.0.0 && pip install -r /requirements.txt
 
 COPY src/api/ /home/site/wwwroot
 COPY src /home/site/wwwroot/src
