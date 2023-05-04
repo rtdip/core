@@ -176,18 +176,19 @@ def _interpolation_at_time(parameters_dict: dict, tag_name_string: str) -> str:
         "(SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, b.Status, b.Value FROM "
         "(SELECT explode(array(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"))) AS EventTime, "
         f"explode(array({tag_name_string})) AS TagName) a FULL OUTER JOIN "
-        "(SELECT * FROM (SELECT * FROM ssip.time_series "
-        #"{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
+        "(SELECT * FROM (SELECT * FROM "
+        #ssip.time_series "
+        "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
         "WHERE EventDate BETWEEN date_sub(to_date(to_timestamp({{ start_date }})), 1) AND date_add(to_date(to_timestamp({{end_date}})), 1) AND TagName in {{ tag_names | inclause }})) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))"
         "WHERE EventTime in (from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"))"       
     )
     
     interpolation_at_time_parameters = {
-        # "business_unit": parameters_dict['business_unit'].lower(),
-        # "region": parameters_dict['region'].lower(),
-        # "asset": parameters_dict['asset'].lower(),
-        # "data_security_level": parameters_dict['data_security_level'].lower(),
-        # "data_type": parameters_dict['data_type'].lower(),
+        "business_unit": parameters_dict['business_unit'].lower(),
+        "region": parameters_dict['region'].lower(),
+        "asset": parameters_dict['asset'].lower(),
+        "data_security_level": parameters_dict['data_security_level'].lower(),
+        "data_type": parameters_dict['data_type'].lower(),
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
         "start_date": parameters_dict['start_date'],
         "end_date": parameters_dict['end_date'],
