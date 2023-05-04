@@ -16,7 +16,7 @@ import logging
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
-import json
+from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.functions import interpolate
 from src.api.v1.models import BaseQueryParams, ResampleInterpolateResponse, HTTPError, RawQueryParams, TagsQueryParams, TagsBodyParams, ResampleQueryParams, InterpolateQueryParams
 import src.api.v1.common
@@ -34,8 +34,7 @@ def interpolate_events_get(base_query_parameters, raw_query_parameters, tag_quer
         )
 
         data = interpolate.get(connection, parameters)
-        response = data.to_json(orient="table", index=False, date_unit="us")
-        return ResampleInterpolateResponse(**json.loads(response))
+        return ResampleInterpolateResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.to_dict(orient="records"))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
