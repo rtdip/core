@@ -18,7 +18,7 @@ from src.sdk.python.rtdip_sdk.functions._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
-    An RTDIP interpolation function at time.
+    An RTDIP interpolation at time function which works out the linear interpolation at a specific time based on the points before and after.
     
     This function requires the user to input a dictionary of parameters. (See Attributes table below.)
 

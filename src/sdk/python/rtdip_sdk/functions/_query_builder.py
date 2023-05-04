@@ -146,7 +146,8 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
 
     interpolate_query = (
         "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
-        "(SELECT explode(sequence(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"), INTERVAL {{ sample_rate + ' ' + sample_unit }})) AS EventTime, explode(array({{ tag_name_string }})) AS TagName) a "
+        "(SELECT explode(sequence(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"), INTERVAL {{ sample_rate + ' ' + sample_unit }})) AS EventTime, "
+        f"explode(array({tag_name_string })) AS TagName) a "
         f"LEFT OUTER JOIN ({sample_query}) b "
         "ON a.EventTime = b.EventTime "
         "AND a.TagName = b.TagName"        
@@ -173,10 +174,11 @@ def _interpolation_at_time(parameters_dict: dict, tag_name_string: str) -> str:
         "lead(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_Value, "
         "CASE WHEN Next_EventTime IS NULL THEN Previous_Value WHEN Previous_EventTime IS NULL and Next_EventTime IS NULL THEN NULL ELSE (Next_Value - Previous_Value) * ((unix_timestamp(EventTime) - unix_timestamp(Previous_EventTime)) / (unix_timestamp(Next_EventTime) - unix_timestamp(Previous_EventTime))) END AS Interpolated_Value FROM "
         "(SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, b.Status, b.Value FROM "
-        "(SELECT explode(array(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"))) AS EventTime, explode(array({{ tag_names | inclause }})) AS TagName) a FULL OUTER JOIN "
+        "(SELECT explode(array(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"))) AS EventTime, "
+        f"explode(array({tag_name_string})) AS TagName) a FULL OUTER JOIN "
         "(SELECT * FROM (SELECT * FROM ssip.time_series "
         #"{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
-        "WHERE EventDate BETWEEN date_sub(to_date(to_timestamp({{ start_date }})), 1) AND date_add(to_date(to_timestamp({{end_date}})), 1) AND TagName in ({{ tag_names | inclause }}))) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))"
+        "WHERE EventDate BETWEEN date_sub(to_date(to_timestamp({{ start_date }})), 1) AND date_add(to_date(to_timestamp({{end_date}})), 1) AND TagName in {{ tag_names | inclause }})) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))"
         "WHERE EventTime in (from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"))"       
     )
     
@@ -186,7 +188,7 @@ def _interpolation_at_time(parameters_dict: dict, tag_name_string: str) -> str:
         # "asset": parameters_dict['asset'].lower(),
         # "data_security_level": parameters_dict['data_security_level'].lower(),
         # "data_type": parameters_dict['data_type'].lower(),
-        "tag_names": dict.fromkeys(parameters_dict['tag_names']),
+        "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
         "start_date": parameters_dict['start_date'],
         "end_date": parameters_dict['end_date'],
         # "include_bad_data": parameters_dict['include_bad_data'],
