@@ -38,7 +38,7 @@ def metadata_retrieval_get(query_parameters, metadata_query_parameters):
 get_description = """
 ## Metadata 
 
-Retrieval of metadata, including UoM, Description and any other possible fields, if available. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/metadata/) for further information.
+Retrieval of metadata, including UoM, Description and any other possible fields, if available. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/metadata/) for further information.
 """
 
 @api_v1_router.get(
@@ -55,7 +55,7 @@ async def metadata_get(query_parameters: BaseQueryParams = Depends(), metadata_q
 post_description = """
 ## Metadata 
 
-Retrieval of metadata, including UoM, Description and any other possible fields, if available via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/metadata/) for further information.
+Retrieval of metadata, including UoM, Description and any other possible fields, if available via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/metadata/) for further information.
 """
 
 @api_v1_router.post(

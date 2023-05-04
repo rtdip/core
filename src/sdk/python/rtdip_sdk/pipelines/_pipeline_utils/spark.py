@@ -14,7 +14,7 @@
 
 import logging
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType, ArrayType
 from .models import Libraries
 
 class SparkClient():
@@ -136,4 +136,11 @@ KINESIS_SCHEMA = StructType(
             StructField('shardId', StringType(), True),
             StructField('sequenceNumber', StringType(), True),
             StructField('approximateArrivalTimestamp', TimestampType(), True)]
+       )
+
+FLEDGE_SCHEMA = ArrayType(
+            StructType([
+            StructField("asset", StringType(), True),
+            StructField("readings", MapType(StringType(), StringType(), True), True),
+            StructField("timestamp", TimestampType(), True)])
        )

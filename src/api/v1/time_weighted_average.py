@@ -28,7 +28,7 @@ def time_weighted_average_events_get(base_query_parameters, raw_query_parameters
 get_description = """
 ## Time Weighted Average 
 
-Time weighted average of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/time-weighted-average/) for further information.
+Time weighted average of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/time-weighted-average/) for further information.
 """
 
 @api_v1_router.get(
@@ -49,7 +49,7 @@ async def time_weighted_average_get(
 post_description = """
 ## Time Weighted Average 
 
-Time weighted average of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://ssip-docs.shell.com/sdk/code-reference/interpolate/) for further information.
+Time weighted average of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/time-weighted-average/) for further information.
 """
 
 @api_v1_router.post(
