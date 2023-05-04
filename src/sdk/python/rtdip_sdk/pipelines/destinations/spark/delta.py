@@ -26,6 +26,7 @@ class SparkDeltaDestination(DestinationInterface):
     The Spark Delta Source is used to write data to a Delta table. 
 
     Args:
+        data (DataFrame): Dataframe to be written to Delta
         table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
@@ -41,13 +42,15 @@ class SparkDeltaDestination(DestinationInterface):
         partitionOverwriteMode (str): When set to dynamic, overwrites all existing data in each logical partition for which the write will commit new data. Default is static. (Batch)
         overwriteSchema (bool str): If True, overwrites the schema as well as the table data. (Batch)
     '''
+    data: DataFrame
     table_name: str
     options: dict
     mode: str
     trigger: str
     query_name: str
 
-    def __init__(self, table_name:str, options: dict, mode: str = "append", trigger="10 seconds", query_name="DeltaDestination") -> None:
+    def __init__(self, data: DataFrame, table_name:str, options: dict, mode: str = "append", trigger="10 seconds", query_name="DeltaDestination") -> None:
+        self.data = data
         self.table_name = table_name
         self.options = options
         self.mode = mode
@@ -81,13 +84,13 @@ class SparkDeltaDestination(DestinationInterface):
     def post_write_validation(self):
         return True
 
-    def write_batch(self, df: DataFrame):
+    def write_batch(self):
         '''
         Writes batch data to Delta. Most of the options provided by the Apache Spark DataFrame write API are supported for performing batch writes on tables.
         '''
         try:
             return (
-                df
+                self.data
                 .write
                 .format("delta")
                 .mode(self.mode)
@@ -102,12 +105,13 @@ class SparkDeltaDestination(DestinationInterface):
             logging.exception(str(e))
             raise e
         
-    def write_stream(self, df: DataFrame) -> DataFrame:
+    def write_stream(self):
         '''
         Writes streaming data to Delta. Exactly-once processing is guaranteed
         '''
         try:
-            query = (df
+            query = (
+                self.data
                 .writeStream
                 .trigger(processingTime=self.trigger)
                 .format("delta")

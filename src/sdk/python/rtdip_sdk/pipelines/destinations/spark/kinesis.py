@@ -24,6 +24,7 @@ class SparkKinesisDestination(DestinationInterface):
     '''
     This Kinesis destination class is used to write batch or streaming data to Kinesis. Kinesis configurations need to be specified as options in a dictionary.
     Args:
+        data (DataFrame): Dataframe to be written to Delta
         options (dict): A dictionary of Kinesis configurations (See Attributes table below). All Configuration options for Kinesis can be found [here.](https://github.com/qubole/kinesis-sql#kinesis-sink-configuration){ target="_blank" }
         mode (str): Method of writing to Kinesis - append, complete, update
         trigger (str): Frequency of the write operation
@@ -38,7 +39,8 @@ class SparkKinesisDestination(DestinationInterface):
     mode: str
     trigger: str
 
-    def __init__(self, options: dict, mode:str = "update", trigger:str= "10 seconds") -> None:
+    def __init__(self, data: DataFrame, options: dict, mode:str = "update", trigger:str= "10 seconds") -> None:
+        self.data = data
         self.options = options
         self.mode = mode
         self.trigger = trigger
@@ -66,13 +68,13 @@ class SparkKinesisDestination(DestinationInterface):
     def post_write_validation(self):
         return True
 
-    def write_batch(self, df: DataFrame):
+    def write_batch(self):
         '''
         Writes batch data to Kinesis.
         '''
         try:
             return (
-                df
+                self.data
                 .write
                 .format("kinesis")
                 .options(**self.options)
@@ -85,12 +87,13 @@ class SparkKinesisDestination(DestinationInterface):
             logging.exception(str(e))
             raise e
         
-    def write_stream(self, df: DataFrame):
+    def write_stream(self):
         '''
         Writes steaming data to Kinesis.
         '''
         try:
-            query = (df
+            query = (
+                self.data
                 .writeStream
                 .trigger(processingTime=self.trigger)
                 .format("kinesis")
