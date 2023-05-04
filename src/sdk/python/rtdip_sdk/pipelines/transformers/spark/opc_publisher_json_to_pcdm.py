@@ -38,7 +38,7 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
     status_null_value: str
     timestamp_formats: list
 
-    def __init__(self, data: DataFrame, source_column_name: str, multiple_rows_per_message: bool = True, status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None:
+    def __init__(self, data: DataFrame, source_column_name: str, multiple_rows_per_message: bool = True, status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
         self.data = data
         self.source_column_name = source_column_name
         self.multiple_rows_per_message = multiple_rows_per_message
