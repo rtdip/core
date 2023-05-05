@@ -173,7 +173,7 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
     sql_query = _get_sql_from_template(query, bind_params)
     return sql_query
 
-def _interpolation_at_time(parameters_dict: dict, tag_name_string: str) -> str:
+def _interpolation_at_time(parameters_dict: dict) -> str:
 
     interpolate_at_time_query = (
         "SELECT TagName, EventTime, Interpolated_Value as Value FROM "
@@ -184,7 +184,7 @@ def _interpolation_at_time(parameters_dict: dict, tag_name_string: str) -> str:
         "CASE WHEN Next_EventTime IS NULL THEN Previous_Value WHEN Previous_EventTime IS NULL and Next_EventTime IS NULL THEN NULL ELSE (Next_Value - Previous_Value) * ((unix_timestamp(EventTime) - unix_timestamp(Previous_EventTime)) / (unix_timestamp(Next_EventTime) - unix_timestamp(Previous_EventTime))) END AS Interpolated_Value FROM "
         "(SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, b.Status, b.Value FROM "
         "(SELECT explode(array(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"))) AS EventTime, "
-        f"explode(array({tag_name_string})) AS TagName) a FULL OUTER JOIN "
+        "explode(array({{tag_name_string}})) AS TagName) a FULL OUTER JOIN "
         "(SELECT * FROM (SELECT * FROM "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
         "WHERE EventDate BETWEEN date_sub(to_date(to_timestamp({{ start_date }})), 1) AND date_add(to_date(to_timestamp({{end_date}})), 1) AND TagName in {{ tag_names | inclause }})) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))"
@@ -198,15 +198,11 @@ def _interpolation_at_time(parameters_dict: dict, tag_name_string: str) -> str:
         "data_security_level": parameters_dict['data_security_level'].lower(),
         "data_type": parameters_dict['data_type'].lower(),
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
-        "start_date": parameters_dict['start_date'],
-        "end_date": parameters_dict['end_date'],
+        "datetimes": parameters_dict['datetimes'],
         # "include_bad_data": parameters_dict['include_bad_data'],
-        "time_zone": parameters_dict["time_zone"]
+        "time_zone": parameters_dict["time_zone"],
+        "tag_name_string": parameters_dict["tag_name_string"]
     }
-    datetimes_deduplicated = list(dict.fromkeys(parameters_dict['date_times'])) #remove potential duplicates in tags
-    parameters_dict["date_times"] = datetimes_deduplicated.copy()
-    datetimes_string = ', '.join("from_utc_timestamp(to_timestamp({0}), \"{1}\")".format(datetime, parameters_dict["time_zone"]) for datetime in datetimes_deduplicated)
-    print(datetimes_string)
 
     #interpolation_at_time_parameters["tag_name_string"] = tag_name_string
 
@@ -243,15 +239,22 @@ def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=
         parameters_dict["tag_names"] = []
     tagnames_deduplicated = list(dict.fromkeys(parameters_dict['tag_names'])) #remove potential duplicates in tags
     parameters_dict["tag_names"] = tagnames_deduplicated.copy()
-    tag_name_string = ', '.join('"{0}"'.format(tagname) for tagname in tagnames_deduplicated)
+    parameters_dict["tag_name_string"] = ', '.join('"{0}"'.format(tagname) for tagname in tagnames_deduplicated)
 
     if metadata:
         return _metadata_query(parameters_dict)
     
     parameters_dict = _fix_dates(parameters_dict)
 
+    datetimes_deduplicated = list(dict.fromkeys(parameters_dict['datetimes'])) #remove potential duplicates in tags
+    parameters_dict["datetimes"] = datetimes_deduplicated.copy()
+    datetimes_string = ', '.join("from_utc_timestamp(to_timestamp({0}), \"{1}\")".format(datetime, parameters_dict["time_zone"]) for datetime in datetimes_deduplicated)
+    print(datetimes_string)
+
+    #notes - move this into inteprolation at timme query and replace timestamp strings 
+    
     if interpolation_at_time:
-        return _interpolation_at_time(parameters_dict, tag_name_string)
+        return _interpolation_at_time(parameters_dict)
 
     if "agg_method" not in parameters_dict:
         return _raw_query(parameters_dict)
