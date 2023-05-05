@@ -38,7 +38,7 @@ def resample_events_get(base_query_parameters, raw_query_parameters, tag_query_p
 get_description = """
 ## Resample 
 
-Resampling of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/resample/) for further information.
+Resampling of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/resample/) for further information.
 """
 
 @api_v1_router.get(
@@ -59,7 +59,7 @@ async def resample_get(
 post_description = """
 ## Resample 
 
-Resampling of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/resample/) for further information.
+Resampling of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/resample/) for further information.
 """
 
 @api_v1_router.post(

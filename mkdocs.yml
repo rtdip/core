@@ -138,7 +138,9 @@ nav:
                       - Transformers:
                             - Spark:
                                  - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
-                                 - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md                              
+                                 - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md
+                                 - Fledge Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md                              
+                      
                       - Destinations:
                             - Spark:
                                  - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
