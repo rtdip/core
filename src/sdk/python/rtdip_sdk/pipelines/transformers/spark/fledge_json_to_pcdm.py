@@ -25,11 +25,14 @@ class FledgeJsonToPCDMTransformer(TransformerInterface):
 
     Args:
         data (DataFrame): Dataframe containing the column with Json Fledge data
+        status_null_value (str): If populated, will replace 'Good' in the Status column with the specified value.
     '''
     data: DataFrame
+    status_null_value: str
 
-    def __init__(self, data: DataFrame) -> None: # NOSONAR
+    def __init__(self, data: DataFrame, status_null_value: str = "Good") -> None: # NOSONAR
         self.data = data
+        self.status_null_value = status_null_value
 
     @staticmethod
     def system_type():
@@ -65,6 +68,6 @@ class FledgeJsonToPCDMTransformer(TransformerInterface):
               .withColumnRenamed("timestamp", "EventTime")
               .withColumnRenamed("key", "TagName")
               .withColumnRenamed("value", "Value")
-              .withColumn("Status", lit("good"))
+              .withColumn("Status", lit(self.status_null_value))
               .withColumn("DataType", when(col("value").cast("float").isNotNull(), "float").when(col("value").cast("float").isNull(), "string")))
         return df

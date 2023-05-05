@@ -50,6 +50,7 @@ Transformers are components that perform transformations on data. These will tar
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
 |[Binary To String](../code-reference/pipelines/transformers/spark/binary_to_string.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[OPC Publisher Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Fledge Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
