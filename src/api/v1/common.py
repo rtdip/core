@@ -14,12 +14,18 @@
 
 import os
 from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+from src.sdk.python.rtdip_sdk.odbc.turbodbc_sql_connector import TURBODBCSQLConnection
 from src.api.auth import azuread
 
 def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = None, raw_query_parameters = None, tag_query_parameters = None, resample_query_parameters = None, interpolate_query_parameters = None, time_weighted_average_query_parameters = None):
     token = azuread.get_azure_ad_token(base_query_parameters.authorization)
     
-    connection = DatabricksSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
+    odbc_connection = os.getenv("RTDIP_ODBC_CONNECTION", "")
+
+    if odbc_connection == "turbodbc":
+        connection = TURBODBCSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
+    else:
+        connection = DatabricksSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
 
     parameters = base_query_parameters.__dict__
     

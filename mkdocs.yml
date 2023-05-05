@@ -38,6 +38,8 @@ theme:
     language: en
     features:
         - content.code.annotate
+        - content.code.copy
+        - content.code.select
         - content.tabs.link
         - content.tooltips
         #- navigation.expand
@@ -136,8 +138,7 @@ nav:
                       - Transformers:
                             - Spark:
                                  - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
-                                 - OPC Publihser Json To OPC UA: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_opcua.md
-                                 - OPC UA To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opcua_to_process_control_data_model.md                                 
+                                 - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md                              
                       - Destinations:
                             - Spark:
                                  - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md

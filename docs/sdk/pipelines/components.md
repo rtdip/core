@@ -49,8 +49,7 @@ Transformers are components that perform transformations on data. These will tar
 |Transformer Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
 |[Binary To String](../code-reference/pipelines/transformers/spark/binary_to_string.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[OPC Publisher Json To OPC UA](../code-reference/pipelines/transformers/spark/opc_publisher_json_to_opcua.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[OPC UA To Process Control Data Model](../code-reference/pipelines/transformers/spark/opcua_to_process_control_data_model.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[OPC Publisher Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.

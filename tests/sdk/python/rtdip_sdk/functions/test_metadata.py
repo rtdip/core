@@ -15,6 +15,7 @@
 import sys
 sys.path.insert(0, '.')
 import pandas as pd
+import pyarrow as pa
 import pytest
 from pytest_mock import MockerFixture
 from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection, MockedCursor 
@@ -47,7 +48,7 @@ MOCKED_PARAMETER_NO_TAGS_DICT = {
 def test_metadata(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
     mocked_execute = mocker.spy(MockedCursor, "execute")
-    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall", return_value =  pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]}))
+    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
 
@@ -64,7 +65,7 @@ def test_metadata(mocker: MockerFixture):
 def test_no_tag_metadata(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
     mocked_execute = mocker.spy(MockedCursor, "execute")
-    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall", return_value =  pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]}))
+    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
 
@@ -81,7 +82,7 @@ def test_no_tag_metadata(mocker: MockerFixture):
 def test_metadata_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
     mocker.spy(MockedCursor, "execute")
-    mocker.patch.object(MockedCursor, "fetchall", side_effect=Exception)
+    mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
 

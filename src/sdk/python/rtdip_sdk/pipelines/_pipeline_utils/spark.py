@@ -97,7 +97,7 @@ EVENTHUB_SCHEMA = StructType([
     StructField('systemProperties', MapType(StringType(), StringType(), True), True)
 ])
 
-OPCUA_SCHEMA = StructType([
+OPC_PUBLISHER_SCHEMA = StructType([
     StructField('ApplicationUri',StringType(),True),
     StructField('DisplayName',StringType(),True),
     StructField('NodeId', StringType(),True),
@@ -109,6 +109,14 @@ OPCUA_SCHEMA = StructType([
         ]), True),
         StructField('Value',StringType(),True)
     ]),True)
+])
+
+PROCESS_DATA_MODEL_SCHEMA = StructType([
+    StructField('TagName', StringType(), True), 
+    StructField('EventTime', TimestampType(), True), 
+    StructField('Status', StringType(), True), 
+    StructField('Value', StringType(), True), 
+    StructField('DataType', StringType(), True)
 ])
 
 KAFKA_SCHEMA = StructType(
