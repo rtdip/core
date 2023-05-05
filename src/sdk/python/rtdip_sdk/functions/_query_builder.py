@@ -24,8 +24,8 @@ def _is_date_format(dt, format):
     except:
         return False
 
-def _fix_date(dt, is_end_date = False):
-    if _is_date_format(dt, "%Y-%m-%d"):
+def _fix_date(dt, is_end_date=False, exclude_date_format=False):      
+    if _is_date_format(dt, "%Y-%m-%d") and exclude_date_format == False:
         _time = "T23:59:59" if is_end_date == True else "T00:00:00"
         return dt + _time + "+00:00"
     elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
@@ -33,14 +33,23 @@ def _fix_date(dt, is_end_date = False):
     elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
         return dt
     else: 
-        raise ValueError(f"Inputted datetime: '{dt}', is not in the correct format")
+        msg = f"Inputted datetime: '{dt}', is not in the correct format."
+        if exclude_date_format == True:
+            msg += " List of datetimes must be in datetime format."
+        raise ValueError(msg)
         
 def _fix_dates(parameters_dict):
-        
-    parameters_dict["start_date"] = _fix_date(parameters_dict["start_date"])
-    parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
+    if "start_date" in parameters_dict:
+        parameters_dict["start_date"] = _fix_date(parameters_dict["start_date"])
+        sample_dt = parameters_dict["start_date"]
+    if "end_date" in parameters_dict:
+        parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
+    if "datetimes" in parameters_dict:
+        fixed_dts = [_fix_date(dt, is_end_date=False, exclude_date_format=True) for dt in parameters_dict["datetimes"]]
+        parameters_dict["datetimes"] = fixed_dts
+        sample_dt = fixed_dts[0]
 
-    parameters_dict["time_zone"] = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
+    parameters_dict["time_zone"] = datetime.strptime(sample_dt, "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
     
     return parameters_dict
 
@@ -177,7 +186,6 @@ def _interpolation_at_time(parameters_dict: dict, tag_name_string: str) -> str:
         "(SELECT explode(array(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"))) AS EventTime, "
         f"explode(array({tag_name_string})) AS TagName) a FULL OUTER JOIN "
         "(SELECT * FROM (SELECT * FROM "
-        #ssip.time_series "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
         "WHERE EventDate BETWEEN date_sub(to_date(to_timestamp({{ start_date }})), 1) AND date_add(to_date(to_timestamp({{end_date}})), 1) AND TagName in {{ tag_names | inclause }})) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))"
         "WHERE EventTime in (from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"))"       
@@ -195,6 +203,11 @@ def _interpolation_at_time(parameters_dict: dict, tag_name_string: str) -> str:
         # "include_bad_data": parameters_dict['include_bad_data'],
         "time_zone": parameters_dict["time_zone"]
     }
+    datetimes_deduplicated = list(dict.fromkeys(parameters_dict['date_times'])) #remove potential duplicates in tags
+    parameters_dict["date_times"] = datetimes_deduplicated.copy()
+    datetimes_string = ', '.join("from_utc_timestamp(to_timestamp({0}), \"{1}\")".format(datetime, parameters_dict["time_zone"]) for datetime in datetimes_deduplicated)
+    print(datetimes_string)
+
     #interpolation_at_time_parameters["tag_name_string"] = tag_name_string
 
     sql_template = JinjaSql(param_style='pyformat')
@@ -234,7 +247,7 @@ def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=
 
     if metadata:
         return _metadata_query(parameters_dict)
-
+    
     parameters_dict = _fix_dates(parameters_dict)
 
     if interpolation_at_time:

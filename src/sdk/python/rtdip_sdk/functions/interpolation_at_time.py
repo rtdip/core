@@ -14,6 +14,7 @@
 
 import logging
 import pandas as pd
+from datetime import datetime
 from src.sdk.python.rtdip_sdk.functions._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
@@ -32,9 +33,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         asset (str):  Asset
         data_security_level (str): Level of data security 
         data_type (str): Type of the data (float, integer, double, string)
-        tag_name (str): Name of the tag
-        start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS)
-        end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS)
+        tag_names (str): Name of the tag
+        datetimes (list): List of datetime or datetimes in the format YYY-MM-DDTHH:MM:SS+zz:zz where %z is the timezone. (Example +00:00 is the UTC timezone)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
 
     Returns:
@@ -42,6 +42,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
+
+    if isinstance(parameters_dict["datetimes"], list) is False:
+        raise ValueError("date_time must be a list")
 
     try:
         query = _query_builder(parameters_dict, metadata=False, interpolation_at_time=True)
@@ -59,3 +62,21 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with interpolation at time function')
         raise e
+    
+from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
+from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+#testing 
+auth = DefaultAuth(exclude_cli_credential=True,exclude_powershell_credential=True,exclude_shared_token_cache_credential=True,logging_enable=True,exclude_visual_studio_code_credential=True).authenticate()
+token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
+dict = {
+    "business_unit": "pt",
+    "region": "emea", 
+    "asset": "gtl", 
+    "data_security_level": "restricted", 
+    "data_type": "float",
+    "tag_names": ["0095S01C007"], 
+    "datetimes": ["2022-06-18T17:03:30", "2022-06-18T17:04:50"]
+}
+x = get(connection, dict)
+print(x)
