@@ -26,7 +26,7 @@ class TestStreamingQueryClass():
     isActive: bool = False
 
 def test_spark_delta_write_setup():
-    delta_destination = SparkDeltaDestination("test_delta_destination_setup", {}, "overwrite")
+    delta_destination = SparkDeltaDestination(None, "test_delta_destination_setup", {}, "overwrite")
     assert delta_destination.system_type().value == 2
     assert delta_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",

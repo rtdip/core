@@ -141,8 +141,9 @@ nav:
                                  - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md                              
                       - Destinations:
                             - Spark:
-                                 - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
                                  - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
+                                 - Delta Merge: sdk/code-reference/pipelines/destinations/spark/delta_merge.md
+                                 - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
                                  - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
                                  - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Utilities:
