@@ -73,4 +73,5 @@ class FledgeJsonToPCDMTransformer(TransformerInterface):
               .withColumnRenamed("value", "Value")
               .withColumn("Status", lit(self.status_null_value))
               .withColumn("DataType", when(col("value").cast("float").isNotNull(), "float").when(col("value").cast("float").isNull(), "string")))
-        return df
+        
+        return df.select("TagName", "Value", "EventTime", "Status", "DataType") 

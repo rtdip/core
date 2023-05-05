@@ -35,8 +35,8 @@ def test_fledge_json_to_pcdm(spark_session: SparkSession):
     ])
 
     expected_data = [
-        {"TagName":"testTag1", "Value":"-0.913545458", "EventTime": datetime.fromisoformat("2023-05-03 08:45:42.509118+00:00"), "Status":"Good", "DataType":"float"}, 
-        {"TagName":"testTag2", "Value":"-0.913545458", "EventTime": datetime.fromisoformat("2023-05-04 08:45:42.509118+00:00"), "Status":"Good", "DataType":"float"}, 
+        {"TagName":"testTag1", "Value":"-0.913545458", "EventTime": datetime.fromisoformat("2023-05-03T08:45:42.509118+00:00"), "Status":"Good", "DataType":"float"}, 
+        {"TagName":"testTag2", "Value":"-0.913545458", "EventTime": datetime.fromisoformat("2023-05-04T08:45:42.509118+00:00"), "Status":"Good", "DataType":"float"}, 
     ]
 
     expected_df: DataFrame = spark_session.createDataFrame(
