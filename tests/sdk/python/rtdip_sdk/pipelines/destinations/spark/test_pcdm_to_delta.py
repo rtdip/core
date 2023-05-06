@@ -33,7 +33,7 @@ class MockDeltaDestination():
         return None
     
 class TestStreamingQueryClass():
-    isActive: bool = False
+    isActive: bool = False # NOSONAR
 
 def create_delta_table(spark_session, name, value_type):
     table_create_utility = DeltaTableCreateUtility(
@@ -47,7 +47,7 @@ def create_delta_table(spark_session, name, value_type):
         partitioned_by=["EventDate"],
         properties={"delta.logRetentionDuration": "7 days", "delta.enableChangeDataFeed": "true"}
     )
-    result = table_create_utility.execute()
+    table_create_utility.execute()
 
 def test_spark_pcdm_to_delta_write_setup(spark_session: SparkSession):
     pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, None, "test_delta_merge_destination_setup_float", "test_delta_merge_destination_setup_string", {}, "append")
