@@ -16,6 +16,7 @@ import logging
 import time
 from typing import Optional, Union
 from pydantic import BaseModel
+from pyspark.sql.functions import broadcast
 from pyspark.sql import DataFrame, SparkSession
 from py4j.protocol import Py4JJavaError
 from delta.tables import DeltaTable, DeltaMergeBuilder
@@ -33,7 +34,7 @@ class DeltaMergeCondition(BaseModel):
 
 class SparkDeltaMergeDestination(DestinationInterface):
     '''
-    The Spark Delta Source is used to merge data into a Delta table. Refer to this [documentation](https://docs.delta.io/latest/delta-update.html#upsert-into-a-table-using-merge&language-python) for more information about Delta Merge.
+    The Spark Delta Merge Destination is used to merge data into a Delta table. Refer to this [documentation](https://docs.delta.io/latest/delta-update.html#upsert-into-a-table-using-merge&language-python) for more information about Delta Merge.
 
     Args:
         data (DataFrame): Dataframe to be merged into a Delta Table
@@ -61,6 +62,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
     when_not_matched_insert_list: list[DeltaMergeConditionValues]
     when_not_matched_by_source_update_list: list[DeltaMergeConditionValues]
     when_not_matched_by_source_delete_list: list[DeltaMergeCondition]
+    try_broadcast_join: bool
     trigger: str
     query_name: str
 
@@ -75,6 +77,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  when_not_matched_insert_list: list[DeltaMergeConditionValues] = [],
                  when_not_matched_by_source_update_list: list[DeltaMergeConditionValues] = [],
                  when_not_matched_by_source_delete_list: list[DeltaMergeCondition] = [],
+                 try_broadcast_join: bool = True,
                  trigger="10 seconds",
                  query_name: str ="DeltaMergeDestination") -> None:
         self.spark = spark
@@ -87,6 +90,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
         self.when_not_matched_insert_list = when_not_matched_insert_list
         self.when_not_matched_by_source_update_list = when_not_matched_by_source_update_list
         self.when_not_matched_by_source_delete_list = when_not_matched_by_source_delete_list
+        self.try_broadcast_join = try_broadcast_join
         self.trigger = trigger
         self.query_name = query_name
 
@@ -108,7 +112,8 @@ class SparkDeltaMergeDestination(DestinationInterface):
     def settings() -> dict:
         return {
             "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
-            "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+            "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+            "spark.databricks.delta.schema.autoMerge.enabled": "true"
         }
     
     def pre_write_validation(self):
@@ -117,13 +122,19 @@ class SparkDeltaMergeDestination(DestinationInterface):
     def post_write_validation(self):
         return True
 
-    def _delta_merge_builder(self, df: DataFrame) -> DeltaMergeBuilder:
+    def _delta_merge_builder(self, df: DataFrame, try_broadcast_join: bool) -> DeltaMergeBuilder:
         delta_table = DeltaTable.forName(self.spark, self.table_name)
 
-        delta_merge_builder = delta_table.alias("target").merge(
-            source=df.alias("source"),
-            condition=self.merge_condition
-        )
+        if try_broadcast_join == True:
+            delta_merge_builder = delta_table.alias("target").merge(
+                source=broadcast(df).alias("source"),
+                condition=self.merge_condition
+            )
+        else:
+            delta_merge_builder = delta_table.alias("target").merge(
+                source=df.alias("source"),
+                condition=self.merge_condition
+            )            
 
         for when_matched_update in self.when_matched_update_list:
             if when_matched_update.values == "*":
@@ -167,8 +178,23 @@ class SparkDeltaMergeDestination(DestinationInterface):
 
     def _stream_merge_micro_batch(self, micro_batch_df: DataFrame):
         micro_batch_df.persist()
-        delta_merge = self._delta_merge_builder(micro_batch_df)
-        delta_merge.execute()
+
+        retry_delta_merge = False
+
+        if self.try_broadcast_join == True:
+            try:
+                delta_merge = self._delta_merge_builder(micro_batch_df, self.try_broadcast_join)
+                delta_merge.execute()
+            except Exception as e:
+                if "SparkOutOfMemoryError" in str(e):
+                    retry_delta_merge = True
+                else:
+                    raise Exception(e)
+        
+        if self.try_broadcast_join == False or retry_delta_merge == True:
+            delta_merge = self._delta_merge_builder(micro_batch_df, False)
+            delta_merge.execute()
+
         micro_batch_df.unpersist()
 
     def write_batch(self):
@@ -176,7 +202,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
         Merges batch data into a Delta Table.
         '''
         try:
-            delta_merge = self._delta_merge_builder(self.data)
+            delta_merge = self._delta_merge_builder(self.data, self.try_broadcast_join)
             return delta_merge.execute()
 
         except Py4JJavaError as e:

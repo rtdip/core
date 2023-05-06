@@ -46,5 +46,9 @@ DEFAULT_PACKAGES = {
     "aws_boto3": PyPiLibrary(
                 name="boto3",
                 version="1.26.118"
-            )            
+            ),
+    "api_requests": PyPiLibrary(
+                name="requests",
+                version="2.30.0"
+            ),          
 }
