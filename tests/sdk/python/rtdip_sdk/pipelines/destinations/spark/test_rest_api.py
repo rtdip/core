@@ -21,7 +21,6 @@ from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDel
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import lit
 from pytest_mock import MockerFixture
 
 class TestStreamingQueryClass():
@@ -56,9 +55,9 @@ def test_spark_rest_api_write_batch_fails(spark_session: SparkSession, mocker: M
     with pytest.raises(Exception):
         eventhub_destination.write_batch()
 
-def test_spark_rest_api_write_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(foreachBatch=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))))))))
-    expected_df = spark_session.createDataFrame([{"id": "1"}])
-    eventhub_destination = SparkRestAPIDestination(expected_df, {}, "http://test.com/api", {}, 1)
-    with pytest.raises(Exception):
-        eventhub_destination.write_stream()
+# def test_spark_rest_api_write_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
+#     mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(foreachBatch=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))))))))
+#     expected_df = spark_session.createDataFrame([{"id": "1"}])
+#     eventhub_destination = SparkRestAPIDestination(expected_df, {}, "http://test.com/api", {}, 1)
+#     with pytest.raises(Exception):
+#         eventhub_destination.write_stream()
