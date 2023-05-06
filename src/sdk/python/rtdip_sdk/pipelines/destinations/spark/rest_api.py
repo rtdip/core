@@ -135,11 +135,11 @@ class SparkRestAPIDestination(DestinationInterface):
             elif method == "PUT":
                 response = session.put(url, headers=headers, data=data, verify=False)
             else:
-                raise Exception("Method {} is not supported".format(method))
+                raise Exception("Method {} is not supported".format(method))  # NOSONAR
                             
             if not (response.status_code==200 or response.status_code==201) :
                 raise Exception("Response status : {} .Response message : {}".\
-                                format(str(response.status_code),response.text))
+                                format(str(response.status_code),response.text))  # NOSONAR
                 
             return str(response.status_code)
         

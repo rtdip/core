@@ -189,7 +189,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
                 if "SparkOutOfMemoryError" in str(e):
                     retry_delta_merge = True
                 else:
-                    raise Exception(e)
+                    raise e
         
         if self.try_broadcast_join == False or retry_delta_merge == True:
             delta_merge = self._delta_merge_builder(micro_batch_df, False)
