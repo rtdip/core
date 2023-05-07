@@ -46,5 +46,13 @@ DEFAULT_PACKAGES = {
     "aws_boto3": PyPiLibrary(
                 name="boto3",
                 version="1.26.118"
+            ),
+    "pyarrow": PyPiLibrary(
+                name="pyarrow",
+                version="12.0.0"
+            ),
+    "pandas": PyPiLibrary(
+                name="pandas",
+                version="2.0.1"
             )            
 }

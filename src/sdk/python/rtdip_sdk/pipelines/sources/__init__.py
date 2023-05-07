@@ -19,4 +19,3 @@ from .spark.eventhub import *
 from .spark.iot_hub import *
 from .spark.kafka import *
 from .spark.kinesis import *
-from .spark.ssip_pi import *

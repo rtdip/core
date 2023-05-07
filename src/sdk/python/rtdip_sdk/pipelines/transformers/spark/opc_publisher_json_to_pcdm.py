@@ -71,7 +71,7 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
     def transform(self) -> DataFrame:
         '''
         Returns:
-            DataFrame: A dataframe with the specified column converted to OPC UA
+            DataFrame: A dataframe with the specified column converted to PCDM
         '''
         if self.multiple_rows_per_message:
             df = (self.data
