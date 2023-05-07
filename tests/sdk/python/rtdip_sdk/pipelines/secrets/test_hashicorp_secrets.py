@@ -30,7 +30,7 @@ def test_hashicorp_vault_secret_setup():
 
 def test_hashicorp_vault_secrets_get(mocker: MockerFixture):
     mock_hashicorp_client = mocker.MagicMock()
-    mock_hashicorp_client.secrets.kv.read_secret_version.return_value = {"data": {"data": {"password": "test"}}}
+    mock_hashicorp_client.secrets.kv.read_secret_version.return_value = {"data": {"data": {"password": "test"}}} # NOSONAR
     mocker.patch("hvac.Client", return_value=mock_hashicorp_client)
 
     hashicorp_vault = HashiCorpVaultSecrets(vault="hashicorp-vault-url", key="vault-key", secret="vault-secret")

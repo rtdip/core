@@ -33,7 +33,7 @@ class HashiCorpVaultSecrets(SecretsInterface):
     secret: str
     credential: str
 
-    def __init__(self, vault: str, key: str, secret: str = None, credential: str = None, kwargs: dict = {}):
+    def __init__(self, vault: str, key: str, secret: str = None, credential: str = None, kwargs: dict = {}): # NOSONAR
         self.vault = vault
         self.key = key
         self.secret = secret
