@@ -70,7 +70,6 @@ class HashiCorpVaultSecrets(SecretsInterface):
         '''
         Retrieves the secret from the Hashicorp Vault
         '''
-        # secrets = self.client.secrets.kv.read_secret_version
         response = self.client.secrets.kv.read_secret_version(path=self.key)
         return response['data']['data']['password']
     
