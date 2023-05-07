@@ -15,13 +15,13 @@
 import sys
 sys.path.insert(0, '.')
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.ssip_pi_binary_file_to_pcdm import SSIPPIBinaryFileToPCDMTransformer
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType, PyPiLibrary
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import OPC_PUBLISHER_SCHEMA
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StructType, StructField, StringType, TimestampType
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType, DateType
 from datetime import datetime
+import pandas as pd
 
 def test_ssip_binary_file_to_pcdm_setup():
     ssip_pi_binary_file_to_pcdm = SSIPPIBinaryFileToPCDMTransformer(None)
@@ -35,23 +35,31 @@ def test_ssip_binary_file_to_pcdm_setup():
     assert ssip_pi_binary_file_to_pcdm.post_transform_validation()
 
 def test_ssip_binary_file_to_pcdm(spark_session: SparkSession):
-    # opcua_json_data = '[{"NodeId":"ns=2;s=Test1","EndpointUrl":"opc.tcp://test.ot.test.com:4840/","DisplayName":"Test1","Value":{"Value":1.0,"SourceTimestamp":"2023-04-19T16:41:55.002Z"}},{"NodeId":"ns=2;s=Test2","EndpointUrl":"opc.tcp://test.ot.test.com:4840/","DisplayName":"Test2","Value":{"Value":2.0,"StatusCode":{"Symbol":"BadCommunicationError","Code":3},"SourceTimestamp":"2023-04-19T16:41:55.056Z"}}]'
-    binary_file_df: DataFrame = spark_session.createDataFrame([{"path": "test_path", "data": "binary_data"}])
+    ssip_pi_binary_data = [
+        {"TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0"},
+        {"TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "Bad", "Value": "test"},
+    ]
+    
+    parquet_df = pd.DataFrame(ssip_pi_binary_data)
+    binary_data = parquet_df.to_parquet()
+    ssip_pi_binary_df = pd.DataFrame([{"path": "test", "modificationTime": "1", "length": 172, "content": binary_data}])
+
+    binary_file_df: DataFrame = spark_session.createDataFrame(ssip_pi_binary_df)
 
     expected_schema = StructType([
+        StructField("EventDate", DateType(), True),
         StructField("TagName", StringType(), True),
         StructField("EventTime", TimestampType(), True),
         StructField("Status", StringType(), True),
         StructField("Value", StringType(), True),
-        StructField("ValueType", StringType(), False),
-        StructField("ChangeType", StringType(), False),
+        StructField("ValueType", StringType(), True),
+        StructField("ChangeType", StringType(), True),
     ])
 
     expected_data = [
-        {"TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0", "ValueType": "float", "ChangeType": "insert"},
-        {"TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "BadCommunicationError", "ValueType": "float", "ChangeType": "insert"},
+        {"EventDate": datetime(2023,4,19).date(), "TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0", "ValueType": "string", "ChangeType": "insert"},
+        {"EventDate": datetime(2023,4,19).date(), "TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "Bad", "Value": "test", "ValueType": "string", "ChangeType": "insert"},
     ]
-
     expected_df: DataFrame = spark_session.createDataFrame(
         schema=expected_schema,
         data=expected_data
@@ -60,4 +68,4 @@ def test_ssip_binary_file_to_pcdm(spark_session: SparkSession):
     actual_df = ssip_binary_file_to_pcdm_transformer.transform()
 
     assert expected_schema == actual_df.schema
-    assert expected_df.collect() == actual_df.collect()
+    assert expected_df.orderBy("TagName").collect() == actual_df.orderBy("TagName").collect()
