@@ -19,7 +19,7 @@ from src.sdk.python.rtdip_sdk.pipelines.secrets.hashicorp_vault import HashiCorp
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary
 
 def test_hashicorp_vault_secret_setup():
-    hashicorp_vault_secret = HashiCorpVaultSecrets(url="hashicorp-vault-url", key="vault-key")
+    hashicorp_vault_secret = HashiCorpVaultSecrets(vault="hashicorp-vault-url", key="vault-key")
     assert hashicorp_vault_secret.system_type().value == 1
     assert hashicorp_vault_secret.libraries() == Libraries(pypi_libraries=[PyPiLibrary(
                 name="hvac",
@@ -33,7 +33,7 @@ def test_hashicorp_vault_secrets_get(mocker: MockerFixture):
     mock_hashicorp_client.secrets.kv.read_secret_version.return_value = {"data": {"data": {"password": "test"}}}
     mocker.patch("hvac.Client", return_value=mock_hashicorp_client)
 
-    hashicorp_vault = HashiCorpVaultSecrets(url="hashicorp-vault-url", key="vault-key", secret="vault-secret")
+    hashicorp_vault = HashiCorpVaultSecrets(vault="hashicorp-vault-url", key="vault-key", secret="vault-secret")
 
     result = hashicorp_vault.get()
     assert result=="test"
@@ -43,7 +43,7 @@ def test_hashicorp_vault_secrets_sert(mocker: MockerFixture):
     mock_hashicorp_client.secrets.kv.v2.create_or_update_secret.return_value = True
     mocker.patch("hvac.Client", return_value=mock_hashicorp_client)
 
-    hashicorp_vault = HashiCorpVaultSecrets(url="hashicorp-vault-url", key="vault-key", secret="vault-secret")
+    hashicorp_vault = HashiCorpVaultSecrets(vault="hashicorp-vault-url", key="vault-key", secret="vault-secret")
 
     result = hashicorp_vault.set()
     assert result

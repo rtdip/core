@@ -19,22 +19,22 @@ from .._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class HashiCorpVaultSecrets(SecretsInterface):
     '''
-    Reads secrets from Databricks Secret Scopes. For more information about Databricks Secret Scopes, see [here.](https://docs.databricks.com/security/secrets/secret-scopes.html)
+    Reads secrets from a Hashicorp Vault. For more information about Hashicorp Vaults, see [here.](https://developer.hashicorp.com/vault/docs/get-started/developer-qs)
 
     Args:
-        url (str): Hashicorp Vault URL
+        vault (str): Hashicorp Vault URL
         key (str): Name/Key of the secret in the Hashicorp Vault 
         secret (str): Secret or Password to be stored in the Hashicorp Vault
         credential (str): Token for authentication with the Hashicorp Vault
         kwargs (dict): List of additional parameters to be passed when creating a Hashicorp Vault Client. Please see [here](https://hvac.readthedocs.io/en/stable/overview.html#initialize-the-client) for more details on parameters that can be provided to the client
     '''    
-    url: str
+    vault: str
     key: str
     secret: str
     credential: str
 
-    def __init__(self, url: str, key: str, secret: str = None, credential: str = None, kwargs: dict = {}):
-        self.url = url
+    def __init__(self, vault: str, key: str, secret: str = None, credential: str = None, kwargs: dict = {}):
+        self.vault = vault
         self.key = key
         self.secret = secret
         self.credential = credential
@@ -61,7 +61,7 @@ class HashiCorpVaultSecrets(SecretsInterface):
     
     def _get_hvac_client(self):
         return hvac.Client(
-            url = self.url,
+            url = self.vault,
             token = self.credential,
             **self.kwargs
         )
