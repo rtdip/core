@@ -57,4 +57,4 @@ dependencies:
         - pygithub==1.58.1
         - strawberry-graphql[fastapi]==0.176.0
         - nest_asyncio==1.5.6
-        - hashicop=1.1.0
+        - hashicop==1.1.0
