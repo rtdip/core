@@ -46,5 +46,9 @@ DEFAULT_PACKAGES = {
     "aws_boto3": PyPiLibrary(
                 name="boto3",
                 version="1.26.118"
-            )            
+            ),
+    "hashicorp_vault": PyPiLibrary(
+                name="hvac",
+                version="1.1.0"
+            )                        
 }
