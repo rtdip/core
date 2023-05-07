@@ -72,11 +72,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  table_name:str, 
                  options: dict,
                  merge_condition: str, 
-                 when_matched_update_list: list[DeltaMergeConditionValues] = [], 
-                 when_matched_delete_list: list[DeltaMergeCondition] = [],
-                 when_not_matched_insert_list: list[DeltaMergeConditionValues] = [],
-                 when_not_matched_by_source_update_list: list[DeltaMergeConditionValues] = [],
-                 when_not_matched_by_source_delete_list: list[DeltaMergeCondition] = [],
+                 when_matched_update_list: list[DeltaMergeConditionValues] = None, 
+                 when_matched_delete_list: list[DeltaMergeCondition] = None,
+                 when_not_matched_insert_list: list[DeltaMergeConditionValues] = None,
+                 when_not_matched_by_source_update_list: list[DeltaMergeConditionValues] = None,
+                 when_not_matched_by_source_delete_list: list[DeltaMergeCondition] = None,
                  try_broadcast_join: bool = True,
                  trigger="10 seconds",
                  query_name: str ="DeltaMergeDestination") -> None:
@@ -85,11 +85,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
         self.table_name = table_name
         self.options = options
         self.merge_condition = merge_condition
-        self.when_matched_update_list = when_matched_update_list
-        self.when_matched_delete_list = when_matched_delete_list
-        self.when_not_matched_insert_list = when_not_matched_insert_list
-        self.when_not_matched_by_source_update_list = when_not_matched_by_source_update_list
-        self.when_not_matched_by_source_delete_list = when_not_matched_by_source_delete_list
+        self.when_matched_update_list = [] if when_matched_update_list == None else when_matched_update_list
+        self.when_matched_delete_list = [] if when_matched_delete_list == None else when_matched_delete_list
+        self.when_not_matched_insert_list = [] if when_not_matched_insert_list == None else when_not_matched_insert_list
+        self.when_not_matched_by_source_update_list = [] if when_not_matched_by_source_update_list == None else when_not_matched_by_source_update_list
+        self.when_not_matched_by_source_delete_list = [] if when_not_matched_by_source_delete_list == None else when_not_matched_by_source_delete_list
         self.try_broadcast_join = try_broadcast_join
         self.trigger = trigger
         self.query_name = query_name
