@@ -24,20 +24,20 @@ from ..._pipeline_utils.models import Libraries, SystemType
 
 class SparkADLSGen2SPNConnectUtility(UtilitiesInterface):
     '''
-    Sets configuration key value pairs to a Spark Session
+    Configures Spark to Connect to an ADLS Gen 2 Storage Account using a Service Principal 
 
     Args:
         spark (SparkSession): Spark Session required to read data from cloud storage
-        config (dict): Dictionary of spark configuration to be applied to the spark session
+        storage_account (str): Name of the ADLS Gen 2 Storage Account
+        tenant_id (str): Tenant ID of the Service Principal
+        client_id (str): Service Principal Client ID
+        client_secret (str): Service Principal Client Secret
     ''' 
     spark: SparkSession
     storage_account: str
     tenant_id: str
     client_id: str
     client_secret: str
-    location: str
-    properties: dict
-    comment: str
 
     def __init__(self, spark: SparkSession, storage_account: str, tenant_id: str, client_id: str, client_secret: str) -> None:
         self.spark = spark
