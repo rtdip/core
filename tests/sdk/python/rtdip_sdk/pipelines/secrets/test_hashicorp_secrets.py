@@ -15,7 +15,7 @@
 import sys
 sys.path.insert(0, '.')
 from pytest_mock import MockerFixture
-from src.sdk.python.rtdip_sdk.pipelines.secrets.hashicorp import HashiCorpVaultSecrets
+from src.sdk.python.rtdip_sdk.pipelines.secrets.hashicorp_vault import HashiCorpVaultSecrets
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary
 
 def test_hashicorp_vault_secret_setup():
