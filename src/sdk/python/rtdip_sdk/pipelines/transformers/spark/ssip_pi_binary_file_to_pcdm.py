@@ -90,6 +90,7 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
         output_pdf["Value"] = output_pdf["Value"].astype(str)
         output_pdf["ChangeType"] = "insert"
         output_pdf["ValueType"] = value_type
+        output_pdf = output_pdf[["EventDate", "TagName", "EventTime", "Status", "Value", "ValueType", "ChangeType"]]
         return output_pdf
 
     def transform(self) -> DataFrame:

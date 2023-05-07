@@ -22,6 +22,7 @@ from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType, DateType
 from datetime import datetime
 import pandas as pd
+from pandas.testing import assert_frame_equal
 
 def test_ssip_binary_file_to_pcdm_setup():
     ssip_pi_binary_file_to_pcdm = SSIPPIBinaryFileToPCDMTransformer(None)
@@ -34,38 +35,39 @@ def test_ssip_binary_file_to_pcdm_setup():
     assert ssip_pi_binary_file_to_pcdm.pre_transform_validation()
     assert ssip_pi_binary_file_to_pcdm.post_transform_validation()
 
-# def test_ssip_binary_file_to_pcdm(spark_session: SparkSession):
-#     ssip_pi_binary_data = [
-#         {"TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0"},
-#         {"TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "Bad", "Value": "test"},
-#     ]
+def test_ssip_binary_file_to_pcdm_udf(spark_session: SparkSession):
+    ssip_pi_binary_data = [
+        {"TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0"},
+        {"TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "Bad", "Value": "test"},
+    ]
     
-#     parquet_df = pd.DataFrame(ssip_pi_binary_data)
-#     binary_data = parquet_df.to_parquet()
-#     ssip_pi_binary_df = pd.DataFrame([{"path": "test", "modificationTime": "1", "length": 172, "content": binary_data}])
+    parquet_df = pd.DataFrame(ssip_pi_binary_data)
+    binary_data = parquet_df.to_parquet()
+    ssip_pi_binary_df = pd.DataFrame([{"path": "test", "modificationTime": "1", "length": 172, "content": binary_data}])
 
-#     binary_file_df: DataFrame = spark_session.createDataFrame(ssip_pi_binary_df)
+    binary_file_df: DataFrame = spark_session.createDataFrame(ssip_pi_binary_df)
 
-#     expected_schema = StructType([
-#         StructField("EventDate", DateType(), True),
-#         StructField("TagName", StringType(), True),
-#         StructField("EventTime", TimestampType(), True),
-#         StructField("Status", StringType(), True),
-#         StructField("Value", StringType(), True),
-#         StructField("ValueType", StringType(), True),
-#         StructField("ChangeType", StringType(), True),
-#     ])
+    expected_schema = StructType([
+        StructField("EventDate", DateType(), True),
+        StructField("TagName", StringType(), True),
+        StructField("EventTime", TimestampType(), True),
+        StructField("Status", StringType(), True),
+        StructField("Value", StringType(), True),
+        StructField("ValueType", StringType(), True),
+        StructField("ChangeType", StringType(), True),
+    ])
 
-#     expected_data = [
-#         {"EventDate": datetime(2023,4,19).date(), "TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0", "ValueType": "string", "ChangeType": "insert"},
-#         {"EventDate": datetime(2023,4,19).date(), "TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "Bad", "Value": "test", "ValueType": "string", "ChangeType": "insert"},
-#     ]
-#     expected_df: DataFrame = spark_session.createDataFrame(
-#         schema=expected_schema,
-#         data=expected_data
-#     )
-#     ssip_binary_file_to_pcdm_transformer = SSIPPIBinaryFileToPCDMTransformer(binary_file_df)
-#     actual_df = ssip_binary_file_to_pcdm_transformer.transform()
+    expected_data = [
+        {"EventDate": datetime(2023,4,19).date(), "TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0", "ValueType": "string", "ChangeType": "insert"},
+        {"EventDate": datetime(2023,4,19).date(), "TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "Bad", "Value": "test", "ValueType": "string", "ChangeType": "insert"},
+    ]
 
-#     assert expected_schema == actual_df.schema
-#     assert expected_df.orderBy("TagName").collect() == actual_df.orderBy("TagName").collect()
+    udf_expected_df = pd.DataFrame(expected_data)
+
+    udf_actual_df = SSIPPIBinaryFileToPCDMTransformer(None)._convert_binary_to_pandas(ssip_pi_binary_df)
+
+    ssip_binary_file_to_pcdm_transformer = SSIPPIBinaryFileToPCDMTransformer(binary_file_df)
+    actual_df = ssip_binary_file_to_pcdm_transformer.transform()
+
+    assert expected_schema == actual_df.schema
+    assert_frame_equal(udf_expected_df, udf_actual_df)
