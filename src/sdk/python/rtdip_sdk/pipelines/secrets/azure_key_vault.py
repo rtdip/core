@@ -34,12 +34,12 @@ class AzureKeyVaultSecrets(SecretsInterface):
     credential: str
     kwargs: dict
 
-    def __init__(self, vault: str, key: str, secret: str = None, credential = None, kwargs: dict = {}):
+    def __init__(self, vault: str, key: str, secret: str = None, credential = None, kwargs: dict = None):
         self.vault = vault
         self.key = key
         self.secret = secret
         self.credential = credential
-        self.kwargs = kwargs
+        self.kwargs = {} if kwargs == None else kwargs
         self.client=self._get_akv_client()
 
     @staticmethod
