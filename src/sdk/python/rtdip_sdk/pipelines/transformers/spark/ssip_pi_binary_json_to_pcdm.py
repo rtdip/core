@@ -28,7 +28,7 @@ class SSIPPIJsonStreamToPCDMTransformer(TransformerInterface):
     Args:
         spark (SparkSession): Spark Session
         data (DataFrame): DataFrame containing the path and binaryFile data
-        json_column_name (str): Spark Dataframe column containing the Binary json data
+        source_column_name (str): Spark Dataframe column containing the Binary json data
         properties_column_name (str): Spark Dataframe struct typed column containing an element with the PointType
         metadata_delta_table (optional, str): Name of a metadata table that can be used for PointType mappings 
     '''
