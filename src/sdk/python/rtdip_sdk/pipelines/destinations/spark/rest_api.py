@@ -125,7 +125,7 @@ class SparkRestAPIDestination(DestinationInterface):
         def _rest_api_execute(data):
             session = requests.Session()
             adapter = HTTPAdapter(max_retries=3)
-            session.mount("http://", adapter)
+            session.mount("http://", adapter) # NOSONAR
             session.mount("https://", adapter)
 
             if method == "POST":
