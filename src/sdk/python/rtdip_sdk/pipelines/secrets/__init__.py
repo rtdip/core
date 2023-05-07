@@ -14,3 +14,4 @@
 
 from .models import *
 from .databricks import *
+from .hashicorp_vault import *
