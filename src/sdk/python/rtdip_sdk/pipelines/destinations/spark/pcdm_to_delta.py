@@ -30,9 +30,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
     Args:
         data (DataFrame): Dataframe to be merged into a Delta Table
+        options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         table_name_float (str): Name of the Hive Metastore or Unity Catalog Delta Table to store float values
         table_name_string (str): Name of the Hive Metastore or Unity Catalog Delta Table to store string values
-        options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
@@ -43,9 +43,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     '''
     spark: SparkSession
     data: DataFrame
+    options: dict    
     table_name_float: str
     table_name_string: str
-    options: dict
+    table_name_integer: str
     mode: str
     trigger: str
     query_name: str
@@ -54,9 +55,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     def __init__(self, 
                  spark: SparkSession, 
                  data: DataFrame, 
+                 options: dict,
                  table_name_float: str,
                  table_name_string: str,
-                 options: dict,
+                 table_name_integer: str = None,
                  mode: str = None,
                  trigger="10 seconds",
                  query_name: str ="PCDMToDeltaMergeDestination",
@@ -65,6 +67,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         self.data = data
         self.table_name_float = table_name_float
         self.table_name_string = table_name_string
+        self.table_name_integer = table_name_integer
         self.options = options
         self.mode = mode
         self.trigger = trigger
@@ -159,6 +162,14 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         string_df = df.filter("ValueType = 'string'")
         self._write_delta_batch(string_df, self.table_name_string)
 
+        if self.table_name_integer != None:
+            integer_df = (
+                df
+                .filter("ValueType = 'integer'")
+                .withColumn("Value", col("Value").cast("integer"))
+            )
+            self._write_delta_batch(integer_df, self.table_name_integer)            
+
     def write_batch(self):
         '''
         Writes Process Control Data Model data to Delta
@@ -212,6 +223,18 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 )
             
                 delta_string.write_stream()
+
+                if self.table_name_integer != None:
+                    delta_integer = SparkDeltaDestination(
+                        data=self.data.filter("ValueType = 'integer'"),
+                        table_name=self.table_name_integer,
+                        options=self.options,
+                        mode=self.mode,
+                        trigger=self.trigger,
+                        query_name=self.query_name + "_integer"
+                    )
+                
+                    delta_integer.write_stream()
 
                 while self.spark.streams.active != []:
                     for query in self.spark.streams.active:
