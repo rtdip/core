@@ -43,6 +43,10 @@ DEFAULT_PACKAGES = {
                 name="azure-storage-file-datalake",
                 version="12.10.1"
             ),
+    "azure_key_vault_secret": PyPiLibrary(
+                name="azure-keyvault-secrets",
+                version="4.7.0"
+            ),
     "aws_boto3": PyPiLibrary(
                 name="boto3",
                 version="1.26.118"

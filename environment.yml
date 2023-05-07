@@ -34,6 +34,7 @@ dependencies:
     - cryptography>=38.0.3
     - azure-identity==1.12.0
     - azure-storage-file-datalake==12.10.1
+    - azure-keyvault-secrets==4.7.0
     - boto3==1.26.123
     - pyodbc==4.0.39
     - fastapi==0.95.1
