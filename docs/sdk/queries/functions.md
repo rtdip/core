@@ -1,0 +1,68 @@
+# Functions
+
+The RTDIP SDK enables users to perform complex queries, including aggregation on datasets within the Platform. Please find below the various types of queries available for specific dataset types. These SDK Functions are also supported by the [RTDIP API Docker Image.](https://hub.docker.com/r/rtdip/api)
+
+## Time Series Events
+
+### Raw
+
+[Raw](../code-reference/query/raw.md) facilitates performing raw extracts of time series data, typically filtered by a Tag Name or Device Name and an event time.
+
+### Resample
+
+[Resample](../code-reference/query/resample.md) enables changing the frequency of time series observations. This is achieved by providing the following parameters:
+
+- Sample Rate - The resampling rate
+- Sample Unit - The resampling unit (second, minute, day, hour)
+- Aggregation Method - Aggregrations including first, last, avg, min, max
+
+### Interpolate
+
+[Interpolate](../code-reference/query/interpolate.md) - takes [resampling](#resample) one step further to estimate the values of unknown data points that fall between existing, known data points. In addition to the resampling parameters, interpolation alse requires:
+
+- Interpolation Method - Forward Fill or Backward Fill
+
+### Time Weighted Averages
+
+[Time Weighted Averages](../code-reference/query/time-weighted-average.md) provide an unbiased average when working with irregularly sampled data. The RTDIP SDK requires the following parameters to perform time weighted average queries:
+
+- Window Size Mins - Window size in minutes
+- Window Length - Adds a longer window time for the start or end of specified date to cater for edge cases
+- Step - Data points with step "enabled" or "disabled". The options for step are "metadata" (string), True or False (bool). For "metadata", the query requires that the TagName has a step column configured correctly in the meta data table
+
+## Time Series Metadata
+
+### Metadata
+[Metadata](../code-reference/query/metadata.md) queries provide contextual information for time series measurements and include information such as names, descriptions and units of measure.
+
+!!! note "Note"
+    </b>RTDIP are continuously adding more to this list so check back regularly.<br />
+
+## Query Examples
+
+1\. To use any of the RTDIP functions, use the commands below.
+
+```python
+from rtdip_sdk.functions import resample
+from rtdip_sdk.functions import interpolate
+from rtdip_sdk.functions import raw
+from rtdip_sdk.functions import time_weighted_average
+from rtdip_sdk.functions import metadata
+```
+
+2\. From functions you can use any of the following methods.
+
+#### Resample
+    resample.get(connection, parameters_dict)
+
+#### Interpolate
+    interpolate.get(connection, parameters_dict)
+
+#### Raw
+    raw.get(connection, parameters_dict)
+
+#### Time Weighted Average
+    time_weighted_average.get(connection, parameter_dict)
+
+#### Metadata
+    metadata.get(connection, parameter_dict)

@@ -32,7 +32,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        buisness_unit (str): Business unit 
+        business_unit (str): Business unit 
         region (str): Region
         asset (str): Asset 
         data_security_level (str): Level of data security
@@ -52,8 +52,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor = connection.cursor()
             cursor.execute(query)
             df = cursor.fetch_all()
-            if df['EventTime'][0].tzinfo is None:
-                df['EventTime'] = df['EventTime'].apply(lambda x: x.replace(tzinfo=pytz.timezone("Etc/UTC")))
             cursor.close()
             return df
         except Exception as e:

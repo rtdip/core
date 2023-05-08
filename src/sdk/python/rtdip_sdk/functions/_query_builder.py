@@ -16,13 +16,31 @@
 from jinjasql import JinjaSql
 from six import string_types
 from copy import deepcopy
+from datetime import datetime
 
+def _is_date_format(dt, format):
+    try:
+        return datetime.strptime(dt , format)
+    except:
+        return False
+
+def _fix_date(dt, is_end_date = False):
+    if _is_date_format(dt, "%Y-%m-%d"):
+        _time = "T23:59:59" if is_end_date == True else "T00:00:00"
+        return dt + _time + "+00:00"
+    elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
+        return dt + "+00:00"
+    elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
+        return dt
+    else: 
+        raise ValueError(f"Inputted datetime: '{dt}', is not in the correct format")
+        
 def _fix_dates(parameters_dict):
-    if len(parameters_dict['start_date']) == 10:
-        parameters_dict['start_date'] = parameters_dict['start_date']+'T00:00:00'
+        
+    parameters_dict["start_date"] = _fix_date(parameters_dict["start_date"])
+    parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
 
-    if len(parameters_dict['end_date']) == 10:
-        parameters_dict['end_date'] = parameters_dict['end_date']+'T23:59:59'
+    parameters_dict["time_zone"] = datetime.strptime(parameters_dict["start_date"], "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
     
     return parameters_dict
 
@@ -54,12 +72,13 @@ def _get_sql_from_template(query: str, bind_params: dict) -> str:
 def _raw_query(parameters_dict: dict) -> str:
 
     raw_query = (
-        "SELECT EventTime, TagName, Status, Value FROM "
+        "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
-        "WHERE EventDate BETWEEN to_date({{ start_date }}) AND to_date({{ end_date }}) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
+        "WHERE EventDate BETWEEN to_date(to_timestamp({{ start_date }})) AND to_date(to_timestamp({{ end_date }})) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
         "{% if include_bad_data is defined and include_bad_data == false %}"
         "AND Status = 'Good'"
         "{% endif %}"
+        "ORDER BY EventTime"
     )
 
     raw_parameters = {
@@ -71,7 +90,8 @@ def _raw_query(parameters_dict: dict) -> str:
         "start_date": parameters_dict['start_date'],
         "end_date": parameters_dict['end_date'],
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
-        "include_bad_data": parameters_dict['include_bad_data']  
+        "include_bad_data": parameters_dict['include_bad_data'],
+        "time_zone": parameters_dict["time_zone"]
     }
 
     sql_template = JinjaSql(param_style='pyformat')
@@ -83,10 +103,10 @@ def _sample_query(parameters_dict: dict) -> tuple:
 
     sample_query = (
         "SELECT DISTINCT TagName, w.start AS EventTime, {{ agg_method | sqlsafe }}(Value) OVER "
-        "(PARTITION BY TagName, w.start ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS Value FROM ("
-        "SELECT EventTime, WINDOW(EventTime, {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
+        "(PARTITION BY TagName, w.start ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS Value FROM (" +
+        "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, WINDOW(from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\"), {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
-        "WHERE EventDate BETWEEN to_date({{ start_date }}) AND to_date({{ end_date }}) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
+        "WHERE EventDate BETWEEN to_date(to_timestamp({{ start_date }})) AND to_date(to_timestamp({{ end_date }})) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
         "{% if include_bad_data is defined and include_bad_data == false %}"
         "AND Status = 'Good'"
         "{% endif %}"
@@ -105,7 +125,8 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "include_bad_data": parameters_dict['include_bad_data'],
         "sample_rate": parameters_dict['sample_rate'],
         "sample_unit": parameters_dict['sample_unit'],
-        "agg_method": parameters_dict['agg_method']
+        "agg_method": parameters_dict['agg_method'],
+        "time_zone": parameters_dict["time_zone"]
     }
 
     sql_template = JinjaSql(param_style='pyformat')
@@ -125,7 +146,8 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
 
     interpolate_query = (
         "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
-        "(SELECT explode(sequence(to_timestamp({{ start_date }}), to_timestamp({{ end_date }}), INTERVAL {{ sample_rate + ' ' + sample_unit }})) AS EventTime, explode(array({{ tag_name_string }})) AS TagName) a "
+        "(SELECT explode(sequence(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"), INTERVAL {{ sample_rate + ' ' + sample_unit }})) AS EventTime, "
+        f"explode(array({tag_name_string})) AS TagName) a "
         f"LEFT OUTER JOIN ({sample_query}) b "
         "ON a.EventTime = b.EventTime "
         "AND a.TagName = b.TagName"        

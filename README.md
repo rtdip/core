@@ -10,67 +10,16 @@ This repository contains Real Time Data Ingestion Platform SDK functions and doc
 
 ## What is RTDIP SDK?
 
-​​**Real Time Data Ingestion Platform (RTDIP) SDK** is a software development kit built to easily access some of RTDIP's transformation functions.
+​​**Real Time Data Ingestion Platform (RTDIP) SDK** is a python software development kit built to provide users, data scientists and developers with the ability to interact with components of the Real Time Data Ingestion Platform, including:
 
-The RTDIP SDK will give the end user the power to use some of the convenience methods for frequency conversions and resampling of Pi data all through a self-service platform. RTDIP is offering a flexible product with the ability to authenticate and connect to Databricks SQL Warehouses given the end users preferences. RTDIP have taken the initiative to cut out the middle man and instead wrap these commonly requested methods in a simple python module so that you can instead focus on the data. 
+- Building, Executing and Deploying Ingestion Pipelines
+- Execution of queries on RTDIP data
+- Authentication to securely interact with environments and data
 
 See [RTDIP Documentation](https://www.rtdip.io/) for more information on how to use the SDK.
 
 # Repository Guidelines
-The structure of this repository is shown below in the tree diagram.
 
-    ├── .devcontainer
-    ├── .github
-    │   ├── workflows
-    ├── docs
-    │   ├── api
-    │   ├── assets
-    │   ├── blog
-    │   ├── getting-started
-    │   ├── images
-    │   ├── integration
-    │   ├── releases
-    │   ├── roadmap
-    │   ├── sdk
-    │   ├── index.md
-    ├── src
-    │   ├── api
-    │   │   ├── assets
-    │   │   ├── auth
-    │   │   ├── FastAPIApp
-    │   │   ├── v1
-    │   ├── apps
-    │   │   ├── docs
-    │   ├── sdk
-    │   │   ├── python
-    │   │   │    ├── rtdip-sdk
-    │   │   │    │   ├── authentication
-    │   │   │    │   ├── functions
-    │   │   │    │   ├── odbc
-    ├── tests
-    │   ├── api
-    │   │   ├── auth
-    │   │   ├── v1
-    │   ├── apps
-    │   │   ├── docs
-    │   ├── sdk
-    │   │   ├── python
-    │   │   │    ├── rtdip-sdk
-    │   │   │    │   ├── authentication
-    │   │   │    │   ├── functions
-    │   │   │    │   ├── odbc
-    ├── CODE_OF_CONDUCT.md  
-    ├── CODEOWNERS.md 
-    ├── CONTRIBUTING.md
-    ├── GOVERNANCE.md
-    ├── LICENSE.md
-    ├── RELEASE.md
-    ├── SUPPORT.md
-    ├── PYPI-README.md
-    ├── environment.yml
-    ├── mkdocs.yml
-    ├── setup.py   
-    └── .gitignore
 
 ## Folder Structure
 

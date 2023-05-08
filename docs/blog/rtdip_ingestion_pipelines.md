@@ -130,7 +130,7 @@ Sources are components that connect to source systems and extract data from them
 | IoT Core||:heavy_check_mark:|:heavy_check_mark:||:heavy_check_mark:|Q2 2023|
 | SSIP PI Connector||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
 | Rest API|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
-|MongoDB|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
+| MongoDB|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
 
 *:heavy_check_mark: - target to deliver in the following quarter
 
@@ -158,7 +158,7 @@ Destinations are components that connect to sink/destination systems and write d
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|---------|
 | Delta Append|*:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q1 2023|
 | Eventhub|*:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:||Q1 2023|
-| Delta Merge||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q1 2023|
+| Delta Merge||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
 | Kafka|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
 | Kinesis||:heavy_check_mark:|:heavy_check_mark:||:heavy_check_mark:|Q2 2023|
 | Rest API|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
@@ -169,7 +169,7 @@ Destinations are components that connect to sink/destination systems and write d
 
 ### Utilities
 
-Utilities are components that perform utility functions such as logging, error handling, data object creation, authentication, maintenance and are normally components that can be executed as part of a pipeline or standalone.
+Utilities are components that perform utility functions such as logging, error handling, data object creation, maintenance and are normally components that can be executed as part of a pipeline or standalone.
 
 |Utility Type|Python|Apache Spark|Databricks|Azure|AWS|Target|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|---------|
@@ -182,15 +182,27 @@ Utilities are components that perform utility functions such as logging, error h
 
 *:heavy_check_mark: - target to deliver in the following quarter
 
+### Secrets
+
+Secrets are components that perform authentication functions and are normally components that can be executed as part of a pipeline or standalone.
+
+|Secrets Type|Python|Apache Spark|Databricks|Azure|AWS|Target|
+|---------------------------|----------------------|--------------------|----------------------|----------------------|---------|---------|
+| Databricks Secrets|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
+| Hashicorp Vault|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
+| Azure Key Vault|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
+| AWS Secrets Manager|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
+
 ### Edge
 
 Edge components are designed to provide a lightweight, low latency, low resource consumption, data ingestion framework for edge devices. These components will be designed to run on edge devices such as Raspberry Pi, Jetson Nano, etc. For cloud providers, this will be designed to run on AWS Greengrass and Azure IoT Edge.
 
 |Edge Type|Azure IoT Edge|AWS Greengrass|Target|
 |---------|--------------|--------------|------|
-| OPC Publisher|:heavy_check_mark:||Q3-Q4 2023|
-| Greengrass OPC UA||:heavy_check_mark:|Q4 2023|
+| OPC CloudPublisher|:heavy_check_mark:||Q3-Q4 2023|
+| Fledge |:heavy_check_mark:|:heavy_check_mark:|Q3-Q4 2023|
+| Edge X |:heavy_check_mark:|:heavy_check_mark:|Q3-Q4 2023|
 
 ## Conclusion
 
-This is a very high level overview of the framework and the components that will be developed. As the framework is open source, the lists defined above and timelines can change depending on circumstances and resource availability. Its an exciting year for 2023 for the Real Time Data Ingestion Platform. Check back in regularly for updates and new features! If you would like to contribute, please visit our repository onn Github and connect with us on our Slack channel on the LF Energy Foundation Slack workspace.
+This is a very high level overview of the framework and the components that will be developed. As the framework is open source, the lists defined above and timelines can change depending on circumstances and resource availability. Its an exciting year for 2023 for the Real Time Data Ingestion Platform. Check back in regularly for updates and new features! If you would like to contribute, please visit our repository on Github and connect with us on our Slack channel on the LF Energy Foundation Slack workspace.

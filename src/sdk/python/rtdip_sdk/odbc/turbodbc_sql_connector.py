@@ -17,6 +17,7 @@ import pandas as pd
 from .connection_interface import ConnectionInterface
 from .cursor_interface import CursorInterface
 import logging
+import os
 
 class TURBODBCSQLConnection(ConnectionInterface):
   """
@@ -38,12 +39,11 @@ class TURBODBCSQLConnection(ConnectionInterface):
         autocommit=True, 
         read_buffer_size=Megabytes(100),
         use_async_io=True)
+    
     self.connection = connect(Driver="Simba Spark ODBC Driver",
-                              Server=server_hostname,
-                              HOST=server_hostname,
-                              PORT=443,
+                              Host=server_hostname,
+                              Port=443,
                               SparkServerType=3,
-                              Schema="default",
                               ThriftTransport=2,
                               SSL=1,
                               AuthMech=11,
@@ -55,6 +55,7 @@ class TURBODBCSQLConnection(ConnectionInterface):
                               ApplyFastSQLPrepareToAllQueries=1,
                               DisableLimitZero=1,                      
                               EnableAsyncExec=1,
+                              RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BLOCK_SIZE", 500000),
                               turbodbc_options=options)
 
   def close(self) -> None:
@@ -110,10 +111,8 @@ class TURBODBCSQLCursor(CursorInterface):
         list: list of results
     """
     try:
-      result = self.cursor.fetchall()
-      cols = [column[0] for column in self.cursor.description]
-      df = pd.DataFrame(result)
-      df.columns = cols
+      result = self.cursor.fetchallarrow()
+      df = result.to_pandas()
       return df
     except Exception as e:
       logging.exception('error while fetching the rows from the query')

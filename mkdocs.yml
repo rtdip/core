@@ -20,7 +20,6 @@ site_author: Real Time Data Ingestion Platform
 site_description: >-
   Easy access to high volume, historical and real time process data 
   for analytics applications, engineers, and data scientists wherever they are.
-
 # Repository
 repo_name: rtdip/core
 repo_url: https://github.com/rtdip/core/
@@ -39,9 +38,11 @@ theme:
     language: en
     features:
         - content.code.annotate
+        - content.code.copy
+        - content.code.select
         - content.tabs.link
         - content.tooltips
-        - navigation.expand
+        #- navigation.expand
         - navigation.indexes
         - navigation.instant
         - navigation.sections
@@ -73,7 +74,9 @@ extra:
 plugins:
     - search
     - autorefs
-    - mkdocstrings
+    - mkdocstrings:
+        watch:
+            - src/sdk/python/rtdip_sdk    
     - macros:
         module_name: docs/macros
 
@@ -98,32 +101,84 @@ markdown_extensions:
 nav:
     - Home: index.md
     - Getting started:
+          - Installation: getting-started/installation.md
           - About RTDIP: getting-started/about-rtdip.md
-          - Why RTDIP: getting-started/why-rtdip.md
-          - Installation: 
-                - RTDIP SDK: getting-started/installation.md
     - Data Model:
           - Scada: data-models/scada.md                
     - Integration:
           - Power BI: integration/power-bi.md
     - SDK:
           - Overview: sdk/overview.md
-          - Getting Started: sdk/rtdip-sdk-usage.md
-          - SQL Warehouses: sdk/sqlwarehouses/sql-warehouses.md
-          - Troubleshooting: sdk/troubleshooting.md
+          - Pipelines:
+                - Overview: sdk/pipelines/framework.md
+                - Components: sdk/pipelines/components.md                
+                - Jobs: sdk/pipelines/jobs.md
+                - Deploy:
+                      - Databricks Workflows: sdk/pipelines/deploy/databricks.md
+                      - Apache Airflow: sdk/pipelines/deploy/apache-airflow.md
+          - Queries:
+                - Functions: sdk/queries/functions.md
+                - Connectors: sdk/queries/connectors.md
+                - Databricks:
+                      - Databricks SQL: sdk/queries/databricks/databricks-sql.md
+                      - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
+                      - Troubleshooting: sdk/queries/databricks/troubleshooting.md
+          - Authentication:
+                - Azure Active Directory: sdk/authentication/azure.md
+                - Databricks: sdk/authentication/databricks.md             
           - Code Reference:
-                - Connectors:
-                      - Databricks SQL Connector: sdk/code-reference/db-sql-connector.md
-                      - PYODBC SQL Connector: sdk/code-reference/pyodbc-sql-connector.md
-                      - TURBODBC SQL Connector: sdk/code-reference/turbodbc-sql-connector.md
-                - Authenticators:
-                      - Authentication: sdk/code-reference/authenticate.md
-                - Functions:
-                      - Resample: sdk/code-reference/resample.md
-                      - Interpolate: sdk/code-reference/interpolate.md
-                      - Raw: sdk/code-reference/raw.md
-                      - Time Weighted Average: sdk/code-reference/time-weighted-average.md
-                      - Metadata: sdk/code-reference/metadata.md
+                - Pipelines:
+                      - Sources:
+                            - Spark:
+                                 - Eventhub: sdk/code-reference/pipelines/sources/spark/eventhub.md
+                                 - Delta: sdk/code-reference/pipelines/sources/spark/delta.md
+                                 - Delta Sharing: sdk/code-reference/pipelines/sources/spark/delta_sharing.md
+                                 - Autoloader: sdk/code-reference/pipelines/sources/spark/autoloader.md
+                                 - IoT Hub: sdk/code-reference/pipelines/sources/spark/iot_hub.md
+                                 - Kafka: sdk/code-reference/pipelines/sources/spark/kafka.md
+                                 - Kinesis: sdk/code-reference/pipelines/sources/spark/kinesis.md
+                      - Transformers:
+                            - Spark:
+                                 - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
+                                 - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md
+                                 - Fledge Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md                              
+                      
+                      - Destinations:
+                            - Spark:
+                                 - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
+                                 - Delta Merge: sdk/code-reference/pipelines/destinations/spark/delta_merge.md
+                                 - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
+                                 - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
+                                 - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
+                      - Utilities:
+                            - Spark:
+                                 - Configuration: sdk/code-reference/pipelines/utilities/spark/configuration.md
+                                 - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
+                                 - Delta Table Optimize: sdk/code-reference/pipelines/utilities/spark/delta_table_optimize.md
+                                 - Delta Table Vacuum: sdk/code-reference/pipelines/utilities/spark/delta_table_vacuum.md
+                            - AWS:
+                                 - S3 Bucket Policy: sdk/code-reference/pipelines/utilities/aws/s3_bucket_policy.md                                 
+                            - Azure:
+                                 - ADLS Gen 2 ACLs: sdk/code-reference/pipelines/utilities/azure/adls_gen2_acl.md
+                      - Converters:
+                            - Json: sdk/code-reference/pipelines/converters/pipeline_job_json.md    
+                      - Secrets:
+                            - Databricks: sdk/code-reference/pipelines/secrets/databricks.md
+                      - Deploy:
+                            - Databricks DBX: sdk/code-reference/pipelines/deploy/databricks_dbx.md
+                - Queries:
+                      - Functions:
+                            - Resample: sdk/code-reference/query/resample.md
+                            - Interpolate: sdk/code-reference/query/interpolate.md
+                            - Raw: sdk/code-reference/query/raw.md
+                            - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
+                            - Metadata: sdk/code-reference/query/metadata.md
+                      - Connectors:
+                            - Databricks SQL Connector: sdk/code-reference/query/db-sql-connector.md
+                            - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
+                            - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md                            
+                - Authentication:
+                            - Azure Active Directory: sdk/code-reference/authentication/azure.md                                                    
     - API:
           - Overview: api/overview.md
           - Authentication: api/authentication.md

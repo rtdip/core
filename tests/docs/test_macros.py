@@ -14,6 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
+from datetime import datetime
 from pytest_mock import MockerFixture
 from docs.macros import define_env
 from mkdocs_macros.plugin import MacrosPlugin

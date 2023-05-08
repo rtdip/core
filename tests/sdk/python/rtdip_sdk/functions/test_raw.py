@@ -15,6 +15,7 @@
 import sys
 sys.path.insert(0, '.')
 import pandas as pd
+import pyarrow as pa
 import pytest
 from pytest_mock import MockerFixture
 from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection, MockedCursor 
@@ -27,7 +28,7 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = 'databricks.sql.connect'
 DATABRICKS_SQL_CONNECT_CURSOR = 'databricks.sql.connect.cursor'
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY="SELECT EventTime, TagName, Status, Value FROM mocked-buiness-unit.sensors.mocked-asset_mocked-data-security-level_events_mocked-data-type WHERE EventDate BETWEEN to_date(\'2011-01-01T00:00:00\') AND to_date(\'2011-01-02T23:59:59\') AND EventTime BETWEEN to_timestamp(\'2011-01-01T00:00:00\') AND to_timestamp(\'2011-01-02T23:59:59\') AND TagName in ('MOCKED-TAGNAME') "
+MOCKED_QUERY='SELECT from_utc_timestamp(EventTime, "+0000") as EventTime, TagName, Status, Value FROM mocked-buiness-unit.sensors.mocked-asset_mocked-data-security-level_events_mocked-data-type WHERE EventDate BETWEEN to_date(to_timestamp(\'2011-01-01T00:00:00+00:00\')) AND to_date(to_timestamp(\'2011-01-02T23:59:59+00:00\')) AND EventTime BETWEEN to_timestamp(\'2011-01-01T00:00:00+00:00\') AND to_timestamp(\'2011-01-02T23:59:59+00:00\') AND TagName in (\'MOCKED-TAGNAME\') ORDER BY EventTime'
 MOCKED_PARAMETER_DICT = {
         "business_unit": "mocked-buiness-unit",
         "region": "mocked-region",
@@ -43,7 +44,7 @@ MOCKED_PARAMETER_DICT = {
 def test_raw(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
     mocked_execute = mocker.spy(MockedCursor, "execute")
-    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall", return_value =  pd.DataFrame(data={'EventTime': [pd.to_datetime("2022-01-01 00:10:00+00:00")], 'TagName': ["MOCKED-TAGNAME"], 'Status': ["Good"], 'Value':[177.09220]}))
+    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'EventTime': [pd.to_datetime("2022-01-01 00:10:00+00:00")], 'TagName': ["MOCKED-TAGNAME"], 'Status': ["Good"], 'Value':[177.09220]})))
     mocked_close = mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
 
@@ -60,7 +61,7 @@ def test_raw(mocker: MockerFixture):
 def test_raw_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
     mocker.spy(MockedCursor, "execute")
-    mocker.patch.object(MockedCursor, "fetchall", side_effect=Exception)
+    mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
 

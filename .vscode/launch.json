@@ -1,12 +1,25 @@
 {
   "version": "0.2.0",
-  "configurations": [
+  "configurations": 
+  [
     {
       "name": "Attach to Python Functions",
       "type": "python",
       "request": "attach",
       "port": 9091,
       "preLaunchTask": "func: host start",
-    }
+    },
+    {
+      "name": "Python: Debug Tests",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "purpose": ["debug-test"],
+      "console": "internalConsole",
+      "env": {
+          "PYTEST_ADDOPTS": "--no-cov"
+      },
+      "justMyCode": false
+    },
   ]
 }

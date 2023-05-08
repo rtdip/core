@@ -90,10 +90,8 @@ class DatabricksSQLCursor(CursorInterface):
         list: list of results
     """
     try:
-      result = self.cursor.fetchall()
-      cols = [column[0] for column in self.cursor.description]
-      df = pd.DataFrame(result)
-      df.columns = cols
+      result = self.cursor.fetchall_arrow()
+      df = result.to_pandas()
       return df
     except Exception as e:
       logging.exception('error while fetching the rows of a query')

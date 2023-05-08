@@ -18,7 +18,7 @@ from strawberry.fastapi import GraphQLRouter
 from src.api.v1.models import RawResponseQL
 import logging
 from typing import Any
-import json
+from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Header, Depends
 from typing import List
 from datetime import date
@@ -62,8 +62,7 @@ class Query:
               "end_date": str(end_date),
           }
           data = raw.get(connection, parameters)
-          response = data.to_json(orient="table", index=False)
-          return RawResponse(**json.loads(response))
+          return RawResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.to_dict(orient="records"))
       except Exception as e:
           logging.error(str(e))
           return HTTPException(status_code=500, detail=str(e))
