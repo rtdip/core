@@ -74,3 +74,4 @@ The mapping below is performed by the RTDIP SSIP PI to PCDM Component and can be
 | SSIP PI | EventTime | string | EVENTS| EventTime | timestamp | |
 | SSIP PI | Status | string | EVENTS| Status | string | |
 | SSIP PI | Value | dynamic | EVENTS | Value | dynamic | |
+

@@ -49,6 +49,10 @@ Message Brokers support publishing of data from connectors and subscribing(pub/s
 <center>[![Azure IoT Hub](../process_control/images/iot_hub.png){width=40%}](https://azure.microsoft.com/en-us/products/iot-hub) </center>
 
 
+## Real Time Data Ingestion Platform
+
+For more information about the Real Time Data Platform and its components to connect to data sources and destinations, please refer to this [link.](../../sdk/overview.md)
+
 
 
 
