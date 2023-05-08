@@ -103,8 +103,9 @@ nav:
     - Getting started:
           - Installation: getting-started/installation.md
           - About RTDIP: getting-started/about-rtdip.md
-    - Data Model:
-          - Scada: data-models/scada.md                
+    - Domains:
+          - Process Control: 
+                - Data Model: domains/process_control/data_model.md                
     - Integration:
           - Power BI: integration/power-bi.md
     - SDK:
