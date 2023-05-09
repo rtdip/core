@@ -12,6 +12,8 @@
 # limitations under the License.
 
 import sys
+
+from pytest_mock import MockerFixture
 sys.path.insert(0, '.')
 from typing import Iterator
 import pytest

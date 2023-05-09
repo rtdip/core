@@ -30,11 +30,13 @@ class FledgeJsonToPCDMTransformer(TransformerInterface):
     '''
     data: DataFrame
     status_null_value: str
+    change_type_value: str
     timestamp_formats: list
 
-    def __init__(self, data: DataFrame, status_null_value: str = "Good", timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
+    def __init__(self, data: DataFrame, status_null_value: str = "Good", change_type_value: str = "insert", timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
         self.data = data
         self.status_null_value = status_null_value
+        self.change_type_value = change_type_value
         self.timestamp_formats = timestamp_formats
 
     @staticmethod
@@ -65,13 +67,16 @@ class FledgeJsonToPCDMTransformer(TransformerInterface):
         Returns:
             DataFrame: A dataframe with the specified column converted to PCDM
         '''
-        df = (self.data
-              .withColumn("body", from_json("body", FLEDGE_SCHEMA))
-              .selectExpr("inline(body)").select(explode("readings"), "timestamp")
-              .withColumn("EventTime", coalesce(*[to_timestamp(col("timestamp"), f) for f in self.timestamp_formats]))
-              .withColumnRenamed("key", "TagName")
-              .withColumnRenamed("value", "Value")
-              .withColumn("Status", lit(self.status_null_value))
-              .withColumn("DataType", when(col("value").cast("float").isNotNull(), "float").when(col("value").cast("float").isNull(), "string")))
+        df = (
+            self.data
+            .withColumn("body", from_json("body", FLEDGE_SCHEMA))
+            .selectExpr("inline(body)").select(explode("readings"), "timestamp")
+            .withColumn("EventTime", coalesce(*[to_timestamp(col("timestamp"), f) for f in self.timestamp_formats]))
+            .withColumnRenamed("key", "TagName")
+            .withColumnRenamed("value", "Value")
+            .withColumn("Status", lit(self.status_null_value))
+            .withColumn("ValueType", when(col("value").cast("float").isNotNull(), "float").when(col("value").cast("float").isNull(), "string"))
+            .withColumn("ChangeType", lit(self.change_type_value))
+        )
         
-        return df.select("TagName", "Value", "EventTime", "Status", "DataType") 
+        return df.select("TagName", "EventTime", "Status", "Value", "ValueType", "ChangeType") 
