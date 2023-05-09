@@ -24,7 +24,7 @@ def _is_date_format(dt, format):
     except:
         return False
 
-def _fix_date(dt, is_end_date=False, exclude_date_format=False):      
+def _parse_date(dt, is_end_date=False, exclude_date_format=False):      
     if _is_date_format(dt, "%Y-%m-%d") and exclude_date_format == False:
         _time = "T23:59:59" if is_end_date == True else "T00:00:00"
         return dt + _time + "+00:00"
@@ -33,21 +33,21 @@ def _fix_date(dt, is_end_date=False, exclude_date_format=False):
     elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
         return dt
     else: 
-        msg = f"Inputted datetime: '{dt}', is not in the correct format."
+        msg = f"Inputted timestamp: '{dt}', is not in the correct format."
         if exclude_date_format == True:
-            msg += " List of datetimes must be in datetime format."
+            msg += " List of timestamps must be in datetime format."
         raise ValueError(msg)
         
-def _fix_dates(parameters_dict):
+def _parse_dates(parameters_dict):
     if "start_date" in parameters_dict:
-        parameters_dict["start_date"] = _fix_date(parameters_dict["start_date"])
+        parameters_dict["start_date"] = _parse_date(parameters_dict["start_date"])
         sample_dt = parameters_dict["start_date"]
     if "end_date" in parameters_dict:
-        parameters_dict["end_date"] = _fix_date(parameters_dict["end_date"], True)
-    if "datetimes" in parameters_dict:
-        fixed_dts = [_fix_date(dt, is_end_date=False, exclude_date_format=True) for dt in parameters_dict["datetimes"]]
-        parameters_dict["datetimes"] = fixed_dts
-        sample_dt = fixed_dts[0]
+        parameters_dict["end_date"] = _parse_date(parameters_dict["end_date"], True)
+    if "timestamps" in parameters_dict:
+        parsed_timestamp = [_parse_date(dt, is_end_date=False, exclude_date_format=True) for dt in parameters_dict["timestamps"]]
+        parameters_dict["timestamps"] = parsed_timestamp
+        sample_dt = parsed_timestamp[0]
 
     parameters_dict["time_zone"] = datetime.strptime(sample_dt, "%Y-%m-%dT%H:%M:%S%z").strftime("%z")
     
@@ -173,9 +173,10 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
     return sql_query
 
 def _interpolation_at_time(parameters_dict: dict) -> str:
-    datetimes_deduplicated = list(dict.fromkeys(parameters_dict['datetimes'])) #remove potential duplicates in tags
-    parameters_dict["datetimes"] = datetimes_deduplicated.copy()
-    min_max_string = "date_sub(to_date(to_timestamp(\"{0}\")), 1) AND date_add(to_date(to_timestamp(\"{1}\")), 1)".format(min(datetimes_deduplicated), max(datetimes_deduplicated))
+    timestamps_deduplicated = list(dict.fromkeys(parameters_dict['timestamps'])) #remove potential duplicates in tags
+    parameters_dict["timestamps"] = timestamps_deduplicated.copy()
+    parameters_dict["min_timestamp"] = min(timestamps_deduplicated)
+    parameters_dict["max_timestamp"] = max(timestamps_deduplicated)
 
     interpolate_at_time_query = (
         "SELECT TagName, EventTime, Interpolated_Value as Value FROM "
@@ -186,8 +187,8 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "CASE WHEN Requested_EventTime = Found_EventTime THEN Value WHEN Next_EventTime IS NULL THEN Previous_Value WHEN Previous_EventTime IS NULL and Next_EventTime IS NULL THEN NULL ELSE Previous_Value + ((Next_Value - Previous_Value) * ((unix_timestamp(EventTime) - unix_timestamp(Previous_EventTime)) / (unix_timestamp(Next_EventTime) - unix_timestamp(Previous_EventTime)))) END AS Interpolated_Value FROM "
         "(SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, a.EventTime as Requested_EventTime, b.EventTime as Found_EventTime, b.Status, b.Value FROM "
         "(SELECT explode(array( "
-        "{% for datetime in datetimes -%} "
-        "from_utc_timestamp(to_timestamp({{datetime}}), {{time_zone}})"
+        "{% for timestamp in timestamps -%} "
+        "from_utc_timestamp(to_timestamp({{timestamp}}), {{time_zone}})"
         "{% if not loop.last %}"
         ", "
         "{% endif %}"
@@ -196,14 +197,14 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "explode(array{{ tag_names | inclause }}) AS TagName) a FULL OUTER JOIN "
         "(SELECT * FROM (SELECT * FROM "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
-        f"WHERE EventDate BETWEEN "
-        "{% if datetimes is define %}"
-        "date_sub(to_date(to_timestamp(min({{datetimes}}))), 1) AND date_add(to_date(to_timestamp(max({{datetimes}}))), 1)"
+        "WHERE EventDate BETWEEN "
+        "{% if timestamps is defined %}"
+        "date_sub(to_date(to_timestamp({{ min_timestamp }})), 1) AND date_add(to_date(to_timestamp({{ max_timestamp }})), 1)"
         "{% endif %}"
         "AND TagName in {{ tag_names | inclause }})) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))"
         "WHERE EventTime in ( "
-        "{% for datetime in datetimes -%} "
-        "from_utc_timestamp(to_timestamp({{datetime}}), {{time_zone}})"
+        "{% for timestamp in timestamps -%} "
+        "from_utc_timestamp(to_timestamp({{timestamp}}), {{time_zone}})"
         "{% if not loop.last %}"
         ", "
         "{% endif %}"
@@ -218,9 +219,11 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "data_security_level": parameters_dict['data_security_level'].lower(),
         "data_type": parameters_dict['data_type'].lower(),
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
-        "datetimes": parameters_dict['datetimes'],
+        "timestamps": parameters_dict['timestamps'],
         # "include_bad_data": parameters_dict['include_bad_data'],
         "time_zone": parameters_dict["time_zone"],
+        "min_timestamp": parameters_dict["min_timestamp"],
+        "max_timestamp": parameters_dict["max_timestamp"]
     }
 
     sql_template = JinjaSql(param_style='pyformat')
@@ -261,7 +264,7 @@ def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=
     if metadata:
         return _metadata_query(parameters_dict)
     
-    parameters_dict = _fix_dates(parameters_dict)
+    parameters_dict = _parse_dates(parameters_dict)
 
     #notes - move this into inteprolation at timme query and replace timestamp strings 
     
