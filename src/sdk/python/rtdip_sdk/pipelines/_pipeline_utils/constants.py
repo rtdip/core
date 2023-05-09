@@ -58,5 +58,13 @@ DEFAULT_PACKAGES = {
     "api_requests": PyPiLibrary(
                 name="requests",
                 version="2.30.0"
+            ),
+    "pyarrow": PyPiLibrary(
+                name="pyarrow",
+                version="12.0.0"
+            ),
+    "pandas": PyPiLibrary(
+                name="pandas",
+                version="2.0.1"
             ),                      
 }

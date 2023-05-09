@@ -14,7 +14,8 @@
     "python.testing.pytestArgs": [
         "--cov=.",
         "--cov-report=xml:cov.xml",
-        "tests"
+        "tests",
+        "-vv"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
