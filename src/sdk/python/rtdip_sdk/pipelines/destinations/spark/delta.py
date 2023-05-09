@@ -23,7 +23,7 @@ from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class SparkDeltaDestination(DestinationInterface):
     '''
-    The Spark Delta Source is used to write data to a Delta table. 
+    The Spark Delta Destination is used to write data to a Delta table. 
 
     Args:
         data (DataFrame): Dataframe to be written to Delta

@@ -143,7 +143,8 @@ nav:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
                       - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md
                       - Fledge Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md
-
+                      - SSIP PI Binary File data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md
+                      - SSIP PI Binary JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
@@ -151,12 +152,15 @@ nav:
                       - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
                       - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
                       - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
+                      - Rest API: sdk/code-reference/pipelines/destinations/spark/rest_api.md
+                      - Process Control Data Model To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_to_delta.md
               - Utilities:
                   - Spark:
                       - Configuration: sdk/code-reference/pipelines/utilities/spark/configuration.md
                       - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
                       - Delta Table Optimize: sdk/code-reference/pipelines/utilities/spark/delta_table_optimize.md
                       - Delta Table Vacuum: sdk/code-reference/pipelines/utilities/spark/delta_table_vacuum.md
+                      - ADLS Gen 2 Service Principal Connect: sdk/code-reference/pipelines/utilities/spark/adls_gen2_spn_connect.md
                   - AWS:
                       - S3 Bucket Policy: sdk/code-reference/pipelines/utilities/aws/s3_bucket_policy.md
                   - Azure:
@@ -165,6 +169,8 @@ nav:
                   - Json: sdk/code-reference/pipelines/converters/pipeline_job_json.md
               - Secrets:
                   - Databricks: sdk/code-reference/pipelines/secrets/databricks.md
+                  - Hashicorp Vault: sdk/code-reference/pipelines/secrets/hashicorp_vault.md
+                  - Azure Key Vault: sdk/code-reference/pipelines/secrets/azure_key_vault.md
               - Deploy:
                   - Databricks DBX: sdk/code-reference/pipelines/deploy/databricks_dbx.md
           - Queries:
@@ -198,3 +204,4 @@ nav:
       - Posts:
           - RTDIP Ingestion Pipelines: blog/rtdip_ingestion_pipelines.md
           - Delta Lakehouse and RTDIP: blog/delta_and_rtdip.md
+

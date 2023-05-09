@@ -12,6 +12,8 @@
 # limitations under the License.
 
 import sys
+
+from pytest_mock import MockerFixture
 sys.path.insert(0, '.')
 from typing import Iterator
 import pytest
@@ -37,7 +39,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import DEFAULT
 SPARK_TESTING_CONFIGURATION = {
     "spark.executor.cores": "2",
     "spark.executor.instances": "2",
-    "spark.sql.shuffle.partitions": "1",
+    "spark.sql.shuffle.partitions": "2",
     "spark.app.name": "test_app", 
     "spark.master": "local[*]"
 }
