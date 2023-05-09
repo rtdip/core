@@ -47,8 +47,12 @@ DEFAULT_PACKAGES = {
                 name="boto3",
                 version="1.26.118"
             ),
+    "hashicorp_vault": PyPiLibrary(
+                name="hvac",
+                version="1.1.0"
+            ),
     "api_requests": PyPiLibrary(
                 name="requests",
                 version="2.30.0"
-            ),          
+            ),                      
 }

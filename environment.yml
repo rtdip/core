@@ -50,10 +50,11 @@ dependencies:
     - pymdown-extensions==9.11
     - databricks-sql-connector==2.5.1
     - pip:
-          - dependency-injector==4.41.0
-          - azure-functions==1.14.0
-          - dbx==0.8.11
-          - deltalake==0.8.1
-          - pygithub==1.58.1
-          - strawberry-graphql[fastapi]==0.176.0
-          - nest_asyncio==1.5.6
+        - dependency-injector==4.41.0
+        - azure-functions==1.14.0
+        - dbx==0.8.11
+        - deltalake==0.8.1
+        - pygithub==1.58.1
+        - strawberry-graphql[fastapi]==0.176.0
+        - nest_asyncio==1.5.6
+        - hvac==1.1.0
