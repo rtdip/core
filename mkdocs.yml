@@ -156,6 +156,7 @@ nav:
                                  - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
                                  - Delta Table Optimize: sdk/code-reference/pipelines/utilities/spark/delta_table_optimize.md
                                  - Delta Table Vacuum: sdk/code-reference/pipelines/utilities/spark/delta_table_vacuum.md
+                                 - ADLS Gen 2 Service Principal Connect: sdk/code-reference/pipelines/utilities/spark/adls_gen2_spn_connect.md
                             - AWS:
                                  - S3 Bucket Policy: sdk/code-reference/pipelines/utilities/aws/s3_bucket_policy.md                                 
                             - Azure:
