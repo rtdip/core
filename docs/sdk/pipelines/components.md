@@ -97,6 +97,7 @@ Secrets are components that perform functions to interact with secret stores to 
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
 |[Databricks Secret Scopes](../code-reference/pipelines/secrets/databricks.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Hashicorp Vault](../code-reference/pipelines/secrets/hashicorp_vault.md)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Azure Key Vault](../code-reference/pipelines/secrets/azure_key_vault.md)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
