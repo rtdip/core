@@ -109,7 +109,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         elif parameters_dict["step"].lower() == "false":
             preprocess_df["Step"] = False
         else:
-            raise Exception('Unexpected step value', parameters_dict["step"])
+            raise Exception('Unexpected step value', parameters_dict["step"]) # NOSONAR
         
         def process_time_weighted_averages_step(pandas_df):
             if pandas_df["Step"].any() == False:

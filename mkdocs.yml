@@ -148,6 +148,8 @@ nav:
                                  - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
                                  - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
                                  - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
+                                 - Rest API: sdk/code-reference/pipelines/destinations/spark/rest_api.md
+                                 - Process Control Data Model To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_to_delta.md
                       - Utilities:
                             - Spark:
                                  - Configuration: sdk/code-reference/pipelines/utilities/spark/configuration.md
@@ -162,6 +164,7 @@ nav:
                             - Json: sdk/code-reference/pipelines/converters/pipeline_job_json.md    
                       - Secrets:
                             - Databricks: sdk/code-reference/pipelines/secrets/databricks.md
+                            - Hashicorp Vault: sdk/code-reference/pipelines/secrets/hashicorp_vault.md
                             - Azure Key Vault: sdk/code-reference/pipelines/secrets/azure_key_vault.md
                       - Deploy:
                             - Databricks DBX: sdk/code-reference/pipelines/deploy/databricks_dbx.md
