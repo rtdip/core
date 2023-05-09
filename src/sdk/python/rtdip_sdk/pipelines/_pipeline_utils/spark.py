@@ -14,7 +14,7 @@
 
 import logging
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType, ArrayType
 from .models import Libraries
 
 class SparkClient():
@@ -116,7 +116,8 @@ PROCESS_DATA_MODEL_SCHEMA = StructType([
     StructField('EventTime', TimestampType(), True), 
     StructField('Status', StringType(), True), 
     StructField('Value', StringType(), True), 
-    StructField('DataType', StringType(), True)
+    StructField('ValueType', StringType(), True),
+    StructField('ChangeType', StringType(), True)
 ])
 
 KAFKA_SCHEMA = StructType(
@@ -136,4 +137,11 @@ KINESIS_SCHEMA = StructType(
             StructField('shardId', StringType(), True),
             StructField('sequenceNumber', StringType(), True),
             StructField('approximateArrivalTimestamp', TimestampType(), True)]
+       )
+
+FLEDGE_SCHEMA = ArrayType(
+            StructType([
+            StructField("asset", StringType(), True),
+            StructField("readings", MapType(StringType(), StringType(), True), True),
+            StructField("timestamp", TimestampType(), True)])
        )

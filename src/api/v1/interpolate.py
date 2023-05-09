@@ -42,7 +42,7 @@ def interpolate_events_get(base_query_parameters, raw_query_parameters, tag_quer
 get_description = """
 ## Interpolate 
 
-Interpolation of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/interpolate/) for further information.
+Interpolation of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/interpolate/) for further information.
 """
 
 @api_v1_router.get(
@@ -64,7 +64,7 @@ async def interpolate_get(
 post_description = """
 ## Interpolate 
 
-Interpolation of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/interpolate/) for further information.
+Interpolation of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/interpolate/) for further information.
 """
 
 @api_v1_router.post(

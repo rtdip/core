@@ -50,6 +50,7 @@ Transformers are components that perform transformations on data. These will tar
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
 |[Binary To String](../code-reference/pipelines/transformers/spark/binary_to_string.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[OPC Publisher Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Fledge Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -60,10 +61,12 @@ Destinations are components that connect to sink/destination systems and write d
 
 |Destination Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
-|[Delta Append](../code-reference/pipelines/destinations/spark/delta.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Delta](../code-reference/pipelines/destinations/spark/delta.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Delta Merge](../code-reference/pipelines/destinations/spark/delta_merge.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Eventhub](../code-reference/pipelines/destinations/spark/eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Kakfa](../code-reference/pipelines/destinations/spark/kafka.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Kinesis](../code-reference/pipelines/destinations/spark/kafka.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Process Control Data Model To Delta](../code-reference/pipelines/destinations/spark/pcdm_to_delta.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.

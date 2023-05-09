@@ -38,7 +38,7 @@ def raw_events_get(base_query_parameters, raw_query_parameters, tag_query_parame
 get_description = """
 ## Raw 
 
-Retrieval of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/raw/) for further information.
+Retrieval of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/raw/) for further information.
 """
 
 @api_v1_router.get(
@@ -60,7 +60,7 @@ async def raw_get(
 post_description = """
 ## Raw 
 
-Retrieval of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/raw/) for further information.
+Retrieval of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/raw/) for further information.
 """
 
 @api_v1_router.post(
