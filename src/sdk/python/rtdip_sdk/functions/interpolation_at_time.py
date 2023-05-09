@@ -66,7 +66,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
 from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
 #testing 
-auth = DefaultAuth(exclude_cli_credential=True,exclude_powershell_credential=True,exclude_shared_token_cache_credential=True,logging_enable=True,exclude_visual_studio_code_credential=True).authenticate()
+auth = DefaultAuth(exclude_visual_studio_code_credential=True).authenticate()
 token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
 connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
 dict = {
@@ -75,8 +75,8 @@ dict = {
     "asset": "gtl", 
     "data_security_level": "restricted", 
     "data_type": "float",
-    "tag_names": ["0095S01C007"], 
-    "datetimes": ["2022-06-18T17:03:30", "2022-06-18T17:04:50"]
+    "tag_names": ["0095S01C007", "0095S01C015"], 
+    "datetimes": ["2022-06-18T17:07:38", "2022-06-18T17:27:44"]
 }
 x = get(connection, dict)
 print(x)
