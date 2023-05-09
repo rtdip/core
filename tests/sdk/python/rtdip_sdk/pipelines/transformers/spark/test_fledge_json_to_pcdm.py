@@ -28,15 +28,16 @@ def test_fledge_json_to_pcdm(spark_session: SparkSession):
 
     expected_schema = StructType([
         StructField("TagName", StringType(), False),
-        StructField("Value", StringType(), True),
         StructField("EventTime", TimestampType(), True),
         StructField("Status", StringType(), False),
-        StructField("DataType", StringType(), True),
+       StructField("Value", StringType(), True),
+        StructField("ValueType", StringType(), True),
+        StructField("ChangeType", StringType(), False),
     ])
 
     expected_data = [
-        {"TagName":"testTag1", "Value":"-0.913545458", "EventTime": datetime.fromisoformat("2023-05-03T08:45:42.509118+00:00"), "Status":"Good", "DataType":"float"}, 
-        {"TagName":"testTag2", "Value":"-0.913545458", "EventTime": datetime.fromisoformat("2023-05-04T08:45:42.509118+00:00"), "Status":"Good", "DataType":"float"}, 
+        {"TagName":"testTag1", "Value":"-0.913545458", "EventTime": datetime.fromisoformat("2023-05-03T08:45:42.509118+00:00"), "Status":"Good", "ValueType":"float", "ChangeType": "insert"}, 
+        {"TagName":"testTag2", "Value":"-0.913545458", "EventTime": datetime.fromisoformat("2023-05-04T08:45:42.509118+00:00"), "Status":"Good", "ValueType":"float", "ChangeType": "insert"}, 
     ]
 
     expected_df: DataFrame = spark_session.createDataFrame(

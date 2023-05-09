@@ -15,6 +15,7 @@
 import logging
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType, ArrayType
+
 from .models import Libraries
 
 class SparkClient():
@@ -116,7 +117,8 @@ PROCESS_DATA_MODEL_SCHEMA = StructType([
     StructField('EventTime', TimestampType(), True), 
     StructField('Status', StringType(), True), 
     StructField('Value', StringType(), True), 
-    StructField('DataType', StringType(), True)
+    StructField('ValueType', StringType(), True),
+    StructField('ChangeType', StringType(), True)
 ])
 
 KAFKA_SCHEMA = StructType(
