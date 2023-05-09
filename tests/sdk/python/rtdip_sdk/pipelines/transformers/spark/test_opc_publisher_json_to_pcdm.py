@@ -32,12 +32,13 @@ def test_opc_publisher_json_to_pcdm(spark_session: SparkSession):
         StructField("EventTime", TimestampType(), True),
         StructField("Status", StringType(), True),
         StructField("Value", StringType(), True),
-        StructField("DataType", StringType(), False),
+        StructField("ValueType", StringType(), False),
+        StructField("ChangeType", StringType(), False),
     ])
 
     expected_data = [
-        {"TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0", "DataType": "float"},
-        {"TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "BadCommunicationError", "Value": "2.0", "DataType": "float"},
+        {"TagName": "Test1", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.002+00:00"), "Status": "Good", "Value": "1.0", "ValueType": "float", "ChangeType": "insert"},
+        {"TagName": "Test2", "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"), "Status": "BadCommunicationError", "Value": "2.0", "ValueType": "float", "ChangeType": "insert"},
     ]
 
     expected_df: DataFrame = spark_session.createDataFrame(
