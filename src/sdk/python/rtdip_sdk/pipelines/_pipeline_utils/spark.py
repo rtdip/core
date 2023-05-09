@@ -117,7 +117,8 @@ PROCESS_DATA_MODEL_SCHEMA = StructType([
     StructField('EventTime', TimestampType(), True), 
     StructField('Status', StringType(), True), 
     StructField('Value', StringType(), True), 
-    StructField('DataType', StringType(), True)
+    StructField('ValueType', StringType(), True),
+    StructField('ChangeType', StringType(), True)
 ])
 
 KAFKA_SCHEMA = StructType(

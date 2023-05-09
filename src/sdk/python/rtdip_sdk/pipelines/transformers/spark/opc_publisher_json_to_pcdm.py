@@ -36,13 +36,15 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
     source_column_name: str
     multiple_rows_per_message: bool
     status_null_value: str
+    change_type_value: str
     timestamp_formats: list
 
-    def __init__(self, data: DataFrame, source_column_name: str, multiple_rows_per_message: bool = True, status_null_value: str = None, timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
+    def __init__(self, data: DataFrame, source_column_name: str, multiple_rows_per_message: bool = True, status_null_value: str = None, change_type_value: str = "insert", timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
         self.data = data
         self.source_column_name = source_column_name
         self.multiple_rows_per_message = multiple_rows_per_message
         self.status_null_value = status_null_value
+        self.change_type_value = change_type_value
         self.timestamp_formats = timestamp_formats
 
     @staticmethod
@@ -88,9 +90,10 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
             .withColumn("TagName", (col("OPCUA.DisplayName")))
             .withColumn("EventTime", coalesce(*[to_timestamp(col("OPCUA.Value.SourceTimestamp"), f) for f in self.timestamp_formats]))   
             .withColumn("Value", col("OPCUA.Value.Value"))
-            .withColumn("DataType", when(col("Value").cast("float").isNotNull(), "float")
+            .withColumn("ValueType", when(col("Value").cast("float").isNotNull(), "float")
                                     .when(col("Value").cast("float").isNull(), "string")
-                                    .otherwise("unknown"))                                  
+                                    .otherwise("unknown"))
+            .withColumn("ChangeType", lit(self.change_type_value))                              
         )
 
         status_col_name = "OPCUA.Value.StatusCode.Symbol"
@@ -99,4 +102,4 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
         else:
             df = df.withColumn("Status", col(status_col_name))
 
-        return df.select("TagName", "EventTime", "Status", "Value", "DataType")    
+        return df.select("TagName", "EventTime", "Status", "Value", "ValueType", "ChangeType")    
