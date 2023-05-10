@@ -176,7 +176,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
         
         return delta_merge_builder
 
-    def _stream_merge_micro_batch(self, micro_batch_df: DataFrame):
+    def _stream_merge_micro_batch(self, micro_batch_df: DataFrame, epoch_id = None): # NOSONAR
         micro_batch_df.persist()
 
         retry_delta_merge = False

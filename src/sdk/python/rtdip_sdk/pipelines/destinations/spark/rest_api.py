@@ -116,7 +116,7 @@ class SparkRestAPIDestination(DestinationInterface):
                                             agg(concat_ws(",|", collect_list("content")).\
                                             alias("payload"))
 
-    def _api_micro_batch(self, micro_batch_df: DataFrame):
+    def _api_micro_batch(self, micro_batch_df: DataFrame, epoch_id = None): # NOSONAR
         url = self.url
         method = self.method
         headers = self.headers
