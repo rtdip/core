@@ -15,4 +15,5 @@
 from .spark.delta_table_create import *
 from .spark.delta_table_optimize import *
 from .spark.delta_table_vacuum import *
+from .spark.configuration import *
 from .azure.adls_gen2_acl import *
