@@ -228,7 +228,6 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "data_type": parameters_dict['data_type'].lower(),
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
         "timestamps": parameters_dict['timestamps'],
-        # "include_bad_data": parameters_dict['include_bad_data'],
         "time_zone": parameters_dict["time_zone"],
         "min_timestamp": parameters_dict["min_timestamp"],
         "max_timestamp": parameters_dict["max_timestamp"]
@@ -273,8 +272,6 @@ def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=
         return _metadata_query(parameters_dict)
     
     parameters_dict = _parse_dates(parameters_dict)
-
-    #notes - move this into inteprolation at timme query and replace timestamp strings 
     
     if interpolation_at_time:
         return _interpolation_at_time(parameters_dict)

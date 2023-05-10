@@ -39,8 +39,8 @@ MOCKED_PARAMETER_DICT = {
         "data_security_level": "mocked-data-security-level",
         "data_type": "mocked-data-type",
         "tag_names": ["MOCKED-TAGNAME-1"],
-        "start_date": "2022-03-01T00:00:00+00:00",
-        "end_date": "2022-03-02T23:59:59+00:00",
+        "start_date": "2022-03-01T00:00:00+0000",
+        "end_date": "2022-03-02T23:59:59+0000",
         "window_size_mins": 10,
         "include_bad_data": False,
         "step": "true"
@@ -75,8 +75,8 @@ def test_time_weighted_average_with_datetime_only(mocker: MockerFixture):
     assert isinstance(actual, pd.DataFrame)
 
 def test_time_weighted_average_with_datetimezone(mocker: MockerFixture):
-    MOCKED_PARAMETER_DICT["start_date"]="2022-03-01T00:00:00+00:00"
-    MOCKED_PARAMETER_DICT["end_date"]="2022-03-02T23:59:59+00:00"
+    MOCKED_PARAMETER_DICT["start_date"]="2022-03-01T00:00:00+0000"
+    MOCKED_PARAMETER_DICT["end_date"]="2022-03-02T23:59:59+0000"
     mocker.patch.object(MockedCursor, "fetchall_arrow", return_value = pa.Table.from_pandas(pd.DataFrame(data=df)))
     
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())

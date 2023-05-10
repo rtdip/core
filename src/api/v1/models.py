@@ -115,8 +115,8 @@ class RawQueryParams:
         self,
         data_type: str = Query(..., description="Data Type"), 
         include_bad_data: bool = Query(..., description="Include or remove Bad data points"),
-        start_date: Union[date, datetime] = Query(..., description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+0000": {"value": "2022-01-01T15:00:00+0000"}}),
-        end_date: Union[date, datetime] = Query(..., description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples={"2022-01-02": {"value": "2022-01-02"}, "2022-01-01T16:00:00": {"value": "2022-01-01T16:00:00"}, "2022-01-01T15:00:00+0000": {"value": "2022-01-01T15:00:00+0000"}}),
+        start_date: Union[date, datetime] = Query(..., description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zzzz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+0000": {"value": "2022-01-01T15:00:00+0000"}}),
+        end_date: Union[date, datetime] = Query(..., description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zzzz", examples={"2022-01-02": {"value": "2022-01-02"}, "2022-01-01T16:00:00": {"value": "2022-01-01T16:00:00"}, "2022-01-01T15:00:00+0000": {"value": "2022-01-01T15:00:00+0000"}}),
     ):
         self.data_type = data_type
         self.include_bad_data = include_bad_data
