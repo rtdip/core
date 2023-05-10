@@ -33,6 +33,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         table_name_float (str): Name of the Hive Metastore or Unity Catalog Delta Table to store float values
         table_name_string (str): Name of the Hive Metastore or Unity Catalog Delta Table to store string values
+        table_name_integer (str): Name of the Hive Metastore or Unity Catalog Delta Table to store integer values
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
@@ -122,13 +123,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             when_not_matched_insert_list = [
                 DeltaMergeConditionValues(
                     condition="(source.ChangeType IN ('insert', 'update'))",
-                    values={
-                        "EventDate": "source.EventDate", 
-                        "TagName": "source.TagName",
-                        "EventTime": "source.EventTime",
-                        "Status": "source.Status",
-                        "Value": "source.Value"
-                    }
+                    values="*"
                 )
             ]
             delta = SparkDeltaMergeDestination(
@@ -151,7 +146,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         
         delta.write_batch()
 
-    def _write_data_by_type(self, df: DataFrame):
+    def _write_data_by_type(self, df: DataFrame, epoch_id = None): # NOSONAR
         float_df = (
             df
             .filter("ValueType = 'float'")
