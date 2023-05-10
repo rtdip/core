@@ -221,7 +221,7 @@ class DatabricksDBXDeploy(DeployInterface):
             workflow_name=self.pipeline_job.name,
             workflow_names=None,
             job_names=None,
-            deployment_file=Path("conf/deployment.json.j2"),
+            deployment_file=Path("conf/deployment.json"),
             environment_name="rtdip",
             requirements_file=None,
             jinja_variables_file=None,
