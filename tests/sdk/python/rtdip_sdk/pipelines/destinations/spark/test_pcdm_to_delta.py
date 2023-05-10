@@ -39,9 +39,9 @@ def create_delta_table(spark_session, name, value_type):
         spark=spark_session,
         table_name=name,
         columns=[
-            DeltaTableColumn(name="EventDate", type="date", nullable=False, metadata={"delta.generationExpression": "CAST(EventTime AS DATE)"}),
-            DeltaTableColumn(name="TagName", type="string", nullable=False),
-            DeltaTableColumn(name="EventTime", type="timestamp", nullable=False),
+            DeltaTableColumn(name="EventDate", type="date", nullable=True, metadata={"delta.generationExpression": "CAST(EventTime AS DATE)"}),
+            DeltaTableColumn(name="TagName", type="string", nullable=True),
+            DeltaTableColumn(name="EventTime", type="timestamp", nullable=True),
             DeltaTableColumn(name="Status", type="string", nullable=True),
             DeltaTableColumn(name="Value", type=value_type, nullable=True)
         ],
