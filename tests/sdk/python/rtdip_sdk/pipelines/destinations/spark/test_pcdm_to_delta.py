@@ -68,7 +68,7 @@ def test_spark_pcdm_to_delta_write_batch_append(spark_session: SparkSession):
     test_df = spark_session.createDataFrame([{"TagName": "Tag1", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "1.01", "ValueType": "float", "ChangeType": "insert"}, {"TagName": "Tag2", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "test", "ValueType": "string", "ChangeType": "insert"}])
     expected_float_df = spark_session.createDataFrame([{"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag1", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": float(1.01)}]).withColumn("Value", col("Value").cast("float")).select("EventDate", "TagName", "EventTime", "Status", "Value")
     expected_string_df = spark_session.createDataFrame([{"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag2", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "test"}]).select("EventDate", "TagName", "EventTime", "Status", "Value")
-    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, test_df, "test_spark_pcdm_to_delta_write_batch_append_float", "test_spark_pcdm_to_delta_write_batch_append_string", {}, mode="overwrite", merge=False)
+    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, test_df, {}, "test_spark_pcdm_to_delta_write_batch_append_float", "test_spark_pcdm_to_delta_write_batch_append_string", mode="overwrite", merge=False)
     pcdm_to_delta_destination.write_batch()
 
     actual_float_df = spark_session.table("test_spark_pcdm_to_delta_write_batch_append_float")
@@ -104,7 +104,7 @@ def test_spark_pcdm_to_delta_write_batch_merge(spark_session: SparkSession):
     ])
     expected_float_df = spark_session.createDataFrame([{"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag1", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": float(1.02)}]).withColumn("Value", col("Value").cast("float")).select("EventDate", "TagName", "EventTime", "Status", "Value")
     expected_string_df = spark_session.createDataFrame([{"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag2", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "test"}]).select("EventDate", "TagName", "EventTime", "Status", "Value")
-    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, test_df, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", {}, mode="update", merge=True)
+    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, test_df, {}, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", mode="update", merge=True)
     pcdm_to_delta_destination.write_batch()
     actual_float_df = spark_session.table("test_spark_pcdm_to_delta_write_batch_merge_float")
     assert expected_float_df.schema == actual_float_df.schema
@@ -119,7 +119,7 @@ def test_spark_pcdm_to_delta_write_stream_append(spark_session: SparkSession, mo
     expected_df = spark_session.createDataFrame([
         {"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag1", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "1.02", "ValueType": "float", "ChangeType": "insert"},
     ])
-    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", {}, mode="append", merge=False)
+    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, {}, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", mode="append", merge=False)
     actual = pcdm_to_delta_destination.write_stream()
     assert actual is None
 
@@ -128,20 +128,20 @@ def test_spark_pcdm_to_delta_write_stream_merge(spark_session: SparkSession, moc
     expected_df = spark_session.createDataFrame([
         {"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag1", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "1.02", "ValueType": "float", "ChangeType": "insert"},
     ])
-    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", {}, mode="update", merge=True)
+    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, {}, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", mode="update", merge=True)
     actual = pcdm_to_delta_destination.write_stream()
     assert actual is None
 
 def test_spark_pcdm_to_delta_write_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pcdm_to_delta", new_callable=mocker.Mock(return_value=mocker.Mock(SparkDeltaMergeDestination=mocker.Mock(return_value=mocker.Mock(_write_data_by_type=mocker.Mock(side_effect=Exception))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", {}, mode="update", merge=True)
+    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, {}, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", mode="update", merge=True)
     with pytest.raises(Exception):
         pcdm_to_delta_destination.write_batch()
 
 def test_spark_pcdm_to_delta_write_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(foreachBatch=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", {}, mode="update", merge=True)
+    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, {}, "test_spark_pcdm_to_delta_write_batch_merge_float", "test_spark_pcdm_to_delta_write_batch_merge_string", mode="update", merge=True)
     with pytest.raises(Exception):
         pcdm_to_delta_destination.write_stream()
