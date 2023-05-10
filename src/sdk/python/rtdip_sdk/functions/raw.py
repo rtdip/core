@@ -99,3 +99,5 @@ print(x)
 # datetime(2022, 1, 1, 12 ,0, 0) - done
 # datetime(2022, 1, 1, 12 ,0, 0) - done
 # tz = pytz.timezone("America/Los_Angeles")
+ note: try do below if poss
+date(2022, 1, 1) + tz
