@@ -146,7 +146,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         
         delta.write_batch()
 
-    def _write_data_by_type(self, df: DataFrame, epoch_id = None): # NOSONAR
+    def _write_data_by_type(self, df: DataFrame):
+        df = df.drop_duplicates()
+
         float_df = (
             df
             .filter("ValueType = 'float'")
@@ -164,6 +166,11 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 .withColumn("Value", col("Value").cast("integer"))
             )
             self._write_delta_batch(integer_df, self.table_name_integer)            
+
+    def _write_stream_microbatches(self, df: DataFrame, epoch_id = None): # NOSONAR
+        df.persist()
+        self._write_data_by_type(df)
+        df.unpersist()
 
     def write_batch(self):
         '''
@@ -190,7 +197,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     .writeStream
                     .trigger(processingTime=self.trigger)
                     .format("delta")
-                    .foreachBatch(self._write_data_by_type)
+                    .foreachBatch(self._write_stream_microbatches)
                     .queryName(self.query_name)
                     .outputMode("update")
                     .options(**self.options)
