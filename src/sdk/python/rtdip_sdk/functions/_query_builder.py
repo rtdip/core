@@ -16,6 +16,7 @@
 from jinjasql import JinjaSql
 from six import string_types
 from copy import deepcopy
+import datetime
 from datetime import datetime
 
 def _is_date_format(dt, format):
@@ -24,7 +25,8 @@ def _is_date_format(dt, format):
     except:
         return False
 
-def _parse_date(dt, is_end_date=False, exclude_date_format=False):      
+def _parse_date(dt, is_end_date=False, exclude_date_format=False):   
+    #dt = datetime.strftime(dt, "%Y-%m-%dT%H:%M:%S%z") if isinstance(dt, datetime) else str(dt)
     if _is_date_format(dt, "%Y-%m-%d") and exclude_date_format == False:
         _time = "T23:59:59" if is_end_date == True else "T00:00:00"
         return dt + _time + "+00:00"
@@ -32,6 +34,13 @@ def _parse_date(dt, is_end_date=False, exclude_date_format=False):
         return dt + "+00:00"
     elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
         return dt
+    # elif isinstance(dt, datetime.date) and dt.tzinfo is None and exclude_date_format == False:
+    #     _time = "T23:59:59" if is_end_date == True else "T00:00:00"
+    #     return dt.strftime("%Y-%m-%d") + _time + "+00:00"
+    # elif isinstance(dt, datetime) and dt.tzinfo is None:
+    #     return dt.strftime("%Y-%m-%dT%H:%M:%S") + "+00:00"
+    # elif isinstance(dt, datetime) and dt.tzinfo is not None:
+    #     return dt.strftime("%Y-%m-%dT%H:%M:%S%z")
     else: 
         msg = f"Inputted timestamp: '{dt}', is not in the correct format."
         if exclude_date_format == True:
