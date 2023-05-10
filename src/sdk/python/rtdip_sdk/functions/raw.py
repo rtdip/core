@@ -16,8 +16,8 @@ import logging
 import pytz
 import pandas as pd
 from src.sdk.python.rtdip_sdk.functions._query_builder import _query_builder
-from datetime import datetime
 import datetime
+from datetime import datetime
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
@@ -64,23 +64,38 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         logging.exception('error with raw function')
         raise e
     
-# from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
-# from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-# from src.sdk.python.rtdip_sdk.functions import raw
-# #testing 
-# auth = auth = DefaultAuth(exclude_visual_studio_code_credential=True).authenticate()
-# token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-# connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
-# dict = {
-#     "business_unit": "downstream",
-#     "region": "emea", 
-#     "asset": "pernis", 
-#     "data_security_level": "restricted", 
-#     "data_type": "float",
-#     "tag_names": ["PGP:720FY003.PV"], 
-#     "start_date": datetime.datetime.now(),
-#     "end_date": datetime.datetime.now(),
-#     "include_bad_data": True,
-# }
-# x = raw.get(connection, dict)
-# print(x)
+from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
+from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+
+#testing 
+auth = auth = DefaultAuth(exclude_visual_studio_code_credential=True).authenticate()
+token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
+sdt = datetime(2022, 1, 1, 12, 0, 0)
+tz = pytz.timezone("America/Los_Angeles")
+sdtz = tz.localize(sdt)
+
+edt = datetime(2022, 1, 2, 15, 30, 30)
+edtz = tz.localize(edt)
+
+dict = {
+    "business_unit": "downstream",
+    "region": "emea", 
+    "asset": "pernis", 
+    "data_security_level": "restricted", 
+    "data_type": "float",
+    "tag_names": ["PGP:720FY003.PV"], 
+    "start_date": sdtz,
+    "end_date": edtz,
+    "include_bad_data": True,
+}
+x = get(connection, dict)
+print(x)
+
+# "2022-01-01"
+# "2022-01-01T12:00:00"
+# "2022-01-01T12:00:00+0530"
+# datetime(2022, 1, 1) - done
+# datetime(2022, 1, 1, 12 ,0, 0) - done
+# datetime(2022, 1, 1, 12 ,0, 0) - done
+# tz = pytz.timezone("America/Los_Angeles")
