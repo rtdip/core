@@ -34,7 +34,9 @@ RUN echo '[ODBC Drivers]' > /etc/odbcinst.ini \
     && echo 'Driver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so' >> /etc/odbcinst.ini
 
 COPY src/api/requirements.txt /
-RUN pip install pyarrow==12.0.0 && pip install -r /requirements.txt
+RUN pip install --no-cache-dir pyarrow==12.0.0 \
+    && python -c "import pyarrow; pyarrow.create_library_symlinks()" \
+    && CFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" pip install --no-cache-dir -r /requirements.txt
 
 COPY src/api/ /home/site/wwwroot
 COPY src /home/site/wwwroot/src

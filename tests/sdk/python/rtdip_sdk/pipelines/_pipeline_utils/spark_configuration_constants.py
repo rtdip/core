@@ -12,6 +12,8 @@
 # limitations under the License.
 
 import sys
+
+from pytest_mock import MockerFixture
 sys.path.insert(0, '.')
 from typing import Iterator
 import pytest
@@ -37,14 +39,14 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import DEFAULT
 SPARK_TESTING_CONFIGURATION = {
     "spark.executor.cores": "2",
     "spark.executor.instances": "2",
-    "spark.sql.shuffle.partitions": "1",
+    "spark.sql.shuffle.partitions": "2",
     "spark.app.name": "test_app", 
     "spark.master": "local[*]"
 }
 
 @pytest.fixture(scope="session")
 def spark_session():
-    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination("test_table", {}), SparkEventhubSource(None, {}), SparkEventhubDestination({}),  SparkKafkaSource(None, {}), SparkKafkaDestination({}), SparkKinesisSource(None, {}), SparkKinesisDestination({})]
+    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination(None, "test_table", {}), SparkEventhubSource(None, {}), SparkEventhubDestination(None, {}),  SparkKafkaSource(None, {}), SparkKafkaDestination(None, {}), SparkKinesisSource(None, {}), SparkKinesisDestination(None, {})]
     task_libraries = Libraries()
     task_libraries.get_libraries_from_components(component_list)
     spark_configuration = SPARK_TESTING_CONFIGURATION.copy()
