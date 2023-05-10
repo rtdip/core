@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import logging
+from typing import Optional
+from pydantic import BaseModel
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField
 from py4j.protocol import Py4JJavaError
@@ -22,6 +24,12 @@ from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
+class DeltaTableColumn(BaseModel):
+    name: str
+    type: str
+    nullable: bool
+    metadata: Optional[dict]
+
 class DeltaTableCreateUtility(UtilitiesInterface):
     '''
     Creates a Delta Table in a Hive Metastore or in Databricks Unity Catalog.
@@ -29,7 +37,7 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     Args:
         spark (SparkSession): Spark Session required to read data from cloud storage
         table_name (str): Name of the table, including catalog and schema if table is to be created in Unity Catalog
-        columns (list[StructField]): List of columns and their related column properties
+        columns (list[DeltaTableColumn]): List of columns and their related column properties
         partitioned_by (list[str], optional): List of column names to partition the table by
         location (str, optional): Path to storage location
         properties (dict, optional): Propoerties that can be specified for a Delta Table. Further information on the options available are [here](https://docs.databricks.com/delta/table-properties.html#delta-table-properties)
@@ -37,7 +45,7 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     ''' 
     spark: SparkSession
     table_name: str
-    columns: list[StructField]
+    columns: list[DeltaTableColumn]
     partitioned_by: list[str]
     location: str
     properties: dict
@@ -72,11 +80,13 @@ class DeltaTableCreateUtility(UtilitiesInterface):
 
     def execute(self) -> bool:
         try:
+            columns = [StructField.fromJson(column.dict()) for column in self.columns]
+
             delta_table = (
                 DeltaTable
                 .createIfNotExists(self.spark)
                 .tableName(self.table_name)
-                .addColumns(self.columns)
+                .addColumns(columns)
             )
 
             if self.partitioned_by is not None:
