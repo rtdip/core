@@ -25,7 +25,6 @@ class SystemType(Enum):
     # Executable in a databricks environment
     PYSPARK_DATABRICKS = 3
 
-
 class LibraryTypes(Enum):
     MAVEN = 1
     PYPI = 2

@@ -15,7 +15,7 @@
 import logging
 import time
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, when
 from py4j.protocol import Py4JJavaError
 
 from ..interfaces import DestinationInterface
@@ -109,7 +109,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             df = df.select("EventDate", "TagName", "EventTime", "Status", "Value", "ChangeType")
             when_matched_update_list = [
                 DeltaMergeConditionValues(
-                    condition="(source.ChangeType IN ('insert', 'update')) AND ((source.Status != target.Status) OR (source.Value != target.Value))",
+                    condition="(source.ChangeType IN ('insert', 'update', 'upsert')) AND ((source.Status != target.Status) OR (source.Value != target.Value))",
                     values={
                         "EventDate": "source.EventDate", 
                         "TagName": "source.TagName",
@@ -126,7 +126,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             ]
             when_not_matched_insert_list = [
                 DeltaMergeConditionValues(
-                    condition="(source.ChangeType IN ('insert', 'update'))",
+                    condition="(source.ChangeType IN ('insert', 'update', 'upsert'))",
                     values="*"
                 )
             ]
@@ -151,6 +151,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         delta.write_batch()
 
     def _write_data_by_type(self, df: DataFrame):
+        if self.merge == True:
+            df = df.withColumn("ChangeType", when(df["ChangeType"].isin("insert", "update"), "upsert").otherwise(df["ChangeType"]))
+
         if self.remove_duplicates == True:
             df = df.drop_duplicates()
 
