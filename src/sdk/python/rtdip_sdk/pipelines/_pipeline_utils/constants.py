@@ -37,7 +37,7 @@ DEFAULT_PACKAGES = {
             ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
-                version="0.2.1"
+                version="0.2.2"
             ),
     "azure_adls_gen_2": PyPiLibrary(
                 name="azure-storage-file-datalake",

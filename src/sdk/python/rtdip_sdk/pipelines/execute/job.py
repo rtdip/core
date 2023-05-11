@@ -22,8 +22,6 @@ from ..destinations.interfaces import DestinationInterface
 from ..utilities.interfaces import UtilitiesInterface
 from ..secrets.models import PipelineSecret
 
-
-
 class PipelineJobExecute():
     '''
     Executes Pipeline components in their intended order as a complete data pipeline. It ensures that components dependencies are injected as needed.
