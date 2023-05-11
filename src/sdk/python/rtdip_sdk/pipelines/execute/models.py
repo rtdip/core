@@ -56,8 +56,8 @@ class PipelineStep(BaseModel):
 class PipelineTask(BaseModel):
     name: str
     description: str
-    depends_on_task: Optional[list[str]]
-    step_list: list[PipelineStep]
+    depends_on_task: Optional[List[str]]
+    step_list: List[PipelineStep]
     batch_task: Optional[bool]
 
     class Config:
@@ -74,7 +74,7 @@ class PipelineJob(BaseModel):
     name: str
     description: str
     version: str
-    task_list: list[PipelineTask]
+    task_list: List[PipelineTask]
 
     class Config:
         json_encoders = {

@@ -58,7 +58,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
     options: dict
     merge_condition: str
     when_matched_update_list: List[DeltaMergeConditionValues]
-    when_matched_delete_list = List[DeltaMergeCondition]
+    when_matched_delete_list: List[DeltaMergeCondition]
     when_not_matched_insert_list: List[DeltaMergeConditionValues]
     when_not_matched_by_source_update_list: List[DeltaMergeConditionValues]
     when_not_matched_by_source_delete_list: List[DeltaMergeCondition]
@@ -72,11 +72,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  table_name:str, 
                  options: dict,
                  merge_condition: str, 
-                 when_matched_update_list: list[DeltaMergeConditionValues] = None, 
-                 when_matched_delete_list: list[DeltaMergeCondition] = None,
-                 when_not_matched_insert_list: list[DeltaMergeConditionValues] = None,
-                 when_not_matched_by_source_update_list: list[DeltaMergeConditionValues] = None,
-                 when_not_matched_by_source_delete_list: list[DeltaMergeCondition] = None,
+                 when_matched_update_list: List[DeltaMergeConditionValues] = None, 
+                 when_matched_delete_list: List[DeltaMergeCondition] = None,
+                 when_not_matched_insert_list: List[DeltaMergeConditionValues] = None,
+                 when_not_matched_by_source_update_list: List[DeltaMergeConditionValues] = None,
+                 when_not_matched_by_source_delete_list: List[DeltaMergeCondition] = None,
                  try_broadcast_join: bool = True,
                  trigger="10 seconds",
                  query_name: str ="DeltaMergeDestination") -> None:

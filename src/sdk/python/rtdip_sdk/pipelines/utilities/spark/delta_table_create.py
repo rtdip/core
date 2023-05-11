@@ -73,7 +73,7 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     properties: dict
     comment: str
 
-    def __init__(self, spark: SparkSession, table_name: str, columns: list[StructField], partitioned_by: list[str] = None, location: str = None, properties: dict = None, comment: str = None) -> None:
+    def __init__(self, spark: SparkSession, table_name: str, columns: List[StructField], partitioned_by: List[str] = None, location: str = None, properties: dict = None, comment: str = None) -> None:
         self.spark = spark
         self.table_name = table_name
         self.columns = columns
