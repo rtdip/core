@@ -47,6 +47,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
+        python-version: ["3.11"]
     runs-on: ${{ matrix.os }} 
     steps:
       - uses: actions/checkout@v3
@@ -58,7 +59,7 @@ jobs:
       - name: Setup Python 
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: ${{ matrix.python-version }}
       
       - name: Install Boost
         run: |
@@ -74,6 +75,8 @@ jobs:
         uses: mamba-org/provision-with-micromamba@main
         with:
           environment-file: environment.yml
+          extra-specs: |
+            python=${{ matrix.python-version }}           
           cache-env: true
 
       - name: Test
