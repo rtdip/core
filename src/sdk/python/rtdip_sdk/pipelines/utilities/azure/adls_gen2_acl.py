@@ -49,7 +49,7 @@ class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
     set_as_default_acl: bool
     create_directory_if_not_exists: bool
 
-    def __init__(self, storage_account: str, container: str, credential: Union[str, Dict[str, str], AzureNamedKeyCredential, AzureSasCredential, TokenCredential, None], directory: str, group_object_id: str, folder_permissions: str = "r-x", parent_folder_permissions: str | None = "r-x", root_folder_permissions: str | None = "r-x", set_as_default_acl: bool = True, create_directory_if_not_exists: bool = True) -> None:
+    def __init__(self, storage_account: str, container: str, credential: Union[str, Dict[str, str], AzureNamedKeyCredential, AzureSasCredential, TokenCredential, None], directory: str, group_object_id: str, folder_permissions: str = "r-x", parent_folder_permissions: Union[str, None] = "r-x", root_folder_permissions: Union[str, None] = "r-x", set_as_default_acl: bool = True, create_directory_if_not_exists: bool = True) -> None:
         self.storage_account = storage_account
         self.container = container
         self.credential = credential
