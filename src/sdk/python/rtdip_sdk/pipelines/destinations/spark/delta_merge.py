@@ -14,7 +14,7 @@
 
 import logging
 import time
-from typing import Optional, Union
+from typing import List, Optional, Union
 from pydantic import BaseModel
 from pyspark.sql.functions import broadcast
 from pyspark.sql import DataFrame, SparkSession
@@ -57,11 +57,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
     table_name: str
     options: dict
     merge_condition: str
-    when_matched_update_list: list[DeltaMergeConditionValues]
-    when_matched_delete_list = list[DeltaMergeCondition]
-    when_not_matched_insert_list: list[DeltaMergeConditionValues]
-    when_not_matched_by_source_update_list: list[DeltaMergeConditionValues]
-    when_not_matched_by_source_delete_list: list[DeltaMergeCondition]
+    when_matched_update_list: List[DeltaMergeConditionValues]
+    when_matched_delete_list = List[DeltaMergeCondition]
+    when_not_matched_insert_list: List[DeltaMergeConditionValues]
+    when_not_matched_by_source_update_list: List[DeltaMergeConditionValues]
+    when_not_matched_by_source_delete_list: List[DeltaMergeCondition]
     try_broadcast_join: bool
     trigger: str
     query_name: str
