@@ -261,6 +261,13 @@ def _metadata_query(parameters_dict: dict) -> str:
     sql_query = _get_sql_from_template(query, bind_params)
     return sql_query    
 
+def _time_weighted_average(parametes_dict: dict):
+
+    time_weighted_average_query = ()
+
+    time_weighted_average_parameters = {
+        
+    }
 def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=False) -> str:
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
