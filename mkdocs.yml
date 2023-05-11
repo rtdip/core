@@ -74,6 +74,7 @@ extra:
 plugins:
   - search
   - autorefs
+  - mkdocstrings
   - macros:
       module_name: docs/macros
 
