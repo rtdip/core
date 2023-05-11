@@ -151,6 +151,15 @@ class InterpolateQueryParams:
     ):
         self.interpolation_method = interpolation_method
 
+class InterpolationAtTimeQueryParams:
+    def __init__(
+        self,
+        data_type: str = Query(..., description="Data Type"),
+        timestamps: List[Union[date, datetime]] = Query(..., description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zzzz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+0000": {"value": "2022-01-01T15:00:00+0000"}}), 
+    ):
+        self.data_type = data_type
+        self.timestamps = timestamps
+
 class TimeWeightedAverageQueryParams:
     def __init__(
         self,
