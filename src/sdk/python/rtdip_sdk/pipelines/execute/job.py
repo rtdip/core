@@ -72,7 +72,7 @@ class PipelineJobExecute():
                             break
         return ordered_task_list
     
-    def _steps_order(self, step_list: list[PipelineStep]):
+    def _steps_order(self, step_list: List[PipelineStep]):
         '''
         Orders steps within a task
         '''        
