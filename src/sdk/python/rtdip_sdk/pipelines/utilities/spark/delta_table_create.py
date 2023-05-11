@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField
@@ -67,8 +67,8 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     ''' 
     spark: SparkSession
     table_name: str
-    columns: list[DeltaTableColumn]
-    partitioned_by: list[str]
+    columns: List[DeltaTableColumn]
+    partitioned_by: List[str]
     location: str
     properties: dict
     comment: str

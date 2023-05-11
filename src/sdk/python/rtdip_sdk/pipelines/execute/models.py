@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Type, Union, Dict
+from typing import List, Optional, Type, Union, Dict
 import re
 from pydantic import BaseConfig, BaseModel, validator
 from abc import ABCMeta
@@ -37,10 +37,10 @@ def validate_name(name: str) -> str:
 class PipelineStep(BaseModel):
     name: str
     description: str
-    depends_on_step: Optional[list[str]]
+    depends_on_step: Optional[List[str]]
     component: Union[Type[SourceInterface], Type[TransformerInterface], Type[DestinationInterface], Type[UtilitiesInterface]]
     component_parameters: Optional[dict]
-    provide_output_to_step: Optional[list[str]]
+    provide_output_to_step: Optional[List[str]]
 
     class Config:
         json_encoders = {
