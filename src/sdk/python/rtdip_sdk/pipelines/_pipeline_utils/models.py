@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 
 class SystemType(Enum):
@@ -51,9 +51,9 @@ class PythonWheelLibrary(BaseModel):
     path: str
 
 class Libraries(BaseModel):
-    maven_libraries: list[MavenLibrary] = []
-    pypi_libraries: list[PyPiLibrary] = []
-    pythonwheel_libraries: list[PythonWheelLibrary] = []
+    maven_libraries: List[MavenLibrary] = []
+    pypi_libraries: List[PyPiLibrary] = []
+    pythonwheel_libraries: List[PythonWheelLibrary] = []
 
     def add_maven_library(self, maven_library: MavenLibrary):
         self.maven_libraries.append(maven_library)
