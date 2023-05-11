@@ -33,10 +33,12 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         table_name_float (str): Name of the Hive Metastore or Unity Catalog Delta Table to store float values
         table_name_string (str): Name of the Hive Metastore or Unity Catalog Delta Table to store string values
+        table_name_integer (str): Name of the Hive Metastore or Unity Catalog Delta Table to store integer values
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
         merge (bool): Use Delta Merge to perform inserts, updates and deletes
+        remove_duplicates (bool: Removes duplicates before writing the data 
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -51,6 +53,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     trigger: str
     query_name: str
     merge: bool
+    remove_duplicates: bool
 
     def __init__(self, 
                  spark: SparkSession, 
@@ -62,7 +65,8 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                  mode: str = None,
                  trigger="10 seconds",
                  query_name: str ="PCDMToDeltaMergeDestination",
-                 merge: bool = True) -> None:
+                 merge: bool = True,
+                 remove_duplicates: bool = True) -> None:
         self.spark = spark
         self.data = data
         self.table_name_float = table_name_float
@@ -73,6 +77,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         self.trigger = trigger
         self.query_name = query_name
         self.merge = merge
+        self.remove_duplicates = remove_duplicates
 
     @staticmethod
     def system_type():
@@ -122,13 +127,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             when_not_matched_insert_list = [
                 DeltaMergeConditionValues(
                     condition="(source.ChangeType IN ('insert', 'update'))",
-                    values={
-                        "EventDate": "source.EventDate", 
-                        "TagName": "source.TagName",
-                        "EventTime": "source.EventTime",
-                        "Status": "source.Status",
-                        "Value": "source.Value"
-                    }
+                    values="*"
                 )
             ]
             delta = SparkDeltaMergeDestination(
@@ -152,6 +151,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         delta.write_batch()
 
     def _write_data_by_type(self, df: DataFrame):
+        if self.remove_duplicates == True:
+            df = df.drop_duplicates()
+
         float_df = (
             df
             .filter("ValueType = 'float'")
@@ -169,6 +171,11 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 .withColumn("Value", col("Value").cast("integer"))
             )
             self._write_delta_batch(integer_df, self.table_name_integer)            
+
+    def _write_stream_microbatches(self, df: DataFrame, epoch_id = None): # NOSONAR
+        df.persist()
+        self._write_data_by_type(df)
+        df.unpersist()
 
     def write_batch(self):
         '''
@@ -195,7 +202,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     .writeStream
                     .trigger(processingTime=self.trigger)
                     .format("delta")
-                    .foreachBatch(self._write_data_by_type)
+                    .foreachBatch(self._write_stream_microbatches)
                     .queryName(self.query_name)
                     .outputMode("update")
                     .options(**self.options)

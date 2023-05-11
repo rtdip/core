@@ -15,6 +15,7 @@
 import logging
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType, ArrayType
+
 from .models import Libraries
 
 class SparkClient():

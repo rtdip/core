@@ -38,7 +38,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (list): List of tagname or tagnames
         start_date (str): Start date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
-        end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:z)
+        end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         window_size_mins (int): Window size in minutes
         window_length (int): (Optional) add longer window time for the start or end of specified date to cater for edge cases
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
@@ -109,7 +109,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         elif parameters_dict["step"].lower() == "false":
             preprocess_df["Step"] = False
         else:
-            raise Exception('Unexpected step value', parameters_dict["step"])
+            raise Exception('Unexpected step value', parameters_dict["step"]) # NOSONAR
         
         def process_time_weighted_averages_step(pandas_df):
             if pandas_df["Step"].any() == False:
