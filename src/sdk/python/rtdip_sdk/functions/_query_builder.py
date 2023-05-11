@@ -261,14 +261,44 @@ def _metadata_query(parameters_dict: dict) -> str:
     sql_query = _get_sql_from_template(query, bind_params)
     return sql_query    
 
-def _time_weighted_average(parametes_dict: dict):
+def _time_weighted_average_query(parameters_dict: dict):
 
-    time_weighted_average_query = ()
+    time_weighted_average_query = (
+        "SELECT TagName, EventTime, Value FROM "
+        "(SELECT TagName, WindowEventTime as EventTime, Step, CASE WHEN Step == true THEN sum(step_values) / sum(minutes_diff) ELSE (0.5 * sum(weights) / sum(minutes_diff)) END as Value FROM "
+        "(SELECT EventTime, WindowEventTime, TagName, false as Step, Status, Value, lead(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_EventTime, lead(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_Value, "
+        "((unix_timestamp(Next_EventTime) - unix_timestamp(EventTime)) / 60) as minutes_diff, (Value + Next_Value) as sum_values, (minutes_diff * sum_values) as weights, (Value * minutes_diff) as step_values FROM "
+        "(SELECT TagName, EventTime, WindowEventTime, Status, last_value(Value, true) OVER (PARTITION BY TagName ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Value "
+        "FROM (SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, window(coalesce(a.EventTime, b.EventTime), '{{ window_size_mins }} minutes').start WindowEventTime, b.Status, b.Value "
+        "FROM (SELECT explode(sequence(from_utc_timestamp(to_timestamp({{ start_date }}), {{ time_zone }}), from_utc_timestamp(to_timestamp({{ end_date }}), {{ time_zone }}), INTERVAL '{{ window_size_mins }} minute')) AS EventTime, explode(array{{ tag_names | inclause  }}) AS TagName) a FULL "
+        "OUTER JOIN (SELECT * FROM (SELECT * FROM {{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
+        "WHERE EventDate BETWEEN date_sub(to_date(to_timestamp({{ start_date }})), 1) AND date_add(to_date(to_timestamp({{ end_date }})), 1) AND TagName in ({{ tag_names | inclause }}))) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))) "
+        "WHERE Next_EventTime IS NOT NULL GROUP BY TagName, WindowEventTime, Step) "
+        "WHERE EventTime BETWEEN from_utc_timestamp(to_timestamp({{ start_date }}), {{ time_zone }}) AND from_utc_timestamp(to_timestamp({{ end_date }}), {{ time_zone }}) "
+    )
 
     time_weighted_average_parameters = {
-        
+        "business_unit": parameters_dict['business_unit'].lower(),
+        "region": parameters_dict['region'].lower(),
+        "asset": parameters_dict['asset'].lower(),
+        "data_security_level": parameters_dict['data_security_level'].lower(),
+        "data_type": parameters_dict['data_type'].lower(),
+        "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
+        "start_date": parameters_dict['start_date'],
+        "end_date": parameters_dict['end_date'],
+        "window_size_mins": parameters_dict["window_size_mins"],
+        #"window_length": parameters_dict["window_length"],
+        #"include_bad_data": parameters_dict["include_bad_data"],
+        "step": parameters_dict["step"].lower(),
+        "time_zone": parameters_dict["time_zone"]      
     }
-def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=False) -> str:
+
+    sql_template = JinjaSql(param_style='pyformat')
+    query, bind_params = sql_template.prepare_query(time_weighted_average_query, time_weighted_average_parameters)
+    sql_query = _get_sql_from_template(query, bind_params)
+    return sql_query
+
+def _query_builder(parameters_dict: dict, metadata=False, raw=False, resample=False, interpolate=False, interpolation_at_time=False, time_weighted_average=False) -> str:
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
     tagnames_deduplicated = list(dict.fromkeys(parameters_dict['tag_names'])) #remove potential duplicates in tags
@@ -283,16 +313,19 @@ def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=
     if interpolation_at_time:
         return _interpolation_at_time(parameters_dict)
 
-    if "agg_method" not in parameters_dict:
+    if raw:
         return _raw_query(parameters_dict)
 
-    if "sample_rate" in parameters_dict:
+    if resample:
         sample_prepared_query, sample_query, sample_parameters = _sample_query(parameters_dict)
 
         if "interpolation_method" not in parameters_dict:
             return sample_prepared_query
 
-    if "interpolation_method" in parameters_dict:
+    if interpolate:
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
+    
+    if time_weighted_average:
+        return _time_weighted_average_query(parameters_dict)
     
     

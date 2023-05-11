@@ -50,7 +50,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         raise ValueError("tag_names must be a list")
 
     try:
-        query = _query_builder(parameters_dict)
+        query = _query_builder(parameters_dict, metadata=False, raw=False, resample=True, interpolate=True, interpolation_at_time=False, time_weighted_average=False)
 
         try:
             cursor = connection.cursor()

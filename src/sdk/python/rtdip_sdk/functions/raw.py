@@ -46,7 +46,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         DataFrame: A dataframe of raw timeseries data.
     '''
     try:
-        query = _query_builder(parameters_dict)
+        query = _query_builder(parameters_dict, metadata=False, raw=True, resample=False, interpolate=False, interpolation_at_time=False, time_weighted_average=False)
 
         try:
             cursor = connection.cursor()
