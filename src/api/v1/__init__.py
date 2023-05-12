@@ -15,7 +15,7 @@
 import azure.functions as func
 from fastapi import Depends
 from src.api.FastAPIApp import app, api_v1_router
-from src.api.v1 import metadata, raw, resample, interpolate, time_weighted_average, graphql
+from src.api.v1 import metadata, raw, resample, interpolate, interpolation_at_time, time_weighted_average, graphql
 from src.api.auth.azuread import oauth2_scheme
 
 app.include_router(api_v1_router)

@@ -18,12 +18,12 @@ from fastapi import HTTPException, Depends, Body
 import nest_asyncio
 from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.functions import interpolation_at_time
-from src.api.v1.models import BaseQueryParams, ResampleInterpolateResponse, HTTPError, RawQueryParams, TagsQueryParams, TagsBodyParams, ResampleQueryParams, InterpolateQueryParams, InterpolationAtTimeQueryParams
+from src.api.v1.models import BaseQueryParams, ResampleInterpolateResponse, HTTPError, TagsQueryParams, TagsBodyParams, InterpolationAtTimeQueryParams
 import src.api.v1.common
 
 nest_asyncio.apply()
 
-def interpolation_at_time_events_get(base_query_parameters, tag_query_parameters, interpolation_at_time_query_parameters ):
+def interpolation_at_time_events_get(base_query_parameters, tag_query_parameters, interpolation_at_time_query_parameters):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
             base_query_parameters, 
