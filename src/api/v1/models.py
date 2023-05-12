@@ -136,7 +136,7 @@ class TagsBodyParams(BaseModel):
 class ResampleQueryParams:
     def __init__(
         self,
-        sample_rate: int = Query(..., description="Sample Rate", example=5),
+        sample_rate: str = Query(..., description="Sample Rate", example=5),
         sample_unit: str = Query(..., description="Sample Unit", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
         agg_method: str = Query(..., description="Aggregation Method", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
     ):
