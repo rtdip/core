@@ -18,12 +18,20 @@ import pytest
 from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _version_meets_minimum
 
+class MockPackageClass():
+    version: str
+
 def test_package_version_meets_minimum(mocker: MockerFixture):
-    mocker.patch("importlib.metadata.version", return_value="5.2.0")
+    mock_package = MockPackageClass()
+    mock_package.version = "5.2.0"
+    mocker.patch("importlib_metadata.Distribution.from_name", return_value=mock_package)
     result = _version_meets_minimum("test-package-version", "1.0.0")
     assert True
 
 def test_package_version_does_not_meet_minimum(mocker: MockerFixture):
-    mocker.patch("importlib.metadata.version", return_value="0.9.0")
+    mock_package = MockPackageClass()
+    mock_package.version = "0.9.0"
+    mocker.patch("importlib_metadata.Distribution.from_name", return_value=mock_package)
+
     with pytest.raises(AssertionError):
         result = _version_meets_minimum("test-package-version", "1.0.0")

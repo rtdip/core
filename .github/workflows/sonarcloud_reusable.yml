@@ -85,6 +85,7 @@ jobs:
 
       - name: Test
         run: |
+          set -e
           mkdir -p coverage-reports
           coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
