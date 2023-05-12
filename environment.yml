@@ -18,7 +18,7 @@ channels:
     - conda-forge
     - defaults
 dependencies:
-    - python==3.10.9
+    - python>=3.8,<3.11
     - mkdocs-material==9.1.8
     - mkdocs-material-extensions==1.1.1
     - jinja2==3.0.3
@@ -40,8 +40,8 @@ dependencies:
     - fastapi==0.95.1
     - httpx==0.24.0
     - trio==0.22.0
-    - pyspark==3.3.2
-    - delta-spark==2.3.0
+    - pyspark>=3.3.0,<3.4.0
+    - delta-spark>=2.2.0,<2.4.0
     - openjdk==11.0.15    
     - python-dotenv==1.0.0
     - mkdocstrings==0.21.2
@@ -50,6 +50,7 @@ dependencies:
     - pygments==2.15.1
     - pymdown-extensions==9.11
     - databricks-sql-connector==2.5.1
+    - semver==3.0.0
     - pip:
         - dependency-injector==4.41.0
         - azure-functions==1.14.0
