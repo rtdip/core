@@ -103,16 +103,16 @@ def test_spark_delta_merge_update_by_source_write_batch(spark_session: SparkSess
     expected_df = spark_session.createDataFrame([{"id": "1", "value": "0"},{"id": "2", "value": "2"}])
     delta_destination = SparkDeltaDestination(create_table_df, "test_spark_delta_merge_update_by_source_write_batch", {}, "overwrite")
     delta_destination.write_batch()
-    delta_destination_merge = SparkDeltaMergeDestination(spark_session, merge_table_df, "test_spark_delta_merge_update_by_source_write_batch", {}, "source.id = target.id", when_not_matched_by_source_update_list=[DeltaMergeConditionValues(values={"value": "0"})])
-    
     try:
         _package_version_meets_minimum("delta_spark", "2.3.0")    
+        delta_destination_merge = SparkDeltaMergeDestination(spark_session, merge_table_df, "test_spark_delta_merge_update_by_source_write_batch", {}, "source.id = target.id", when_not_matched_by_source_update_list=[DeltaMergeConditionValues(values={"value": "0"})])
         delta_destination_merge.write_batch()
         actual_df = spark_session.table("test_spark_delta_merge_update_by_source_write_batch").orderBy("id")
         assert expected_df.schema == actual_df.schema
         assert expected_df.collect() == actual_df.collect()
-    except:
+    except AssertionError:
         with pytest.raises(AssertionError):
+            delta_destination_merge = SparkDeltaMergeDestination(spark_session, merge_table_df, "test_spark_delta_merge_update_by_source_write_batch", {}, "source.id = target.id", when_not_matched_by_source_update_list=[DeltaMergeConditionValues(values={"value": "0"})])
             delta_destination_merge.write_batch()  
 
 def test_spark_delta_merge_delete_by_source_write_batch(spark_session: SparkSession):
@@ -121,15 +121,16 @@ def test_spark_delta_merge_delete_by_source_write_batch(spark_session: SparkSess
     expected_df = spark_session.createDataFrame([{"id": "2", "value": "2"}])
     delta_destination = SparkDeltaDestination(create_table_df, "test_spark_delta_merge_delete_by_source_write_batch", {}, "overwrite")
     delta_destination.write_batch()
-    delta_destination_merge = SparkDeltaMergeDestination(spark_session, merge_table_df, "test_spark_delta_merge_delete_by_source_write_batch", {}, "source.id = target.id", when_not_matched_by_source_delete_list=[DeltaMergeCondition()])
     try:
         _package_version_meets_minimum("delta_spark", "2.3.0")
+        delta_destination_merge = SparkDeltaMergeDestination(spark_session, merge_table_df, "test_spark_delta_merge_delete_by_source_write_batch", {}, "source.id = target.id", when_not_matched_by_source_delete_list=[DeltaMergeCondition()])
         delta_destination_merge.write_batch()
         actual_df = spark_session.table("test_spark_delta_merge_delete_by_source_write_batch").orderBy("id")
         assert expected_df.schema == actual_df.schema
         assert expected_df.collect() == actual_df.collect()
-    except:
+    except AssertionError:
         with pytest.raises(AssertionError):
+            delta_destination_merge = SparkDeltaMergeDestination(spark_session, merge_table_df, "test_spark_delta_merge_delete_by_source_write_batch", {}, "source.id = target.id", when_not_matched_by_source_delete_list=[DeltaMergeCondition()])
             delta_destination_merge.write_batch()      
 
 def test_spark_delta_merge_update_write_stream_micro_batch(spark_session: SparkSession):
