@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from importlib import metadata
+from importlib_metadata import version as metadata_version
 from semver.version import Version
 
 def _version_meets_minimum(package_name: str, minimum_version: str) -> bool:
-    package_version = Version.parse(metadata.version(package_name))
+    package_version = Version.parse(metadata_version(package_name))
     version_result =  Version.compare(package_version, minimum_version)
     if version_result < 0:
         raise AssertionError("Package {} does not meet minimum version requirement {}".format(package_name, minimum_version))

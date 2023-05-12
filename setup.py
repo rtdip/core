@@ -35,6 +35,7 @@ INSTALL_REQUIRES = [
   "pandas==1.5.2",
   "jinja2==3.0.3",
   "jinjasql==0.1.8",
+  "importlib_metadata>=1.0.0"
   "semver==3.0.0"
 ]
 
