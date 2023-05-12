@@ -72,8 +72,7 @@ jobs:
 
         - name: Test
           run: |
-            set -e
             mkdir -p coverage-reports-previous
-            coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
+            coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
             coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports-previous/coverage-unittests.xml
             echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
