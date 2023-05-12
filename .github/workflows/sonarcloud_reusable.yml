@@ -48,6 +48,8 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.10"]
+        pyspark: ["3.3.2"]
+        delta-spark: ["2.3.0"]
     runs-on: ${{ matrix.os }} 
     steps:
       - uses: actions/checkout@v3
@@ -76,7 +78,9 @@ jobs:
         with:
           environment-file: environment.yml
           extra-specs: |
-            python=${{ matrix.python-version }}           
+            python=${{ matrix.python-version }}
+            pyspark=${{ matrix.pyspark }}
+            delta-spark=${{ matrix.delta-spark }}          
           cache-env: true
 
       - name: Test

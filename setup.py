@@ -34,7 +34,8 @@ INSTALL_REQUIRES = [
   "pyodbc==4.0.39",
   "pandas==1.5.2",
   "jinja2==3.0.3",
-  "jinjasql==0.1.8"
+  "jinjasql==0.1.8",
+  "semver==3.0.0"
 ]
 
 PYSPARK_PACKAGES = [
