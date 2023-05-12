@@ -17,7 +17,7 @@ from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnecti
 from src.sdk.python.rtdip_sdk.odbc.turbodbc_sql_connector import TURBODBCSQLConnection
 from src.api.auth import azuread
 
-def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = None, raw_query_parameters = None, tag_query_parameters = None, resample_query_parameters = None, interpolate_query_parameters = None, time_weighted_average_query_parameters = None):
+def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = None, raw_query_parameters = None, tag_query_parameters = None, resample_query_parameters = None, interpolate_query_parameters = None, interpolation_at_time_query_parameters = None, time_weighted_average_query_parameters = None):
     token = azuread.get_azure_ad_token(base_query_parameters.authorization)
     
     odbc_connection = os.getenv("RTDIP_ODBC_CONNECTION", "")
@@ -52,6 +52,9 @@ def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = No
 
     if interpolate_query_parameters != None:
         parameters = dict(parameters, **interpolate_query_parameters.__dict__)
+
+    if interpolation_at_time_query_parameters != None:
+        parameters = dict(parameters, **interpolation_at_time_query_parameters.__dict__)
     
     if time_weighted_average_query_parameters != None:
         parameters = dict(parameters, **time_weighted_average_query_parameters.__dict__)
