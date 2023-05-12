@@ -266,7 +266,7 @@ def _time_weighted_average_query(parameters_dict: dict):
     time_weighted_average_query = (
         "SELECT TagName, EventTime, Value FROM "
         "(SELECT TagName, WindowEventTime as EventTime, Step, CASE WHEN Step == true THEN sum(step_values) / sum(minutes_diff) ELSE (0.5 * sum(weights) / sum(minutes_diff)) END as Value FROM "
-        "(SELECT EventTime, WindowEventTime, TagName, false as Step, Status, Value, lead(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_EventTime, lead(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_Value, "
+        "(SELECT EventTime, WindowEventTime, TagName, {{ step }} as Step, Status, Value, lead(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_EventTime, lead(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_Value, "
         "((unix_timestamp(Next_EventTime) - unix_timestamp(EventTime)) / 60) as minutes_diff, (Value + Next_Value) as sum_values, (minutes_diff * sum_values) as weights, (Value * minutes_diff) as step_values FROM "
         "(SELECT TagName, EventTime, WindowEventTime, Status, last_value(Value, true) OVER (PARTITION BY TagName ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Value "
         "FROM (SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, window(coalesce(a.EventTime, b.EventTime), '{{ window_size_mins }} minutes').start WindowEventTime, b.Status, b.Value "
