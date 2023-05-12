@@ -115,8 +115,8 @@ class RawQueryParams:
         self,
         data_type: str = Query(..., description="Data Type"), 
         include_bad_data: bool = Query(..., description="Include or remove Bad data points"),
-        start_date: Union[date, datetime] = Query(..., description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}}),
-        end_date: Union[date, datetime] = Query(..., description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss", examples={"2022-01-02": {"value": "2022-01-02"}, "2022-01-01T16:00:00": {"value": "2022-01-01T16:00:00"}}),
+        start_date: Union[date, datetime] = Query(..., description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zzzz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+0000": {"value": "2022-01-01T15:00:00+0000"}}),
+        end_date: Union[date, datetime] = Query(..., description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zzzz", examples={"2022-01-02": {"value": "2022-01-02"}, "2022-01-01T16:00:00": {"value": "2022-01-01T16:00:00"}, "2022-01-01T15:00:00+0000": {"value": "2022-01-01T15:00:00+0000"}}),
     ):
         self.data_type = data_type
         self.include_bad_data = include_bad_data
@@ -136,9 +136,9 @@ class TagsBodyParams(BaseModel):
 class ResampleQueryParams:
     def __init__(
         self,
-        sample_rate: str = Query(..., description="Sample Rate", example="5"),
+        sample_rate: str = Query(..., description="Sample Rate", example=5),
         sample_unit: str = Query(..., description="Sample Unit", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
-        agg_method: str = Query(..., escription="Aggregation Method", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
+        agg_method: str = Query(..., description="Aggregation Method", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
     ):
         self.sample_rate = sample_rate
         self.sample_unit = sample_unit
@@ -151,13 +151,21 @@ class InterpolateQueryParams:
     ):
         self.interpolation_method = interpolation_method
 
+class InterpolationAtTimeQueryParams:
+    def __init__(
+        self,
+        data_type: str = Query(..., description="Data Type"),
+        timestamps: List[Union[date, datetime]] = Query(..., description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zzzz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+0000": {"value": "2022-01-01T15:00:00+0000"}}), 
+    ):
+        self.data_type = data_type
+        self.timestamps = timestamps
+
 class TimeWeightedAverageQueryParams:
     def __init__(
         self,
         window_size_mins: int = Query(..., description="Window Size Mins", example=20),
-        window_length: int = Query(..., description="Window Length", examples=10),
-        step: Union[bool, str] = Query(..., description="step" )
-        #examples={"metadata": {"value": "metadata"}, "True": {"value": True}, "False": {"value": False}}),   
+        window_length: int = Query(..., description="Window Length", example=10),
+        step: str = Query(..., description="Step", examples={"true": {"value": "true"}, "false": {"value": "false"}, "metadata": {"value": "metadata"}}) 
     ):
         self.window_size_mins = window_size_mins
         self.window_length = window_length

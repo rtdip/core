@@ -18,8 +18,8 @@ parameters = {
     "data_security_level": "Security Level", 
     "data_type": "float", #options:["float", "double", "integer", "string"]
     "tag_names": ["tag_1", "tag_2"], #list of tags
-    "start_date": "2023-01-01", #start_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS"
-    "end_date": "2023-01-31", #end_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS"
+    "start_date": "2023-01-01", #start_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zzzz"
+    "end_date": "2023-01-31", #end_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zzzz"
     "sample_rate": "1", #numeric input
     "sample_unit": "hour", #options: ["second", "minute", "day", "hour"]
     "agg_method": "first", #options: ["first", "last", "avg", "min", "max"]

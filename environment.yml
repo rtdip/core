@@ -18,43 +18,45 @@ channels:
     - conda-forge
     - defaults
 dependencies:
-    - python==3.10.9
-    - mkdocs-material==9.0.14
+    - python>=3.8,<3.11
+    - mkdocs-material==9.1.8
     - mkdocs-material-extensions==1.1.1
     - jinja2==3.0.3
     - jinjasql==0.1.8
-    - pytest==7.2.0
+    - pytest==7.3.1
     - pytest-mock==3.10.0
     - pytest-cov==4.0.0
-    - pip==22.3.0
-    - turbodbc==4.5.6
+    - pip==23.1.2
+    - turbodbc==4.5.10
     - numpy>=1.23.4
     - pandas==1.5.2
     - oauthlib>=3.2.2
     - cryptography>=38.0.3
-    - azure-identity==1.11.0
+    - azure-identity==1.12.0
     - azure-storage-file-datalake==12.10.1
-    - boto3==1.26.118
-    - pyodbc==4.0.34
-    - mkdocstrings==0.20.0
-    - fastapi==0.92.0
-    - httpx==0.23.1
+    - azure-keyvault-secrets==4.7.0
+    - boto3==1.26.123
+    - pyodbc==4.0.39
+    - fastapi==0.95.1
+    - httpx==0.24.0
     - trio==0.22.0
-    - pyspark==3.3.2
-    - delta-spark==2.3.0
+    - pyspark>=3.3.0,<3.4.0
+    - delta-spark>=2.2.0,<2.4.0
     - openjdk==11.0.15    
     - python-dotenv==1.0.0
-    - mkdocstrings==0.20.0
-    - mkdocstrings-python==0.8.3
+    - mkdocstrings==0.21.2
+    - mkdocstrings-python==0.9.0
     - mkdocs-macros-plugin==0.7.0
-    - pygments==2.14
-    - pymdown-extensions==9.10
+    - pygments==2.15.1
+    - pymdown-extensions==9.11
+    - databricks-sql-connector==2.5.1
+    - semver==3.0.0
     - pip:
-          - dependency-injector==4.41.0
-          - azure-functions==1.12.0
-          - databricks-sql-connector==2.4.0
-          - dbx==0.8.10
-          - deltalake==0.8.1
-          - pygithub==1.58.0
-          - strawberry-graphql[fastapi]==0.159.0
-          - nest_asyncio==1.5.6
+        - dependency-injector==4.41.0
+        - azure-functions==1.14.0
+        - dbx==0.8.11
+        - deltalake==0.8.1
+        - pygithub==1.58.1
+        - strawberry-graphql[fastapi]==0.176.0
+        - nest_asyncio==1.5.6
+        - hvac==1.1.0

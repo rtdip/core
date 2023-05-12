@@ -156,7 +156,8 @@ class DatabricksDBXDeploy(DeployInterface):
                 for pypi_library in libraries.pypi_libraries:
                     databricks_job_task.libraries.append(DatabricksLibraries(pypi=DatbricksLibrariesPypi(package=pypi_library.to_string(), repo=pypi_library.repo)))
                 for maven_library in libraries.maven_libraries:
-                    databricks_job_task.libraries.append(DatabricksLibraries(maven=DatabricksLibrariesMaven(coordinates=maven_library.to_string(), repo=maven_library.repo)))
+                    if not maven_library.group_id in ["io.delta", "org.apache.spark"]:
+                        databricks_job_task.libraries.append(DatabricksLibraries(maven=DatabricksLibrariesMaven(coordinates=maven_library.to_string(), repo=maven_library.repo)))
                 for wheel_library in libraries.pythonwheel_libraries:
                     databricks_job_task.libraries.append(DatabricksLibraries(whl=wheel_library))
 
@@ -221,7 +222,7 @@ class DatabricksDBXDeploy(DeployInterface):
             workflow_name=self.pipeline_job.name,
             workflow_names=None,
             job_names=None,
-            deployment_file=Path("conf/deployment.json.j2"),
+            deployment_file=Path("conf/deployment.json"),
             environment_name="rtdip",
             requirements_file=None,
             jinja_variables_file=None,

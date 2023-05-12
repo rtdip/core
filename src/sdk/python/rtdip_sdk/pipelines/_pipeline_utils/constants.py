@@ -37,14 +37,34 @@ DEFAULT_PACKAGES = {
             ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
-                version="0.2.1"
+                version="0.2.2"
             ),
     "azure_adls_gen_2": PyPiLibrary(
                 name="azure-storage-file-datalake",
                 version="12.10.1"
             ),
+    "azure_key_vault_secret": PyPiLibrary(
+                name="azure-keyvault-secrets",
+                version="4.7.0"
+            ),
     "aws_boto3": PyPiLibrary(
                 name="boto3",
                 version="1.26.118"
-            )            
+            ),
+    "hashicorp_vault": PyPiLibrary(
+                name="hvac",
+                version="1.1.0"
+            ),
+    "api_requests": PyPiLibrary(
+                name="requests",
+                version="2.30.0"
+            ),
+    "pyarrow": PyPiLibrary(
+                name="pyarrow",
+                version="12.0.0"
+            ),
+    "pandas": PyPiLibrary(
+                name="pandas",
+                version="2.0.1"
+            ),                      
 }

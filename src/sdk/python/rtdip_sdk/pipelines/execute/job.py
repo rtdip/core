@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List
 from dependency_injector import containers, providers
 from .container import Clients, Configs
 from .models import PipelineJob, PipelineTask, PipelineStep
@@ -21,8 +22,6 @@ from ..transformers.interfaces import TransformerInterface
 from ..destinations.interfaces import DestinationInterface
 from ..utilities.interfaces import UtilitiesInterface
 from ..secrets.models import PipelineSecret
-
-
 
 class PipelineJobExecute():
     '''
@@ -44,6 +43,8 @@ class PipelineJobExecute():
             # if isinstance(value, SparkSession): # TODO: fix this as value does not seem to be an instance of SparkSession
             if key == "spark":
                 provider.add_kwargs(spark=Clients.spark_client().spark_session)
+            if key == "data":
+                provider.add_kwargs(data=None)
         return provider
 
     def _get_secret_provider_attributes(self, pipeline_secret: PipelineSecret) -> providers.Factory:
@@ -52,7 +53,7 @@ class PipelineJobExecute():
         secret_provider.add_kwargs(vault=pipeline_secret.vault, key=pipeline_secret.key)
         return secret_provider
     
-    def _tasks_order(self, task_list: list[PipelineTask]):
+    def _tasks_order(self, task_list: List[PipelineTask]):
         '''
         Orders tasks within a job
         '''
@@ -71,7 +72,7 @@ class PipelineJobExecute():
                             break
         return ordered_task_list
     
-    def _steps_order(self, step_list: list[PipelineStep]):
+    def _steps_order(self, step_list: List[PipelineStep]):
         '''
         Orders steps within a task
         '''        
@@ -90,7 +91,7 @@ class PipelineJobExecute():
                         break
         return ordered_step_list
 
-    def _task_setup_dependency_injection(self, step_list: list[PipelineStep]):
+    def _task_setup_dependency_injection(self, step_list: List[PipelineStep]):
         '''
         Determines the dependencies to be injected into each component 
         '''
@@ -123,10 +124,6 @@ class PipelineJobExecute():
             # setup factory provider for component
             provider = providers.Factory(step.component)
             provider = self._get_provider_attributes(provider, step.component)
-
-            # add parameters
-            if isinstance(step.component, DestinationInterface):
-                step.component_parameters["query_name"] = step.name
 
             # get secrets
             for param_key, param_value in step.component_parameters.items():
@@ -168,14 +165,14 @@ class PipelineJobExecute():
                         
                 # transformer components
                 elif isinstance(factory(), TransformerInterface):
-                    result = factory().transform(task_results[step.name])
+                    result = factory(data=task_results[step.name]).transform()
 
                 # destination components
                 elif isinstance(factory(), DestinationInterface):
                     if task.batch_task:
-                        result = factory().write_batch(task_results[step.name])
+                        result = factory(data=task_results[step.name], query_name=step.name).write_batch()
                     else:
-                        result = factory().write_stream(task_results[step.name])
+                        result = factory(data=task_results[step.name], query_name=step.name).write_stream()
 
                 # utilities components
                 elif isinstance(factory(), UtilitiesInterface):

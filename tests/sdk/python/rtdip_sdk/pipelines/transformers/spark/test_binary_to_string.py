@@ -21,10 +21,10 @@ from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_co
 from pyspark.sql import SparkSession, DataFrame
 
 def test_spark_eventhub_transform_body_to_string(spark_session: SparkSession):
-    eventhub_binary_to_string_transformer = BinaryToStringTransformer(source_column_name="body", target_column_name="body")
     expected_df: DataFrame = spark_session.createDataFrame([{"body": "1"}])
     binary_df = expected_df.withColumn("body", expected_df["body"].cast("binary"))
-    actual_df = eventhub_binary_to_string_transformer.transform(binary_df)
+    eventhub_binary_to_string_transformer = BinaryToStringTransformer(binary_df, source_column_name="body", target_column_name="body")    
+    actual_df = eventhub_binary_to_string_transformer.transform()
 
     assert eventhub_binary_to_string_transformer.system_type() == SystemType.PYSPARK
     assert isinstance(eventhub_binary_to_string_transformer.libraries(), Libraries)

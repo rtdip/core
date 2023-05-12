@@ -49,8 +49,10 @@ Transformers are components that perform transformations on data. These will tar
 |Transformer Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
 |[Binary To String](../code-reference/pipelines/transformers/spark/binary_to_string.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[OPC Publisher Json To OPC UA](../code-reference/pipelines/transformers/spark/opc_publisher_json_to_opcua.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[OPC UA To Process Control Data Model](../code-reference/pipelines/transformers/spark/opcua_to_process_control_data_model.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[OPC Publisher Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Fledge Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[SSIP PI Binary Files To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[SSIP PI Binary JSON To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -61,10 +63,13 @@ Destinations are components that connect to sink/destination systems and write d
 
 |Destination Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
-|[Delta Append](../code-reference/pipelines/destinations/spark/delta.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Delta](../code-reference/pipelines/destinations/spark/delta.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Delta Merge](../code-reference/pipelines/destinations/spark/delta_merge.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Eventhub](../code-reference/pipelines/destinations/spark/eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Kakfa](../code-reference/pipelines/destinations/spark/kafka.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Kinesis](../code-reference/pipelines/destinations/spark/kafka.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Rest API](../code-reference/pipelines/destinations/spark/rest_api.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Process Control Data Model To Delta](../code-reference/pipelines/destinations/spark/pcdm_to_delta.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -81,7 +86,7 @@ Utilities are components that perform utility functions such as logging, error h
 |[Delta Table Vacuum](../code-reference/pipelines/utilities/spark/delta_table_vacuum.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[AWS S3 Bucket Policy](../code-reference/pipelines/utilities/aws/s3_bucket_policy.md)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[ADLS Gen 2 ACLs](../code-reference/pipelines/utilities/azure/adls_gen2_acl.md)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-
+|[Spark ADLS Gen 2 Service Principal Connect](../code-reference/pipelines/utilities/spark/adls_gen2_spn_connect.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -93,6 +98,8 @@ Secrets are components that perform functions to interact with secret stores to 
 |Secret Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
 |[Databricks Secret Scopes](../code-reference/pipelines/secrets/databricks.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Hashicorp Vault](../code-reference/pipelines/secrets/hashicorp_vault.md)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Azure Key Vault](../code-reference/pipelines/secrets/azure_key_vault.md)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
