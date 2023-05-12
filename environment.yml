@@ -40,7 +40,8 @@ dependencies:
     - fastapi==0.95.1
     - httpx==0.24.0
     - trio==0.22.0
-    - pyspark>=3.1.0,<3.4.0
+    - pyspark>=3.3.0,<3.4.0
+    - delta-spark>=2.2.0,<2.4.0
     - openjdk==11.0.15    
     - python-dotenv==1.0.0
     - mkdocstrings==0.21.2
@@ -51,7 +52,6 @@ dependencies:
     - databricks-sql-connector==2.5.1
     - semver==3.0.0
     - pip:
-        - delta-spark>=1.0.1,<2.4.0
         - dependency-injector==4.41.0
         - azure-functions==1.14.0
         - dbx==0.8.11
