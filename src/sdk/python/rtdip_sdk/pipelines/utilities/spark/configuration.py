@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+from typing import List
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField
 from py4j.protocol import Py4JJavaError
@@ -30,8 +31,8 @@ class SparkConfigurationUtility(UtilitiesInterface):
     ''' 
     spark: SparkSession
     config: dict
-    columns: list[StructField]
-    partitioned_by: list[str]
+    columns: List[StructField]
+    partitioned_by: List[str]
     location: str
     properties: dict
     comment: str

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List
 from dependency_injector import containers, providers
 from .container import Clients, Configs
 from .models import PipelineJob, PipelineTask, PipelineStep
@@ -52,7 +53,7 @@ class PipelineJobExecute():
         secret_provider.add_kwargs(vault=pipeline_secret.vault, key=pipeline_secret.key)
         return secret_provider
     
-    def _tasks_order(self, task_list: list[PipelineTask]):
+    def _tasks_order(self, task_list: List[PipelineTask]):
         '''
         Orders tasks within a job
         '''
@@ -71,7 +72,7 @@ class PipelineJobExecute():
                             break
         return ordered_task_list
     
-    def _steps_order(self, step_list: list[PipelineStep]):
+    def _steps_order(self, step_list: List[PipelineStep]):
         '''
         Orders steps within a task
         '''        
@@ -90,7 +91,7 @@ class PipelineJobExecute():
                         break
         return ordered_step_list
 
-    def _task_setup_dependency_injection(self, step_list: list[PipelineStep]):
+    def _task_setup_dependency_injection(self, step_list: List[PipelineStep]):
         '''
         Determines the dependencies to be injected into each component 
         '''

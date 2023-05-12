@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField
@@ -67,13 +67,13 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     ''' 
     spark: SparkSession
     table_name: str
-    columns: list[DeltaTableColumn]
-    partitioned_by: list[str]
+    columns: List[DeltaTableColumn]
+    partitioned_by: List[str]
     location: str
     properties: dict
     comment: str
 
-    def __init__(self, spark: SparkSession, table_name: str, columns: list[StructField], partitioned_by: list[str] = None, location: str = None, properties: dict = None, comment: str = None) -> None:
+    def __init__(self, spark: SparkSession, table_name: str, columns: List[StructField], partitioned_by: List[str] = None, location: str = None, properties: dict = None, comment: str = None) -> None:
         self.spark = spark
         self.table_name = table_name
         self.columns = columns
