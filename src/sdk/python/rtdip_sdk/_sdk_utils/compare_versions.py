@@ -19,5 +19,5 @@ def _package_version_meets_minimum(package_name: str, minimum_version: str) -> b
     package_version = Version.parse(version(package_name))
     version_result =  Version.compare(package_version, minimum_version)
     if version_result < 0:
-        raise AssertionError("Package {} does not meet minimum version requirement {}".format(package_name, minimum_version))
+        raise AssertionError("Package {} with version {} does not meet minimum version requirement {}".format(package_name, str(package_version), minimum_version))
     return True

@@ -14,13 +14,8 @@
 
 name: 'Reusable Test Workflow'
 
-# on:
-#   workflow_call:
 on:
-  # Trigger the workflow on push to develop
-  push:
-    branches:
-      - feature/00249
+  workflow_call:
 
 jobs:
   job_test_python_previous_version:

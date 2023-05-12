@@ -40,8 +40,8 @@ INSTALL_REQUIRES = [
 ]
 
 PYSPARK_PACKAGES = [
-  "pyspark==3.3.2",
-  "delta-spark==2.3.0",
+  "pyspark>=3.3.0,<3.4.0",
+  "delta-spark>=2.2.0,<2.4.0",
 ]
 
 PIPELINE_PACKAGES = [
