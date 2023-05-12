@@ -15,7 +15,7 @@
 from importlib_metadata import version
 from semver.version import Version
 
-def _version_meets_minimum(package_name: str, minimum_version: str) -> bool:
+def _package_version_meets_minimum(package_name: str, minimum_version: str) -> bool:
     package_version = Version.parse(version(package_name))
     version_result =  Version.compare(package_version, minimum_version)
     if version_result < 0:
