@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import Dict
+from typing import Dict, List
 
 from pydantic import BaseModel
 
@@ -45,10 +45,10 @@ class S3BucketPolicyUtility(UtilitiesInterface):
     sid: str
     effect: str
     principal: str
-    action: list[str]
-    resource: list[str]
+    action: List[str]
+    resource: List[str]
 
-    def __init__(self, bucket_name: str, aws_access_key_id: str, aws_secret_access_key: str, aws_session_token: str, sid: str, principal: str, effect: str, action: list[str], resource: list[str]) -> None:
+    def __init__(self, bucket_name: str, aws_access_key_id: str, aws_secret_access_key: str, aws_session_token: str, sid: str, principal: str, effect: str, action: List[str], resource: List[str]) -> None:
         self.bucket_name = bucket_name
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key

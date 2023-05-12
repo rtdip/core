@@ -34,12 +34,14 @@ INSTALL_REQUIRES = [
   "pyodbc==4.0.39",
   "pandas==1.5.2",
   "jinja2==3.0.3",
-  "jinjasql==0.1.8"
+  "jinjasql==0.1.8",
+  "importlib_metadata>=1.0.0"
+  "semver==3.0.0"
 ]
 
 PYSPARK_PACKAGES = [
-  "pyspark==3.3.2",
-  "delta-spark==2.3.0",
+  "pyspark>=3.3.0,<3.4.0",
+  "delta-spark>=2.2.0,<2.4.0",
 ]
 
 PIPELINE_PACKAGES = [
