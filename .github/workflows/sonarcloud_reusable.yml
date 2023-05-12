@@ -40,7 +40,7 @@ on:
         required: true
         
 jobs:
-  job_test_python_latest_version:
+  job_test_python_pyspark_latest_version:
     defaults:
       run:
         shell: bash -l {0}
