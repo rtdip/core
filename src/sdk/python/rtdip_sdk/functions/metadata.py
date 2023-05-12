@@ -35,7 +35,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         region (str): Region
         asset (str): Asset 
         data_security_level (str): Level of data security
-        tag_names (list): (Optional) Either pass a list of tagname/tagnames ["tag_1", "tag_2"] or leave the list blank [] or leave the parameter out completely
+        tag_names (optional, list): Either pass a list of tagname/tagnames ["tag_1", "tag_2"] or leave the list blank [] or leave the parameter out completely
 
     Returns:
         DataFrame: A dataframe of metadata.

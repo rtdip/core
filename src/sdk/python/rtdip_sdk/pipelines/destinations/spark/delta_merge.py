@@ -14,7 +14,7 @@
 
 import logging
 import time
-from typing import Optional, Union
+from typing import List, Optional, Union
 from pydantic import BaseModel
 from pyspark.sql.functions import broadcast
 from pyspark.sql import DataFrame, SparkSession
@@ -24,6 +24,7 @@ from delta.tables import DeltaTable, DeltaMergeBuilder
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from ...._sdk_utils.compare_versions import _package_version_meets_minimum
 
 class DeltaMergeConditionValues(BaseModel):
     condition: Optional[str]
@@ -57,11 +58,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
     table_name: str
     options: dict
     merge_condition: str
-    when_matched_update_list: list[DeltaMergeConditionValues]
-    when_matched_delete_list = list[DeltaMergeCondition]
-    when_not_matched_insert_list: list[DeltaMergeConditionValues]
-    when_not_matched_by_source_update_list: list[DeltaMergeConditionValues]
-    when_not_matched_by_source_delete_list: list[DeltaMergeCondition]
+    when_matched_update_list: List[DeltaMergeConditionValues]
+    when_matched_delete_list: List[DeltaMergeCondition]
+    when_not_matched_insert_list: List[DeltaMergeConditionValues]
+    when_not_matched_by_source_update_list: List[DeltaMergeConditionValues]
+    when_not_matched_by_source_delete_list: List[DeltaMergeCondition]
     try_broadcast_join: bool
     trigger: str
     query_name: str
@@ -72,11 +73,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  table_name:str, 
                  options: dict,
                  merge_condition: str, 
-                 when_matched_update_list: list[DeltaMergeConditionValues] = None, 
-                 when_matched_delete_list: list[DeltaMergeCondition] = None,
-                 when_not_matched_insert_list: list[DeltaMergeConditionValues] = None,
-                 when_not_matched_by_source_update_list: list[DeltaMergeConditionValues] = None,
-                 when_not_matched_by_source_delete_list: list[DeltaMergeCondition] = None,
+                 when_matched_update_list: List[DeltaMergeConditionValues] = None, 
+                 when_matched_delete_list: List[DeltaMergeCondition] = None,
+                 when_not_matched_insert_list: List[DeltaMergeConditionValues] = None,
+                 when_not_matched_by_source_update_list: List[DeltaMergeConditionValues] = None,
+                 when_not_matched_by_source_delete_list: List[DeltaMergeCondition] = None,
                  try_broadcast_join: bool = True,
                  trigger="10 seconds",
                  query_name: str ="DeltaMergeDestination") -> None:
@@ -88,7 +89,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
         self.when_matched_update_list = [] if when_matched_update_list == None else when_matched_update_list
         self.when_matched_delete_list = [] if when_matched_delete_list == None else when_matched_delete_list
         self.when_not_matched_insert_list = [] if when_not_matched_insert_list == None else when_not_matched_insert_list
+        if isinstance(when_not_matched_by_source_update_list, list) and len(when_not_matched_by_source_update_list) > 0:
+            _package_version_meets_minimum("delta-spark", "2.3.0")
         self.when_not_matched_by_source_update_list = [] if when_not_matched_by_source_update_list == None else when_not_matched_by_source_update_list
+        if isinstance(when_not_matched_by_source_delete_list, list) and len(when_not_matched_by_source_delete_list) > 0:
+            _package_version_meets_minimum("delta-spark", "2.3.0")        
         self.when_not_matched_by_source_delete_list = [] if when_not_matched_by_source_delete_list == None else when_not_matched_by_source_delete_list
         self.try_broadcast_join = try_broadcast_join
         self.trigger = trigger

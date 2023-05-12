@@ -40,13 +40,16 @@ on:
         required: true
         
 jobs:
-  job_test_python_latest_version:
+  job_test_python_pyspark_latest_version:
     defaults:
       run:
         shell: bash -l {0}
     strategy:
       matrix:
         os: [ubuntu-latest]
+        python-version: ["3.10"]
+        pyspark: ["3.3.2"]
+        delta-spark: ["2.3.0"]
     runs-on: ${{ matrix.os }} 
     steps:
       - uses: actions/checkout@v3
@@ -58,7 +61,7 @@ jobs:
       - name: Setup Python 
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: ${{ matrix.python-version }}
       
       - name: Install Boost
         run: |
@@ -74,12 +77,16 @@ jobs:
         uses: mamba-org/provision-with-micromamba@main
         with:
           environment-file: environment.yml
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            pyspark=${{ matrix.pyspark }}
+            delta-spark=${{ matrix.delta-spark }}          
           cache-env: true
 
       - name: Test
         run: |
           mkdir -p coverage-reports
-          coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
+          coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
           echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
 
