@@ -28,7 +28,10 @@ def _is_date_format(dt, format):
 def _parse_date(dt, is_end_date=False, exclude_date_format=False):   
     if isinstance(dt, datetime):
         if dt.time() == time.min:
-            dt = dt.date()
+            if dt.tzinfo is not None:
+                dt = datetime.strftime(dt, "%Y-%m-%d%z")
+            else:
+                dt = dt.date()
         else:
             dt = datetime.strftime(dt, "%Y-%m-%dT%H:%M:%S%z")
     dt = str(dt)
@@ -39,6 +42,10 @@ def _parse_date(dt, is_end_date=False, exclude_date_format=False):
     elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
         return dt + "+0000"
     elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
+        return dt
+    elif _is_date_format(dt, "%Y-%m-%d%z"):
+        _time = "T23:59:59" if is_end_date == True else "T00:00:00"
+        dt = dt[0:10] + _time + dt[10:]
         return dt
     else: 
         msg = f"Inputted timestamp: '{dt}', is not in the correct format."
