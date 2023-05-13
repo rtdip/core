@@ -15,9 +15,6 @@
 import sys
 
 from pyspark.sql.types import StructType, StructField, IntegerType
-from requests import Response
-
-sys.path.insert(0, '.')
 import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import BaseISOSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
@@ -46,16 +43,16 @@ def test_base_iso_read_setup(spark_session: SparkSession):
 def test_base_iso_read_stream_exception(spark_session: SparkSession):
 
     with pytest.raises(NotImplementedError) as exc_info:
-        kinesis_source = BaseISOSource(spark_session, iso_configuration)
-        kinesis_source.read_stream()
+        base_iso_source = BaseISOSource(spark_session, iso_configuration)
+        base_iso_source.read_stream()
 
     assert str(exc_info.value) == "BaseISOSource connector doesn't support stream operation."
 
 
 def test_base_iso_read_batch(spark_session: SparkSession):
 
-    kinesis_source = BaseISOSource(spark_session, iso_configuration)
-    df = kinesis_source.read_batch()
+    base_iso_source = BaseISOSource(spark_session, iso_configuration)
+    df = base_iso_source.read_batch()
     assert df.count() == 1
     assert isinstance(df, DataFrame)
     assert str(df.schema) == str(StructType([StructField("id", IntegerType(), True)]))

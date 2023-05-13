@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-from abc import abstractmethod
 import pandas as pd
 from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession

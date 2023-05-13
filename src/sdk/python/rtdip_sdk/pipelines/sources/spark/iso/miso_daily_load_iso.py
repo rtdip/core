@@ -81,13 +81,11 @@ class MISODailyLoadISOSource(BaseISOSource):
         try:
             datetime.strptime(self.date_str, self.query_datetime_format)
         except ValueError:
-            logging.error(f"Unable to parse Date. Please specify in YYYYMMDD format.")
-            return False
+            raise ValueError(f"Unable to parse Date. Please specify in YYYYMMDD format.")
 
         valid_load_types = ["actual", "forecast"]
 
         if self.load_type not in valid_load_types:
-            logging.error(f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}.")
-            return False
+            raise ValueError(f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}.")
 
         return True
