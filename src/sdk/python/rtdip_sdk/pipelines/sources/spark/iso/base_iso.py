@@ -20,7 +20,7 @@ from pyspark.sql import DataFrame, SparkSession
 import requests
 from datetime import datetime
 
-from pyspark.sql.types import StructType
+from pyspark.sql.types import StructType, StructField, IntegerType
 
 from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
@@ -29,10 +29,10 @@ from ...._pipeline_utils.models import Libraries, SystemType
 class BaseISOSource(SourceInterface):
     spark: SparkSession
     options: dict
-    iso_url: str = ""
+    iso_url: str = "https://"
     query_datetime_format: str = "%Y%m%d"
     required_options: list[str] = []
-    spark_schema = StructType([])
+    spark_schema = StructType([StructField("id", IntegerType(), True)])
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
 
@@ -54,22 +54,16 @@ class BaseISOSource(SourceInterface):
 
         return response.content
 
-    @abstractmethod
     def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
         return df
 
-    @abstractmethod
     def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
         return df
 
-    @abstractmethod
     def pull_data(self) -> pd.DataFrame:
-        return pd.DataFrame([])
+        return pd.DataFrame([{"id": 1}])
 
-    def get_cols_from_schema(self):
-        return [x for x in self.spark_schema]
-
-    def get_data(self):
+    def get_data(self) -> pd.DataFrame:
 
         # Fetch original data in DataFrame
         df = self.pull_data()
@@ -98,38 +92,38 @@ class BaseISOSource(SourceInterface):
     def settings() -> dict:
         return {}
 
-    @abstractmethod
     def validate_options(self) -> bool:
         return True
 
-    def pre_read_validation(self):
+    def pre_read_validation(self) -> bool:
 
         for key in self.required_options:
             if key not in self.options:
-                logging.error(f"Required option `{key}` is missing.")
-                return False
+                raise ValueError(f"Required option `{key}` is missing.")
 
         return self.validate_options()
 
-    def post_read_validation(self):
+    def post_read_validation(self) -> bool:
         return True
 
-    def read_batch(self):
+    def read_batch(self) -> DataFrame:
         try:
 
-            if self.pre_read_validation() is False:
-                raise Exception("Initial checks failed, please check the logs for more info.")
+            self.pre_read_validation()
 
             pdf = self.get_data()
 
             return self.spark.createDataFrame(pdf, schema=self.spark_schema)
 
         except Py4JJavaError as e:
+
             logging.exception(e.errmsg)
             raise e
+
         except Exception as e:
+
             logging.exception(str(e))
             raise e
 
     def read_stream(self) -> DataFrame:
-        raise NotImplementedError(f"{self.__class__.__name__} connector currently doesn't support stream operation.")
+        raise NotImplementedError(f"{self.__class__.__name__} connector doesn't support stream operation.")
