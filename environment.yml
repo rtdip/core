@@ -50,8 +50,8 @@ dependencies:
     - databricks-sql-connector==2.5.1
     - semver==3.0.0
     - pip:
-        - pyspark==3.1.1
-        - delta-spark==1.0.0
+        - pyspark==3.2.0
+        - delta-spark==2.0.0
         - dependency-injector==4.41.0
         - azure-functions==1.14.0
         - dbx==0.8.11
