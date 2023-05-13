@@ -24,7 +24,7 @@ logging.getLogger().setLevel("INFO")
 class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
     spark: SparkSession
     options: dict
-    requires_options = ["start_date", "end_date"]
+    required_options = ["start_date", "end_date"]
 
     def __init__(self, spark: SparkSession, options: dict):
         super().__init__(spark, options)
@@ -37,11 +37,13 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         df = df[df['MarketDay'] != 'MarketDay']
 
         # Fill missing actual values with the forecast values to avoid gaps.
-        if self.fill_missing_actual:
-            df['ActualLoad (MWh)'] = df['ActualLoad (MWh)'].fillna(df['MTLF (MWh)'])
+        # if self.fill_missing_actual:
+            # df = df.fillna({'ActualLoad (MWh)': df['MTLF (MWh)']})
 
-        df.rename(columns={'MarketDay': 'date', 'HourEnding': 'hour', 'ActualLoad (MWh)': 'load', 'LoadResource Zone': 'zone'},
-                  inplace=True)
+        df = df.rename(columns={'MarketDay': 'date',
+                                'HourEnding': 'hour',
+                                'ActualLoad (MWh)': 'load',
+                                'LoadResource Zone': 'zone'})
         df = df.dropna()
 
         df['date_time'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['hour'].astype(int) - 1, 'h')
@@ -52,6 +54,7 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         df = df.pivot_table(index='date_time', values='load', columns='zone').reset_index()
 
         df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
+
         return df
 
     def get_historical_data_for_date(self, date: datetime) -> pd.DataFrame:
@@ -93,9 +96,8 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
     def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
 
         start_date = datetime.strptime(self.start_date, self.query_datetime_format)
-        end_date = datetime.strptime(self.end_date, self.query_datetime_format)
+        end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
 
-        # Filter out data outside of the expected range.
         df = df[(df["DATE_TIME"] >= start_date) & (df["DATE_TIME"] <= end_date)]
 
         df = df.sort_values(by='DATE_TIME', ascending=True).reset_index(drop=True)

@@ -17,6 +17,7 @@ import pandas as pd
 from pyspark.sql import SparkSession
 from datetime import datetime
 
+from ...._pipeline_utils.iso import MISO_SCHEMA
 from . import BaseISOSource
 
 
@@ -26,9 +27,8 @@ class MISODailyLoadISOSource(BaseISOSource):
     options: dict
     iso_url: str = "https://docs.misoenergy.org/marketreports/"
     query_datetime_format: str = "%Y%m%d"
-    result_schema: list[str] = ["DATE_TIME", "LRZ1", "LRZ2_7", "LRZ3_5", "LRZ4", "LRZ6", "LRZ8_9_10", "MISO"]
-    valid_load_types: list[str] = ["actual", "forecast"]
-    requires_options: list[str] = ["load_type", "date"]
+    required_options: list[str] = ["load_type", "date"]
+    spark_schema = MISO_SCHEMA
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
 
@@ -84,8 +84,10 @@ class MISODailyLoadISOSource(BaseISOSource):
             logging.error(f"Unable to parse Date. Please specify in YYYYMMDD format.")
             return False
 
-        if self.load_type not in self.valid_load_types:
-            logging.error(f"Invalid load_type `{self.load_type}` given. Supported values are {self.valid_load_types}.")
+        valid_load_types = ["actual", "forecast"]
+
+        if self.load_type not in valid_load_types:
+            logging.error(f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}.")
             return False
 
         return True

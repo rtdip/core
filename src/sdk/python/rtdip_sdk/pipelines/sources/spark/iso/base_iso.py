@@ -20,19 +20,19 @@ from pyspark.sql import DataFrame, SparkSession
 import requests
 from datetime import datetime
 
+from pyspark.sql.types import StructType
+
 from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
-logging.getLogger().setLevel("INFO")
 
 class BaseISOSource(SourceInterface):
-
     spark: SparkSession
     options: dict
     iso_url: str = ""
     query_datetime_format: str = "%Y%m%d"
-    result_schema: list[str] = []
-    requires_options: list[str] = []
+    required_options: list[str] = []
+    spark_schema = StructType([])
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
 
@@ -66,6 +66,9 @@ class BaseISOSource(SourceInterface):
     def pull_data(self) -> pd.DataFrame:
         return pd.DataFrame([])
 
+    def get_cols_from_schema(self):
+        return [x for x in self.spark_schema]
+
     def get_data(self):
 
         # Fetch original data in DataFrame
@@ -78,7 +81,7 @@ class BaseISOSource(SourceInterface):
         df = self.sanitize_data(df)
 
         # Reorder columns to keep the data consistent
-        df = df[self.result_schema]
+        df = df[self.spark_schema.names]
 
         return df
 
@@ -101,7 +104,7 @@ class BaseISOSource(SourceInterface):
 
     def pre_read_validation(self):
 
-        for key in self.requires_options:
+        for key in self.required_options:
             if key not in self.options:
                 logging.error(f"Required option `{key}` is missing.")
                 return False
@@ -119,7 +122,7 @@ class BaseISOSource(SourceInterface):
 
             pdf = self.get_data()
 
-            return self.spark.createDataFrame(pdf)
+            return self.spark.createDataFrame(pdf, schema=self.spark_schema)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
