@@ -1,12 +1,11 @@
-# Time Weighted Average
-::: src.sdk.python.rtdip_sdk.functions.time_weighted_average
+# Interpolation at Time Function
+::: src.sdk.python.rtdip_sdk.functions.interpolation_at_time
 
 ## Example
-
 ```python
 from rtdip_sdk.authentication.authenticate import DefaultAuth
 from rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-from rtdip_sdk.functions import time_weighted_average
+from rtdip_sdk.functions import interpolation_at_time
 
 auth = DefaultAuth().authenticate()
 token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
@@ -19,14 +18,9 @@ parameters = {
     "data_security_level": "Security Level", 
     "data_type": "float", #options:["float", "double", "integer", "string"]
     "tag_names": ["tag_1", "tag_2"], #list of tags
-    "start_date": "2023-01-01", #start_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zzzz"
-    "end_date": "2023-01-31", #end_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zzzz"
-    "window_size_mins": 15, #numeric input
-    "window_length": 20, #numeric input
-    "include_bad_data": True, #options: [True, False]
-    "step": True
+    "timestamps": ["2023-01-01"] #list of timestamps can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zzzz"
 }
-x = time_weighted_average.get(connection, parameters)
+x = interpolation_at_time.get(connection, parameters)
 print(x)
 ```
 

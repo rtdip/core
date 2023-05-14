@@ -14,14 +14,13 @@
 
 import logging
 import pandas as pd
-from ._query_builder import _query_builder
+from datetime import datetime
+from src.sdk.python.rtdip_sdk.functions._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
-    An RTDIP interpolation function that is intertwined with the RTDIP Resampling function.
+    An RTDIP interpolation at time function which works out the linear interpolation at a specific time based on the points before and after.
     
-    The Interpolation function will forward fill or backward fill the resampled data depending users specified interpolation method.
-
     This function requires the user to input a dictionary of parameters. (See Attributes table below.)
 
     Args:
@@ -34,23 +33,20 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         asset (str):  Asset
         data_security_level (str): Level of data security 
         data_type (str): Type of the data (float, integer, double, string)
-        tag_names (list): List of tagname or tagnames ["tag_1", "tag_2"]
-        start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zzzz)
-        end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zzzz)
-        sample_rate (str): The resampling rate (numeric input)
-        sample_unit (str): The resampling unit (second, minute, day, hour)
-        agg_method (str): Aggregation Method (first, last, avg, min, max)
-        interpolation_method (str): Optional. Interpolation method (forward_fill, backward_fill)
-        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
+        tag_names (str): Name of the tag
+        timestamps (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zzzz where %z is the timezone. (Example +0000 is the UTC timezone)
 
     Returns:
-        DataFrame: A resampled and interpolated dataframe.
+        DataFrame: A interpolated at time dataframe.
     '''
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
 
+    if isinstance(parameters_dict["timestamps"], list) is False:
+        raise ValueError("timestamps must be a list")
+
     try:
-        query = _query_builder(parameters_dict)
+        query = _query_builder(parameters_dict, metadata=False, interpolation_at_time=True)
 
         try:
             cursor = connection.cursor()
@@ -63,5 +59,5 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             raise e
 
     except Exception as e:
-        logging.exception('error with interpolate function')
+        logging.exception('error with interpolation at time function')
         raise e

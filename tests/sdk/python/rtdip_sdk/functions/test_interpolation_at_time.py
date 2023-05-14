@@ -20,15 +20,14 @@ import pytest
 from pytest_mock import MockerFixture
 from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection, MockedCursor 
 from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-from src.sdk.python.rtdip_sdk.functions.resample import get as resample_get
+from src.sdk.python.rtdip_sdk.functions.interpolation_at_time import get as interpolation_at_time_get
 
 SERVER_HOSTNAME = "mock.cloud.databricks.com"
 HTTP_PATH = "sql/mock/mock-test"
 ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = 'databricks.sql.connect'
 DATABRICKS_SQL_CONNECT_CURSOR = 'databricks.sql.connect.cursor'
-INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY='SELECT DISTINCT TagName, w.start AS EventTime, avg(Value) OVER (PARTITION BY TagName, w.start ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS Value FROM (SELECT from_utc_timestamp(EventTime, "+0000") as EventTime, WINDOW(from_utc_timestamp(EventTime, "+0000"), \'1 hour\') w, TagName, Status, Value FROM mocked-buiness-unit.sensors.mocked-asset_mocked-data-security-level_events_mocked-data-type WHERE EventDate BETWEEN to_date(to_timestamp(\'2011-01-01T00:00:00+0000\')) AND to_date(to_timestamp(\'2011-01-02T23:59:59+0000\')) AND EventTime BETWEEN to_timestamp(\'2011-01-01T00:00:00+0000\') AND to_timestamp(\'2011-01-02T23:59:59+0000\') AND TagName in (\'MOCKED-TAGNAME\') AND Status = \'Good\')'
+MOCKED_QUERY="SELECT TagName, EventTime, Interpolated_Value as Value FROM (SELECT *, lag(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Previous_EventTime, lag(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Previous_Value, lead(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_EventTime, lead(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_Value, CASE WHEN Requested_EventTime = Found_EventTime THEN Value WHEN Next_EventTime IS NULL THEN Previous_Value WHEN Previous_EventTime IS NULL and Next_EventTime IS NULL THEN NULL ELSE Previous_Value + ((Next_Value - Previous_Value) * ((unix_timestamp(EventTime) - unix_timestamp(Previous_EventTime)) / (unix_timestamp(Next_EventTime) - unix_timestamp(Previous_EventTime)))) END AS Interpolated_Value FROM (SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, a.EventTime as Requested_EventTime, b.EventTime as Found_EventTime, b.Status, b.Value FROM (SELECT explode(array( from_utc_timestamp(to_timestamp('2011-01-01T00:00:00+0000'), '+0000') )) AS EventTime, explode(array('MOCKED-TAGNAME')) AS TagName) a FULL OUTER JOIN (SELECT * FROM (SELECT * FROM mocked-buiness-unit.sensors.mocked-asset_mocked-data-security-level_events_mocked-data-type WHERE EventDate BETWEEN date_sub(to_date(to_timestamp('2011-01-01T00:00:00+0000')), 1) AND date_add(to_date(to_timestamp('2011-01-01T00:00:00+0000')), 1)AND TagName in ('MOCKED-TAGNAME'))) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))WHERE EventTime in ( from_utc_timestamp(to_timestamp('2011-01-01T00:00:00+0000'), '+0000') )"
 MOCKED_PARAMETER_DICT = {
         "business_unit": "mocked-buiness-unit",
         "region": "mocked-region",
@@ -36,24 +35,19 @@ MOCKED_PARAMETER_DICT = {
         "data_security_level": "mocked-data-security-level",
         "data_type": "mocked-data-type",
         "tag_names": ["MOCKED-TAGNAME"],
-        "start_date": "2011-01-01",
-        "end_date": "2011-01-02",
-        "sample_rate": "1",
-        "sample_unit": "hour",
-        "agg_method": "avg",
-        "include_bad_data": False
+        "timestamps": ["2011-01-01T00:00:00+0000"],
         }
 
-def test_resample(mocker: MockerFixture):
+def test_interpolation_at_time(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
     mocked_execute = mocker.spy(MockedCursor, "execute")
-    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
+    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value = pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
 
     mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
 
-    actual = resample_get(mocked_connection, MOCKED_PARAMETER_DICT)
+    actual = interpolation_at_time_get(mocked_connection, MOCKED_PARAMETER_DICT)
 
     mocked_cursor.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
@@ -61,7 +55,7 @@ def test_resample(mocker: MockerFixture):
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
 
-def test_resample_fails(mocker: MockerFixture):
+def test_interpolation_at_time_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
     mocker.spy(MockedCursor, "execute")
     mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
@@ -71,4 +65,4 @@ def test_resample_fails(mocker: MockerFixture):
     mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
 
     with pytest.raises(Exception):
-        resample_get(mocked_connection, MOCKED_PARAMETER_DICT)
+        interpolation_at_time_get(mocked_connection, MOCKED_PARAMETER_DICT)

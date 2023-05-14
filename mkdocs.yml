@@ -74,6 +74,7 @@ extra:
 plugins:
   - search
   - autorefs
+  - mkdocstrings
   - macros:
       module_name: docs/macros
 
@@ -177,6 +178,7 @@ nav:
               - Functions:
                   - Resample: sdk/code-reference/query/resample.md
                   - Interpolate: sdk/code-reference/query/interpolate.md
+                  - Interpolation at Time: sdk/code-reference/query/interpolation_at_time.md
                   - Raw: sdk/code-reference/query/raw.md
                   - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
                   - Metadata: sdk/code-reference/query/metadata.md
