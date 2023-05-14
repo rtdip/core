@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType, ArrayType ,DoubleType
+from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType
 
 MISO_SCHEMA = StructType([
             StructField("DATE_TIME", TimestampType(), True),
