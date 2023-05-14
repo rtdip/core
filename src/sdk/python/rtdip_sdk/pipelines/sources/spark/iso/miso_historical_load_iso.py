@@ -22,6 +22,22 @@ logging.getLogger().setLevel("INFO")
 
 
 class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
+    """
+        The MISO Historical Load ISO Source is used to read historical load data from MISO API.
+
+        API: <a href="https://docs.misoenergy.org/marketreports/">https://docs.misoenergy.org/marketreports/</a>
+
+        Args:
+            spark (SparkSession): Spark Session instance
+            options (dict): A dictionary of ISO Source specific configurations
+
+        Attributes:
+            start_date (str): Must be in `YYYYMMDD` format.
+            end_date (str): Must be in `YYYYMMDD` format.
+            fill_missing (str): Set to `"true"` to fill missing Actual load with Forecast load. Default - `true`.
+
+        """
+
     spark: SparkSession
     options: dict
     required_options = ["start_date", "end_date"]
@@ -30,13 +46,61 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         super().__init__(spark, options)
         self.start_date = self.options.get("start_date", "")
         self.end_date = self.options.get("end_date", "")
-        self.fill_missing_actual = bool(self.options.get("fill_missing", "true") == "true")
+        self.fill_missing = bool(self.options.get("fill_missing", "true") == "true")
+
+    def get_historical_data_for_date(self, date: datetime) -> pd.DataFrame:
+        logging.info(f"Getting historical data for date {date}")
+        df = pd.read_excel(self.fetch_from_url(f"{date.strftime(self.query_datetime_format)}_dfal_HIST.xls"),
+                           skiprows=5)
+
+        if date.month == 12 and date.day == 31:
+            expected_year_rows = pd.Timestamp(date.year, 12, 31).dayofyear * 24
+            received_year_rows = len(df)
+
+            if expected_year_rows != received_year_rows:
+                logging.warning(f"Didn't receive full year historical data for year {date.year}."
+                                f" Expected {expected_year_rows} but Received {received_year_rows}")
+
+        return df
+
+    def pull_data(self) -> pd.DataFrame:
+        """
+        Pulls data from the MISO API and parses the Excel file.
+
+        Returns:
+            Raw form of data.
+        """
+
+        logging.info(f"Historical load requested from {self.start_date} to {self.end_date}")
+
+        start_date = datetime.strptime(self.start_date, self.query_datetime_format)
+        end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
+
+        dates = pd.date_range(start_date, end_date + timedelta(days=365), freq='Y', inclusive='left')
+        logging.info(f"Generated date ranges are - {dates}")
+
+        # Collect all historical data on yearly basis.
+        df = pd.concat([self.get_historical_data_for_date(min(date, self.current_date))
+                        for date in dates], sort=False)
+
+        return df
 
     def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Creates a new `date_time` column, removes null values and pivots the data.
+
+        Args:
+            df: Raw form of data received from the API.
+
+        Returns:
+            Data after basic transformations and pivoting.
+
+        """
+
         df = df[df['MarketDay'] != 'MarketDay']
 
         # Fill missing actual values with the forecast values to avoid gaps.
-        if self.fill_missing_actual:
+        if self.fill_missing:
             df = df.fillna({'ActualLoad (MWh)': df['MTLF (MWh)']})
 
         df = df.rename(columns={'MarketDay': 'date',
@@ -56,37 +120,18 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         return df
 
-    def get_historical_data_for_date(self, date: datetime) -> pd.DataFrame:
-        logging.info(f"Getting historical data for date {date}")
-        df = pd.read_excel(self.fetch_from_url(f"{date.strftime(self.query_datetime_format)}_dfal_HIST.xls"),
-                           skiprows=5)
-
-        if date.month == 12 and date.day == 31:
-            expected_year_rows = pd.Timestamp(date.year, 12, 31).dayofyear * 24
-            received_year_rows = len(df)
-
-            if expected_year_rows != received_year_rows:
-                logging.warning(f"Didn't receive full year historical data for year {date.year}."
-                                f" Expected {expected_year_rows} but Received {received_year_rows}")
-
-        return df
-
-    def pull_data(self) -> pd.DataFrame:
-        logging.info(f"Historical load requested from {self.start_date} to {self.end_date}")
-
-        start_date = datetime.strptime(self.start_date, self.query_datetime_format)
-        end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
-
-        dates = pd.date_range(start_date, end_date + timedelta(days=365), freq='Y', inclusive='left')
-        logging.info(f"Generated date ranges are - {dates}")
-
-        # Collect all historical data on yearly basis.
-        df = pd.concat([self.get_historical_data_for_date(min(date, self.current_date))
-                        for date in dates], sort=False)
-
-        return df
-
     def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Filter outs data outside the requested date range.
+
+        Args:
+            df: Data received after preparation.
+
+        Returns:
+            Final data after all the transformations.
+
+        """
+
         start_date = datetime.strptime(self.start_date, self.query_datetime_format)
         end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
 
@@ -103,6 +148,17 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         return df
 
     def validate_options(self) -> bool:
+        """
+        Validates the following options:
+            - `start_date` & `end_data` must be in the correct format.
+            - `start_date` must be behind `end_data`.
+            - `start_date` must not be in the future (UTC).
+
+        Returns:
+            True if all looks good otherwise raises Exception.
+
+        """
+
         try:
             start_date = datetime.strptime(self.start_date, self.query_datetime_format)
         except ValueError:

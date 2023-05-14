@@ -26,6 +26,14 @@ from ...._pipeline_utils.models import Libraries, SystemType
 
 
 class BaseISOSource(SourceInterface):
+    """
+    Base class for all the ISO Sources. It provides common functionality and helps in reducing the code redundancy.
+
+    Args:
+        spark (SparkSession): Spark Session instance
+        options (dict): A dictionary of ISO Source specific configurations
+    """
+
     spark: SparkSession
     options: dict
     iso_url: str = "https://"
@@ -39,6 +47,16 @@ class BaseISOSource(SourceInterface):
         self.current_date = datetime.utcnow()
 
     def fetch_from_url(self, url_suffix: str) -> bytes:
+        """
+        Gets data from external ISO API.
+
+        Args:
+            url_suffix: String to be used as suffix to iso url.
+
+        Returns:
+            Raw content of the data received.
+
+        """
         url = f"{self.iso_url}{url_suffix}"
         logging.info(f"Requesting URL - {url}")
 
@@ -51,16 +69,56 @@ class BaseISOSource(SourceInterface):
 
         return response.content
 
+    def pull_data(self) -> pd.DataFrame:
+        """
+        Hits the fetch_from_url method with certain parameters to get raw data from API.
+
+        All the children ISO classes must override this method and call the fetch_url method
+        in it.
+
+        Returns:
+             Raw DataFrame from API.
+        """
+
+        return pd.DataFrame([{"id": 1}])
+
     def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Performs all the basic transformations to prepare data for further processing.
+        All the children ISO classes must override this method.
+
+        Args:
+            df: Raw DataFrame, received from the API.
+
+        Returns:
+             Modified DataFrame, ready for basic use.
+
+        """
         return df
 
     def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Another data transformation helper method to be called after prepare data.
+        Used for advance data processing such as cleaning, filtering, restructuring.
+        All the children ISO classes must override this method if there is any post-processing required.
+
+        Args:
+            df: Initial modified version of DataFrame, received after preparing the data.
+
+        Returns:
+             Final version of data after all the fixes and modifications.
+
+        """
         return df
 
-    def pull_data(self) -> pd.DataFrame:
-        return pd.DataFrame([{"id": 1}])
-
     def get_data(self) -> pd.DataFrame:
+        """
+        Entrypoint method to return the final version of DataFrame.
+
+        Returns:
+            Modified form of data for specific use case.
+
+        """
         df = self.pull_data()
         df = self.prepare_data(df)
         df = self.sanitize_data(df)
@@ -84,9 +142,21 @@ class BaseISOSource(SourceInterface):
         return {}
 
     def validate_options(self) -> bool:
+        """
+        Performs all the options checks. Raises exception in case of any invalid value.
+        Returns:
+             True if all checks are passed.
+
+        """
         return True
 
     def pre_read_validation(self) -> bool:
+        """
+        Ensures all the required options are provided and performs other validations.
+        Returns:
+             True if all checks are passed.
+
+        """
         for key in self.required_options:
             if key not in self.options:
                 raise ValueError(f"Required option `{key}` is missing.")
@@ -97,6 +167,13 @@ class BaseISOSource(SourceInterface):
         return True
 
     def read_batch(self) -> DataFrame:
+        """
+        Spark entrypoint, It executes the entire process of pulling, transforming & fixing data.
+        Returns:
+             Final Spark DataFrame converted from Pandas DataFrame post-execution.
+
+        """
+
         try:
             self.pre_read_validation()
             return self.spark.createDataFrame(self.get_data(), schema=self.spark_schema)
@@ -106,4 +183,12 @@ class BaseISOSource(SourceInterface):
             raise e
 
     def read_stream(self) -> DataFrame:
+        """
+        By default, the streaming operation is not supported but child classes can override if ISO supports streaming.
+
+        Returns:
+             Final Spark DataFrame after all the processing.
+
+        """
+
         raise NotImplementedError(f"{self.__class__.__name__} connector doesn't support stream operation.")

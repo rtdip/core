@@ -22,6 +22,26 @@ from . import BaseISOSource
 
 
 class MISODailyLoadISOSource(BaseISOSource):
+    """
+    The MISO Daily Load ISO Source is used to read daily load data from MISO API. It supports both Actual and Forecast data.
+
+    API: <a href="https://docs.misoenergy.org/marketreports/">https://docs.misoenergy.org/marketreports/</a>
+
+    Actual data is available for one day minus from the given date.
+
+    Forecast data is available for next 6 day (inclusive of given date).
+
+
+    Args:
+        spark (SparkSession): Spark Session instance
+        options (dict): A dictionary of ISO Source specific configurations
+
+    Attributes:
+        load_type (str): Must be one of `actual` or `forecast`
+        date (str): Must be in `YYYYMMDD` format.
+
+    """
+
     spark: SparkSession
     options: dict
     iso_url: str = "https://docs.misoenergy.org/marketreports/"
@@ -34,9 +54,33 @@ class MISODailyLoadISOSource(BaseISOSource):
         self.spark = spark
         self.options = options
         self.load_type = self.options.get("load_type", "actual")
-        self.date_str = self.options.get("date", "").strip()
+        self.date = self.options.get("date", "").strip()
+
+    def pull_data(self) -> pd.DataFrame:
+        """
+        Pulls data from the MISO API and parses the Excel file.
+
+        Returns:
+            Raw form of data.
+        """
+
+        logging.info(f"Getting {self.load_type} data for date {self.date}")
+        df = pd.read_excel(self.fetch_from_url(f"{self.date}_df_al.xls"), skiprows=4)
+
+        return df
 
     def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Creates a new `date_time` column and removes null values.
+
+        Args:
+            df: Raw form of data received from the API.
+
+        Returns:
+            Data after basic transformations.
+
+        """
+
         df.drop(df.index[(df['HourEnding'] == 'HourEnding') | df['MISO MTLF (MWh)'].isna()], inplace=True)
         df.rename(columns={'Market Day': 'date'}, inplace=True)
 
@@ -51,6 +95,16 @@ class MISODailyLoadISOSource(BaseISOSource):
         return df
 
     def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Filter outs Actual or Forecast data based on `load_type`.
+        Args:
+            df: Data received after preparation.
+
+        Returns:
+            Final data either containing Actual or Forecast values.
+
+        """
+
         skip_col_suffix = ""
 
         if self.load_type == "actual":
@@ -65,15 +119,19 @@ class MISODailyLoadISOSource(BaseISOSource):
 
         return df
 
-    def pull_data(self) -> pd.DataFrame:
-        logging.info(f"Getting {self.load_type} data for date {self.date_str}")
-        df = pd.read_excel(self.fetch_from_url(f"{self.date_str}_df_al.xls"), skiprows=4)
-
-        return df
-
     def validate_options(self) -> bool:
+        """
+        Validates the following options:
+            - `date` must be in the correct format.
+            - `load_type` must be valid.
+
+        Returns:
+            True if all looks good otherwise raises Exception.
+
+        """
+
         try:
-            datetime.strptime(self.date_str, self.query_datetime_format)
+            datetime.strptime(self.date, self.query_datetime_format)
         except ValueError:
             raise ValueError(f"Unable to parse Date. Please specify in YYYYMMDD format.")
 

@@ -139,6 +139,10 @@ nav:
                       - IoT Hub: sdk/code-reference/pipelines/sources/spark/iot_hub.md
                       - Kafka: sdk/code-reference/pipelines/sources/spark/kafka.md
                       - Kinesis: sdk/code-reference/pipelines/sources/spark/kinesis.md
+                      - ISO:
+                          - Base ISO: sdk/code-reference/pipelines/sources/spark/iso/base_iso.md
+                          - MISO Daily Load: sdk/code-reference/pipelines/sources/spark/iso/miso_daily_load_iso.md
+                          - MISO Historical Load: sdk/code-reference/pipelines/sources/spark/iso/miso_historical_load_iso.md
               - Transformers:
                   - Spark:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
