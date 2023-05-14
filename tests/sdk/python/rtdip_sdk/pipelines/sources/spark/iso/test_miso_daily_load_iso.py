@@ -16,8 +16,6 @@ import sys
 from io import StringIO
 
 import pandas as pd
-from pyspark.sql.types import StructType, StructField, IntegerType
-from requests import Response
 
 sys.path.insert(0, '.')
 import pytest
@@ -34,7 +32,11 @@ iso_configuration = {
 }
 
 
-def get_miso_raw_df() -> pd.DataFrame:
+def get_expected_vals(incr: float = 0.01):
+    return [round((i * 10) + incr, 2) for i in range(1, 25)]
+
+
+def get_miso_raw_df(*args, **kwargs) -> pd.DataFrame:
     """
     To generate raw miso Dataframe as we don't want to hit actual MISO API during the testing.
     Returns: pd.DataFrame
@@ -45,13 +47,12 @@ def get_miso_raw_df() -> pd.DataFrame:
                         "LRZ4 ActualLoad (MWh),LRZ6 MTLF (MWh),LRZ6 ActualLoad (MWh),LRZ8_9_10 MTLF (MWh),"
                         "LRZ8_9_10 ActualLoad (MWh),MISO MTLF (MWh),MISO ActualLoad (MWh)\n"
                         "\"April 30, 2023\",,,,,,,,,,,,,,,\n"
-                        "2023-04-30 00:00:00,1,10.05,10.01,10.05,10.01,10.05,10.01,10.05,10.01,10.05,10.01,10.05,"
                         "10.01,10.05,10.01\n"
                         )
 
     data_row_str = "2023-04-30 00:00:00,{hour},{val}\n"
 
-    for i in range(2, 25):
+    for i in range(1, 25):
         data_row_val = data_row_str.format(hour=i, val=(",".join([str(i * 10 + 0.05) + "," + str(i * 10 + 0.01)] * 7)))
         raw_api_response = raw_api_response + data_row_val
 
@@ -71,11 +72,9 @@ def test_miso_daily_load_iso_read_setup(spark_session: SparkSession):
     assert iso_source.pre_read_validation()
 
 
-
 def test_miso_daily_load_iso_read_batch_actual(spark_session: SparkSession, mocker: MockerFixture):
-
     iso_source = MISODailyLoadISOSource(spark_session, {**iso_configuration, "load_type": "actual"})
-    mocker.patch.object(iso_source, "pull_data", side_effect=get_miso_raw_df)
+    mocker.patch("pandas.read_excel", side_effect=get_miso_raw_df)
 
     df = iso_source.read_batch()
 
@@ -84,16 +83,20 @@ def test_miso_daily_load_iso_read_batch_actual(spark_session: SparkSession, mock
     assert str(df.schema) == str(MISO_SCHEMA)
 
     pdf = df.toPandas()
+    expected_str = str(get_expected_vals())
 
-    assert str(pdf['LRZ1'].to_list()) == ("[10.01, 20.01, 30.01, 40.01, 50.01, 60.01, 70.01, 80.01, 90.01, 100.01, "
-                                          "110.01, 120.01, 130.01, 140.01, 150.01, 160.01, 170.01, 180.01, 190.01, "
-                                          "200.01, 210.01, 220.01, 230.01, 240.01]")
+    assert str(pdf['LRZ1'].to_list()) == expected_str
+    assert str(pdf['LRZ2_7'].to_list()) == expected_str
+    assert str(pdf['LRZ3_5'].to_list()) == expected_str
+    assert str(pdf['LRZ4'].to_list()) == expected_str
+    assert str(pdf['LRZ6'].to_list()) == expected_str
+    assert str(pdf['LRZ8_9_10'].to_list()) == expected_str
+    assert str(pdf['MISO'].to_list()) == expected_str
 
 
 def test_miso_daily_load_iso_read_batch_forecast(spark_session: SparkSession, mocker: MockerFixture):
-
     iso_source = MISODailyLoadISOSource(spark_session, {**iso_configuration, "load_type": "forecast"})
-    mocker.patch.object(iso_source, "pull_data", side_effect=get_miso_raw_df)
+    mocker.patch("pandas.read_excel", side_effect=get_miso_raw_df)
 
     df = iso_source.read_batch()
 
@@ -102,14 +105,18 @@ def test_miso_daily_load_iso_read_batch_forecast(spark_session: SparkSession, mo
     assert str(df.schema) == str(MISO_SCHEMA)
 
     pdf = df.toPandas()
+    expected_str = str(get_expected_vals(incr=0.05))
 
-    assert str(pdf['LRZ1'].to_list()) == ("[10.05, 20.05, 30.05, 40.05, 50.05, 60.05, 70.05, 80.05, 90.05, 100.05, "
-                                          "110.05, 120.05, 130.05, 140.05, 150.05, 160.05, 170.05, 180.05, 190.05, "
-                                          "200.05, 210.05, 220.05, 230.05, 240.05]")
+    assert str(pdf['LRZ1'].to_list()) == expected_str
+    assert str(pdf['LRZ2_7'].to_list()) == expected_str
+    assert str(pdf['LRZ3_5'].to_list()) == expected_str
+    assert str(pdf['LRZ4'].to_list()) == expected_str
+    assert str(pdf['LRZ6'].to_list()) == expected_str
+    assert str(pdf['LRZ8_9_10'].to_list()) == expected_str
+    assert str(pdf['MISO'].to_list()) == expected_str
 
 
 def test_miso_daily_load_iso_invalid_load_type(spark_session: SparkSession):
-
     with pytest.raises(ValueError) as exc_info:
         iso_source = MISODailyLoadISOSource(spark_session, {**iso_configuration, "load_type": "both"})
         iso_source.pre_read_validation()
@@ -118,9 +125,7 @@ def test_miso_daily_load_iso_invalid_load_type(spark_session: SparkSession):
 
 
 def test_miso_daily_load_iso_invalid_date_format(spark_session: SparkSession):
-
     with pytest.raises(ValueError) as exc_info:
-
         iso_source = MISODailyLoadISOSource(spark_session, {**iso_configuration, "date": "2023-01-01"})
         iso_source.pre_read_validation()
 

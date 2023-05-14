@@ -9,7 +9,7 @@ step_list.append(PipelineStep(
     description="test_step1",
     component=MISOHistoricalLoadISOSource,
     component_parameters={"options": {
-        "start_date": "20230511",
+        "start_date": "20230514",
         "end_date": "20230511",
         # "load_type": "actual",
         # "date": "20230510"

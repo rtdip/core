@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
 from pyspark.sql.types import StructType, StructField, IntegerType
 import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import BaseISOSource
@@ -28,7 +26,6 @@ iso_configuration = {
 
 
 def test_base_iso_read_setup(spark_session: SparkSession):
-
     base_iso_source = BaseISOSource(spark_session, iso_configuration)
 
     assert base_iso_source.system_type().value == 2
@@ -41,7 +38,6 @@ def test_base_iso_read_setup(spark_session: SparkSession):
 
 
 def test_base_iso_read_stream_exception(spark_session: SparkSession):
-
     with pytest.raises(NotImplementedError) as exc_info:
         base_iso_source = BaseISOSource(spark_session, iso_configuration)
         base_iso_source.read_stream()
@@ -50,7 +46,6 @@ def test_base_iso_read_stream_exception(spark_session: SparkSession):
 
 
 def test_base_iso_read_batch(spark_session: SparkSession):
-
     base_iso_source = BaseISOSource(spark_session, iso_configuration)
     df = base_iso_source.read_batch()
     assert df.count() == 1
@@ -59,7 +54,6 @@ def test_base_iso_read_batch(spark_session: SparkSession):
 
 
 def test_base_iso_required_options_fails(spark_session: SparkSession):
-
     with pytest.raises(ValueError) as exc_info:
         base_iso_source = BaseISOSource(spark_session, iso_configuration)
         base_iso_source.required_options = ["date"]
@@ -69,7 +63,6 @@ def test_base_iso_required_options_fails(spark_session: SparkSession):
 
 
 def test_base_iso_fetch_url(spark_session: SparkSession, mocker: MockerFixture):
-
     sample_bytes = bytes("Sample Data".encode("utf-8"))
 
     class MyResponse:
@@ -79,7 +72,6 @@ def test_base_iso_fetch_url(spark_session: SparkSession, mocker: MockerFixture):
     mock_res = MyResponse()
 
     with mocker.patch("requests.get", side_effect=lambda url: mock_res):
-
         base_iso_source = BaseISOSource(spark_session, iso_configuration)
         data = base_iso_source.fetch_from_url("")
 
@@ -95,13 +87,12 @@ def test_base_iso_fetch_url(spark_session: SparkSession, mocker: MockerFixture):
 
 
 def test_base_iso_source_read_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
-
     base_iso_source = BaseISOSource(spark_session, {})
 
-    mocker.patch.object(base_iso_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(createDataFrame=mocker.Mock(side_effect=Exception))))
+    mocker.patch.object(base_iso_source, "spark", new_callable=mocker.PropertyMock(
+        return_value=mocker.Mock(createDataFrame=mocker.Mock(side_effect=Exception))))
 
     assert base_iso_source.pre_read_validation()
 
     with pytest.raises(Exception):
         base_iso_source.read_batch()
-

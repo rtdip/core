@@ -22,7 +22,6 @@ from . import BaseISOSource
 
 
 class MISODailyLoadISOSource(BaseISOSource):
-
     spark: SparkSession
     options: dict
     iso_url: str = "https://docs.misoenergy.org/marketreports/"
@@ -31,7 +30,6 @@ class MISODailyLoadISOSource(BaseISOSource):
     spark_schema = MISO_SCHEMA
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
-
         super().__init__(spark, options)
         self.spark = spark
         self.options = options
@@ -39,7 +37,6 @@ class MISODailyLoadISOSource(BaseISOSource):
         self.date_str = self.options.get("date", "").strip()
 
     def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
-
         df.drop(df.index[(df['HourEnding'] == 'HourEnding') | df['MISO MTLF (MWh)'].isna()], inplace=True)
         df.rename(columns={'Market Day': 'date'}, inplace=True)
 
@@ -54,7 +51,6 @@ class MISODailyLoadISOSource(BaseISOSource):
         return df
 
     def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
-
         skip_col_suffix = ""
 
         if self.load_type == "actual":
@@ -70,14 +66,12 @@ class MISODailyLoadISOSource(BaseISOSource):
         return df
 
     def pull_data(self) -> pd.DataFrame:
-
         logging.info(f"Getting {self.load_type} data for date {self.date_str}")
         df = pd.read_excel(self.fetch_from_url(f"{self.date_str}_df_al.xls"), skiprows=4)
 
         return df
 
     def validate_options(self) -> bool:
-
         try:
             datetime.strptime(self.date_str, self.query_datetime_format)
         except ValueError:

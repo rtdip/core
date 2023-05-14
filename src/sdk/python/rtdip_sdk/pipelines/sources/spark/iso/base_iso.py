@@ -34,13 +34,11 @@ class BaseISOSource(SourceInterface):
     spark_schema = StructType([StructField("id", IntegerType(), True)])
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
-
         self.spark = spark
         self.options = options
         self.current_date = datetime.utcnow()
 
     def fetch_from_url(self, url_suffix: str) -> bytes:
-
         url = f"{self.iso_url}{url_suffix}"
         logging.info(f"Requesting URL - {url}")
 
@@ -63,14 +61,8 @@ class BaseISOSource(SourceInterface):
         return pd.DataFrame([{"id": 1}])
 
     def get_data(self) -> pd.DataFrame:
-
-        # Fetch original data in DataFrame
         df = self.pull_data()
-
-        # Transform data for readability and use
         df = self.prepare_data(df)
-
-        # Perform sanitization.
         df = self.sanitize_data(df)
 
         # Reorder columns to keep the data consistent
@@ -95,7 +87,6 @@ class BaseISOSource(SourceInterface):
         return True
 
     def pre_read_validation(self) -> bool:
-
         for key in self.required_options:
             if key not in self.options:
                 raise ValueError(f"Required option `{key}` is missing.")
@@ -107,20 +98,10 @@ class BaseISOSource(SourceInterface):
 
     def read_batch(self) -> DataFrame:
         try:
-
             self.pre_read_validation()
-
-            pdf = self.get_data()
-
-            return self.spark.createDataFrame(pdf, schema=self.spark_schema)
-
-        except Py4JJavaError as e:
-
-            logging.exception(e.errmsg)
-            raise e
+            return self.spark.createDataFrame(self.get_data(), schema=self.spark_schema)
 
         except Exception as e:
-
             logging.exception(str(e))
             raise e
 

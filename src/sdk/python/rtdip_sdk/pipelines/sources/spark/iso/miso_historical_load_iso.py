@@ -30,15 +30,14 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         super().__init__(spark, options)
         self.start_date = self.options.get("start_date", "")
         self.end_date = self.options.get("end_date", "")
-        self.fill_missing_actual = bool(self.options.get("fill_missing_actual", "true") == "true")
+        self.fill_missing_actual = bool(self.options.get("fill_missing", "true") == "true")
 
     def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
-
         df = df[df['MarketDay'] != 'MarketDay']
 
         # Fill missing actual values with the forecast values to avoid gaps.
-        # if self.fill_missing_actual:
-            # df = df.fillna({'ActualLoad (MWh)': df['MTLF (MWh)']})
+        if self.fill_missing_actual:
+            df = df.fillna({'ActualLoad (MWh)': df['MTLF (MWh)']})
 
         df = df.rename(columns={'MarketDay': 'date',
                                 'HourEnding': 'hour',
@@ -63,7 +62,6 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
                            skiprows=5)
 
         if date.month == 12 and date.day == 31:
-
             expected_year_rows = pd.Timestamp(date.year, 12, 31).dayofyear * 24
             received_year_rows = len(df)
 
@@ -74,17 +72,12 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         return df
 
     def pull_data(self) -> pd.DataFrame:
-
         logging.info(f"Historical load requested from {self.start_date} to {self.end_date}")
 
         start_date = datetime.strptime(self.start_date, self.query_datetime_format)
         end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
 
         dates = pd.date_range(start_date, end_date + timedelta(days=365), freq='Y', inclusive='left')
-
-        if len(dates) == 0:
-            raise Exception(f"No dates are generated, please check start and end date.")
-
         logging.info(f"Generated date ranges are - {dates}")
 
         # Collect all historical data on yearly basis.
@@ -94,7 +87,6 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         return df
 
     def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
-
         start_date = datetime.strptime(self.start_date, self.query_datetime_format)
         end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
 
@@ -108,29 +100,23 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         logging.info(f"Rows Expected = {expected_rows}, Rows Found = {actual_rows}")
 
-
         return df
 
     def validate_options(self) -> bool:
-
         try:
             start_date = datetime.strptime(self.start_date, self.query_datetime_format)
         except ValueError:
-            logging.error(f"Unable to parse Start date. Please specify in YYYYMMDD format.")
-            return False
+            raise ValueError(f"Unable to parse Start date. Please specify in YYYYMMDD format.")
 
         try:
             end_date = datetime.strptime(self.end_date, self.query_datetime_format)
         except ValueError:
-            logging.error(f"Unable to parse End date. Please specify in YYYYMMDD format.")
-            return False
+            raise ValueError(f"Unable to parse End date. Please specify in YYYYMMDD format.")
 
         if start_date > datetime.utcnow():
-            logging.error(f"Start date can't be in future.")
-            return False
+            raise ValueError(f"Start date can't be in future.")
 
         if start_date > end_date:
-            logging.error(f"Invalid options provide. Start date can't be ahead of End date.")
-            return False
+            raise ValueError(f"Start date can't be ahead of End date.")
 
         return True
