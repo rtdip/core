@@ -75,3 +75,14 @@ The mapping below is performed by the RTDIP SSIP PI to PCDM Component and can be
 | SSIP PI | Status | string | EVENTS| Status | string | |
 | SSIP PI | Value | dynamic | EVENTS | Value | dynamic | |
 
+### Edge Xpert
+[Edge Xpert](https://www.lfedge.org/projects/edgexfoundry/) provides support for sending data between various data sources and data destinations. 
+
+This mapping is performed by the [RTDIP Edge Xpert to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md) and can be used in an [RTDIP Ingestion Pipeline.](../../sdk/pipelines/framework.md)
+
+| From Data Model | From Field | From Type | To Data Model |To Field| To Type | Mapping Logic |
+|------|----|---------|------|------|--------|-----------|
+| Edge Xpert | deviceName | string | EVENTS| TagName | string | |
+| Edge Xpert | origin | string | EVENTS| EventTime | timestamp | Converted to a timestamp |
+| | | | EVENTS| Status | string | Can be defaulted in [RTDIP Edge Xpert to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md) otherwise Null |
+| Edge Xpert | value | string | EVENTS | Value | dynamic | Converts Value into either a float number or string based on how it is received in the message |
