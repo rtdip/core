@@ -24,8 +24,9 @@ class EdgeXJsonToPCDMTransformer(TransformerInterface):
     Converts a Spark Dataframe column containing a json string created by Edge Xpert to the Process Control Data Model
 
     Args:
-        data (DataFrame): Dataframe containing the column with Edge Xpert Fledge data
+        data (DataFrame): Dataframe containing the column with Edge Xpert data
         status_null_value (str): If populated, will replace 'Good' in the Status column with the specified value.
+        change_type_value (str): If populated, will replace 'insert' in the ChangeType column with the specified value.
     '''
     data: DataFrame
     status_null_value: str
@@ -72,16 +73,17 @@ class EdgeXJsonToPCDMTransformer(TransformerInterface):
                 .select(col("body.deviceName").alias("TagName"), (col("body.origin")/1000000000).cast("timestamp").alias("EventTime"), col("col.value").alias("Value"), col("col.valueType").alias("ValueType"))
                 .withColumn("Status", lit(self.status_null_value))
                 .withColumn("ChangeType", lit(self.change_type_value))
-                .withColumn("ValueType", (when(col("ValueType") == "Int8", "float")
-                                        .when(col("ValueType") == "Int16", "float")
-                                        .when(col("ValueType") == "Int32", "float")
-                                        .when(col("ValueType") == "Int64", "float")
-                                        .when(col("ValueType") == "Uint8", "float")
-                                        .when(col("ValueType") == "Uint16", "float")
-                                        .when(col("ValueType") == "Uint32", "float")
-                                        .when(col("ValueType") == "Uint64", "float")
+                .withColumn("ValueType", (when(col("ValueType") == "Int8", "integer")
+                                        .when(col("ValueType") == "Int16", "integer")
+                                        .when(col("ValueType") == "Int32", "integer")
+                                        .when(col("ValueType") == "Int64", "integer")
+                                        .when(col("ValueType") == "Uint8", "integer")
+                                        .when(col("ValueType") == "Uint16", "integer")
+                                        .when(col("ValueType") == "Uint32", "integer")
+                                        .when(col("ValueType") == "Uint64", "integer")
                                         .when(col("ValueType") == "Float32", "float")
                                         .when(col("ValueType") == "Float64", "float")
+                                        .when(col("ValueType") == "Bool", "bool")
                                         .otherwise("string")))
         )
         
