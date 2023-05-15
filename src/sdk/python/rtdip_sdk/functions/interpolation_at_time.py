@@ -15,7 +15,7 @@
 import logging
 import pandas as pd
 from datetime import datetime
-from src.sdk.python.rtdip_sdk.functions._query_builder import _query_builder
+from ._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
