@@ -22,6 +22,12 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 - Interpolation Method - Forward Fill or Backward Fill
 
+### Interpolation at Time
+
+[Interpolation at Time](../code-reference/query/interpolation_at_time.md) - works out the linear interpolation at a specific time based on the points before and after. This is achieved by providing the following parameter:
+
+- Timestamps - A list of timestamp or timestamps
+
 ### Time Weighted Averages
 
 [Time Weighted Averages](../code-reference/query/time-weighted-average.md) provide an unbiased average when working with irregularly sampled data. The RTDIP SDK requires the following parameters to perform time weighted average queries:
@@ -45,6 +51,7 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 ```python
 from rtdip_sdk.functions import resample
 from rtdip_sdk.functions import interpolate
+from rtdip_sdk.functions import interpolation_at_time
 from rtdip_sdk.functions import raw
 from rtdip_sdk.functions import time_weighted_average
 from rtdip_sdk.functions import metadata
@@ -57,6 +64,9 @@ from rtdip_sdk.functions import metadata
 
 #### Interpolate
     interpolate.get(connection, parameters_dict)
+
+#### Interpolation at Time
+    interpolation_at_time.get(connection, parameters_dict)
 
 #### Raw
     raw.get(connection, parameters_dict)

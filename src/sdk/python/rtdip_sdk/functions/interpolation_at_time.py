@@ -34,7 +34,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         data_security_level (str): Level of data security 
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (str): Name of the tag
-        timestamps (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zzzz where %z is the timezone. (Example +0000 is the UTC timezone)
+        timestamps (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zz:zz where %z is the timezone. (Example +00:00 is the UTC timezone)
 
     Returns:
         DataFrame: A interpolated at time dataframe.
