@@ -18,7 +18,7 @@ parameters = {
     "data_security_level": "Security Level", 
     "data_type": "float", #options:["float", "double", "integer", "string"]
     "tag_names": ["tag_1", "tag_2"], #list of tags
-    "timestamps": ["2023-01-01"] #list of timestamps can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zzzz"
+    "timestamps": ["2023-01-01"] #list of timestamps can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zz:zz"
 }
 x = interpolation_at_time.get(connection, parameters)
 print(x)
