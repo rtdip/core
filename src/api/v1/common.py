@@ -40,8 +40,8 @@ def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = No
 
     if raw_query_parameters != None:
         parameters = dict(parameters, **raw_query_parameters.__dict__)        
-        parameters["start_date"] = str(raw_query_parameters.start_date)
-        parameters["end_date"] = str(raw_query_parameters.end_date)
+        parameters["start_date"] = raw_query_parameters.start_date
+        parameters["end_date"] = raw_query_parameters.end_date
     
     if tag_query_parameters != None:
         parameters = dict(parameters, **tag_query_parameters.__dict__)
