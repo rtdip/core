@@ -19,7 +19,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries,
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StructType, StructField, StringType, LongType, ArrayType
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from datetime import datetime
 
 def test_edgex_json_to_pcdm(spark_session: SparkSession):
@@ -27,22 +27,12 @@ def test_edgex_json_to_pcdm(spark_session: SparkSession):
     edgex_df: DataFrame = spark_session.createDataFrame([{"body": edgex_json_data}])
 
     expected_schema = StructType([
-    StructField('apiVersion', StringType(), True),
-    StructField('id', StringType(), True),
-    StructField('deviceName', StringType(), True),
-    StructField('profileName', StringType(), True),
-    StructField('sourceName', StringType(), True),
-    StructField('origin', LongType(), True),
-    StructField('readings', ArrayType(
-        StructType([
-        StructField('id', StringType(), True),
-        StructField('origin', LongType(), True),
-        StructField('deviceName', StringType(), True),
-        StructField('resourceName', StringType(), True),
-        StructField('profileName', StringType(), True),
-        StructField('valueType', StringType(), True),
-        StructField('value', StringType(), True)]))
-    , True)
+        StructField("TagName", StringType(), True),
+        StructField("EventTime", TimestampType(), True),
+        StructField("Status", StringType(), False),
+        StructField("Value", StringType(), True),
+        StructField("ValueType", StringType(), False),
+        StructField("ChangeType", StringType(), False),
     ])
 
     expected_data = [
