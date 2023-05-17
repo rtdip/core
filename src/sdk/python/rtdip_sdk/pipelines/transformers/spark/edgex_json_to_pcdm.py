@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import from_json, col, explode, when, lit, coalesce, to_timestamp
+from pyspark.sql.functions import from_json, col, explode, when, lit, coalesce, to_timestamp, from_unixtime
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -70,9 +70,9 @@ class EdgeXJsonToPCDMTransformer(TransformerInterface):
             self.data
                 .withColumn("body", from_json("body", EDGEX_SCHEMA))
                 .select("*", explode("body.readings"))
-                .select(col("body.deviceName").alias("TagName"), (col("body.origin")/1000000000).cast("timestamp").alias("EventTime"), col("col.value").alias("Value"), col("col.valueType").alias("ValueType"))
-                .withColumn("Status", lit(self.status_null_value))
-                .withColumn("ChangeType", lit(self.change_type_value))
+                .selectExpr("body.deviceName as TagName", "to_utc_timestamp(to_timestamp((col.origin / 1000000000)), current_timezone()) as EventTime", "col.value as Value", "col.valueType as ValueType")
+                .withColumn("Status", lit("Good"))
+                .withColumn("ChangeType", lit("insert"))
                 .withColumn("ValueType", (when(col("ValueType") == "Int8", "integer")
                                         .when(col("ValueType") == "Int16", "integer")
                                         .when(col("ValueType") == "Int32", "integer")

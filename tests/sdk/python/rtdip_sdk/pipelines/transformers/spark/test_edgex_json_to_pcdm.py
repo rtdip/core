@@ -20,10 +20,10 @@ from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_co
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
-from datetime import datetime
+from datetime import datetime, timezone
 
 def test_edgex_json_to_pcdm(spark_session: SparkSession):
-    edgex_json_data = '{"apiVersion":"v2","id":"test","deviceName":"testDevice","profileName":"test","sourceName":"Bool","origin":123,"readings":[{"id":"test","origin":1683866798739958852,"deviceName":"test","resourceName":"Bool","profileName":"Random","valueType":"Bool","value":"true"}]}'
+    edgex_json_data = '{"apiVersion":"v2","id":"test","deviceName":"testDevice","profileName":"test","sourceName":"Bool","origin":1683866798739958852,"readings":[{"id":"test","origin":1683866798739958852,"deviceName":"test","resourceName":"Bool","profileName":"Random","valueType":"Bool","value":"true"}]}'
     edgex_df: DataFrame = spark_session.createDataFrame([{"body": edgex_json_data}])
 
     expected_schema = StructType([
