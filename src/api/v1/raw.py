@@ -14,6 +14,7 @@
 
 
 import logging
+from logging import Logger
 from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio

@@ -38,9 +38,9 @@ def _parse_date(dt, is_end_date=False, exclude_date_format=False):
 
     if _is_date_format(dt, "%Y-%m-%d") and exclude_date_format == False:
         _time = "T23:59:59" if is_end_date == True else "T00:00:00"
-        return dt + _time + "+0000"
+        return dt + _time + "+00:00"
     elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
-        return dt + "+0000"
+        return dt + "+00:00"
     elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
         return dt
     elif _is_date_format(dt, "%Y-%m-%d%z"):
