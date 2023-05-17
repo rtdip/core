@@ -38,7 +38,7 @@ erDiagram
 
 ### Fledge OPC UA South Plugin
 
-[Fledge](https://www.lfedge.org/projects/fledge/) provides support for sending data between various data sources and data destinations. The mapping below is for the [OPC UA South Pugin](https://fledge-iot.readthedocs.io/en/latest/plugins/fledge-south-opcua/index.html) that can be sent to message brokers like Kafka, Azure IoT Hub etc.
+[Fledge](https://www.lfedge.org/projects/fledge/){target=_blank} provides support for sending data between various data sources and data destinations. The mapping below is for the [OPC UA South Pugin](https://fledge-iot.readthedocs.io/en/latest/plugins/fledge-south-opcua/index.html){target=_blank} that can be sent to message brokers like Kafka, Azure IoT Hub etc.
 
 This mapping is performed by the [RTDIP Fledge to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md) and can be used in an [RTDIP Ingestion Pipeline.](../../sdk/pipelines/framework.md)
 
@@ -51,7 +51,7 @@ This mapping is performed by the [RTDIP Fledge to PCDM Component](../../sdk/code
 
 ### OPC Publisher
 
-[OPC Publisher](https://learn.microsoft.com/en-us/azure/industrial-iot/overview-what-is-opc-publisher) connects to OPC UA assets and publishes data to the Microsoft Azure Cloud's IoT Hub.
+[OPC Publisher](https://learn.microsoft.com/en-us/azure/industrial-iot/overview-what-is-opc-publisher){target=_blank} connects to OPC UA assets and publishes data to the Microsoft Azure Cloud's IoT Hub.
 
 The mapping below is performed by the [RTDIP OPC Publisher to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md) and can be used in an [RTDIP Ingestion Pipeline.](../../sdk/pipelines/framework.md)
 
@@ -62,9 +62,21 @@ The mapping below is performed by the [RTDIP OPC Publisher to PCDM Component](..
 | OPC Publisher | StatusCode.Symbol | string | EVENTS| Status | string | Null values can be overriden in the [RTDIP OPC Publisher to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md) |
 | OPC Publisher | Value.Value | string | EVENTS | Value | dynamic | Converts Value into either a float number or string based on how it is received in the message |
 
+### EdgeX
+[EdgeX](https://www.lfedge.org/projects/edgexfoundry/){target=_blank} provides support for sending data between various data sources and data destinations. 
+
+This mapping is performed by the [RTDIP EdgeX to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md) and can be used in an [RTDIP Ingestion Pipeline.](../../sdk/pipelines/framework.md)
+
+| From Data Model | From Field | From Type | To Data Model |To Field| To Type | Mapping Logic |
+|------|----|---------|------|------|--------|-----------|
+| EdgeX | deviceName | string | EVENTS| TagName | string | |
+| EdgeX | origin | string | EVENTS| EventTime | timestamp | Converted to a timestamp |
+| | | | EVENTS| Status | string | Can be defaulted in [RTDIP EdgeX to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md) otherwise Null |
+| EdgeX | value | string | EVENTS | Value | dynamic | Converts Value into either a float number or string based on how it is received in the message |
+
 ### SSIP PI
 
-[SSIP PI](https://bakerhughesc3.ai/oai-solution/shell-sensor-intelligence-platform/) connects to Osisoft PI Historians and sends the data to the Cloud.
+[SSIP PI](https://bakerhughesc3.ai/oai-solution/shell-sensor-intelligence-platform/){target=_blank} connects to Osisoft PI Historians and sends the data to the Cloud.
 
 The mapping below is performed by the RTDIP SSIP PI to PCDM Component and can be used in an [RTDIP Ingestion Pipeline.](../../sdk/pipelines/framework.md)
 
@@ -74,4 +86,3 @@ The mapping below is performed by the RTDIP SSIP PI to PCDM Component and can be
 | SSIP PI | EventTime | string | EVENTS| EventTime | timestamp | |
 | SSIP PI | Status | string | EVENTS| Status | string | |
 | SSIP PI | Value | dynamic | EVENTS | Value | dynamic | |
-

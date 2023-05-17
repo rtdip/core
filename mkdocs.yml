@@ -146,6 +146,8 @@ nav:
                       - Fledge Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md
                       - SSIP PI Binary File data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md
                       - SSIP PI Binary JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md
+                      - EdgeX JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md
+
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
