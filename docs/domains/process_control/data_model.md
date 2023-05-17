@@ -62,17 +62,17 @@ The mapping below is performed by the [RTDIP OPC Publisher to PCDM Component](..
 | OPC Publisher | StatusCode.Symbol | string | EVENTS| Status | string | Null values can be overriden in the [RTDIP OPC Publisher to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md) |
 | OPC Publisher | Value.Value | string | EVENTS | Value | dynamic | Converts Value into either a float number or string based on how it is received in the message |
 
-### Edge Xpert
-[Edge Xpert](https://www.lfedge.org/projects/edgexfoundry/){target=_blank} provides support for sending data between various data sources and data destinations. 
+### EdgeX
+[EdgeX](https://www.lfedge.org/projects/edgexfoundry/){target=_blank} provides support for sending data between various data sources and data destinations. 
 
-This mapping is performed by the [RTDIP Edge Xpert to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md) and can be used in an [RTDIP Ingestion Pipeline.](../../sdk/pipelines/framework.md)
+This mapping is performed by the [RTDIP EdgeX to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md) and can be used in an [RTDIP Ingestion Pipeline.](../../sdk/pipelines/framework.md)
 
 | From Data Model | From Field | From Type | To Data Model |To Field| To Type | Mapping Logic |
 |------|----|---------|------|------|--------|-----------|
-| Edge Xpert | deviceName | string | EVENTS| TagName | string | |
-| Edge Xpert | origin | string | EVENTS| EventTime | timestamp | Converted to a timestamp |
-| | | | EVENTS| Status | string | Can be defaulted in [RTDIP Edge Xpert to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md) otherwise Null |
-| Edge Xpert | value | string | EVENTS | Value | dynamic | Converts Value into either a float number or string based on how it is received in the message |
+| EdgeX | deviceName | string | EVENTS| TagName | string | |
+| EdgeX | origin | string | EVENTS| EventTime | timestamp | Converted to a timestamp |
+| | | | EVENTS| Status | string | Can be defaulted in [RTDIP EdgeX to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md) otherwise Null |
+| EdgeX | value | string | EVENTS | Value | dynamic | Converts Value into either a float number or string based on how it is received in the message |
 
 ### SSIP PI
 

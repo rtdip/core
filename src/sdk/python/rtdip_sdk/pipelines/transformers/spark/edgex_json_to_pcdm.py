@@ -21,10 +21,10 @@ from ..._pipeline_utils.spark import EDGEX_SCHEMA
 
 class EdgeXJsonToPCDMTransformer(TransformerInterface):
     '''
-    Converts a Spark Dataframe column containing a json string created by Edge Xpert to the Process Control Data Model
+    Converts a Spark Dataframe column containing a json string created by EdgeX to the Process Control Data Model
 
     Args:
-        data (DataFrame): Dataframe containing the column with Edge Xpert data
+        data (DataFrame): Dataframe containing the column with EdgeX data
         status_null_value (str): If populated, will replace 'Good' in the Status column with the specified value.
         change_type_value (str): If populated, will replace 'insert' in the ChangeType column with the specified value.
     '''
