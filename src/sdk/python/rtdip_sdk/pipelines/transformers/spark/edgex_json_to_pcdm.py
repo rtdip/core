@@ -31,7 +31,6 @@ class EdgeXJsonToPCDMTransformer(TransformerInterface):
     data: DataFrame
     status_null_value: str
     change_type_value: str
-    timestamp_formats: list
 
     def __init__(self, data: DataFrame, status_null_value: str = "Good", change_type_value: str = "insert") -> None: 
         self.data = data
