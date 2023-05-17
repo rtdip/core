@@ -38,7 +38,7 @@ class BaseISOSource(SourceInterface):
     options: dict
     iso_url: str = "https://"
     query_datetime_format: str = "%Y%m%d"
-    required_options: list[str] = []
+    required_options: list = []
     spark_schema = StructType([StructField("id", IntegerType(), True)])
 
     def __init__(self, spark: SparkSession, options: dict) -> None:

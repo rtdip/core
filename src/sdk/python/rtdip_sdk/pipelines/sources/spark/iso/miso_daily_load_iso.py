@@ -46,7 +46,7 @@ class MISODailyLoadISOSource(BaseISOSource):
     options: dict
     iso_url: str = "https://docs.misoenergy.org/marketreports/"
     query_datetime_format: str = "%Y%m%d"
-    required_options: list[str] = ["load_type", "date"]
+    required_options = ["load_type", "date"]
     spark_schema = MISO_SCHEMA
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
