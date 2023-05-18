@@ -146,3 +146,22 @@ FLEDGE_SCHEMA = ArrayType(
             StructField("readings", MapType(StringType(), StringType(), True), True),
             StructField("timestamp", TimestampType(), True)])
        )
+
+EDGEX_SCHEMA = StructType([
+  StructField('apiVersion', StringType(), True),
+  StructField('id', StringType(), True),
+  StructField('deviceName', StringType(), True),
+  StructField('profileName', StringType(), True),
+  StructField('sourceName', StringType(), True),
+  StructField('origin', LongType(), True),
+  StructField('readings', ArrayType(
+    StructType([
+      StructField('id', StringType(), True),
+      StructField('origin', LongType(), True),
+      StructField('deviceName', StringType(), True),
+      StructField('resourceName', StringType(), True),
+      StructField('profileName', StringType(), True),
+      StructField('valueType', StringType(), True),
+      StructField('value', StringType(), True)]))
+  , True)
+])
