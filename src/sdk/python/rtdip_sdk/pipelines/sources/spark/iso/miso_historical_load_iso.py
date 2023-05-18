@@ -48,9 +48,9 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         self.end_date = self.options.get("end_date", "")
         self.fill_missing = bool(self.options.get("fill_missing", "true") == "true")
 
-    def get_historical_data_for_date(self, date: datetime) -> pd.DataFrame:
+    def _get_historical_data_for_date(self, date: datetime) -> pd.DataFrame:
         logging.info(f"Getting historical data for date {date}")
-        df = pd.read_excel(self.fetch_from_url(f"{date.strftime(self.query_datetime_format)}_dfal_HIST.xls"),
+        df = pd.read_excel(self._fetch_from_url(f"{date.strftime(self.query_datetime_format)}_dfal_HIST.xls"),
                            skiprows=5)
 
         if date.month == 12 and date.day == 31:
@@ -63,7 +63,7 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         return df
 
-    def pull_data(self) -> pd.DataFrame:
+    def _pull_data(self) -> pd.DataFrame:
         """
         Pulls data from the MISO API and parses the Excel file.
 
@@ -80,12 +80,12 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         logging.info(f"Generated date ranges are - {dates}")
 
         # Collect all historical data on yearly basis.
-        df = pd.concat([self.get_historical_data_for_date(min(date, self.current_date))
+        df = pd.concat([self._get_historical_data_for_date(min(date, self.current_date))
                         for date in dates], sort=False)
 
         return df
 
-    def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Creates a new `date_time` column, removes null values and pivots the data.
 
@@ -120,7 +120,7 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         return df
 
-    def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Filter outs data outside the requested date range.
 
@@ -147,7 +147,7 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         return df
 
-    def validate_options(self) -> bool:
+    def _validate_options(self) -> bool:
         """
         Validates the following options:
             - `start_date` & `end_data` must be in the correct format.

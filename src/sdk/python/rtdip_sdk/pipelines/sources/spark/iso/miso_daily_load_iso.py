@@ -56,7 +56,7 @@ class MISODailyLoadISOSource(BaseISOSource):
         self.load_type = self.options.get("load_type", "actual")
         self.date = self.options.get("date", "").strip()
 
-    def pull_data(self) -> pd.DataFrame:
+    def _pull_data(self) -> pd.DataFrame:
         """
         Pulls data from the MISO API and parses the Excel file.
 
@@ -65,11 +65,11 @@ class MISODailyLoadISOSource(BaseISOSource):
         """
 
         logging.info(f"Getting {self.load_type} data for date {self.date}")
-        df = pd.read_excel(self.fetch_from_url(f"{self.date}_df_al.xls"), skiprows=4)
+        df = pd.read_excel(self._fetch_from_url(f"{self.date}_df_al.xls"), skiprows=4)
 
         return df
 
-    def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Creates a new `date_time` column and removes null values.
 
@@ -94,7 +94,7 @@ class MISODailyLoadISOSource(BaseISOSource):
 
         return df
 
-    def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Filter outs Actual or Forecast data based on `load_type`.
         Args:
@@ -119,7 +119,7 @@ class MISODailyLoadISOSource(BaseISOSource):
 
         return df
 
-    def validate_options(self) -> bool:
+    def _validate_options(self) -> bool:
         """
         Validates the following options:
             - `date` must be in the correct format.

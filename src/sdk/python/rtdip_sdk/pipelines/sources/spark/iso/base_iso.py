@@ -21,6 +21,7 @@ from datetime import datetime
 
 from pyspark.sql.types import StructType, StructField, IntegerType
 from requests import HTTPError
+from io import BytesIO
 
 from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
@@ -47,7 +48,7 @@ class BaseISOSource(SourceInterface):
         self.options = options
         self.current_date = datetime.utcnow()
 
-    def fetch_from_url(self, url_suffix: str) -> bytes:
+    def _fetch_from_url(self, url_suffix: str) -> bytes:
         """
         Gets data from external ISO API.
 
@@ -70,7 +71,7 @@ class BaseISOSource(SourceInterface):
 
         return response.content
 
-    def pull_data(self) -> pd.DataFrame:
+    def _pull_data(self) -> pd.DataFrame:
         """
         Hits the fetch_from_url method with certain parameters to get raw data from API.
 
@@ -81,9 +82,9 @@ class BaseISOSource(SourceInterface):
              Raw DataFrame from API.
         """
 
-        return pd.DataFrame([{"id": 1}])
+        return pd.read_csv(BytesIO(self._fetch_from_url("")))
 
-    def prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Performs all the basic transformations to prepare data for further processing.
         All the children ISO classes must override this method.
@@ -97,7 +98,7 @@ class BaseISOSource(SourceInterface):
         """
         return df
 
-    def sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Another data transformation helper method to be called after prepare data.
         Used for advance data processing such as cleaning, filtering, restructuring.
@@ -112,7 +113,7 @@ class BaseISOSource(SourceInterface):
         """
         return df
 
-    def get_data(self) -> pd.DataFrame:
+    def _get_data(self) -> pd.DataFrame:
         """
         Entrypoint method to return the final version of DataFrame.
 
@@ -120,9 +121,9 @@ class BaseISOSource(SourceInterface):
             Modified form of data for specific use case.
 
         """
-        df = self.pull_data()
-        df = self.prepare_data(df)
-        df = self.sanitize_data(df)
+        df = self._pull_data()
+        df = self._prepare_data(df)
+        df = self._sanitize_data(df)
 
         # Reorder columns to keep the data consistent
         df = df[self.spark_schema.names]
@@ -142,7 +143,7 @@ class BaseISOSource(SourceInterface):
     def settings() -> dict:
         return {}
 
-    def validate_options(self) -> bool:
+    def _validate_options(self) -> bool:
         """
         Performs all the options checks. Raises exception in case of any invalid value.
         Returns:
@@ -162,7 +163,7 @@ class BaseISOSource(SourceInterface):
             if key not in self.options:
                 raise ValueError(f"Required option `{key}` is missing.")
 
-        return self.validate_options()
+        return self._validate_options()
 
     def post_read_validation(self) -> bool:
         return True
@@ -177,7 +178,7 @@ class BaseISOSource(SourceInterface):
 
         try:
             self.pre_read_validation()
-            df = self.spark.createDataFrame(self.get_data(), schema=self.spark_schema)
+            df = self.spark.createDataFrame(self._get_data(), schema=self.spark_schema)
 
             return df
 

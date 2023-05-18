@@ -47,8 +47,18 @@ def test_base_iso_read_stream_exception(spark_session: SparkSession):
     assert str(exc_info.value) == "BaseISOSource connector doesn't support stream operation."
 
 
-def test_base_iso_read_batch(spark_session: SparkSession):
+def test_base_iso_read_batch(spark_session: SparkSession, mocker: MockerFixture):
     base_iso_source = BaseISOSource(spark_session, iso_configuration)
+    sample_bytes = bytes("id\n1".encode("utf-8"))
+
+    class MyResponse:
+        content = sample_bytes
+        status_code = 200
+
+    mock_res = MyResponse()
+
+    mocker.patch("requests.get", side_effect=lambda url: mock_res)
+
     df = base_iso_source.read_batch()
     assert df.count() == 1
     assert isinstance(df, DataFrame)
@@ -64,26 +74,21 @@ def test_base_iso_required_options_fails(spark_session: SparkSession):
     assert str(exc_info.value) == "Required option `date` is missing."
 
 
-def test_base_iso_fetch_url(spark_session: SparkSession, mocker: MockerFixture):
-    sample_bytes = bytes("Sample Data".encode("utf-8"))
+def test_base_iso_fetch_url_fails(spark_session: SparkSession, mocker: MockerFixture):
+    base_iso_source = BaseISOSource(spark_session, iso_configuration)
+    sample_bytes = bytes("Unknown Error".encode("utf-8"))
 
     class MyResponse:
         content = sample_bytes
-        status_code = 200
+        status_code = 401
 
     mock_res = MyResponse()
-
     mocker.patch("requests.get", side_effect=lambda url: mock_res)
-    base_iso_source = BaseISOSource(spark_session, iso_configuration)
-    data = base_iso_source.fetch_from_url("")
-
-    assert data == sample_bytes
-
-    mock_res.status_code = 401
 
     with pytest.raises(HTTPError) as exc_info:
-        base_iso_source.fetch_from_url("")
-    expected = "Unable to access URL `https://`. Received status code 401 with message b'Sample Data'"
+        base_iso_source.read_batch()
+
+    expected = "Unable to access URL `https://`. Received status code 401 with message b'Unknown Error'"
     assert str(exc_info.value) == expected
 
 
