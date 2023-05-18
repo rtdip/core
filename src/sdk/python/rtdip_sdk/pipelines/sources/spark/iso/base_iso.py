@@ -20,6 +20,7 @@ import requests
 from datetime import datetime
 
 from pyspark.sql.types import StructType, StructField, IntegerType
+from requests import HTTPError
 
 from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
@@ -64,7 +65,7 @@ class BaseISOSource(SourceInterface):
         code = response.status_code
 
         if code != 200:
-            raise Exception(f"Unable to access URL `{url}`."
+            raise HTTPError(f"Unable to access URL `{url}`."
                             f" Received status code {code} with message {response.content}")
 
         return response.content

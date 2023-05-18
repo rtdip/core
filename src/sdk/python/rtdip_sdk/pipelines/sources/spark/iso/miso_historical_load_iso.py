@@ -162,17 +162,17 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         try:
             start_date = datetime.strptime(self.start_date, self.query_datetime_format)
         except ValueError:
-            raise ValueError(f"Unable to parse Start date. Please specify in YYYYMMDD format.")
+            raise ValueError("Unable to parse Start date. Please specify in YYYYMMDD format.")
 
         try:
             end_date = datetime.strptime(self.end_date, self.query_datetime_format)
         except ValueError:
-            raise ValueError(f"Unable to parse End date. Please specify in YYYYMMDD format.")
+            raise ValueError("Unable to parse End date. Please specify in YYYYMMDD format.")
 
         if start_date > datetime.utcnow():
-            raise ValueError(f"Start date can't be in future.")
+            raise ValueError("Start date can't be in future.")
 
         if start_date > end_date:
-            raise ValueError(f"Start date can't be ahead of End date.")
+            raise ValueError("Start date can't be ahead of End date.")
 
         return True

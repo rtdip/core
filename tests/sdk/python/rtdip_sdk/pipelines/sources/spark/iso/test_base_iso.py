@@ -14,6 +14,8 @@
 
 from pyspark.sql.types import StructType, StructField, IntegerType
 import pytest
+from requests import HTTPError
+
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import BaseISOSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
@@ -79,11 +81,10 @@ def test_base_iso_fetch_url(spark_session: SparkSession, mocker: MockerFixture):
 
     mock_res.status_code = 401
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(HTTPError) as exc_info:
         base_iso_source.fetch_from_url("")
-
-    assert str(exc_info.value) == ("Unable to access URL `https://`. Received status code 401 with message "
-                                   "b'Sample Data'")
+    expected = "Unable to access URL `https://`. Received status code 401 with message b'Sample Data'"
+    assert str(exc_info.value) == expected
 
 
 def test_base_iso_source_read_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
