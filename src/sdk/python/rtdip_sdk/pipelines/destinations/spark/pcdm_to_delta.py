@@ -173,7 +173,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             df = df.withColumn("ChangeType", when(df["ChangeType"].isin("insert", "update"), "upsert").otherwise(df["ChangeType"]))
 
         if self.remove_duplicates == True:
-            df = df.drop_duplicates(["EventDate, TagName, EventTime"])
+            df = df.drop_duplicates(["TagName, EventTime"])
 
         float_df = (
             df
