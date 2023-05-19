@@ -14,8 +14,14 @@
 
 name: 'Reusable Test Workflow'
 
+# on:
+#   workflow_call:
+
 on:
-  workflow_call:
+  # Trigger the workflow on push to develop
+  push:
+    branches:
+      - feature/00275
 
 jobs:
   job_test_python_pyspark_versions:
