@@ -47,9 +47,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.10"]
-        pyspark: ["3.3.2"]
-        delta-spark: ["2.3.0"]
+        python-version: ["3.11"]
+        pyspark: ["3.4.0"]
+        delta-spark: ["2.4.0rc1"]
     runs-on: ${{ matrix.os }} 
     steps:
       - uses: actions/checkout@v3

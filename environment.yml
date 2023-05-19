@@ -18,8 +18,8 @@ channels:
     - conda-forge
     - defaults
 dependencies:
-    - python>=3.8,<3.11
-    - mkdocs-material==9.1.8
+    - python>=3.8,<3.12
+    - mkdocs-material==9.1.13
     - mkdocs-material-extensions==1.1.1
     - jinja2==3.0.3
     - jinjasql==0.1.8
@@ -27,7 +27,7 @@ dependencies:
     - pytest-mock==3.10.0
     - pytest-cov==4.0.0
     - pip==23.1.2
-    - turbodbc==4.5.10
+    - turbodbc==4.6.0
     - numpy>=1.23.4
     - pandas==1.5.2
     - oauthlib>=3.2.2
@@ -35,21 +35,21 @@ dependencies:
     - azure-identity==1.12.0
     - azure-storage-file-datalake==12.10.1
     - azure-keyvault-secrets==4.7.0
-    - boto3==1.26.123
+    - boto3==1.26.135
     - pyodbc==4.0.39
-    - fastapi==0.95.1
+    - fastapi==0.95.2
     - httpx==0.24.0
     - trio==0.22.0
-    - pyspark>=3.3.0,<3.4.0
-    - delta-spark>=2.2.0,<2.4.0
+    - pyspark>=3.3.0,<3.5.0
+    - delta-spark>=2.2.0,<2.5.0
     - openjdk==11.0.15    
     - python-dotenv==1.0.0
     - mkdocstrings==0.21.2
-    - mkdocstrings-python==0.9.0
+    - mkdocstrings-python==1.0.0
     - mkdocs-macros-plugin==0.7.0
     - pygments==2.15.1
-    - pymdown-extensions==9.11
-    - databricks-sql-connector==2.5.1
+    - pymdown-extensions==10.0.1
+    - databricks-sql-connector==2.5.2
     - semver==3.0.0
     - pip:
         - dependency-injector==4.41.0
