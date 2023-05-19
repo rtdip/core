@@ -12,11 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .spark.autoloader import *
-from .spark.delta import *
-from .spark.delta_sharing import *
-from .spark.eventhub import *
-from .spark.iot_hub import *
-from .spark.kafka import *
-from .spark.kinesis import *
-from .spark.iso import *
+from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType
+
+MISO_SCHEMA = StructType([
+            StructField("DATE_TIME", TimestampType(), True),
+            StructField("LRZ1", DoubleType(), True),
+            StructField("LRZ2_7", DoubleType(), True),
+            StructField("LRZ3_5", DoubleType(), True),
+            StructField("LRZ4", DoubleType(), True),
+            StructField("LRZ6", DoubleType(), True),
+            StructField("LRZ8_9_10", DoubleType(), True),
+            StructField("MISO", DoubleType(), True),
+            ])
