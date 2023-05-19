@@ -51,7 +51,8 @@ dependencies:
     - pymdown-extensions==10.0.1
     - databricks-sql-connector==2.5.2
     - semver==3.0.0
-    - pip:    
+    - xlrd==2.0.1
+    - pip:
         - dependency-injector==4.41.0
         - azure-functions==1.14.0
         - dbx==0.8.11
