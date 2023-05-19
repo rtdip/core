@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from importlib_metadata import version
 from .models import MavenLibrary, PyPiLibrary
 
 DEFAULT_PACKAGES = {
     "spark_delta_core": MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version="2.3.0"
+                version=version("delta-spark")
             ),
     "spark_delta_sharing": MavenLibrary(
                 group_id="io.delta",

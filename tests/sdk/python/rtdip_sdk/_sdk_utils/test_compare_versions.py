@@ -28,6 +28,13 @@ def test_package_package_version_meets_minimum(mocker: MockerFixture):
     result = _package_version_meets_minimum("test-package-version", "1.0.0")
     assert True
 
+def test_package_package_version_prerelease_meets_minimum(mocker: MockerFixture):
+    mock_package = MockPackageClass()
+    mock_package.version = "5.2.0rc1"
+    mocker.patch("importlib_metadata.Distribution.from_name", return_value=mock_package)
+    result = _package_version_meets_minimum("test-package-version", "5.2.0rc1")
+    assert True
+
 def test_package_version_does_not_meet_minimum(mocker: MockerFixture):
     mock_package = MockPackageClass()
     mock_package.version = "0.9.0"

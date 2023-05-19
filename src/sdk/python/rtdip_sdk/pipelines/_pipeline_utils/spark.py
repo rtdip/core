@@ -17,15 +17,20 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType, ArrayType
 
 from .models import Libraries
+from ..._sdk_utils.compare_versions import _package_version_meets_minimum
 
 class SparkClient():
     spark_configuration: dict
     spark_libraries: Libraries
     spark_session: SparkSession
+    spark_remote: str
     
-    def __init__(self, spark_configuration: dict, spark_libraries: Libraries):
+    def __init__(self, spark_configuration: dict, spark_libraries: Libraries, spark_remote: str = None):
         self.spark_configuration = spark_configuration
         self.spark_libraries = spark_libraries
+        if spark_remote != None:
+            _package_version_meets_minimum("pyspark", "3.4.0")
+        self.spark_remote = spark_remote
         self.spark_session = self.get_spark_session()
 
     def get_spark_session(self) -> SparkSession:
@@ -45,8 +50,12 @@ class SparkClient():
                 spark = spark.master(temp_spark_configuration[spark_master])
                 temp_spark_configuration.pop(spark_master)
 
+            if self.spark_remote:
+                spark = spark.remote(self.spark_remote)
+                
             if len(self.spark_libraries.maven_libraries) > 0:
                 temp_spark_configuration["spark.jars.packages"] = ','.join(maven_package.to_string() for maven_package in self.spark_libraries.maven_libraries)
+                temp_spark_configuration["spark.jars.repositories"] = "https://oss.sonatype.org/content/repositories/iodelta-1080"
                         
             for configuration in temp_spark_configuration.items():
                 spark = spark.config(configuration[0], configuration[1])

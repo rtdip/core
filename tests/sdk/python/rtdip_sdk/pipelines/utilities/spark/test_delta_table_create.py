@@ -14,7 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
-
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _package_version_meets_minimum
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility, DeltaTableColumn
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
@@ -48,10 +48,20 @@ def test_spark_delta_table_create(spark_session: SparkSession):
     assert table_describe[3][1] == "string"
     assert table_describe[4][0] == "Value"
     assert table_describe[4][1] == "float"
-    assert table_describe[7][1] == "EventDate"
-    assert table_describe[10][1] == "default.test_table_delta_create"
-    assert table_describe[11][1] == "Test Table for Delta Create"
-    assert "spark-warehouse/test_table_delta_create" in table_describe[12][1]
-    assert "delta.enableChangeDataFeed=true" in table_describe[14][1]
-    assert "delta.logRetentionDuration=7 days" in table_describe[14][1]
+    try:
+        _package_version_meets_minimum("delta-spark", "2.4.0rc1")
+        assert table_describe[7][0] == "EventDate"
+        assert table_describe[7][1] == "date"
+        assert table_describe[10][1] == "spark_catalog.default.test_table_delta_create"
+        assert table_describe[12][1] == "Test Table for Delta Create"
+        assert "spark-warehouse/test_table_delta_create" in table_describe[13][1]
+        assert "delta.enableChangeDataFeed=true" in table_describe[15][1]
+        assert "delta.logRetentionDuration=7 days" in table_describe[15][1]        
+    except:
+        assert table_describe[7][1] == "EventDate"
+        assert table_describe[10][1] == "default.test_table_delta_create"
+        assert table_describe[11][1] == "Test Table for Delta Create"
+        assert "spark-warehouse/test_table_delta_create" in table_describe[12][1]
+        assert "delta.enableChangeDataFeed=true" in table_describe[14][1]
+        assert "delta.logRetentionDuration=7 days" in table_describe[14][1]
     
