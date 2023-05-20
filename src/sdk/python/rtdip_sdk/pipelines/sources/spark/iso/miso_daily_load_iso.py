@@ -15,7 +15,6 @@
 import logging
 import pandas as pd
 from pyspark.sql import SparkSession
-from datetime import datetime
 
 from ...._pipeline_utils.iso import MISO_SCHEMA
 from . import BaseISOSource
@@ -48,6 +47,7 @@ class MISODailyLoadISOSource(BaseISOSource):
     query_datetime_format: str = "%Y%m%d"
     required_options = ["load_type", "date"]
     spark_schema = MISO_SCHEMA
+    default_query_timezone = "US/Eastern"
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
@@ -131,9 +131,12 @@ class MISODailyLoadISOSource(BaseISOSource):
         """
 
         try:
-            datetime.strptime(self.date, self.query_datetime_format)
+            date = self._get_localized_datetime(self.date)
         except ValueError:
             raise ValueError("Unable to parse Date. Please specify in YYYYMMDD format.")
+
+        if date > self.current_date:
+            raise ValueError(f"Query date can't be in future.")
 
         valid_load_types = ["actual", "forecast"]
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from io import StringIO
-
+from datetime import datetime, timedelta
 import pandas as pd
 
 import pytest
@@ -141,10 +141,12 @@ def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
 
     assert str(exc_info.value) == "Start date can't be ahead of End date."
 
+    future_date = (datetime.utcnow() + timedelta(days=10)).strftime("%Y%m%d")
+
     with pytest.raises(ValueError) as exc_info:
         iso_source = MISOHistoricalLoadISOSource(spark_session, {**iso_configuration,
-                                                                 "start_date": "20240201",
-                                                                 "end_date": "20240205"})
+                                                                 "start_date": future_date,
+                                                                 "end_date": future_date})
         iso_source.pre_read_validation()
 
     assert str(exc_info.value) == "Start date can't be in future."
