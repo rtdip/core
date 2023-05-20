@@ -55,10 +55,14 @@ theme:
     - search.suggest
   palette:
     - scheme: default
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -119,12 +123,13 @@ nav:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md
               - Apache Airflow: sdk/pipelines/deploy/apache-airflow.md
       - Queries:
-          - Functions: sdk/queries/functions.md
           - Connectors: sdk/queries/connectors.md
           - Databricks:
               - Databricks SQL: sdk/queries/databricks/databricks-sql.md
               - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
               - Troubleshooting: sdk/queries/databricks/troubleshooting.md
+          - Spark Connect: sdk/queries/spark/spark-connect.md
+          - Functions: sdk/queries/functions.md
       - Authentication:
           - Azure Active Directory: sdk/authentication/azure.md
           - Databricks: sdk/authentication/databricks.md
@@ -192,6 +197,8 @@ nav:
                   - Databricks SQL Connector: sdk/code-reference/query/db-sql-connector.md
                   - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
                   - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
+                  - Spark Connector: sdk/code-reference/query/spark-connector.md
+
           - Authentication:
               - Azure Active Directory: sdk/code-reference/authentication/azure.md
   - API:

@@ -58,14 +58,14 @@ Installing the RTDIP can be done using a package installer, such as [Pip](https:
 ### ODBC
 To use pyodbc or turbodbc python libraries, ensure that the required ODBC driver is installed as per these [instructions](https://docs.microsoft.com/en-us/azure/databricks/integrations/bi/jdbc-odbc-bi#download-the-odbc-driver).
 
-#### Pyodbc
-If you plan to use pyodbc, Microsoft Visual C++ 14.0 or greater is required. Get it from [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+=== "Pyodbc"
+    If you plan to use pyodbc, Microsoft Visual C++ 14.0 or greater is required. Get it from [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
 
-#### Turbodbc
-To use turbodbc python library, ensure to follow the [Turbodbc Getting Started](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) section and ensure that [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) is installed correctly.
+=== "Turbodbc"
+    To use turbodbc python library, ensure to follow the [Turbodbc Getting Started](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) section and ensure that [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) is installed correctly.
 
 ### Java
-If you are planning to use the RTDIP Pipelines in your own environment that leverages [pyspark](https://spark.apache.org/docs/latest/api/python/getting_started/install.html) for a component, Java 8 or later is a [prerequisite](https://spark.apache.org/docs/latest/api/python/getting_started/install.html#dependencies). See below for suggestions to install Java in your development environment.
+To use RTDIP Pipelines componentw in your own environment that leverages [pyspark](https://spark.apache.org/docs/latest/api/python/getting_started/install.html), Java 8 or later is a [prerequisite](https://spark.apache.org/docs/latest/api/python/getting_started/install.html#dependencies). See below for suggestions to install Java in your development environment.
 
 === "Conda"
     A fairly simple option is to use the conda **openjdk** package to install Java into your python virtual environment. An example of a conda **environment.yml** file to achieve this is below.

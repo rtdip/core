@@ -37,7 +37,9 @@ INSTALL_REQUIRES = [
   "jinjasql==0.1.8",
   "importlib_metadata>=1.0.0",
   "semver==3.0.0",
-  "xlrd==2.0.1"
+  "xlrd==2.0.1",
+  "grpcio>=1.48.1",
+  "grpcio-status>=1.48.1"
 ]
 
 PYSPARK_PACKAGES = [

@@ -44,13 +44,13 @@ The RTDIP SDK offers several ways to connect to a Databricks SQL Warehouse.
     The simplest method to connect to RTDIP and does not require any additional installation steps.
 
     ```python
-    from rtdip_sdk.odbc import db_sql_connector
+    from rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
 
     server_hostname = "server_hostname"
     http_path = "http_path"
     access_token = "token"
 
-    connection = db_sql_connector.DatabricksSQLConnection(server_hostname, http_path, access_token)
+    connection = DatabricksSQLConnection(server_hostname, http_path, access_token)
     ```
 
     Replace **server_hostname**, **http_path** and **access_token** with your own information.
@@ -68,14 +68,14 @@ The RTDIP SDK offers several ways to connect to a Databricks SQL Warehouse.
     * Driver paths can be found on [PYODBC Driver Paths](../../code-reference/query/pyodbc-sql-connector.md)
 
     ```python
-    from rtdip_sdk.odbc import pyodbc_sql_connector
+    from rtdip_sdk.odbc.pyodbc_sql_connector import PYODBCSQLConnection
 
     server_hostname = "server_hostname"
     http_path = "http_path"
     access_token = "token"
     driver_path = "/Library/simba/spark/lib/libsparkodbc_sbu.dylib"
 
-    connection = pyodbc_sql_connector.PYODBCSQLConnection(driver_path, sever_hostname, http_path, access_token)
+    connection = PYODBCSQLConnection(driver_path, sever_hostname, http_path, access_token)
     ```
 
     Replace **server_hostname**, **http_path** and **access_token** with your own information.
@@ -89,52 +89,18 @@ The RTDIP SDK offers several ways to connect to a Databricks SQL Warehouse.
     * [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) needs to be installed locally to use the [TURBODBC SQL Connector](../../code-reference/query/turbodbc-sql-connector.md) (<em>Optional</em>)
 
     ```python
-    from rtdip_sdk.odbc import turbodbc_sql_connector
+    from rtdip_sdk.odbc.turbodbc_sql_connector import TURBODBCSQLConnection
 
     server_hostname = "server_hostname"
     http_path = "http_path"
     access_token = "token"
 
-    connection = turbodbc_sql_connector.TURBODBCSQLConnection(server_hostname, http_path, access_token)
+    connection = TURBODBCSQLConnection(server_hostname, http_path, access_token)
     ```
 
     Replace **server_hostname**, **http_path** and **access_token** with your own information.
 
     For more information about each of the connection methods, please see [Code Reference](../../code-reference/query/turbodbc-sql-connector.md) and navigate to the required section.
-    
-
-### Functions
-
-Finally, after authenticating and connecting using one of the methods above, you have access to the commonly requested RTDIP functions such as **Resample**, **Interpolate**, **Raw**, **Time Weighted Averages** or **Metadata**. 
-
-1\. To use any of the RTDIP functions, use the commands below.
-
-```python
-from rtdip_sdk.functions import resample
-from rtdip_sdk.functions import interpolate
-from rtdip_sdk.functions import raw
-from rtdip_sdk.functions import time_weighted_average
-from rtdip_sdk.functions import metadata
-```
-
-2\. From functions you can use any of the following methods.
-
-#### Resample
-    resample.get(connection, parameters_dict)
-
-#### Interpolate
-    interpolate.get(connection, parameters_dict)
-
-#### Raw
-    raw.get(connection, parameters_dict)
-
-#### Time Weighted Average
-    time_weighted_average.get(connection, parameter_dict)
-
-#### Metadata
-    metadata.get(connection, parameter_dict)
-
-For more information about the function parameters see [Code Reference](../../code-reference/query/resample.md) and navigate through the required function.
 
 ### Example
 
@@ -142,12 +108,12 @@ This is a code example of the RTDIP SDK Interpolate function. You will need to r
 
 ```python
 from rtdip_sdk.authentication import authenticate as auth
-from rtdip_sdk.odbc import db_sql_connector as dbc
+from rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
 from rtdip_sdk.functions import interpolate
 
 authentication = auth.DefaultAuth().authenticate()
 access_token = authentication.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-connection = dbc.DatabricksSQLConnection("{server_hostname}", "{http_path}", access_token)
+connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", access_token)
 
 parameters = {
     "business_unit": "{business_unit}", 

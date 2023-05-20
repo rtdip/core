@@ -33,8 +33,13 @@ DEFAULT_PACKAGES = {
     "spark_sql_kafka": MavenLibrary(
                 group_id="org.apache.spark", 
                 artifact_id="spark-sql-kafka-0-10_2.12",
-                version="3.4.0"
+                version=version("pyspark")
             ),
+    "spark_remote": MavenLibrary(
+                group_id="org.apache.spark", 
+                artifact_id="spark-connect_2.12",
+                version=version("pyspark")
+    ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
                 version="0.2.2"

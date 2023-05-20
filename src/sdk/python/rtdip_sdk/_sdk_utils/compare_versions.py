@@ -31,7 +31,6 @@ def _get_python_package_version(package_name):
     
     return _get_semver_from_python_version(pypi_ver)
 
-
 def _package_version_meets_minimum(package_name: str, minimum_version: str) -> bool:
     package_version = _get_python_package_version(package_name)
     package_minimum_version = _get_semver_from_python_version(PyPIVersion(minimum_version))

@@ -28,7 +28,7 @@ class DatabricksSQLConnection(ConnectionInterface):
     Args:
         server_hostname: Server hostname for the cluster or SQL Warehouse
         http_path: Http path for the cluster or SQL Warehouse
-        access_token: Azure AD token
+        access_token: Azure AD or Databricks PAT token
   """
   def __init__(self, server_hostname: str, http_path: str, access_token: str) -> None:
     #call auth method
