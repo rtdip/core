@@ -47,7 +47,7 @@ class MISODailyLoadISOSource(BaseISOSource):
     query_datetime_format: str = "%Y%m%d"
     required_options = ["load_type", "date"]
     spark_schema = MISO_SCHEMA
-    default_query_timezone = "US/Eastern"
+    default_query_timezone = "US/Central"
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
