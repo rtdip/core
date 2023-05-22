@@ -104,7 +104,7 @@ nav:
     - Domains:
           - Weather:
                 - Overview: domains/weather/overview.md 
-                #- Data Model: domains/weather/data-model.md  
+                - Data Model: domains/weather/data-model.md  
     - Integration:
           - Power BI: integration/power-bi.md
     - SDK:
