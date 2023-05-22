@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import os
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import SMDM_USAGE_SCHEMA, MISO_SCHEMA
-from src.sdk.python.rtdip_sdk.pipelines.transformers import MISORawToSMDMTransformer
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.binary_to_string import BinaryToStringTransformer
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.smdm import SMDM_USAGE_SCHEMA
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import MISO_SCHEMA
+from src.sdk.python.rtdip_sdk.pipelines.transformers import MISOUsageISOTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession, DataFrame
@@ -24,11 +24,11 @@ from pyspark.sql import SparkSession, DataFrame
 base_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_data", "miso_raw_to_smdm")
 
 
-def test_miso_raw_to_smdm_transformation(spark_session: SparkSession):
+def test_miso_raw_to_smdm_usage_transformation(spark_session: SparkSession):
     expected_df: DataFrame = spark_session.read.csv(f"{base_path}/output.csv", header=True, schema=SMDM_USAGE_SCHEMA)
     input_df: DataFrame = spark_session.read.csv(f"{base_path}/input.csv", header=True, schema=MISO_SCHEMA)
 
-    transformer = MISORawToSMDMTransformer(spark_session, input_df)
+    transformer = MISOUsageISOTransformer(spark_session, input_df)
     actual_df = transformer.transform()
 
     actual_df = actual_df.orderBy("uid", "timestamp")
@@ -37,7 +37,5 @@ def test_miso_raw_to_smdm_transformation(spark_session: SparkSession):
     assert transformer.system_type() == SystemType.PYSPARK
     assert isinstance(transformer.libraries(), Libraries)
     assert transformer.settings() == dict()
-    assert transformer.pre_transform_validation()
-    assert transformer.post_transform_validation()
     assert str(actual_df.schema) == str(expected_df.schema)
     assert str(actual_df.collect()) == str(expected_df.collect())

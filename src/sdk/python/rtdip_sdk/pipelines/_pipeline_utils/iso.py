@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from typing import List
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, array, lit, struct, explode
-from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType, StringType
+from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType
 
 MISO_SCHEMA = StructType([
     StructField("DATE_TIME", TimestampType(), True),
@@ -26,14 +26,6 @@ MISO_SCHEMA = StructType([
     StructField("LRZ6", DoubleType(), True),
     StructField("LRZ8_9_10", DoubleType(), True),
     StructField("MISO", DoubleType(), True),
-])
-
-SMDM_USAGE_SCHEMA = StructType([
-    StructField("uid", StringType(), True),
-    StructField("series_id", StringType(), True),
-    StructField("timestamp", TimestampType(), True),
-    StructField("interval_timestamp", TimestampType(), True),
-    StructField("value", DoubleType(), True)
 ])
 
 
@@ -59,24 +51,3 @@ def melt(
     cols = list(map(col, id_vars)) + [col("_vars_and_vals")[x].alias(x) for x in [var_name, value_name]]
 
     return df.select(*cols)
-
-
-def apply_schema(df: DataFrame, spark: SparkSession, schema: StructType) -> DataFrame:
-    """
-    Converts a Spark DataFrame structure into new structure based on the Schema.
-
-    Args:
-        df: Spark DataFrame to be converted.
-        spark: Active Spark Session object.
-        schema: New schema to apply.
-
-    Returns: Converted Spark DataFrame with new schema.
-
-    """
-
-    df = df.select(schema.names)
-
-    for field in schema.fields:
-        df = df.withColumn(field.name, col(field.name).cast(field.dataType))
-
-    return spark.createDataFrame(df.rdd, schema)

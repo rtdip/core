@@ -151,8 +151,7 @@ nav:
                       - SSIP PI Binary File data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md
                       - SSIP PI Binary JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md
                       - EdgeX JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/edgex_json_to_pcdm.md
-                      - ISO:
-                          - MISORawToSMDMTransformer: sdk/code-reference/pipelines/transformers/spark/iso/miso_raw_to_smdm.md
+                      - Base Raw To Smart Meter Data Model: sdk/code-reference/pipelines/transformers/spark/base_raw_to_smdm_transformer.md
 
               - Destinations:
                   - Spark:
