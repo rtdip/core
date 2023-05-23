@@ -39,7 +39,8 @@ INSTALL_REQUIRES = [
   "semver==3.0.0",
   "xlrd==2.0.1",
   "grpcio>=1.48.1",
-  "grpcio-status>=1.48.1"
+  "grpcio-status>=1.48.1",
+  "googleapis-common-protos>=1.56.4"
 ]
 
 PYSPARK_PACKAGES = [

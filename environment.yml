@@ -44,6 +44,7 @@ dependencies:
     - pyspark>=3.3.0,<3.5.0
     - grpcio>=1.48.1
     - grpcio-status>=1.48.1
+    - googleapis-common-protos>=1.56.4
     - openjdk==11.0.15    
     - python-dotenv==1.0.0
     - mkdocstrings==0.21.2
