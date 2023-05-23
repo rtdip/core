@@ -11,15 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from abc import abstractmethod
 
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
-from ..base_raw_to_smdm_transformer import BaseRawToSMDMTransformer
+from ..base_raw_to_mdm import BaseRawToMDMTransformer
 from ...._pipeline_utils.iso import melt, MISO_SCHEMA
 
 
-class MISOISOTransformer(BaseRawToSMDMTransformer):
+class MISOToMDMTransformer(BaseRawToMDMTransformer):
+    """
+    Converts MISO Raw data into Meters Data Model.
+
+    Please check the [BaseRawToMDMTransformer](../base_raw_to_mdm.md) for more info.
+    """
 
     input_schema = MISO_SCHEMA
     uid_col = "variable"
@@ -41,9 +45,9 @@ class MISOISOTransformer(BaseRawToSMDMTransformer):
     properties_col = "null"
 
     def _pre_process(self) -> DataFrame:
-        df = melt(self.data,
+        df: DataFrame = super(MISOToMDMTransformer, self)._pre_process()
+        df = melt(df,
                   id_vars=["DATE_TIME"],
                   value_vars=["LRZ1", "LRZ2_7", "LRZ3_5", "LRZ4", "LRZ6", "LRZ8_9_10", "MISO"]
                   )
         return df
-

@@ -18,24 +18,37 @@ from pyspark.sql.functions import col, expr
 from pyspark.sql.types import StructType
 
 from ..interfaces import TransformerInterface
-from ..._pipeline_utils.smdm import SMDM_USAGE_SCHEMA, SMDM_META_SCHEMA, SMDMClassType
+from ..._pipeline_utils.mdm import MDM_USAGE_SCHEMA, MDM_META_SCHEMA
 from ..._pipeline_utils.models import Libraries, SystemType
 
 
-class BaseRawToSMDMTransformer(TransformerInterface):
+class BaseRawToMDMTransformer(TransformerInterface):
     """
-    Base class for all the Raw to Smart Meter Data Model Transformers.
+    Base class for all the Raw to Meters Data Model Transformers.
+
+    Meters Data Model requires two outputs:
+        - `UsageData` : To store measurement(value) as timeseries data.
+        - `MetaData` : To store meters related meta information.
+
+    It supports the generation of both the outputs as they share some common properties.
 
     Args:
         spark (SparkSession): Spark Session instance.
         data (DataFrame): Dataframe containing the raw MISO data.
+        output_type (str): Must be one of `usage` or `meta`.
+        name (str): Set this to override default `name` column.
+        description (str): Set this to override default `description` column.
+        value_type (str): Set this to override default `value_type` column.
+        version (str): Set this to override default `version` column.
+        series_id (str): Set this to override default `series_id` column.
+        series_parent_id (str): Set this to override default `series_parent_id` column.
     """
 
     spark: SparkSession
     data: DataFrame
+    output_type: str
     input_schema: StructType
     target_schema: StructType
-    class_type: SMDMClassType
     uid_col: str
     series_id_col: str
     timestamp_col: str
@@ -57,6 +70,7 @@ class BaseRawToSMDMTransformer(TransformerInterface):
     def __init__(self,
                  spark: SparkSession,
                  data: DataFrame,
+                 output_type: str,
                  name: str = None,
                  description: str = None,
                  value_type: str = None,
@@ -66,6 +80,7 @@ class BaseRawToSMDMTransformer(TransformerInterface):
                  ):
         self.spark = spark
         self.data = data
+        self.output_type = output_type
         self.name = name if name is not None else self.name_col
         self.description = description if description is not None else self.description_col
         self.value_type = value_type if value_type is not None else self.value_type_col
@@ -87,6 +102,10 @@ class BaseRawToSMDMTransformer(TransformerInterface):
         return {}
 
     def pre_transform_validation(self) -> bool:
+        valid_output_types = ["usage", "meta"]
+        if self.output_type not in valid_output_types:
+            raise ValueError(f"Invalid output_type `{self.output_type}` given. Must be one of {valid_output_types}")
+
         assert str(self.data.schema) == str(self.input_schema)
         return True
 
@@ -95,11 +114,11 @@ class BaseRawToSMDMTransformer(TransformerInterface):
         return True
 
     def _get_transformed_df(self) -> DataFrame:
-        if self.class_type == SMDMClassType.usage:
-            self.target_schema = SMDM_USAGE_SCHEMA
+        if self.output_type == "usage":
+            self.target_schema = MDM_USAGE_SCHEMA
             return self._get_usage_transformed_df()
         else:
-            self.target_schema = SMDM_META_SCHEMA
+            self.target_schema = MDM_META_SCHEMA
             return self._get_meta_transformed_df()
 
     def _convert_into_target_schema(self) -> None:
@@ -110,7 +129,7 @@ class BaseRawToSMDMTransformer(TransformerInterface):
 
         """
 
-        df = self.data
+        df: DataFrame = self.data
         df = df.select(self.target_schema.names)
 
         for field in self.target_schema.fields:
@@ -121,7 +140,7 @@ class BaseRawToSMDMTransformer(TransformerInterface):
     def transform(self) -> DataFrame:
         """
         Returns:
-            DataFrame: A dataframe with the raw data converted into SMDM.
+            DataFrame: A dataframe with the raw data converted into MDM.
         """
 
         self.pre_transform_validation()

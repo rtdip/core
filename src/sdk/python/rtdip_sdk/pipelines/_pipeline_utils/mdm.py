@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from enum import Enum
 from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType, StringType, MapType
 
-SMDM_USAGE_SCHEMA = StructType([
+MDM_USAGE_SCHEMA = StructType([
     StructField("uid", StringType(), True),
     StructField("series_id", StringType(), True),
     StructField("timestamp", TimestampType(), True),
@@ -23,7 +22,7 @@ SMDM_USAGE_SCHEMA = StructType([
     StructField("value", DoubleType(), True)
 ])
 
-SMDM_META_SCHEMA = StructType([
+MDM_META_SCHEMA = StructType([
     StructField("uid", StringType(), True),
     StructField("series_id", StringType(), True),
     StructField("series_parent_id", StringType(), True),
@@ -39,12 +38,3 @@ SMDM_META_SCHEMA = StructType([
     StructField("value_type", StringType(), True),
     StructField("properties", MapType(keyType=StringType(), valueType=StringType()), True)
 ])
-
-
-class SMDMClassType(Enum):
-    """
-    Smart Meter Data Model Class Type
-    """
-    usage = 0
-    meta = 1
-
