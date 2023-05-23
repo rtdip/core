@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType, StringType, MapType
+from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType, StringType, MapType, IntegerType
 
 MDM_USAGE_SCHEMA = StructType([
     StructField("uid", StringType(), True),
@@ -33,8 +33,8 @@ MDM_META_SCHEMA = StructType([
     StructField("timestamp_end", TimestampType(), True),
     StructField("time_zone", StringType(), True),
     StructField("version", StringType(), True),
-    StructField("series_type", StringType(), True),
-    StructField("model_type", StringType(), True),
-    StructField("value_type", StringType(), True),
+    StructField("series_type", IntegerType(), True),
+    StructField("model_type", IntegerType(), True),
+    StructField("value_type", IntegerType(), True),
     StructField("properties", MapType(keyType=StringType(), valueType=StringType()), True)
 ])

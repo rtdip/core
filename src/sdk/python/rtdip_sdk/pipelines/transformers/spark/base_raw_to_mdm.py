@@ -14,9 +14,10 @@
 from abc import abstractmethod
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, expr
+from pyspark.sql.functions import col, expr, lit
 from pyspark.sql.types import StructType
 
+from ....data_models.meters.ami_meters import ValueType, SeriesType, ModelType
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.mdm import MDM_USAGE_SCHEMA, MDM_META_SCHEMA
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -38,7 +39,7 @@ class BaseRawToMDMTransformer(TransformerInterface):
         output_type (str): Must be one of `usage` or `meta`.
         name (str): Set this to override default `name` column.
         description (str): Set this to override default `description` column.
-        value_type (str): Set this to override default `value_type` column.
+        value_type (ValueType): Set this to override default `value_type` column.
         version (str): Set this to override default `version` column.
         series_id (str): Set this to override default `series_id` column.
         series_parent_id (str): Set this to override default `series_parent_id` column.
@@ -62,9 +63,9 @@ class BaseRawToMDMTransformer(TransformerInterface):
     timestamp_end_col: str
     time_zone_col: str
     version_col: str
-    series_type_col: str
-    model_type_col: str
-    value_type_col: str
+    series_type: SeriesType
+    model_type: ModelType
+    value_type: ValueType
     properties_col: str
 
     def __init__(self,
@@ -73,7 +74,7 @@ class BaseRawToMDMTransformer(TransformerInterface):
                  output_type: str,
                  name: str = None,
                  description: str = None,
-                 value_type: str = None,
+                 value_type: ValueType = None,
                  version: str = None,
                  series_id: str = None,
                  series_parent_id: str = None,
@@ -83,7 +84,7 @@ class BaseRawToMDMTransformer(TransformerInterface):
         self.output_type = output_type
         self.name = name if name is not None else self.name_col
         self.description = description if description is not None else self.description_col
-        self.value_type = value_type if value_type is not None else self.value_type_col
+        self.value_type = value_type if value_type is not None else self.value_type
         self.version = version if version is not None else self.version_col
         self.series_id = series_id if series_id is not None else self.series_id_col
         self.series_parent_id = series_parent_id if series_parent_id is not None else self.series_parent_id_col
@@ -107,6 +108,9 @@ class BaseRawToMDMTransformer(TransformerInterface):
             raise ValueError(f"Invalid output_type `{self.output_type}` given. Must be one of {valid_output_types}")
 
         assert str(self.data.schema) == str(self.input_schema)
+        assert type(self.series_type).__name__ == SeriesType.__name__
+        assert type(self.model_type).__name__ == ModelType.__name__
+        assert type(self.value_type).__name__ == ValueType.__name__
         return True
 
     def post_transform_validation(self) -> bool:
@@ -190,13 +194,13 @@ class BaseRawToMDMTransformer(TransformerInterface):
         return df.withColumn("version", expr(self.version))
 
     def _add_series_type_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("series_type", expr(self.series_type_col))
+        return df.withColumn("series_type", lit(self.series_type.value))
 
     def _add_model_type_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("model_type", expr(self.model_type_col))
+        return df.withColumn("model_type", lit(self.model_type.value))
 
     def _add_value_type_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("value_type", expr(self.value_type))
+        return df.withColumn("value_type", lit(self.value_type.value))
 
     def _add_properties_column(self, df: DataFrame) -> DataFrame:
         return df.withColumn("properties", expr(self.properties_col))

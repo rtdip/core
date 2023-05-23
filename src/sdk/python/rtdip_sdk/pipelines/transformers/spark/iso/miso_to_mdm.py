@@ -14,6 +14,7 @@
 
 from pyspark.sql import DataFrame, SparkSession
 
+from .....data_models.meters.ami_meters import SeriesType, ModelType, ValueType
 from ..base_raw_to_mdm import BaseRawToMDMTransformer
 from ...._pipeline_utils.iso import melt, MISO_SCHEMA
 
@@ -39,9 +40,9 @@ class MISOToMDMTransformer(BaseRawToMDMTransformer):
     timestamp_end_col = "DATE_TIME + INTERVAL 1 HOURS"
     time_zone_col = "'US/Central'"
     version_col = "'1'"
-    series_type_col = "'hour'"
-    model_type_col = "null"
-    value_type_col = "'usage'"
+    series_type = SeriesType.hour
+    model_type = ModelType.default
+    value_type = ValueType.usage
     properties_col = "null"
 
     def _pre_process(self) -> DataFrame:

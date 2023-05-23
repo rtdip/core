@@ -14,8 +14,9 @@
 
 import os
 import pytest
-from pyspark.sql.functions import expr
+from pyspark.sql.functions import expr, lit
 
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import ValueType
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.base_raw_to_mdm import BaseRawToMDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.mdm import MDM_USAGE_SCHEMA, MDM_META_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import MISO_SCHEMA
@@ -77,7 +78,7 @@ def test_miso_to_mdm_meta_with_params(spark_session: SparkSession):
     series_parent_id = "'new_parent'"
     name = "'New Data'"
     description = "'Pulled from API'"
-    value_type = "'attributes'"
+    value_type = ValueType.usage
 
     transformer: BaseRawToMDMTransformer = MISOToMDMTransformer(spark_session,
                                                                 input_df,
@@ -96,7 +97,7 @@ def test_miso_to_mdm_meta_with_params(spark_session: SparkSession):
                    .withColumn("series_parent_id", expr(series_parent_id))
                    .withColumn("name", expr(name))
                    .withColumn("description", expr(description))
-                   .withColumn("value_type", expr(value_type))
+                   .withColumn("value_type", lit(value_type.value))
                    )
 
     expected_df = spark_session.createDataFrame(expected_df.rdd, schema=MDM_META_SCHEMA)
