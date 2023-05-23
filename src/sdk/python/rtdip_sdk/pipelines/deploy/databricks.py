@@ -24,7 +24,7 @@ from dbx.api.auth import ProfileEnvConfigProvider
 from .interfaces import DeployInterface
 from .models.databricks import DatabricksJob, DatabricksJobForPipelineJob, DatabricksSparkPythonTask, DatabricksTask, DatabricksLibraries, DatabricksLibrariesMaven, DatbricksLibrariesPypi, DatabricksDBXProject
 from ..execute.job import PipelineJob
-from ..converters.pipeline_job_json import PipelineJobToJson
+from ..converters.pipeline_job_json import PipelineJobToJsonConverter
 
 __name__: str
 __version__: str
@@ -156,7 +156,8 @@ class DatabricksDBXDeploy(DeployInterface):
                 for pypi_library in libraries.pypi_libraries:
                     databricks_job_task.libraries.append(DatabricksLibraries(pypi=DatbricksLibrariesPypi(package=pypi_library.to_string(), repo=pypi_library.repo)))
                 for maven_library in libraries.maven_libraries:
-                    databricks_job_task.libraries.append(DatabricksLibraries(maven=DatabricksLibrariesMaven(coordinates=maven_library.to_string(), repo=maven_library.repo)))
+                    if not maven_library.group_id in ["io.delta", "org.apache.spark"]:
+                        databricks_job_task.libraries.append(DatabricksLibraries(maven=DatabricksLibrariesMaven(coordinates=maven_library.to_string(), repo=maven_library.repo)))
                 for wheel_library in libraries.pythonwheel_libraries:
                     databricks_job_task.libraries.append(DatabricksLibraries(whl=wheel_library))
 
@@ -168,7 +169,7 @@ class DatabricksDBXDeploy(DeployInterface):
 
             databricks_job_task.spark_python_task = DatabricksSparkPythonTask(
                 python_file="file://{}".format("rtdip/tasks/pipeline_task.py"),
-                parameters=[PipelineJobToJson(self.pipeline_job).convert()]
+                parameters=[PipelineJobToJsonConverter(self.pipeline_job).convert()]
             )
             databricks_tasks.append(databricks_job_task)
 
@@ -221,7 +222,7 @@ class DatabricksDBXDeploy(DeployInterface):
             workflow_name=self.pipeline_job.name,
             workflow_names=None,
             job_names=None,
-            deployment_file=Path("conf/deployment.json.j2"),
+            deployment_file=Path("conf/deployment.json"),
             environment_name="rtdip",
             requirements_file=None,
             jinja_variables_file=None,

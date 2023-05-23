@@ -16,6 +16,7 @@ from src.sdk.python.rtdip_sdk.odbc.turbodbc_sql_connector import TURBODBCSQLConn
 from pytest_mock import MockerFixture
 import pytest
 import pandas as pd
+import pyarrow as pa
 
 HOST_NAME= "myHostName"
 HTTP_PATH = "myServerAddress"
@@ -30,7 +31,6 @@ class MockedTURBODBCConnection:
     def cursor(self) -> object:
         return MockedTURBODBCCursor()
 
-
 class MockedTURBODBCCursor:
     def execute(self, query) -> None:
         return None
@@ -38,6 +38,9 @@ class MockedTURBODBCCursor:
     def fetchall(self) -> list:
         return list
 
+    def fetchallarrow(self) -> list:
+        return pa.Table
+    
     def close(self) -> None:
         return None
 
@@ -69,7 +72,7 @@ def test_cursor_execute(mocker: MockerFixture):
     mocked_execute.assert_called_with(mocker.ANY, query="test")
 
 def test_cursor_fetch_all(mocker: MockerFixture):
-    mocker.patch.object(MockedTURBODBCCursor, "fetchall", return_value= [['1', '2', '3', '4']])
+    mocker.patch.object(MockedTURBODBCCursor, "fetchallarrow", return_value= pa.Table.from_pylist([{"column_name_1": "1", "column_name_2": "2", "column_name_3": "3", "column_name_4": "4"}]))
 
     foo = MockedTURBODBCCursor()
     foo.description = (('column_name_1', 0, 1, 2), ('column_name_2', 2, 3, 4), ('column_name_3', 4, 5, 6), ('column_name_4', 6, 7, 8))

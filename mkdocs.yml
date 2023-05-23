@@ -29,54 +29,57 @@ docs_dir: docs
 
 # Custom Colour Pallete
 extra_css:
-    - assets/extra.css
+  - assets/extra.css
 
 # Configuration
 theme:
-    name: material
-    # Default values, taken from mkdocs_theme.yml
-    language: en
-    features:
-        - content.code.annotate
-        - content.tabs.link
-        - content.tooltips
-        #- navigation.expand
-        - navigation.indexes
-        - navigation.instant
-        - navigation.sections
-        - navigation.tabs
-        # - navigation.tabs.sticky
-        - navigation.top
-        # - navigation.tracking
-        - search.highlight
-        - search.share
-        - search.suggest
-    palette:
-        - scheme: default
-          toggle:
-              icon: material/brightness-7
-              name: Switch to dark mode
-        - scheme: slate
-          toggle:
-              icon: material/brightness-4
-              name: Switch to light mode
-    font:
-        text: Roboto
-        code: Roboto Mono
-    favicon: assets/favicon.png
-    logo: assets/logo_lfe.png
+  name: material
+  # Default values, taken from mkdocs_theme.yml
+  language: en
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.tabs.link
+    - content.tooltips
+    #- navigation.expand
+    - navigation.indexes
+    - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    # - navigation.tabs.sticky
+    - navigation.top
+    # - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: assets/favicon.png
+  logo: assets/logo_lfe.png
 
 extra:
-    generator: false
+  generator: false
 
 plugins:
-    - search
-    - autorefs
-    - mkdocstrings:
-        watch:
-            - src/sdk/python/rtdip_sdk    
-    - macros:
-        module_name: docs/macros
+  - search
+  - autorefs
+  - mkdocstrings
+  - macros:
+      module_name: docs/macros
+
+watch:
+  - src/sdk/python/rtdip_sdk
 
 markdown_extensions:
   - attr_list
@@ -90,12 +93,11 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
-        alternate_style: true
+      alternate_style: true
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_generator: !!python/name:materialx.emoji.to_svg # Page tree
 
-# Page tree
 nav:
     - Home: index.md
     - Getting started:

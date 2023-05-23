@@ -29,7 +29,7 @@ def test_spark_delta_sharing_read_setup(spark_session: SparkSession):
     assert delta_sharing_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-sharing-spark_2.12",
-                version="0.6.2"
+                version="0.6.3"
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(delta_sharing_source.settings(), dict)
     assert delta_sharing_source.pre_read_validation()
@@ -38,9 +38,9 @@ def test_spark_delta_sharing_read_setup(spark_session: SparkSession):
 
 def test_spark_delta_sharing_read_batch(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    delta_destination = SparkDeltaDestination("test_spark_delta_sharing_read_batch", {}, "overwrite")
+    delta_destination = SparkDeltaDestination(expected_df, "test_spark_delta_sharing_read_batch", {}, "overwrite")
     delta_sharing_source = SparkDeltaSharingSource(spark_session, {}, "test_spark_delta_sharing_read_batch")
-    delta_destination.write_batch(expected_df)
+    delta_destination.write_batch()
     actual_df = delta_sharing_source.read_batch()
     assert isinstance(actual_df, DataFrame)
     assert actual_df.schema == StructType([StructField('id', StringType(), True)])

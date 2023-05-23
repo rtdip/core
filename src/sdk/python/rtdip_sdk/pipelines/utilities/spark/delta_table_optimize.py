@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from typing import Optional
+from typing import List, Optional
 from pyspark.sql import SparkSession
 from py4j.protocol import Py4JJavaError
 from delta.tables import DeltaTable
@@ -35,9 +35,9 @@ class DeltaTableOptimizeUtility(UtilitiesInterface):
     spark: SparkSession
     table_name: str
     where: Optional[str]
-    zorder_by: Optional[list[str]]
+    zorder_by: Optional[List[str]]
 
-    def __init__(self, spark: SparkSession, table_name: str, where: str = None, zorder_by: list[str] = None) -> None:
+    def __init__(self, spark: SparkSession, table_name: str, where: str = None, zorder_by: List[str] = None) -> None:
         self.spark = spark
         self.table_name = table_name
         self.where = where

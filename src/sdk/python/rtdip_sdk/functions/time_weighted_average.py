@@ -18,6 +18,7 @@ from .metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     A function that recieves a dataframe of raw tag data and performs a timeweighted average, returning the results. 
@@ -36,45 +37,63 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         data_security_level (str): Level of data security 
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (list): List of tagname or tagnames
-        start_date (str): Start date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS)
-        end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS)
+        start_date (str): Start date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+        end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         window_size_mins (int): Window size in minutes
         window_length (int): (Optional) add longer window time for the start or end of specified date to cater for edge cases
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        step (str): data points with step "enabled" or "disabled". The options for step are "metadata" (string), True or False (bool)
+        step (str): data points with step "enabled" or "disabled". The options for step are "metadata", "true" or "false". "metadata" will get the step requirements from the metadata table if applicable.
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
     '''
-    try:
-        datetime_format = "%Y-%m-%dT%H:%M:%S"
-        utc="Etc/UTC"
-        if len(parameters_dict["start_date"]) == 10:
-            original_start_date = datetime.strptime(parameters_dict["start_date"] + "T00:00:00", datetime_format)
-            parameters_dict["start_date"] = parameters_dict["start_date"] + "T00:00:00"
-        else:
-            original_start_date = datetime.strptime(parameters_dict["start_date"], datetime_format)
-        if len(parameters_dict["end_date"]) == 10:
-            original_end_date = datetime.strptime(parameters_dict["end_date"] + "T23:59:59", datetime_format) 
-            parameters_dict["end_date"] = parameters_dict["end_date"] + "T23:59:59"
-        else: 
-            original_end_date = datetime.strptime(parameters_dict["end_date"], datetime_format)
+    try:  
+        dtz_format = "%Y-%m-%dT%H:%M:%S%z"
+        utc = "Etc/UTC"
+        
+        def is_date_format(dt, format):
+            try:
+                return datetime.strptime(dt , format)
+            except:
+                return False
+            
+        def set_dtz(dt, is_end_date = False):
+            if is_date_format(dt, "%Y-%m-%d"):
+                _time = "T23:59:59" if is_end_date == True else "T00:00:00"
+                return dt + _time + "+00:00"
+            elif is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
+                return dt + "+00:00"
+            elif is_date_format(dt, "%Y-%m-%dT%H:%M:%S%z"):
+                return dt
+            else: 
+                raise ValueError(f"Inputted datetime: '{dt}', is not in the correct format")
+            
+        parameters_dict["start_date"] = set_dtz(parameters_dict["start_date"])
+        parameters_dict["end_date"] = set_dtz(parameters_dict["end_date"], True)
+
+        #used to only return data between start and end date (at the end of function)
+        original_start_date = datetime.strptime(parameters_dict["start_date"], dtz_format).replace(tzinfo=pytz.timezone(utc))
+        original_end_date = datetime.strptime(parameters_dict["end_date"], dtz_format).replace(tzinfo=pytz.timezone(utc))
+
         if "window_length" in parameters_dict:       
-            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format)
-            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_length"]))).strftime(datetime_format) 
+            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], dtz_format) - timedelta(minutes = int(parameters_dict["window_length"]))).strftime(dtz_format)
+            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], dtz_format) + timedelta(minutes = int(parameters_dict["window_length"]))).strftime(dtz_format) 
         else:
-            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], datetime_format) - timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
-            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], datetime_format) + timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(datetime_format)
+            parameters_dict["start_date"] = (datetime.strptime(parameters_dict["start_date"], dtz_format) - timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(dtz_format)
+            parameters_dict["end_date"] = (datetime.strptime(parameters_dict["end_date"], dtz_format) + timedelta(minutes = int(parameters_dict["window_size_mins"]))).strftime(dtz_format)
+        
         pandas_df = raw_get(connection, parameters_dict)
 
         pandas_df["EventDate"] = pd.to_datetime(pandas_df["EventTime"]).dt.date  
+
         boundaries_df = pd.DataFrame(columns=["EventTime", "TagName"])
         for tag in parameters_dict["tag_names"]:
-            start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"]).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
-            end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"]).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
+            start_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["start_date"], utc=True).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
+            end_date_new_row = pd.DataFrame([[pd.to_datetime(parameters_dict["end_date"], utc=True).replace(tzinfo=pytz.timezone(utc)), tag]], columns=["EventTime", "TagName"])
             boundaries_df = pd.concat([boundaries_df, start_date_new_row, end_date_new_row], ignore_index=True)
         boundaries_df.set_index(pd.DatetimeIndex(boundaries_df["EventTime"]), inplace=True)
         boundaries_df.drop(columns="EventTime", inplace=True)
         boundaries_df = boundaries_df.groupby(["TagName"]).resample("{}T".format(str(parameters_dict["window_size_mins"]))).ffill().drop(columns='TagName')
+        
         #preprocess - add boundaries and time interpolate missing boundary values
         preprocess_df = pandas_df.copy()
         preprocess_df["EventTime"] = preprocess_df["EventTime"].round("S")
@@ -85,12 +104,13 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             metadata_df.set_index("TagName", inplace=True)
             metadata_df = metadata_df.loc[:, "Step"]
             preprocess_df = preprocess_df.merge(metadata_df, left_index=True, right_index=True)
-        elif parameters_dict["step"] == True:
+        elif parameters_dict["step"].lower() == "true":
             preprocess_df["Step"] =  True
-        elif parameters_dict["step"] == False:
+        elif parameters_dict["step"].lower() == "false":
             preprocess_df["Step"] = False
         else:
-            raise Exception('Unexpected step value', parameters_dict["step"])
+            raise Exception('Unexpected step value', parameters_dict["step"]) # NOSONAR
+        
         def process_time_weighted_averages_step(pandas_df):
             if pandas_df["Step"].any() == False:
                 pandas_df = pandas_df.reset_index(level=["TagName", "EventDate"]).sort_index().interpolate(method='time')
@@ -107,19 +127,17 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             
         #calculate time weighted averages
         time_weighted_averages = preprocess_df.groupby(["TagName"]).apply(process_time_weighted_averages_step).reset_index()
-
+        
         if "CalcValue" not in time_weighted_averages.columns:
             time_weighted_averages = time_weighted_averages.melt(id_vars="TagName", var_name="EventTime", value_name="Value")
         else: 
             time_weighted_averages = time_weighted_averages.rename(columns={"CalcValue": "Value"})
-            
-        time_weighted_averages = time_weighted_averages.set_index("EventTime").sort_values(by=["TagName", "EventTime"])
         
+        time_weighted_averages = time_weighted_averages.set_index("EventTime").sort_values(by=["TagName", "EventTime"])
         time_weighted_averages_datetime = time_weighted_averages.index.to_pydatetime()
-        weighted_averages_timezones = np.array([z.replace(tzinfo=pytz.timezone(utc)) for z in time_weighted_averages_datetime])
-        time_weighted_averages = time_weighted_averages[(original_start_date.replace(tzinfo=pytz.timezone(utc)) < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date.replace(tzinfo=pytz.timezone(utc)) + timedelta(seconds = 1))]
+        weighted_averages_timezones = np.array([z for z in time_weighted_averages_datetime])
+        time_weighted_averages = time_weighted_averages[(original_start_date < weighted_averages_timezones) & (weighted_averages_timezones <= original_end_date + timedelta(seconds = 1))]
         return time_weighted_averages
-    
         
     except Exception as e:
         logging.exception('error with time weighted average function', str(e))

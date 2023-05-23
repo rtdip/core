@@ -29,7 +29,7 @@ def test_databricks_autoloader_setup(spark_session: SparkSession):
     assert autoloader_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version="2.2.0"
+                version="2.3.0"
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(autoloader_source.settings(), dict)
     assert autoloader_source.pre_read_validation()

@@ -29,23 +29,30 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
-  "databricks-sql-connector==2.4.0",
-  "azure-identity==1.11.0",
-  "pyodbc==4.0.34",
+  "databricks-sql-connector==2.5.1",
+  "azure-identity==1.12.0",
+  "pyodbc==4.0.39",
   "pandas==1.5.2",
   "jinja2==3.0.3",
-  "jinjasql==0.1.8"
+  "jinjasql==0.1.8",
+  "importlib_metadata>=1.0.0",
+  "semver==3.0.0",
+  "xlrd==2.0.1"
 ]
 
 PYSPARK_PACKAGES = [
-  "pyspark==3.3.2",
-  "delta-spark==2.2.0",
+  "pyspark>=3.3.0,<3.4.0",
+  "delta-spark>=2.2.0,<2.4.0",
 ]
 
 PIPELINE_PACKAGES = [
   "dependency-injector==4.41.0",
-  "dbx==0.8.10",
-  "pydantic==1.10.6"
+  "dbx==0.8.11",
+  "pydantic==1.10.7",
+  "azure-storage-file-datalake==12.10.1",
+  "boto3==1.26.123",
+  "hvac==1.1.0",
+  "azure-keyvault-secrets==4.7.0"
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
@@ -72,6 +79,7 @@ setup(
     },    
     version=sic(os.environ["RTDIP_SDK_NEXT_VER"]),
     package_dir={"": "src/sdk/python"},
+    include_package_data=True,
     packages=find_packages(where="src/sdk/python"),
     python_requires=">=3.8, <3.11",
     install_requires=INSTALL_REQUIRES,

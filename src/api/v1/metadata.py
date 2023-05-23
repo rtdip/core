@@ -14,7 +14,7 @@
 
 
 import logging
-import json
+from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
 from src.sdk.python.rtdip_sdk.functions import metadata
@@ -30,8 +30,7 @@ def metadata_retrieval_get(query_parameters, metadata_query_parameters):
         (connection, parameters) = common.common_api_setup_tasks(query_parameters, metadata_query_parameters=metadata_query_parameters)
 
         data = metadata.get(connection, parameters)
-        response = data.to_json(orient="table", index=False)
-        return MetadataResponse(**json.loads(response))
+        return MetadataResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.to_dict(orient="records"))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
@@ -39,7 +38,7 @@ def metadata_retrieval_get(query_parameters, metadata_query_parameters):
 get_description = """
 ## Metadata 
 
-Retrieval of metadata, including UoM, Description and any other possible fields, if available. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/metadata/) for further information.
+Retrieval of metadata, including UoM, Description and any other possible fields, if available. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/metadata/) for further information.
 """
 
 @api_v1_router.get(
@@ -56,7 +55,7 @@ async def metadata_get(query_parameters: BaseQueryParams = Depends(), metadata_q
 post_description = """
 ## Metadata 
 
-Retrieval of metadata, including UoM, Description and any other possible fields, if available via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/metadata/) for further information.
+Retrieval of metadata, including UoM, Description and any other possible fields, if available via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/metadata/) for further information.
 """
 
 @api_v1_router.post(

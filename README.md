@@ -19,60 +19,7 @@ This repository contains Real Time Data Ingestion Platform SDK functions and doc
 See [RTDIP Documentation](https://www.rtdip.io/) for more information on how to use the SDK.
 
 # Repository Guidelines
-The structure of this repository is shown below in the tree diagram.
 
-    ├── .devcontainer
-    ├── .github
-    │   ├── workflows
-    ├── docs
-    │   ├── api
-    │   ├── assets
-    │   ├── blog
-    │   ├── getting-started
-    │   ├── images
-    │   ├── integration
-    │   ├── releases
-    │   ├── roadmap
-    │   ├── sdk
-    │   ├── index.md
-    ├── src
-    │   ├── api
-    │   │   ├── assets
-    │   │   ├── auth
-    │   │   ├── FastAPIApp
-    │   │   ├── v1
-    │   ├── apps
-    │   │   ├── docs
-    │   ├── sdk
-    │   │   ├── python
-    │   │   │    ├── rtdip-sdk
-    │   │   │    │   ├── authentication
-    │   │   │    │   ├── functions
-    │   │   │    │   ├── odbc
-    ├── tests
-    │   ├── api
-    │   │   ├── auth
-    │   │   ├── v1
-    │   ├── apps
-    │   │   ├── docs
-    │   ├── sdk
-    │   │   ├── python
-    │   │   │    ├── rtdip-sdk
-    │   │   │    │   ├── authentication
-    │   │   │    │   ├── functions
-    │   │   │    │   ├── odbc
-    ├── CODE_OF_CONDUCT.md  
-    ├── CODEOWNERS.md 
-    ├── CONTRIBUTING.md
-    ├── GOVERNANCE.md
-    ├── LICENSE.md
-    ├── RELEASE.md
-    ├── SUPPORT.md
-    ├── PYPI-README.md
-    ├── environment.yml
-    ├── mkdocs.yml
-    ├── setup.py   
-    └── .gitignore
 
 ## Folder Structure
 

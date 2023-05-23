@@ -1,0 +1,78 @@
+# Copyright 2022 RTDIP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: 'Sonarcloud Scan'
+
+run-name: ${{ github.event.workflow_run.display_title }}
+
+on:
+  workflow_run:
+    workflows: [PR]
+    types: [completed]
+    branches-ignore:
+      - "develop"
+      - "main"
+      - "release/**"
+
+jobs:
+  job_download_pr_artifact:
+      outputs:
+        pr_info: ${{ steps.pr.outputs.result }}
+      runs-on: ubuntu-latest
+      steps:
+        - name: 'Download Artifact'
+          uses: actions/github-script@v6
+          with:
+            script: |
+              let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: context.payload.workflow_run.id,
+              });
+              let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+                return artifact.name == "pr_number"
+              })[0];
+              let download = await github.rest.actions.downloadArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: matchArtifact.id,
+                  archive_format: 'zip',
+              });
+              let fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr_number.zip`, Buffer.from(download.data));
+
+        - name: 'Unzip Artifact'
+          run: unzip pr_number.zip
+
+        - name: 'Read Artifact'
+          id: pr
+          uses: actions/github-script@v6
+          with:
+            script: |
+              let fs = require('fs');
+              return fs.readFileSync('./pr_number');
+            result-encoding: string
+
+  job_run_unit_tests_and_sonarqube:
+      needs: job_download_pr_artifact
+      uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
+      with:
+        REPO_NAME: ${{ github.event.workflow_run.head_repository.full_name }}
+        HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        PR_NUMBER: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_number }}
+        PR_HEAD_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_head_ref }}
+        PR_BASE_REF: ${{ fromJSON(needs.job_download_pr_artifact.outputs.pr_info).pr_base_ref }}
+      secrets:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

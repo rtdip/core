@@ -14,6 +14,8 @@
 
 import logging
 from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, TimestampType, StringType, BinaryType, LongType, MapType, IntegerType, ArrayType
+
 from .models import Libraries
 
 class SparkClient():
@@ -83,3 +85,83 @@ def get_dbutils(
 
 #     def onQueryTerminated(self, event):
 #         logging.info("Query terminated: {} {}".format(event.id, event.name))
+
+EVENTHUB_SCHEMA = StructType([
+    StructField('body', BinaryType(), True), 
+    StructField('partition', StringType(), True), 
+    StructField('offset', StringType(), True), 
+    StructField('sequenceNumber', LongType(), True), 
+    StructField('enqueuedTime', TimestampType(), True), 
+    StructField('publisher', StringType(), True), 
+    StructField('partitionKey', StringType(), True), 
+    StructField('properties', MapType(StringType(), StringType(), True), True), 
+    StructField('systemProperties', MapType(StringType(), StringType(), True), True)
+])
+
+OPC_PUBLISHER_SCHEMA = StructType([
+    StructField('ApplicationUri',StringType(),True),
+    StructField('DisplayName',StringType(),True),
+    StructField('NodeId', StringType(),True),
+    StructField('Value', StructType([
+        StructField('SourceTimestamp',StringType(),True),
+        StructField('StatusCode', StructType([
+            StructField('Code', LongType(),True),
+            StructField('Symbol', StringType(),True)
+        ]), True),
+        StructField('Value',StringType(),True)
+    ]),True)
+])
+
+PROCESS_DATA_MODEL_SCHEMA = StructType([
+    StructField('TagName', StringType(), True), 
+    StructField('EventTime', TimestampType(), True), 
+    StructField('Status', StringType(), True), 
+    StructField('Value', StringType(), True), 
+    StructField('ValueType', StringType(), True),
+    StructField('ChangeType', StringType(), True)
+])
+
+KAFKA_SCHEMA = StructType(
+           [StructField('key', BinaryType(), True),
+            StructField('value', BinaryType(), True),
+            StructField('topic', StringType(), True),
+            StructField('partition', IntegerType(), True),
+            StructField('offset', LongType(), True),
+            StructField('timestamp', TimestampType(), True),
+            StructField('timestampType', IntegerType(), True)]
+       )
+
+KINESIS_SCHEMA = StructType(
+           [StructField('partitionKey', StringType(), True),
+            StructField('data', BinaryType(), True),
+            StructField('stream', StringType(), True),
+            StructField('shardId', StringType(), True),
+            StructField('sequenceNumber', StringType(), True),
+            StructField('approximateArrivalTimestamp', TimestampType(), True)]
+       )
+
+FLEDGE_SCHEMA = ArrayType(
+            StructType([
+            StructField("asset", StringType(), True),
+            StructField("readings", MapType(StringType(), StringType(), True), True),
+            StructField("timestamp", TimestampType(), True)])
+       )
+
+EDGEX_SCHEMA = StructType([
+  StructField('apiVersion', StringType(), True),
+  StructField('id', StringType(), True),
+  StructField('deviceName', StringType(), True),
+  StructField('profileName', StringType(), True),
+  StructField('sourceName', StringType(), True),
+  StructField('origin', LongType(), True),
+  StructField('readings', ArrayType(
+    StructType([
+      StructField('id', StringType(), True),
+      StructField('origin', LongType(), True),
+      StructField('deviceName', StringType(), True),
+      StructField('resourceName', StringType(), True),
+      StructField('profileName', StringType(), True),
+      StructField('valueType', StringType(), True),
+      StructField('value', StringType(), True)]))
+  , True)
+])
