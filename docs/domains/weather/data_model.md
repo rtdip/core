@@ -6,7 +6,6 @@ The weather data model describes available weather data schemas commonly used in
 
 This model returns weather forecasts starting with the current day. Forecast data is using TAF format, which is similar to METAR but contains extra forecast variables
 
-
 |Type |Name |Description|  
 |--|--------------------|------|
 |String | class |Data identifier|
