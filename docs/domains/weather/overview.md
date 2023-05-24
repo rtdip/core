@@ -15,7 +15,6 @@ A primary aim for RTDIP in 2023 is to demonstrate how the platform can be utilis
 
 Load forecasting is a technique used by power or energy-providing companies to predict the power/energy needed to meet the demand and supply equilibrium. Weather data is a primary driver of variance in load forecasting and energy generation forecasting in renewable energy sources. 
 
-
 ## Weather Data in Energy Domain
 
 One of the most widely used weather data standards is the combined METAR (Meteorological Aerodrome Report) and ICAO (International Civil Aviation Organization) standard. This standard is used by meteorological agencies and aviation organizations around the world to report weather conditions at airports and other aviation facilities. This standard is broadly utilised beyond the aviation industry including the energy domain. 
