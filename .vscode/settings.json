@@ -21,9 +21,15 @@
     "python.testing.pytestEnabled": true,
     // "python.testing.cwd": "${workspaceFolder}",
     "python.analysis.extraPaths": ["${workspaceFolder}"],
+<<<<<<< HEAD
     "terminal.integrated.env.osx":{
         "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
     },    
+=======
+    // "terminal.integrated.env.osx":{
+    //     "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
+    // },    
+>>>>>>> develop
     "terminal.integrated.env.linux":{
         "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
     },

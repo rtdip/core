@@ -47,6 +47,10 @@ class SparkDeltaMergeDestination(DestinationInterface):
         when_not_matched_insert_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when inserting rows that do not match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
         when_not_matched_by_source_update_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that do not match the `merge_condition`.
         when_not_matched_by_source_delete_list (list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that do not match the `merge_condition`.
+<<<<<<< HEAD
+=======
+        try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
+>>>>>>> develop
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
 
@@ -78,7 +82,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  when_not_matched_insert_list: List[DeltaMergeConditionValues] = None,
                  when_not_matched_by_source_update_list: List[DeltaMergeConditionValues] = None,
                  when_not_matched_by_source_delete_list: List[DeltaMergeCondition] = None,
+<<<<<<< HEAD
                  try_broadcast_join: bool = True,
+=======
+                 try_broadcast_join: bool = False,
+>>>>>>> develop
                  trigger="10 seconds",
                  query_name: str ="DeltaMergeDestination") -> None:
         self.spark = spark

@@ -15,7 +15,11 @@
 import logging
 import time
 from pyspark.sql import DataFrame, SparkSession
+<<<<<<< HEAD
 from pyspark.sql.functions import col, when
+=======
+from pyspark.sql.functions import col, when, date_format
+>>>>>>> develop
 from py4j.protocol import Py4JJavaError
 
 from ..interfaces import DestinationInterface
@@ -38,6 +42,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
         merge (bool): Use Delta Merge to perform inserts, updates and deletes
+<<<<<<< HEAD
+=======
+        try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
+>>>>>>> develop
         remove_duplicates (bool: Removes duplicates before writing the data 
 
     Attributes:
@@ -53,6 +61,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     trigger: str
     query_name: str
     merge: bool
+<<<<<<< HEAD
+=======
+    try_broadcast_join: bool
+>>>>>>> develop
     remove_duplicates: bool
 
     def __init__(self, 
@@ -66,6 +78,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                  trigger="10 seconds",
                  query_name: str ="PCDMToDeltaMergeDestination",
                  merge: bool = True,
+<<<<<<< HEAD
+=======
+                 try_broadcast_join = False,
+>>>>>>> develop
                  remove_duplicates: bool = True) -> None:
         self.spark = spark
         self.data = data
@@ -77,6 +93,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         self.trigger = trigger
         self.query_name = query_name
         self.merge = merge
+<<<<<<< HEAD
+=======
+        self.try_broadcast_join = try_broadcast_join
+>>>>>>> develop
         self.remove_duplicates = remove_duplicates
 
     @staticmethod
@@ -103,6 +123,15 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     def post_write_validation(self):
         return True
 
+<<<<<<< HEAD
+=======
+    def _get_eventdate_string(self, df: DataFrame) -> str:
+        dates_df = df.select("EventDate").distinct()
+        dates_df = dates_df.select(date_format("EventDate", "yyyy-MM-dd").alias("EventDate"))
+        dates_list = list(dates_df.toPandas()["EventDate"])
+        return str(dates_list).replace('[','').replace(']','')
+
+>>>>>>> develop
     def _write_delta_batch(self, df: DataFrame, table_name: str):
         
         if self.merge == True:
@@ -130,15 +159,33 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     values="*"
                 )
             ]
+<<<<<<< HEAD
+=======
+
+            merge_condition = "source.EventDate = target.EventDate AND source.TagName = target.TagName AND source.EventTime = target.EventTime"
+            
+            if self.try_broadcast_join != True:
+                eventdate_string = self._get_eventdate_string(df)
+                merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
+
+>>>>>>> develop
             delta = SparkDeltaMergeDestination(
                 spark=self.spark,
                 data=df,
                 table_name=table_name,
                 options=self.options,
+<<<<<<< HEAD
                 merge_condition="source.EventDate = target.EventDate AND source.TagName = target.TagName AND source.EventTime = target.EventTime",
                 when_matched_update_list=when_matched_update_list,
                 when_matched_delete_list=when_matched_delete_list,
                 when_not_matched_insert_list=when_not_matched_insert_list
+=======
+                merge_condition=merge_condition,
+                when_matched_update_list=when_matched_update_list,
+                when_matched_delete_list=when_matched_delete_list,
+                when_not_matched_insert_list=when_not_matched_insert_list,
+                try_broadcast_join=self.try_broadcast_join
+>>>>>>> develop
             )
         else:
             df = df.select("TagName", "EventTime", "Status", "Value")
@@ -155,7 +202,11 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             df = df.withColumn("ChangeType", when(df["ChangeType"].isin("insert", "update"), "upsert").otherwise(df["ChangeType"]))
 
         if self.remove_duplicates == True:
+<<<<<<< HEAD
             df = df.drop_duplicates()
+=======
+            df = df.drop_duplicates(["TagName", "EventTime"])
+>>>>>>> develop
 
         float_df = (
             df
@@ -185,8 +236,19 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         Writes Process Control Data Model data to Delta
         '''
         try:
+<<<<<<< HEAD
             self._write_data_by_type(self.data)
 
+=======
+            if self.try_broadcast_join != True:
+                self.data.persist()
+
+            self._write_data_by_type(self.data)
+
+            if self.try_broadcast_join != True:
+                self.data.unpersist()
+
+>>>>>>> develop
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e
