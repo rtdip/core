@@ -44,6 +44,7 @@ graph LR
 
 An indicative schema is available [here](data_model.md). 
 
+
 # Real Time Data Ingestion Platform
 
 For more information about the Real Time Data Platform and its components to connect to data sources and destinations, please refer to this [link](../../sdk/overview.md).
