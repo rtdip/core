@@ -133,7 +133,8 @@ Sources are components that connect to source systems and extract data from them
 
 *:heavy_check_mark: - target to deliver in the following quarter
 
-There is currently no spark connector for IoT Core. If you know a way to add it as a source component, please raise it by creating an issue on the GitHub repo.
+There is currently no spark connector for IoT Core. If you know a way to add it as a source component, please raise it by creating an [issue](https://github.com/rtdip/core/issues){ target="_blank" } on the GitHub repo.
+
 ### Transformers
 
 Transformers are components that perform transformations on data. These will target certain data models and common transformations that sources or destination components require to be performed on data before it can be ingested or consumed.
