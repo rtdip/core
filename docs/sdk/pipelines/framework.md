@@ -12,7 +12,7 @@ Ensure that you have followed the installation instructions as specified in the 
 !!! note "RTDIP SDK installation"
     Ensure you have installed the RTDIP SDK, as a minimum, as follows:
     ```
-    pip install rtdip-sdk[pipelines]
+    pip install "rtdip-sdk[pipelines]"
     ```
 
     For all installation options please see the RTDIP SDK installation [instructions.](../../getting-started/installation.md#installing-the-rtdip-sdk)
