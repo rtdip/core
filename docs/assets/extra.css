@@ -23,6 +23,15 @@
     --md-primary-bg-slate: #2f303e !important;
   }
 
+body {
+    --md-primary-fg-color: #4e08c7 !important;
+    --md-primary-mg-color: #d445a3 !important;
+    --md-accent-fg-color: #bb1fa4 !important;
+    --md-primary-bg-color: white !important;
+    --md-primary-text-slate: white !important;
+    --md-primary-bg-slate: #2f303e !important;
+  }
+
 /* header font colour */
 .md-header {
   color: white;
