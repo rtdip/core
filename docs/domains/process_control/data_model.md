@@ -57,7 +57,7 @@ The mapping below is performed by the [RTDIP OPC Publisher to PCDM Component](..
 
 | From Data Model | From Field | From Type | To Data Model |To Field| To Type | Mapping Logic |
 |------|----|---------|------|------|--------|-----------|
-| OPC Publisher | DisplayName | string | EVENTS| TagName | string | |
+| OPC Publisher | DisplayName | string | EVENTS| TagName | string | From Field can be specified in Component |
 | OPC Publisher | SourceTimestamp | string | EVENTS| EventTime | timestamp | Converted to a timestamp |
 | OPC Publisher | StatusCode.Symbol | string | EVENTS| Status | string | Null values can be overriden in the [RTDIP OPC Publisher to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md) |
 | OPC Publisher | Value.Value | string | EVENTS | Value | dynamic | Converts Value into either a float number or string based on how it is received in the message |
