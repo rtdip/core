@@ -111,6 +111,9 @@ nav:
       - Process Control: 
           - Overview: domains/process_control/overview.md
           - Data Model: domains/process_control/data_model.md
+      - Weather Data: 
+          - Overview: domains/weather/overview.md
+          - Data Model: domains/weather/data_model.md
   - Integration:
       - Power BI: integration/power-bi.md
   - SDK:
