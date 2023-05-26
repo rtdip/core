@@ -2,7 +2,7 @@
 
 <p align="center"><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></p>
 
-<center>
+<div align="center">
 
 | Branch | Workflow Status | Code Coverage | Vulnerabilities | Bugs |
 |--------|-----------------|---------------|----------|------|
@@ -10,7 +10,7 @@
 | develop | [![Develop](https://github.com/rtdip/core/actions/workflows/develop.yml/badge.svg)](https://github.com/rtdip/core/actions/workflows/develop.yml) | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=coverage&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=vulnerabilities&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=bugs&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) |
 | feature | [![.github/workflows/pr.yml](https://github.com/rtdip/core/actions/workflows/pr.yml/badge.svg)](https://github.com/rtdip/core/actions/workflows/pr.yml) |
 
-</center>
+</div>
 
 This repository contains Real Time Data Ingestion Platform SDK functions and documentation. This README will be a developer guide to understand the repository.
 
