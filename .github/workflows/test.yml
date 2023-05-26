@@ -42,7 +42,7 @@ jobs:
             - pyspark: "3.3.2"
               delta-spark: "2.3.0"
             - pyspark: "3.4.0"
-              delta-spark: "2.4.0rc1"              
+              delta-spark: "2.4.0"              
       runs-on: ${{ matrix.os }}
       steps:
         - uses: actions/checkout@v3

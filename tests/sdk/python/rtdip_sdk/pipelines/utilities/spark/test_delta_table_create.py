@@ -49,7 +49,7 @@ def test_spark_delta_table_create(spark_session: SparkSession):
     assert table_describe[4][0] == "Value"
     assert table_describe[4][1] == "float"
     try:
-        _package_version_meets_minimum("delta-spark", "2.4.0rc1")
+        _package_version_meets_minimum("delta-spark", "2.4.0")
         assert table_describe[7][0] == "EventDate"
         assert table_describe[7][1] == "date"
         assert table_describe[10][1] == "spark_catalog.default.test_table_delta_create"
