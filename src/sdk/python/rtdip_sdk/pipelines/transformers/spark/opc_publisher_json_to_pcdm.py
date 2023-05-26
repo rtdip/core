@@ -30,8 +30,7 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
         multiple_rows_per_message (optional bool): Each Dataframe Row contains an array of/multiple OPC UA messages. The list of Json will be exploded into rows in the Dataframe.
         status_null_value (optional str): If populated, will replace null values in the Status column with the specified value.
         timestamp_formats (optional list[str]): Specifies the timestamp formats to be used for converting the timestamp string to a Timestamp Type. For more information on formats, refer to this [documentation.](https://spark.apache.org/docs/latest/sql-ref-datetime-pattern.html)
-        device_id_filter (optional str): Enables filtering by Device Id that is sent in field `systemProperties.iothub-connection-device-id` of the message
-        module_filter (optional str): Enables filtering by Module that is sent in field `systemProperties.iothub-connection-module-id` of the message
+        filter (optional str): Enables providing a filter to the data which can be required in certain scenarios. For example, it would be possible to filter on IoT Hub Device Id and Module by providing a filter in SQL format such as `systemProperties.iothub-connection-device-id = "<Device Id>" AND systemProperties.iothub-connection-module-id = "<Module>"`
     '''
     data: DataFrame
     source_column_name: str
@@ -40,10 +39,9 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
     status_null_value: str
     change_type_value: str
     timestamp_formats: list
-    device_id_filter: str
-    module_filter: str
+    filter: str
 
-    def __init__(self, data: DataFrame, source_column_name: str, multiple_rows_per_message: bool = True, tagname_field: str = "DisplayName", status_null_value: str = None, change_type_value: str = "insert", timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"], device_id_filter: str = None, module_filter: str = None) -> None: # NOSONAR
+    def __init__(self, data: DataFrame, source_column_name: str, multiple_rows_per_message: bool = True, tagname_field: str = "DisplayName", status_null_value: str = None, change_type_value: str = "insert", timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"], filter: str = None) -> None: # NOSONAR
         self.data = data
         self.source_column_name = source_column_name
         self.multiple_rows_per_message = multiple_rows_per_message
@@ -51,8 +49,7 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
         self.status_null_value = status_null_value
         self.change_type_value = change_type_value
         self.timestamp_formats = timestamp_formats
-        self.device_id_filter = device_id_filter
-        self.module_filter = module_filter
+        self.filter = filter
 
     @staticmethod
     def system_type():
@@ -92,11 +89,8 @@ class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
                 .withColumn(self.source_column_name, from_json(col(self.source_column_name), StringType()))
             )
 
-        if self.device_id_filter != None:
-            df = df.where(col("systemProperties.iothub-connection-device-id") == self.device_id_filter)           
-
-        if self.module_filter != None:
-            df = df.where(col("systemProperties.iothub-connection-module-id") == self.module_filter)           
+        if self.filter != None:
+            df = df.where(self.filter)           
 
         df = (df
             .withColumn("OPCUA", from_json(col(self.source_column_name), OPC_PUBLISHER_SCHEMA))
