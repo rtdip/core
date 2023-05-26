@@ -42,14 +42,9 @@ class SparkConnection(ConnectionInterface):
     if spark_configuration == None:
       spark_configuration = {}
 
-    # spark_configuration["spark.rpc.numRetries"] = 10
-    # spark_configuration["spark.rpc.retry.wait"] = 20
-    # spark_configuration["spark.sql.extensions"] = "io.delta.sql.DeltaSparkSessionExtension",
-    # spark_configuration[ "spark.sql.catalog.spark_catalog"] = "org.apache.spark.sql.delta.catalog.DeltaCatalog"
-
-    if spark == None:
+    if spark is None:
       self.connection = SparkClient(
-        spark_configuration= {} if spark_configuration == None else spark_configuration,
+        spark_configuration= {} if spark_configuration is None else spark_configuration,
         spark_libraries= libraries,
         spark_remote= spark_remote
       ).spark_session

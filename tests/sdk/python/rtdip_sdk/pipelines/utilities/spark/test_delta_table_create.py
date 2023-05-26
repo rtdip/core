@@ -19,6 +19,8 @@ from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create impor
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 
+COMMENT = "Test Table for Delta Create"
+
 def test_spark_delta_table_create(spark_session: SparkSession):
     table_create_utility = DeltaTableCreateUtility(
         spark=spark_session,
@@ -32,7 +34,7 @@ def test_spark_delta_table_create(spark_session: SparkSession):
         ],
         partitioned_by=["EventDate"],
         properties={"delta.logRetentionDuration": "7 days", "delta.enableChangeDataFeed": "true"},
-        comment="Test Table for Delta Create"
+        comment=COMMENT
     )
 
     result = table_create_utility.execute()
@@ -53,14 +55,14 @@ def test_spark_delta_table_create(spark_session: SparkSession):
         assert table_describe[7][0] == "EventDate"
         assert table_describe[7][1] == "date"
         assert table_describe[10][1] == "spark_catalog.default.test_table_delta_create"
-        assert table_describe[12][1] == "Test Table for Delta Create"
+        assert table_describe[12][1] == COMMENT
         assert "spark-warehouse/test_table_delta_create" in table_describe[13][1]
         assert "delta.enableChangeDataFeed=true" in table_describe[15][1]
         assert "delta.logRetentionDuration=7 days" in table_describe[15][1]        
-    except:
+    except Exception:
         assert table_describe[7][1] == "EventDate"
         assert table_describe[10][1] == "default.test_table_delta_create"
-        assert table_describe[11][1] == "Test Table for Delta Create"
+        assert table_describe[11][1] == COMMENT
         assert "spark-warehouse/test_table_delta_create" in table_describe[12][1]
         assert "delta.enableChangeDataFeed=true" in table_describe[14][1]
         assert "delta.logRetentionDuration=7 days" in table_describe[14][1]
