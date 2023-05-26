@@ -1,5 +1,7 @@
 # Real Time Data Ingestion Platform (RTDIP)
 
+<p align="center"><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></p>
+
 | Branch | Workflow Status | Code Coverage | Vulnerabilities | Bugs |
 |--------|-----------------|---------------|----------|------|
 | main | [![Main](https://github.com/rtdip/core/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rtdip/core/actions/workflows/main.yml) | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=coverage&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=vulnerabilities&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=bugs&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) |

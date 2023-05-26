@@ -36,9 +36,9 @@ class SparkConnection(ConnectionInterface):
   def __init__(self, spark: SparkSession = None, spark_configuration: dict = None, spark_libraries: Libraries = None, spark_remote: str = None) -> None:
     if spark is None:
       self.connection = SparkClient(
-        spark_configuration= {} if spark_configuration is None else spark_configuration,
-        spark_libraries= Libraries() if spark_libraries is None else spark_libraries,
-        spark_remote= spark_remote
+        spark_configuration = {} if spark_configuration is None else spark_configuration,
+        spark_libraries = Libraries() if spark_libraries is None else spark_libraries,
+        spark_remote = spark_remote
       ).spark_session
     else:
       self.connection = spark
