@@ -65,7 +65,7 @@ jobs:
             echo $CONDA/bin >> $GITHUB_PATH
 
         - name: Install Conda environment with Micromamba
-          uses: mamba-org/provision-with-micromamba@main
+          uses: mamba-org/setup-micromamba@main
           with:
             environment-file: environment.yml
             extra-specs: |
