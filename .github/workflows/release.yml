@@ -33,7 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install twine
           pip install build
-          python -m build --wheel
+          python -m build
         env:
           RTDIP_SDK_NEXT_VER: ${{ github.ref_name }}
       - name: Upload Python wheel as artifact
