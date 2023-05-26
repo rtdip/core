@@ -26,6 +26,8 @@ class MISOToMDMTransformer(BaseRawToMDMTransformer):
     Please check the [BaseRawToMDMTransformer](../base_raw_to_mdm.md) for more info.
     """
 
+    spark: SparkSession
+    data: DataFrame
     input_schema = MISO_SCHEMA
     uid_col = "variable"
     series_id_col = "'series_std_001'"
