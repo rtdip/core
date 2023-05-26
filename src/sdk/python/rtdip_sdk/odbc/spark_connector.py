@@ -34,18 +34,10 @@ class SparkConnection(ConnectionInterface):
       spark_remote (optional, str): Remote connection string of Spark Server and any authentication details. The Spark Connect introduced in Pyspark 3.4.0 allows Spark Sessions to connect to remote Spark Clusters. This enables Spark SQL to be constructed locally, but executed remotely.
   """
   def __init__(self, spark: SparkSession = None, spark_configuration: dict = None, spark_libraries: Libraries = None, spark_remote: str = None) -> None:
-    if spark_libraries == None:
-      libraries = Libraries()
-    else:
-      libraries = spark_libraries
-
-    if spark_configuration == None:
-      spark_configuration = {}
-
     if spark is None:
       self.connection = SparkClient(
         spark_configuration= {} if spark_configuration is None else spark_configuration,
-        spark_libraries= libraries,
+        spark_libraries= Libraries() if spark_libraries is None else spark_libraries,
         spark_remote= spark_remote
       ).spark_session
     else:
