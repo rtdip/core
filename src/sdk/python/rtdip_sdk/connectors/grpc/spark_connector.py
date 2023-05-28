@@ -13,10 +13,10 @@
 # limitations under the License.
 
 from pyspark.sql import SparkSession, DataFrame
-from .connection_interface import ConnectionInterface
-from .cursor_interface import CursorInterface
-from ..pipelines._pipeline_utils.spark import SparkClient
-from ..pipelines._pipeline_utils.models import Libraries
+from ..connection_interface import ConnectionInterface
+from ..cursor_interface import CursorInterface
+from ...pipelines._pipeline_utils.spark import SparkClient
+from ...pipelines._pipeline_utils.models import Libraries
 import pandas as pd
 import logging
 

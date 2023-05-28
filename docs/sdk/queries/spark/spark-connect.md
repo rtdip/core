@@ -12,7 +12,7 @@ Please ensure that you have followed the [instructions](https://spark.apache.org
 
 This
 ```python
-from rtdip_sdk.odbc.spark_connector import SparkConnection
+from rtdip_sdk.connectors import SparkConnection
 
 spark_server = "sparkserver.com"
 access_token = "my_token"

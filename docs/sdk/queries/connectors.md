@@ -64,7 +64,7 @@ Replace **server_hostname**, **http_path** and **access_token** with your own in
 The Spark Connector enables querying of data using a Spark Session. This is useful for querying local instances of Spark or Delta. However, the most useful application of this connector is to leverage [Spark Connect](https://spark.apache.org/docs/latest/spark-connect-overview.html) to enable connecting to a remote Spark Cluster to provide the compute for the query being run from a local machine.
 
 ```python
-from rtdip_sdk.odbc.spark_connector import SparkConnection
+from rtdip_sdk.connectors import SparkConnection
 
 spark_server = "spark_server"
 access_token = "my_token"

@@ -1,2 +1,2 @@
 # Spark Connector
-::: src.sdk.python.rtdip_sdk.odbc.spark_connector
+::: src.sdk.python.rtdip_sdk.connectors.grpc.spark_connector

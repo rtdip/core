@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from src.sdk.python.rtdip_sdk.odbc.spark_connector import SparkConnection
-from src.sdk.python.rtdip_sdk.odbc.spark_connector import SparkCursor
+from src.sdk.python.rtdip_sdk.connectors import SparkConnection, SparkCursor
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 import pandas as pd
 from pyspark.sql import SparkSession
