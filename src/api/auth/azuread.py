@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from fastapi.security import OAuth2AuthorizationCodeBearer
-from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
+from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
 import os
 
 tenant_id = os.environ.get("TENANT_ID")

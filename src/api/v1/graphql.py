@@ -22,8 +22,8 @@ from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Header, Depends
 from typing import List
 from datetime import date
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-from src.sdk.python.rtdip_sdk.functions import raw
+from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
+from src.sdk.python.rtdip_sdk.queries import raw
 from src.api.v1.models import RawResponse
 from src.api.auth import azuread
 import nest_asyncio

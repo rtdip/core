@@ -14,7 +14,7 @@
 import logging
 import pandas as pd
 from .raw import get as raw_get
-from .metadata import get as metadata_get
+from ..metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np

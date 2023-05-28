@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from src.sdk.python.rtdip_sdk.odbc.pyodbc_sql_connector import PYODBCSQLConnection
-from src.sdk.python.rtdip_sdk.odbc.pyodbc_sql_connector import PYODBCSQLCursor
+from src.sdk.python.rtdip_sdk.connectors import PYODBCSQLConnection
+from src.sdk.python.rtdip_sdk.connectors import PYODBCSQLCursor
 import pandas as pd
 from pytest_mock import MockerFixture
 import pytest

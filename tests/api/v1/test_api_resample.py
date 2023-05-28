@@ -16,13 +16,13 @@ import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
 from datetime import datetime
-from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection
-from tests.sdk.python.rtdip_sdk.functions.test_raw import DATABRICKS_SQL_CONNECT
+from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import MockedDBConnection
+from tests.sdk.python.rtdip_sdk.queries.test_raw import DATABRICKS_SQL_CONNECT
 from tests.api.v1.api_test_objects import RESAMPLE_MOCKED_PARAMETER_DICT, RESAMPLE_MOCKED_PARAMETER_ERROR_DICT, RESAMPLE_POST_MOCKED_PARAMETER_DICT, RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT, mocker_setup, TEST_HEADERS, BASE_URL
 from httpx import AsyncClient
 from src.api.v1 import app
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.functions.resample.get"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.resample.get"
 MOCK_API_NAME = "/api/v1/events/resample"
 
 pytestmark = pytest.mark.anyio

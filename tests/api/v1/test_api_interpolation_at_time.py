@@ -20,7 +20,7 @@ from tests.api.v1.api_test_objects import INTERPOLATION_AT_TIME_MOCKED_PARAMETER
 from httpx import AsyncClient
 from src.api.v1 import app
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.functions.interpolation_at_time.get"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.interpolation_at_time.get"
 MOCK_API_NAME = "/api/v1/events/interpolationattime"
 
 pytestmark = pytest.mark.anyio

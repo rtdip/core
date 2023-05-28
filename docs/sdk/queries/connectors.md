@@ -13,13 +13,13 @@ For more information refer to this [documentation](https://docs.databricks.com/d
 #### Example
 
 ```python
-from rtdip_sdk.odbc import db_sql_connector
+from rtdip_sdk.connectors import DatabricksSQLConnection
 
 server_hostname = "server_hostname"
 http_path = "http_path"
 access_token = "token"
 
-connection = db_sql_connector.DatabricksSQLConnection(server_hostname, http_path, access_token)
+connection = DatabricksSQLConnection(server_hostname, http_path, access_token)
 ```
 
 Replace **server_hostname**, **http_path** and **access_token** with your own information.
@@ -33,14 +33,14 @@ View information about how pyodbc is implemented in the RTDIP SDK [here.](../cod
 #### Example
 
 ```python
-from rtdip_sdk.odbc import pyodbc_sql_connector
+from rtdip_sdk.connectors import PYODBCSQLConnection
 
 server_hostname = "server_hostname"
 http_path = "http_path"
 access_token = "token"
 driver_path = "/Library/simba/spark/lib/libsparkodbc_sbu.dylib"
 
-connection = pyodbc_sql_connector.PYODBCSQLConnection(driver_path, sever_hostname, http_path, access_token)
+connection = PYODBCSQLConnection(driver_path, sever_hostname, http_path, access_token)
 ```
 
 Replace **server_hostname**, **http_path** and **access_token** with your own information.
@@ -51,13 +51,13 @@ Turbodbc is a powerful python ODBC package that has advanced options for queryin
 
 #### Example
 ```python
-from rtdip_sdk.odbc import turbodbc_sql_connector
+from rtdip_sdk.connectors import TURBODBCSQLConnection
 
 server_hostname = "server_hostname"
 http_path = "http_path"
 access_token = "token"
 
-connection = turbodbc_sql_connector.TURBODBCSQLConnection(server_hostname, http_path, access_token)
+connection = TURBODBCSQLConnection(server_hostname, http_path, access_token)
 ```
 
 Replace **server_hostname**, **http_path** and **access_token** with your own information.

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import pytest
-from src.sdk.python.rtdip_sdk.odbc.cursor_interface import CursorInterface
+from src.sdk.python.rtdip_sdk.connectors.cursor_interface import CursorInterface
 
 class TestCursor(CursorInterface):
     def execute(self, query: str):

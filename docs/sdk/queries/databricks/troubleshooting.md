@@ -22,12 +22,12 @@ Ensure you are importing and using the RTDIP SDK functions correctly. You will n
 
 ```python
 from rtdip_sdk.authentication import authenticate as auth
-from rtdip_sdk.odbc import db_sql_connector as dbc
-from rtdip_sdk.functions import interpolate
+from rtdip_sdk.connectors import DatabricksSQLConnection
+from rtdip_sdk.queries import interpolate
 
 authentication = auth.DefaultAuth().authenticate()
 access_token = authentication.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-connection = dbc.DatabricksSQLConnection("{server_hostname}", "{http_path}", access_token)
+connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", access_token)
 
 dict = {
     "business_unit": "{business_unit}", 

@@ -13,9 +13,8 @@
 # limitations under the License.
 
 from databricks import sql
-import pandas as pd
-from .connection_interface import ConnectionInterface
-from .cursor_interface import CursorInterface
+from ..connection_interface import ConnectionInterface
+from ..cursor_interface import CursorInterface
 import logging
 
 class DatabricksSQLConnection(ConnectionInterface):
