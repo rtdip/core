@@ -44,7 +44,7 @@ The RTDIP SDK offers several ways to connect to a Databricks SQL Warehouse.
     The simplest method to connect to RTDIP and does not require any additional installation steps.
 
     ```python
-    from rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+    from rtdip_sdk.connectors import DatabricksSQLConnection
 
     server_hostname = "server_hostname"
     http_path = "http_path"
@@ -68,7 +68,7 @@ The RTDIP SDK offers several ways to connect to a Databricks SQL Warehouse.
     * Driver paths can be found on [PYODBC Driver Paths](../../code-reference/query/pyodbc-sql-connector.md)
 
     ```python
-    from rtdip_sdk.odbc.pyodbc_sql_connector import PYODBCSQLConnection
+    from rtdip_sdk.connectors import PYODBCSQLConnection
 
     server_hostname = "server_hostname"
     http_path = "http_path"
@@ -89,7 +89,7 @@ The RTDIP SDK offers several ways to connect to a Databricks SQL Warehouse.
     * [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) needs to be installed locally to use the [TURBODBC SQL Connector](../../code-reference/query/turbodbc-sql-connector.md) (<em>Optional</em>)
 
     ```python
-    from rtdip_sdk.odbc.turbodbc_sql_connector import TURBODBCSQLConnection
+    from rtdip_sdk.connectors import TURBODBCSQLConnection
 
     server_hostname = "server_hostname"
     http_path = "http_path"
@@ -101,6 +101,40 @@ The RTDIP SDK offers several ways to connect to a Databricks SQL Warehouse.
     Replace **server_hostname**, **http_path** and **access_token** with your own information.
 
     For more information about each of the connection methods, please see [Code Reference](../../code-reference/query/turbodbc-sql-connector.md) and navigate to the required section.
+    
+
+### Functions
+
+Finally, after authenticating and connecting using one of the methods above, you have access to the commonly requested RTDIP functions such as **Resample**, **Interpolate**, **Raw**, **Time Weighted Averages** or **Metadata**. 
+
+1\. To use any of the RTDIP functions, use the commands below.
+
+```python
+from rtdip_sdk.queries import resample
+from rtdip_sdk.queries import interpolate
+from rtdip_sdk.queries import raw
+from rtdip_sdk.queries import time_weighted_average
+from rtdip_sdk.queries import metadata
+```
+
+2\. From functions you can use any of the following methods.
+
+#### Resample
+    resample.get(connection, parameters_dict)
+
+#### Interpolate
+    interpolate.get(connection, parameters_dict)
+
+#### Raw
+    raw.get(connection, parameters_dict)
+
+#### Time Weighted Average
+    time_weighted_average.get(connection, parameter_dict)
+
+#### Metadata
+    metadata.get(connection, parameter_dict)
+
+For more information about the function parameters see [Code Reference](../../code-reference/query/resample.md) and navigate through the required function.
 
 ### Example
 
@@ -108,6 +142,8 @@ This is a code example of the RTDIP SDK Interpolate function. You will need to r
 
 ```python
 from rtdip_sdk.authentication import authenticate as auth
+from rtdip_sdk.connectors import DatabricksSQLConnection
+from rtdip_sdk.queries import interpolate
 from rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
 from rtdip_sdk.functions import interpolate
 

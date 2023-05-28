@@ -14,14 +14,14 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.functions.time_weighted_average import get as time_weighted_get
+from src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average import get as time_weighted_get
 import pandas as pd
 import pyarrow as pa
 import pytest
 import pytz
 from pytest_mock import MockerFixture
-from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection, MockedCursor 
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import MockedDBConnection, MockedCursor 
+from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 
 class MockedMetadataFunction: 
     def metadata_get(self) -> pd.DataFrame:
@@ -125,7 +125,7 @@ def test_time_weighted_average_with_window_length(mocker: MockerFixture):
 
 def test_time_weighted_average_fails(mocker: MockerFixture):
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
-    mocker.patch('src.sdk.python.rtdip_sdk.functions.time_weighted_average', return_value = Exception)
+    mocker.patch('src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average', return_value = Exception)
 
     mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
     

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from src.sdk.python.rtdip_sdk.odbc.turbodbc_sql_connector import TURBODBCSQLConnection, TURBODBCSQLCursor
+from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection, TURBODBCSQLCursor
 from pytest_mock import MockerFixture
 import pytest
 import pandas as pd
@@ -21,8 +21,8 @@ import pyarrow as pa
 HOST_NAME= "myHostName"
 HTTP_PATH = "myServerAddress"
 ACCESS_TOKEN = "myToken"
-TURBODBC_CONNECT = 'src.sdk.python.rtdip_sdk.odbc.turbodbc_sql_connector.connect'
-TURBODBC_CONNECT_CURSOR = 'src.sdk.python.rtdip_sdk.odbc.turbodbc_sql_connector.connect.cursor'
+TURBODBC_CONNECT = 'src.sdk.python.rtdip_sdk.connectors.odbc.turbodbc_sql_connector.connect'
+TURBODBC_CONNECT_CURSOR = 'src.sdk.python.rtdip_sdk.connectors.odbc.turbodbc_sql_connector.connect.cursor'
 
 class MockedTURBODBCConnection:
     def close(self) -> None:

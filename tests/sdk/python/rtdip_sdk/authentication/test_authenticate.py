@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pytest_mock import MockerFixture
-from src.sdk.python.rtdip_sdk.authentication.authenticate import CertificateAuth, ClientSecretAuth, DefaultAuth
+from src.sdk.python.rtdip_sdk.authentication.azure import CertificateAuth, ClientSecretAuth, DefaultAuth
 import pytest
 
 TENANT_ID = "tenantid123"
@@ -34,7 +34,7 @@ class MockedAuthClass:
     assert result._tenant_id == "tenantid123"
 
 def test_certificate_auth(mocker: MockerFixture):
-    mocker.patch("src.sdk.python.rtdip_sdk.authentication.authenticate.CertificateCredential")
+    mocker.patch("src.sdk.python.rtdip_sdk.authentication.azure.CertificateCredential")
 
     mocked_certificate_auth = CertificateAuth(TENANT_ID, CLIENT_ID, CERTIFICATE_PATH)
     result = mocked_certificate_auth.authenticate()
@@ -48,21 +48,21 @@ def test_default_auth():
     assert isinstance(result, object)
 
 def test_client_secret_auth_fails(mocker: MockerFixture):
-    mocker.patch("src.sdk.python.rtdip_sdk.authentication.authenticate.ClientSecretCredential", side_effect = Exception)
+    mocker.patch("src.sdk.python.rtdip_sdk.authentication.azure.ClientSecretCredential", side_effect = Exception)
     mocked_client_secret_auth = ClientSecretAuth(TENANT_ID, CLIENT_ID, CLIENT_SECRET)
 
     with pytest.raises(Exception):
         assert mocked_client_secret_auth.authenticate()
 
 def test_certificate_auth_fails(mocker: MockerFixture):
-    mocker.patch("src.sdk.python.rtdip_sdk.authentication.authenticate.CertificateCredential", side_effect = Exception)
+    mocker.patch("src.sdk.python.rtdip_sdk.authentication.azure.CertificateCredential", side_effect = Exception)
     mocked_certificate_auth = CertificateAuth(TENANT_ID, CLIENT_ID, CERTIFICATE_PATH)
 
     with pytest.raises(Exception):
         assert mocked_certificate_auth.authenticate()
 
 def test_default_auth_fails(mocker: MockerFixture):
-    mocker.patch("src.sdk.python.rtdip_sdk.authentication.authenticate.DefaultAzureCredential", side_effect = Exception)
+    mocker.patch("src.sdk.python.rtdip_sdk.authentication.azure.DefaultAzureCredential", side_effect = Exception)
     mocked_default_auth = DefaultAuth()
 
     with pytest.raises(Exception):
