@@ -13,6 +13,6 @@
 # limitations under the License.
 
 import logging
-logging.warning('Module rtdip_sdk.connectors is deprecated and will be removed in v1.0.0. Please use rtdip_sdk.connectors instead.')
+logging.warning('Module rtdip_sdk.connectors is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.connectors instead.')
 
 from ..connectors.odbc import *

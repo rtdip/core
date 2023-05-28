@@ -13,13 +13,13 @@ Your Databricks PAT Token can be used in the RTDIP SDK to authenticate with any 
 Below is an example of using a Databricks PAT Token for authenticating with a Databricks SQL Warehouse.
 
 ```python
-from rtdip_sdk.odbc import db_sql_connector
+from rtdip_sdk.connectors import DatabricksSQLConnection
 
 server_hostname = "server_hostname"
 http_path = "http_path"
 access_token = "dbapi......."
 
-connection = db_sql_connector.DatabricksSQLConnection(server_hostname, http_path, access_token)
+connection = DatabricksSQLConnection(server_hostname, http_path, access_token)
 ```
 
 Replace **server_hostname**, **http_path** with your own information and specify your Databricks PAT token for the **access_token**. 

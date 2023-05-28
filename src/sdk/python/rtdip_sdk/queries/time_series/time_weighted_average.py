@@ -53,7 +53,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         def is_date_format(dt, format):
             try:
                 return datetime.strptime(dt , format)
-            except:
+            except Exception:
                 return False
             
         def set_dtz(dt, is_end_date = False):
