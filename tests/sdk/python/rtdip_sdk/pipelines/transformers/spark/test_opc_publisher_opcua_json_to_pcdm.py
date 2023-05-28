@@ -14,7 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.opc_publisher_json_to_pcdm import OPCPublisherJsonToPCDMTransformer
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.opc_publisher_opcua_json_to_pcdm import OPCPublisherOPCUAJsonToPCDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import OPC_PUBLISHER_SCHEMA
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
@@ -45,7 +45,7 @@ def test_opc_publisher_json_to_pcdm(spark_session: SparkSession):
         schema=expected_schema,
         data=expected_data
     )
-    eventhub_json_to_opcua_transformer = OPCPublisherJsonToPCDMTransformer(opcua_df, source_column_name="body", status_null_value="Good")
+    eventhub_json_to_opcua_transformer = OPCPublisherOPCUAJsonToPCDMTransformer(opcua_df, source_column_name="body", status_null_value="Good")
     actual_df = eventhub_json_to_opcua_transformer.transform()
 
     assert eventhub_json_to_opcua_transformer.system_type() == SystemType.PYSPARK

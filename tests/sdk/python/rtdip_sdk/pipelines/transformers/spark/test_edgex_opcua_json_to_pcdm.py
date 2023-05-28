@@ -14,7 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.edgex_json_to_pcdm import EdgeXJsonToPCDMTransformer
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.edgex_opcua_json_to_pcdm import EdgeXOPCUAJsonToPCDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
@@ -44,7 +44,7 @@ def test_edgex_json_to_pcdm(spark_session: SparkSession):
         data=expected_data
     )
 
-    eventhub_json_to_edgex_transformer = EdgeXJsonToPCDMTransformer(edgex_df)
+    eventhub_json_to_edgex_transformer = EdgeXOPCUAJsonToPCDMTransformer(data=edgex_df, source_column_name="body")
     actual_df = eventhub_json_to_edgex_transformer.transform()
 
     assert eventhub_json_to_edgex_transformer.system_type() == SystemType.PYSPARK

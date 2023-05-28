@@ -20,7 +20,7 @@ from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import OPC_PUBLISHER_SCHEMA
 
-class OPCPublisherJsonToPCDMTransformer(TransformerInterface):
+class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
     '''
     Converts a Spark Dataframe column containing a json string created by OPC Publisher to the Process Control Data Model
 
