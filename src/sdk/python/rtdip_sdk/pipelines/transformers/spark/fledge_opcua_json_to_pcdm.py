@@ -19,22 +19,25 @@ from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import FLEDGE_SCHEMA
 
-class FledgeJsonToPCDMTransformer(TransformerInterface):
+class FledgeOPCUAJsonToPCDMTransformer(TransformerInterface):
     '''
     Converts a Spark Dataframe column containing a json string created by Fledge to the Process Control Data Model
 
     Args:
         data (DataFrame): Dataframe containing the column with Json Fledge data
+        source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         status_null_value (str): If populated, will replace 'Good' in the Status column with the specified value.
         timestamp_formats (list[str]): Specifies the timestamp formats to be used for converting the timestamp string to a Timestamp Type. For more information on formats, refer to this [documentation.](https://spark.apache.org/docs/latest/sql-ref-datetime-pattern.html)
     '''
     data: DataFrame
+    source_column_name: str
     status_null_value: str
     change_type_value: str
     timestamp_formats: list
 
-    def __init__(self, data: DataFrame, status_null_value: str = "Good", change_type_value: str = "insert", timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
+    def __init__(self, data: DataFrame, source_column_name: str, status_null_value: str = "Good", change_type_value: str = "insert", timestamp_formats: list = ["yyyy-MM-dd'T'HH:mm:ss.SSSX", "yyyy-MM-dd'T'HH:mm:ssX"]) -> None: # NOSONAR
         self.data = data
+        self.source_column_name = source_column_name
         self.status_null_value = status_null_value
         self.change_type_value = change_type_value
         self.timestamp_formats = timestamp_formats
@@ -69,8 +72,8 @@ class FledgeJsonToPCDMTransformer(TransformerInterface):
         '''
         df = (
             self.data
-            .withColumn("body", from_json("body", FLEDGE_SCHEMA))
-            .selectExpr("inline(body)").select(explode("readings"), "timestamp")
+            .withColumn(self.source_column_name, from_json(self.source_column_name, FLEDGE_SCHEMA))
+            .selectExpr("inline({})".format(self.source_column_name)).select(explode("readings"), "timestamp")
             .withColumn("EventTime", coalesce(*[to_timestamp(col("timestamp"), f) for f in self.timestamp_formats]))
             .withColumnRenamed("key", "TagName")
             .withColumnRenamed("value", "Value")

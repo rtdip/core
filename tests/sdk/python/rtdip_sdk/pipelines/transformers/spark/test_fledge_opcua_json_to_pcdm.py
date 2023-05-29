@@ -14,7 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.fledge_json_to_pcdm import FledgeJsonToPCDMTransformer
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.fledge_opcua_json_to_pcdm import FledgeOPCUAJsonToPCDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
@@ -45,7 +45,7 @@ def test_fledge_json_to_pcdm(spark_session: SparkSession):
         data=expected_data
     )
 
-    eventhub_json_to_fledge_transformer = FledgeJsonToPCDMTransformer(fledge_df)
+    eventhub_json_to_fledge_transformer = FledgeOPCUAJsonToPCDMTransformer(data=fledge_df, source_column_name="body")
     actual_df = eventhub_json_to_fledge_transformer.transform()
 
     assert eventhub_json_to_fledge_transformer.system_type() == SystemType.PYSPARK
