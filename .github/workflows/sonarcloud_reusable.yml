@@ -77,11 +77,11 @@ jobs:
         uses: mamba-org/setup-micromamba@main
         with:
           environment-file: environment.yml
-          extra-specs: |
+          create-args: >-
             python=${{ matrix.python-version }}
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}          
-          cache-env: true
+          cache-environment: true
 
       - name: Test
         run: |
