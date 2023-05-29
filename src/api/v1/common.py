@@ -32,7 +32,7 @@ def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = No
     if metadata_query_parameters != None:
         parameters = dict(parameters, **metadata_query_parameters.__dict__)
         if "tag_name" in parameters:
-            if parameters["tag_name"] == None:
+            if parameters["tag_name"] is None:
                 parameters["tag_names"] = []
                 parameters.pop("tag_name")
             else:

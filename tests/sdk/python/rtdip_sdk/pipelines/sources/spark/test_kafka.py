@@ -14,6 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
+from importlib_metadata import version
 import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.kafka import SparkKafkaSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
@@ -34,7 +35,7 @@ def test_spark_kafka_read_setup(spark_session: SparkSession):
     assert kafka_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="org.apache.spark", 
                 artifact_id="spark-sql-kafka-0-10_2.12",
-                version="3.4.0"
+                version=version("pyspark")
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(kafka_source.settings(), dict)
     assert kafka_source.pre_read_validation()

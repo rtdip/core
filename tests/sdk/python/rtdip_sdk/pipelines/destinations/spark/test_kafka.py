@@ -14,6 +14,7 @@
 
 import sys
 sys.path.insert(0, '.')
+from importlib_metadata import version
 import pytest 
 from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.kafka import SparkKafkaDestination
@@ -30,7 +31,7 @@ def test_spark_kafka_write_setup():
     assert kafka_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="org.apache.spark", 
                 artifact_id="spark-sql-kafka-0-10_2.12",
-                version="3.4.0"
+                version=version("pyspark")
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(kafka_destination.settings(), dict)
     assert kafka_destination.pre_write_validation()

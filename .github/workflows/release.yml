@@ -33,7 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install twine
           pip install build
-          python -m build --wheel
+          python -m build
         env:
           RTDIP_SDK_NEXT_VER: ${{ github.ref_name }}
       - name: Upload Python wheel as artifact
@@ -109,7 +109,7 @@ jobs:
           sudo apt install -y libboost-all-dev
 
       - name: Install Conda environment with Micromamba
-        uses: mamba-org/provision-with-micromamba@main
+        uses: mamba-org/setup-micromamba@main
         with:
           environment-file: environment.yml
           cache-env: true

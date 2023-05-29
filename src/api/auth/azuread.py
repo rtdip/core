@@ -25,7 +25,7 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
 )
 
 def get_azure_ad_token(authorization = None):
-    if authorization == None or authorization == "No Token":
+    if authorization is None or authorization == "No Token":
         access_token = DefaultAuth().authenticate()
         token = access_token.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
     else:

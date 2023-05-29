@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from importlib_metadata import version
 from .models import MavenLibrary, PyPiLibrary
 
 DEFAULT_PACKAGES = {
     "spark_delta_core": MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version="2.3.0"
+                version=version("delta-spark")
             ),
     "spark_delta_sharing": MavenLibrary(
                 group_id="io.delta",
@@ -33,8 +33,13 @@ DEFAULT_PACKAGES = {
     "spark_sql_kafka": MavenLibrary(
                 group_id="org.apache.spark", 
                 artifact_id="spark-sql-kafka-0-10_2.12",
-                version="3.4.0"
+                version=version("pyspark")
             ),
+    "spark_remote": MavenLibrary(
+                group_id="org.apache.spark", 
+                artifact_id="spark-connect_2.12",
+                version=version("pyspark")
+    ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
                 version="0.2.2"

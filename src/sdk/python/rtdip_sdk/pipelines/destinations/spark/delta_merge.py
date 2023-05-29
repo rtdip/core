@@ -87,15 +87,15 @@ class SparkDeltaMergeDestination(DestinationInterface):
         self.table_name = table_name
         self.options = options
         self.merge_condition = merge_condition
-        self.when_matched_update_list = [] if when_matched_update_list == None else when_matched_update_list
-        self.when_matched_delete_list = [] if when_matched_delete_list == None else when_matched_delete_list
-        self.when_not_matched_insert_list = [] if when_not_matched_insert_list == None else when_not_matched_insert_list
+        self.when_matched_update_list = [] if when_matched_update_list is None else when_matched_update_list
+        self.when_matched_delete_list = [] if when_matched_delete_list is None else when_matched_delete_list
+        self.when_not_matched_insert_list = [] if when_not_matched_insert_list is None else when_not_matched_insert_list
         if isinstance(when_not_matched_by_source_update_list, list) and len(when_not_matched_by_source_update_list) > 0:
             _package_version_meets_minimum("delta-spark", "2.3.0")
-        self.when_not_matched_by_source_update_list = [] if when_not_matched_by_source_update_list == None else when_not_matched_by_source_update_list
+        self.when_not_matched_by_source_update_list = [] if when_not_matched_by_source_update_list is None else when_not_matched_by_source_update_list
         if isinstance(when_not_matched_by_source_delete_list, list) and len(when_not_matched_by_source_delete_list) > 0:
             _package_version_meets_minimum("delta-spark", "2.3.0")        
-        self.when_not_matched_by_source_delete_list = [] if when_not_matched_by_source_delete_list == None else when_not_matched_by_source_delete_list
+        self.when_not_matched_by_source_delete_list = [] if when_not_matched_by_source_delete_list is None else when_not_matched_by_source_delete_list
         self.try_broadcast_join = try_broadcast_join
         self.trigger = trigger
         self.query_name = query_name

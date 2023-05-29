@@ -16,7 +16,7 @@ This article provides a guide on how to install the RTDIP SDK. Get started by en
 
 There are a few things to note before using the RTDIP SDK. The following prerequisites will need to be installed on your local machine.
 
-Python version 3.8 >= and < 3.11 should be installed. Check which python version you have with the following command:
+Python version 3.8 >= and < 3.12 should be installed. Check which python version you have with the following command:
 
     python --version
 
@@ -58,14 +58,21 @@ Installing the RTDIP can be done using a package installer, such as [Pip](https:
 ### ODBC
 To use pyodbc or turbodbc python libraries, ensure that the required ODBC driver is installed as per these [instructions](https://docs.microsoft.com/en-us/azure/databricks/integrations/bi/jdbc-odbc-bi#download-the-odbc-driver).
 
-#### Pyodbc
-If you plan to use pyodbc, Microsoft Visual C++ 14.0 or greater is required. Get it from [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+=== "Pyodbc"
+    If you plan to use pyodbc, Microsoft Visual C++ 14.0 or greater is required. Get it from [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
 
-#### Turbodbc
-To use turbodbc python library, ensure to follow the [Turbodbc Getting Started](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) section and ensure that [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) is installed correctly.
+=== "Turbodbc"
+    To use turbodbc python library, ensure to follow the [Turbodbc Getting Started](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) section and ensure that [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) is installed correctly.
+
+### Spark Connect
+
+Spark Connect was released in Apache Spark 3.4.0 and enables a decoupled client-server architecture that allows remote connectivity to Spark Clusters. RTDIP SDK supports Spark Connect and can be configured using the Spark Connector and providing the Spark Connect connection string required to connect to your Spark Cluster.
+
+Please ensure that you have followed the [instructions](https://spark.apache.org/docs/latest/spark-connect-overview.html#how-to-use-spark-connect) to enable Spark Connect on your Spark Cluster and that you are using a `pyspark>=3.4.0`. If you are connecting to a Databricks Cluster, then you may prefer to install python package `databricks-connect>=13.0.1` instead of `pyspark`.
 
 ### Java
-If you are planning to use the RTDIP Pipelines in your own environment that leverages [pyspark](https://spark.apache.org/docs/latest/api/python/getting_started/install.html) for a component, Java 8 or later is a [prerequisite](https://spark.apache.org/docs/latest/api/python/getting_started/install.html#dependencies). See below for suggestions to install Java in your development environment.
+
+To use RTDIP Pipelines components in your own environment that leverages [pyspark](https://spark.apache.org/docs/latest/api/python/getting_started/install.html) and you do not want to leverage [Spark Connect](#spark-connect), Java 8 or later is a [prerequisite](https://spark.apache.org/docs/latest/api/python/getting_started/install.html#dependencies). See below for suggestions to install Java in your development environment.
 
 === "Conda"
     A fairly simple option is to use the conda **openjdk** package to install Java into your python virtual environment. An example of a conda **environment.yml** file to achieve this is below.
@@ -76,7 +83,7 @@ If you are planning to use the RTDIP Pipelines in your own environment that leve
         - conda-forge
         - defaults
     dependencies:
-        - python==3.10
+        - python==3.11
         - pip==23.0.1
         - openjdk==11.0.15
         - pip:

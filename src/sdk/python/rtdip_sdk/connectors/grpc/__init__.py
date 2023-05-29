@@ -12,7 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .odbc.db_sql_connector import *
-from .odbc.turbodbc_sql_connector import *
-from .odbc.pyodbc_sql_connector import *
-from .grpc.spark_connector import *
