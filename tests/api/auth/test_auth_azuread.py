@@ -18,7 +18,7 @@ from azure.identity import DefaultAzureCredential
 from azure.core.credentials import AccessToken
 
 def test_auth_azuread_no_auth_header(mocker: MockerFixture):
-    mocker.patch("src.sdk.python.rtdip_sdk.authentication.authenticate.DefaultAuth.authenticate", return_value=DefaultAzureCredential)
+    mocker.patch("src.sdk.python.rtdip_sdk.authentication.azure.DefaultAuth.authenticate", return_value=DefaultAzureCredential)
     mocker.patch("azure.identity.DefaultAzureCredential.get_token", return_value = AccessToken)
     mocker.patch("azure.core.credentials.AccessToken.token", return_value = "token")
 

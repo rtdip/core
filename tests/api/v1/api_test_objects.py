@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from pytest_mock import MockerFixture
-from tests.sdk.python.rtdip_sdk.odbc.test_db_sql_connector import MockedDBConnection
-from tests.sdk.python.rtdip_sdk.functions.test_raw import DATABRICKS_SQL_CONNECT
+from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import MockedDBConnection
+from tests.sdk.python.rtdip_sdk.queries.test_raw import DATABRICKS_SQL_CONNECT
 
 BASE_URL = "https://test"
 

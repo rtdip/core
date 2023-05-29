@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-logging.warning('Module rtdip_sdk.connectors is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.connectors instead.')
-
-from ..connectors.odbc import *
+from .odbc.db_sql_connector import *
+from .odbc.turbodbc_sql_connector import *
+from .odbc.pyodbc_sql_connector import *

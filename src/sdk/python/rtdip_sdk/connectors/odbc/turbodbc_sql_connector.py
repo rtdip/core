@@ -14,8 +14,8 @@
 
 from turbodbc import connect, make_options, Megabytes
 import pandas as pd
-from .connection_interface import ConnectionInterface
-from .cursor_interface import CursorInterface
+from ..connection_interface import ConnectionInterface
+from ..cursor_interface import CursorInterface
 import logging
 import os
 

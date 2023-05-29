@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import pytest
-from src.sdk.python.rtdip_sdk.odbc.connection_interface import ConnectionInterface
+from src.sdk.python.rtdip_sdk.connectors.connection_interface import ConnectionInterface
 
 class TestConnection(ConnectionInterface):
     def __init__(self):

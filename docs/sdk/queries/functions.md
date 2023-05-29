@@ -49,12 +49,12 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 1\. To use any of the RTDIP functions, use the commands below.
 
 ```python
-from rtdip_sdk.functions import resample
-from rtdip_sdk.functions import interpolate
-from rtdip_sdk.functions import interpolation_at_time
-from rtdip_sdk.functions import raw
-from rtdip_sdk.functions import time_weighted_average
-from rtdip_sdk.functions import metadata
+from rtdip_sdk.queries import resample
+from rtdip_sdk.queries import interpolate
+from rtdip_sdk.queries import interpolation_at_time
+from rtdip_sdk.queries import raw
+from rtdip_sdk.queries import time_weighted_average
+from rtdip_sdk.queries import metadata
 ```
 
 2\. From functions you can use any of the following methods.

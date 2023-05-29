@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLCursor
+from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection, DatabricksSQLCursor
 import pandas as pd
 import pyarrow as pa
 from pytest_mock import MockerFixture

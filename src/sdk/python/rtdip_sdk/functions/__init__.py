@@ -12,3 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+logging.warning('Module rtdip_sdk.queries is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead.')
+
+from ..queries import *
+from ..queries.time_series import *

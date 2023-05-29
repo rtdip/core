@@ -14,7 +14,7 @@
 import logging
 import pandas as pd
 from .raw import get as raw_get
-from .metadata import get as metadata_get
+from ..metadata import get as metadata_get
 from datetime import datetime, timedelta
 import pytz
 import numpy as np
@@ -53,7 +53,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         def is_date_format(dt, format):
             try:
                 return datetime.strptime(dt , format)
-            except:
+            except Exception:
                 return False
             
         def set_dtz(dt, is_end_date = False):
