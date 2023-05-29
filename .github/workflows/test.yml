@@ -14,8 +14,14 @@
 
 name: 'Reusable Test Workflow'
 
+# on:
+#   workflow_call:
+
 on:
-  workflow_call:
+  # Trigger the workflow on push to develop
+  push:
+    branches:
+      - feature/00302
 
 jobs:
   job_test_python_pyspark_versions:
@@ -62,11 +68,11 @@ jobs:
           uses: mamba-org/setup-micromamba@main
           with:
             environment-file: environment.yml
-            extra-specs: |
+            create-args: >-
               python=${{ matrix.python-version }}
               pyspark=${{ matrix.pyspark }}
               delta-spark=${{ matrix.delta-spark }}     
-            cache-env: true
+            cache-environment: true
 
         - name: Test
           run: |

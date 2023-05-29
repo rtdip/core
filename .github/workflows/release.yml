@@ -112,7 +112,7 @@ jobs:
         uses: mamba-org/setup-micromamba@main
         with:
           environment-file: environment.yml
-          cache-env: true
+          cache-environment: true
 
       - name: Deploy
         run: |
