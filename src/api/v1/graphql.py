@@ -22,8 +22,8 @@ from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Header, Depends
 from typing import List
 from datetime import date
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-from src.sdk.python.rtdip_sdk.functions import raw
+from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
+from src.sdk.python.rtdip_sdk.queries import raw
 from src.api.v1.models import RawResponse
 from src.api.auth import azuread
 import nest_asyncio
@@ -45,27 +45,27 @@ class Query:
       authorization: str = Header(None, include_in_schema=False),
       # authorization: str = Depends(oauth2_scheme)
       ) -> RawResponseQL:
-      try:
-          token = azuread.get_azure_ad_token(authorization)
-          
-          connection = DatabricksSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
+    try:
+        token = azuread.get_azure_ad_token(authorization)
+        
+        connection = DatabricksSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
 
-          parameters = {
-              "business_unit": business_unit,
-              "region": region,
-              "asset": asset,
-              "data_security_level": data_security_level,
-              "data_type": data_type,
-              "tag_names": tag_name,
-              "include_bad_data": include_bad_data,
-              "start_date": str(start_date),
-              "end_date": str(end_date),
-          }
-          data = raw.get(connection, parameters)
-          return RawResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.to_dict(orient="records"))
-      except Exception as e:
-          logging.error(str(e))
-          return HTTPException(status_code=500, detail=str(e))
+        parameters = {
+            "business_unit": business_unit,
+            "region": region,
+            "asset": asset,
+            "data_security_level": data_security_level,
+            "data_type": data_type,
+            "tag_names": tag_name,
+            "include_bad_data": include_bad_data,
+            "start_date": str(start_date),
+            "end_date": str(end_date),
+        }
+        data = raw.get(connection, parameters)
+        return RawResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.to_dict(orient="records"))
+    except Exception as e:
+        logging.error(str(e))
+        return HTTPException(status_code=500, detail=str(e))
 
 schema = strawberry.Schema(Query)
         

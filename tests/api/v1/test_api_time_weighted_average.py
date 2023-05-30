@@ -20,7 +20,7 @@ from tests.api.v1.api_test_objects import TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER
 from httpx import AsyncClient
 from src.api.v1 import app
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.functions.time_weighted_average.get"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average.get"
 MOCK_API_NAME = "/api/v1/events/timeweightedaverage"
 
 pytestmark = pytest.mark.anyio

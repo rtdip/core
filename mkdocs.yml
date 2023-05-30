@@ -55,10 +55,14 @@ theme:
     - search.suggest
   palette:
     - scheme: default
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -107,6 +111,9 @@ nav:
       - Process Control: 
           - Overview: domains/process_control/overview.md
           - Data Model: domains/process_control/data_model.md
+      - Weather Data: 
+          - Overview: domains/weather/overview.md
+          - Data Model: domains/weather/data_model.md
   - Integration:
       - Power BI: integration/power-bi.md
   - SDK:
@@ -119,12 +126,13 @@ nav:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md
               - Apache Airflow: sdk/pipelines/deploy/apache-airflow.md
       - Queries:
-          - Functions: sdk/queries/functions.md
           - Connectors: sdk/queries/connectors.md
           - Databricks:
               - Databricks SQL: sdk/queries/databricks/databricks-sql.md
               - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
               - Troubleshooting: sdk/queries/databricks/troubleshooting.md
+          - Spark Connect: sdk/queries/spark/spark-connect.md
+          - Functions: sdk/queries/functions.md
       - Authentication:
           - Azure Active Directory: sdk/authentication/azure.md
           - Databricks: sdk/authentication/databricks.md
@@ -139,11 +147,16 @@ nav:
                       - IoT Hub: sdk/code-reference/pipelines/sources/spark/iot_hub.md
                       - Kafka: sdk/code-reference/pipelines/sources/spark/kafka.md
                       - Kinesis: sdk/code-reference/pipelines/sources/spark/kinesis.md
+                      - ISO:
+                          - Base ISO: sdk/code-reference/pipelines/sources/spark/iso/base_iso.md
+                          - MISO Daily Load: sdk/code-reference/pipelines/sources/spark/iso/miso_daily_load_iso.md
+                          - MISO Historical Load: sdk/code-reference/pipelines/sources/spark/iso/miso_historical_load_iso.md
               - Transformers:
                   - Spark:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
-                      - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_json_to_pcdm.md
-                      - Fledge Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/fledge_json_to_pcdm.md
+                      - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_opcua_json_to_pcdm.md
+                      - Fledge Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/fledge_opcua_json_to_pcdm.md
+                      - EdgeX JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/edgex_opcua_json_to_pcdm.md
                       - SSIP PI Binary File data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md
                       - SSIP PI Binary JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md
               - Destinations:
@@ -186,6 +199,8 @@ nav:
                   - Databricks SQL Connector: sdk/code-reference/query/db-sql-connector.md
                   - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
                   - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
+                  - Spark Connector: sdk/code-reference/query/spark-connector.md
+
           - Authentication:
               - Azure Active Directory: sdk/code-reference/authentication/azure.md
   - API:

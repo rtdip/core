@@ -16,6 +16,8 @@ import logging
 import time
 from pyspark.sql import DataFrame
 from py4j.protocol import Py4JJavaError
+from pyspark.sql.functions import to_json, struct
+
 
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -26,6 +28,8 @@ class SparkKafkaDestination(DestinationInterface):
     This Spark destination class is used to write batch or streaming data from Kafka. Required and optional configurations can be found in the Attributes tables below. 
 
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
+
+    For compatibility between Spark and Kafka, the columns in the input dataframe are concatenated into one 'value' column of JSON string.
     
     Args:
         data (DataFrame): Dataframe to be written to Kafka
@@ -81,6 +85,7 @@ class SparkKafkaDestination(DestinationInterface):
         try:
             return (
                 self.data
+                .select(to_json(struct("*")).alias("value"))
                 .write
                 .format("kafka")
                 .options(**self.options)
@@ -101,6 +106,7 @@ class SparkKafkaDestination(DestinationInterface):
         try:
             query = (
                 self.data
+                .select(to_json(struct("*")).alias("value"))
                 .writeStream
                 .format("kafka")
                 .options(**self.options)

@@ -39,7 +39,7 @@ class AzureKeyVaultSecrets(SecretsInterface):
         self.key = key
         self.secret = secret
         self.credential = credential
-        self.kwargs = {} if kwargs == None else kwargs
+        self.kwargs = {} if kwargs is None else kwargs
         self.client=self._get_akv_client()
 
     @staticmethod

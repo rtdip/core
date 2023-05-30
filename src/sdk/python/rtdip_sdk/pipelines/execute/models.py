@@ -29,7 +29,7 @@ BaseConfig.json_encoders = {
 }
 
 def validate_name(name: str) -> str:
-    if re.match("^[a-z0-9_]*$", name) == None:
+    if re.match("^[a-z0-9_]*$", name) is None:
         raise ValueError('Can only contain lower case letters, numbers and underscores')
     else:
         return name
