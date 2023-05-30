@@ -11,8 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys 
 
 from .odbc.db_sql_connector import *
-from .odbc.turbodbc_sql_connector import *
 from .odbc.pyodbc_sql_connector import *
-from .grpc.spark_connector import *
+if "turbodbc" in sys.modules:
+    from .odbc.turbodbc_sql_connector import *
+if "pyspark" in sys.modules:
+    from .grpc.spark_connector import *
