@@ -15,4 +15,4 @@
 import logging
 logging.warning('Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead.')
 
-from ..queries.time_series.time_weighted_average import *
+from ..queries.time_series.time_weighted_average import * # NOSONAR

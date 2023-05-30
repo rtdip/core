@@ -15,4 +15,4 @@
 import logging
 logging.warning('Module rtdip_sdk.odbc is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.connectors instead.')
 
-from ..connectors.odbc.db_sql_connector import *
+from ..connectors.odbc.db_sql_connector import * # NOSONAR

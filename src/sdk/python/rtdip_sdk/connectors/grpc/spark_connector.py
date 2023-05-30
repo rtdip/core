@@ -39,7 +39,7 @@ class SparkConnection(ConnectionInterface):
 
     if spark_remote != None:
       _package_version_meets_minimum("pyspark", "3.4.0")
-      
+
     if spark is None:
       self.connection = SparkClient(
         spark_configuration = {} if spark_configuration is None else spark_configuration,

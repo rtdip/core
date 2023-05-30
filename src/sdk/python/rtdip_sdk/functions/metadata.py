@@ -15,4 +15,4 @@
 import logging
 logging.warning('Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead.')
 
-from ..queries.metadata import *
+from ..queries.metadata import * # NOSONAR
