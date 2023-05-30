@@ -11,3 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import logging
+logging.warning('Module rtdip_sdk.odbc is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.connectors instead.')
+
+from ..connectors.odbc.db_sql_connector import *

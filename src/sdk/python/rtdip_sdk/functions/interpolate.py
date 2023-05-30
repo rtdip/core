@@ -11,3 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import logging
+logging.warning('Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead.')
+
+from ..queries.time_series.interpolate import *
