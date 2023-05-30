@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+logging.warning('Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead.')
 
+<<<<<<<< HEAD:src/sdk/python/rtdip_sdk/queries/time_series/_query_builder.py
 from jinjasql import JinjaSql
 from six import string_types
 from copy import deepcopy
@@ -297,3 +300,6 @@ def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
     
     
+========
+from ..queries.time_series._query_builder import * # NOSONAR
+>>>>>>>> develop:src/sdk/python/rtdip_sdk/functions/_query_builder.py

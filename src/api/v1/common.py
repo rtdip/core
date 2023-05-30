@@ -13,8 +13,10 @@
 # limitations under the License.
 
 import os
+import importlib.util
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
-from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
+if importlib.util.find_spec("turbodbc") != None:
+    from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
 from src.api.auth import azuread
 
 def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = None, raw_query_parameters = None, tag_query_parameters = None, resample_query_parameters = None, interpolate_query_parameters = None, interpolation_at_time_query_parameters = None, time_weighted_average_query_parameters = None):

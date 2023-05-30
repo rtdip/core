@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import logging
+<<<<<<<< HEAD:src/sdk/python/rtdip_sdk/queries/time_series/time_weighted_average.py
 import pandas as pd
 from .raw import get as raw_get
 from ..metadata import get as metadata_get
@@ -142,3 +144,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with time weighted average function', str(e))
         raise e
+========
+logging.warning('Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead.')
+
+from ..queries.time_series.time_weighted_average import * # NOSONAR
+>>>>>>>> develop:src/sdk/python/rtdip_sdk/functions/time_weighted_average.py

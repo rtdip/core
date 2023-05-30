@@ -13,55 +13,6 @@
 # limitations under the License.
 
 import logging
-import pandas as pd
-from ._query_builder import _query_builder
+logging.warning('Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead.')
 
-def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
-    '''
-    An RTDIP interpolation function that is intertwined with the RTDIP Resampling function.
-    
-    The Interpolation function will forward fill or backward fill the resampled data depending users specified interpolation method.
-
-    This function requires the user to input a dictionary of parameters. (See Attributes table below.)
-
-    Args:
-        connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
-        parameters_dict: A dictionary of parameters (see Attributes table below)
-
-    Attributes:
-        business_unit (str): Business unit of the data
-        region (str): Region
-        asset (str):  Asset
-        data_security_level (str): Level of data security 
-        data_type (str): Type of the data (float, integer, double, string)
-        tag_names (list): List of tagname or tagnames ["tag_1", "tag_2"]
-        start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
-        end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
-        sample_rate (str): The resampling rate (numeric input)
-        sample_unit (str): The resampling unit (second, minute, day, hour)
-        agg_method (str): Aggregation Method (first, last, avg, min, max)
-        interpolation_method (str): Optional. Interpolation method (forward_fill, backward_fill)
-        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-
-    Returns:
-        DataFrame: A resampled and interpolated dataframe.
-    '''
-    if isinstance(parameters_dict["tag_names"], list) is False:
-        raise ValueError("tag_names must be a list")
-
-    try:
-        query = _query_builder(parameters_dict)
-
-        try:
-            cursor = connection.cursor()
-            cursor.execute(query)
-            df = cursor.fetch_all()
-            cursor.close()
-            return df
-        except Exception as e:
-            logging.exception('error returning dataframe')
-            raise e
-
-    except Exception as e:
-        logging.exception('error with interpolate function')
-        raise e
+from ..queries.time_series.interpolate import * # NOSONAR

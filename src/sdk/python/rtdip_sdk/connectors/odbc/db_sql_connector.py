@@ -12,11 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<<< HEAD:src/sdk/python/rtdip_sdk/connectors/odbc/db_sql_connector.py
 from databricks import sql
 from ..connection_interface import ConnectionInterface
 from ..cursor_interface import CursorInterface
+========
+>>>>>>>> develop:src/sdk/python/rtdip_sdk/odbc/db_sql_connector.py
 import logging
+logging.warning('Module rtdip_sdk.odbc is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.connectors instead.')
 
+<<<<<<<< HEAD:src/sdk/python/rtdip_sdk/connectors/odbc/db_sql_connector.py
 class DatabricksSQLConnection(ConnectionInterface):
   """
     The Databricks SQL Connector for Python is a Python library that allows you to use Python code to run SQL commands on Databricks clusters and Databricks SQL warehouses. 
@@ -103,3 +108,6 @@ class DatabricksSQLCursor(CursorInterface):
     except Exception as e:
       logging.exception('error while closing the cursor')
       raise e
+========
+from ..connectors.odbc.db_sql_connector import * # NOSONAR
+>>>>>>>> develop:src/sdk/python/rtdip_sdk/odbc/db_sql_connector.py

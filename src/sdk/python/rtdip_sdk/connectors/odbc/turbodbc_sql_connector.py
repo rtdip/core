@@ -14,6 +14,7 @@
 
 from turbodbc import connect, make_options, Megabytes
 import pandas as pd
+from ..._sdk_utils.compare_versions import _package_version_meets_minimum
 from ..connection_interface import ConnectionInterface
 from ..cursor_interface import CursorInterface
 import logging
@@ -35,6 +36,8 @@ class TURBODBCSQLConnection(ConnectionInterface):
       More fields such as driver can be configured upon extension.
   """
   def __init__(self, server_hostname: str, http_path: str, access_token: str) -> None:
+    _package_version_meets_minimum("turbodbc", "4.0.0")
+    
     options = make_options(
         autocommit=True, 
         read_buffer_size=Megabytes(100),
