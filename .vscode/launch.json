@@ -8,6 +8,7 @@
       "request": "attach",
       "port": 9091,
       "preLaunchTask": "func: host start",
+    },
     {
       "name": "Python: Debug Tests",
       "type": "python",

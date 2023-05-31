@@ -73,15 +73,3 @@ DEFAULT_PACKAGES = {
                 version="2.0.1"
             ),                      
 }
-
-EVENTHUB_SCHEMA = StructType(
-            [StructField('body', BinaryType(), True), 
-             StructField('partition', StringType(), True), 
-             StructField('offset', StringType(), True), 
-             StructField('sequenceNumber', LongType(), True), 
-             StructField('enqueuedTime', TimestampType(), True), 
-             StructField('publisher', StringType(), True), 
-             StructField('partitionKey', StringType(), True), 
-             StructField('properties', MapType(StringType(), StringType(), True), True), 
-             StructField('systemProperties', MapType(StringType(), StringType(), True), True)]
-        )
