@@ -5,7 +5,7 @@ This Real Time Data Ingestion Platform (RTDIP) welcomes contributions and sugges
 * File a bug report
 * Suggest a new feature
 * General enquiries 
-* Security Vulnerabilities
+* Security Vulnerabilities 
 
 ## Prerequisites:
 
