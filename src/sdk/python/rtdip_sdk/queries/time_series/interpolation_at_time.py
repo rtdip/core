@@ -15,7 +15,7 @@
 import logging
 import pandas as pd
 from datetime import datetime
-from src.sdk.python.rtdip_sdk.queries.time_series._query_builder import _query_builder
+from ._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
@@ -35,6 +35,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (str): Name of the tag
         timestamps (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zz:zz where %z is the timezone. (Example +00:00 is the UTC timezone)
+        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
 
     Returns:
         DataFrame: A interpolated at time dataframe.
@@ -61,21 +62,3 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with interpolation at time function')
         raise e
-    
-from src.sdk.python.rtdip_sdk.authentication.authenticate import DefaultAuth
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
-#testing 
-auth = DefaultAuth(exclude_visual_studio_code_credential=True).authenticate()
-token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
-dict = {
-    "business_unit": "pt",
-    "region": "emea", 
-    "asset": "gtl", 
-    "data_security_level": "restricted", 
-    "data_type": "float",
-    "tag_names": ["0095S01C007", "0095S01C015"], 
-    "timestamps": ["2022-06-18T17:07:38", "2022-06-18T17:27:44", "2022-06-18T17:47:52"]
-}
-x = get(connection, dict)
-print(x)

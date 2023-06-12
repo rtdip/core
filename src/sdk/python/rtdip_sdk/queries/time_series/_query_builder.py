@@ -215,20 +215,20 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "(SELECT * FROM (SELECT * FROM "
         "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
         "WHERE EventDate BETWEEN "
-        "{% if timestamps is defined %}"
-        "date_sub(to_date(to_timestamp({{ min_timestamp }})), 1) AND date_add(to_date(to_timestamp({{ max_timestamp }})), 1)"
-        "{% endif %}"
+        "{% if timestamps is defined %} "
+        "date_sub(to_date(to_timestamp({{ min_timestamp }})), 1) AND date_add(to_date(to_timestamp({{ max_timestamp }})), 1) "
+        "{% endif %} "
         "AND TagName in {{ tag_names | inclause }} "
-        "{% if include_bad_data is defined and include_bad_data == false %}"
-        "AND Status = 'Good'"
+        "{% if include_bad_data is defined and include_bad_data == false %} "
+        "AND Status = 'Good' "
         "{% endif %}"
-        ")) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName))"
+        ")) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName)) "
         "WHERE EventTime in ( "
         "{% for timestamp in timestamps -%} "
-        "from_utc_timestamp(to_timestamp({{timestamp}}), {{time_zone}})"
-        "{% if not loop.last %}"
+        "from_utc_timestamp(to_timestamp({{timestamp}}), {{time_zone}}) "
+        "{% if not loop.last %} "
         ", "
-        "{% endif %}"
+        "{% endif %} "
         "{% endfor %} "
         ")"       
     )
@@ -241,6 +241,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "data_type": parameters_dict['data_type'].lower(),
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
         "timestamps": parameters_dict['timestamps'],
+        "include_bad_data": parameters_dict["include_bad_data"],
         "time_zone": parameters_dict["time_zone"],
         "min_timestamp": parameters_dict["min_timestamp"],
         "max_timestamp": parameters_dict["max_timestamp"]
