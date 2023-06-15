@@ -53,13 +53,13 @@ def test_miso_to_mdm_meta(spark_session: SparkSession):
 
     expected_df: DataFrame = spark_session.read.json(f"{base_path}/output.json", schema=MDM_META_SCHEMA)
     input_df: DataFrame = spark_session.read.csv(f"{base_path}/input.csv", header=True, schema=MISO_SCHEMA)
-    input_df.show(10, False)
+    input_df.show(100, False)
     transformer: BaseRawToMDMTransformer = MISOToMDMTransformer(spark_session, input_df, output_type="meta")
     actual_df = transformer.transform()
-    actual_df.show(10, False)
+    actual_df.show(100, False)
     actual_df = actual_df.orderBy("uid", "timestamp_start")
     expected_df = expected_df.orderBy("uid", "timestamp_start")
-
+    expected_df.show(100, False)
     assert transformer.system_type() == SystemType.PYSPARK
     assert isinstance(transformer.libraries(), Libraries)
     assert transformer.settings() == dict()
