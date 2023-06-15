@@ -11,4 +11,4 @@ To use PYODBC SQL Connect you will require the driver path specified below per o
 | Linux 64-bit | `/opt/simba/spark/lib/64/libsparkodbc_sb64.so` |
 | Linux 32-bit | `/opt/simba/spark/lib/32/libsparkodbc_sb32.so`|
 
-::: src.sdk.python.rtdip_sdk.odbc.pyodbc_sql_connector
+::: src.sdk.python.rtdip_sdk.connectors.odbc.pyodbc_sql_connector

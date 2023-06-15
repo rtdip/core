@@ -17,7 +17,7 @@ import logging
 from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
-from src.sdk.python.rtdip_sdk.functions import metadata
+from src.sdk.python.rtdip_sdk.queries import metadata
 from src.api.v1.models import BaseQueryParams, MetadataQueryParams, TagsBodyParams, MetadataResponse, HTTPError
 from src.api.auth.azuread import oauth2_scheme
 from src.api.FastAPIApp import api_v1_router

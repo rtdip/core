@@ -16,6 +16,7 @@ import sys
 
 sys.path.insert(0, '.')
 import pytest
+from importlib_metadata import version
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta_merge import SparkDeltaMergeDestination, DeltaMergeCondition, DeltaMergeConditionValues
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pcdm_to_delta import SparkPCDMToDeltaDestination
@@ -56,7 +57,7 @@ def test_spark_pcdm_to_delta_write_setup(spark_session: SparkSession):
     assert pcdm_to_delta_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version="2.3.0"
+                version=version("delta-spark")
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(pcdm_to_delta_destination.settings(), dict)
     assert pcdm_to_delta_destination.pre_write_validation()

@@ -37,12 +37,15 @@ INSTALL_REQUIRES = [
   "jinjasql==0.1.8",
   "importlib_metadata>=1.0.0",
   "semver==3.0.0",
-  "xlrd==2.0.1"
+  "xlrd==2.0.1",
+  "grpcio>=1.48.1",
+  "grpcio-status>=1.48.1",
+  "googleapis-common-protos>=1.56.4"
 ]
 
 PYSPARK_PACKAGES = [
-  "pyspark>=3.3.0,<3.4.0",
-  "delta-spark>=2.2.0,<2.4.0",
+  "pyspark>=3.3.0,<3.5.0",
+  "delta-spark>=2.2.0,<2.5.0",
 ]
 
 PIPELINE_PACKAGES = [
@@ -71,6 +74,7 @@ setup(
       "Programming Language :: Python :: 3.8",
       "Programming Language :: Python :: 3.9",
       "Programming Language :: Python :: 3.10",
+      "Programming Language :: Python :: 3.11",
     ],
     project_urls={
         "Issue Tracker": "https://github.com/rtdip/core/issues",
@@ -81,7 +85,7 @@ setup(
     package_dir={"": "src/sdk/python"},
     include_package_data=True,
     packages=find_packages(where="src/sdk/python"),
-    python_requires=">=3.8, <3.11",
+    python_requires=">=3.8, <3.12",
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_DEPENDENCIES,
     setup_requires=["pytest-runner","setuptools_scm"],

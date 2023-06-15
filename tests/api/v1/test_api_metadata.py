@@ -19,7 +19,7 @@ from tests.api.v1.api_test_objects import METADATA_MOCKED_PARAMETER_DICT, METADA
 from httpx import AsyncClient
 from src.api.v1 import app
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.functions.metadata.get"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.metadata.get"
 MOCK_API_NAME = "/api/v1/metadata"
 TEST_DATA = pd.DataFrame({"TagName": ["TestTag"], "UoM": ["UoM1"], "Description": ["Test Description"]})
 

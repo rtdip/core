@@ -47,6 +47,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
         when_not_matched_insert_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when inserting rows that do not match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
         when_not_matched_by_source_update_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that do not match the `merge_condition`.
         when_not_matched_by_source_delete_list (list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that do not match the `merge_condition`.
+        try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
 
@@ -78,7 +79,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  when_not_matched_insert_list: List[DeltaMergeConditionValues] = None,
                  when_not_matched_by_source_update_list: List[DeltaMergeConditionValues] = None,
                  when_not_matched_by_source_delete_list: List[DeltaMergeCondition] = None,
-                 try_broadcast_join: bool = True,
+                 try_broadcast_join: bool = False,
                  trigger="10 seconds",
                  query_name: str ="DeltaMergeDestination") -> None:
         self.spark = spark
@@ -86,15 +87,15 @@ class SparkDeltaMergeDestination(DestinationInterface):
         self.table_name = table_name
         self.options = options
         self.merge_condition = merge_condition
-        self.when_matched_update_list = [] if when_matched_update_list == None else when_matched_update_list
-        self.when_matched_delete_list = [] if when_matched_delete_list == None else when_matched_delete_list
-        self.when_not_matched_insert_list = [] if when_not_matched_insert_list == None else when_not_matched_insert_list
+        self.when_matched_update_list = [] if when_matched_update_list is None else when_matched_update_list
+        self.when_matched_delete_list = [] if when_matched_delete_list is None else when_matched_delete_list
+        self.when_not_matched_insert_list = [] if when_not_matched_insert_list is None else when_not_matched_insert_list
         if isinstance(when_not_matched_by_source_update_list, list) and len(when_not_matched_by_source_update_list) > 0:
             _package_version_meets_minimum("delta-spark", "2.3.0")
-        self.when_not_matched_by_source_update_list = [] if when_not_matched_by_source_update_list == None else when_not_matched_by_source_update_list
+        self.when_not_matched_by_source_update_list = [] if when_not_matched_by_source_update_list is None else when_not_matched_by_source_update_list
         if isinstance(when_not_matched_by_source_delete_list, list) and len(when_not_matched_by_source_delete_list) > 0:
             _package_version_meets_minimum("delta-spark", "2.3.0")        
-        self.when_not_matched_by_source_delete_list = [] if when_not_matched_by_source_delete_list == None else when_not_matched_by_source_delete_list
+        self.when_not_matched_by_source_delete_list = [] if when_not_matched_by_source_delete_list is None else when_not_matched_by_source_delete_list
         self.try_broadcast_join = try_broadcast_join
         self.trigger = trigger
         self.query_name = query_name

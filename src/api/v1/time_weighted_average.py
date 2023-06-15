@@ -3,7 +3,7 @@ from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
 from pandas.io.json import build_table_schema
-from src.sdk.python.rtdip_sdk.functions import time_weighted_average
+from src.sdk.python.rtdip_sdk.queries import time_weighted_average
 from src.api.v1.models import BaseQueryParams, ResampleInterpolateResponse, HTTPError, RawQueryParams, TagsQueryParams, TagsBodyParams, TimeWeightedAverageQueryParams
 import src.api.v1.common
 
