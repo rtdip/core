@@ -2,7 +2,7 @@
     "azureFunctions.scmDoBuildDuringDeployment": true,
     "azureFunctions.pythonVenv": "${workspaceFolder}/src/api/.venv",
     "azureFunctions.projectLanguage": "Python",
-    "azureFunctions.projectRuntime": "~4",				
+    "azureFunctions.projectRuntime": "~4",		
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.formatting.autopep8Path": "/opt/conda/bin/autopep8",

@@ -40,7 +40,8 @@ INSTALL_REQUIRES = [
   "xlrd==2.0.1",
   "grpcio>=1.48.1",
   "grpcio-status>=1.48.1",
-  "googleapis-common-protos>=1.56.4"
+  "googleapis-common-protos>=1.56.4",
+  "langchain==0.0.200"
 ]
 
 PYSPARK_PACKAGES = [
