@@ -219,6 +219,7 @@ nav:
   - Blog:
       - Overview: blog/overview.md
       - Posts:
+          - RTDIP Generative AI SQL Agent: blog/rtdip_generative_ai_sql_agent.md
           - RTDIP Ingestion Pipelines: blog/rtdip_ingestion_pipelines.md
           - Delta Lakehouse and RTDIP: blog/delta_and_rtdip.md
 
