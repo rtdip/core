@@ -86,6 +86,7 @@ class ChatOpenAIDatabricksSQLCursor(CursorInterface):
   Args:
       cursor: controls execution of commands on cluster or SQL Warehouse
   """
+  response = None
   def __init__(self, cursor: object) -> None:
     self.cursor = cursor
 
