@@ -11,7 +11,7 @@ The RTDIP SDK has rich support of querying data using Databricks SQL, such as al
 
 === "Azure Active Directory"
 
-    Refer to the [Azure Active Directory](../../authentication/azure.md) documentation for further options to perform Azure AD authentication, such as Service Principal authentication using certificates or secrets. Below is an example of performing default authentication that retrieives a token for Azure Databricks. 
+    Refer to the [Azure Active Directory](../../authentication/azure.md) documentation for further options to perform Azure AD authentication, such as Service Principal authentication using certificates or secrets. Below is an example of performing default authentication that retrieves a token for Azure Databricks. 
 
     Also refer to the [Code Reference](../../code-reference/authentication/azure.md) for further technical information.
 
@@ -27,7 +27,7 @@ The RTDIP SDK has rich support of querying data using Databricks SQL, such as al
 
 === "Databricks"
 
-    Refer to the [Databricks](../../authentication/databricks.md) documentation for further information about generating a Databricks PAT Token. Below is an example of performing default authentication that retrieives a token for a Databricks Workspace. 
+    Refer to the [Databricks](../../authentication/databricks.md) documentation for further information about generating a Databricks PAT Token. Below is an example of performing default authentication that retrieves a token for a Databricks Workspace. 
 
     Provide your `dbapi.....` token to the `access_token` in the examples below.
 
@@ -83,7 +83,7 @@ The RTDIP SDK offers several ways to connect to a Databricks SQL Warehouse.
     For more information about each of the connection methods, please see [Code Reference](../../code-reference/query/pyodbc-sql-connector.md) and navigate to the required section.
 
 === "TURBODBC"
-    The RTDIP development team have found this to be the most performant method of connecting to RTDIP leveraging the arrow implementation within Turbodbc to obtain data, but requires a number of addditional installation steps to get working on OSX, Linux and Windows
+    The RTDIP development team have found this to be the most performant method of connecting to RTDIP leveraging the arrow implementation within Turbodbc to obtain data, but requires a number of additional installation steps to get working on OSX, Linux and Windows
 
     * [ODBC](https://databricks.com/spark/odbc-drivers-download) or [JDBC](https://databricks.com/spark/jdbc-drivers-download) are required to leverage TURBODBC. Follow these [instructions](https://docs.databricks.com/integrations/jdbc-odbc-bi.html) to install the drivers in your environment.
     * [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) needs to be installed locally to use the [TURBODBC SQL Connector](../../code-reference/query/turbodbc-sql-connector.md) (<em>Optional</em>)

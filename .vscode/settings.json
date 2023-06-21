@@ -37,5 +37,29 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
-    "python.formatting.provider": "none"
+    "python.formatting.provider": "none",
+    "cSpell.words": [
+        "Autoloader",
+        "dagster",
+        "DDTHH",
+        "Eventhub",
+        "JDBC",
+        "Lakehouse",
+        "langchain",
+        "Metastore",
+        "odbc",
+        "openai",
+        "Osisoft",
+        "PCDM",
+        "PYDOBC",
+        "pyodbc",
+        "PYODBCSQL",
+        "pyspark",
+        "RTDIP",
+        "SSIP",
+        "timeseries",
+        "Turbodbc",
+        "TURBODBCSQL",
+        "ZORDER"
+    ]
 }

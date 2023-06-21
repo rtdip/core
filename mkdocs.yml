@@ -132,6 +132,8 @@ nav:
               - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
               - Troubleshooting: sdk/queries/databricks/troubleshooting.md
           - Spark Connect: sdk/queries/spark/spark-connect.md
+          - LLMs:
+              - Chat Open AI Databricks: sdk/queries/llm/chatopenai_databricks_connector.md
           - Functions: sdk/queries/functions.md
       - Authentication:
           - Azure Active Directory: sdk/authentication/azure.md
@@ -200,6 +202,7 @@ nav:
                   - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
                   - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
                   - Spark Connector: sdk/code-reference/query/spark-connector.md
+                  - Chat Open AI Databricks Connector: sdk/code-reference/query/chatopenai_databricks_connector.md
 
           - Authentication:
               - Azure Active Directory: sdk/code-reference/authentication/azure.md

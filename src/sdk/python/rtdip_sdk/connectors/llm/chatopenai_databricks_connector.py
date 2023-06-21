@@ -24,15 +24,21 @@ from ..cursor_interface import CursorInterface
 
 class ChatOpenAIDatabricksConnection(ConnectionInterface):
   """
-    The Databricks SQL Connector for Python is a Python library that allows you to use Python code to run SQL commands on Databricks clusters and Databricks SQL warehouses. 
+    The Chat Open AI(Chat GPT) Databricks LLM Connector enables you to connect to a Databricks SQL Warehouse and use the Chat Open AI(Chat GPT) LLM to generate SQL queries.
 
-    The connection class represents a connection to a database and uses the Databricks SQL Connector API's for Python to intereact with cluster/jobs.
+    The connection class represents a connection to a database and uses the Databricks SQL Connector API's for Python to interact with cluster/jobs and langchain to connect to Chat Open AI(Chat GPT) LLM.
     To find details for SQL warehouses server_hostname and http_path location to the SQL Warehouse tab in the documentation.
     
     Args:
+        catalog: Catalog name in Databricks
+        schema: Schema name in Databricks
         server_hostname: Server hostname for the cluster or SQL Warehouse
         http_path: Http path for the cluster or SQL Warehouse
         access_token: Azure AD or Databricks PAT token
+        openai_api_key: OpenAI API key
+        openai_model: OpenAI model name
+        sample_rows_in_table_info: Number of rows to sample when getting table information
+        verbose_logging: Whether to log verbose messages
   """
   def __init__(self, catalog: str, schema: str, server_hostname: str, http_path: str, access_token: str, openai_api_key: str, openai_model: str = "gpt-4", sample_rows_in_table_info: int = 3, verbose_logging: bool = False) -> None:
     _package_version_meets_minimum("langchain", "0.0.196")
