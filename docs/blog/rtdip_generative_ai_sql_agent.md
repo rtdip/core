@@ -112,7 +112,7 @@ ZZ:ACM_WF_WTG02_analog_GriActPwrMaxGcmErr       2023-04-03      2023-04-03 11:26
 ZZ:ACM_WF_WTG02_analog_GriActPwrMaxGcmVer       2023-04-03      2023-04-03 11:26:16.525000+00:00        Good    4100.0
 */
 
-Thought: I can query the table "acme_events" to find the average power generated for turbine 1 at Pottendijk on 6 May. I will use the "query_sql_db" action to execute the query.
+Thought: I can query the table "acme_events" to find the average power generated for turbine 1 at Acme on 6 May. I will use the "query_sql_db" action to execute the query.
 Action: query_sql_db
 Action Input: "SELECT AVG(Value) FROM acme_events WHERE TagName = 'ZZ:ACM_WF_WTG01_analog_PwrAct' AND EventDate = '2023-05-06'"
 Observation: [(847.4923418083226,)]
