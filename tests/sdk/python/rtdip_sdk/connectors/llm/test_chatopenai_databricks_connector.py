@@ -27,6 +27,8 @@ LANGCHAIN_CHATOPENAI = "langchain.chat_models.ChatOpenAI"
 LANGCHAIN_SQLDATABASE = "langchain.SQLDatabase.from_databricks"
 LANGCHAIN_SQLDATABASETOOLKIT = "langchain.agents.agent_toolkits.SQLDatabaseToolkit"
 LANGCHAIN_CREATE_SQL_AGENT = "langchain.agents.create_sql_agent"
+QUESTION = "what is the answer to the question?"
+RESPONSE = "This is the ChatOpenAI response"
 
 class MockDialect():
     name: str = "mock_dialect"
@@ -52,8 +54,8 @@ class MockedCursor:
         return None
     def fetchall(self) -> list:  
         return list
-    def fetchall_arrow(self) -> list:  
-        return "This is the ChatOpenAI response"
+    def fetchall_arrow(self) -> str:  
+        return RESPONSE
     def close(self) -> None: 
         return None
 
@@ -63,7 +65,7 @@ class MockedDBConnection:
     def cursor(self) -> object: 
         return MockedCursor()
     def run(self, query) -> str:
-        return "This is the ChatOpenAI response"
+        return RESPONSE
             
 def test_connection_close(mocker: MockerFixture):
     mocker.patch(LANGCHAIN_CHATOPENAI, return_value = None)
@@ -94,16 +96,16 @@ def test_cursor_execute(mocker: MockerFixture):
     mocked_execute = mocker.spy(ChatOpenAIDatabricksSQLCursor, "execute")
 
     mocked_cursor = ChatOpenAIDatabricksSQLCursor(MockedDBConnection())
-    mocked_cursor.execute("what is the answer to the question?")
+    mocked_cursor.execute(QUESTION)
 
-    mocked_execute.assert_called_with(mocker.ANY, query="what is the answer to the question?")
+    mocked_execute.assert_called_with(mocker.ANY, query=QUESTION)
 
 def test_cursor_fetch_all(mocker: MockerFixture):    
     mocked_cursor = ChatOpenAIDatabricksSQLCursor(MockedDBConnection())
-    mocked_cursor.execute("what is the answer to the question?")
+    mocked_cursor.execute(QUESTION)
     result = mocked_cursor.fetch_all()
 
-    assert result == "This is the ChatOpenAI response"
+    assert result == RESPONSE
 
 def test_cursor_close(mocker: MockerFixture):
     mocker.patch(LANGCHAIN_CHATOPENAI, return_value = None)
