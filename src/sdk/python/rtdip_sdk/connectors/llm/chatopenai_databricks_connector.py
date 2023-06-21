@@ -73,21 +73,31 @@ class ChatOpenAIDatabricksConnection(ConnectionInterface):
 
   def cursor(self) -> object:
     """
-    Intiates the cursor and returns it.
+    Initiates the cursor and returns it.
 
     Returns:
-      DatabricksSQLCursor: Object to represent a databricks workspace with methods to interact with clusters/jobs.
+      ChatOpenAIDatabricksSQLCursor: Object to represent a connection to Databricks and Open AI with methods to interact with clusters/jobs and ChatGPT.
     """
     try:
       return ChatOpenAIDatabricksSQLCursor(self.connection)
     except Exception as e:
       logging.exception('error with cursor object')
       raise e
-    
+
+  def run(self,  query: str) -> str:
+    """
+    Runs a query on the ChatGPT and the Databricks Cluster or SQL Warehouse.
+
+    Returns:
+        str: response from ChatGPT and the Databricks Cluster or SQL Warehouse
+    """    
+    cursor = self.cursor()
+    cursor.execute(query)
+    return cursor.fetch_all()
 
 class ChatOpenAIDatabricksSQLCursor(CursorInterface):
   """
-  Object to represent a databricks workspace with methods to interact with clusters/jobs.
+  Object to represent a connection to Databricks and Open AI with methods to interact with clusters/jobs and ChatGPT.
 
   Args:
       cursor: controls execution of commands on cluster or SQL Warehouse
@@ -101,7 +111,7 @@ class ChatOpenAIDatabricksSQLCursor(CursorInterface):
     Prepares and runs a database query.
 
     Args:
-        query: sql query to execute on the cluster or SQL Warehouse
+        query: sql query to execute on ChatGPT and the Databricks Cluster or SQL Warehouse
     """
     try:  
       self.response = self.cursor.run(query)
