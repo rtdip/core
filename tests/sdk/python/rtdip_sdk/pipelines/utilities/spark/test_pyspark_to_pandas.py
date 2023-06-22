@@ -15,21 +15,28 @@
 import sys
 sys.path.insert(0, '.')
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.pyspark_to_pandas import PySparkToPandasDFUtility
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
-from pandas.core.frame import DataFrame
+import pandas as pd
+from pandas import DataFrame
 from pyspark.sql import SparkSession
 
+def test_conversion_set_up(spark_session: SparkSession):
+    df = spark_session.createDataFrame([(1, "a"), (2, "b"),], ["col1", "col2"])
+    pyspark_conversion_utility = PySparkToPandasDFUtility(spark_session, df)
+
+    assert pyspark_conversion_utility.system_type().value == 2
+    assert pyspark_conversion_utility.libraries() == Libraries()
+    assert isinstance(pyspark_conversion_utility.settings(), dict)
+
 def test_pyspark_to_pandas(spark_session: SparkSession):
-    df = spark_session.createDataFrame(
-    [
-        (1, "a"),
-        (2, "b"),
-    ],
-    ["col1", "col2"]
-    )
+    expected_df = pd.DataFrame([[1, 'a'], [2, 'b']], columns=["col1", "col2"])
+
+    df = spark_session.createDataFrame([(1, "a"), (2, "b"),], ["col1", "col2"])
 
     pyspark_conversion_utility = PySparkToPandasDFUtility(spark_session, df)
     result = pyspark_conversion_utility.execute()
     
-    assert result
     assert isinstance(result, DataFrame)
+    assert expected_df.equals(result)
+    assert expected_df.columns.equals(result.columns)

@@ -53,7 +53,7 @@ class PySparkToPandasDFUtility(UtilitiesInterface):
     def settings() -> dict:
         return {}
 
-    def execute(self) -> bool:
+    def execute(self) -> DataFrame:
         try:
             df = self.df.toPandas()
             return df

@@ -15,7 +15,7 @@
 import logging
 from pyspark.sql import SparkSession
 from py4j.protocol import Py4JJavaError
-from pandas.core.frame import DataFrame
+from pandas import DataFrame
 
 from ..interfaces import UtilitiesInterface
 from .configuration import SparkConfigurationUtility
@@ -53,7 +53,7 @@ class PandasToPySparkDFUtility(UtilitiesInterface):
     def settings() -> dict:
         return {}
 
-    def execute(self) -> bool:
+    def execute(self) -> DataFrame:
         try:
             df = self.spark.createDataFrame(self.df)
             return df
