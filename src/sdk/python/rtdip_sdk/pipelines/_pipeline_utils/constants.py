@@ -13,12 +13,13 @@
 # limitations under the License.
 from importlib_metadata import version
 from .models import MavenLibrary, PyPiLibrary
+from ..._sdk_utils.compare_versions import _get_package_version
 
 DEFAULT_PACKAGES = {
     "spark_delta_core": MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version=version("delta-spark")
+                version=_get_package_version("delta-spark")
             ),
     "spark_delta_sharing": MavenLibrary(
                 group_id="io.delta",
@@ -33,12 +34,12 @@ DEFAULT_PACKAGES = {
     "spark_sql_kafka": MavenLibrary(
                 group_id="org.apache.spark", 
                 artifact_id="spark-sql-kafka-0-10_2.12",
-                version=version("pyspark")
+                version=_get_package_version("pyspark")
             ),
     "spark_remote": MavenLibrary(
                 group_id="org.apache.spark", 
                 artifact_id="spark-connect_2.12",
-                version=version("pyspark")
+                version=_get_package_version("pyspark")
     ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
