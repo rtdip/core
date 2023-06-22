@@ -21,20 +21,20 @@ def _get_databricks_package_versions(databricks_runtime_version, package_name):
     if package_name == "pyspark":
         return spark.version
     elif package_name == "delta-spark":
-        if Version.compare(databricks_runtime_version, "13.1") >= 0:
+        if Version.compare(databricks_runtime_version, Version.parse("13.1", optional_minor_and_patch=True)) >= 0:
             return "2.4.0"
-        elif Version.compare(databricks_runtime_version, "13.0") >= 0:
+        elif Version.compare(databricks_runtime_version, Version.parse("13.0", optional_minor_and_patch=True)) >= 0:
              return "2.3.0"
-        elif Version.compare(databricks_runtime_version, "12.1") >= 0:
+        elif Version.compare(databricks_runtime_version, Version.parse("12.1", optional_minor_and_patch=True)) >= 0:
              return "2.2.0"
-        elif Version.compare(databricks_runtime_version, "11.3") >= 0:
+        elif Version.compare(databricks_runtime_version, Version.parse("11.3", optional_minor_and_patch=True)) >= 0:
              return "2.1.0"                
-        elif Version.compare(databricks_runtime_version, "10.4") >= 0:
+        elif Version.compare(databricks_runtime_version, Version.parse("10.4", optional_minor_and_patch=True)) >= 0:
              return "1.1.0"
 
 def _get_package_version(package_name):
     if "DATABRICKS_RUNTIME_VERSION" in os.environ and package_name in ["delta-spark", "pyspark"]:
-        return _get_databricks_package_versions(Version(os.environ.get("DATABRICKS_RUNTIME_VERSION")), package_name)
+        return _get_databricks_package_versions(Version.parse(os.environ.get("DATABRICKS_RUNTIME_VERSION"), optional_minor_and_patch=True), package_name)
     else:
         return version(package_name)       
 
