@@ -61,22 +61,19 @@ class ChatOpenAIDatabricksConnection(ConnectionInterface):
     Always adhere to the format and don't return empty names or half responses.
     """
     toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+    
+    model_agent_type = AgentType.ZERO_SHOT_REACT_DESCRIPTION
     if "0613" in openai_model:
-      self.connection = create_sql_agent(
-          llm=llm,
-          prefix=prefix,
-          toolkit=toolkit,
-          verbose=verbose_logging,
-          agent_type=AgentType.OPENAI_FUNCTIONS
-      )
-    else:
-      self.connection = create_sql_agent(
-          llm=llm,
-          prefix=prefix,
-          toolkit=toolkit,
-          verbose=verbose_logging
-      )
+      model_agent_type = AgentType.OPENAI_FUNCTIONS
       
+    self.connection = create_sql_agent(
+      llm=llm,
+      prefix=prefix,
+      toolkit=toolkit,
+      verbose=verbose_logging,
+      agent_type=model_agent_type
+    )
+
   def close(self) -> None:
     """Closes connection to database."""
     pass
