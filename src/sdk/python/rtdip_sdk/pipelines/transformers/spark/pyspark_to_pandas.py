@@ -12,28 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-from pyspark.sql import SparkSession
-from py4j.protocol import Py4JJavaError
-from pandas import DataFrame
+from pyspark.sql.dataframe import DataFrame as PySparkDataFrame
+from pandas import DataFrame as PandasDataFrame
 
-from ..interfaces import UtilitiesInterface
-from .configuration import SparkConfigurationUtility
+from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
-class PandasToPySparkDFUtility(UtilitiesInterface):
+class PySparkToPandasTransformer(TransformerInterface):
     '''
-    Converts a Pandas DataFrame to a PySpark DataFrame
+    Converts a PySpark DataFrame to a Pandas DataFrame
 
     Args:
-        spark (SparkSession): Spark Session required to convert DataFrame
-        df (DataFrame): Pandas DataFrame to be converted
+        df (DataFrame): PySpark DataFrame to be converted
     ''' 
-    spark: SparkSession
-    df: DataFrame
+    df: PySparkDataFrame
 
-    def __init__(self, spark: SparkSession, df: DataFrame) -> None:
-        self.spark = spark
+    def __init__(self, df: PySparkDataFrame) -> None:
         self.df = df
 
     @staticmethod
@@ -52,15 +46,17 @@ class PandasToPySparkDFUtility(UtilitiesInterface):
     @staticmethod
     def settings() -> dict:
         return {}
+    
+    def pre_transform_validation(self):
+        return True
+    
+    def post_transform_validation(self):
+        return True
 
-    def execute(self) -> DataFrame:
-        try:
-            df = self.spark.createDataFrame(self.df)
-            return df
-        
-        except Py4JJavaError as e:
-            logging.exception(e.errmsg)
-            raise e
-        except Exception as e:
-            logging.exception(str(e))
-            raise e
+    def transform(self) -> PandasDataFrame:
+        '''
+        Returns:
+            DataFrame: A Pandas dataframe converted from a PySpark DataFrame.
+        '''
+        df = self.df.toPandas()
+        return df

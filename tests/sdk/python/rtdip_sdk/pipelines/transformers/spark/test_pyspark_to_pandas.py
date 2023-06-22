@@ -14,29 +14,28 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.pyspark_to_pandas import PySparkToPandasDFUtility
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.pyspark_to_pandas import PySparkToPandasTransformer
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
+
 import pandas as pd
 from pandas import DataFrame
 from pyspark.sql import SparkSession
-
-def test_conversion_set_up(spark_session: SparkSession):
-    df = spark_session.createDataFrame([(1, "a"), (2, "b"),], ["col1", "col2"])
-    pyspark_conversion_utility = PySparkToPandasDFUtility(spark_session, df)
-
-    assert pyspark_conversion_utility.system_type().value == 2
-    assert pyspark_conversion_utility.libraries() == Libraries()
-    assert isinstance(pyspark_conversion_utility.settings(), dict)
 
 def test_pyspark_to_pandas(spark_session: SparkSession):
     expected_df = pd.DataFrame([[1, 'a'], [2, 'b']], columns=["col1", "col2"])
 
     df = spark_session.createDataFrame([(1, "a"), (2, "b"),], ["col1", "col2"])
 
-    pyspark_conversion_utility = PySparkToPandasDFUtility(spark_session, df)
-    result = pyspark_conversion_utility.execute()
+    pyspark_conversion_transformer = PySparkToPandasTransformer(df)
+    actual_df = pyspark_conversion_transformer.transform()
     
-    assert isinstance(result, DataFrame)
-    assert expected_df.equals(result)
-    assert expected_df.columns.equals(result.columns)
+    assert pyspark_conversion_transformer.system_type().value == 2
+    assert pyspark_conversion_transformer.libraries() == Libraries()
+    assert isinstance(pyspark_conversion_transformer.settings(), dict)
+
+    assert isinstance(actual_df, DataFrame)
+
+    assert expected_df.columns.equals(actual_df.columns)
+    assert expected_df.dtypes.equals(actual_df.dtypes)
+    assert expected_df.equals(actual_df)

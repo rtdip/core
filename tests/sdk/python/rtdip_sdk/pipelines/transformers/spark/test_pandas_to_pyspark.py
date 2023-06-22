@@ -14,29 +14,28 @@
 
 import sys
 sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.pandas_to_pyspark import PandasToPySparkDFUtility
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.pandas_to_pyspark import PandasToPySparkTransformer
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
+
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 import pandas as pd
-
-def test_conversion_set_up(spark_session: SparkSession):
-    df = pd.DataFrame([[1, 'a'], [2, 'b']], columns=["col1", "col2"])
-    pyspark_conversion_utility = PandasToPySparkDFUtility(spark_session, df)
-
-    assert pyspark_conversion_utility.system_type().value == 2
-    assert pyspark_conversion_utility.libraries() == Libraries()
-    assert isinstance(pyspark_conversion_utility.settings(), dict)
 
 def test_pandas_to_pyspark(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame([(1, "a"), (2, "b"),], ["col1", "col2"])
 
     df = pd.DataFrame([[1, 'a'], [2, 'b']], columns=["col1", "col2"])
     
-    pyspark_conversion_utility = PandasToPySparkDFUtility(spark_session, df)
-    result = pyspark_conversion_utility.execute()
+    pyspark_conversion_transformer = PandasToPySparkTransformer(spark_session, df)
+    actual_df = pyspark_conversion_transformer.transform()
 
-    assert isinstance(result, DataFrame)
-    assert expected_df.collect() == result.collect()
-    assert expected_df.columns == result.columns
+    assert pyspark_conversion_transformer.system_type().value == 2
+    assert pyspark_conversion_transformer.libraries() == Libraries()
+    assert isinstance(pyspark_conversion_transformer.settings(), dict)
+
+    assert isinstance(actual_df, DataFrame)
+
+    assert expected_df.columns == actual_df.columns
+    assert expected_df.schema == actual_df.schema
+    assert expected_df.collect() == actual_df.collect()

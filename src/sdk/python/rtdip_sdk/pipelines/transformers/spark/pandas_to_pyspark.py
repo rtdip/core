@@ -12,27 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 from pyspark.sql import SparkSession
-from pyspark.sql.dataframe import DataFrame
-from py4j.protocol import Py4JJavaError
+from pyspark.sql.dataframe import DataFrame as PySparkDataFrame
+from pandas import DataFrame as PandasDataFrame
 
-from ..interfaces import UtilitiesInterface
-from .configuration import SparkConfigurationUtility
+from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
-class PySparkToPandasDFUtility(UtilitiesInterface):
+class PandasToPySparkTransformer(TransformerInterface):
     '''
-    Converts a PySpark DataFrame to a Pandas DataFrame
+    Converts a Pandas DataFrame to a PySpark DataFrame.
 
     Args:
         spark (SparkSession): Spark Session required to convert DataFrame
-        df (DataFrame): PySpark DataFrame to be converted
+        df (DataFrame): Pandas DataFrame to be converted
     ''' 
     spark: SparkSession
-    df: DataFrame
+    df: PandasDataFrame
 
-    def __init__(self, spark: SparkSession, df: DataFrame) -> None:
+    def __init__(self, spark: SparkSession, df: PandasDataFrame) -> None:
         self.spark = spark
         self.df = df
 
@@ -52,15 +50,17 @@ class PySparkToPandasDFUtility(UtilitiesInterface):
     @staticmethod
     def settings() -> dict:
         return {}
+    
+    def pre_transform_validation(self):
+        return True
+    
+    def post_transform_validation(self):
+        return True
 
-    def execute(self) -> DataFrame:
-        try:
-            df = self.df.toPandas()
-            return df
-        
-        except Py4JJavaError as e:
-            logging.exception(e.errmsg)
-            raise e
-        except Exception as e:
-            logging.exception(str(e))
-            raise e
+    def transform(self) -> PySparkDataFrame:
+        '''
+        Returns:
+            DataFrame: A PySpark dataframe converted from a Pandas DataFrame.
+        '''
+        df = self.spark.createDataFrame(self.df)
+        return df
