@@ -39,9 +39,10 @@ class SparkDeltaMergeDestination(DestinationInterface):
 
     Args:
         data (DataFrame): Dataframe to be merged into a Delta Table
-        table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         merge_condition (str): Condition for matching records between dataframe and delta table. Reference Dataframe columns as `source` and Delta Table columns as `target`. For example `source.id = target.id`.
+        table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table. *Either table_name or table_path must be populated*
+        table_path (str): Path for Delta Table to be written.
         when_matched_update_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
         when_matched_delete_list (list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that match the `merge_condition`.
         when_not_matched_insert_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when inserting rows that do not match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
@@ -56,9 +57,10 @@ class SparkDeltaMergeDestination(DestinationInterface):
     '''
     spark: SparkSession
     data: DataFrame
-    table_name: str
     options: dict
     merge_condition: str
+    table_name: str
+    table_path: str
     when_matched_update_list: List[DeltaMergeConditionValues]
     when_matched_delete_list: List[DeltaMergeCondition]
     when_not_matched_insert_list: List[DeltaMergeConditionValues]
@@ -70,10 +72,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
 
     def __init__(self, 
                  spark: SparkSession, 
-                 data: DataFrame, 
-                 table_name:str, 
+                 data: DataFrame,  
                  options: dict,
                  merge_condition: str, 
+                 table_name:str = None,
+                 table_path: str = None,
                  when_matched_update_list: List[DeltaMergeConditionValues] = None, 
                  when_matched_delete_list: List[DeltaMergeCondition] = None,
                  when_not_matched_insert_list: List[DeltaMergeConditionValues] = None,
@@ -84,9 +87,10 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  query_name: str ="DeltaMergeDestination") -> None:
         self.spark = spark
         self.data = data
-        self.table_name = table_name
         self.options = options
         self.merge_condition = merge_condition
+        self.table_name = table_name if table_path is None else None
+        self.table_path = table_path if table_name is None else None
         self.when_matched_update_list = [] if when_matched_update_list is None else when_matched_update_list
         self.when_matched_delete_list = [] if when_matched_delete_list is None else when_matched_delete_list
         self.when_not_matched_insert_list = [] if when_not_matched_insert_list is None else when_not_matched_insert_list
@@ -129,8 +133,13 @@ class SparkDeltaMergeDestination(DestinationInterface):
         return True
 
     def _delta_merge_builder(self, df: DataFrame, try_broadcast_join: bool) -> DeltaMergeBuilder:
-        delta_table = DeltaTable.forName(self.spark, self.table_name)
-
+        if self.table_name is not None:
+            delta_table = DeltaTable.forName(self.spark, self.table_name)
+        elif self.table_path is not None:
+            delta_table = DeltaTable.forPath(self.spark, self.table_path)
+        else:
+            raise ValueError("Either table_name or table_path must be populated")
+        
         if try_broadcast_join == True:
             delta_merge_builder = delta_table.alias("target").merge(
                 source=broadcast(df).alias("source"),

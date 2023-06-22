@@ -27,8 +27,9 @@ class SparkDeltaDestination(DestinationInterface):
 
     Args:
         data (DataFrame): Dataframe to be written to Delta
-        table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table
         options (dict): Options that can be specified for a Delta Table write operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
+        table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table. *Either table_name or table_path must be populated*
+        table_path (str): Path for Delta Table to be written.
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
@@ -43,16 +44,18 @@ class SparkDeltaDestination(DestinationInterface):
         overwriteSchema (bool str): If True, overwrites the schema as well as the table data. (Batch)
     '''
     data: DataFrame
-    table_name: str
     options: dict
+    table_name: str
+    table_path: str
     mode: str
     trigger: str
     query_name: str
 
-    def __init__(self, data: DataFrame, table_name:str, options: dict, mode: str = "append", trigger="10 seconds", query_name="DeltaDestination") -> None:
+    def __init__(self, data: DataFrame, options: dict, table_name:str = None, table_path:str = None, mode: str = "append", trigger="10 seconds", query_name="DeltaDestination") -> None:
         self.data = data
-        self.table_name = table_name
         self.options = options
+        self.table_name = table_name if table_path is None else None
+        self.table_path = table_path if table_name is None else None
         self.mode = mode
         self.trigger = trigger
         self.query_name = query_name
@@ -89,15 +92,27 @@ class SparkDeltaDestination(DestinationInterface):
         Writes batch data to Delta. Most of the options provided by the Apache Spark DataFrame write API are supported for performing batch writes on tables.
         '''
         try:
-            return (
-                self.data
-                .write
-                .format("delta")
-                .mode(self.mode)
-                .options(**self.options)
-                .saveAsTable(self.table_name)
-            )
-
+            if self.table_name is not None:
+                return (
+                    self.data
+                    .write
+                    .format("delta")
+                    .mode(self.mode)
+                    .options(**self.options)
+                    .saveAsTable(self.table_name)
+                )
+            elif self.table_path is not None:
+                return (
+                    self.data
+                    .write
+                    .format("delta")
+                    .mode(self.mode)
+                    .options(**self.options)
+                    .save(self.table_path)
+                )
+            else:
+                raise ValueError("Either table_name or table_path must be populated")
+            
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e
@@ -110,16 +125,30 @@ class SparkDeltaDestination(DestinationInterface):
         Writes streaming data to Delta. Exactly-once processing is guaranteed
         '''
         try:
-            query = (
-                self.data
-                .writeStream
-                .trigger(processingTime=self.trigger)
-                .format("delta")
-                .queryName(self.query_name)
-                .outputMode(self.mode)
-                .options(**self.options)
-                .toTable(self.table_name)
-            )
+            if self.table_name is not None: 
+                query = (
+                    self.data
+                    .writeStream
+                    .trigger(processingTime=self.trigger)
+                    .format("delta")
+                    .queryName(self.query_name)
+                    .outputMode(self.mode)
+                    .options(**self.options)
+                    .toTable(self.table_name)
+                )
+            elif self.table_path is not None:
+                query = (
+                    self.data
+                    .writeStream
+                    .trigger(processingTime=self.trigger)
+                    .format("delta")
+                    .queryName(self.query_name)
+                    .outputMode(self.mode)
+                    .options(**self.options)
+                    .start(self.table_path)
+                )
+            else:
+                raise ValueError("Either table_name or table_path must be populated")
             
             while query.isActive:
                 if query.lastProgress:
