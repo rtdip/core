@@ -19,6 +19,7 @@ from packaging.version import Version as PyPIVersion
 
 def _get_databricks_package_versions(databricks_runtime_version, package_name):
     if package_name == "pyspark":
+        from databricks.sdk.runtime import spark
         return spark.version
     elif package_name == "delta-spark":
         if Version.compare(databricks_runtime_version, Version.parse("13.1", optional_minor_and_patch=True)) >= 0:
