@@ -41,7 +41,7 @@ INSTALL_REQUIRES = [
   "grpcio>=1.48.1",
   "grpcio-status>=1.48.1",
   "googleapis-common-protos>=1.56.4",
-  "langchain==0.0.200",
+  "langchain==0.0.208",
   "openai==0.27.8"
 ]
 
