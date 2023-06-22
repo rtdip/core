@@ -16,6 +16,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain import SQLDatabase
 from langchain.agents import create_sql_agent
 from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain.agents.agent_types import AgentType
 import logging
 
 from ..._sdk_utils.compare_versions import _package_version_meets_minimum
@@ -64,7 +65,8 @@ class ChatOpenAIDatabricksConnection(ConnectionInterface):
         llm=llm,
         prefix=prefix,
         toolkit=toolkit,
-        verbose=verbose_logging
+        verbose=verbose_logging,
+        agent_type=AgentType.OPENAI_FUNCTIONS
     )
 
   def close(self) -> None:
@@ -113,12 +115,12 @@ class ChatOpenAIDatabricksSQLCursor(CursorInterface):
     Args:
         query: sql query to execute on ChatGPT and the Databricks Cluster or SQL Warehouse
     """
-    try:  
+    try:
       self.response = self.cursor.run(query)
     except Exception as e:
       logging.exception('error while executing the query')
       raise e
-
+    
   def fetch_all(self) -> list: 
     """
     Gets all rows of a query.
