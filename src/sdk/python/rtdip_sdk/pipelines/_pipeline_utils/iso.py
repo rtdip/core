@@ -23,4 +23,9 @@ MISO_SCHEMA = StructType([
             StructField("LRZ6", DoubleType(), True),
             StructField("LRZ8_9_10", DoubleType(), True),
             StructField("MISO", DoubleType(), True),
+            ]),
+
+PJM_SCHEMA = StructType([
+            # may not be needed....check.... https://dataminer2.pjm.com/feed/load_frcstd_hist/definition
+            # cannot access actual api portal....don't have creds
             ])

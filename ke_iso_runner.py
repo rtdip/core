@@ -14,18 +14,18 @@ logging.getLogger().setLevel("INFO")
 step_list = []
 # pip install pyspark==3.2.2
 step_list.append(PipelineStep(
-    name="test_step1", 
+    name="test_step1",
     description="test_step1",
-    component=PJMDailyLoadISOSource,
+    component=MISODailyLoadISOSource,
+    # component=MISODailyLoadISOSource,
     component_parameters={"options": {
         # "start_date": "20230510",
         # "end_date": "20230520",
         "load_type": "actual",
         "date": "20230520",
-        "api_key": "551c046fcf4c4f11b8f2c0a82c086602"
-        # "table_name": "pjm_iso_data"
+        # "table_name": "miso_iso_data"
     },
-        # "table_name":"pjm_iso_data"
+        # "table_name":"miso_iso_data"
     },
     #provide_output_to_step=["test_step2", "test_step4"]
     provide_output_to_step=["test_step3", "test_step5"]
@@ -35,7 +35,7 @@ step_list.append(PipelineStep(
 # step_list.append(PipelineStep(
 #     name="test_step2",
 #     description="test_step2",
-#     component=PJMToMDMTransformer,
+#     component=MISOToMDMTransformer,
 #     component_parameters={
 #         "output_type": "usage",
 #     },
@@ -49,7 +49,7 @@ step_list.append(PipelineStep(
     description="test_step3",
     component=SparkDeltaDestination,
     component_parameters={
-        "table_name": "pjm_iso_usage_data",
+        "table_name": "miso_iso_usage_data",
         "options": {
             "partitionBy":"timestamp"
 
@@ -63,7 +63,7 @@ step_list.append(PipelineStep(
 # step_list.append(PipelineStep(
 #     name="test_step4",
 #     description="test_step4",
-#     component=PJMToMDMTransformer,
+#     component=MISOToMDMTransformer,
 #     component_parameters={
 #         "output_type": "meta",
 #     },
@@ -77,7 +77,7 @@ step_list.append(PipelineStep(
     description="test_step5",
     component=SparkDeltaDestination,
     component_parameters={
-        "table_name": "pjm_iso_meta_data",
+        "table_name": "miso_iso_meta_data",
         "options": {},
         "mode": "overwrite"
     },
