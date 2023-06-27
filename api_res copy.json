@@ -1,0 +1,3609 @@
+{
+    "links": [
+        {
+            "rel": "self",
+            "href": "https://api.pjm.com/api/v1"
+        }
+    ],
+    "items": [
+        {
+            "id": 19,
+            "feedId": 33,
+            "name": "act_sch_interchange",
+            "displayName": "Actual/Schedule Summary Report",
+            "description": "Hourly actual, scheduled, and inadvertent flows by tie line for each hour. Positive Values represent an import into PJM and Negative Values represent and export from PJM",
+            "category": "Imports and Exports",
+            "firstAvailable": "2014-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_033_act_sch_interchange",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Weekly",
+            "postingDay": "Every Sunday at 08:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T17:28:35",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/act_sch_interchange"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/act_sch_interchange/metadata"
+                }
+            ]
+        },
+        {
+            "id": 118,
+            "feedId": 155,
+            "name": "annual_zonal_nspl",
+            "displayName": "Annual Zonal Network Service Peak Loads",
+            "description": "This feed provides the annual Network Service Peak Load (NSPL) MW values by transmission zone. Annual NSPLs are effective January 1 through December 31. Annual updates are posted in October (preliminary) and November (final) of the year prior to the January 1st effective date. The annual NSPL value for each year represents the highest MW hour from the previous November 1 through October 31.",
+            "category": "Load",
+            "firstAvailable": "2022-01-01T00:00:00",
+            "version": "0",
+            "internalName": "f_155_annual_zonal_nspl",
+            "defaultSearchJson": "{\"RowCount\":100,\"Order\":0,\"StartRow\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Yearly",
+            "postingDay": "Yearly",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-11-17T16:09:30",
+            "updated": "2022-11-17T16:09:30",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/annual_zonal_nspl"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/annual_zonal_nspl/metadata"
+                }
+            ]
+        },
+        {
+            "id": 83,
+            "feedId": 207,
+            "name": "area_control_error",
+            "displayName": "Area Control Error",
+            "description": "This feed provides Area Control Error (ACE) value for the PJM Control Area.  ACE is a measure of the imbalance between sources of power and uses of power within the PJM RTO. The ACE calculation uses the difference between scheduled and actual net interchange plus the PJM RTO frequency bias contribution. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "System Information",
+            "version": "1",
+            "internalName": "f_207_area_control_error",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"area\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 15 seconds",
+            "postingDay": "Every 15 seconds",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-02-03T06:37:00",
+            "updated": "2023-06-01T20:36:34.0074753",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/area_control_error"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/area_control_error/metadata"
+                }
+            ]
+        },
+        {
+            "id": 58,
+            "feedId": 112,
+            "name": "bal_trns_cong_prelim_billing",
+            "displayName": "Balancing Transmission Congestion Preliminary Billing Data",
+            "description": "This feed contain hourly billing rates for Balancing Transmission Congestion Credit allocation.\u00a0 These values are for information purpose only and are subject to change through the fifth business day of the following month. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Settlements",
+            "firstAvailable": "2017-06-01T00:00:00",
+            "version": "1",
+            "internalName": "f_112_bal_trns_cong_prelim_billing",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"thismonth\"}],\"sort\":\"datetime_beginning_utc\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 10:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-06-13T10:43:11",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/bal_trns_cong_prelim_billing"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/bal_trns_cong_prelim_billing/metadata"
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "feedId": 46,
+            "name": "day_inc_dec_utc",
+            "displayName": "Daily Cleared INCs, DECs and UTCs",
+            "description": "Daily cleared virtual transactions in the Day Ahead Energy Market",
+            "category": "Bid and Offer Data",
+            "firstAvailable": "2011-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_046_day_inc_dec_utc",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"day_ahead_market_date\": \"thismonth\" }  ], \"sort\": \"day_ahead_market_date\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 04:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-08T14:00:00",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/day_inc_dec_utc"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/day_inc_dec_utc/metadata"
+                }
+            ]
+        },
+        {
+            "id": 53,
+            "feedId": 10,
+            "name": "day_gen_capacity",
+            "displayName": "Daily Generation Capacity",
+            "description": "PJM available generation capacity including total economic and emergency maximum MW offered and total generation committed via the PJM RPM Capacity Market",
+            "category": "Generation",
+            "firstAvailable": "2012-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_010_day_gen_capacity",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"bid_datetime_beginning_ept\": \"yesterday\" }  ], \"sort\": \"bid_datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-01-01T00:00:00",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/day_gen_capacity"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/day_gen_capacity/metadata"
+                }
+            ]
+        },
+        {
+            "id": 49,
+            "feedId": 109,
+            "name": "uplift_by_zone",
+            "displayName": "Daily Uplift by Zone",
+            "description": "This data shows daily uplift credits by zone. Data is posted monthly after the closing of the monthly settlement. Data for a given month is initially computed at that time, and is updated in the following two months. THIS FEED IS RETIRED from August 10th, 2019 onwards as part of FERC Order 844. The uplift credits information can be found in Daily Uplift Credits by Zone feed",
+            "category": "Retired",
+            "firstAvailable": "2016-04-01T00:00:00",
+            "version": "1",
+            "internalName": "f_109_uplift_by_zone",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"uplift_credit_date\": \"lastmonth\" }  ], \"sort\": \"uplift_credit_date\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 7th of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-13T13:36:30",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/uplift_by_zone"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/uplift_by_zone/metadata"
+                }
+            ]
+        },
+        {
+            "id": 76,
+            "feedId": 126,
+            "name": "uplift_charges_by_zone",
+            "displayName": "Daily Uplift Charges by Zone",
+            "description": "This data shows daily uplift charges by zone. The data is posted monthly after the closing of the monthly settlement. Data for a given month is initially computed at that time, and is reposted the following four months to reflect settlements adjustments. Data will be posted on a monthly basis starting August 10th 2019 as required by FERC Order 844. Because this data became public as a result of Order 844, data for months prior to July 2019 cannot be published.",
+            "category": "Uplift",
+            "firstAvailable": "2019-07-01T00:00:00",
+            "version": "1",
+            "internalName": "f_126_uplift_charges_by_zone",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_utc\":\"lastmonth\"}],\"sort\":\"datetime_beginning_utc\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 10th of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-01-29T16:08:04",
+            "updated": "2023-06-01T20:37:15.0106862",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/uplift_charges_by_zone"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/uplift_charges_by_zone/metadata"
+                }
+            ]
+        },
+        {
+            "id": 79,
+            "feedId": 129,
+            "name": "uplift_credits_by_zone",
+            "displayName": "Daily Uplift Credits by Zone",
+            "description": "This data shows daily uplift credits by zone. The data is posted monthly after the closing of the monthly settlement. Data for a given month is initially computed at that time, and is reposted in the following four months to reflect settlements adjustments. This feed will have substantively the same information as retired Uplift by Zone feed but the Credit Type pivoted into one single column to better correlate with other data required by FERC Order 844. Data will be posted on a monthly basis starting August 10th 2019 as required by FERC Order 844. Because this data became public as a result of Order 844, data for months prior to July 2019 cannot be published.",
+            "category": "Uplift",
+            "firstAvailable": "2019-07-01T00:00:00",
+            "version": "1",
+            "internalName": "f_129_uplift_credits_by_zone",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"uplift_credit_date\": \"lastmonth\" }  ], \"sort\": \"uplift_credit_date\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 10th of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-01-29T16:00:00",
+            "updated": "2019-01-29T16:00:00",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/uplift_credits_by_zone"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/uplift_credits_by_zone/metadata"
+                }
+            ]
+        },
+        {
+            "id": 37,
+            "feedId": 50,
+            "name": "da_interface_flows_and_limits",
+            "displayName": "Day Ahead Interface Flows and Limits",
+            "description": "This feed contains the hourly Day Ahead Flow MW and Limit MW for each Interface Limit Name",
+            "category": "Imports and Exports",
+            "firstAvailable": "2014-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_050_da_interface_flows_and_limits",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"today\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily between 12:00 noon and 03:15 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-27T14:47:12",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/da_interface_flows_and_limits"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/da_interface_flows_and_limits/metadata"
+                }
+            ]
+        },
+        {
+            "id": 112,
+            "feedId": 147,
+            "name": "da_ancillary_services",
+            "displayName": "Day-Ahead Ancillary Service LMPs",
+            "description": "This feed contains Day-Ahead Hourly Ancillary Services pricing (LMP) data. RSS Notification for this feed contains Market Day.",
+            "category": "Locational Marginal Prices",
+            "firstAvailable": "2022-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_147_da_ancillary_services",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"tomorrow\"},{\"row_is_current\":1}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "version",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11 a.m. and 12 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-10T13:58:02",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/da_ancillary_services"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/da_ancillary_services/metadata"
+                }
+            ]
+        },
+        {
+            "id": 111,
+            "feedId": 146,
+            "name": "da_reserve_market_results",
+            "displayName": "Day-Ahead Ancillary Service Market Results",
+            "description": "This feed provides the Day-Ahead Markets results for Ancillary Services including MW quantities and prices.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2022-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_146_da_reserve_market_results",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"tomorrow\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-09-29T16:12:05",
+            "updated": "2022-09-29T16:12:05",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/da_reserve_market_results"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/da_reserve_market_results/metadata"
+                }
+            ]
+        },
+        {
+            "id": 45,
+            "feedId": 6,
+            "name": "da_hrl_lmps",
+            "displayName": "Day-Ahead Hourly LMPs",
+            "description": "This feed contains hourly Day-Ahead Energy Market locational marginal pricing (LMP) data for all bus locations, including aggregates. RSS Notification for this feed contains Market Day. To enhance the performance of current data queries and to better handle the increasing volume, PJM has implemented an archiving solution for this posting. The archived data is still available, but has slightly less flexibility on querying parameters than the more recent data does. The details of the restrictions and expected results for several filter combinations are detailed in the https://pjm.com/markets-and-operations/etools/data-miner-2.aspx. Data for this feed is archived after two years.",
+            "category": "Locational Marginal Prices",
+            "firstAvailable": "2000-06-01T00:00:00",
+            "version": "1",
+            "internalName": "f_006_da_hrl_lmps",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"today\"},{\"row_is_current\":1}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "Version",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily between 12:00 p.m. and 01:30 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-10T14:42:49",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/da_hrl_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/da_hrl_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "feedId": 14,
+            "name": "da_marginal_value",
+            "displayName": "Day-Ahead Marginal Value",
+            "description": "This feed contains dates and times for binding constraints along with the marginal value, also called the shadow price, for those constraints in the Day-Ahead Energy Market",
+            "category": "Constraints",
+            "firstAvailable": "2010-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_014_da_marginal_value",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"thismonth\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily between 12:00 p.m. and 02:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T17:23:15",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/da_marginal_value"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/da_marginal_value/metadata"
+                }
+            ]
+        },
+        {
+            "id": 84,
+            "feedId": 131,
+            "name": "pjm_miso_da",
+            "displayName": "Day-Ahead PJM MISO Market to Market Settlement Adjustments",
+            "description": "This feed contains Hourly Day-Ahead MISO-PJM market-to-market settlement data for every flowgate that had coordinated operation (FFE Exchange).",
+            "category": "Settlements",
+            "firstAvailable": "2016-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_131_pjm_miso_da",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"currentmonth\" }\u00a0 ], \"sort\": \"datetime_beginning_utc\", \"order\": 0\u00a0 }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 06:00 p.m.",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-01-17T11:17:00",
+            "updated": "2023-06-01T20:37:18.9843371",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/pjm_miso_da"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/pjm_miso_da/metadata"
+                }
+            ]
+        },
+        {
+            "id": 109,
+            "feedId": 144,
+            "name": "da_ratings",
+            "displayName": "Day-Ahead Ratings",
+            "description": "This feeds contains the Day-Ahead ratings used in the Day-Ahead case for the market day",
+            "category": "Constraints",
+            "firstAvailable": "2022-02-04T00:00:00",
+            "version": "0",
+            "internalName": "f_144_da_ratings",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"tomorrow\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 11:30 a.m.",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-02-03T16:04:18",
+            "updated": "2022-02-03T16:04:18",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/da_ratings"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/da_ratings/metadata"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "feedId": 24,
+            "name": "dasr_results",
+            "displayName": "Day-Ahead Scheduling Reserve",
+            "description": "This feed contains hourly billing data for the Day Ahead Scheduling Reserve Market. These values are for informational purposes only and are subject to change once actual settlement calculations are performed. THIS FEED IS RETIRED as of September 30, 2022 as part of PJM Comprehensive Pricing Reform.",
+            "category": "Retired",
+            "firstAvailable": "2008-06-01T00:00:00",
+            "version": "1",
+            "internalName": "f_024_dasr_results",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"currentmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-14T11:48:04",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/dasr_results"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/dasr_results/metadata"
+                }
+            ]
+        },
+        {
+            "id": 65,
+            "feedId": 118,
+            "name": "da_tempset",
+            "displayName": "Day-Ahead Temperature Sets",
+            "description": "This feed contains the zonal temperature sets for Day-Ahead Market.",
+            "category": "System Information",
+            "firstAvailable": "2018-07-01T00:00:00",
+            "version": "1",
+            "internalName": "f_118_da_tempset",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"today\"}],\"sort\":\"datetime_beginning_ept\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily between 12:00 p.m. and 05:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2018-05-09T11:53:26",
+            "updated": "2023-06-01T20:37:12.5991762",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/da_tempset"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/da_tempset/metadata"
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "feedId": 3,
+            "name": "da_transconstraints",
+            "displayName": "Day-Ahead Transmission Constraints",
+            "description": "Start and End times for constraints in the Day-Ahead Energy Market",
+            "category": "Constraints",
+            "firstAvailable": "2010-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_003_da_transconstraints",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"thismonth\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily between 12:00 p.m. and 02:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T10:48:44",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/da_transconstraints"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/da_transconstraints/metadata"
+                }
+            ]
+        },
+        {
+            "id": 87,
+            "feedId": 209,
+            "name": "dispatched_reserves",
+            "displayName": "Dispatched Reserves",
+            "description": "This feed provides the Dispatched reserves that are the additional generation capacity dispatched to act as reserves based on the security-constrained economic dispatch solution. The quantity, requirement and clearing price for each type of reserve are solved for a near-term (five minute) look-ahead interval generated during the operating day. Prices are subjected change post verification process. The purpose of dispatching reserves is to recover the Area Control Error to its pre-contingency level within the allotted timeframe caused by a resource loss, large tie errors and under frequency conditions. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Ancillary Services",
+            "version": "1",
+            "internalName": "f_209_dispatched_reserves",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-04-29T17:20:57",
+            "updated": "2020-04-29T17:20:57",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/dispatched_reserves"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/dispatched_reserves/metadata"
+                }
+            ]
+        },
+        {
+            "id": 52,
+            "feedId": 9,
+            "name": "energy_market_offers",
+            "displayName": "Energy Market Generation Offers",
+            "description": "This data contains detail on offers by generators into the PJM Day-Ahead Energy Market. Generator identification is masked to prevent revealing of confidential information, and the masked codes are changed annually. As part of PJM Price Formation efforts, PJM implemented 10 additional BID segments on ramp rate and incremental offers effective January 2021. Additional columns are added to this feed to reflect the data. Please note that the values in these additional columns prior to January 2021 will be blank but those values do not represent a NULL MW or MWH portions of the offers. Data is posted on a four-month delay.",
+            "category": "Bid and Offer Data",
+            "firstAvailable": "2017-11-01T00:00:00",
+            "version": "1",
+            "internalName": "f_009_energy_market_offers",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"bid_datetime_beginning_ept\": \"4MonthsAgo\" }  ], \"sort\": \"bid_datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 1st of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2018-03-23T02:23:00",
+            "updated": "2018-03-23T02:25:00",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/energy_market_offers"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/energy_market_offers/metadata"
+                }
+            ]
+        },
+        {
+            "id": 47,
+            "feedId": 107,
+            "name": "mnt_efor",
+            "displayName": "Equivalent Forced Outage Rates - Monthly",
+            "description": "Equivalent Forced Outage Rates (EFORd) by unit type and size",
+            "category": "Generation",
+            "firstAvailable": "2006-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_107_mnt_efor",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"eford_date_beginning\": \"thisyear\" }  ], \"sort\": \"eford_date_beginning\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 6th of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-27T14:43:27",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/mnt_efor"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/mnt_efor/metadata"
+                }
+            ]
+        },
+        {
+            "id": 95,
+            "feedId": 216,
+            "name": "five_min_itsced_lmps",
+            "displayName": "Five Minute ITSCED LMPs",
+            "description": "This feed provides IT SCED prices for ties between areas bordering PJM as well as aggregate for ties between PJM and MISO and all PJM ties. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Locational Marginal Prices",
+            "version": "0",
+            "internalName": "f_216_five_min_itsced_lmps",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"case_approval_datetime_ept\": \"5minutesago\" }  ], \"sort\": \"case_approval_datetime_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "append only",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-06-25T16:05:41",
+            "updated": "2020-06-25T16:05:41",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/five_min_itsced_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/five_min_itsced_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 73,
+            "feedId": 205,
+            "name": "very_short_load_frcst",
+            "displayName": "Five Minute Load Forecast",
+            "description": "This feed contains the Five-minute load forecast data showing forecast amounts every five minutes for a two hour window by area. This forecast is updated every five minutes. The data is presented for 25 areas to maintain consistency with the seven day load forecasts - PJM's market clearing engine uses EKPC, MID_ATLANTIC_REGION, AP, COMED, AEP, DOMINION, DUQUESNE, ATSI, DEOK, DAYTON. Missing intervals data for this feed will be made available at the end of the calendar day. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Load Forecast",
+            "version": "1",
+            "internalName": "f_205_very_short_load_frcst",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"evaluated_at_ept\": \"CurrentHour\" }  ], \"sort\": \"evaluated_at_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-04-03T11:49:00",
+            "updated": "2019-04-03T11:49:00",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/very_short_load_frcst"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/very_short_load_frcst/metadata"
+                }
+            ]
+        },
+        {
+            "id": 106,
+            "feedId": 221,
+            "name": "fivemin_marginal_emissions",
+            "displayName": "Five Minute Marginal Emission Rates",
+            "description": "This data contains the marginal emissions rates for individual load nodes on the wholesale grid. For a more detailed description of the data, how it is calculated, and what it means, please review 'https://www.pjm.com/-/media/etools/data-miner-2/marginal-emissions-primer.ashx'. PJM provides this information to help further inform stakeholders and policy makers as to the real-time conditions of the system. Because of the various constraints involved, PJM cannot make any guarantees as to the accuracy of the information, and PJM does not support the use of this information by any party to demonstrate compliance with environmental mandates in any jurisdiction. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Generation",
+            "version": "0",
+            "internalName": "f_221_fivemin_marginal_emissions",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "2 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2021-07-14T16:09:29",
+            "updated": "2021-07-14T16:09:29",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/fivemin_marginal_emissions"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/fivemin_marginal_emissions/metadata"
+                }
+            ]
+        },
+        {
+            "id": 96,
+            "feedId": 217,
+            "name": "five_min_solar_generation",
+            "displayName": "Five Minute Solar Generation",
+            "description": "This feed provides the five minute solar generation for PJM RTO area. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Generation",
+            "version": "0",
+            "internalName": "f_217_solar_generation_5min",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-06-25T16:05:41",
+            "updated": "2020-06-25T16:05:41",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/five_min_solar_generation"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/five_min_solar_generation/metadata"
+                }
+            ]
+        },
+        {
+            "id": 92,
+            "feedId": 214,
+            "name": "five_min_solar_power_forecast",
+            "displayName": "Five Minute Solar Power Forecast",
+            "description": "This feed contains the five minute power forecast within PJM area for metered- utility scale solar power and behind the meter solar power such as residential solar panels Behind The Meter (BTM) solar power is aggregated and handled through Load Serving Entities (LSE), not directly through PJM. The forecast is updated every 10 minutes with the previous two five minute intervals. Forecast data is available for the next 6 hours. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Generation",
+            "version": "0",
+            "internalName": "f_214_five_min_solar_power_forecast",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"evaluated_at_ept\": \"5minutesago\" }  ], \"sort\": \"evaluated_at_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 10 minutes",
+            "postingDay": "Every 10 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-05-28T17:04:06",
+            "updated": "2020-05-28T17:04:06",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/five_min_solar_power_forecast"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/five_min_solar_power_forecast/metadata"
+                }
+            ]
+        },
+        {
+            "id": 94,
+            "feedId": 218,
+            "name": "five_min_tie_flows",
+            "displayName": "Five Minute Tie Flows",
+            "description": "This feed contains Tie flows (power flows) between PJM and neighboring control areas. Positive values are for net megawatt (MW) flows into PJM, while negative values are for net MW flows out of PJM. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "System Information",
+            "version": "0",
+            "internalName": "f_218_five_min_tie_flows",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-05-28T17:04:06",
+            "updated": "2020-05-28T17:04:06",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/five_min_tie_flows"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/five_min_tie_flows/metadata"
+                }
+            ]
+        },
+        {
+            "id": 93,
+            "feedId": 215,
+            "name": "five_min_wind_power_forecast",
+            "displayName": "Five Minute Wind Power Forecast",
+            "description": "This feed contains the five minute Wind Forecast within PJM area. The forecast is updated every 10 minutes with the previous two five minute intervals. Forecast data is available for the next 6 hours. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Generation",
+            "version": "0",
+            "internalName": "f_215_five_min_wind_power_forecast",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"evaluated_at_ept\": \"LastHour\" }  ], \"sort\": \"evaluated_at_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 10 minutes",
+            "postingDay": "Every 10 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-05-28T17:04:06",
+            "updated": "2020-05-28T17:04:06",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/five_min_wind_power_forecast"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/five_min_wind_power_forecast/metadata"
+                }
+            ]
+        },
+        {
+            "id": 55,
+            "feedId": 1,
+            "name": "agg_definitions",
+            "displayName": "Fixed Weighted Average Aggregate Definitions",
+            "description": "This feed contains the bus distribution factors used in settlements for aggregates with static definitions effective as of the date indicated in Last Updated date. Includes static definitions for hub, interface, load, generation, EHV and FTR apportionment zone",
+            "category": "LMP Model",
+            "firstAvailable": "2008-05-14T00:00:00",
+            "version": "1",
+            "internalName": "f_001_agg_definitions",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"terminate_date_ept\":\"12/31/9999 exact\" }  ], \"sort\": \"agg_pnode_name\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily between 5 a.m. and 6 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T17:10:28",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/agg_definitions"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/agg_definitions/metadata"
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "feedId": 34,
+            "name": "frcstd_gen_outages",
+            "displayName": "Forecasted Generation Outages",
+            "description": "This data contains the megawatt totals of forecasted generation outages for the next ninety days. An expected megawatt total is listed for each day for the next ninety days and broken down by sub-regions in PJM. These values are forecasts based on available information. It is provided for informational purposes only and should not be relied upon by any party for actual billing values.",
+            "category": "Generation",
+            "firstAvailable": "2013-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_034_frcstd_gen_outages",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"forecast_execution_date_ept\": \"thismonth\" }  ], \"sort\": \"forecast_execution_date_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 04:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-12-20T14:55:07",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/frcstd_gen_outages"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/frcstd_gen_outages/metadata"
+                }
+            ]
+        },
+        {
+            "id": 33,
+            "feedId": 47,
+            "name": "ftr_bids_annual",
+            "displayName": "FTR Auction Bids - Annual",
+            "description": "This feed contains data for all bids into the PJM Annual Financial Transmission Rights Auctions. This data is posted on a four month delay.",
+            "category": "Financial Transmission Rights",
+            "firstAvailable": "2011-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_047_ftr_bids_annual",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"sort\": \"market_name\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Yearly",
+            "postingDay": "Yearly October 1st",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-01-01T00:00:00",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ftr_bids_annual"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ftr_bids_annual/metadata"
+                }
+            ]
+        },
+        {
+            "id": 35,
+            "feedId": 48,
+            "name": "ftr_bids_long_term",
+            "displayName": "FTR Auction Bids - Long-Term Auction",
+            "description": "This feed contains data for all bids into the PJM Long Term Financial Transmission Rights Auctions. This data is posted yearly on October 1st, December 1st, February 1st, April 1st, and July 1st.",
+            "category": "Financial Transmission Rights",
+            "firstAvailable": "2011-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_048_ftr_bids_long_term",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"sort\": \"market_name\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Yearly October 1st",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T10:58:06",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ftr_bids_long_term"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ftr_bids_long_term/metadata"
+                }
+            ]
+        },
+        {
+            "id": 36,
+            "feedId": 49,
+            "name": "ftr_bids_mnt",
+            "displayName": "FTR Auction Bids - Monthly",
+            "description": "This feed contains data for all bids into the PJM Monthly Financial Transmission Rights Auctions. This data is posted on a four month delay.",
+            "category": "Financial Transmission Rights",
+            "firstAvailable": "2006-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_049_ftr_bids_mnt",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"sort\": \"market_name\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 1st of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T17:35:01",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ftr_bids_mnt"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ftr_bids_mnt/metadata"
+                }
+            ]
+        },
+        {
+            "id": 81,
+            "feedId": 133,
+            "name": "ftr_cong_lmp",
+            "displayName": "FTR Credit Calculator Congestion LMPs",
+            "description": "This feed presents data for the Congestion Locational Marginal Prices used in the FTR credit calculator. Adjusted cLMPs are the historical cLMPs adjusted by PROMOD production cost simulation, which considers certain transmission upgrades. This adjustment is different for annual and long term auctions, and the values will be reflected by pulling data through different time periods. Four new columns are added to this feed on 9/10/2022 as per ARR/FTR Enhancement FPA 205 filing. Data for these new columns prior to 6/1/2022 will be blank.",
+            "category": "Financial Transmission Rights",
+            "firstAvailable": "2014-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_133_ftr_cong_lmp",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"effective_day\":\"thisyear\"}],\"sort\":\"terminate_day\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Yearly",
+            "postingDay": "Yearly between March 27th to April 4th",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-07-01T16:08:32",
+            "updated": "2023-06-01T20:37:20.7387966",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ftr_cong_lmp"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ftr_cong_lmp/metadata"
+                }
+            ]
+        },
+        {
+            "id": 22,
+            "feedId": 36,
+            "name": "gen_ehv_losses",
+            "displayName": "Generation and Extra High Voltage Losses",
+            "description": "This data contains the hourly PJM generation and extra high voltage (EHV) loss data for each day. This is informational data only",
+            "category": "Losses",
+            "firstAvailable": "2011-08-11T00:00:00",
+            "version": "1",
+            "internalName": "f_036_gen_ehv_losses",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"thismonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 04:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-04T18:18:53",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/gen_ehv_losses"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/gen_ehv_losses/metadata"
+                }
+            ]
+        },
+        {
+            "id": 48,
+            "feedId": 108,
+            "name": "gen_by_fuel",
+            "displayName": "Generation by Fuel Type",
+            "description": "This data shows the fuel mix of generation resources operating under PJM direction for each hour",
+            "category": "Generation",
+            "firstAvailable": "2016-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_108_gen_by_fuel",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"today\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Hourly 15 minutes past the hour",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-01-27T11:53:26",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/gen_by_fuel"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/gen_by_fuel/metadata"
+                }
+            ]
+        },
+        {
+            "id": 21,
+            "feedId": 35,
+            "name": "gen_outages_by_type",
+            "displayName": "Generation Outage for Seven Days by Type",
+            "description": "This data contains the actual and scheduled megawatt generation outages for today and the next six days. In addition to providing total outages, the data show subtotals for each of the following outage types: unplanned (forced), maintenance, and planned. In order to provide a perspective on outages that are actually occurring or are scheduled to occur during the operating days, only outages with a status of active or approved are included.",
+            "category": "Generation",
+            "firstAvailable": "2015-05-26T00:00:00",
+            "version": "1",
+            "internalName": "f_035_gen_outages_by_type",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"forecast_execution_date_ept\": \"thismonth\" }  ], \"sort\": \"forecast_execution_date_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 06:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-01-09T12:22:46",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/gen_outages_by_type"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/gen_outages_by_type/metadata"
+                }
+            ]
+        },
+        {
+            "id": 77,
+            "feedId": 127,
+            "name": "gen_specific_uplift_credit",
+            "displayName": "Generator Specific Uplift Credits",
+            "description": "This data shows monthly uplift credits by generator. Data is posted monthly with a one month lag. (For example, January data would be posted around March 10th.) Data for a given month is initially computed at that time, and is reposted in the following three months to reflect settlements adjustments. Data will be posted on a monthly basis starting September 10th 2019 as part of FERC Order 844. Because this data became public as a result of Order 844, data for months prior to July 2019 cannot be published.",
+            "category": "Uplift",
+            "version": "1",
+            "internalName": "f_127_gen_specific_uplift_credit",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"uplift_credit_date\":\"lastmonth\"}],\"sort\":\"uplift_credit_date\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 10th of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-01-29T16:08:04",
+            "updated": "2023-06-01T20:37:16.3460672",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/gen_specific_uplift_credit"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/gen_specific_uplift_credit/metadata"
+                }
+            ]
+        },
+        {
+            "id": 28,
+            "feedId": 42,
+            "name": "load_frcstd_hist",
+            "displayName": "Historical Load Forecasts",
+            "description": "This feed provides forecasted load, grouped by the date and time the forecast was created. Forecasts are provided every six hours starting one day prior to the Effective Date",
+            "category": "Load Forecast",
+            "firstAvailable": "2011-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_042_load_frcstd_hist",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"forecast_hour_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"forecast_hour_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily at 08:30 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-01-12T14:50:47",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/load_frcstd_hist"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/load_frcstd_hist/metadata"
+                }
+            ]
+        },
+        {
+            "id": 54,
+            "feedId": 11,
+            "name": "hrl_da_demand_bids",
+            "displayName": "Hourly Day-Ahead Demand Bids",
+            "description": "Aggregated hourly demand bids submitted to the Day-Ahead Energy Market. For each hour, the total MW amount of demand bids are shown summed by the price point of the demand bid. This data is made available on a six month delay",
+            "category": "Bid and Offer Data",
+            "firstAvailable": "2006-06-01T00:00:00",
+            "version": "1",
+            "internalName": "f_011_hrl_da_demand_bids",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"6monthsago\" }], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 1st of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T17:35:44",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hrl_da_demand_bids"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hrl_da_demand_bids/metadata"
+                }
+            ]
+        },
+        {
+            "id": 51,
+            "feedId": 8,
+            "name": "hrl_da_incs_decs",
+            "displayName": "Hourly Day-Ahead Increment Offer and Decrement Bid Data",
+            "description": "This feed contains the virtual bid data for the Day-Ahead Energy Market. The bids are aggregated by pricing point, by bid type, by hour, and by day. This data is posted on four month delay",
+            "category": "Bid and Offer Data",
+            "firstAvailable": "2006-06-01T00:00:00",
+            "version": "1",
+            "internalName": "f_008_hrl_da_incs_decs",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"bid_datetime_beginning_ept\": \"4monthsago\" }  ],\"sort\": \"bid_datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 1st of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-02T17:39:54",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hrl_da_incs_decs"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hrl_da_incs_decs/metadata"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "feedId": 20,
+            "name": "hrl_dmd_bids",
+            "displayName": "Hourly Demand Bid Data",
+            "description": "This feed lists the hourly day-ahead bid data for each market day for PJM, Mid Atlantic and Western regions. As of May 29th, 2020, this feed is updated with a new column to represent the area for hourly bids.",
+            "category": "Bid and Offer Data",
+            "firstAvailable": "2000-06-02T00:00:00",
+            "version": "1",
+            "internalName": "f_020_hrl_dmd_bids",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"today\"}],\"sort\":\"datetime_beginning_ept\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily between 12:00 p.m. and 02:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-22T15:40:38",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hrl_dmd_bids"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hrl_dmd_bids/metadata"
+                }
+            ]
+        },
+        {
+            "id": 30,
+            "feedId": 44,
+            "name": "hrl_load_estimated",
+            "displayName": "Hourly Load: Estimated",
+            "description": "This feed contains estimated integrated hourly loads that are calculated from meter data. Estimated loads reflect revenue-quality meter information but have not yet been verified by the electric distribution companies and are subject to later adjustment. This information is provided for informational purposes only and should not be relied upon by any party for the actual billing values",
+            "category": "Load",
+            "firstAvailable": "1998-04-01T00:00:00",
+            "version": "1",
+            "internalName": "f_044_hrl_load_estimated",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"yesterday\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Weekly Tuesday and Friday",
+            "postingDay": "Weekly Tuesday and Friday at 04:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-01-06T15:32:04",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hrl_load_estimated"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hrl_load_estimated/metadata"
+                }
+            ]
+        },
+        {
+            "id": 31,
+            "feedId": 45,
+            "name": "hrl_load_metered",
+            "displayName": "Hourly Load: Metered",
+            "description": "This feed summarizes the MW-hour net energy for load as consumed by the service territories within the PJM RTO. Data is supplied by the respective electric distribution companies within PJM, and represents the best quality level of metered load within their zones. This data contains company submitted values or PJM generated estimated values substituted where company data is unavailable. The Company Verified flag indicates whether the value has been verified by the electric distribution company. There will be a lag in updated data availability due to wait time for possible corrections. Data adjustments can occur up to 90 days after the actual date. The mapping representation between Control Areas, NERC Regions, Market Regions, Zones and Load Areas from the legacy posting is available here:https://pjm.com/-/media/etools/data-miner-2/hourly-loads-area-mapping.ashx?la=en. This reference document is for informational purposes only and will not be updated.",
+            "category": "Load",
+            "firstAvailable": "1993-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_045_hrl_load_metered",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:30 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-01-26T14:52:13",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hrl_load_metered"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hrl_load_metered/metadata"
+                }
+            ]
+        },
+        {
+            "id": 29,
+            "feedId": 43,
+            "name": "hrl_load_prelim",
+            "displayName": "Hourly Load: Preliminary",
+            "description": "This feed contains preliminary integrated hourly loads that are calculated daily from raw telemetry data and are approximate for informational purposes only. These loads do not reflect confirmed transaction information with the market participants and the external control areas",
+            "category": "Load",
+            "firstAvailable": "2011-08-23T00:00:00",
+            "version": "1",
+            "internalName": "f_043_hrl_load_prelim",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"yesterday\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 04:55 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-01-13T11:49:37",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hrl_load_prelim"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hrl_load_prelim/metadata"
+                }
+            ]
+        },
+        {
+            "id": 119,
+            "feedId": 150,
+            "name": "hourly_marginal_emissions",
+            "displayName": "Hourly Marginal Emission Rates",
+            "description": "This data contains the marginal emissions rates for individual load nodes on the wholesale grid. For a more detailed description of the data, how it is calculated, and what it means, please review https://www.pjm.com/-/media/etools/data-miner-2/marginal-emissions-primer.ashx. PJM provides this information to help further inform stakeholders and policy makers as to the real-time conditions of the system. Because of the various constraints involved, PJM cannot make any guarantees as to the accuracy of the information, and PJM does not support the use of this information by any party to demonstrate compliance with environmental mandates in any jurisdiction.",
+            "category": "Generation",
+            "firstAvailable": "2023-01-01T00:00:00",
+            "version": "0",
+            "internalName": "f_150_hourly_marginal_emissions",
+            "defaultSearchJson": "\u00a0{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"lasthour\" }\u00a0 ], \"sort\": \"datetime_beginning_ept\", \"order\": 1\u00a0 }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Hourly",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "created": "2023-01-10T18:52:00",
+            "updated": "2023-01-10T18:52:00",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hourly_marginal_emissions"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hourly_marginal_emissions/metadata"
+                }
+            ]
+        },
+        {
+            "id": 82,
+            "feedId": 134,
+            "name": "state_net_interchange",
+            "displayName": "Hourly Net Exports by State",
+            "description": "This data shows the amount of imports or exports for individual states in the PJM footprint for each hour. Positive values represent an export from the state, and negative values represent an import. This data may also be thought of as the net generation within the state \u0096 the amount of generation minus the amount of load within a given state. Positive values mean the state is generating more power than it needs for the load within the state. Negative values mean the state\u0092s load exceeds the amount of energy being generated within the state, and more power is being brought in from other areas to serve the load. Note that this data does not take actual power flows into account; it is a netting of the generation and load within a given jurisdiction.",
+            "category": "Imports and Exports",
+            "firstAvailable": "2019-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_134_state_net_interchange",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"today\"}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Hourly",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-01-28T16:08:36",
+            "updated": "2023-06-01T20:37:21.5405251",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/state_net_interchange"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/state_net_interchange/metadata"
+                }
+            ]
+        },
+        {
+            "id": 90,
+            "feedId": 212,
+            "name": "hourly_solar_power_forecast",
+            "displayName": "Hourly Solar Power Forecast",
+            "description": "This feed contains the hourly power forecast within PJM area for metered- utility scale solar power and behind the meter solar power such as residential solar panels. Behind The Meter (BTM) solar power is aggregated and handled through Load Serving Entities (LSE), not directly through PJM. The forecast is updated every hour and is available for the next 48 hours. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Generation",
+            "version": "0",
+            "internalName": "f_212_hourly_solar_power_forecast",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"evaluated_at_ept\": \"lastHour\" }  ], \"sort\": \"evaluated_at_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Hourly",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-05-28T17:04:06",
+            "updated": "2020-05-28T17:04:06",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hourly_solar_power_forecast"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hourly_solar_power_forecast/metadata"
+                }
+            ]
+        },
+        {
+            "id": 120,
+            "feedId": 151,
+            "name": "hourly_emission_rates",
+            "displayName": "Hourly Total Emissions",
+            "description": "This feed shows the estimated total emissions broken down by fuel type for each hour. Average emissions rates are used for the generation resources and these rates do not reflect the specific operating output point of the generator, and as such these values are approximate. Users interested in emissions rates should total up the emissions values and divide by the hourly load. \r\n\r\nNOTE: These figures represent the total emissions for PJM. It is not feasible to provide emissions data for load for any smaller geographic area, zone, state,  or other subset of PJM and PJM will not provide such information.",
+            "category": "Generation",
+            "firstAvailable": "2023-01-01T00:00:00",
+            "version": "0",
+            "internalName": "f_151_hourly_emission_rates",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"lasthour\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Hourly",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "created": "2023-02-16T16:06:37",
+            "updated": "2023-02-16T16:06:37",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hourly_emission_rates"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hourly_emission_rates/metadata"
+                }
+            ]
+        },
+        {
+            "id": 91,
+            "feedId": 213,
+            "name": "hourly_wind_power_forecast",
+            "displayName": "Hourly Wind Power Forecast",
+            "description": "This feed contains the hourly Wind Forecast within PJM area. The forecast is updated every 10 minutes and is available for the next 46 hours. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Generation",
+            "version": "0",
+            "internalName": "f_213_hourly_wind_power_forecast",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"evaluated_at_ept\": \"LastHour\" }  ], \"sort\": \"evaluated_at_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 10 minutes",
+            "postingDay": "Every 10 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-05-28T17:04:06",
+            "updated": "2020-05-28T17:04:06",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/hourly_wind_power_forecast"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/hourly_wind_power_forecast/metadata"
+                }
+            ]
+        },
+        {
+            "id": 70,
+            "feedId": 204,
+            "name": "inst_dispatch_rates",
+            "displayName": "Instantaneous Dispatch Rates",
+            "description": "This feed contains the PJM instantaneous dispatch rates. The following dispatch rate information includes both the PJM electronic dispatch signals and manual dispatch signals. The electronic rates are updated every 15 seconds. The manual rates are updated with a frequency of 1 to 5 minutes and reflect individual generator dispatch. This data is provided for informational purposes ONLY and should not be relied upon by any party for the actual billing values. Missing interval data will not be backfilled due to the nature of the data. This data will be retained for 15 days only. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "System Information",
+            "version": "1",
+            "internalName": "f_204_inst_dispatch_rates",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"15secondsago\" }  ], \"sort\": \"zone\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 15 seconds",
+            "postingDay": "Every 15 seconds",
+            "retentionTime": "15 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-04-03T11:48:45",
+            "updated": "2019-04-03T11:48:45",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/inst_dispatch_rates"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/inst_dispatch_rates/metadata"
+                }
+            ]
+        },
+        {
+            "id": 68,
+            "feedId": 202,
+            "name": "inst_load",
+            "displayName": "Instantaneous Load",
+            "description": "This feed contains the load MW for zones and areas. Loads are calculated from raw telemetry data and are approximate. The displayed values are NOT official PJM Loads. Zonal load is added to this feed as part of edatafeed migration effort. The zonal load data will not be backfilled for dates prior to edatafeed migration. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Load",
+            "version": "0",
+            "internalName": "f_202_inst_load",
+            "defaultSearchJson": "\u00a0{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }\u00a0 ], \"sort\": \"datetime_beginning_utc\", \"order\": 1\u00a0 }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-06-25T16:05:41",
+            "updated": "2020-06-25T16:05:41",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/inst_load"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/inst_load/metadata"
+                }
+            ]
+        },
+        {
+            "id": 89,
+            "feedId": 211,
+            "name": "instantaneous_wind_gen",
+            "displayName": "Instantaneous Wind Generation",
+            "description": "This feed provides the instantaneous wind generation for PJM RTO area. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Generation",
+            "version": "1",
+            "internalName": "f_211_instantaneous_wind_gen",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"15secondsago\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 15 seconds",
+            "postingDay": "Every 15 seconds",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-04-29T17:20:57",
+            "updated": "2020-04-29T17:20:57",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/instantaneous_wind_gen"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/instantaneous_wind_gen/metadata"
+                }
+            ]
+        },
+        {
+            "id": 103,
+            "feedId": 139,
+            "name": "it_sced_bias",
+            "displayName": "IT SCED Bias",
+            "description": "This feed presents the IT SCED Bias values for approved IT SCED cases. Data is updated every fifteen minutes for all the approved cases within the previous fifteen minute interval.",
+            "category": "System Information",
+            "version": "0",
+            "internalName": "f_139_it_sced_bias",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"case_approved_ept\": \"LastHour\" }  ], \"sort\": \"case_approved_ept\", \"order\": 0   }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 15 minutes",
+            "postingDay": "Every 15 minutes",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-12-17T17:10:00",
+            "updated": "2023-06-01T20:37:24.4242961",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/it_sced_bias"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/it_sced_bias/metadata"
+                }
+            ]
+        },
+        {
+            "id": 57,
+            "feedId": 54,
+            "name": "load_recon_bill_deter_daily",
+            "displayName": "Load Reconciliation Billing Determinants - Daily",
+            "description": "This feed contains the daily billing determinants that are used by PJM to reconcile past months billings between Electric Distribution Companies (EDCs) and Retail Load Aggregators for certain allocations that are based on Real-Time load ratio shares. Reconciliation rates are calculated on a two-month lag. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Settlements",
+            "firstAvailable": "2013-05-01T00:00:00",
+            "version": "1",
+            "internalName": "f_054_load_recon_bill_deter_daily",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"determinant_date\":\"lastmonth\"}],\"sort\":\"determinant_date\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 5th Business Day of the Month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-03-22T18:04:08",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/load_recon_bill_deter_daily"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/load_recon_bill_deter_daily/metadata"
+                }
+            ]
+        },
+        {
+            "id": 39,
+            "feedId": 52,
+            "name": "load_recon_bill_deter_hrly",
+            "displayName": "Load Reconciliation Billing Determinants - Hourly",
+            "description": "This feed contains the hourly billing determinants that are used by PJM to reconcile past months billings between Electric Distribution Companies (EDCs) and Retail Load Aggregators for certain allocations that are based on Real-Time load ratio shares. Reconciliation rates are calculated on a two-month lag. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Settlements",
+            "firstAvailable": "2013-05-01T00:00:00",
+            "version": "1",
+            "internalName": "f_052_load_recon_bill_deter_hrly",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"lastmonth\"}],\"sort\":\"datetime_beginning_utc\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 5th Business Day of the Month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T11:10:55",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/load_recon_bill_deter_hrly"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/load_recon_bill_deter_hrly/metadata"
+                }
+            ]
+        },
+        {
+            "id": 38,
+            "feedId": 51,
+            "name": "bill_deter_mnt_load",
+            "displayName": "Load Reconciliation Billing Determinants - Monthly",
+            "description": "This feed contains the monthly billing determinants that are used by PJM to reconcile past months billings between Electric Distribution Companies (EDCs) and Retail Load Aggregators for certain allocations that are based on Real-Time load ratio shares. Reconciliation rates are calculated on a two-month lag. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Settlements",
+            "firstAvailable": "2013-05-01T00:00:00",
+            "version": "1",
+            "internalName": "f_051_bill_deter_mnt_load",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"determinant_month\":\"lastmonth\"}],\"sort\":\"determinant_month\",\"order\":0}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 1st business day of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-27T13:44:41",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/bill_deter_mnt_load"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/bill_deter_mnt_load/metadata"
+                }
+            ]
+        },
+        {
+            "id": 78,
+            "feedId": 128,
+            "name": "demand_response_uplift_credit",
+            "displayName": "Load Response Uplift Credits",
+            "description": "This data shows monthly uplift credits by Demand Response resources. Data is posted monthly with a one month lag. (For example, January data would be posted around March 10th.) Data for a given month is initially computed at that time, and is reposted in the following four months to reflect settlements adjustments. Data will be posted on a monthly basis starting September 10th 2019 as part of FERC Order 844. Because this data became public as a result of Order 844, data for months prior to July 2019 cannot be published.",
+            "category": "Uplift",
+            "version": "1",
+            "internalName": "f_128_demand_response_uplift_credit",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"uplift_credit_date\":\"lastmonth\"}],\"sort\":\"uplift_credit_date\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 10th of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-01-29T16:08:05",
+            "updated": "2023-06-01T20:37:16.9572975",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/demand_response_uplift_credit"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/demand_response_uplift_credit/metadata"
+                }
+            ]
+        },
+        {
+            "id": 105,
+            "feedId": 141,
+            "name": "lpc_bias",
+            "displayName": "LPC Bias",
+            "description": "This feed presents the LPC Bias values for approved LPC cases. Data is updated every fifteen minutes for all the approved cases within the previous fifteen minute interval.",
+            "category": "System Information",
+            "version": "0",
+            "internalName": "f_141_lpc_bias",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"case_approved_ept\": \"LastHour\" }  ], \"sort\": \"case_approved_ept\", \"order\": 0   }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 15 minutes",
+            "postingDay": "Every 15 minutes",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-12-17T17:10:00",
+            "updated": "2023-06-01T20:37:25.090287",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/lpc_bias"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/lpc_bias/metadata"
+                }
+            ]
+        },
+        {
+            "id": 56,
+            "feedId": 113,
+            "name": "m2m_rt_ffe",
+            "displayName": "Market to Market Flowgate FFE",
+            "description": "This feed provides the hourly real time firm flow entitlement for non-monitoring rto flowgates. FFE is posted each morning for the previous day.",
+            "category": "Constraints",
+            "firstAvailable": "2017-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_113_m2m_rt_ffe",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"ffe_datetime_beginning_ept\":\"yesterday\"}],\"sort\":\"ffe_datetime_beginning_ept\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 08:30 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-06-12T15:59:24",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/m2m_rt_ffe"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/m2m_rt_ffe/metadata"
+                }
+            ]
+        },
+        {
+            "id": 1,
+            "feedId": 2,
+            "name": "mnt_ftr_zonal_lmps",
+            "displayName": "Monthly Financial Transmission Rights Zonal LMPs",
+            "description": "This feed contains the monthly financial transmission rights zonal and residual aggregate locational marginal prices and are based on peak load apportionments. FTR zonal, residual aggregate, and DA Zonal LMPs are subject to change before the fifth PJM business day of the following month. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Financial Transmission Rights",
+            "firstAvailable": "2010-08-01T00:00:00",
+            "version": "1",
+            "internalName": "f_002_mnt_ftr_zonal_lmps",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"thismonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily at 05:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T17:10:47",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/mnt_ftr_zonal_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/mnt_ftr_zonal_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "feedId": 13,
+            "name": "nodal_ref_prices",
+            "displayName": "Nodal Reference Prices for Export Credit Screening",
+            "description": "This feed provides the export nodal reference prices for different interface points. The higher of these reference prices or the IT SCED price is used to calculate the amount of credit that is needed to be set aside for exports.  The reference prices change every two months.",
+            "category": "Credit",
+            "version": "1",
+            "internalName": "f_013_nodal_ref_prices",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"effective_date\": \"lastmonth\" }  ], \"sort\": \"effective_date\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 15th of the month at 07:00 a.m.",
+            "retentionTime": "None",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-02T14:45:42",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/nodal_ref_prices"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/nodal_ref_prices/metadata"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "feedId": 21,
+            "name": "nodal_refe_prices_incdec",
+            "displayName": "Nodal Reference Prices for Increment Offer & Decrement Bid Screening",
+            "description": "Reference prices for the different pricing nodes in the Day-Ahead Energy Market. These prices are used when performing credit screening for virtual bids in the Day-Ahead Energy Market. Note that while Data Miner will make available any data that has been calculated by PJM Energy Markets, the nature of data published in this feed may not have a frequent update to the data.",
+            "category": "Credit",
+            "firstAvailable": "2014-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_021_nodal_refe_prices_incdec",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"effective_beginning_date\": \"currentyear\" }  ], \"sort\": \"effective_beginning_date\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 06:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-03-01T12:38:14",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/nodal_refe_prices_incdec"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/nodal_refe_prices_incdec/metadata"
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "feedId": 25,
+            "name": "non_sync_reserve",
+            "displayName": "Non-Synchronized Reserve",
+            "description": "This feed contains hourly billing data for the Non-Synchronized Reserve Market. These values are for informational purposes only and are subject to change through the fifth business day of the following month. THIS FEED IS RETIRED as of October 1, 2022 as part of\u00a0PJM Comprehensive Pricing Reform. Any updates to data posted prior to October 1, 2022 will be posted in this feed. Non-synchronized Preliminary Billing data can be found in Non-Synchronized Reserve Preliminary Billing Data feed from October 1, 2022 onwards.",
+            "category": "Retired",
+            "firstAvailable": "2012-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_025_non_sync_reserve",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"currentmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-15T15:06:02",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/non_sync_reserve"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/non_sync_reserve/metadata"
+                }
+            ]
+        },
+        {
+            "id": 115,
+            "feedId": 152,
+            "name": "non_sync_reserve_prelim_billing",
+            "displayName": "Non-Synchronized Reserve Preliminary Billing Data",
+            "description": "This feed contains hourly billing data for the Non-Synchronized Reserve Market. These values are for informational purposes only and are subject to change through the fifth business day of the following month. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability. For the Non-Synchronized hourly preliminary billing data posted before October 1, 2022, please refer to Non-Synchronized Reserve feed in the Retired Category.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2022-10-01T00:00:00",
+            "version": "0",
+            "internalName": "f_152_non_sync_reserve_prelim_billing",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"currentmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-09-29T16:12:06",
+            "updated": "2022-09-29T16:12:06",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/non_sync_reserve_prelim_billing"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/non_sync_reserve_prelim_billing/metadata"
+                }
+            ]
+        },
+        {
+            "id": 27,
+            "feedId": 41,
+            "name": "off_cost_ops",
+            "displayName": "Off-Cost Operations",
+            "description": "This feed gives the location, time and reason for off-cost or reactive operations to maintain the voltages needed for system stability",
+            "category": "Generation",
+            "firstAvailable": "2006-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_041_off_cost_ops",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"date\": \"lastmonth\" }  ], \"sort\": \"start_time_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 4th of the month at 04:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-01-04T16:04:25",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/off_cost_ops"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/off_cost_ops/metadata"
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "feedId": 27,
+            "name": "prelim_or_rates",
+            "displayName": "Operating Reserve Rates - Preliminary",
+            "description": "Daily billing rates for PJM operating reserves. These values are for informational purposes only and are subject to change through the fifth business day of the following month. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Settlements",
+            "firstAvailable": "2008-12-01T00:00:00",
+            "version": "1",
+            "internalName": "f_027_prelim_or_rates",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"operating_reserve_date\": \"currentmonth\" }  ], \"sort\": \"operating_reserve_date\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-01-01T00:00:00",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/prelim_or_rates"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/prelim_or_rates/metadata"
+                }
+            ]
+        },
+        {
+            "id": 86,
+            "feedId": 208,
+            "name": "operational_reserves",
+            "displayName": "Operational Reserves",
+            "description": "The feed provides reserve market quantities in Megawatts for reserves and reserve requirements. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Ancillary Services",
+            "version": "1",
+            "internalName": "f_208_operational_reserves",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 15 seconds",
+            "postingDay": "Every 15 seconds",
+            "retentionTime": "15 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-06-25T16:05:41",
+            "updated": "2020-06-25T16:05:41",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/operational_reserves"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/operational_reserves/metadata"
+                }
+            ]
+        },
+        {
+            "id": 46,
+            "feedId": 64,
+            "name": "ops_sum_prev_period",
+            "displayName": "Operations Summary - Actual Operational Statistics",
+            "description": "This data shows daily information after each day's actual operations for the PJM footprint and areas within PJM. Data is refreshed on top of the hour from 5 a.m. to 8 a.m. Note: Prior to the implementation of Data Miner, PJM's Operations Summary included values for the day and evening peaks and the overnight valley only. Historical data prior to Data Miner will include only these rows in the data. Newer data includes values for all hours of the day.",
+            "category": "System Information",
+            "firstAvailable": "2011-08-24T00:00:00",
+            "version": "1",
+            "internalName": "f_064_ops_sum_prev_period",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"yesterday\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-03-01T15:43:37",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_prev_period"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_prev_period/metadata"
+                }
+            ]
+        },
+        {
+            "id": 44,
+            "feedId": 63,
+            "name": "ops_sum_frcstd_tran_lim",
+            "displayName": "Operations Summary - Forecast Transfer Limits",
+            "description": "This data is prepared each morning and shows the forecasted transfer limits for the projected peak of the day. Data is refreshed on top of the hour from 5 a.m. to 8 a.m.",
+            "category": "System Information",
+            "firstAvailable": "2011-08-24T00:00:00",
+            "version": "1",
+            "internalName": "f_063_ops_sum_frcstd_tran_lim",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"projected_peak_datetime_ept\": \"today\" }  ], \"sort\": \"projected_peak_datetime_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-03-01T15:40:31",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_frcstd_tran_lim"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_frcstd_tran_lim/metadata"
+                }
+            ]
+        },
+        {
+            "id": 41,
+            "feedId": 60,
+            "name": "ops_sum_frcst_peak_area",
+            "displayName": "Operations Summary - Projected Area Statistics at Peak",
+            "description": "This data is prepared each morning and contains information for the projected peak of the day for areas within the PJM footprint. Data is refreshed on top of the hour from 5 a.m. to 8 a.m.",
+            "category": "System Information",
+            "firstAvailable": "2011-08-24T00:00:00",
+            "version": "1",
+            "internalName": "f_060_ops_sum_frcst_peak_area",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"projected_peak_datetime_ept\": \"today\" }  ], \"sort\": \"projected_peak_datetime_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-03-02T10:48:22",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_frcst_peak_area"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_frcst_peak_area/metadata"
+                }
+            ]
+        },
+        {
+            "id": 42,
+            "feedId": 61,
+            "name": "ops_sum_frcst_peak_rto",
+            "displayName": "Operations Summary - Projected RTO Statistics at Peak",
+            "description": "This data is prepared each morning and contains information for the projected peak of the day for the entire PJM footprint. Data is refreshed on top of the hour from 5 a.m. to 8 a.m.",
+            "category": "System Information",
+            "firstAvailable": "2011-08-24T00:00:00",
+            "version": "1",
+            "internalName": "f_061_ops_sum_frcst_peak_rto",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"projected_peak_datetime_ept\": \"today\" }  ], \"sort\": \"projected_peak_datetime_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-01-01T00:00:00",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_frcst_peak_rto"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_frcst_peak_rto/metadata"
+                }
+            ]
+        },
+        {
+            "id": 43,
+            "feedId": 62,
+            "name": "ops_sum_prjctd_tie_flow",
+            "displayName": "Operations Summary - Projected Scheduled Tie Flow",
+            "description": "This data is prepared each morning and shows scheduled tie flows at the projected peak of the day. Data is refreshed on top of the hour from 5 a.m. to 8 a.m.",
+            "category": "System Information",
+            "firstAvailable": "2011-08-24T00:00:00",
+            "version": "1",
+            "internalName": "f_062_ops_sum_prjctd_tie_flow",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"projected_peak_datetime_ept\": \"today\" }  ], \"sort\": \"projected_peak_datetime_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-03-02T10:48:22",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_prjctd_tie_flow"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ops_sum_prjctd_tie_flow/metadata"
+                }
+            ]
+        },
+        {
+            "id": 74,
+            "feedId": 124,
+            "name": "ops_init_commit",
+            "displayName": "Operator Initiated Commitments",
+            "description": "This feed presents economic max and reason for the Operator Initiated Commitments by zone",
+            "category": "Generation",
+            "firstAvailable": "2019-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_124_ops_init_commit",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"lastmonth\"}],\"sort\":\"datetime_beginning_utc\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 20th of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-01-29T16:08:04",
+            "updated": "2023-06-01T20:37:13.8237412",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ops_init_commit"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ops_init_commit/metadata"
+                }
+            ]
+        },
+        {
+            "id": 101,
+            "feedId": 137,
+            "name": "pai_final_balancing_ratio",
+            "displayName": "Performance Assessment Interval Final balancing ratio",
+            "description": "This feed presents the data for the final balance ratio for the performance assessment interval. Please note that the Preliminary Balancing Ratios are being provided at the request of Market Participants and are not used in settlements.  The Final Balancing Ratios are used in settlements.",
+            "category": "Settlements",
+            "firstAvailable": "2018-05-29T00:00:00",
+            "version": "0",
+            "internalName": "f_137_pai_final_balancing_ratio",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"pai_datetime_beginning_ept\": \"currentyear\" }\u00a0 ], \"sort\": \"pai_datetime_beginning_utc\", \"order\": 0\u00a0 }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "On Demand",
+            "postingDay": "On Demand",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-11-30T17:09:19",
+            "updated": "2020-11-30T17:09:19",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/pai_final_balancing_ratio"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/pai_final_balancing_ratio/metadata"
+                }
+            ]
+        },
+        {
+            "id": 100,
+            "feedId": 136,
+            "name": "pai_prelim_balancing_ratio",
+            "displayName": "Performance Assessment Interval Preliminary balancing ratio",
+            "description": "This feed presents the data for the preliminary balance ratio for the performance assessment interval. Please note that the Preliminary Balancing Ratios are being provided at the request of Market Participants and are not used in settlements. The Final Balancing Ratios are used in settlements.",
+            "category": "Settlements",
+            "firstAvailable": "2018-05-29T00:00:00",
+            "version": "0",
+            "internalName": "f_136_pai_prelim_balancing_ratio",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"pai_datetime_beginning_ept\": \"currentyear\" }\u00a0 ], \"sort\": \"pai_datetime_beginning_utc\", \"order\": 0\u00a0 }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "On Demand",
+            "postingDay": "On Demand",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-11-30T17:09:20",
+            "updated": "2020-11-30T17:09:20",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/pai_prelim_balancing_ratio"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/pai_prelim_balancing_ratio/metadata"
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "feedId": 26,
+            "name": "reg_zone_prelim_bill",
+            "displayName": "PJM Regulation Zone Preliminary Billing Data",
+            "description": "This feed contains hourly billing data for the PJM Regulation Market. These values are for informational purposes only and are subject to change through the fifth business day of the following month. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2012-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_026_reg_zone_prelim_bill",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"currentmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-16T12:10:19",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/reg_zone_prelim_bill"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/reg_zone_prelim_bill/metadata"
+                }
+            ]
+        },
+        {
+            "id": 50,
+            "feedId": 111,
+            "name": "pnode",
+            "displayName": "Pricing Nodes",
+            "description": "This data contains master information on pnodes. A pnode is a single pricing node or subset of pricing nodes where a physical injection or withdrawal is modeled and for which a Locational Marginal Price is calculated and used for financial settlements.",
+            "category": "Reference Data",
+            "firstAvailable": "1998-04-01T00:00:00",
+            "version": "1",
+            "internalName": "f_111_pnode",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"termination_date\":\"12/31/9999 exact\" }  ], \"sort\": \"pnode_id\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily at 01:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-01-01T00:00:00",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/pnode"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/pnode/metadata"
+                }
+            ]
+        },
+        {
+            "id": 62,
+            "feedId": 115,
+            "name": "ancillary_services_fivemin_hrl",
+            "displayName": "Real-Time Ancillary Service Five-Minute LMPs",
+            "description": "This feed contains five minute granular ancillary services pricing (LMP) data. RSS Notification for this feed contains Market Day.",
+            "category": "Locational Marginal Prices",
+            "firstAvailable": "2018-04-01T00:00:00",
+            "version": "1",
+            "internalName": "f_115_ancillary_services_fivemin_hrl",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"yesterday\"},{\"row_is_current\":1}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "version",
+            "postingFrequency": "Daily On Business Days",
+            "postingDay": "Daily between 10 a.m. and 11 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-10T13:58:02",
+            "updated": "2023-06-01T20:37:11.0629098",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ancillary_services_fivemin_hrl"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ancillary_services_fivemin_hrl/metadata"
+                }
+            ]
+        },
+        {
+            "id": 34,
+            "feedId": 5,
+            "name": "ancillary_services",
+            "displayName": "Real-Time Ancillary Service Hourly LMPs",
+            "description": "This feed contains hourly ancillary services pricing (LMP) data. RSS Notification for this feed contains Market Day.",
+            "category": "Locational Marginal Prices",
+            "firstAvailable": "2012-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_005_ancillary_services",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"lastmonth\"},{\"row_is_current\":1}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "version",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11 a.m. and 12 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-10T13:58:02",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ancillary_services"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ancillary_services/metadata"
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "feedId": 30,
+            "name": "reserve_market_results",
+            "displayName": "Real-Time Ancillary Service Market Results",
+            "description": "This feed provides the\u00a0 Real-Time markets results for Ancillary services including MW quantities and prices. Data posted prior to October 1, 2022 will be hourly granularity. Data posted after October 1st will be five-minute granularity as part of PJM Comprehensive Pricing Reform.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2013-06-14T00:00:00",
+            "version": "1",
+            "internalName": "f_030_reserve_market_results",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11 a.m. and 12 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-29T17:05:07",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/reserve_market_results"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/reserve_market_results/metadata"
+                }
+            ]
+        },
+        {
+            "id": 75,
+            "feedId": 125,
+            "name": "rt_default_mv_override",
+            "displayName": "Real-Time Default Marginal Value Override",
+            "description": "The default marginal value override data contains effective and termination dates for constraints that use a different transmission constraint penalty factor from the default setting, for those constraints in the Real-Time Energy Market. By default all PJM internal M2M constraints coordinated with MISO have a transmission constraint penalty factor of $1000. By default all PJM internal M2M constraints coordinated with NYISO and all PJM internal non-M2M have a transmission constraint penalty factor of $2000. This data is being posted as part of FERC Order 844.",
+            "category": "Constraints",
+            "firstAvailable": "2019-01-29T00:00:00",
+            "version": "1",
+            "internalName": "f_125_rt_default_mv_override",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"posted_day\":\"yesterday\"}],\"sort\":\"posted_day\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 7:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-01-29T16:08:04",
+            "updated": "2023-06-01T20:37:14.3622793",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_default_mv_override"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_default_mv_override/metadata"
+                }
+            ]
+        },
+        {
+            "id": 99,
+            "feedId": 130,
+            "name": "rt_dispatch_reserves",
+            "displayName": "Real-Time Dispatched Reserves",
+            "description": "Feed Description: This feed provides the verified Real-Time Dispatched reserves. The quantity, requirement, and clearing price for each type of reserve are posted after verification process. The data for the\u00a0column will be blank for data posted prior to October 1, 2022.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2018-01-01T00:00:00",
+            "version": "0",
+            "internalName": "f_130_rt_dispatch_reserves",
+            "defaultSearchJson": "\u00a0{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"Yesterday\" }\u00a0 ], \"sort\": \"mkt_day\", \"order\": 1\u00a0 }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily On Business Days",
+            "postingDay": "Daily between 11 a.m. and 12 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-09-14T06:49:00",
+            "updated": "2023-06-01T20:37:18.2343373",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_dispatch_reserves"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_dispatch_reserves/metadata"
+                }
+            ]
+        },
+        {
+            "id": 61,
+            "feedId": 114,
+            "name": "rt_fivemin_hrl_lmps",
+            "displayName": "Real-Time Five Minute LMPs",
+            "description": "This feed contains five minute granular Real-Time Energy Market locational marginal pricing (LMP) data for all bus locations, including aggregates. Load-weighted average transmission zone and residual aggregate prices are estimates only. RSS Notification for this feed contains Market Day. To enhance the performance of current data queries and to better handle the increasing volume, PJM has implemented an archiving solution for this posting. The archived data is still available, but has slightly less flexibility on querying parameters than the more recent data does. The details of the restrictions and expected results for several filter combinations are detailed in the https://pjm.com/markets-and-operations/etools/data-miner-2.aspx. Data for this feed is archived after six months.",
+            "category": "Locational Marginal Prices",
+            "firstAvailable": "2018-04-01T00:00:00",
+            "version": "1",
+            "internalName": "f_114_rt_fivemin_hrl_lmps",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"yesterday\"},{\"row_is_current\":1}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "version",
+            "postingFrequency": "Daily On Business Days",
+            "postingDay": "Daily between 10 a.m. and 11 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-10T13:58:02",
+            "updated": "2023-06-01T20:37:10.3560053",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_fivemin_hrl_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_fivemin_hrl_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 23,
+            "feedId": 4,
+            "name": "rt_hrl_lmps",
+            "displayName": "Real-Time Hourly LMPs",
+            "description": "This feed contains hourly Real-Time Energy Market locational marginal pricing (LMP) data for all bus locations, including aggregates. Load-weighted average transmission zone and residual aggregate prices are estimates only. RSS Notification for this feed contains Market Day. To enhance the performance of current data queries and to better handle the increasing volume, PJM has implemented an archiving solution for this posting. The archived data is still available, but has slightly less flexibility on querying parameters than the more recent data does. The details of the restrictions and expected results for several filter combinations are detailed in the https://pjm.com/markets-and-operations/etools/data-miner-2.aspx. Data for this feed is archived after two years.",
+            "category": "Locational Marginal Prices",
+            "firstAvailable": "1998-04-01T00:00:00",
+            "version": "1",
+            "internalName": "f_004_rt_hrl_lmps",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"yesterday\"},{\"row_is_current\":1}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "version",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11 a.m. and 12 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-10T13:58:02",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_hrl_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_hrl_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 40,
+            "feedId": 53,
+            "name": "rt_marginal_value",
+            "displayName": "Real-Time Marginal Value",
+            "description": "The marginal value data contains dates and times for binding constraints along with the transmission constraint penalty factor, limit control percentage, and marginal value, also called the shadow price, for those constraints in the Real-Time Energy Market. The shadow price data will be at a five minute granular level from April 1st, 2018 onwards as part of five-minute settlements initiative. The transmission constraint penalty factor and limit control percentage data will be at a five minute granular level from January 29th, 2019 onwards as part of FERC Order 844. Voltage surrogates and closed loop interface type constraints will have a null value in the limit control percentage column. Data prior to April 1st, 2018 will remain hourly.",
+            "category": "Constraints",
+            "firstAvailable": "2010-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_053_rt_marginal_value",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"thismonth\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11 a.m. and 12 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-05-08T11:06:34",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_marginal_value"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_marginal_value/metadata"
+                }
+            ]
+        },
+        {
+            "id": 85,
+            "feedId": 135,
+            "name": "pjm_miso_rt",
+            "displayName": "Real-Time PJM MISO Market to Market Settlement Adjustments",
+            "description": "This feed contains Hourly Real-Time MISO-PJM market-to-market settlement data for every flowgate that had coordinated operation (FFE Exchange).",
+            "category": "Settlements",
+            "firstAvailable": "2013-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_135_pjm_miso_rt",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"yesterday\"}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 06:00 p.m.",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-04-29T17:20:57",
+            "updated": "2023-06-01T20:37:22.3696109",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/pjm_miso_rt"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/pjm_miso_rt/metadata"
+                }
+            ]
+        },
+        {
+            "id": 24,
+            "feedId": 38,
+            "name": "rt_scheduled_interchange",
+            "displayName": "Real-Time Scheduled Interchange",
+            "description": "This data contains the hourly net tie schedule for each day, as of Last Updated Date. The data uses the following conventions: .Positive values (+) are into PJM .Negative values (-) are out of PJM .Blank values signify no scheduled tie flow",
+            "category": "Imports and Exports",
+            "firstAvailable": "2011-08-17T00:00:00",
+            "version": "1",
+            "internalName": "f_038_rt_scheduled_interchange",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"yesterday\"}],\"sort\":\"datetime_beginning_utc\",\"order\":0}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 07:30 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-01-01T00:00:00",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_scheduled_interchange"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_scheduled_interchange/metadata"
+                }
+            ]
+        },
+        {
+            "id": 102,
+            "feedId": 138,
+            "name": "rt_short_term_mv_override",
+            "displayName": "Real-Time Short-Term Marginal Value Override",
+            "description": "This feed presents any short term marginal value overrides for constraints in the real time energy market. Any override in this feed supersedes any default override change over the same time period in the \"Real-Time Default Marginal Value Override\" feed which are changes from the default that are in place indefinitely. These short term overrides are usually in place for hours to days to temporarily control system conditions more effectively.",
+            "category": "Constraints",
+            "version": "0",
+            "internalName": "f_138_rt_short_term_mv_override",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"posted_day\":\"today\"}],\"sort\":\"effective_datetime_ept\",\"order\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Hourly",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-12-17T17:06:17",
+            "updated": "2023-06-01T20:37:24.0009537",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_short_term_mv_override"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_short_term_mv_override/metadata"
+                }
+            ]
+        },
+        {
+            "id": 71,
+            "feedId": 119,
+            "name": "rt_tempset",
+            "displayName": "Real-Time Temperature Sets",
+            "description": "This feed contains the zonal temperature sets used to determine limits on transmission facilities during the operating day.",
+            "category": "System Information",
+            "firstAvailable": "2018-09-25T00:00:00",
+            "version": "1",
+            "internalName": "f_119_rt_tempset",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"LastHour\"}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Hourly 15 minutes past the hour",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2018-08-07T12:02:50",
+            "updated": "2023-06-01T20:37:13.1671879",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_tempset"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_tempset/metadata"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "feedId": 15,
+            "name": "rt_transn_constraints",
+            "displayName": "Real-Time Transmission Constraints",
+            "description": "Start and End times for constrains in the Real-Time Energy Market. THIS FEED IS RETIRED from April 1st, 2018 onwards as part of five-minute settlements initiative. The constraints information can be found in Real-Time Marginal value feed",
+            "category": "Retired",
+            "firstAvailable": "2010-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_015_rt_transn_constraints",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"thismonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 11:30 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-27T13:44:41",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_transn_constraints"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_transn_constraints/metadata"
+                }
+            ]
+        },
+        {
+            "id": 97,
+            "feedId": 219,
+            "name": "rt_unverified_fivemin_lmps",
+            "displayName": "Real-Time Unverified Five Minute LMPs",
+            "description": "This feed contains five minute granular Real-Time unverified locational marginal pricing (LMP) data for all bus locations, including aggregates. These LMP values are produced in Real-Time and are not settlement quality.  These LMPs are subject to change as part of the Verification process. Please refer to Real-Time Five Minute LMPs feed for verified LMP values. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Locational Marginal Prices",
+            "version": "0",
+            "internalName": "f_219_rt_unverified_fivemin_lmps",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "append only",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-10-28T17:05:46",
+            "updated": "2020-10-28T17:05:46",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_unverified_fivemin_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_unverified_fivemin_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 98,
+            "feedId": 220,
+            "name": "rt_unverified_hrl_lmps",
+            "displayName": "Real-Time Unverified Hourly LMPs",
+            "description": "This feed contains hourly aggregated Real-Time unverified locational marginal pricing (LMP) data for all bus locations, including aggregates. Hourly aggregates are for the previous hour. These LMP values are produced in Real-Time and are not settlement quality. These LMPs are subject to change as part of the Verification process. Please refer to Real-Time Hourly LMPs feed for verified LMP values.  This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Locational Marginal Prices",
+            "version": "0",
+            "internalName": "f_220_rt_unverified_hrl_lmps",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"LastHour\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "append only",
+            "postingFrequency": "Hourly",
+            "postingDay": "Hourly",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-10-28T17:05:46",
+            "updated": "2020-10-28T17:05:46",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_unverified_hrl_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_unverified_hrl_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "feedId": 32,
+            "name": "reg_market_results",
+            "displayName": "Regulation Market Data",
+            "description": "The amount of Regulation that needs to be carried in the hour, adjusted by the effective MW.  This data includes mileage ratios and overall performance scores. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2012-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_032_reg_market_results",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 1st Friday of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-11-03T11:06:00",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/reg_market_results"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/reg_market_results/metadata"
+                }
+            ]
+        },
+        {
+            "id": 88,
+            "feedId": 210,
+            "name": "reg_prices",
+            "displayName": "Regulation Prices",
+            "description": "This feeds provides the five minute Regulation Market prices for PJM RTO. The preliminary five-minute quantity, requirement, and clearing price are generated during the operating day. The preliminary prices are subjected to verification and prices and may change after the verification process.  The Regulation price is a market-based compensation to resources that have the ability to adjust output or consumption in response to an automated signal to control for frequency deviations. The resources help to maintain interconnection frequency and match generation to load within a control area. This service is procured by the transmission provider on behalf of the load to ensure reliable system operation. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Ancillary Services",
+            "version": "0",
+            "internalName": "f_210_reg_prices",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-04-29T17:20:57",
+            "updated": "2020-04-29T17:20:57",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/reg_prices"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/reg_prices/metadata"
+                }
+            ]
+        },
+        {
+            "id": 113,
+            "feedId": 148,
+            "name": "sync_pri_reserves_buses_list",
+            "displayName": "Reserve Subzone Buses",
+            "description": "Reserve Subzone bus mapping for Synchronized, Primary, and 30-Minute Reserve",
+            "category": "Reference Data",
+            "firstAvailable": "2022-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_148_sync_pri_reserves_buses_list",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"terminate_date\":\"12/31/9999 exact\" }  ], \"sort\": \"pnode_id\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily at 01:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-09-29T16:12:05",
+            "updated": "2022-09-29T16:12:05",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/sync_pri_reserves_buses_list"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/sync_pri_reserves_buses_list/metadata"
+                }
+            ]
+        },
+        {
+            "id": 114,
+            "feedId": 149,
+            "name": "sync_pri_reserves_resources_list",
+            "displayName": "Reserve Subzone Resources",
+            "description": "Reserve Subzone resource mapping for Synchronized, Primary, and 30-Minute Reserve",
+            "category": "Reference Data",
+            "firstAvailable": "2022-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_149_sync_pri_reserves_resources_list",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"terminate_date\":\"12/31/9999 exact\" }  ], \"sort\": \"resource_id\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily at 01:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-09-29T16:12:05",
+            "updated": "2022-09-29T16:12:05",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/sync_pri_reserves_resources_list"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/sync_pri_reserves_resources_list/metadata"
+                }
+            ]
+        },
+        {
+            "id": 104,
+            "feedId": 140,
+            "name": "rt_sced_bias",
+            "displayName": "RT SCED Bias",
+            "description": "This feed presents the RT SCED Bias values for approved RT SCED cases. Data is updated every fifteen minutes for all the approved cases within the previous fifteen minute interval.",
+            "category": "System Information",
+            "version": "0",
+            "internalName": "f_140_rt_sced_bias",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"case_approved_ept\": \"LastHour\" }  ], \"sort\": \"case_approved_ept\", \"order\": 0   }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 15 minutes",
+            "postingDay": "Every 15 minutes",
+            "retentionTime": "7 years",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2020-12-17T17:10:00",
+            "updated": "2023-06-01T20:37:24.7471649",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_sced_bias"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_sced_bias/metadata"
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "feedId": 28,
+            "name": "sync_reserve_prelim_bill",
+            "displayName": "RTO Synchronized Reserve Preliminary Billing Data",
+            "description": "Hourly billing data for the Synchronized Reserve Market for each day. THIS FEED IS RETIRED as of September 30, 2022 as part of\u00a0PJM Comprehensive Pricing Reform. Any updates to data posted prior to October 1, 2022 will be posted in this feed. Non-synchronized Preliminary Billing data can be found in Synchronized Reserve Preliminary Billing Data feed from October 1, 2022 onwards.",
+            "category": "Retired",
+            "firstAvailable": "2008-08-01T00:00:00",
+            "version": "1",
+            "internalName": "f_028_sync_reserve_prelim_bill",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"currentmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1 }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-27T13:44:41",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/sync_reserve_prelim_bill"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/sync_reserve_prelim_bill/metadata"
+                }
+            ]
+        },
+        {
+            "id": 25,
+            "feedId": 39,
+            "name": "transfer_limits_and_flows",
+            "displayName": "RTO Transfer Limit and Flows",
+            "description": "Hourly transfers and transfer limits by transfer limit area",
+            "category": "Imports and Exports",
+            "firstAvailable": "2011-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_039_transfer_limits_and_flows",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 0  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 1st of the month at 08:30 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-27T13:44:41",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/transfer_limits_and_flows"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/transfer_limits_and_flows/metadata"
+                }
+            ]
+        },
+        {
+            "id": 110,
+            "feedId": 145,
+            "name": "sched_9_10_rates",
+            "displayName": "Schedule 9 rates",
+            "description": "The feeds contains the rates that are calculated for PJM Schedule 9 (Admin and Pass-Thru) and PJM Schedule 10 (Pass-thru). PJM Schedule 9 (Admin) have five separate schedules that are used to calculate the various operating costs associated with PJM Interconnection, L.L.C. and PJM Settlement, Inc. Schedule 9-1 (Control Area), Schedule 9-2 (Financial Transmission Rights), Schedule 9-3 (Market Support), Schedule 9-4 (Capacity Resource and Obligation) and Schedule 9-PSI (PJM Settlement Inc.) are the five schedules. PJM Schedule 9 (Pass-thru) and PJM Schedule 10 (Pass-thru) have six separate schedules that are used to calculate the operating costs associated with each individual schedule. Schedule 9-FERC (FERC Annual Charge Recovery), Schedule 9-OPSI (Organization of PJM States, Inc.), Schedule 9-CAPS (Consumer Advocates of PJM States, Inc.), Schedule 9-MMU (MMU Funding), Schedule 10-NERC (North American Electric Reliability Corporation), and Schedule 10-RFC (Reliability First Corporation) are the six schedules. The rates are applied to each schedule and billing determinant separately. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Settlements",
+            "firstAvailable": "2022-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_145_sched_9_10_rates",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"schedule_month\":\"lastmonth\"}],\"sort\":\"schedule_month\",\"order\":0}",
+            "fileLoadingMethod": "version",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly 5th Business Day of the month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-03-29T16:06:28",
+            "updated": "2022-03-29T16:06:28",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/sched_9_10_rates"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/sched_9_10_rates/metadata"
+                }
+            ]
+        },
+        {
+            "id": 72,
+            "feedId": 123,
+            "name": "rt_and_self_ecomax",
+            "displayName": "Scheduled Generation",
+            "description": "This feed contains the load and reserve megawatts as well as the megawatts of generation resources that self-schedule. The load and reserve megawatts are units called on in real time to meet load and/or reserve requirements. Self-scheduled generation resources can impact PJM\u0092s real-time dispatch operations and locational marginal pricing resulting in uplift charges.",
+            "category": "Generation",
+            "firstAvailable": "2017-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_123_rt_and_self_ecomax",
+            "defaultSearchJson": "{\"rowCount\":25,\"startRow\":1,\"filters\":[{\"datetime_beginning_ept\":\"yesterday\"}],\"sort\":\"datetime_beginning_ept\",\"order\":0}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2018-09-24T16:39:24",
+            "updated": "2023-06-01T20:37:13.3079522",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_and_self_ecomax"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_and_self_ecomax/metadata"
+                }
+            ]
+        },
+        {
+            "id": 117,
+            "feedId": 154,
+            "name": "secondary_nonsync_reserve_prelim_billing",
+            "displayName": "Secondary Non Synchronized Reserve Preliminary Billing Data",
+            "description": "This feed contains hourly billing data for the Secondary Non- Synchronized Reserve Market for each day. These values are for informational purposes only and are subject to change through the fifth business day of the following month. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2022-10-01T00:00:00",
+            "version": "0",
+            "internalName": "f_154_secondary_nonsync_reserve_prelim_billing",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"currentmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-09-29T16:12:06",
+            "updated": "2022-09-29T16:12:06",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/secondary_nonsync_reserve_prelim_billing"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/secondary_nonsync_reserve_prelim_billing/metadata"
+                }
+            ]
+        },
+        {
+            "id": 64,
+            "feedId": 117,
+            "name": "ancillary_services_fivemin_mnt",
+            "displayName": "Settlements Verified Five Minute Ancillary LMPs",
+            "description": "This feed contains the verified five minute Ancillary Service Market prices used in settlements. THIS FEED IS RETIRED as of September 30, 2022 as part of\u00a0PJM Comprehensive Pricing Reform.",
+            "category": "Retired",
+            "firstAvailable": "2018-04-01T00:00:00",
+            "version": "1",
+            "internalName": "f_117_ancillary_services_fivemin_mnt",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11:00 a.m. and 12:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-08-04T09:50:02",
+            "updated": "2023-06-01T20:37:12.0032071",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ancillary_services_fivemin_mnt"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ancillary_services_fivemin_mnt/metadata"
+                }
+            ]
+        },
+        {
+            "id": 63,
+            "feedId": 116,
+            "name": "rt_fivemin_mnt_lmps",
+            "displayName": "Settlements Verified Five Minute LMPs",
+            "description": "This feed contains the verified five minute Real-Time LMPs for aggregate and zonal pnodes used in settlements. The load weighted average transmission zone and residual aggregate prices provided in the daily LMPs are estimates only. Transmission zone prices and residual aggregate prices used in PJM accounting are not final until five PJM business days after the end of the month. This is due to the differences between the State Estimator load bus distributions and the final Real-Time load bus distributions required for the actual calculation of the Real-Time Zonal and Residual aggregate LMPs which are posted in the monthly LMP files.  While individual pnode LMPs do not change during the verification process, but the transmission zone and residual aggregate prices may. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Locational Marginal Prices",
+            "firstAvailable": "2018-04-01T00:00:00",
+            "version": "1",
+            "internalName": "f_116_rt_fivemin_mnt_lmps",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11:00 a.m. and 12:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-11-08T10:36:39",
+            "updated": "2023-06-01T20:37:11.7370182",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_fivemin_mnt_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_fivemin_mnt_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 59,
+            "feedId": 110,
+            "name": "ancillary_services_monthly",
+            "displayName": "Settlements Verified Hourly Ancillary LMPs",
+            "description": "This feed contains the verified hourly Ancillary Service Market prices used in settlements. THIS FEED IS RETIRED as of September 30, 2022 as part of\u00a0PJM Comprehensive Pricing Reform.",
+            "category": "Retired",
+            "firstAvailable": "2012-10-01T00:00:00",
+            "version": "1",
+            "internalName": "f_110_ancillary_services_monthly",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11:00 a.m. and 12:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-08-04T09:50:02",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/ancillary_services_monthly"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/ancillary_services_monthly/metadata"
+                }
+            ]
+        },
+        {
+            "id": 60,
+            "feedId": 7,
+            "name": "rt_da_monthly_lmps",
+            "displayName": "Settlements Verified Hourly LMPs",
+            "description": "This feed contains the verified hourly Real-Time LMPs for aggregate and zonal pnodes used in settlements and final Day-Ahead LMPs. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Locational Marginal Prices",
+            "firstAvailable": "2000-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_007_rt_da_monthly_lmps",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"lastmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily on Business Days",
+            "postingDay": "Daily between 11:00 a.m. and 12:00 p.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-07-31T10:36:39",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/rt_da_monthly_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/rt_da_monthly_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "feedId": 29,
+            "name": "load_frcstd_7_day",
+            "displayName": "Seven-Day Load Forecast",
+            "description": "PJM hourly load forecast for the next seven days by area. This data is updated twice per hour and replaces the previous forecast. As such, only a single set of forecast values is available at any given time. Snapshots of historical data for certain points of the day are preserved in the Historical Load Forecast data feed",
+            "category": "Load Forecast",
+            "version": "1",
+            "internalName": "f_029_load_frcstd_7_day",
+            "defaultSearchJson": "{\"RowCount\":100,\"Order\":0,\"StartRow\":1}",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Hourly",
+            "postingDay": "Every half hour on the quarter E.g. 1:15 and 1:45",
+            "retentionTime": "None",
+            "isFrequentlyAccessed": "True",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-07T09:53:39",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/load_frcstd_7_day"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/load_frcstd_7_day/metadata"
+                }
+            ]
+        },
+        {
+            "id": 80,
+            "feedId": 132,
+            "name": "solar_gen",
+            "displayName": "Solar Generation",
+            "description": "This feed provides the hourly solar generation amounts in PJM.  The \"Other\" area includes external units and other units where the original regional location is not known. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Generation",
+            "firstAvailable": "2019-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_132_solar_gen",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"thismonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 07:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-07-01T16:08:31",
+            "updated": "2019-07-01T16:08:31",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/solar_gen"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/solar_gen/metadata"
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "feedId": 31,
+            "name": "sync_reserve_events",
+            "displayName": "Synchronized Reserve Events",
+            "description": "Historical account of the date/time of an event going back to 2002.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2002-12-02T00:00:00",
+            "version": "1",
+            "internalName": "f_031_sync_reserve_events",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"sort\": \"event_start_ept\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 11:30 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-12-02T16:14:44",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/sync_reserve_events"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/sync_reserve_events/metadata"
+                }
+            ]
+        },
+        {
+            "id": 116,
+            "feedId": 153,
+            "name": "sync_reserve_prelim_billing",
+            "displayName": "Synchronized Reserve Preliminary Billing Data",
+            "description": "This feed contains hourly billing data for the Synchronized Reserve Market for each day. These values are for informational purposes only and are subject to change through the fifth business day of the following month. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability. For the Non-Synchronized hourly preliminary billing data posted before October 1, 2022, please refer to RTO Synchronized Reserve Preliminary Billing Data feed\u00a0in the Retired Category.",
+            "category": "Ancillary Services",
+            "firstAvailable": "2022-10-01T00:00:00",
+            "version": "0",
+            "internalName": "f_153_sync_reserve_prelim_billing",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{  \"datetime_beginning_ept\": \"currentmonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 05:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2022-09-29T16:12:06",
+            "updated": "2022-09-29T16:12:06",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/sync_reserve_prelim_billing"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/sync_reserve_prelim_billing/metadata"
+                }
+            ]
+        },
+        {
+            "id": 67,
+            "feedId": 201,
+            "name": "transfer_interface_infor",
+            "displayName": "Transfer Interface Information",
+            "description": "This feed contains the actual flow MW and transfer limits information for the Transfer Interfaces. As of March 26th, 2020, this feed is updated with two new interfaces - PA-CENT and BGE/PEP. Please note that while the warning level values for these two interfaces (only) may show zeros or nulls as the warning flow is not applicable for these interfaces. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "System Information",
+            "version": "1",
+            "internalName": "f_201_transfer_interface_infor",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"name\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-04-03T11:48:42",
+            "updated": "2019-04-03T11:48:42",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/transfer_interface_infor"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/transfer_interface_infor/metadata"
+                }
+            ]
+        },
+        {
+            "id": 69,
+            "feedId": 203,
+            "name": "transmission_limits",
+            "displayName": "Transmission Limits",
+            "description": "This feed contains the current PJM transmission limits. This feed will be populated with data only when there are transmission constraints for that five minute interval. As of April 29th, 2020,21:20 EPT this feed is updated with a new column to represent the five minute shadow price. Please note that the shadow price data will not be backfilled for previously posted data. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "System Information",
+            "version": "1",
+            "internalName": "f_203_transmission_limits",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"constraint_name\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-04-03T11:48:40",
+            "updated": "2019-04-03T11:48:40",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/transmission_limits"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/transmission_limits/metadata"
+                }
+            ]
+        },
+        {
+            "id": 66,
+            "feedId": 200,
+            "name": "unverified_five_min_lmps",
+            "displayName": "Unverified Five Minute LMPs",
+            "description": "This feed contains the unverified real-time LMP data for a subset of pnodes which are zonal, aggregate, interface, hub and 500 Kv bus. This feed represents data frequently updated throughout the operating day. In the event of a technical issue that prevents data from being updated, PJM will work to resolve the issue but typically will not update the data to replace the missed intervals.",
+            "category": "Locational Marginal Prices",
+            "version": "1",
+            "internalName": "f_200_unverified_five_min_lmps",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{\"datetime_beginning_ept\": \"5minutesago\" }  ], \"sort\": \"name\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Every 5 minutes",
+            "postingDay": "Every 5 minutes",
+            "retentionTime": "30 days",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2019-04-03T11:48:43",
+            "updated": "2019-04-03T11:48:43",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/unverified_five_min_lmps"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/unverified_five_min_lmps/metadata"
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "feedId": 22,
+            "name": "utc_bid_screening",
+            "displayName": "Up-to-Congestion Bid Screening",
+            "description": "This feed contains all the reference prices used for virtual credit screening when up-to-congestion bids are being submitted.",
+            "category": "Credit",
+            "firstAvailable": "2014-05-01T00:00:00",
+            "version": "1",
+            "internalName": "f_022_utc_bid_screening",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"bid_screening_date\": \"nextmonth\" }  ], \"sort\": \"bid_screening_date\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Monthly",
+            "postingDay": "Monthly on the 24th of the Month",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2017-02-28T10:53:12",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/utc_bid_screening"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/utc_bid_screening/metadata"
+                }
+            ]
+        },
+        {
+            "id": 26,
+            "feedId": 40,
+            "name": "wind_gen",
+            "displayName": "Wind Generation",
+            "description": "This feed provides the hourly wind generation amounts in PJM.  The \"Other\" area includes external units and other units where the original regional location is not known. Note that while Data Miner will make available any data that has been calculated by PJM Settlements, there are occasionally delays in the settlements process that may cause a delay in data availability.",
+            "category": "Generation",
+            "firstAvailable": "2011-01-01T00:00:00",
+            "version": "1",
+            "internalName": "f_040_wind_gen",
+            "defaultSearchJson": "{\"rowCount\": 25,\"startRow\": 1, \"filters\": [{ \"datetime_beginning_ept\": \"thismonth\" }  ], \"sort\": \"datetime_beginning_utc\", \"order\": 1  }",
+            "fileLoadingMethod": "Overwrite",
+            "postingFrequency": "Daily",
+            "postingDay": "Daily 07:00 a.m.",
+            "retentionTime": "Indefinitely",
+            "isFrequentlyAccessed": "False",
+            "categoryOrdinal": 1,
+            "feedProductType": 3,
+            "created": "2016-12-19T15:16:43",
+            "updated": "2017-10-02T10:10:23",
+            "links": [
+                {
+                    "rel": "feed",
+                    "href": "https://api.pjm.com/api/v1/wind_gen"
+                },
+                {
+                    "rel": "metadata",
+                    "href": "https://api.pjm.com/api/v1/wind_gen/metadata"
+                }
+            ]
+        }
+    ],
+    "searchSpecification": {
+        "rowCount": 2147483647,
+        "startRow": 1
+    },
+    "totalRows": 117
+}
