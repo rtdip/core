@@ -117,6 +117,7 @@ class WeatherTransformer(TransformerInterface):
                 .withColumnRenamed("uv_index", "uv_index")
                 .withColumnRenamed("vis","visibility")
 
+
                 .withColumn("temperature", when(col("temperature") == "", lit(None)).otherwise(col("temperature")))
                 .withColumn("dew_point", when(col("dew_point") == "", lit(None)).otherwise(col("dew_point")))
                 .withColumn("humidity", when(col("humidity") == "", lit(None)).otherwise(col("humidity")))
