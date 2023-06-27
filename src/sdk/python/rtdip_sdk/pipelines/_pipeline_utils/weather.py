@@ -58,3 +58,37 @@ WEATHER_FORECAST_MULTI_SCHEMA = StructType(
         *WEATHER_FORECAST_SCHEMA.fields
     ]
 )
+
+
+
+COMM_FORECAST_SCHEMA = StructType(
+    [
+          StructField('weather_id', StringType(), False),
+          StructField('weather_day', StringType(), False),
+          StructField('weather_hour', IntegerType(), False),
+          StructField('weather_timezone_offset', StringType(), False),
+          StructField('weather_type', StringType(), False),
+          StructField('processed_date', StringType(), False),
+          StructField('temperature', DoubleType(), True),
+          StructField('dew_point', DoubleType(), True),
+          StructField('humidity', DoubleType(), True),
+          StructField('heat_index', DoubleType(), True),
+          StructField('wind_chill', DoubleType(), True),
+          StructField('wind_direction', DoubleType(), True),
+          StructField('wind_speed', DoubleType(), True),
+          StructField('cloud_cover', DoubleType(), True),
+          StructField('wet_bulb_temp', StringType(), True),
+          StructField('solar_irradiance', StringType(), True),
+          StructField('precipitation', DoubleType(), True),
+          StructField('day_or_night', StringType(), True),
+          StructField('day_of_week', StringType(), True),
+          StructField('wind_gust', IntegerType(), True),
+          StructField('msl_pressure', DoubleType(), True),
+          StructField('forecast_day_num', IntegerType(), True),
+          StructField('prop_of_precip', IntegerType(), True),
+          StructField('precip_type', StringType(), True),
+          StructField('snow_accumulation', DoubleType(), True),
+          StructField('uv_index', DoubleType(), True),
+          StructField('visibility', DoubleType(), True)
+    ]
+)
