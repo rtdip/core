@@ -132,6 +132,8 @@ nav:
               - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
               - Troubleshooting: sdk/queries/databricks/troubleshooting.md
           - Spark Connect: sdk/queries/spark/spark-connect.md
+          - LLMs:
+              - Chat Open AI Databricks: sdk/queries/llm/chatopenai_databricks_connector.md
           - Functions: sdk/queries/functions.md
       - Authentication:
           - Azure Active Directory: sdk/authentication/azure.md
@@ -159,6 +161,9 @@ nav:
                       - EdgeX JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/edgex_opcua_json_to_pcdm.md
                       - SSIP PI Binary File data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md
                       - SSIP PI Binary JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md
+                      - Pandas to PySpark DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pandas_to_pyspark.md
+                      - PySpark to Pandas DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pyspark_to_pandas.md
+
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
@@ -200,6 +205,7 @@ nav:
                   - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
                   - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
                   - Spark Connector: sdk/code-reference/query/spark-connector.md
+                  - Chat Open AI Databricks Connector: sdk/code-reference/query/chatopenai_databricks_connector.md
 
           - Authentication:
               - Azure Active Directory: sdk/code-reference/authentication/azure.md
@@ -219,6 +225,7 @@ nav:
   - Blog:
       - Overview: blog/overview.md
       - Posts:
+          - RTDIP Generative AI SQL Agent: blog/rtdip_generative_ai_sql_agent.md
           - RTDIP Ingestion Pipelines: blog/rtdip_ingestion_pipelines.md
           - Delta Lakehouse and RTDIP: blog/delta_and_rtdip.md
 

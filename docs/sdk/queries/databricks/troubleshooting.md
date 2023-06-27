@@ -12,11 +12,11 @@ To install rtdip-sdk using setup.py, you need to have **wheel** installed using 
 
 ### Authentication
 
-For Default Credential authentication, a number of troublshooting options are available [here](https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/identity/azure-identity/TROUBLESHOOTING.md#troubleshooting-default-azure-credential-authentication-issues).
+For Default Credential authentication, a number of troubleshooting options are available [here](https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/identity/azure-identity/TROUBLESHOOTING.md#troubleshooting-default-azure-credential-authentication-issues).
 
 For Visual Studio Code errors, the version of Azure Account extension is installed(0.9.11) - **To authenticate in Visual Studio Code, ensure version 0.9.11 or earlier of the Azure Account extension is installed. To track progress toward supporting newer extension versions, see [this GitHub issue](https://github.com/Azure/azure-sdk-for-net/issues/27263). Once installed, open the Command Palette and run the Azure: Sign In command**
 
-### Exception has occured: TypeError 'module' object is not callable
+### Exception has occurred: TypeError 'module' object is not callable
 
 Ensure you are importing and using the RTDIP SDK functions correctly. You will need to give the module a name and reference it when using the function. See below for a code example. 
 

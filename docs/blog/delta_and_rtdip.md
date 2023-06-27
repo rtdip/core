@@ -10,7 +10,7 @@ For reference, please consider the typical layout of timeseries data ingested by
 
 **Events**
 
-| Column Name | Desciption |
+| Column Name | Description |
 |-------------|------------|
 | TagName | Typically represents a sensor name or a measurement |
 | EventTime | A timestamp for a recorded value |
@@ -19,7 +19,7 @@ For reference, please consider the typical layout of timeseries data ingested by
 
 **Metadata**
 
-| Column Name | Desciption |
+| Column Name | Description |
 |-------------|------------|
 | TagName | Typically represents a sensor name or a measurement |
 | Description | A description for the sensor |
@@ -40,7 +40,7 @@ Delta, in its simplest definition, is a set of parquet files managed by an index
 
 The biggest benefit achieved using Delta is to include a partition column in the design of a Delta Table. This is the fastest way for Spark to isolate the dataset it needs to work with in a query. The general rule of thumb is that each partition size should be roughly **1gb** in size, and ideally would be a column or columns that are used in every query to filter data for that table.
 
-This can be difficult to achieve. The most queried columns in RTDIP event data are TagName and EventTime, however, partitioning data by TagName creates far too many small parititons and a timestamp column like EventTime can not be used for partitioning for the same reason. The best outcome is typically to create an additional column that is an aggregation of the EventTime column, such as a Date, Month or Year Column, depending on the frequency of the data being ingested. 
+This can be difficult to achieve. The most queried columns in RTDIP event data are TagName and EventTime, however, partitioning data by TagName creates far too many small partitions and a timestamp column like EventTime can not be used for partitioning for the same reason. The best outcome is typically to create an additional column that is an aggregation of the EventTime column, such as a Date, Month or Year Column, depending on the frequency of the data being ingested. 
 
 !!! note "Note"
     **Given the above, always query RTDIP delta events tables using EventDate in the filter to achieve the best results.**
@@ -55,13 +55,13 @@ Even though the rule is to achieve roughly **1gb** partitions for a Delta Table,
 
 Zordering organises the data within each file, and along with the Delta Index file, directs Spark to the exact files to use in its reads(and merge writes) on the table. It is important to find the right number of columns to ZORDER - the best outcome would be a combination of columns that does not cause the index to grow too large. For example, ZORDERING by TagName creates a small index, but ZORDERING by TagName and EventTime created a huge index as there are far more combinations to be indexed.
 
-The most obvious column to ZORDER on in RTDIP is the TagName as every query is likely to use this in its filter. Like parition pruning, it is possible to identify the impact of ZORDERING on your queries by reviewing the files read attribute in the query plan. As per the query plan below, you can see that two files were read within the one partition.
+The most obvious column to ZORDER on in RTDIP is the TagName as every query is likely to use this in its filter. Like partition pruning, it is possible to identify the impact of ZORDERING on your queries by reviewing the files read attribute in the query plan. As per the query plan below, you can see that two files were read within the one partition.
 
 <center> ![query plan](images/spark-query-plan.png) </center>
 
 ### MERGE and File Sizes
 
-As stated above, the default target size for file sizes within a partition is 128gb. However, this is not always ideal and in certain scenarios, it is possible to improve performance of Spark jobs by reducing file sizes in cetain scenarios:
+As stated above, the default target size for file sizes within a partition is 128gb. However, this is not always ideal and in certain scenarios, it is possible to improve performance of Spark jobs by reducing file sizes in certain scenarios:
 - MERGE commands
 - Queries that target very small subsets of data within a file
 
@@ -71,7 +71,7 @@ However, even more performance gain was achieved when Databricks released [Low S
 
 ### Delta Table Additional Attributes
 
-It is recommendded to consider setting the following two attributes on all Delta Tables:
+It is recommended to consider setting the following two attributes on all Delta Tables:
 
 - `delta.autoOptimize.autoCompact=true`
 - `delta.autoOptimize.optimizeWrite=true`
@@ -86,7 +86,7 @@ As a standard, run a maintenance job every 24 hours to perform OPTIMIZE and VACU
 
 ### OPTIMIZE
 
-OPTIMIZE is a Spark SQL command that can be run on any Delta Table and is the simplest way to optimize the file layout of a Delta Table. The biggest benefit of running OPTIMIZE however, is to organize Delta files using ZORDER. Due to how effecive ZORDER is on queries, its unlikely that OPTIMIZE would not be executed on a Delta Table regularly.
+OPTIMIZE is a Spark SQL command that can be run on any Delta Table and is the simplest way to optimize the file layout of a Delta Table. The biggest benefit of running OPTIMIZE however, is to organize Delta files using ZORDER. Due to how effective ZORDER is on queries, its unlikely that OPTIMIZE would not be executed on a Delta Table regularly.
 
 It may be a question as to why one would run OPTIMIZE as well as set `delta.autoOptimize.autoCompact=true` on all its tables. Auto Compact does not ZORDER its data(at the time of writing this article), its task is simply to attempt to create larger files during writing and avoid the small file problem. Therefore, autoCompact does not provide ZORDER capability. Due to this, consider an OPTIMIZE strategy as follows:
 - Auto Compact is used by default for any new files written to an RTDIP Delta Table between the execution of maintenance jobs. This ensures that any new data ingested by RTDIP is still being written in a suitable and performant manner.
