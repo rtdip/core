@@ -17,7 +17,7 @@ import logging
 import pandas as pd
 import requests
 from pyspark.sql import SparkSession
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 
 from ...._pipeline_utils.iso import PJM_SCHEMA
@@ -28,73 +28,72 @@ class PJMDailyLoadISOSource(BaseISOSource):
     """
     The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Actual/historical and Forecast data.
 
-    https://api.pjm.com/api/v1/
-    https://dataminer2.pjm.com/feed/load_frcstd_hist/definition
-    https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition
+    api        https://api.pjm.com/api/v1/
+    actual     https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition
+    forecast   https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition
     
-    Actual data need to check
-    Forecast data need to check
-
     Args:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations
 
     Attributes:
-        load_type (str): Must be one of `actual` or `forecast`
-        date (str): Must be in `YYYYMMDD` format.
-        api_key (str): looks like we need an API Key
-
+        feed (str): a string of a valid service of the  api provided in iso_runner.py
+        api_key (str): a string of a valid api_key provided in iso_runner.py
     """
 
     spark: SparkSession
     spark_schema = PJM_SCHEMA  #don't know this yet...update iso.py pipeline_utils
     options: dict
-    iso_url: str = "https://api.pjm.com/api/v1/" # assuming we can pass load_type liek MISO actual/history or forecast
-    query_datetime_format: str = "%Y%m%d"
-    required_options = ["api_key"] # assume api_key is some KV pair & that we need to pass as a param....
+    iso_url: str = "https://api.pjm.com/api/v1/" 
+    query_datetime_format: str = "%Y-%m-%d"
+    required_options = ["feed","api_key"] # set in iso_runner.py
+
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
         self.spark = spark
         self.options = options
-        self.load_type = self.options.get("load_type", "")
-        self.date = self.options.get("date", "").strip()
+        self.feed = self.options.get("feed", "").strip()
         self.api_key = self.options.get("api_key", "").strip()
+        self.days = self.options.get("days", 7)
 
-    def _fetch_from_url(self, url_suffix: str) -> bytes:
+
+    def _fetch_from_url(self, url_suffix: str, start_date: str, end_date: str) -> bytes:
         """
         Gets data from external ISO API.
+        # this is how didgital Glyde did it in Ingestion3 current version...might be useful ...bedtime
+        # https://bitbucket.org/innowatts/ingestion3.0/src/master/source/ingestion3/connectors/pjm_iso_adapter/pjm_iso_adapter_actual_forecast_connector.py
 
         Args:
             url_suffix: String to be used as suffix to iso url.
 
         Returns:
             Raw content of the data received.
-
         """
-        url = f"{self.iso_url}{url_suffix}"
-        headers = {"Ocp-Apim-Subscription-Key": self.api_key}
-        logging.info(f"Requesting URL - {url}")
 
+        url = f"{self.iso_url}{url_suffix}"
+        feed = self.feed
+        headers = {"Ocp-Apim-Subscription-Key": self.api_key}
+        logging.info(f"Requesting URL - {url}, start_date={start_date}, end_date={end_date}, feed={feed}")
+        load_key = 'datetime_beginning_ept' if feed!='load_frcstd_7_day' else 'forecast_datetime_beginning_ept'
         query = {
                 "startRow": "1",
-                'datetime_beginning_ept':"2023-06-24to2023-06-25",
+                #'datetime_beginning_ept': f"{self.start_date}to{self.end_date}",
+                load_key: f"{start_date}to{end_date}",
                 'format': 'csv',
-                'download': 'true',
-                'rowCount': '10'
+                'download': 'true'
             }
         query_s = '&'.join(['='.join([k,v]) for k, v in query.items()])
-        new_url = f'{url}ops_sum_prev_period?{query_s}'
+        new_url = f'{url}{feed}?{query_s}'
         response = requests.get(new_url, headers = headers)
         code = response.status_code
 
         if code != 200:
             raise requests.HTTPError(f"Unable to access URL `{url}`."
                             f" Received status code {code} with message {response.content}")
-
         return response.content
-  
-      
+    
+
     def _pull_data(self) -> pd.DataFrame:
         """
         Pulls data from the PJM API and parses the return.
@@ -102,18 +101,21 @@ class PJMDailyLoadISOSource(BaseISOSource):
         Returns:
             Raw form of data.
         """
-
+        # # debug stuff
         # data = self._fetch_from_url("")
         # data = data.decode("utf-8")
         # json.dump(data, open("api_res.json","w"), indent=4)
-
-        #df = pd.read_csv(self._fetch_from_url(f""))  # think its csv don't kno if we skip rows etc
-        df = pd.read_csv(BytesIO(self._fetch_from_url(f"")))
+        start_date = datetime.utcnow() - timedelta(days=1)
+        end_date = start_date+ timedelta(days=self.days)
+        start_date_str = start_date.strftime(self.query_datetime_format)
+        end_date_str = end_date.strftime(self.query_datetime_format)
+        df = pd.read_csv(BytesIO(self._fetch_from_url("", start_date_str, end_date_str)))
         print(df)
-        #df.show()
+        exit(0)
+        return df
+       
 
-        # this is how didgital Glyde did it in Ingestion3 current version...might be useful ...bedtime
-        # https://bitbucket.org/innowatts/ingestion3.0/src/master/source/ingestion3/connectors/pjm_iso_adapter/pjm_iso_adapter_actual_forecast_connector.py
+     
 
 
 

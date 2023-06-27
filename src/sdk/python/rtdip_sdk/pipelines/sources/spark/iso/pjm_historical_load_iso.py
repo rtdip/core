@@ -12,170 +12,188 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql import SparkSession
-import pandas as pd
+import json
 import logging
-from datetime import datetime, timedelta
-from . import PJMDailyLoadISOSource
+import pandas as pd
+import requests
+from pyspark.sql import SparkSession
+from datetime import datetime
+from io import BytesIO
 
-logging.getLogger().setLevel("INFO")
+from ...._pipeline_utils.iso import PJM_SCHEMA
+from . import BaseISOSource
 
 
-class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
+class PJMHistoricalLoadISOSource(BaseISOSource):
     """
-        The PJM Historical Load ISO Source is used to read historical load data from PJM API.
+    The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Actual/historical and Forecast data.
 
-        API: <a href="https://docs.pjmenergy.org/marketreports/">https://docs.pjmenergy.org/marketreports/</a>
-        https://api.pjm.com/api/v1/
-        "pjm_forcast_actual_url": "https://api.pjm.com/api/v1/"
+    api        https://api.pjm.com/api/v1/
+    actual     https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition
+    forecast   https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition
+    
+    Args:
+        spark (SparkSession): Spark Session instance
+        options (dict): A dictionary of ISO Source specific configurations
 
-
-        Args:
-            spark (SparkSession): Spark Session instance
-            options (dict): A dictionary of ISO Source specific configurations
-
-        Attributes:
-            start_date (str): Must be in `YYYYMMDD` format.
-            end_date (str): Must be in `YYYYMMDD` format.
-            fill_missing (str): Set to `"true"` to fill missing Actual load with Forecast load. Default - `true`.
-
-        """
+    Attributes:
+        feed (str): a string of a valid service of the  api provided in iso_runner.py
+        api_key (str): a string of a valid api_key provided in iso_runner.py
+    """
 
     spark: SparkSession
+    spark_schema = PJM_SCHEMA  #don't know this yet...update iso.py pipeline_utils
     options: dict
-    required_options = ["start_date", "end_date"]
+    iso_url: str = "https://api.pjm.com/api/v1/" 
+    query_datetime_format: str = "%Y%m%d"
+    required_options = ["feed","api_key", "start_date", "end_date"] # set in iso_runner.py
 
-    def __init__(self, spark: SparkSession, options: dict):
+
+    def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
+        self.spark = spark
+        self.options = options
+        self.feed = self.options.get("feed", "").strip()
+        self.api_key = self.options.get("api_key", "").strip()
         self.start_date = self.options.get("start_date", "")
         self.end_date = self.options.get("end_date", "")
-        self.fill_missing = bool(self.options.get("fill_missing", "true") == "true")
 
-    def _get_historical_data_for_date(self, date: datetime) -> pd.DataFrame:
-        logging.info(f"Getting historical data for date {date}")
-        df = pd.read_excel(self._fetch_from_url(f"{date.strftime(self.query_datetime_format)}_dfal_HIST.xls"),
-                           skiprows=5)
 
-        if date.month == 12 and date.day == 31:
-            expected_year_rows = pd.Timestamp(date.year, 12, 31).dayofyear * 24
-            received_year_rows = len(df)
+    def _fetch_from_url(self, url_suffix: str) -> bytes:
+        """
+        Gets data from external ISO API.
+        # this is how didgital Glyde did it in Ingestion3 current version...might be useful ...bedtime
+        # https://bitbucket.org/innowatts/ingestion3.0/src/master/source/ingestion3/connectors/pjm_iso_adapter/pjm_iso_adapter_actual_forecast_connector.py
 
-            if expected_year_rows != received_year_rows:
-                logging.warning(f"Didn't receive full year historical data for year {date.year}."
-                                f" Expected {expected_year_rows} but Received {received_year_rows}")
+        Args:
+            url_suffix: String to be used as suffix to iso url.
 
-        return df
+        Returns:
+            Raw content of the data received.
+        """
+
+        url = f"{self.iso_url}{url_suffix}"
+        feed = self.feed
+        headers = {"Ocp-Apim-Subscription-Key": self.api_key}
+        logging.info(f"Requesting URL - {url}")
+        query = {
+                "startRow": "1",
+                'datetime_beginning_ept': f"{self.start_date}to{self.end_date}",
+                'format': 'csv',
+                'download': 'true'
+            }
+        query_s = '&'.join(['='.join([k,v]) for k, v in query.items()])
+        new_url = f'{url}{feed}?{query_s}'
+        response = requests.get(new_url, headers = headers)
+        code = response.status_code
+
+        if code != 200:
+            raise requests.HTTPError(f"Unable to access URL `{url}`."
+                            f" Received status code {code} with message {response.content}")
+        return response.content
+    
 
     def _pull_data(self) -> pd.DataFrame:
         """
-        Pulls data from the PJM API and parses the Excel file.
+        Pulls data from the PJM API and parses the return.
 
         Returns:
             Raw form of data.
         """
+        # # debug stuff
+        # data = self._fetch_from_url("")
+        # data = data.decode("utf-8")
+        # json.dump(data, open("api_res.json","w"), indent=4)
 
-        logging.info(f"Historical load requested from {self.start_date} to {self.end_date}")
+        df = pd.read_csv(BytesIO(self._fetch_from_url(f"")))
+        print(df)
+        # return df
+       
 
-        start_date = datetime.strptime(self.start_date, self.query_datetime_format)
-        end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
+     
 
-        dates = pd.date_range(start_date, end_date + timedelta(days=365), freq='Y', inclusive='left')
-        logging.info(f"Generated date ranges are - {dates}")
 
-        # Collect all historical data on yearly basis.
-        df = pd.concat([self._get_historical_data_for_date(min(date, self.current_date))
-                        for date in dates], sort=False)
 
-        return df
 
-    def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Creates a new `date_time` column, removes null values and pivots the data.
 
-        Args:
-            df: Raw form of data received from the API.
 
-        Returns:
-            Data after basic transformations and pivoting.
 
-        """
 
-        df = df[df['MarketDay'] != 'MarketDay']
 
-        # Fill missing actual values with the forecast values to avoid gaps.
-        if self.fill_missing:
-            df = df.fillna({'ActualLoad (MWh)': df['MTLF (MWh)']})
 
-        df = df.rename(columns={'MarketDay': 'date',
-                                'HourEnding': 'hour',
-                                'ActualLoad (MWh)': 'load',
-                                'LoadResource Zone': 'zone'})
-        df = df.dropna()
+      
+    # def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    #     """
+    #     Creates a new `date_time` column and removes null values.
 
-        df['date_time'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['hour'].astype(int) - 1, 'h')
+    #     Args:
+    #         df: Raw form of data received from the API.
 
-        df.drop(['hour', 'date'], axis=1, inplace=True)
-        df['load'] = df['load'].astype(float)
+    #     Returns:
+    #         Data after basic transformations.
 
-        df = df.pivot_table(index='date_time', values='load', columns='zone').reset_index()
+    #     """
 
-        df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
+    #     df.drop(df.index[(df['HourEnding'] == 'HourEnding') | df['PJM MTLF (MWh)'].isna()], inplace=True)
+    #     df.rename(columns={'Market Day': 'date'}, inplace=True)
 
-        return df
+    #     df['date_time'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['HourEnding'].astype(int) - 1, 'h')
+    #     df.drop(['HourEnding', 'date'], axis=1, inplace=True)
 
-    def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Filter outs data outside the requested date range.
+    #     data_cols = df.columns[df.columns != 'date_time']
+    #     df[data_cols] = df[data_cols].astype(float)
 
-        Args:
-            df: Data received after preparation.
+    #     df.reset_index(inplace=True, drop=True)
 
-        Returns:
-            Final data after all the transformations.
+    #     return df
 
-        """
 
-        start_date = datetime.strptime(self.start_date, self.query_datetime_format)
-        end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
 
-        df = df[(df["DATE_TIME"] >= start_date) & (df["DATE_TIME"] <= end_date)]
+    # def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    #     """
+    #     Filter outs Actual or Forecast data based on `load_type`.
+    #     Args:
+    #         df: Data received after preparation.
 
-        df = df.sort_values(by='DATE_TIME', ascending=True).reset_index(drop=True)
+    #     Returns:
+    #         Final data either containing Actual or Forecast values.
 
-        expected_rows = ((min(end_date, self.current_date) - start_date).days + 1) * 24
+    #     """
 
-        actual_rows = len(df)
+    #     skip_col_suffix = ""
 
-        logging.info(f"Rows Expected = {expected_rows}, Rows Found = {actual_rows}")
+    #     if self.load_type == "actual":
+    #         skip_col_suffix = 'MTLF (MWh)'
 
-        return df
+    #     elif self.load_type == "forecast":
+    #         skip_col_suffix = 'ActualLoad (MWh)'
 
-    def _validate_options(self) -> bool:
-        """
-        Validates the following options:
-            - `start_date` & `end_data` must be in the correct format.
-            - `start_date` must be behind `end_data`.
-            - `start_date` must not be in the future (UTC).
+    #     df = df[[x for x in df.columns if not x.endswith(skip_col_suffix)]]
+    #     df = df.dropna()
+    #     df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
 
-        Returns:
-            True if all looks good otherwise raises Exception.
+    #     return df
+    
 
-        """
+    # def _validate_options(self) -> bool:
+    #     """
+    #     Validates the following options:
+    #         - `date` must be in the correct format.
+    #         - `load_type` must be valid.
 
-        try:
-            start_date = datetime.strptime(self.start_date, self.query_datetime_format)
-        except ValueError:
-            raise ValueError("Unable to parse Start date. Please specify in YYYYMMDD format.")
+    #     Returns:
+    #         True if all looks good otherwise raises Exception.
 
-        try:
-            end_date = datetime.strptime(self.end_date, self.query_datetime_format)
-        except ValueError:
-            raise ValueError("Unable to parse End date. Please specify in YYYYMMDD format.")
+    #     """
 
-        if start_date > datetime.utcnow():
-            raise ValueError("Start date can't be in future.")
+    #     try:
+    #         datetime.strptime(self.date, self.query_datetime_format)
+    #     except ValueError:
+    #         raise ValueError("Unable to parse Date. Please specify in YYYYMMDD format.")
 
-        if start_date > end_date:
-            raise ValueError("Start date can't be ahead of End date.")
+    #     valid_load_types = ["actual", "forecast"]
 
-        return True
+    #     if self.load_type not in valid_load_types:
+    #         raise ValueError(f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}.")
+
+    #     return True
