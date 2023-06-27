@@ -18,11 +18,11 @@ step_list.append(PipelineStep(
     description="test_step1",
     component=PJMDailyLoadISOSource,
     component_parameters={"options": {
-        # "start_date": "20230510",
-        # "end_date": "20230520",
-        "load_type": "actual",
-        "date": "20230520",
-        "api_key": "551c046fcf4c4f11b8f2c0a82c086602"
+        "feed": "ops_sum_prev_period",
+        #"feed": "load_frcstd_7_day",
+        "api_key": "551c046fcf4c4f11b8f2c0a82c086602",
+        #"start_date": "2023-06-26",
+        #"end_date": "2023-07-27"
         # "table_name": "pjm_iso_data"
     },
         # "table_name":"pjm_iso_data"
