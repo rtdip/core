@@ -173,6 +173,9 @@ nav:
                       - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Rest API: sdk/code-reference/pipelines/destinations/spark/rest_api.md
                       - Process Control Data Model To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_to_delta.md
+                  - Polygon:
+                      - Polygon: sdk/code-reference/pipelines/destinations/polygon/polygon.md
+
               - Utilities:
                   - Spark:
                       - Configuration: sdk/code-reference/pipelines/utilities/spark/configuration.md
