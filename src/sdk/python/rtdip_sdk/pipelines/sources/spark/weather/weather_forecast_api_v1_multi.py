@@ -16,7 +16,8 @@ import json
 import pandas as pd
 from pyspark.sql import SparkSession
 
-from ...._pipeline_utils.weather import WEATHER_FORECAST_MULTI_SCHEMA
+# from ...._pipeline_utils.weather import WEATHER_FORECAST_MULTI_SCHEMA
+from ...._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
 from .weather_forecast_api_v1 import WeatherForecastAPIV1Source
 
 
@@ -48,7 +49,8 @@ class WeatherForecastAPIV1MultiSource(WeatherForecastAPIV1Source):
 
     spark: SparkSession
     options: dict
-    spark_schema = WEATHER_FORECAST_MULTI_SCHEMA
+    # spark_schema = WEATHER_FORECAST_MULTI_SCHEMA
+    spark_schema = WEATHER_FORECAST_SCHEMA
     required_options = ["stations", "api_key"]
 
     def __init__(self, spark: SparkSession, options: dict) -> None:

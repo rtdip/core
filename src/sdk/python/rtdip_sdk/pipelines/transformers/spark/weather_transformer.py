@@ -81,15 +81,20 @@ class WeatherTransformer(TransformerInterface):
     def transform(self) -> DataFrame:
         '''
         Returns:
-            DataFrame: A dataframe converted to Common Forecast Weather Data Model
+            DataFrame: A Forecast dataframe converted to Common Forecast Weather Data Model
         '''
 
         processed_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(self.data)
 
+        # columns = self.data.columns
+
+        # if "LATITUDE" in columns:
+        #     self.data = self.data.withColumn("weather_id", concat(col("LATITUDE"), lit(","), col("LONGITUDE")))
+        # else:
+        #     self.data = self.data.withColumn("weather_id", lit(""))
         df = (
             self.data
-                .withColumn("weather_id", concat(col("LATITUDE"), lit(","),col("LONGITUDE")))
+                .withColumn("weather_id", concat(col("LATITUDE"), lit(","), col("LONGITUDE")))
                 .withColumn("weather_day", substring("fcst_valid_local", 0, 10))
                 .withColumn("weather_hour", (substring("fcst_valid_local", 12, 2).cast(IntegerType()) + 1))
                 .withColumn("weather_timezone_offset", substring("fcst_valid_local", 20, 5))
@@ -116,29 +121,23 @@ class WeatherTransformer(TransformerInterface):
                 .withColumnRenamed("snow_qpf", "snow_accumulation")
                 .withColumnRenamed("uv_index", "uv_index")
                 .withColumnRenamed("vis","visibility")
-
-                .withColumn("temperature", when(col("temperature") == "", lit(None)).otherwise(col("temperature")))
-                .withColumn("dew_point", when(col("dew_point") == "", lit(None)).otherwise(col("dew_point")))
-                .withColumn("humidity", when(col("humidity") == "", lit(None)).otherwise(col("humidity")))
-                .withColumn("heat_index", when(col("heat_index") == "", lit(None)).otherwise(col("heat_index")))
-                .withColumn("wind_chill", when(col("wind_chill") == "", lit(None)).otherwise(col("wind_chill")))
-                .withColumn("wind_direction", when(col("wind_direction") == "", lit(None)).otherwise(col("wind_direction")))
-                .withColumn("wind_speed", when(col("wind_speed") == "", lit(None)).otherwise(col("wind_speed")))
-                .withColumn("cloud_cover", when(col("cloud_cover") == "", lit(None)).otherwise(col("cloud_cover")))
-                .withColumn("precipitation", when(col("precipitation") == "", lit(None)).otherwise(col("precipitation")))
-                .withColumn("wind_gust", when(col("wind_gust") == "", lit(None)).otherwise(col("wind_gust")))
-                .withColumn("msl_pressure", when(col("msl_pressure") == "", lit(None)).otherwise(col("msl_pressure")))
-                .withColumn("forecast_day_num", when(col("forecast_day_num") == "", lit(None)).otherwise(col("forecast_day_num")))
-                .withColumn("prop_of_precip", when(col("prop_of_precip") == "", lit(None)).otherwise(col("prop_of_precip")))
-                .withColumn("snow_accumulation", when(col("snow_accumulation") == "", lit(None)).otherwise(col("snow_accumulation")))
-                .withColumn("uv_index", when(col("uv_index") == "", lit(None)).otherwise(col("uv_index")))
-                .withColumn("visibility", when(col("visibility") == "", lit(None)).otherwise(col("visibility")))
         )
 
+        columns = df.columns
+        for column in columns:
+            df = df.withColumn(column, when(col(column) =="", lit(None)).otherwise(col(column)))
+
+
         self.data = df
+
+        self.data.show(1000)
         self._convert_into_target_schema()
         self.post_transform_validation()
 
-        self.data.show()
+        # self.data.show()
+
+        # self.data.toPandas().to_csv('output.csv', index=False)
+
+
 
         return self.data

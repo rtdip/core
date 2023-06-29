@@ -8,6 +8,8 @@ from pyspark.sql.types import StructType, StructField, DoubleType, StringType, I
 
 WEATHER_FORECAST_SCHEMA = StructType(
     [
+        StructField("LATITUDE", DoubleType(), True),
+        StructField("LONGITUDE", DoubleType(), True),
         StructField("CLASS", StringType(), True),
         StructField("CLDS", IntegerType(), True),
         StructField("DAY_IND", StringType(), True),
@@ -51,19 +53,19 @@ WEATHER_FORECAST_SCHEMA = StructType(
     ]
 )
 
-WEATHER_FORECAST_MULTI_SCHEMA = StructType(
-    [
-        StructField("LATITUDE", DoubleType(), True),
-        StructField("LONGITUDE", DoubleType(), True),
-        *WEATHER_FORECAST_SCHEMA.fields
-    ]
-)
+# WEATHER_FORECAST_MULTI_SCHEMA = StructType(
+#     [
+#         StructField("LATITUDE", DoubleType(), True),
+#         StructField("LONGITUDE", DoubleType(), True),
+#         *WEATHER_FORECAST_SCHEMA.fields
+#     ]
+# )
 
 
 
 COMM_FORECAST_SCHEMA = StructType(
     [
-          StructField('weather_id', StringType(), False),
+          StructField('weather_id', StringType(),  False),
           StructField('weather_day', StringType(), False),
           StructField('weather_hour', IntegerType(), False),
           StructField('weather_timezone_offset', StringType(), False),

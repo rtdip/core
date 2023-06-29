@@ -82,6 +82,8 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
         df[double_cols] = df[double_cols].astype(float)
         df[int_cols] = df[int_cols].astype(int)
 
+        df.to_csv("input.csv", index=False)
+
         return df
 
     def _get_api_params(self):
@@ -95,6 +97,8 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
     print()
     def _pull_for_weather_station(self, lat: str, lon: str) -> pd.DataFrame:
         response = json.loads(self._fetch_from_url(f"{lat}/{lon}/forecast/hourly/360hour.json").decode("utf-8"))
+
+
         return pd.DataFrame(response["forecasts"])
 
     def _pull_data(self) -> pd.DataFrame:
@@ -104,5 +108,13 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
         Returns:
             Raw form of data.
         """
+        result_df = None
 
-        return self._pull_for_weather_station(self.lat, self.lon)
+        df = self._pull_for_weather_station(self.lat, self.lon)
+        df["latitude"] = self.lat
+        df["longitude"] = self.lon
+
+        result_df = pd.concat([result_df, df]) if result_df is not None else df
+
+
+        return result_df
