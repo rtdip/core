@@ -68,4 +68,3 @@ dependencies:
         - hvac==1.1.0
         - langchain==0.0.208
         - web3==6.5.0
-        - attributedict==0.3.0
