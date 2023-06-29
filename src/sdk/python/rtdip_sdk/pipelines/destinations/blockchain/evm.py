@@ -14,14 +14,12 @@
 
 import json
 from web3 import Web3
-from attributedict.collections import AttributeDict
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
-from src.sdk.python.rtdip_sdk.pipelines.destinations.interfaces import DestinationInterface
+from ..._pipeline_utils.models import Libraries, SystemType
+from ...destinations.interfaces import DestinationInterface
 
 class EVMContractDestination(DestinationInterface):
     '''
     The EVM Contract Destination is used to write to a smart contract blockchain.
-
     Args:
         url (str): Blockchain network URL e.g. 'https://polygon-mumbai.g.alchemy.com/v2/⟨API_KEY⟩'
         account (str): Address of the sender that will be signing the transaction.
@@ -31,15 +29,14 @@ class EVMContractDestination(DestinationInterface):
         function_name (str): Smart contract method to call on.
         function_params (tuple): Parameters of given function.
         transaction (dict): A dictionary containing a set of instructions to interact with a smart contract deployed on the blockchain (See common parameters in Attributes table below).
-
     Attributes:
         data (hexadecimal str): Additional information store in the transaction.
         from (hexadecimal str): Address of sender for a transaction.
         gas (int): Amount of gas units to perform a transaction.
-        gasPrice (int/Wei): Price to pay for each unit of gas. Integers are specified in Wei, web3's to_wei function can be used to specify the amount in a different currency.
+        gasPrice (int Wei): Price to pay for each unit of gas. Integers are specified in Wei, web3's to_wei function can be used to specify the amount in a different currency.
         nonce (int): The number of transactions sent from a given address.
         to (hexadecimal str): Address of recipient for a transaction.
-        value (int/Wei): Value being transferred in a transaction. Integers are specified in Wei, web3's to_wei function can be used to specify the amount in a different currency.
+        value (int Wei): Value being transferred in a transaction. Integers are specified in Wei, web3's to_wei function can be used to specify the amount in a different currency.
     '''
     url: str
     account: str
