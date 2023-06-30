@@ -23,7 +23,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
     
-    The available authentcation methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
+    The available authentication methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
 
     This function requires the user to input a dictionary of parameters. (See Attributes table below)
     

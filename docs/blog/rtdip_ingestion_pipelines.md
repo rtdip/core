@@ -16,7 +16,7 @@ The goal of the RTDIP Ingestion Pipeline framework is:
 
 The RTDIP Data Ingestion Pipeline Framework will follow the typical convention of a job that users will be familiar with if they have used orchestration engines such as Apache Airflow or Databricks Workflows.
 
-A pipline job consists of the following components:
+A pipeline job consists of the following components:
 
 ``` mermaid
 erDiagram

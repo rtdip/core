@@ -58,7 +58,6 @@ Transformers are components that perform transformations on data. These will tar
 |[EdgeX OPCUA Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/edgex_opcua_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[SSIP PI Binary Files To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[SSIP PI Binary JSON To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[MISO To Meters Data Model](../code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
