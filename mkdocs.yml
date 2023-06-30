@@ -163,6 +163,8 @@ nav:
                       - SSIP PI Binary JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md
                       - Pandas to PySpark DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pandas_to_pyspark.md
                       - PySpark to Pandas DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pyspark_to_pandas.md
+                      - Weather:
+                          - Raw Forecast Data To Common Data Model: sdk/code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md
 
               - Destinations:
                   - Spark:

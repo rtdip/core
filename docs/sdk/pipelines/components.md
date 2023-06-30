@@ -58,6 +58,7 @@ Transformers are components that perform transformations on data. These will tar
 |[SSIP PI Binary JSON To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Pandas to PySpark DataFrame Conversion](../code-reference/pipelines/transformers/spark/pandas_to_pyspark.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[PySpark to Pandas DataFrame Conversion](../code-reference/pipelines/transformers/spark/pyspark_to_pandas.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Raw Forecast Data to Common Data Model](../code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md)          ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
