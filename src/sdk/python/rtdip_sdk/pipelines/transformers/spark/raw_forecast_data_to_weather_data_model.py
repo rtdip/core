@@ -33,7 +33,7 @@ class RawForecastToCommonDataModel(TransformerInterface):
     spark: SparkSession
     data: DataFrame
 
-    def __init__(self,spark: SparkSession, data: DataFrame, ) -> None:
+    def __init__(self, spark: SparkSession, data: DataFrame, ) -> None:
         self.spark = spark
         self.data = data
         self.target_schema = WEATHER_DATA_MODEL
@@ -54,10 +54,10 @@ class RawForecastToCommonDataModel(TransformerInterface):
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_transform_validation(self):
         return True
-    
+
     def post_transform_validation(self) -> bool:
         assert str(self.data.schema) == str(self.target_schema)
         return True
@@ -84,57 +84,48 @@ class RawForecastToCommonDataModel(TransformerInterface):
             DataFrame: A Forecast dataframe converted to Common Forecast Weather Data Model
         '''
 
-        processed_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # processed_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.pre_transform_validation()
 
-        # columns = self.data.columns
+        processed_date = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-        # if "LATITUDE" in columns:
-        #     self.data = self.data.withColumn("weather_id", concat(col("LATITUDE"), lit(","), col("LONGITUDE")))
-        # else:
-        #     self.data = self.data.withColumn("weather_id", lit(""))
         df = (
             self.data
-                .withColumn("weather_id", concat(col("LATITUDE"), lit(","), col("LONGITUDE")))
-                .withColumn("weather_day", substring("fcst_valid_local", 0, 10))
-                .withColumn("weather_hour", (substring("fcst_valid_local", 12, 2).cast(IntegerType()) + 1))
-                .withColumn("weather_timezone_offset", substring("fcst_valid_local", 20, 5))
-                .withColumn("weather_type", lit("F"))
-                .withColumn("processed_date", lit(processed_date))
-                .withColumnRenamed("temp", "temperature")
-                .withColumnRenamed("dewpt","dew_point")
-                .withColumnRenamed("rh", "humidity")
-                .withColumnRenamed("hi","heat_index")
-                .withColumnRenamed("wc", "wind_chill")
-                .withColumnRenamed("wdir", "wind_direction" )
-                .withColumnRenamed("wspd", "wind_speed" )
-                .withColumnRenamed("CLDS", "cloud_cover")
-                .withColumn("wet_bulb_temp", lit(""))
-                .withColumn("solar_irradiance", lit(""))
-                .withColumnRenamed("qpf", "precipitation")
-                .withColumnRenamed( "day_ind", "day_or_night")
-                .withColumnRenamed("dow", "day_of_week")
-                .withColumnRenamed("gust", "wind_gust")
-                .withColumnRenamed("mslp", "msl_pressure")
-                .withColumnRenamed("num", "forecast_day_num")
-                .withColumnRenamed("pop", "prop_of_precip")
-                .withColumnRenamed("precip_type", "precip_type")
-                .withColumnRenamed("snow_qpf", "snow_accumulation")
-                .withColumnRenamed("uv_index", "uv_index")
-                .withColumnRenamed("vis","visibility")
+            .withColumn("weather_id", concat(col("LATITUDE"), lit(","), col("LONGITUDE")))
+            .withColumn("weather_day", substring("fcst_valid_local", 0, 10))
+            .withColumn("weather_hour", (substring("fcst_valid_local", 12, 2).cast(IntegerType()) + 1))
+            .withColumn("weather_timezone_offset", substring("fcst_valid_local", 20, 5))
+            .withColumn("weather_type", lit("F"))
+            .withColumn("processed_date", lit(processed_date))
+            .withColumnRenamed("temp", "temperature")
+            .withColumnRenamed("dewpt", "dew_point")
+            .withColumnRenamed("rh", "humidity")
+            .withColumnRenamed("hi", "heat_index")
+            .withColumnRenamed("wc", "wind_chill")
+            .withColumnRenamed("wdir", "wind_direction")
+            .withColumnRenamed("wspd", "wind_speed")
+            .withColumnRenamed("CLDS", "cloud_cover")
+            .withColumn("wet_bulb_temp", lit(""))
+            .withColumn("solar_irradiance", lit(""))
+            .withColumnRenamed("qpf", "precipitation")
+            .withColumnRenamed("day_ind", "day_or_night")
+            .withColumnRenamed("dow", "day_of_week")
+            .withColumnRenamed("gust", "wind_gust")
+            .withColumnRenamed("mslp", "msl_pressure")
+            .withColumnRenamed("num", "forecast_day_num")
+            .withColumnRenamed("pop", "prop_of_precip")
+            .withColumnRenamed("precip_type", "precip_type")
+            .withColumnRenamed("snow_qpf", "snow_accumulation")
+            .withColumnRenamed("uv_index", "uv_index")
+            .withColumnRenamed("vis", "visibility")
         )
 
         columns = df.columns
         for column in columns:
-            df = df.withColumn(column, when(col(column) =="", lit(None)).otherwise(col(column)))
-
+            df = df.withColumn(column, when(col(column) == "", lit(None)).otherwise(col(column)))
 
         self.data = df
         self._convert_into_target_schema()
         self.post_transform_validation()
-
-        self.data.show()
-
-        # self.data.toPandas().to_csv('output.csv', index=False)
-
 
         return self.data

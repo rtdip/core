@@ -5,11 +5,7 @@
 # limitations under the License.
 
 from pyspark.sql.types import StructType, StructField, DoubleType, StringType, IntegerType
-# CLASS,EXPIRE_TIME_GMT,FCST_VALID,FCST_VALID_LOCAL,NUM,\
-# DAY_IND,TEMP,DEWPT,HI,WC,FEELS_LIKE,ICON_EXTD,WXMAN,\
-# ICON_CODE,DOW,PHRASE_12CHAR,PHRASE_22CHAR,PHRASE_32CHAR,\
-# SUBPHRASE_PT1,SUBPHRASE_PT2,SUBPHRASE_PT3,POP,PRECIP_TYPE,QPF,SNOW_QPF,RH,WSPD,WDIR,WDIR_CARDINAL,\
-# GUST,CLDS,VIS,MSLP,UV_INDEX_RAW,UV_INDEX,UV_WARNING,UV_DESC,GOLF_INDEX,GOLF_CATEGORY,SEVERITY,LATITUDE,LONGITUDE
+
 WEATHER_FORECAST_SCHEMA = StructType(
     [
         StructField("CLASS", StringType(), True),
@@ -57,46 +53,35 @@ WEATHER_FORECAST_SCHEMA = StructType(
     ]
 )
 
-# WEATHER_FORECAST_MULTI_SCHEMA = StructType(
-#     [
-#         StructField("LATITUDE", DoubleType(), True),
-#         StructField("LONGITUDE", DoubleType(), True),
-#         *WEATHER_FORECAST_SCHEMA.fields
-#     ]
-# )
-
-
-
 WEATHER_DATA_MODEL = StructType(
     [
         StructField("latitude", DoubleType(), False),
         StructField("longitude", DoubleType(), False),
-          # StructField('weather_id', StringType(),  False),
-          StructField('weather_day', StringType(), False),
-          StructField('weather_hour', IntegerType(), False),
-          StructField('weather_timezone_offset', StringType(), False),
-          StructField('weather_type', StringType(), False),
-          StructField('processed_date', StringType(), False),
-          StructField('temperature', DoubleType(), True),
-          StructField('dew_point', DoubleType(), True),
-          StructField('humidity', DoubleType(), True),
-          StructField('heat_index', DoubleType(), True),
-          StructField('wind_chill', DoubleType(), True),
-          StructField('wind_direction', DoubleType(), True),
-          StructField('wind_speed', DoubleType(), True),
-          StructField('cloud_cover', DoubleType(), True),
-          StructField('wet_bulb_temp', StringType(), True),
-          StructField('solar_irradiance', StringType(), True),
-          StructField('precipitation', DoubleType(), True),
-          StructField('day_or_night', StringType(), True),
-          StructField('day_of_week', StringType(), True),
-          StructField('wind_gust', IntegerType(), True),
-          StructField('msl_pressure', DoubleType(), True),
-          StructField('forecast_day_num', IntegerType(), True),
-          StructField('prop_of_precip', IntegerType(), True),
-          StructField('precip_type', StringType(), True),
-          StructField('snow_accumulation', DoubleType(), True),
-          StructField('uv_index', DoubleType(), True),
-          StructField('visibility', DoubleType(), True)
+        StructField('weather_day', StringType(), False),
+        StructField('weather_hour', IntegerType(), False),
+        StructField('weather_timezone_offset', StringType(), False),
+        StructField('weather_type', StringType(), False),
+        StructField('processed_date', StringType(), False),
+        StructField('temperature', DoubleType(), True),
+        StructField('dew_point', DoubleType(), True),
+        StructField('humidity', DoubleType(), True),
+        StructField('heat_index', DoubleType(), True),
+        StructField('wind_chill', DoubleType(), True),
+        StructField('wind_direction', DoubleType(), True),
+        StructField('wind_speed', DoubleType(), True),
+        StructField('cloud_cover', DoubleType(), True),
+        StructField('wet_bulb_temp', StringType(), True),
+        StructField('solar_irradiance', StringType(), True),
+        StructField('precipitation', DoubleType(), True),
+        StructField('day_or_night', StringType(), True),
+        StructField('day_of_week', StringType(), True),
+        StructField('wind_gust', IntegerType(), True),
+        StructField('msl_pressure', DoubleType(), True),
+        StructField('forecast_day_num', IntegerType(), True),
+        StructField('prop_of_precip', IntegerType(), True),
+        StructField('precip_type', StringType(), True),
+        StructField('snow_accumulation', DoubleType(), True),
+        StructField('uv_index', DoubleType(), True),
+        StructField('visibility', DoubleType(), True)
     ]
 )
