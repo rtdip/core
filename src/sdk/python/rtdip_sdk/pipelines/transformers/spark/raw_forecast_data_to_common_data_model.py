@@ -22,7 +22,7 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.weather import COMM_FORECAST_SCHEMA
 
 
-class WeatherTransformer(TransformerInterface):
+class RawForecastToCommonDataModel(TransformerInterface):
     '''
     Converts a dataframe body column from a binary to a string.
 
