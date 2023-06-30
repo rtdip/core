@@ -179,7 +179,8 @@ class BaseISOSource(SourceInterface):
         try:
             self.pre_read_validation()
             df = self.spark.createDataFrame(self._get_data(), schema=self.spark_schema)
-
+            #df.show(1000, False)
+            #exit(0)
             return df
 
         except Exception as e:

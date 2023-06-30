@@ -6,6 +6,7 @@ from rtdip_sdk.pipelines.execute import PipelineJob, PipelineStep, PipelineTask,
 from rtdip_sdk.pipelines.sources import *
 from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
 from rtdip_sdk.pipelines.transformers import *
+import pandas as pd
 
 import logging
 
@@ -18,8 +19,9 @@ step_list.append(PipelineStep(
     description="test_step1",
     component=PJMDailyLoadISOSource,
     component_parameters={"options": {
-        "feed": "ops_sum_prev_period",
+        #"feed": "ops_sum_prev_period",
         #"feed": "load_frcstd_7_day",
+        "load_type": "forecast",
         "api_key": "551c046fcf4c4f11b8f2c0a82c086602",
         #"start_date": "2023-06-26",
         #"end_date": "2023-07-27"
@@ -49,7 +51,7 @@ step_list.append(PipelineStep(
     description="test_step3",
     component=SparkDeltaDestination,
     component_parameters={
-        "table_name": "pjm_iso_usage_data",
+        "table_name": "pjm_iso_forecast_data",
         "options": {
             "partitionBy":"timestamp"
 

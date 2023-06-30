@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType
+from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType, StringType
 
 MISO_SCHEMA = StructType([
             StructField("DATE_TIME", TimestampType(), True),
@@ -22,10 +22,12 @@ MISO_SCHEMA = StructType([
             StructField("LRZ4", DoubleType(), True),
             StructField("LRZ6", DoubleType(), True),
             StructField("LRZ8_9_10", DoubleType(), True),
-            StructField("MISO", DoubleType(), True),
-            ]),
+            StructField("MISO", DoubleType(), True)
+            ])
 
 PJM_SCHEMA = StructType([
-            # may not be needed....check.... https://dataminer2.pjm.com/feed/load_frcstd_hist/definition
-            # cannot access actual api portal....don't have creds
+            StructField("START_TIME", TimestampType(), True),
+            StructField("END_TIME", TimestampType(), True),
+            StructField("ZONE", StringType(), True),
+            StructField("LOAD", DoubleType(), True)
             ])
