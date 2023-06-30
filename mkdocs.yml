@@ -153,6 +153,10 @@ nav:
                           - Base ISO: sdk/code-reference/pipelines/sources/spark/iso/base_iso.md
                           - MISO Daily Load: sdk/code-reference/pipelines/sources/spark/iso/miso_daily_load_iso.md
                           - MISO Historical Load: sdk/code-reference/pipelines/sources/spark/iso/miso_historical_load_iso.md
+                      - Weather:
+                          - Base Weather: sdk/code-reference/pipelines/sources/spark/weather/base_weather.md
+                          - Weather Forecast API V1: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1.md
+                          - Weather Forecast API V1 Multi: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md
               - Transformers:
                   - Spark:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
@@ -164,7 +168,7 @@ nav:
                       - Pandas to PySpark DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pandas_to_pyspark.md
                       - PySpark to Pandas DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pyspark_to_pandas.md
                       - Weather:
-                          - Raw Forecast Data To Common Data Model: sdk/code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md
+                          - Raw Forecast To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md
 
               - Destinations:
                   - Spark:

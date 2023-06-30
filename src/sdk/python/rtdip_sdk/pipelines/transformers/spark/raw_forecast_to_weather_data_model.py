@@ -24,7 +24,7 @@ from ..._pipeline_utils.weather import WEATHER_DATA_MODEL
 
 class RawForecastToWeatherDataModel(TransformerInterface):
     '''
-    Converts a dataframe body column from a binary to a string.
+    Converts a raw forecast into weather data model
 
     Args:
         spark (SparkSession): Spark Session instance.
@@ -81,10 +81,9 @@ class RawForecastToWeatherDataModel(TransformerInterface):
     def transform(self) -> DataFrame:
         '''
         Returns:
-            DataFrame: A Forecast dataframe converted to Common Forecast Weather Data Model
+            DataFrame: A Forecast dataframe converted into Weather Data Model
         '''
 
-        # processed_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.pre_transform_validation()
 
         processed_date = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")

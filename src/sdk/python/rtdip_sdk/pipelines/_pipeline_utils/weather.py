@@ -4,7 +4,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql.types import StructType, StructField, DoubleType, StringType, IntegerType
+from pyspark.sql.types import StructType, StructField, DoubleType, StringType, IntegerType, TimestampType
 
 WEATHER_FORECAST_SCHEMA = StructType(
     [
@@ -61,7 +61,7 @@ WEATHER_DATA_MODEL = StructType(
         StructField('weather_hour', IntegerType(), False),
         StructField('weather_timezone_offset', StringType(), False),
         StructField('weather_type', StringType(), False),
-        StructField('processed_date', StringType(), False),
+        StructField('processed_date', TimestampType(), False),
         StructField('temperature', DoubleType(), True),
         StructField('dew_point', DoubleType(), True),
         StructField('humidity', DoubleType(), True),

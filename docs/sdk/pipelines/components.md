@@ -40,6 +40,8 @@ Sources are components that connect to source systems and extract data from them
 |[Kinesis](../code-reference/pipelines/sources/spark/kafka.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[MISO Daily Load ISO](../code-reference/pipelines/sources/spark/iso/miso_daily_load_iso.md)  ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[MISO Historical Load ISO](../code-reference/pipelines/sources/spark/iso/miso_historical_load_iso.md) ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Weather Forecast API V1](../code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Weather Forecast API V1 Multi](../code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -58,7 +60,7 @@ Transformers are components that perform transformations on data. These will tar
 |[SSIP PI Binary JSON To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Pandas to PySpark DataFrame Conversion](../code-reference/pipelines/transformers/spark/pandas_to_pyspark.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[PySpark to Pandas DataFrame Conversion](../code-reference/pipelines/transformers/spark/pyspark_to_pandas.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[Raw Forecast Data to Common Data Model](../code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md)          ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Raw Forecast to Common Data Model](../code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
