@@ -116,5 +116,6 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
 
         result_df = pd.concat([result_df, df]) if result_df is not None else df
 
+        print(result_df)
 
         return result_df

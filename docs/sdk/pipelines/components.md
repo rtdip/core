@@ -50,14 +50,15 @@ Sources are components that connect to source systems and extract data from them
 
 Transformers are components that perform transformations on data. These will target certain data models and common transformations that sources or destination components require to be performed on data before it can be ingested or consumed.
 
-|Transformer Type|Python|Apache Spark|Databricks|Azure|AWS|
-|---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
-|[Binary To String](../code-reference/pipelines/transformers/spark/binary_to_string.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[OPC Publisher OPCUA Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/opc_publisher_opcua_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[Fledge OPCUA Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/fledge_opcua_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[EdgeX OPCUA Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/edgex_opcua_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[SSIP PI Binary Files To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[SSIP PI Binary JSON To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+| Transformer Type                                                                                                                             |Python|Apache Spark|Databricks|Azure|AWS|
+|----------------------------------------------------------------------------------------------------------------------------------------------|----------------------|--------------------|----------------------|----------------------|---------|
+| [Binary To String](../code-reference/pipelines/transformers/spark/binary_to_string.md)                                                       ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+| [OPC Publisher OPCUA Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/opc_publisher_opcua_json_to_pcdm.md) ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+| [Fledge OPCUA Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/fledge_opcua_json_to_pcdm.md)               ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+| [EdgeX OPCUA Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/edgex_opcua_json_to_pcdm.md)                 ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+| [SSIP PI Binary Files To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md)          ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+| [SSIP PI Binary JSON To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md)           ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+| [Raw Forecast Data to Common Data Model](../code-reference/pipelines/transformers/spark/raw_forecast_data_to_common_data_model.md)           ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.

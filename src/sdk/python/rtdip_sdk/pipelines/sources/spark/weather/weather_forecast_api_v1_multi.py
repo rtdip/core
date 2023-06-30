@@ -82,6 +82,8 @@ class WeatherForecastAPIV1MultiSource(WeatherForecastAPIV1Source):
 
             result_df = pd.concat([result_df, df]) if result_df is not None else df
 
+        print(result_df)
+
         return result_df
 
     def _validate_options(self) -> bool:

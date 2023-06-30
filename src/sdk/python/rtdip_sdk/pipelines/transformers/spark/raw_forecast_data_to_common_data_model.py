@@ -19,7 +19,7 @@ from pyspark.sql.types import IntegerType
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.weather import COMM_FORECAST_SCHEMA
+from ..._pipeline_utils.weather import WEATHER_DATA_MODEL
 
 
 class RawForecastToCommonDataModel(TransformerInterface):
@@ -36,7 +36,7 @@ class RawForecastToCommonDataModel(TransformerInterface):
     def __init__(self,spark: SparkSession, data: DataFrame, ) -> None:
         self.spark = spark
         self.data = data
-        self.target_schema = COMM_FORECAST_SCHEMA
+        self.target_schema = WEATHER_DATA_MODEL
 
     @staticmethod
     def system_type():
@@ -129,15 +129,12 @@ class RawForecastToCommonDataModel(TransformerInterface):
 
 
         self.data = df
-
-        self.data.show(1000)
         self._convert_into_target_schema()
         self.post_transform_validation()
 
-        # self.data.show()
+        self.data.show()
 
         # self.data.toPandas().to_csv('output.csv', index=False)
-
 
 
         return self.data
