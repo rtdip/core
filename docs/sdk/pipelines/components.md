@@ -83,6 +83,7 @@ Utilities are components that perform utility functions such as logging, error h
 
 |Utility Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
+|[Spark Session](../code-reference/pipelines/utilities/spark/session.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Spark Configuration](../code-reference/pipelines/utilities/spark/configuration.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Delta Table Create](../code-reference/pipelines/utilities/spark/delta_table_create.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Delta Table Optimize](../code-reference/pipelines/utilities/spark/delta_table_optimize.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
