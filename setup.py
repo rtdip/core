@@ -57,7 +57,8 @@ PIPELINE_PACKAGES = [
   "azure-storage-file-datalake==12.10.1",
   "boto3==1.26.123",
   "hvac==1.1.0",
-  "azure-keyvault-secrets==4.7.0"
+  "azure-keyvault-secrets==4.7.0",
+  "web3==6.5.0"
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
