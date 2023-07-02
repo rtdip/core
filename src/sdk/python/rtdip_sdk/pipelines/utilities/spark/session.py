@@ -30,7 +30,9 @@ from ...utilities.interfaces import UtilitiesInterface
 
 class SparkSessionUtility(UtilitiesInterface):
     '''
-    Creates or Gets a Spark Session and uses settings and libraries of the imported RTDIP components to populate the spark configuration and jars in the spark session
+    Creates or Gets a Spark Session and uses settings and libraries of the imported RTDIP components to populate the spark configuration and jars in the spark session.
+
+    Call this component after all imports of the RTDIP components to ensure that the spark session is configured correctly. 
 
     Args:
         config (dict): Dictionary of spark configuration to be applied to the spark session
