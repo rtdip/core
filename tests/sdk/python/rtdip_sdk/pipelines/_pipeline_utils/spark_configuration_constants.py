@@ -23,17 +23,9 @@ import shutil
 from dataclasses import dataclass
 from unittest.mock import patch
 
-from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
-from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.kinesis import SparkKinesisDestination
-from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.eventhub import SparkEventhubDestination
-from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.kafka import SparkKafkaDestination
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSource
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.kinesis import SparkKinesisSource
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta_sharing import SparkDeltaSharingSource
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub import SparkEventhubSource
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.kafka import SparkKafkaSource
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import SparkClient
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
+from src.sdk.python.rtdip_sdk.pipelines.destinations import * # NOSONAR
+from src.sdk.python.rtdip_sdk.pipelines.sources import * # NOSONAR
+from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import SparkSessionUtility
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import DEFAULT_PACKAGES
 
 SPARK_TESTING_CONFIGURATION = {
@@ -46,14 +38,7 @@ SPARK_TESTING_CONFIGURATION = {
 
 @pytest.fixture(scope="session")
 def spark_session():
-    component_list = [SparkDeltaSource(None, {}, "test_table"), SparkDeltaSharingSource(None, {}, "test_table"), SparkDeltaDestination(None, "test_table", {}), SparkEventhubSource(None, {}), SparkEventhubDestination(None, {}),  SparkKafkaSource(None, {}), SparkKafkaDestination(None, {}), SparkKinesisSource(None, {}), SparkKinesisDestination(None, {})]
-    task_libraries = Libraries()
-    task_libraries.get_libraries_from_components(component_list)
-    spark_configuration = SPARK_TESTING_CONFIGURATION.copy()
-    for component in component_list:
-        spark_configuration = {**spark_configuration, **component.settings()}
-    spark_client = SparkClient(spark_configuration, task_libraries)
-    spark = spark_client.spark_session
+    spark = SparkSessionUtility(SPARK_TESTING_CONFIGURATION.copy()).execute()
     path = spark.conf.get("spark.sql.warehouse.dir")
     prefix = "file:"
     if path.startswith(prefix):
@@ -77,7 +62,7 @@ class FileInfoFixture:
 
 class DBUtilsFSFixture:
     """
-    This class is used for mocking the behaviour of DBUtils inside tests.
+    This class is used for mocking the behavior of DBUtils inside tests.
     """
     def __init__(self):
         self.fs = self
@@ -114,7 +99,7 @@ class DBUtilsFSFixture:
 
 class DBUtilsSecretsFixture:
     """
-    This class is used for mocking the behaviour of DBUtils inside tests.
+    This class is used for mocking the behavior of DBUtils inside tests.
     """
     def __init__(self, secret_value):
         self.secrets = self

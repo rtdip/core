@@ -11,14 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from importlib_metadata import version
+from semver.version import Version
 from .models import MavenLibrary, PyPiLibrary
-from ..._sdk_utils.compare_versions import _get_package_version
+from ..._sdk_utils.compare_versions import _get_python_package_version, _get_package_version
+
+delta_spark_artifact_id = "delta-core_2.12"
+if Version.compare(_get_python_package_version("delta-spark"), Version.parse("3.0.0")) >= 0:
+    delta_spark_artifact_id = "delta-spark_2.12"
 
 DEFAULT_PACKAGES = {
     "spark_delta_core": MavenLibrary(
                 group_id="io.delta",
-                artifact_id="delta-core_2.12",
+                artifact_id=delta_spark_artifact_id,
                 version=_get_package_version("delta-spark")
             ),
     "spark_delta_sharing": MavenLibrary(
@@ -43,7 +47,7 @@ DEFAULT_PACKAGES = {
     ),
     "rtdip_sdk": PyPiLibrary(
                 name="rtdip_sdk",
-                version="0.2.2"
+                version="0.5.1"
             ),
     "azure_adls_gen_2": PyPiLibrary(
                 name="azure-storage-file-datalake",

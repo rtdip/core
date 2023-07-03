@@ -137,7 +137,13 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             when_not_matched_insert_list = [
                 DeltaMergeConditionValues(
                     condition="(source.ChangeType IN ('insert', 'update', 'upsert'))",
-                    values="*"
+                    values={
+                        "EventDate": "source.EventDate", 
+                        "TagName": "source.TagName",
+                        "EventTime": "source.EventTime",
+                        "Status": "source.Status",
+                        "Value": "source.Value"
+                    }
                 )
             ]
 
