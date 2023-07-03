@@ -18,7 +18,6 @@ from pyspark.sql import DataFrame
 from py4j.protocol import Py4JJavaError
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class SparkKinesisDestination(DestinationInterface):
     '''

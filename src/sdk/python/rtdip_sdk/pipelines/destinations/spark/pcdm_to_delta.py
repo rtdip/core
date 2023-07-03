@@ -22,7 +22,6 @@ from ..interfaces import DestinationInterface
 from ..spark.delta import SparkDeltaDestination
 from ..spark.delta_merge import SparkDeltaMergeDestination, DeltaMergeCondition, DeltaMergeConditionValues
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class SparkPCDMToDeltaDestination(DestinationInterface):
     '''
@@ -93,6 +92,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
     @staticmethod
     def libraries():
+        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
         libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
         return libraries

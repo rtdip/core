@@ -18,7 +18,6 @@ from pyspark.sql import DataFrame, SparkSession
 
 from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class SparkDeltaSource(SourceInterface):
     '''
@@ -59,6 +58,7 @@ class SparkDeltaSource(SourceInterface):
 
     @staticmethod
     def libraries():
+        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
         libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
         return libraries

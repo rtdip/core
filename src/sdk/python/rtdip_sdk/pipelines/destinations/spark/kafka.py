@@ -21,7 +21,6 @@ from pyspark.sql.functions import to_json, struct
 
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class SparkKafkaDestination(DestinationInterface):
     '''
@@ -64,6 +63,7 @@ class SparkKafkaDestination(DestinationInterface):
 
     @staticmethod
     def libraries():
+        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         spark_libraries = Libraries()
         spark_libraries.add_maven_library(DEFAULT_PACKAGES["spark_sql_kafka"])
         return spark_libraries
