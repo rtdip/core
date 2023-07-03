@@ -129,26 +129,27 @@ raw_api_response = {
     ]
 }
 
-expected_json = {"CLASS": {"0": "fod_short_range_hourly", "1": "fod_short_range_hourly"}, "CLDS": {"0": 79, "1": 69},
-                 "DAY_IND": {"0": "D", "1": "D"}, "DEWPT": {"0": 77, "1": 77}, "DOW": {"0": "Friday", "1": "Friday"},
+expected_json = {"LATITUDE": {"0": 32.3667, "1": 32.3667}, "LONGITUDE": {"0": -95.4, "1": -95.4},
+                 "CLASS": {"0": "fod_short_range_hourly", "1": "fod_short_range_hourly"},
                  "EXPIRE_TIME_GMT": {"0": 1686945840, "1": 1686945840},
                  "FCST_VALID": {"0": 1686945600, "1": 1686949200},
                  "FCST_VALID_LOCAL": {"0": "2023-06-16T15:00:00-0500", "1": "2023-06-16T16:00:00-0500"},
-                 "FEELS_LIKE": {"0": 105, "1": 105}, "GOLF_CATEGORY": {"0": "Very Good", "1": "Very Good"},
-                 "GOLF_INDEX": {"0": 8.0, "1": 8.0}, "GUST": {"0": None, "1": None}, "HI": {"0": 105, "1": 105},
-                 "ICON_CODE": {"0": 28, "1": 28}, "ICON_EXTD": {"0": 2800, "1": 2800}, "MSLP": {"0": 29.77, "1": 29.76},
-                 "NUM": {"0": 1, "1": 2}, "PHRASE_12CHAR": {"0": "M Cloudy", "1": "M Cloudy"},
+                 "NUM": {"0": 1, "1": 2}, "DAY_IND": {"0": "D", "1": "D"}, "TEMP": {"0": 91, "1": 91},
+                 "DEWPT": {"0": 77, "1": 77}, "HI": {"0": 105, "1": 105}, "WC": {"0": 91, "1": 91},
+                 "FEELS_LIKE": {"0": 105, "1": 105}, "ICON_EXTD": {"0": 2800, "1": 2800},
+                 "WXMAN": {"0": "wx1230", "1": "wx1230"}, "ICON_CODE": {"0": 28, "1": 28},
+                 "DOW": {"0": "Friday", "1": "Friday"}, "PHRASE_12CHAR": {"0": "M Cloudy", "1": "M Cloudy"},
                  "PHRASE_22CHAR": {"0": "Mostly Cloudy", "1": "Mostly Cloudy"},
-                 "PHRASE_32CHAR": {"0": "Mostly Cloudy", "1": "Mostly Cloudy"}, "POP": {"0": "15", "1": "15"},
-                 "PRECIP_TYPE": {"0": "rain", "1": "rain"}, "QPF": {"0": 0.0, "1": 0.0}, "RH": {"0": 64, "1": 63},
-                 "SEVERITY": {"0": 1, "1": 1}, "SNOW_QPF": {"0": 0.0, "1": 0.0},
+                 "PHRASE_32CHAR": {"0": "Mostly Cloudy", "1": "Mostly Cloudy"},
                  "SUBPHRASE_PT1": {"0": "Mostly", "1": "Mostly"}, "SUBPHRASE_PT2": {"0": "Cloudy", "1": "Cloudy"},
-                 "SUBPHRASE_PT3": {"0": "", "1": ""}, "TEMP": {"0": 91, "1": 91},
-                 "UV_DESC": {"0": "High", "1": "Moderate"},
-                 "UV_INDEX": {"0": 6, "1": 5}, "UV_INDEX_RAW": {"0": 5.65, "1": 5.08}, "UV_WARNING": {"0": 0, "1": 0},
-                 "VIS": {"0": 10.0, "1": 10.0}, "WC": {"0": 91, "1": 91}, "WDIR": {"0": 233, "1": 235},
-                 "WDIR_CARDINAL": {"0": "SW", "1": "SW"}, "WSPD": {"0": 6, "1": 5},
-                 "WXMAN": {"0": "wx1230", "1": "wx1230"}}
+                 "SUBPHRASE_PT3": {"0": "", "1": ""}, "POP": {"0": "15", "1": "15"},
+                 "PRECIP_TYPE": {"0": "rain", "1": "rain"}, "QPF": {"0": 0.0, "1": 0.0},
+                 "SNOW_QPF": {"0": 0.0, "1": 0.0}, "RH": {"0": 64, "1": 63}, "WSPD": {"0": 6, "1": 5},
+                 "WDIR": {"0": 233, "1": 235}, "WDIR_CARDINAL": {"0": "SW", "1": "SW"}, "GUST": {"0": None, "1": None},
+                 "CLDS": {"0": 79, "1": 69}, "VIS": {"0": 10.0, "1": 10.0}, "MSLP": {"0": 29.77, "1": 29.76},
+                 "UV_INDEX_RAW": {"0": 5.65, "1": 5.08}, "UV_INDEX": {"0": 6, "1": 5}, "UV_WARNING": {"0": 0, "1": 0},
+                 "UV_DESC": {"0": "High", "1": "Moderate"}, "GOLF_INDEX": {"0": 8.0, "1": 8.0},
+                 "GOLF_CATEGORY": {"0": "Very Good", "1": "Very Good"}, "SEVERITY": {"0": 1, "1": 1}}
 
 
 def get_api_response() -> str:

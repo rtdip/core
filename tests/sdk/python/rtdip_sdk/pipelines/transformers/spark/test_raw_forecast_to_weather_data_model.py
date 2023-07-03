@@ -1,5 +1,4 @@
 import os
-import pytest
 
 from pyspark.sql.functions import lit, to_timestamp
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.raw_forecast_to_weather_data_model import \

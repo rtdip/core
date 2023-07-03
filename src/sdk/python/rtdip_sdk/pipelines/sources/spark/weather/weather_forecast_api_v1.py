@@ -92,7 +92,6 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
         }
         return params
 
-    print()
     def _pull_for_weather_station(self, lat: str, lon: str) -> pd.DataFrame:
         response = json.loads(self._fetch_from_url(f"{lat}/{lon}/forecast/hourly/360hour.json").decode("utf-8"))
         return pd.DataFrame(response["forecasts"])

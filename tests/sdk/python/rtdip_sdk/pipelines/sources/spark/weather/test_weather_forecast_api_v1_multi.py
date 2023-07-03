@@ -17,7 +17,7 @@ import pandas as pd
 import pytest
 
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather import WeatherForecastAPIV1MultiSource
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import WEATHER_FORECAST_MULTI_SCHEMA
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
@@ -231,260 +231,43 @@ raw_api_response2 = {
     ]
 }
 
-expected_json = {
-    "LATITUDE": {
-        "0": 32.3667,
-        "1": 32.3667,
-        "2": 51.52,
-        "3": 51.52
-    },
-    "LONGITUDE": {
-        "0": -95.4,
-        "1": -95.4,
-        "2": -0.11,
-        "3": -0.11
-    },
-    "CLASS": {
-        "0": "fod_short_range_hourly",
-        "1": "fod_short_range_hourly",
-        "2": "fod_short_range_hourly",
-        "3": "fod_short_range_hourly"
-    },
-    "CLDS": {
-        "0": 79,
-        "1": 69,
-        "2": 80,
-        "3": 77
-    },
-    "DAY_IND": {
-        "0": "D",
-        "1": "D",
-        "2": "D",
-        "3": "D"
-    },
-    "DEWPT": {
-        "0": 77,
-        "1": 77,
-        "2": 62,
-        "3": 61
-    },
-    "DOW": {
-        "0": "Friday",
-        "1": "Friday",
-        "2": "Sunday",
-        "3": "Sunday"
-    },
-    "EXPIRE_TIME_GMT": {
-        "0": 1686945840,
-        "1": 1686945840,
-        "2": 1687110027,
-        "3": 1687110027
-    },
-    "FCST_VALID": {
-        "0": 1686945600,
-        "1": 1686949200,
-        "2": 1687111200,
-        "3": 1687114800
-    },
-    "FCST_VALID_LOCAL": {
-        "0": "2023-06-16T15:00:00-0500",
-        "1": "2023-06-16T16:00:00-0500",
-        "2": "2023-06-18T19:00:00+0100",
-        "3": "2023-06-18T20:00:00+0100"
-    },
-    "FEELS_LIKE": {
-        "0": 105,
-        "1": 105,
-        "2": 66,
-        "3": 66
-    },
-    "GOLF_CATEGORY": {
-        "0": "Very Good",
-        "1": "Very Good",
-        "2": "Good",
-        "3": "Good"
-    },
-    "GOLF_INDEX": {
-        "0": 8.0,
-        "1": 8.0,
-        "2": 6.0,
-        "3": 6.0
-    },
-    "GUST": {
-        "0": None,
-        "1": None,
-        "2": None,
-        "3": None
-    },
-    "HI": {
-        "0": 105,
-        "1": 105,
-        "2": 66,
-        "3": 66
-    },
-    "ICON_CODE": {
-        "0": 28,
-        "1": 28,
-        "2": 11,
-        "3": 11
-    },
-    "ICON_EXTD": {
-        "0": 2800,
-        "1": 2800,
-        "2": 1201,
-        "3": 1100
-    },
-    "MSLP": {
-        "0": 29.77,
-        "1": 29.76,
-        "2": 29.74,
-        "3": 29.75
-    },
-    "NUM": {
-        "0": 1,
-        "1": 2,
-        "2": 1,
-        "3": 2
-    },
-    "PHRASE_12CHAR": {
-        "0": "M Cloudy",
-        "1": "M Cloudy",
-        "2": "Light Rain",
-        "3": "Showers"
-    },
-    "PHRASE_22CHAR": {
-        "0": "Mostly Cloudy",
-        "1": "Mostly Cloudy",
-        "2": "Light Rain",
-        "3": "Showers"
-    },
-    "PHRASE_32CHAR": {
-        "0": "Mostly Cloudy",
-        "1": "Mostly Cloudy",
-        "2": "Light Rain",
-        "3": "Showers"
-    },
-    "POP": {
-        "0": "15",
-        "1": "15",
-        "2": "86",
-        "3": "53"
-    },
-    "PRECIP_TYPE": {
-        "0": "rain",
-        "1": "rain",
-        "2": "rain",
-        "3": "rain"
-    },
-    "QPF": {
-        "0": 0.0,
-        "1": 0.0,
-        "2": 0.02,
-        "3": 0.01
-    },
-    "RH": {
-        "0": 64,
-        "1": 63,
-        "2": 85,
-        "3": 84
-    },
-    "SEVERITY": {
-        "0": 1,
-        "1": 1,
-        "2": 1,
-        "3": 1
-    },
-    "SNOW_QPF": {
-        "0": 0.0,
-        "1": 0.0,
-        "2": 0.0,
-        "3": 0.0
-    },
-    "SUBPHRASE_PT1": {
-        "0": "Mostly",
-        "1": "Mostly",
-        "2": "Light",
-        "3": "Showers"
-    },
-    "SUBPHRASE_PT2": {
-        "0": "Cloudy",
-        "1": "Cloudy",
-        "2": "Rain",
-        "3": ""
-    },
-    "SUBPHRASE_PT3": {
-        "0": "",
-        "1": "",
-        "2": "",
-        "3": ""
-    },
-    "TEMP": {
-        "0": 91,
-        "1": 91,
-        "2": 66,
-        "3": 66
-    },
-    "UV_DESC": {
-        "0": "High",
-        "1": "Moderate",
-        "2": "Low",
-        "3": "Low"
-    },
-    "UV_INDEX": {
-        "0": 6,
-        "1": 5,
-        "2": 0,
-        "3": 0
-    },
-    "UV_INDEX_RAW": {
-        "0": 5.65,
-        "1": 5.08,
-        "2": 0.35,
-        "3": 0.09
-    },
-    "UV_WARNING": {
-        "0": 0,
-        "1": 0,
-        "2": 0,
-        "3": 0
-    },
-    "VIS": {
-        "0": 10.0,
-        "1": 10.0,
-        "2": 9.0,
-        "3": 9.0
-    },
-    "WC": {
-        "0": 91,
-        "1": 91,
-        "2": 66,
-        "3": 66
-    },
-    "WDIR": {
-        "0": 233,
-        "1": 235,
-        "2": 207,
-        "3": 218
-    },
-    "WDIR_CARDINAL": {
-        "0": "SW",
-        "1": "SW",
-        "2": "SSW",
-        "3": "SW"
-    },
-    "WSPD": {
-        "0": 6,
-        "1": 5,
-        "2": 4,
-        "3": 6
-    },
-    "WXMAN": {
-        "0": "wx1230",
-        "1": "wx1230",
-        "2": "wx2500",
-        "3": "wx2500"
-    }
-}
+expected_json = {"LATITUDE": {"0": 32.3667, "1": 32.3667, "2": 51.52, "3": 51.52},
+                 "LONGITUDE": {"0": -95.4, "1": -95.4, "2": -0.11, "3": -0.11},
+                 "CLASS": {"0": "fod_short_range_hourly", "1": "fod_short_range_hourly", "2": "fod_short_range_hourly",
+                           "3": "fod_short_range_hourly"},
+                 "EXPIRE_TIME_GMT": {"0": 1686945840, "1": 1686945840, "2": 1687110027, "3": 1687110027},
+                 "FCST_VALID": {"0": 1686945600, "1": 1686949200, "2": 1687111200, "3": 1687114800},
+                 "FCST_VALID_LOCAL": {"0": "2023-06-16T15:00:00-0500", "1": "2023-06-16T16:00:00-0500",
+                                      "2": "2023-06-18T19:00:00+0100", "3": "2023-06-18T20:00:00+0100"},
+                 "NUM": {"0": 1, "1": 2, "2": 1, "3": 2}, "DAY_IND": {"0": "D", "1": "D", "2": "D", "3": "D"},
+                 "TEMP": {"0": 91, "1": 91, "2": 66, "3": 66}, "DEWPT": {"0": 77, "1": 77, "2": 62, "3": 61},
+                 "HI": {"0": 105, "1": 105, "2": 66, "3": 66}, "WC": {"0": 91, "1": 91, "2": 66, "3": 66},
+                 "FEELS_LIKE": {"0": 105, "1": 105, "2": 66, "3": 66},
+                 "ICON_EXTD": {"0": 2800, "1": 2800, "2": 1201, "3": 1100},
+                 "WXMAN": {"0": "wx1230", "1": "wx1230", "2": "wx2500", "3": "wx2500"},
+                 "ICON_CODE": {"0": 28, "1": 28, "2": 11, "3": 11},
+                 "DOW": {"0": "Friday", "1": "Friday", "2": "Sunday", "3": "Sunday"},
+                 "PHRASE_12CHAR": {"0": "M Cloudy", "1": "M Cloudy", "2": "Light Rain", "3": "Showers"},
+                 "PHRASE_22CHAR": {"0": "Mostly Cloudy", "1": "Mostly Cloudy", "2": "Light Rain", "3": "Showers"},
+                 "PHRASE_32CHAR": {"0": "Mostly Cloudy", "1": "Mostly Cloudy", "2": "Light Rain", "3": "Showers"},
+                 "SUBPHRASE_PT1": {"0": "Mostly", "1": "Mostly", "2": "Light", "3": "Showers"},
+                 "SUBPHRASE_PT2": {"0": "Cloudy", "1": "Cloudy", "2": "Rain", "3": ""},
+                 "SUBPHRASE_PT3": {"0": "", "1": "", "2": "", "3": ""},
+                 "POP": {"0": "15", "1": "15", "2": "86", "3": "53"},
+                 "PRECIP_TYPE": {"0": "rain", "1": "rain", "2": "rain", "3": "rain"},
+                 "QPF": {"0": 0.0, "1": 0.0, "2": 0.02, "3": 0.01},
+                 "SNOW_QPF": {"0": 0.0, "1": 0.0, "2": 0.0, "3": 0.0}, "RH": {"0": 64, "1": 63, "2": 85, "3": 84},
+                 "WSPD": {"0": 6, "1": 5, "2": 4, "3": 6}, "WDIR": {"0": 233, "1": 235, "2": 207, "3": 218},
+                 "WDIR_CARDINAL": {"0": "SW", "1": "SW", "2": "SSW", "3": "SW"},
+                 "GUST": {"0": None, "1": None, "2": None, "3": None}, "CLDS": {"0": 79, "1": 69, "2": 80, "3": 77},
+                 "VIS": {"0": 10.0, "1": 10.0, "2": 9.0, "3": 9.0},
+                 "MSLP": {"0": 29.77, "1": 29.76, "2": 29.74, "3": 29.75},
+                 "UV_INDEX_RAW": {"0": 5.65, "1": 5.08, "2": 0.35, "3": 0.09},
+                 "UV_INDEX": {"0": 6, "1": 5, "2": 0, "3": 0}, "UV_WARNING": {"0": 0, "1": 0, "2": 0, "3": 0},
+                 "UV_DESC": {"0": "High", "1": "Moderate", "2": "Low", "3": "Low"},
+                 "GOLF_INDEX": {"0": 8.0, "1": 8.0, "2": 6.0, "3": 6.0},
+                 "GOLF_CATEGORY": {"0": "Very Good", "1": "Very Good", "2": "Good", "3": "Good"},
+                 "SEVERITY": {"0": 1, "1": 1, "2": 1, "3": 1}}
 
 
 def get_api_response(url: str) -> str:
@@ -543,7 +326,7 @@ def test_weather_forecast_api_v1_multi_read_batch(spark_session: SparkSession, m
 
     assert df.count() == 4
     assert isinstance(df, DataFrame)
-    assert str(df.schema) == str(WEATHER_FORECAST_MULTI_SCHEMA)
+    assert str(df.schema) == str(WEATHER_FORECAST_SCHEMA)
 
     pdf = df.toPandas()
     expected_df = pd.DataFrame(expected_json)

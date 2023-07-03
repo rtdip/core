@@ -21,13 +21,13 @@ from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_co
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
-iso_configuration = {
+configuration = {
 
 }
 
 
 def test_base_weather_read_setup(spark_session: SparkSession):
-    base_weather_source = BaseWeatherSource(spark_session, iso_configuration)
+    base_weather_source = BaseWeatherSource(spark_session, configuration)
 
     assert base_weather_source.system_type().value == 2
     assert base_weather_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
@@ -40,7 +40,7 @@ def test_base_weather_read_setup(spark_session: SparkSession):
 
 def test_weather_iso_read_stream_exception(spark_session: SparkSession):
     with pytest.raises(NotImplementedError) as exc_info:
-        base_weather_source = BaseWeatherSource(spark_session, iso_configuration)
+        base_weather_source = BaseWeatherSource(spark_session, configuration)
         base_weather_source.read_stream()
 
     assert str(exc_info.value) == "BaseWeatherSource connector doesn't support stream operation."
@@ -48,7 +48,7 @@ def test_weather_iso_read_stream_exception(spark_session: SparkSession):
 
 def test_weather_iso_required_options_fails(spark_session: SparkSession):
     with pytest.raises(ValueError) as exc_info:
-        base_weather_source = BaseWeatherSource(spark_session, iso_configuration)
+        base_weather_source = BaseWeatherSource(spark_session, configuration)
         base_weather_source.required_options = ["lat"]
         base_weather_source.pre_read_validation()
 
@@ -56,7 +56,7 @@ def test_weather_iso_required_options_fails(spark_session: SparkSession):
 
 
 def test_weather_iso_fetch_url_fails(spark_session: SparkSession, mocker: MockerFixture):
-    base_weather_source = BaseWeatherSource(spark_session, iso_configuration)
+    base_weather_source = BaseWeatherSource(spark_session, configuration)
     sample_bytes = bytes("Unknown Error".encode("utf-8"))
 
     class MyResponse:
