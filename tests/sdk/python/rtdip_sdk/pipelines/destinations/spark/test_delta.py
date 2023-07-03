@@ -46,6 +46,13 @@ def test_spark_delta_write_batch(spark_session: SparkSession):
     assert expected_df.schema == actual_df.schema
     assert expected_df.collect() == actual_df.collect()
 
+def test_spark_delta_write_batch_path(spark_session: SparkSession, mocker: MockerFixture):
+    mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(mode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(return_value=None))))))))))
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    delta_destination = SparkDeltaDestination(expected_df, {}, table_path= "/test_spark_delta_write_batch", mode="overwrite")
+    write_df = delta_destination.write_batch()
+    assert write_df is None
+
 def test_spark_delta_write_stream(spark_session: SparkSession, mocker: MockerFixture):
     mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(toTable=mocker.Mock(return_value=TestStreamingQueryClass()))))))))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])

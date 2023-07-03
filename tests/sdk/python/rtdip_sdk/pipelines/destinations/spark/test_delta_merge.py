@@ -165,3 +165,16 @@ def test_spark_delta_merge_write_stream_fails(spark_session: SparkSession, mocke
     eventhub_destination = SparkDeltaMergeDestination(spark_session, expected_df, {}, "overwrite", table_name= "test_spark_delta_merge_write_stream")
     with pytest.raises(Exception):
         eventhub_destination.write_stream()
+
+def test_spark_delta_merge_write_stream_path(spark_session: SparkSession, mocker: MockerFixture):
+    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(foreachBatch=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(return_value=TestStreamingQueryClass()))))))))))))))))
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    delta_merge_destination = SparkDeltaMergeDestination(spark_session, expected_df, {}, "source.id = target.id", table_path= "/path/to/table")
+    actual = delta_merge_destination.write_stream()
+    assert actual is None
+
+def test_delta_merge_path_logic(spark_session: SparkSession):
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    delta_merge_destination = SparkDeltaMergeDestination(spark_session, expected_df, {}, "source.id = target.id", table_name= "test_table_fails", table_path= "/path/to/table")
+    with pytest.raises(Exception):
+        delta_merge_destination.write_batch()

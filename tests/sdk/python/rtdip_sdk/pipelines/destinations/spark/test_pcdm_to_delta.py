@@ -146,3 +146,11 @@ def test_spark_pcdm_to_delta_write_stream_fails(spark_session: SparkSession, moc
     pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, expected_df, {}, table_name_float= "test_spark_pcdm_to_delta_write_batch_merge_float", table_name_string= "test_spark_pcdm_to_delta_write_batch_merge_string", mode="update", merge=True)
     with pytest.raises(Exception):
         pcdm_to_delta_destination.write_stream()
+
+def test_spark_pcdm_to_delta_write_batch_path_logic(spark_session: SparkSession):
+    create_delta_table(spark_session, "test_spark_pcdm_to_delta_write_batch_append_float", "float")
+    create_delta_table(spark_session, "test_spark_pcdm_to_delta_write_batch_append_string", "string")
+    test_df = spark_session.createDataFrame([{"TagName": "Tag1", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "1.01", "ValueType": "float", "ChangeType": "insert"}, {"TagName": "Tag2", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "test", "ValueType": "string", "ChangeType": "insert"}])
+    pcdm_to_delta_destination = SparkPCDMToDeltaDestination(spark_session, test_df, {}, table_name_float="test_spark_pcdm_to_delta_write_batch_append_float", table_path_float="/test/path", table_name_string= "test_spark_pcdm_to_delta_write_batch_append_string", mode="overwrite", merge=False)
+    with pytest.raises(Exception):
+        pcdm_to_delta_destination.write_batch()
