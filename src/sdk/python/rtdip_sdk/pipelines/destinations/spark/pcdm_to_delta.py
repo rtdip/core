@@ -24,6 +24,12 @@ from ..spark.delta_merge import SparkDeltaMergeDestination, DeltaMergeCondition,
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 
+class ValueTypeConstants():
+    INTEGER_VALUE = "ValueType = 'integer'"
+    FLOAT_VALUE = "ValueType = 'float'"
+    STRING_VALUE = "ValueType = 'string'"
+
+
 class SparkPCDMToDeltaDestination(DestinationInterface):
     '''
     The Process Control Data Model written to Delta
@@ -191,26 +197,18 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
         float_df = (
             df
-            .filter("ValueType = 'float'")
+            .filter(ValueTypeConstants.FLOAT_VALUE)
             .withColumn("Value", col("Value").cast("float"))
         )
         self._write_delta_batch(float_df, self.table_name_float, self.table_path_float)
 
-        string_df = df.filter("ValueType = 'string'")
+        string_df = df.filter(ValueTypeConstants.STRING_VALUE)
         self._write_delta_batch(string_df, self.table_name_string, self.table_path_string)
 
-        if self.table_name_integer != None:
+        if self.table_name_integer != None or self.table_path_integer != None:
             integer_df = (
                 df
-                .filter("ValueType = 'integer'")
-                .withColumn("Value", col("Value").cast("integer"))
-            )
-            self._write_delta_batch(integer_df, self.table_name_integer, self.table_path_integer)   
-
-        elif self.table_path_integer != None:
-            integer_df = (
-                df
-                .filter("ValueType = 'integer'")
+                .filter(ValueTypeConstants.INTEGER_VALUE)
                 .withColumn("Value", col("Value").cast("integer"))
             )
             self._write_delta_batch(integer_df, self.table_name_integer, self.table_path_integer)         
@@ -259,7 +257,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 )
             else:
                 delta_float = SparkDeltaDestination(
-                    data=self.data.filter("ValueType = 'float'").withColumn("Value", col("Value").cast("float")),
+                    data=self.data.filter(ValueTypeConstants.FLOAT_VALUE).withColumn("Value", col("Value").cast("float")),
                     table_name=self.table_name_float,
                     table_path=self.table_path_float,
                     options=self.options,
@@ -271,7 +269,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 delta_float.write_stream()                
 
                 delta_string = SparkDeltaDestination(
-                    data=self.data.filter("ValueType = 'string'"),
+                    data=self.data.filter(ValueTypeConstants.STRING_VALUE),
                     table_name=self.table_name_string,
                     table_path=self.table_path_string,
                     options=self.options,
@@ -284,7 +282,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
                 if self.table_name_integer != None:
                     delta_integer = SparkDeltaDestination(
-                        data=self.data.filter("ValueType = 'integer'"),
+                        data=self.data.filter(ValueTypeConstants.INTEGER_VALUE),
                         table_name=self.table_name_integer,
                         table_path=self.table_path_integer,
                         options=self.options,
