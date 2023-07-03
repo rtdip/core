@@ -14,9 +14,9 @@
 
 import sys
 sys.path.insert(0, '.')
-from importlib_metadata import version
 import pytest
 from pytest_mock import MockerFixture
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _get_package_version
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.autoloader import DataBricksAutoLoaderSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
@@ -30,7 +30,7 @@ def test_databricks_autoloader_setup(spark_session: SparkSession):
     assert autoloader_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version=version("delta-spark")
+                version=_get_package_version("delta-spark")
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(autoloader_source.settings(), dict)
     assert autoloader_source.pre_read_validation()

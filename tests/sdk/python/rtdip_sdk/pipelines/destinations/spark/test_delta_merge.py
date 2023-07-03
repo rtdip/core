@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, '.')
 import pytest
 from importlib_metadata import version
-from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _package_version_meets_minimum
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _package_version_meets_minimum, _get_package_version
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta_merge import SparkDeltaMergeDestination, DeltaMergeCondition, DeltaMergeConditionValues
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
@@ -34,7 +34,7 @@ def test_spark_delta_merge_write_setup(spark_session: SparkSession):
     assert delta_merge_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version=version("delta-spark")
+                version=_get_package_version("delta-spark")
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(delta_merge_destination.settings(), dict)
     assert delta_merge_destination.pre_write_validation()
