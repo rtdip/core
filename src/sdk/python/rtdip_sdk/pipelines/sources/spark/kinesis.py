@@ -17,7 +17,6 @@ from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
 from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 from ..._pipeline_utils.spark import KINESIS_SCHEMA
 
 class SparkKinesisSource(SourceInterface):
