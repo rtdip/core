@@ -46,7 +46,7 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
 
     @staticmethod
     def libraries():
-        from ..._pipeline_utils.constants import DEFAULT_PACKAGES # moved due to pandas udf
+        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
         libraries.add_pypi_library(DEFAULT_PACKAGES["pyarrow"])
         libraries.add_pypi_library(DEFAULT_PACKAGES["pandas"])        

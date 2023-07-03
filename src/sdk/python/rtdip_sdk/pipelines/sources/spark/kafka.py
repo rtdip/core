@@ -18,7 +18,6 @@ from pyspark.sql import DataFrame, SparkSession
 
 from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
 from ..._pipeline_utils.spark import KAFKA_SCHEMA
 
 class SparkKafkaSource(SourceInterface):
@@ -92,6 +91,7 @@ class SparkKafkaSource(SourceInterface):
 
     @staticmethod
     def libraries():
+        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         spark_libraries = Libraries()
         spark_libraries.add_maven_library(DEFAULT_PACKAGES["spark_sql_kafka"])
         return spark_libraries

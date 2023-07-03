@@ -15,7 +15,6 @@
 from .interfaces import SecretsInterface
 from azure.keyvault.secrets import SecretClient
 from .._pipeline_utils.models import Libraries, SystemType
-from .._pipeline_utils.constants import DEFAULT_PACKAGES
 
 class AzureKeyVaultSecrets(SecretsInterface):
     '''
@@ -52,6 +51,7 @@ class AzureKeyVaultSecrets(SecretsInterface):
 
     @staticmethod
     def libraries():
+        from .._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
         libraries.add_pypi_library(DEFAULT_PACKAGES["azure_key_vault_secret"])
         return libraries
