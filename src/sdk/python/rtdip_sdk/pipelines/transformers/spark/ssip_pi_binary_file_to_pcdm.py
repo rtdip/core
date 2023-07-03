@@ -19,6 +19,7 @@ from pyspark.sql import DataFrame
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from ..._pipeline_utils.constants import get_default_package
 
 class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
     '''
@@ -46,10 +47,9 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
 
     @staticmethod
     def libraries():
-        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
-        libraries.add_pypi_library(DEFAULT_PACKAGES["pyarrow"])
-        libraries.add_pypi_library(DEFAULT_PACKAGES["pandas"])        
+        libraries.add_pypi_library(get_default_package("pyarrow"))
+        libraries.add_pypi_library(get_default_package("pandas"))        
         return libraries
     
     @staticmethod

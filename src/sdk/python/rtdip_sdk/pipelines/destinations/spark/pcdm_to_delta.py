@@ -22,6 +22,7 @@ from ..interfaces import DestinationInterface
 from ..spark.delta import SparkDeltaDestination
 from ..spark.delta_merge import SparkDeltaMergeDestination, DeltaMergeCondition, DeltaMergeConditionValues
 from ..._pipeline_utils.models import Libraries, SystemType
+from ..._pipeline_utils.constants import get_default_package
 
 class SparkPCDMToDeltaDestination(DestinationInterface):
     '''
@@ -92,9 +93,8 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
     @staticmethod
     def libraries():
-        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
-        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
+        libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
     
     @staticmethod
@@ -149,21 +149,26 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
             merge_condition = "source.EventDate = target.EventDate AND source.TagName = target.TagName AND source.EventTime = target.EventTime"
             
+            perform_merge = True
             if self.try_broadcast_join != True:
                 eventdate_string = self._get_eventdate_string(df)
-                merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
+                if eventdate_string == None or eventdate_string == "":
+                    perform_merge = False
+                else:
+                    merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
 
-            delta = SparkDeltaMergeDestination(
-                spark=self.spark,
-                data=df,
-                table_name=table_name,
-                options=self.options,
-                merge_condition=merge_condition,
-                when_matched_update_list=when_matched_update_list,
-                when_matched_delete_list=when_matched_delete_list,
-                when_not_matched_insert_list=when_not_matched_insert_list,
-                try_broadcast_join=self.try_broadcast_join
-            )
+            if perform_merge == True:
+                delta = SparkDeltaMergeDestination(
+                    spark=self.spark,
+                    data=df,
+                    table_name=table_name,
+                    options=self.options,
+                    merge_condition=merge_condition,
+                    when_matched_update_list=when_matched_update_list,
+                    when_matched_delete_list=when_matched_delete_list,
+                    when_not_matched_insert_list=when_not_matched_insert_list,
+                    try_broadcast_join=self.try_broadcast_join
+                )
         else:
             df = df.select("TagName", "EventTime", "Status", "Value")
             delta = SparkDeltaDestination(

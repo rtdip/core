@@ -26,7 +26,6 @@ from unittest.mock import patch
 from src.sdk.python.rtdip_sdk.pipelines.destinations import * # NOSONAR
 from src.sdk.python.rtdip_sdk.pipelines.sources import * # NOSONAR
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import SparkSessionUtility
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import DEFAULT_PACKAGES
 
 SPARK_TESTING_CONFIGURATION = {
     "spark.executor.cores": "2",

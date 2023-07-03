@@ -19,6 +19,7 @@ from pydantic import BaseModel
 
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from ..._pipeline_utils.constants import get_default_package
 
 import boto3
 import json
@@ -68,9 +69,8 @@ class S3BucketPolicyUtility(UtilitiesInterface):
 
     @staticmethod
     def libraries():
-        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
-        libraries.add_pypi_library(DEFAULT_PACKAGES["aws_boto3"])
+        libraries.add_pypi_library(get_default_package("aws_boto3"))
         return libraries
     
     @staticmethod
