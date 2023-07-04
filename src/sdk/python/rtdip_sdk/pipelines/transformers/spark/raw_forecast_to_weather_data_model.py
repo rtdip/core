@@ -90,7 +90,6 @@ class RawForecastToWeatherDataModel(TransformerInterface):
 
         df = (
             self.data
-            .withColumn("weather_id", concat(col("LATITUDE"), lit(","), col("LONGITUDE")))
             .withColumn("weather_day", substring("fcst_valid_local", 0, 10))
             .withColumn("weather_hour", (substring("fcst_valid_local", 12, 2).cast(IntegerType()) + 1))
             .withColumn("weather_timezone_offset", substring("fcst_valid_local", 20, 5))
