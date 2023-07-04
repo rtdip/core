@@ -24,6 +24,7 @@ from delta.tables import DeltaTable, DeltaMergeBuilder
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ...._sdk_utils.compare_versions import _package_version_meets_minimum
+from ..._pipeline_utils.constants import get_default_package
 
 class DeltaMergeConditionValues(BaseModel):
     condition: Optional[str]
@@ -109,9 +110,9 @@ class SparkDeltaMergeDestination(DestinationInterface):
 
     @staticmethod
     def libraries():
-        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+        
         libraries = Libraries()
-        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
+        libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
     
     @staticmethod

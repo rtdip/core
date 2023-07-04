@@ -24,6 +24,7 @@ from py4j.protocol import Py4JJavaError
 
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from ..._pipeline_utils.constants import get_default_package
 
 class SparkRestAPIDestination(DestinationInterface):
     '''
@@ -89,9 +90,8 @@ class SparkRestAPIDestination(DestinationInterface):
 
     @staticmethod
     def libraries():
-        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
-        libraries.add_pypi_library(DEFAULT_PACKAGES["api_requests"])
+        libraries.add_pypi_library(get_default_package("api_requests"))
         return libraries
     
     @staticmethod
