@@ -17,6 +17,7 @@ from typing import Dict, Union
 
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from ..._pipeline_utils.constants import get_default_package
 
 from azure.storage.filedatalake import DataLakeServiceClient, FileSystemClient
 from azure.core.credentials import TokenCredential, AzureNamedKeyCredential, AzureSasCredential
@@ -70,9 +71,8 @@ class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
 
     @staticmethod
     def libraries():
-        from ..._pipeline_utils.constants import DEFAULT_PACKAGES
         libraries = Libraries()
-        libraries.add_pypi_library(DEFAULT_PACKAGES["azure_adls_gen_2"])
+        libraries.add_pypi_library(get_default_package("azure_adls_gen_2"))
         return libraries
     
     @staticmethod
