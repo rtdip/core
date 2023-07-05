@@ -22,7 +22,7 @@ from ..interfaces import DestinationInterface
 from ..spark.delta import SparkDeltaDestination
 from ..spark.delta_merge import SparkDeltaMergeDestination, DeltaMergeCondition, DeltaMergeConditionValues
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from ..._pipeline_utils.constants import get_default_package
 
 class ValueTypeConstants():
     INTEGER_VALUE = "ValueType = 'integer'"
@@ -112,7 +112,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
+        libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
     
     @staticmethod
@@ -155,28 +155,39 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             when_not_matched_insert_list = [
                 DeltaMergeConditionValues(
                     condition="(source.ChangeType IN ('insert', 'update', 'upsert'))",
-                    values="*"
+                    values={
+                        "EventDate": "source.EventDate", 
+                        "TagName": "source.TagName",
+                        "EventTime": "source.EventTime",
+                        "Status": "source.Status",
+                        "Value": "source.Value"
+                    }
                 )
             ]
 
             merge_condition = "source.EventDate = target.EventDate AND source.TagName = target.TagName AND source.EventTime = target.EventTime"
             
+            perform_merge = True
             if self.try_broadcast_join != True:
                 eventdate_string = self._get_eventdate_string(df)
-                merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
+                if eventdate_string == None or eventdate_string == "":
+                    perform_merge = False
+                else:
+                    merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
 
-            delta = SparkDeltaMergeDestination(
-                spark=self.spark,
-                data=df,
-                table_name=table_name,
-                table_path=table_path,
-                options=self.options,
-                merge_condition=merge_condition,
-                when_matched_update_list=when_matched_update_list,
-                when_matched_delete_list=when_matched_delete_list,
-                when_not_matched_insert_list=when_not_matched_insert_list,
-                try_broadcast_join=self.try_broadcast_join
-            )
+            if perform_merge == True:
+                delta = SparkDeltaMergeDestination(
+                    spark=self.spark,
+                    data=df,
+                    table_name=table_name,
+                    table_path=table_path
+                    options=self.options,
+                    merge_condition=merge_condition,
+                    when_matched_update_list=when_matched_update_list,
+                    when_matched_delete_list=when_matched_delete_list,
+                    when_not_matched_insert_list=when_not_matched_insert_list,
+                    try_broadcast_join=self.try_broadcast_join
+                )
         else:
             df = df.select("TagName", "EventTime", "Status", "Value")
             delta = SparkDeltaDestination(
