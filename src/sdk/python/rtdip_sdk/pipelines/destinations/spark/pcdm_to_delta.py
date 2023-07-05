@@ -84,7 +84,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                  query_name: str ="PCDMToDeltaMergeDestination",
                  merge: bool = True,
                  try_broadcast_join = False,
-                 remove_duplicates: bool = True) -> None:
+                 remove_duplicates: bool = True) -> None: # NOSONAR
         self.spark = spark
         self.data = data
         self.table_name_float = table_name_float if table_path_float is None else None

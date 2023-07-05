@@ -84,7 +84,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  when_not_matched_by_source_delete_list: List[DeltaMergeCondition] = None,
                  try_broadcast_join: bool = False,
                  trigger="10 seconds",
-                 query_name: str ="DeltaMergeDestination") -> None:
+                 query_name: str ="DeltaMergeDestination") -> None: # NOSONAR
         self.spark = spark
         self.data = data
         self.options = options
@@ -132,7 +132,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
     def post_write_validation(self):
         return True
 
-    def _delta_merge_builder(self, df: DataFrame, try_broadcast_join: bool) -> DeltaMergeBuilder:
+    def _delta_merge_builder(self, df: DataFrame, try_broadcast_join: bool) -> DeltaMergeBuilder: # NOSONAR
         if self.table_name is not None:
             delta_table = DeltaTable.forName(self.spark, self.table_name)
         elif self.table_path is not None:
