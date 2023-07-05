@@ -14,11 +14,11 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 - Sample Rate - The resampling rate
 - Sample Unit - The resampling unit (second, minute, day, hour)
-- Aggregation Method - Aggregrations including first, last, avg, min, max
+- Aggregation Method - Aggregations including first, last, avg, min, max
 
 ### Interpolate
 
-[Interpolate](../code-reference/query/interpolate.md) - takes [resampling](#resample) one step further to estimate the values of unknown data points that fall between existing, known data points. In addition to the resampling parameters, interpolation alse requires:
+[Interpolate](../code-reference/query/interpolate.md) - takes [resampling](#resample) one step further to estimate the values of unknown data points that fall between existing, known data points. In addition to the resampling parameters, interpolation also requires:
 
 - Interpolation Method - Forward Fill or Backward Fill
 

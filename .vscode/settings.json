@@ -2,7 +2,7 @@
     "azureFunctions.scmDoBuildDuringDeployment": true,
     "azureFunctions.pythonVenv": "${workspaceFolder}/src/api/.venv",
     "azureFunctions.projectLanguage": "Python",
-    "azureFunctions.projectRuntime": "~4",				
+    "azureFunctions.projectRuntime": "~4",		
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.formatting.autopep8Path": "/opt/conda/bin/autopep8",
@@ -15,7 +15,7 @@
         "--cov=.",
         "--cov-report=xml:cov.xml",
         "tests",
-        "-v"
+        "-vv"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
@@ -37,5 +37,37 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
-    "python.formatting.provider": "none"
+    "python.formatting.provider": "none",
+    "cSpell.words": [
+        "ADLS",
+        "Autoloader",
+        "chatopenai",
+        "dagster",
+        "dataframe",
+        "DDTHH",
+        "Eventhub",
+        "JDBC",
+        "Lakehouse",
+        "langchain",
+        "Metastore",
+        "NOSONAR",
+        "odbc",
+        "openai",
+        "Osisoft",
+        "PCDM",
+        "PYDOBC",
+        "pyodbc",
+        "PYODBCSQL",
+        "pyspark",
+        "roadmap",
+        "roadmaps",
+        "RTDIP",
+        "SSIP",
+        "tagnames",
+        "timeseries",
+        "toolkits",
+        "Turbodbc",
+        "TURBODBCSQL",
+        "ZORDER"
+    ]
 }
