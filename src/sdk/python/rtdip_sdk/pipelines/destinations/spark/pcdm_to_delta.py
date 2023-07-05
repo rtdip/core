@@ -180,7 +180,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     spark=self.spark,
                     data=df,
                     table_name=table_name,
-                    table_path=table_path
+                    table_path=table_path,
                     options=self.options,
                     merge_condition=merge_condition,
                     when_matched_update_list=when_matched_update_list,
