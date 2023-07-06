@@ -178,6 +178,7 @@ nav:
 
               - Utilities:
                   - Spark:
+                      - Session: sdk/code-reference/pipelines/utilities/spark/session.md
                       - Configuration: sdk/code-reference/pipelines/utilities/spark/configuration.md
                       - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
                       - Delta Table Optimize: sdk/code-reference/pipelines/utilities/spark/delta_table_optimize.md
