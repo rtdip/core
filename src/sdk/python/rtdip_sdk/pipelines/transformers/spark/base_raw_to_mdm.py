@@ -155,55 +155,55 @@ class BaseRawToMDMTransformer(TransformerInterface):
         return self.data
 
     def _add_uid_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("uid", expr(self.uid_col))
+        return df.withColumn("Uid", expr(self.uid_col))
 
     def _add_series_id_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("series_id", expr(self.series_id))
+        return df.withColumn("SeriesId", expr(self.series_id))
 
     def _add_timestamp_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("timestamp", expr(self.timestamp_col))
+        return df.withColumn("Timestamp", expr(self.timestamp_col))
 
     def _add_interval_timestamp_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("interval_timestamp", expr(self.interval_timestamp_col))
+        return df.withColumn("IntervalTimestamp", expr(self.interval_timestamp_col))
 
     def _add_value_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("value", expr(self.value_col))
+        return df.withColumn("Value", expr(self.value_col))
 
     def _add_series_parent_id_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("series_parent_id", expr(self.series_parent_id))
+        return df.withColumn("SeriesParentId", expr(self.series_parent_id))
 
     def _add_name_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("name", expr(self.name))
+        return df.withColumn("Name", expr(self.name))
 
     def _add_uom_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("uom", expr(self.uom_col))
+        return df.withColumn("Uom", expr(self.uom_col))
 
     def _add_description_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("description", expr(self.description))
+        return df.withColumn("Description", expr(self.description))
 
     def _add_timestamp_start_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("timestamp_start", expr(self.timestamp_start_col))
+        return df.withColumn("TimestampStart", expr(self.timestamp_start_col))
 
     def _add_timestamp_end_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("timestamp_end", expr(self.timestamp_end_col))
+        return df.withColumn("TimestampEnd", expr(self.timestamp_end_col))
 
     def _add_time_zone_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("time_zone", expr(self.time_zone_col))
+        return df.withColumn("Timezone", expr(self.time_zone_col))
 
     def _add_version_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("version", expr(self.version))
+        return df.withColumn("Version", expr(self.version))
 
     def _add_series_type_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("series_type", lit(self.series_type.value))
+        return df.withColumn("SeriesType", lit(self.series_type.value))
 
     def _add_model_type_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("model_type", lit(self.model_type.value))
+        return df.withColumn("ModelType", lit(self.model_type.value))
 
     def _add_value_type_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("value_type", lit(self.value_type.value))
+        return df.withColumn("ValueType", lit(self.value_type.value))
 
     def _add_properties_column(self, df: DataFrame) -> DataFrame:
-        return df.withColumn("properties", expr(self.properties_col))
+        return df.withColumn("Properties", expr(self.properties_col))
 
     def _pre_process(self) -> DataFrame:
         return self.data

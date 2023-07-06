@@ -85,13 +85,13 @@ def test_miso_daily_load_iso_read_batch_actual(spark_session: SparkSession, mock
     pdf = df.toPandas()
     expected_str = str(get_expected_vals())
 
-    assert str(pdf['LRZ1'].to_list()) == expected_str
-    assert str(pdf['LRZ2_7'].to_list()) == expected_str
-    assert str(pdf['LRZ3_5'].to_list()) == expected_str
-    assert str(pdf['LRZ4'].to_list()) == expected_str
-    assert str(pdf['LRZ6'].to_list()) == expected_str
-    assert str(pdf['LRZ8_9_10'].to_list()) == expected_str
-    assert str(pdf['MISO'].to_list()) == expected_str
+    assert str(pdf['Lrz1'].to_list()) == expected_str
+    assert str(pdf['Lrz2_7'].to_list()) == expected_str
+    assert str(pdf['Lrz3_5'].to_list()) == expected_str
+    assert str(pdf['Lrz4'].to_list()) == expected_str
+    assert str(pdf['Lrz6'].to_list()) == expected_str
+    assert str(pdf['Lrz8_9_10'].to_list()) == expected_str
+    assert str(pdf['Miso'].to_list()) == expected_str
 
 
 def test_miso_daily_load_iso_read_batch_forecast(spark_session: SparkSession, mocker: MockerFixture):
@@ -107,13 +107,13 @@ def test_miso_daily_load_iso_read_batch_forecast(spark_session: SparkSession, mo
     pdf = df.toPandas()
     expected_str = str(get_expected_vals(incr=0.05))
 
-    assert str(pdf['LRZ1'].to_list()) == expected_str
-    assert str(pdf['LRZ2_7'].to_list()) == expected_str
-    assert str(pdf['LRZ3_5'].to_list()) == expected_str
-    assert str(pdf['LRZ4'].to_list()) == expected_str
-    assert str(pdf['LRZ6'].to_list()) == expected_str
-    assert str(pdf['LRZ8_9_10'].to_list()) == expected_str
-    assert str(pdf['MISO'].to_list()) == expected_str
+    assert str(pdf['Lrz1'].to_list()) == expected_str
+    assert str(pdf['Lrz2_7'].to_list()) == expected_str
+    assert str(pdf['Lrz3_5'].to_list()) == expected_str
+    assert str(pdf['Lrz4'].to_list()) == expected_str
+    assert str(pdf['Lrz6'].to_list()) == expected_str
+    assert str(pdf['Lrz8_9_10'].to_list()) == expected_str
+    assert str(pdf['Miso'].to_list()) == expected_str
 
 
 def test_miso_daily_load_iso_invalid_load_type(spark_session: SparkSession):

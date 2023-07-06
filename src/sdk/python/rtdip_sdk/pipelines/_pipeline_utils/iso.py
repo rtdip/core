@@ -18,14 +18,14 @@ from pyspark.sql.functions import col, array, lit, struct, explode
 from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType
 
 MISO_SCHEMA = StructType([
-    StructField("DATE_TIME", TimestampType(), True),
-    StructField("LRZ1", DoubleType(), True),
-    StructField("LRZ2_7", DoubleType(), True),
-    StructField("LRZ3_5", DoubleType(), True),
-    StructField("LRZ4", DoubleType(), True),
-    StructField("LRZ6", DoubleType(), True),
-    StructField("LRZ8_9_10", DoubleType(), True),
-    StructField("MISO", DoubleType(), True),
+    StructField("Datetime", TimestampType(), True),
+    StructField("Lrz1", DoubleType(), True),
+    StructField("Lrz2_7", DoubleType(), True),
+    StructField("Lrz3_5", DoubleType(), True),
+    StructField("Lrz4", DoubleType(), True),
+    StructField("Lrz6", DoubleType(), True),
+    StructField("Lrz8_9_10", DoubleType(), True),
+    StructField("Miso", DoubleType(), True),
 ])
 
 

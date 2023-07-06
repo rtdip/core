@@ -38,8 +38,8 @@ def test_miso_to_mdm_usage(spark_session: SparkSession):
     transformer: BaseRawToMDMTransformer = MISOToMDMTransformer(spark_session, input_df, output_type="usage")
     actual_df = transformer.transform()
 
-    actual_df = actual_df.orderBy("uid", "timestamp")
-    expected_df = expected_df.orderBy("uid", "timestamp")
+    actual_df = actual_df.orderBy("Uid", "Timestamp")
+    expected_df = expected_df.orderBy("Uid", "Timestamp")
 
     assert transformer.system_type() == SystemType.PYSPARK
     assert isinstance(transformer.libraries(), Libraries)
@@ -58,8 +58,8 @@ def test_miso_to_mdm_meta(spark_session: SparkSession):
 
     actual_df = transformer.transform()
 
-    actual_df = actual_df.orderBy("uid", "timestamp_start")
-    expected_df = expected_df.orderBy("uid", "timestamp_start")
+    actual_df = actual_df.orderBy("Uid", "TimestampStart")
+    expected_df = expected_df.orderBy("Uid", "TimestampStart")
 
     assert transformer.system_type() == SystemType.PYSPARK
     assert isinstance(transformer.libraries(), Libraries)
@@ -79,7 +79,7 @@ def test_miso_to_mdm_meta_with_params(spark_session: SparkSession):
     series_parent_id = "'new_parent'"
     name = "'New Data'"
     description = "'Pulled from API'"
-    value_type = ValueType.usage
+    value_type = ValueType.Usage
 
     transformer: BaseRawToMDMTransformer = MISOToMDMTransformer(spark_session,
                                                                 input_df,
@@ -93,20 +93,20 @@ def test_miso_to_mdm_meta_with_params(spark_session: SparkSession):
                                                                 )
 
     expected_df = (expected_df
-                   .withColumn("version", expr(version))
-                   .withColumn("series_id", expr(series_id))
-                   .withColumn("series_parent_id", expr(series_parent_id))
-                   .withColumn("name", expr(name))
-                   .withColumn("description", expr(description))
-                   .withColumn("value_type", lit(value_type.value))
+                   .withColumn("Version", expr(version))
+                   .withColumn("SeriesId", expr(series_id))
+                   .withColumn("SeriesParentId", expr(series_parent_id))
+                   .withColumn("Name", expr(name))
+                   .withColumn("Description", expr(description))
+                   .withColumn("ValueType", lit(value_type.value))
                    )
 
     expected_df = spark_session.createDataFrame(expected_df.rdd, schema=MDM_META_SCHEMA)
 
     actual_df = transformer.transform()
 
-    actual_df = actual_df.orderBy("uid", "timestamp_start")
-    expected_df = expected_df.orderBy("uid", "timestamp_start")
+    actual_df = actual_df.orderBy("Uid", "TimestampStart")
+    expected_df = expected_df.orderBy("Uid", "TimestampStart")
 
     assert transformer.system_type() == SystemType.PYSPARK
     assert isinstance(transformer.libraries(), Libraries)

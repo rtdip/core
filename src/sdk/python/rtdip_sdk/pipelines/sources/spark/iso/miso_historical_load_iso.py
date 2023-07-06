@@ -85,7 +85,7 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Creates a new `date_time` column, removes null values and pivots the data.
+        Creates a new `Datetime` column, removes null values and pivots the data.
 
         Args:
             df: Raw form of data received from the API.
@@ -116,6 +116,19 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
 
+        rename_cols = {
+            'LRZ1': 'Lrz1',
+            'LRZ2_7': 'Lrz2_7',
+            'LRZ3_5': 'Lrz3_5',
+            'LRZ4': 'Lrz4',
+            'LRZ6': 'Lrz6',
+            'LRZ8_9_10': 'Lrz8_9_10',
+            'MISO': 'Miso',
+            'DATE_TIME': 'Datetime'
+        }
+
+        df = df.rename(columns=rename_cols)
+
         return df
 
     def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -133,10 +146,10 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         start_date = self._get_localized_datetime(self.start_date)
         end_date = self._get_localized_datetime(self.end_date).replace(hour=23, minute=59, second=59)
 
-        df = df[(df["DATE_TIME"] >= start_date.replace(tzinfo=None)) &
-                (df["DATE_TIME"] <= end_date.replace(tzinfo=None))]
+        df = df[(df["Datetime"] >= start_date.replace(tzinfo=None)) &
+                (df["Datetime"] <= end_date.replace(tzinfo=None))]
 
-        df = df.sort_values(by='DATE_TIME', ascending=True).reset_index(drop=True)
+        df = df.sort_values(by='Datetime', ascending=True).reset_index(drop=True)
 
         expected_rows = ((min(end_date, self.current_date) - start_date).days + 1) * 24
 

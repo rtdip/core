@@ -15,26 +15,26 @@
 from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType, StringType, MapType, IntegerType
 
 MDM_USAGE_SCHEMA = StructType([
-    StructField("uid", StringType(), True),
-    StructField("series_id", StringType(), True),
-    StructField("timestamp", TimestampType(), True),
-    StructField("interval_timestamp", TimestampType(), True),
-    StructField("value", DoubleType(), True)
+    StructField("Uid", StringType(), True),
+    StructField("SeriesId", StringType(), True),
+    StructField("Timestamp", TimestampType(), True),
+    StructField("IntervalTimestamp", TimestampType(), True),
+    StructField("Value", DoubleType(), True)
 ])
 
 MDM_META_SCHEMA = StructType([
-    StructField("uid", StringType(), True),
-    StructField("series_id", StringType(), True),
-    StructField("series_parent_id", StringType(), True),
-    StructField("name", StringType(), True),
-    StructField("uom", StringType(), True),
-    StructField("description", StringType(), True),
-    StructField("timestamp_start", TimestampType(), True),
-    StructField("timestamp_end", TimestampType(), True),
-    StructField("time_zone", StringType(), True),
-    StructField("version", StringType(), True),
-    StructField("series_type", IntegerType(), True),
-    StructField("model_type", IntegerType(), True),
-    StructField("value_type", IntegerType(), True),
-    StructField("properties", MapType(keyType=StringType(), valueType=StringType()), True)
+    StructField("Uid", StringType(), True),
+    StructField("SeriesId", StringType(), True),
+    StructField("SeriesParentId", StringType(), True),
+    StructField("Name", StringType(), True),
+    StructField("Uom", StringType(), True),
+    StructField("Description", StringType(), True),
+    StructField("TimestampStart", TimestampType(), True),
+    StructField("TimestampEnd", TimestampType(), True),
+    StructField("Timezone", StringType(), True),
+    StructField("Version", StringType(), True),
+    StructField("SeriesType", IntegerType(), True),
+    StructField("ModelType", IntegerType(), True),
+    StructField("ValueType", IntegerType(), True),
+    StructField("Properties", MapType(keyType=StringType(), valueType=StringType()), True)
 ])

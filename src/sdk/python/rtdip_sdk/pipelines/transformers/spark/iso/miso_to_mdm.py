@@ -31,26 +31,26 @@ class MISOToMDMTransformer(BaseRawToMDMTransformer):
     input_schema = MISO_SCHEMA
     uid_col = "variable"
     series_id_col = "'series_std_001'"
-    timestamp_col = "to_utc_timestamp(DATE_TIME, 'US/Central')"
-    interval_timestamp_col = "timestamp + INTERVAL 1 HOURS"
+    timestamp_col = "to_utc_timestamp(Datetime, 'US/Central')"
+    interval_timestamp_col = "Timestamp + INTERVAL 1 HOURS"
     value_col = "bround(value, 2)"
     series_parent_id_col = "'series_parent_std_001'"
-    name_col = "'MISO API'"
+    name_col = "'Miso API'"
     uom_col = "'mwh'"
-    description_col = "'MISO data pulled from MISO ISO API'"
-    timestamp_start_col = "DATE_TIME"
-    timestamp_end_col = "DATE_TIME + INTERVAL 1 HOURS"
+    description_col = "'Miso data pulled from Miso ISO API'"
+    timestamp_start_col = "Datetime"
+    timestamp_end_col = "Datetime + INTERVAL 1 HOURS"
     time_zone_col = "'US/Central'"
     version_col = "'1'"
-    series_type = SeriesType.hour
-    model_type = ModelType.default
-    value_type = ValueType.usage
+    series_type = SeriesType.Hour
+    model_type = ModelType.Default
+    value_type = ValueType.Usage
     properties_col = "null"
 
     def _pre_process(self) -> DataFrame:
         df: DataFrame = super(MISOToMDMTransformer, self)._pre_process()
         df = melt(df,
-                  id_vars=["DATE_TIME"],
-                  value_vars=["LRZ1", "LRZ2_7", "LRZ3_5", "LRZ4", "LRZ6", "LRZ8_9_10", "MISO"]
+                  id_vars=["Datetime"],
+                  value_vars=["Lrz1", "Lrz2_7", "Lrz3_5", "Lrz4", "Lrz6", "Lrz8_9_10", "Miso"]
                   )
         return df

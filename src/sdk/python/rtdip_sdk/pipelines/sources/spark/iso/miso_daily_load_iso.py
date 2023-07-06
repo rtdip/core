@@ -117,6 +117,19 @@ class MISODailyLoadISOSource(BaseISOSource):
         df = df.dropna()
         df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
 
+        rename_cols = {
+            'LRZ1': 'Lrz1',
+            'LRZ2_7': 'Lrz2_7',
+            'LRZ3_5': 'Lrz3_5',
+            'LRZ4': 'Lrz4',
+            'LRZ6': 'Lrz6',
+            'LRZ8_9_10': 'Lrz8_9_10',
+            'MISO': 'Miso',
+            'DATE_TIME': 'Datetime'
+        }
+
+        df = df.rename(columns=rename_cols)
+
         return df
 
     def _validate_options(self) -> bool:
