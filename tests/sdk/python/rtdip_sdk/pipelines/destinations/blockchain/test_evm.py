@@ -33,24 +33,17 @@ CONTRACT = "mocked_contract"
 FUNCTION_NAME = "mocked_function_name"
 FUNCTION_PARAMS = ('mocked_params1', 'mocked_params2')
 TRANSACTION = {'gas': 200000, 'gasPrice': 1000000000}
-# WEB3 = Web3(Web3.HTTPProvider(self.url))
 
-# class MockedContract():
-#     def functions(self):
-#         return MockedFunctions()
-
-class MockedWeb3():
+class MockedWeb3:
     def functions(self):
         return MockedFunctions()
-    # def account():
-    #     return MockedAccount()
     
-class MockedFunctions():
-    def build_transactions():
+class MockedFunctions:
+    def build_transactions(self):
         return None
 
-class MockedAccount():
-    def sign_transaction():
+class MockedAccount:
+    def sign_transaction(self):
         return None
 
 def test_polygon_write_setup():
@@ -62,20 +55,29 @@ def test_polygon_write_setup():
     assert polygon_destination.post_write_validation()
 
 def test_polygon_write_batch(mocker: MockerFixture):
-    mocker.patch(WEB3_CONTRACT, return_value = MockedWeb3()) 
-    mocker.patch(WEB3_ACCOUNT, return_value = MockedAccount())
-    mocker.patch(WEB3_GET_TRANSACTION_COUNT, return_value = 1)
-    mocker.patch(WEB3_SEND_RAW_TRANSACTION, return_value = bytes)
-    mocker.patch(WEB3_WAIT_FOR_TRASACTION_RECEIPT, return_value = None)
-    mocker.patch(WEB3_TO_HEX, return_value = hex)
-    mocker.patch.object(MockedWeb3, "functions", return_value = MockedFunctions())
-    mocker.spy(MockedFunctions, "build_transactions") 
-    mocker.spy(MockedAccount, "sign_transaction")
+    mocked_contract = mocker.patch(WEB3_CONTRACT, return_value = MockedWeb3()) 
+    mocked_account = mocker.patch(WEB3_ACCOUNT, return_value = MockedAccount())
+    mocked_get_transaction_count = mocker.patch(WEB3_GET_TRANSACTION_COUNT, return_value = 1)
+    mocked_send_raw_transaction = mocker.patch(WEB3_SEND_RAW_TRANSACTION, return_value = bytes)
+    mocked_wait_for_transaction_receipt = mocker.patch(WEB3_WAIT_FOR_TRASACTION_RECEIPT, return_value = None)
+    mocked_to_hex = mocker.patch(WEB3_TO_HEX, return_value = hex)
+    mocked_functions = mocker.patch.object(MockedWeb3, "functions", return_value = MockedFunctions())
+    mocked_build_transactions = mocker.spy(MockedFunctions, "build_transactions") 
+    mocked_sign_transactions = mocker.spy(MockedAccount, "sign_transaction")
    
     polygon_destination = EVMContractDestination(URL, ACCOUNT, PRIVATE_KEY, ABI, CONTRACT, FUNCTION_NAME, FUNCTION_PARAMS, TRANSACTION)
 
     actual = polygon_destination.write_batch()
 
+    mocked_contract.assert_called_once
+    mocked_account.assert_called_once
+    mocked_get_transaction_count.assert_called_once
+    mocked_send_raw_transaction.assert_called_once
+    mocked_wait_for_transaction_receipt.assert_called_once
+    mocked_to_hex.assert_called_once
+    mocked_functions.assert_called_once
+    mocked_build_transactions.assert_called_once
+    mocked_sign_transactions.assert_called_once
     assert isinstance(actual, str)
 
 def test_polygon_write_batch_contract_fails(mocker: MockerFixture):
