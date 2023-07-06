@@ -78,17 +78,82 @@ def test_polygon_write_batch(mocker: MockerFixture):
 
     assert isinstance(actual, str)
 
-def test_polygon_write_batch_fails(mocker: MockerFixture):
+def test_polygon_write_batch_contract_fails(mocker: MockerFixture):
     mocker.patch(WEB3_CONTRACT, side_effect=Exception) 
-    mocker.patch(WEB3_ACCOUNT, return_value = MockedAccount())
-    mocker.patch(WEB3_GET_TRANSACTION_COUNT, side_effect=Exception)
-    mocker.patch(WEB3_SEND_RAW_TRANSACTION, side_effect=Exception)
-    mocker.patch(WEB3_WAIT_FOR_TRASACTION_RECEIPT, side_effect=Exception)
-    mocker.patch(WEB3_TO_HEX, return_value = hex)
-    mocker.patch.object(MockedWeb3, "functions", side_effect=Exception)
-    mocker.spy(MockedFunctions, "build_transactions") 
-    mocker.spy(MockedAccount, "sign_transaction")
    
+    polygon_destination = EVMContractDestination(URL, ACCOUNT, PRIVATE_KEY, ABI, CONTRACT, FUNCTION_NAME, FUNCTION_PARAMS, TRANSACTION)
+
+    with pytest.raises(Exception):
+        polygon_destination.write_batch()
+
+def test_polygon_write_batch_get_transaction_count_fails(mocker: MockerFixture):
+    mocker.patch(WEB3_CONTRACT, return_value = MockedWeb3()) 
+    mocker.patch(WEB3_GET_TRANSACTION_COUNT, side_effect=Exception)
+
+    polygon_destination = EVMContractDestination(URL, ACCOUNT, PRIVATE_KEY, ABI, CONTRACT, FUNCTION_NAME, FUNCTION_PARAMS, TRANSACTION)
+
+    with pytest.raises(Exception):
+        polygon_destination.write_batch()
+
+def test_polygon_write_batch_functions_fails(mocker: MockerFixture):
+    mocker.patch(WEB3_CONTRACT, return_value = MockedWeb3()) 
+    mocker.patch(WEB3_GET_TRANSACTION_COUNT, return_value = 1)
+    mocker.patch.object(MockedWeb3, "functions", side_effect = Exception)
+
+    polygon_destination = EVMContractDestination(URL, ACCOUNT, PRIVATE_KEY, ABI, CONTRACT, FUNCTION_NAME, FUNCTION_PARAMS, TRANSACTION)
+
+    with pytest.raises(Exception):
+        polygon_destination.write_batch()
+
+def test_polygon_write_batch_account_fails(mocker: MockerFixture):
+    mocker.patch(WEB3_CONTRACT, return_value = MockedWeb3()) 
+    mocker.patch(WEB3_GET_TRANSACTION_COUNT, return_value = 1)
+    mocker.patch.object(MockedWeb3, "functions", return_value = MockedFunctions())
+    mocker.spy(MockedFunctions, "build_transactions")
+    mocker.patch(WEB3_ACCOUNT, side_effect = Exception)
+
+    polygon_destination = EVMContractDestination(URL, ACCOUNT, PRIVATE_KEY, ABI, CONTRACT, FUNCTION_NAME, FUNCTION_PARAMS, TRANSACTION)
+
+    with pytest.raises(Exception):
+        polygon_destination.write_batch()
+
+def test_polygon_write_batch_send_raw_transaction_fails(mocker: MockerFixture):
+    mocker.patch(WEB3_CONTRACT, return_value = MockedWeb3()) 
+    mocker.patch(WEB3_GET_TRANSACTION_COUNT, return_value = 1)
+    mocker.patch.object(MockedWeb3, "functions", return_value = MockedFunctions())
+    mocker.spy(MockedFunctions, "build_transactions")
+    mocker.patch(WEB3_ACCOUNT, return_value = MockedAccount())
+    mocker.patch(WEB3_SEND_RAW_TRANSACTION, side_effect = Exception)
+
+    polygon_destination = EVMContractDestination(URL, ACCOUNT, PRIVATE_KEY, ABI, CONTRACT, FUNCTION_NAME, FUNCTION_PARAMS, TRANSACTION)
+
+    with pytest.raises(Exception):
+        polygon_destination.write_batch()
+
+def test_polygon_write_batch_wait_for_transaction_receipt_fails(mocker: MockerFixture):
+    mocker.patch(WEB3_CONTRACT, return_value = MockedWeb3()) 
+    mocker.patch(WEB3_GET_TRANSACTION_COUNT, return_value = 1)
+    mocker.patch.object(MockedWeb3, "functions", return_value = MockedFunctions())
+    mocker.spy(MockedFunctions, "build_transactions")
+    mocker.patch(WEB3_ACCOUNT, return_value = MockedAccount())
+    mocker.patch(WEB3_SEND_RAW_TRANSACTION, return_value = bytes)
+    mocker.patch(WEB3_WAIT_FOR_TRASACTION_RECEIPT, side_effect = Exception)
+
+    polygon_destination = EVMContractDestination(URL, ACCOUNT, PRIVATE_KEY, ABI, CONTRACT, FUNCTION_NAME, FUNCTION_PARAMS, TRANSACTION)
+
+    with pytest.raises(Exception):
+        polygon_destination.write_batch()
+
+def test_polygon_write_batch_to_hex_fails(mocker: MockerFixture):
+    mocker.patch(WEB3_CONTRACT, return_value = MockedWeb3()) 
+    mocker.patch(WEB3_GET_TRANSACTION_COUNT, return_value = 1)
+    mocker.patch.object(MockedWeb3, "functions", return_value = MockedFunctions())
+    mocker.spy(MockedFunctions, "build_transactions")
+    mocker.patch(WEB3_ACCOUNT, return_value = MockedAccount())
+    mocker.patch(WEB3_SEND_RAW_TRANSACTION, return_value = bytes)
+    mocker.patch(WEB3_WAIT_FOR_TRASACTION_RECEIPT, return_value = None)
+    mocker.patch(WEB3_TO_HEX, side_effect = Exception)
+
     polygon_destination = EVMContractDestination(URL, ACCOUNT, PRIVATE_KEY, ABI, CONTRACT, FUNCTION_NAME, FUNCTION_PARAMS, TRANSACTION)
 
     with pytest.raises(Exception):
