@@ -40,7 +40,7 @@ A number of connectors are available from various suppliers. Some open source op
 
 ### Message Brokers
 
-Message Brokers support publishing of data from connectors and subscribing(pub/sub) to data from consumbers. Popular options used with RTDIP are:
+Message Brokers support publishing of data from connectors and subscribing(pub/sub) to data from consumers. Popular options used with RTDIP are:
 
 <center>[![Kafka](../process_control/images/kafka-logo-wide.png){width=40%}](https://kafka.apache.org/) </center>
 

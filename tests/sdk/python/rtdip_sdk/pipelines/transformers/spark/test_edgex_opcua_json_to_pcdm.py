@@ -23,7 +23,7 @@ from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from datetime import datetime, timezone
 
 def test_edgex_json_to_pcdm(spark_session: SparkSession):
-    edgex_json_data = '{"apiVersion":"v2","id":"test","deviceName":"testDevice","profileName":"test","sourceName":"Bool","origin":1683866798739958852,"readings":[{"id":"test","origin":1683866798739958852,"deviceName":"test","resourceName":"Bool","profileName":"Random","valueType":"Bool","value":"true"}]}'
+    edgex_json_data = '{"apiVersion":"v2","id":"test","deviceName":"testDevice","profileName":"test","sourceName":"Bool","origin":1683866798739958852,"readings":[{"id":"test","origin":1683866798739958852,"deviceName":"test","resourceName":"BoolTag","profileName":"Random","valueType":"Bool","value":"true"}]}'
     edgex_df: DataFrame = spark_session.createDataFrame([{"body": edgex_json_data}])
 
     expected_schema = StructType([
@@ -36,7 +36,7 @@ def test_edgex_json_to_pcdm(spark_session: SparkSession):
     ])
 
     expected_data = [
-        {"TagName":"testDevice", "EventTime": datetime.fromisoformat("2023-05-12 04:46:38.739958"), "Status":"Good", "Value":"true", "ValueType":"bool", "ChangeType": "insert"}
+        {"TagName":"BoolTag", "EventTime": datetime.fromisoformat("2023-05-12 04:46:38.739958"), "Status":"Good", "Value":"true", "ValueType":"bool", "ChangeType": "insert"}
     ]
 
     expected_df: DataFrame = spark_session.createDataFrame(

@@ -38,7 +38,7 @@ erDiagram
 
 ### Fledge OPC UA South Plugin
 
-[Fledge](https://www.lfedge.org/projects/fledge/){target=_blank} provides support for sending data between various data sources and data destinations. The mapping below is for the [OPC UA South Pugin](https://fledge-iot.readthedocs.io/en/latest/plugins/fledge-south-opcua/index.html){target=_blank} that can be sent to message brokers like Kafka, Azure IoT Hub etc.
+[Fledge](https://www.lfedge.org/projects/fledge/){target=_blank} provides support for sending data between various data sources and data destinations. The mapping below is for the [OPC UA South Plugin](https://fledge-iot.readthedocs.io/en/latest/plugins/fledge-south-opcua/index.html){target=_blank} that can be sent to message brokers like Kafka, Azure IoT Hub etc.
 
 This mapping is performed by the [RTDIP Fledge to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/fledge_opcua_json_to_pcdm.md) and can be used in an [RTDIP Ingestion Pipeline.](../../sdk/pipelines/framework.md)
 
@@ -59,7 +59,7 @@ The mapping below is performed by the [RTDIP OPC Publisher to PCDM Component](..
 |------|----|---------|------|------|--------|-----------|
 | OPC Publisher | DisplayName | string | EVENTS| TagName | string | From Field can be specified in Component |
 | OPC Publisher | SourceTimestamp | string | EVENTS| EventTime | timestamp | Converted to a timestamp |
-| OPC Publisher | StatusCode.Symbol | string | EVENTS| Status | string | Null values can be overriden in the [RTDIP OPC Publisher to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/opc_publisher_opcua_json_to_pcdm.md) |
+| OPC Publisher | StatusCode.Symbol | string | EVENTS| Status | string | Null values can be overridden in the [RTDIP OPC Publisher to PCDM Component](../../sdk/code-reference/pipelines/transformers/spark/opc_publisher_opcua_json_to_pcdm.md) |
 | OPC Publisher | Value.Value | string | EVENTS | Value | dynamic | Converts Value into either a float number or string based on how it is received in the message |
 
 ### EdgeX
