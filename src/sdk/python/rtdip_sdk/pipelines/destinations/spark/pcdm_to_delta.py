@@ -37,12 +37,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     Args:
         data (DataFrame): Dataframe to be merged into a Delta Table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
-        table_name_float (str): Name of the Hive Metastore or Unity Catalog Delta Table to store float values. *Either table_name_float or table_path_float must be populated*
-        table_name_string (str): Name of the Hive Metastore or Unity Catalog Delta Table to store string values. *Either table_name_string or table_path_string must be populated*
-        table_name_integer (str): Name of the Hive Metastore or Unity Catalog Delta Table to store integer values
-        table_path_float (str): Path for the Delta Table containing float values to be written to
-        table_path_string (str): Path for the Delta Table containing string values to be written to
-        table_path_integer (str): Path for the Delta Table containing integer values to be written to
+        destination_float (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store float values.
+        destination_string (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store string values.
+        destination_integer (Optional str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store integer values
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
@@ -56,12 +53,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     spark: SparkSession
     data: DataFrame
     options: dict    
-    table_name_float: str
-    table_name_string: str
-    table_name_integer: str
-    table_path_float: str
-    table_path_string: str
-    table_path_integer: str
+    destination_float: str
+    destination_string: str
+    destination_integer: str
     mode: str
     trigger: str
     query_name: str
@@ -73,26 +67,20 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                  spark: SparkSession, 
                  data: DataFrame, 
                  options: dict,
-                 table_name_float: str = None,
-                 table_name_string: str = None,
-                 table_name_integer: str = None,
-                 table_path_float: str = None,
-                 table_path_string: str = None,
-                 table_path_integer: str = None,
+                 destination_float: str,
+                 destination_string: str,
+                 destination_integer: str = None,
                  mode: str = None,
                  trigger="10 seconds",
                  query_name: str ="PCDMToDeltaMergeDestination",
                  merge: bool = True,
                  try_broadcast_join = False,
-                 remove_duplicates: bool = True) -> None: # NOSONAR
+                 remove_duplicates: bool = True) -> None: 
         self.spark = spark
         self.data = data
-        self.table_name_float = table_name_float if table_path_float is None else None
-        self.table_name_string = table_name_string if table_path_string is None else None
-        self.table_name_integer = table_name_integer if table_path_integer is None else None
-        self.table_path_float = table_path_float if table_name_float is None else None
-        self.table_path_string = table_path_string if table_name_string is None else None
-        self.table_path_integer = table_path_integer if table_name_integer is None else None
+        self.destination_float = destination_float
+        self.destination_string = destination_string
+        self.destination_integer = destination_integer
         self.options = options
         self.mode = mode
         self.trigger = trigger
@@ -131,7 +119,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         dates_list = list(dates_df.toPandas()["EventDate"])
         return str(dates_list).replace('[','').replace(']','')
 
-    def _write_delta_batch(self, df: DataFrame, table_name: str, table_path: str):
+    def _write_delta_batch(self, df: DataFrame, destination: str):
         
         if self.merge == True:
             df = df.select("EventDate", "TagName", "EventTime", "Status", "Value", "ChangeType")
@@ -179,8 +167,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 delta = SparkDeltaMergeDestination(
                     spark=self.spark,
                     data=df,
-                    table_name=table_name,
-                    table_path=table_path,
+                    destination=destination,
                     options=self.options,
                     merge_condition=merge_condition,
                     when_matched_update_list=when_matched_update_list,
@@ -192,8 +179,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             df = df.select("TagName", "EventTime", "Status", "Value")
             delta = SparkDeltaDestination(
                 data=df,
-                table_name=table_name,
-                table_path=table_path,
+                destination=destination,
                 options=self.options
             )
         
@@ -211,18 +197,18 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             .filter(ValueTypeConstants.FLOAT_VALUE)
             .withColumn("Value", col("Value").cast("float"))
         )
-        self._write_delta_batch(float_df, self.table_name_float, self.table_path_float)
+        self._write_delta_batch(float_df, self.destination_float)
 
         string_df = df.filter(ValueTypeConstants.STRING_VALUE)
-        self._write_delta_batch(string_df, self.table_name_string, self.table_path_string)
+        self._write_delta_batch(string_df, self.destination_string)
 
-        if self.table_name_integer != None or self.table_path_integer != None:
+        if self.destination_integer != None:
             integer_df = (
                 df
                 .filter(ValueTypeConstants.INTEGER_VALUE)
                 .withColumn("Value", col("Value").cast("integer"))
             )
-            self._write_delta_batch(integer_df, self.table_name_integer, self.table_path_integer)         
+            self._write_delta_batch(integer_df, self.destination_integer)         
 
     def _write_stream_microbatches(self, df: DataFrame, epoch_id = None): # NOSONAR
         df.persist()
@@ -269,8 +255,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             else:
                 delta_float = SparkDeltaDestination(
                     data=self.data.filter(ValueTypeConstants.FLOAT_VALUE).withColumn("Value", col("Value").cast("float")),
-                    table_name=self.table_name_float,
-                    table_path=self.table_path_float,
+                    destination=self.destination_float,
                     options=self.options,
                     mode=self.mode,
                     trigger=self.trigger,
@@ -281,8 +266,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
                 delta_string = SparkDeltaDestination(
                     data=self.data.filter(ValueTypeConstants.STRING_VALUE),
-                    table_name=self.table_name_string,
-                    table_path=self.table_path_string,
+                    table_name=self.destination_string,
                     options=self.options,
                     mode=self.mode,
                     trigger=self.trigger,
@@ -294,8 +278,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 if self.table_name_integer != None:
                     delta_integer = SparkDeltaDestination(
                         data=self.data.filter(ValueTypeConstants.INTEGER_VALUE),
-                        table_name=self.table_name_integer,
-                        table_path=self.table_path_integer,
+                        table_name=self.destination_integer,
                         options=self.options,
                         mode=self.mode,
                         trigger=self.trigger,
