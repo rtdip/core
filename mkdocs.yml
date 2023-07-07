@@ -132,6 +132,8 @@ nav:
               - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
               - Troubleshooting: sdk/queries/databricks/troubleshooting.md
           - Spark Connect: sdk/queries/spark/spark-connect.md
+          - LLMs:
+              - Chat Open AI Databricks: sdk/queries/llm/chatopenai_databricks_connector.md
           - Functions: sdk/queries/functions.md
       - Authentication:
           - Azure Active Directory: sdk/authentication/azure.md
@@ -166,6 +168,9 @@ nav:
                       - Base Raw To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/base_raw_to_mdm.md
                       - ISO:
                           - MISO To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md
+                      - Pandas to PySpark DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pandas_to_pyspark.md
+                      - PySpark to Pandas DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pyspark_to_pandas.md
+
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
@@ -175,8 +180,12 @@ nav:
                       - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Rest API: sdk/code-reference/pipelines/destinations/spark/rest_api.md
                       - Process Control Data Model To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_to_delta.md
+                  - Blockchain:
+                      - EVM: sdk/code-reference/pipelines/destinations/blockchain/evm.md
+
               - Utilities:
                   - Spark:
+                      - Session: sdk/code-reference/pipelines/utilities/spark/session.md
                       - Configuration: sdk/code-reference/pipelines/utilities/spark/configuration.md
                       - Delta Table Create: sdk/code-reference/pipelines/utilities/spark/delta_table_create.md
                       - Delta Table Optimize: sdk/code-reference/pipelines/utilities/spark/delta_table_optimize.md
@@ -207,6 +216,7 @@ nav:
                   - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
                   - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
                   - Spark Connector: sdk/code-reference/query/spark-connector.md
+                  - Chat Open AI Databricks Connector: sdk/code-reference/query/chatopenai_databricks_connector.md
 
           - Authentication:
               - Azure Active Directory: sdk/code-reference/authentication/azure.md
@@ -226,6 +236,7 @@ nav:
   - Blog:
       - Overview: blog/overview.md
       - Posts:
+          - RTDIP Generative AI SQL Agent: blog/rtdip_generative_ai_sql_agent.md
           - RTDIP Ingestion Pipelines: blog/rtdip_ingestion_pipelines.md
           - Delta Lakehouse and RTDIP: blog/delta_and_rtdip.md
 
