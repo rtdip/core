@@ -266,7 +266,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
                 delta_string = SparkDeltaDestination(
                     data=self.data.filter(ValueTypeConstants.STRING_VALUE),
-                    table_name=self.destination_string,
+                    destination=self.destination_string,
                     options=self.options,
                     mode=self.mode,
                     trigger=self.trigger,
@@ -275,10 +275,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             
                 delta_string.write_stream()
 
-                if self.table_name_integer != None:
+                if self.destination_integer != None:
                     delta_integer = SparkDeltaDestination(
                         data=self.data.filter(ValueTypeConstants.INTEGER_VALUE),
-                        table_name=self.destination_integer,
+                        destination=self.destination_integer,
                         options=self.options,
                         mode=self.mode,
                         trigger=self.trigger,
