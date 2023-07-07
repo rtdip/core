@@ -24,7 +24,6 @@ S3_PROTOCOL: str = "s3://"
 PROTOCOLS: list = [AZURE_PROTOCOL, S3_PROTOCOL]
 
 
-
 def validate_uri(uri_str: str):
     if uri_str is not None:
         try:
@@ -39,11 +38,4 @@ def validate_uri(uri_str: str):
                 return S3_PROTOCOL, keys
         except Exception as ex:
             logging.error(ex)
-    raise SystemError('Could not convert to storage object: {}'.format(uri_str))
-
-
-def get_domain_key_pair(uri_str: str):
-    if uri_str is not None:
-        storage_object = uri_to_storage_object(uri_str)
-        return storage_object.keys[0], '/'.join(storage_object.keys[1:])
-    return None
+    raise SystemError('Could not convert to valid storage object: {}'.format(uri_str))
