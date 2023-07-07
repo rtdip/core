@@ -19,38 +19,42 @@ import logging
 import random
 import string
 
-from src.sdk.python.rtdip_sdk.data_models.storage_objects import StorageObject
 from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 
-format_str: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-date_format_str: str = '%m/%d/%Y %H:%M:%S %Z'
-logging.basicConfig(format=format_str,
-                    datefmt=date_format_str,
-                    level=logging.INFO)
 
-logger = logging.getLogger('test_storage_object')
-
-
-
-def test_storage_object():
+def test_validate():
    
-
     random.seed()
     rnd_domain_name: str = '.'.join(''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase
                                                           + string.digits) for _ in range(9)) for _ in range(3))
     rnd_keys: str = '/'.join(''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase
                                                           + string.digits) for _ in range(4)) for _ in range(3))
-   
-
     rnd_object_name: str = ''.join(
         random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
         for _ in range(9)) + '.' + ''.join(random.choice(string.ascii_lowercase) for _ in range(3))
 
-  
-
-    rnd_full_s3_uri: str = StorageObject.S3_PROTOCOL + rnd_domain_name + '/' + rnd_keys \
+    rnd_full_s3_uri: str = utils.S3_PROTOCOL + rnd_domain_name + '/' + rnd_keys \
                                 + '/' + rnd_object_name
+    
 
+    protocol, keys = utils.validate_uri(rnd_full_s3_uri)
 
-    logger.info('Started')
-    logger.debug('{}'.format(rnd_full_s3_uri))
+    assert(protocol == utils.S3_PROTOCOL)
+    assert(keys[0] == rnd_domain_name)
+    assert(keys[-1] == rnd_object_name)
+
+    rnd_protocol: str =  ''.join(random.choice(string.ascii_lowercase) for _ in range(5)) +'://'
+    exception_thrown: bool = False
+
+    try:
+         rnd_full_invalid_uri: str =  rnd_protocol + rnd_domain_name + '/' + rnd_keys \
+                                + '/' + rnd_object_name
+         
+         utils.validate_uri(rnd_full_invalid_uri)
+         
+    except Exception as ex:
+         exception_thrown = True
+
+    assert(exception_thrown is True)
+         
+        
