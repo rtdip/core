@@ -18,6 +18,7 @@ import pandas as pd
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather import WeatherForecastAPIV1Source
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
+from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
