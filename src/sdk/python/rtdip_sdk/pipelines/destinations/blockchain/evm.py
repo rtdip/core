@@ -93,7 +93,7 @@ class EVMContractDestination(DestinationInterface):
         from web3 import Web3
         
         web3 = Web3(Web3.HTTPProvider("https://polygon-mumbai.g.alchemy.com/v2/<API_KEY>"))
-
+        
         x = EVMContractDestination(
                             url="https://polygon-mumbai.g.alchemy.com/v2/<API_KEY>",
                             account='<ACCOUNT>',
@@ -101,10 +101,10 @@ class EVMContractDestination(DestinationInterface):
                             contract='<CONTRACT>',
                             function_name='transferFrom',
                             function_params=('<FROM_ACCOUNT>', '<TO_ACCOUNT>', 0),
-                            abi = json.loads('[]'),
+                            abi = 'ABI',
                             transaction={
-                                'gas': 200000,
-                                'gasPrice': web3.to_wei('2', 'gwei')
+                                'gas': 100000,
+                                'gasPrice': 1000000000 # or web3.to_wei('1', 'gwei')
                                 },
                             )
 
