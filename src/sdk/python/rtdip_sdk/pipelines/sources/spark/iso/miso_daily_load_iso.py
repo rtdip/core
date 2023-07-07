@@ -149,7 +149,7 @@ class MISODailyLoadISOSource(BaseISOSource):
             raise ValueError("Unable to parse Date. Please specify in YYYYMMDD format.")
 
         if date > self.current_date:
-            raise ValueError(f"Query date can't be in future.")
+            raise ValueError("Query date can't be in future.")
 
         valid_load_types = ["actual", "forecast"]
 
