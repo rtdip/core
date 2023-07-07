@@ -18,8 +18,6 @@ import logging
 from datetime import datetime, timedelta
 from . import MISODailyLoadISOSource
 
-logging.getLogger().setLevel("INFO")
-
 
 class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
     """
@@ -54,8 +52,8 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
                            skiprows=5)
 
         if date.month == 12 and date.day == 31:
-            expected_year_rows = pd.Timestamp(date.year, 12, 31).dayofyear * 24
-            received_year_rows = len(df)
+            expected_year_rows = pd.Timestamp(date.year, 12, 31).dayofyear * 24 * 7  # Every hour has 7 zones.
+            received_year_rows = len(df[df['MarketDay'] != 'MarketDay']) - 2  # Last 2 rows are invalid.
 
             if expected_year_rows != received_year_rows:
                 logging.warning(f"Didn't receive full year historical data for year {date.year}."
@@ -73,8 +71,8 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         logging.info(f"Historical load requested from {self.start_date} to {self.end_date}")
 
-        start_date = datetime.strptime(self.start_date, self.query_datetime_format)
-        end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
+        start_date = self._get_localized_datetime(self.start_date)
+        end_date = self._get_localized_datetime(self.end_date)
 
         dates = pd.date_range(start_date, end_date + timedelta(days=365), freq='Y', inclusive='left')
         logging.info(f"Generated date ranges are - {dates}")
@@ -87,7 +85,7 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Creates a new `date_time` column, removes null values and pivots the data.
+        Creates a new `Datetime` column, removes null values and pivots the data.
 
         Args:
             df: Raw form of data received from the API.
@@ -118,6 +116,19 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
 
+        rename_cols = {
+            'LRZ1': 'Lrz1',
+            'LRZ2_7': 'Lrz2_7',
+            'LRZ3_5': 'Lrz3_5',
+            'LRZ4': 'Lrz4',
+            'LRZ6': 'Lrz6',
+            'LRZ8_9_10': 'Lrz8_9_10',
+            'MISO': 'Miso',
+            'DATE_TIME': 'Datetime'
+        }
+
+        df = df.rename(columns=rename_cols)
+
         return df
 
     def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -132,12 +143,13 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         """
 
-        start_date = datetime.strptime(self.start_date, self.query_datetime_format)
-        end_date = datetime.strptime(self.end_date, self.query_datetime_format) + timedelta(hours=23, minutes=59)
+        start_date = self._get_localized_datetime(self.start_date)
+        end_date = self._get_localized_datetime(self.end_date).replace(hour=23, minute=59, second=59)
 
-        df = df[(df["DATE_TIME"] >= start_date) & (df["DATE_TIME"] <= end_date)]
+        df = df[(df["Datetime"] >= start_date.replace(tzinfo=None)) &
+                (df["Datetime"] <= end_date.replace(tzinfo=None))]
 
-        df = df.sort_values(by='DATE_TIME', ascending=True).reset_index(drop=True)
+        df = df.sort_values(by='Datetime', ascending=True).reset_index(drop=True)
 
         expected_rows = ((min(end_date, self.current_date) - start_date).days + 1) * 24
 
@@ -160,16 +172,16 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         """
 
         try:
-            start_date = datetime.strptime(self.start_date, self.query_datetime_format)
+            start_date = self._get_localized_datetime(self.start_date)
         except ValueError:
             raise ValueError("Unable to parse Start date. Please specify in YYYYMMDD format.")
 
         try:
-            end_date = datetime.strptime(self.end_date, self.query_datetime_format)
+            end_date = self._get_localized_datetime(self.end_date)
         except ValueError:
             raise ValueError("Unable to parse End date. Please specify in YYYYMMDD format.")
 
-        if start_date > datetime.utcnow():
+        if start_date > self.current_date:
             raise ValueError("Start date can't be in future.")
 
         if start_date > end_date:

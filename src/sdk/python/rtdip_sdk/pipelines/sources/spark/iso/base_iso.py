@@ -17,7 +17,8 @@ import pandas as pd
 from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
+import pytz
 
 from pyspark.sql.types import StructType, StructField, IntegerType
 from requests import HTTPError
@@ -42,11 +43,13 @@ class BaseISOSource(SourceInterface):
     query_datetime_format: str = "%Y%m%d"
     required_options: list = []
     spark_schema = StructType([StructField("id", IntegerType(), True)])
+    default_query_timezone: str = "UTC"
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         self.spark = spark
         self.options = options
-        self.current_date = datetime.utcnow()
+        self.query_timezone = pytz.timezone(self.options.get("query_timezone", self.default_query_timezone))
+        self.current_date = datetime.now(timezone.utc).astimezone(self.query_timezone)
 
     def _fetch_from_url(self, url_suffix: str) -> bytes:
         """
@@ -70,6 +73,19 @@ class BaseISOSource(SourceInterface):
                             f" Received status code {code} with message {response.content}")
 
         return response.content
+
+    def _get_localized_datetime(self, datetime_str: str) -> datetime:
+        """
+        Converts string datetime into Python datetime object with configured format and timezone.
+        Args:
+            datetime_str: String to be converted into datetime.
+
+        Returns: Timezone aware datetime object.
+
+        """
+        parsed_dt = datetime.strptime(datetime_str, self.query_datetime_format)
+        parsed_dt = parsed_dt.replace(tzinfo=self.query_timezone)
+        return parsed_dt
 
     def _pull_data(self) -> pd.DataFrame:
         """
