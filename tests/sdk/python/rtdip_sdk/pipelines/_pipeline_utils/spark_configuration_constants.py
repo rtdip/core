@@ -1,57 +1,26 @@
-# Copyright 2022 RTDIP
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# # Copyright 2022 RTDIP
+# # Licensed under the Apache License, Version 2.0 (the "License");
+# # you may not use this file except in compliance with the License.
+# # You may obtain a copy of the License at
+# #
+# #      http://www.apache.org/licenses/LICENSE-2.0
+# #
+# # Unless required by applicable law or agreed to in writing, software
+# # distributed under the License is distributed on an "AS IS" BASIS,
+# # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# # See the License for the specific language governing permissions and
+# # limitations under the License.
 
 import sys
 
-from pytest_mock import MockerFixture
-sys.path.insert(0, '.')
-from typing import Iterator
-import pytest
+# from pytest_mock import MockerFixture
+# sys.path.insert(0, '.')
+# from typing import Iterator
+# import pytest
 import os
 from pathlib import Path
 import shutil
 from dataclasses import dataclass
-from unittest.mock import patch
-
-from src.sdk.python.rtdip_sdk.pipelines.destinations import * # NOSONAR
-from src.sdk.python.rtdip_sdk.pipelines.sources import * # NOSONAR
-
-SPARK_TESTING_CONFIGURATION = {
-    "spark.executor.cores": "2",
-    "spark.executor.instances": "2",
-    "spark.sql.shuffle.partitions": "2",
-    "spark.app.name": "test_app", 
-    "spark.master": "local[*]"
-}
-
-spark = None
-
-@pytest.fixture(scope="session")
-def spark_session():
-    from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import SparkSessionUtility
-    global spark
-    if spark == None:
-        spark = SparkSessionUtility(SPARK_TESTING_CONFIGURATION.copy()).execute()
-    path = spark.conf.get("spark.sql.warehouse.dir")
-    prefix = "file:"
-    if path.startswith(prefix):
-        path = path[len(prefix):]    
-    if os.path.isdir(path):
-        shutil.rmtree(path)    
-    yield spark
-    spark.stop()
-    if os.path.isdir(path):
-        shutil.rmtree(path)
 
 @dataclass
 class FileInfoFixture:
