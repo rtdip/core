@@ -25,7 +25,6 @@ from unittest.mock import patch
 
 from src.sdk.python.rtdip_sdk.pipelines.destinations import * # NOSONAR
 from src.sdk.python.rtdip_sdk.pipelines.sources import * # NOSONAR
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import SparkSessionUtility
 
 SPARK_TESTING_CONFIGURATION = {
     "spark.executor.cores": "2",
@@ -35,9 +34,14 @@ SPARK_TESTING_CONFIGURATION = {
     "spark.master": "local[*]"
 }
 
+spark = None
+
 @pytest.fixture(scope="session")
 def spark_session():
-    spark = SparkSessionUtility(SPARK_TESTING_CONFIGURATION.copy()).execute()
+    from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import SparkSessionUtility
+    global spark
+    if spark == None:
+        spark = SparkSessionUtility(SPARK_TESTING_CONFIGURATION.copy()).execute()
     path = spark.conf.get("spark.sql.warehouse.dir")
     prefix = "file:"
     if path.startswith(prefix):
