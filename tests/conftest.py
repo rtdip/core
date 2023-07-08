@@ -19,9 +19,9 @@ from src.sdk.python.rtdip_sdk.pipelines.sources import * # NOSONAR
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import SparkSessionUtility
 
 SPARK_TESTING_CONFIGURATION = {
-    "spark.executor.cores": "2",
-    "spark.executor.instances": "2",
-    "spark.sql.shuffle.partitions": "2",
+    "spark.executor.cores": "4",
+    "spark.executor.instances": "4",
+    "spark.sql.shuffle.partitions": "4",
     "spark.app.name": "test_app", 
     "spark.master": "local[*]"
 }
