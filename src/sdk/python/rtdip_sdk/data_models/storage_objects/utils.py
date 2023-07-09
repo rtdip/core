@@ -12,30 +12,65 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from urllib.parse import urlparse
 import logging
 import re
-
+          
 URI_REGEX: str = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?"
 
 
-AZURE_PROTOCOL: str = "https://"
-S3_PROTOCOL: str = "s3://"
+AZURE_SCHEME: str = "https"
+S3_SCHEME: str = "s3"
+GS_SCHEME: str = "gs"
+SPARK_S3_SCHEME: str = "s3a"
+ 
+SCHEMAS: list = [AZURE_SCHEME, S3_SCHEME, GS_SCHEME, SPARK_S3_SCHEME]
 
-PROTOCOLS: list = [AZURE_PROTOCOL, S3_PROTOCOL]
+def validate_uri(uri: str) -> str | str | str:
+    """
 
+    Validates the uri of a storage object against the supported schemas and extracs the scheme, the domain and the path.
 
-def validate_uri(uri_str: str):
-    if uri_str is not None:
+    Args:
+        uri: The uri to validate.
+    
+    Returns:
+        Tuple: scheme, domain, path
+
+    """
+    if uri is not None:
         try:
-            uri_str = uri_str.strip()
-            if not re.search(URI_REGEX, uri_str):
-                logging.error('URI not valid: {}'.format(uri_str))
-                raise SystemError('URI not valid: {}'.format(uri_str))
-            if uri_str.startswith(S3_PROTOCOL):
-                if uri_str.endswith('/'):
-                    uri_str = uri_str[0:-1]
-                keys: list = uri_str.replace(S3_PROTOCOL, '').split('/')
-                return S3_PROTOCOL, keys
+            uri = uri.strip()
+            if uri.endswith('/'):
+                uri = uri[0:-1]
+            if not re.search(URI_REGEX, uri):
+                logging.error("URI not valid: %s", uri)
+                raise SystemError(f"URI not valid: {uri}")
+            parsed_uri = urlparse(uri)
+            if parsed_uri.scheme in SCHEMAS:
+                return parsed_uri.scheme, parsed_uri.hostname, parsed_uri.path
         except Exception as ex:
             logging.error(ex)
-    raise SystemError('Could not convert to valid storage object: {}'.format(uri_str))
+    raise SystemError(f"Could not convert to valid storage object: {uri} {parsed_uri.scheme}")
+
+
+def get_supported_schema() -> list:
+    """
+    
+    Returns the schemas that can be validated.
+
+    """
+    return SCHEMAS
+
+def to_uri(scheme: str, domain: str, path: str) -> str:
+    """
+    Returns a fully qualified uri from the provided scheme, domain and path
+    Args:
+        scheme: The scheme or protocol
+        domain: The domain (hostname). Typically this is known as the bucket name
+        path: The path. Typically this is known as the keys and the object name
+    Returns:
+        string: the uri
+    """
+    return f"{scheme}://{domain}/{path}"
+                                                                                                                                                                                    

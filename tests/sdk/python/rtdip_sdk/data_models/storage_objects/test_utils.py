@@ -25,23 +25,22 @@ from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 def test_validate():
    
     random.seed()
-    rnd_domain_name: str = '.'.join(''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase
+    rnd_domain_name: str = '.'.join(''.join(random.choice(string.ascii_lowercase
                                                           + string.digits) for _ in range(9)) for _ in range(3))
-    rnd_keys: str = '/'.join(''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase
+    rnd_keys: str = ''.join(''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase
                                                           + string.digits) for _ in range(4)) for _ in range(3))
     rnd_object_name: str = ''.join(
         random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
         for _ in range(9)) + '.' + ''.join(random.choice(string.ascii_lowercase) for _ in range(3))
 
-    rnd_full_s3_uri: str = utils.S3_PROTOCOL + rnd_domain_name + '/' + rnd_keys \
-                                + '/' + rnd_object_name
+    rnd_full_s3_uri: str = utils.to_uri(utils.S3_SCHEME, rnd_domain_name, rnd_keys + '/' + rnd_object_name)
     
+    scheme, domain, path = utils.validate_uri(rnd_full_s3_uri)
 
-    protocol, keys = utils.validate_uri(rnd_full_s3_uri)
+    assert(scheme == utils.S3_SCHEME)
+    assert(domain == rnd_domain_name)
 
-    assert(protocol == utils.S3_PROTOCOL)
-    assert(keys[0] == rnd_domain_name)
-    assert(keys[-1] == rnd_object_name)
+    assert(path == '/' + rnd_keys + '/' + rnd_object_name)
 
     rnd_protocol: str =  ''.join(random.choice(string.ascii_lowercase) for _ in range(5)) +'://'
     exception_thrown: bool = False
@@ -51,8 +50,8 @@ def test_validate():
                                 + '/' + rnd_object_name
          
          utils.validate_uri(rnd_full_invalid_uri)
-         
-    except Exception as ex:
+
+    except SystemError:
          exception_thrown = True
 
     assert(exception_thrown is True)
