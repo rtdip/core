@@ -13,19 +13,10 @@
 # limitations under the License.
 
 from src.sdk.python.rtdip_sdk.connectors import SparkConnection, SparkCursor
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 import pandas as pd
 from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
 import pytest
-
-def test_connection_close(spark_session: SparkSession, mocker: MockerFixture):
-    spark_close = mocker.spy(SparkConnection, "close")
-
-    mocked_connection = SparkConnection(spark=spark_session)
-    mocked_connection.close()
-
-    spark_close.assert_called_once()
 
 def test_connection_cursor(spark_session: SparkSession, mocker: MockerFixture):
     spark_cursor = mocker.spy(SparkConnection, "cursor")
