@@ -21,6 +21,11 @@ from pyspark.sql import SparkSession
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import SparkClient
+from ...sources.interfaces import SourceInterface
+from ...destinations.interfaces import DestinationInterface
+from ...deploy.interfaces import DeployInterface
+from ...secrets.interfaces import SecretsInterface
+from ...transformers.interfaces import TransformerInterface
 
 class SparkSessionUtility(UtilitiesInterface):
     '''
@@ -64,11 +69,6 @@ class SparkSessionUtility(UtilitiesInterface):
 
     def execute(self) -> SparkSession:
         try:
-            from ...sources.interfaces import SourceInterface
-            from ...destinations.interfaces import DestinationInterface
-            from ...deploy.interfaces import DeployInterface
-            from ...secrets.interfaces import SecretsInterface
-            from ...transformers.interfaces import TransformerInterface
             classes_imported = inspect.getmembers(sys.modules[self.module], inspect.isclass)
             component_list = []
             for cls in classes_imported:
