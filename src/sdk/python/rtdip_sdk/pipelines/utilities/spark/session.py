@@ -26,7 +26,6 @@ from ...destinations.interfaces import DestinationInterface
 from ...deploy.interfaces import DeployInterface
 from ...secrets.interfaces import SecretsInterface
 from ...transformers.interfaces import TransformerInterface
-from ...utilities.interfaces import UtilitiesInterface
 
 class SparkSessionUtility(UtilitiesInterface):
     '''

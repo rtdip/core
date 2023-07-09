@@ -20,7 +20,6 @@ from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _get_package_ve
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSource
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
 from pytest_mock import MockerFixture

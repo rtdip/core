@@ -16,7 +16,6 @@ import sys
 sys.path.insert(0, '.')
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.ssip_pi_binary_file_to_pcdm import SSIPPIBinaryFileToPCDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType, DateType

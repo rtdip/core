@@ -16,7 +16,6 @@ import sys
 sys.path.insert(0, '.')
 from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _package_version_meets_minimum
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility, DeltaTableColumn
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 
 COMMENT = "Test Table for Delta Create"
