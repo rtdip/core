@@ -12,38 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from botocore.exceptions import ClientError
-from boto3.s3.transfer import S3Transfer
-from botocore.config import Config
-import traceback
-
 import os
-
+import logging
 import boto3
 from boto3.s3.transfer import S3Transfer
 from botocore.config import Config
+from botocore.exceptions import ClientError
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from ....data_models.storage_objects import utils
 
 
 
-import uri_utils
 
-import logging
-
-format_str: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-date_format_str: str = '%m/%d/%Y %H:%M:%S %Z'
-logging.basicConfig(format=format_str,
-                    datefmt=date_format_str,
-                    level=logging.INFO)
-
-logger = logging.getLogger('S3CopyUtility')
-
-
-class S3CopyUtility():
+class S3CopyUtility(UtilitiesInterface):
     '''
-    Copies an object from one S3 location to another
+    Copies an object from S3 to S3, from Local to S3 and S3 to local depending on the source and destination uri
 
     Args:
         source_uri (str): URI of the source object
@@ -96,24 +81,14 @@ class S3CopyUtility():
         return {}
 
     def execute(self) -> None:
-
-        logger.info('executing')
-        logger.info('Source: [{}]'.format(self.source_uri))
-        logger.info('Destination: [{}]'.format(self.destination_uri))
-
         # S3 to S3 Copy
-        if self.source_uri.startswith(uri_utils.get_s3_protocol_definition()) \
-                and self.destination_uri.startswith(uri_utils.get_s3_protocol_definition()):
+        if self.source_uri.startswith(utils.S3_SCHEME) \
+                and self.destination_uri.startswith(utils.S3_SCHEME):
 
-            logger.info('S3 to S3 Copy')
+            schema, source_domain, source_key = utils.validate_uri(self.source_uri)
+            schema, destination_domain, destination_key = utils.validate_uri(self.destination_uri)
 
-            source_domain, source_key = uri_utils.get_domain_key_pair(self.source_uri)
-            destination_domain, destination_key = uri_utils.get_domain_key_pair(self.destination_uri)
-
-            logger.debug('Source Domain/Source Key: [{}]/[{}]'.format(source_domain, source_key))
-            logger.debug('Destination Domain/Destination Key: [{}]/[{}]'.format(destination_domain, destination_key))
-
-            s3 = boto3.resource('s3')
+            s3 = boto3.resource(schema)
             copy_source = {
                 'Bucket': source_domain,
                 'Key': source_key
@@ -125,37 +100,35 @@ class S3CopyUtility():
                 s3.meta.client.copy(copy_source, destination_domain, destination_key, self.extra_args, self.callback,
                                     self.source_client, self.transfer_config)
 
-            except ClientError as e:
-                traceback.print_exc()
+            except ClientError as ex:
+                logging.error(ex)
                 return False
         # Local File to S3 Copy (Upload)
         elif (os.path.isfile(self.source_uri)) \
-                and self.destination_uri.startswith(uri_utils.get_s3_protocol_definition()):
+                and self.destination_uri.startswith(utils.S3_SCHEME):
 
-            logger.info('Local to S3 Copy [Upload]')
+            schema, destination_domain, destination_key = utils.validate_uri(self.destination_uri)
 
-            s3_client = boto3.client('s3')
-            destination_domain, destination_key = uri_utils.get_domain_key_pair(self.destination_uri)
+            s3_client = boto3.client(schema)
+           
             try:
-                response = s3_client.upload_file(self.source_uri, destination_domain, destination_key)
-            except ClientError as e:
-                traceback.print_exc()
+                s3_client.upload_file(self.source_uri, destination_domain, destination_key)
+            except ClientError as ex:
+                logging.error(ex)
                 return False
         # S3 to Local File Copy (Download)
-        elif self.source_uri.startswith(uri_utils.get_s3_protocol_definition()) \
-                and not self.destination_uri.startswith(uri_utils.get_s3_protocol_definition()):
-
-            logger.info('Local to S3 Copy [Download]')
+        elif self.source_uri.startswith(utils.S3_SCHEME) \
+                and not self.destination_uri.startswith(utils.S3_SCHEME):
 
             try:
-                source_domain, source_key = uri_utils.get_domain_key_pair(self.source_uri)
-                s3 = boto3.client('s3')
+                schema, source_domain, source_key = utils.validate_uri(self.source_uri)
+                s3 = boto3.client(schema)
                 s3.download_file(source_domain, source_key, self.destination_uri)
-            except ClientError as e:
-                traceback.print_exc()
+            except ClientError as ex:
+                logging.error(ex)
                 return False
         else:
-            logger.info('Not Implemented. From  [{}] \n\t to: [{}]'.format(self.source_uri, self.destination_uri))
+            logging.error("Not Implemented. From: %s \n\t to: %s", self.source_uri, self.destination_uri)
         return True
 
 
