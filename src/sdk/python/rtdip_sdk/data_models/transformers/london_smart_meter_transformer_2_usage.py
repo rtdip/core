@@ -20,7 +20,7 @@ import time
 
 
 series_id_str = 'usage_series_id_001'
-output_header_str: str = 'uid,series_id,timestamp,interval_timestamp,value'
+output_header_str: str = 'Uid,SeriesId,Timestamp,IntervalTimestamp,Value'
 
 transformer_method_str: str = transformers.LAMBDA_TRANSFORM_METHOD_CHECK
 

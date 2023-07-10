@@ -17,7 +17,6 @@ sys.path.insert(0, '.')
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.opc_publisher_opcua_json_to_pcdm import OPCPublisherOPCUAJsonToPCDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import OPC_PUBLISHER_SCHEMA
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType

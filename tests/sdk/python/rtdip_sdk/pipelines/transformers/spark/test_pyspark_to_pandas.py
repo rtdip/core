@@ -16,7 +16,6 @@ import sys
 sys.path.insert(0, '.')
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.pyspark_to_pandas import PySparkToPandasTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 import pandas as pd
 from pandas import DataFrame
