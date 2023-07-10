@@ -58,8 +58,11 @@ Transformers are components that perform transformations on data. These will tar
 |[EdgeX OPCUA Json To Process Control Data Model](../code-reference/pipelines/transformers/spark/edgex_opcua_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[SSIP PI Binary Files To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[SSIP PI Binary JSON To Process Control Data Model](../code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[MISO To Meters Data Model](../code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Pandas to PySpark DataFrame Conversion](../code-reference/pipelines/transformers/spark/pandas_to_pyspark.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[PySpark to Pandas DataFrame Conversion](../code-reference/pipelines/transformers/spark/pyspark_to_pandas.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[MISO To Meters Data Model](../code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+
 |[Raw Forecast to Weather Data Model](../code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -77,6 +80,7 @@ Destinations are components that connect to sink/destination systems and write d
 |[Kinesis](../code-reference/pipelines/destinations/spark/kafka.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Rest API](../code-reference/pipelines/destinations/spark/rest_api.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Process Control Data Model To Delta](../code-reference/pipelines/destinations/spark/pcdm_to_delta.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[EVM](../code-reference/pipelines/destinations/blockchain/evm.md)|:heavy_check_mark:|||:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
@@ -87,6 +91,7 @@ Utilities are components that perform utility functions such as logging, error h
 
 |Utility Type|Python|Apache Spark|Databricks|Azure|AWS|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|
+|[Spark Session](../code-reference/pipelines/utilities/spark/session.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Spark Configuration](../code-reference/pipelines/utilities/spark/configuration.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Delta Table Create](../code-reference/pipelines/utilities/spark/delta_table_create.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Delta Table Optimize](../code-reference/pipelines/utilities/spark/delta_table_optimize.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|

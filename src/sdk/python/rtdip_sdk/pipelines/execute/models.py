@@ -19,9 +19,8 @@ from abc import ABCMeta
 from ..sources.interfaces import SourceInterface
 from ..transformers.interfaces import TransformerInterface
 from ..destinations.interfaces import DestinationInterface
-from ..utilities.interfaces import UtilitiesInterface
 from ..secrets.models import PipelineSecret
-
+from ..utilities.interfaces import UtilitiesInterface
 
 BaseConfig.json_encoders = {
     ABCMeta: lambda x: x.__name__,

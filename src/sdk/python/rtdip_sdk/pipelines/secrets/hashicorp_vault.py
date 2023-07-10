@@ -15,7 +15,7 @@
 from .interfaces import SecretsInterface
 import hvac
 from .._pipeline_utils.models import Libraries, SystemType
-from .._pipeline_utils.constants import DEFAULT_PACKAGES
+from .._pipeline_utils.constants import get_default_package
 
 class HashiCorpVaultSecrets(SecretsInterface):
     '''
@@ -52,7 +52,7 @@ class HashiCorpVaultSecrets(SecretsInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_pypi_library(DEFAULT_PACKAGES["hashicorp_vault"])
+        libraries.add_pypi_library(get_default_package("hashicorp_vault"))
         return libraries
     
     @staticmethod

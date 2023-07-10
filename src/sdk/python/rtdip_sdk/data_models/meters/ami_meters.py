@@ -19,24 +19,24 @@ from enum import Enum
 
 
 class ModelType(IntFlag):
-    default = auto()
+    Default = auto()
 
 
 class UomUsage(Enum):
     """
     Units of measurement
     """
-    w = 0 
+    W = 0
     """Watts"""
-    wh = 1
+    WH = 1
     """Watts/Hour"""
-    kw = 2
+    KW = 2
     """Kilowatts"""
-    kwh = 3
+    KWH = 3
     """Kilowatts/Hour"""
-    mw = 4
+    MW = 4
     """Megawatts"""
-    mwh = 5
+    MWH = 5
     """Megawatts/Hour"""
 
 
@@ -44,97 +44,97 @@ class SeriesType(IntFlag):
     """
     Definition of the type of timeseries for the measurements (e.g. realtime or interval based) and the type of the computation if the series is aggregated/derived 
     """
-    real_time = auto()
+    RealTime = auto()
     """
     The data has no specific time pattern
     """
-    minute_1 = auto()
+    Minute1 = auto()
     """
     1 minute interval
     """
-    minutes_5 = auto()
+    Minutes5 = auto()
     """
     5 minutes interval 
     """
-    minutes_10 = auto()
+    Minutes10 = auto()
     """
     10 minutes interval 
     """
-    minutes_15 = auto()
+    Minutes15 = auto()
     """
     15 minutes interval 
     """
-    minutes_30 = auto()
+    Minutes30 = auto()
     """
     30 minutes interval
     """
-    hour = auto()
+    Hour = auto()
     """
     60 minutes/1 hour interval
     """
-    hours_2 = auto()
+    Hours2 = auto()
     """
     2 hours interval
     """
-    hours_3 = auto()
+    Hours3 = auto()
     """
     3 hours interval
     """
-    hours_4 = auto()
+    Hours4 = auto()
     """
     4 hours interval
     """
-    hours_5 = auto()
+    Hours5 = auto()
     """
     5 hours interval
     """
-    hours_6 = auto()
+    Hours6 = auto()
     """
     6 hours interval
     """
-    hours_8 = auto()
+    Hours8 = auto()
     """
     8 hours interval
     """
-    hours_12 = auto()
+    Hours12 = auto()
     """
     12 hours interval
     """
-    hours_24 = auto()
+    Hours24 = auto()
     """
     1 Minute interval
     """
-    week = auto()
+    Week = auto()
     """
     1 Minute interval
     """
-    month = auto()
+    Month = auto()
     """
     1 Minute interval
     """
-    year = auto()
+    Year = auto()
     """
     1 Minute interval
     """
-    sum = auto()
+    Sum = auto()
     """
     Measurement is the result of computing the sum of a set of measurements
     """
-    mean_filter = auto()
+    MeanFilter = auto()
     """
     Measurement is the result of computing the mean of a set of measurements
     """
-    median_filter = auto()
+    MedianFilter = auto()
     """
     Measurement is the result of computing the median of a set of measurements
     """
-    max_filter = auto()
+    MaxFilter = auto()
     """
     Measurement is the result of computing the max of a set of measurements
     """
-    min_filter = auto()
+    MinFilter = auto()
     # Testing
-    test = auto()
+    Test = auto()
 
 
 
@@ -142,23 +142,23 @@ class Usage(BaseModel):
     """
     Usage. a usage measurement from an AMI meter 
     """
-    uid: str  
+    Uid: str
     """
     A unique identifier associated to the source of the measurement (e.g. sensor, meter, etc.)
     """
-    series_id: str
+    SeriesId: str
     """
     Identifier for a particular timeseries set
     """
-    timestamp: int
+    Timestamp: int
     """
     Creation time. Always UTC. Seconds since EPOCH
     """
-    interval_timestamp: int
+    IntervalTimestamp: int
     """
     The timestamp for the interval. Always UTC. Seconds since EPOCH
     """
-    value: float
+    Value: float
     """
     The actual value of the measurement
     """
@@ -169,115 +169,115 @@ class ValueType(IntFlag):
     """
     Defines the type of value
     """
-    counter = auto()
+    Counter = auto()
     """
     The value is cumulative increasing monotinically
     """   
-    gauge = auto()
+    Gauge = auto()
     """
     The value can arbitrarily go up and down
     """
-    histogram = auto()
+    Histogram = auto()
     """
     The value is a histogram
     """
-    summary = auto()
+    Summary = auto()
     """
     """
-    usage = auto()
+    Usage = auto()
     """
     The value is from source that consumes energy
     """
-    generation = auto()
+    Generation = auto()
     """
     The value is from a source that generates energy
     """
-    prediction = auto()
+    Prediction = auto()
     """
     The value is generated from a predictive model
     """
-    short_term = auto()
+    ShortTerm = auto()
     """
     The value is related to a short term (e.g. short term forecast)
     """
-    long_term = auto()
+    LongTerm = auto()
     """
     The value is related to a long term (e.g. long term forecast)
     """
-    actuals = auto()
+    Actuals = auto()
     """
     The value is from a actual measurement
     """
-    backcast = auto()
+    Backcast = auto()
     """
     The value is related to a forecast that happens in the past (e.g. for calculating how good was the forecast compared to actuals)
     """
-    forecast = auto()
+    Forecast = auto()
     """
     The value is related to a forecast in the future
     """
-    short_term_backcast = short_term | backcast
-    long_term_term_backcast = long_term | backcast
-    short_term_forecast = short_term | forecast
-    long_term_term_forecast = long_term | forecast
+    ShortTermBackcast = ShortTerm | Backcast
+    LongTermBackcast = LongTerm | Backcast
+    ShortTermForecast = ShortTerm | Forecast
+    LongTermForecast = LongTerm | Forecast
 
 class MetaData(BaseModel):
     """
     Metadata for a sensor, meter, etc. and its association to sets of time series
     """
-    uid: str
+    Uid: str
     """
     A unique identifier associated to the source of the measurement (e.g. sensor, meter, etc.)
     """
-    series_id: str
+    SeriesId: str
     """
     Identifier for a particular timeseries set
     """
-    series_parent_id: str
+    SeriesParentId: str
     """
     Hierarchy (Sequence) of this TS associated to the same group of TS
     """
-    name: str
+    Name: str
     """
     Name of the sensor
     """
-    uom: UomUsage 
+    Uom: UomUsage
     """
     Unit of measure for this sensor
     """
-    description: str
+    Description: str
     """
     Short description
     """
-    timestamp_start: int
+    TimestampStart: int
     """
     Timestamp of the creation of the record and start of the timeseries.  Always UTC. Seconds since EPOCH
     """
-    timestamp_end: int 
+    TimestampEnd: int
     """
     Timestamp of end of the timeseries.  Always UTC. Seconds since EPOCH
     """
-    time_zone: str
+    Timezone: str
     """
     Time zone of where the sensor or where the series has started
     """
-    version: str 
+    Version: str
     """
     For versioning
     """
-    series_type: SeriesType 
+    SeriesType: SeriesType
     """
     Type of the timeseries
     """
-    model_type: ModelType
+    ModelType: ModelType
     """
     Type of model use to produce this data (e.g. a precitive model)
     """
-    value_type: ValueType
+    ValueType: ValueType
     """
     Type of value of the timeseries
     """
-    properties: dict  
+    Properties: dict
     """
     Any other additional properties (Key/Value)
     """
