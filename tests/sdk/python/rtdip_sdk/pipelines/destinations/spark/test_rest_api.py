@@ -18,7 +18,6 @@ import pytest
 from unittest.mock import patch
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.rest_api import SparkRestAPIDestination
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
 

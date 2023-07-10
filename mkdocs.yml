@@ -153,6 +153,10 @@ nav:
                           - Base ISO: sdk/code-reference/pipelines/sources/spark/iso/base_iso.md
                           - MISO Daily Load: sdk/code-reference/pipelines/sources/spark/iso/miso_daily_load_iso.md
                           - MISO Historical Load: sdk/code-reference/pipelines/sources/spark/iso/miso_historical_load_iso.md
+                      - Weather:
+                          - Base Weather: sdk/code-reference/pipelines/sources/spark/weather/base_weather.md
+                          - Weather Forecast API V1: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1.md
+                          - Weather Forecast API V1 Multi: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md
               - Transformers:
                   - Spark:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
@@ -161,9 +165,14 @@ nav:
                       - EdgeX JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/edgex_opcua_json_to_pcdm.md
                       - SSIP PI Binary File data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md
                       - SSIP PI Binary JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md
+                      - Base Raw To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/base_raw_to_mdm.md
+                      - ISO:
+                          - MISO To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md
                       - Pandas to PySpark DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pandas_to_pyspark.md
                       - PySpark to Pandas DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pyspark_to_pandas.md
-
+                      - Base Raw To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/base_raw_to_mdm.md
+                      - ISO:
+                          - MISO To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md

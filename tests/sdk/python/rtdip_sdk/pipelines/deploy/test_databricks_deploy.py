@@ -21,7 +21,6 @@ import pytest
 from src.sdk.python.rtdip_sdk.pipelines.deploy.databricks import DatabricksDBXDeploy
 from src.sdk.python.rtdip_sdk.pipelines.deploy.models.databricks import DatabricksCluster, DatabricksJobCluster, DatabricksJobForPipelineJob, DatabricksTaskForPipelineTask
 
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import get_spark_pipeline_job
 
 def test_pipeline_job_deploy(mocker: MockerFixture):
