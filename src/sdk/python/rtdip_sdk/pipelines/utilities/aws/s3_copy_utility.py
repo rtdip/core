@@ -100,7 +100,7 @@ class S3CopyUtility(UtilitiesInterface):
                 s3.meta.client.copy(copy_source, destination_domain, destination_key, self.extra_args, self.callback,
                                     self.source_client, self.transfer_config)
 
-            except ClientError as ex:
+            except Exception as ex:
                 logging.error(ex)
                 return False
         # Local File to S3 Copy (Upload)
@@ -113,7 +113,7 @@ class S3CopyUtility(UtilitiesInterface):
            
             try:
                 s3_client.upload_file(self.source_uri, destination_domain, destination_key)
-            except ClientError as ex:
+            except Exception as ex:
                 logging.error(ex)
                 return False
         # S3 to Local File Copy (Download)
@@ -124,7 +124,7 @@ class S3CopyUtility(UtilitiesInterface):
                 schema, source_domain, source_key = utils.validate_uri(self.source_uri)
                 s3 = boto3.client(schema)
                 s3.download_file(source_domain, source_key, self.destination_uri)
-            except ClientError as ex:
+            except Exception as ex:
                 logging.error(ex)
                 return False
         else:
