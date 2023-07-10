@@ -20,7 +20,7 @@ from botocore.config import Config
 from botocore.exceptions import ClientError
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from  ..._pipeline_utils.constants import get_default_package
 from ....data_models.storage_objects import utils
 
 
@@ -73,7 +73,7 @@ class S3CopyUtility(UtilitiesInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_pypi_library(DEFAULT_PACKAGES["aws_boto3"])
+        libraries.add_pypi_library(get_default_package("aws_boto3"))
         return libraries
     
     @staticmethod
