@@ -12,26 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 import pandas as pd
-import requests
 from pyspark.sql import SparkSession
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
+import time
 
-from ...._pipeline_utils.iso import PJM_SCHEMA
-from . import BaseISOSource
+from . import PJMDailyLoadISOSource
+
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
 
 
-class PJMHistoricalLoadISOSource(BaseISOSource):
+class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
     """
-    The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Actual/historical and Forecast data.
+    The PJM Historical Load ISO Source is used to read historical load data from PJM API.
 
     api        https://api.pjm.com/api/v1/
     actual     https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition
-    forecast   https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition
-    
+
     Args:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations
@@ -42,56 +43,21 @@ class PJMHistoricalLoadISOSource(BaseISOSource):
     """
 
     spark: SparkSession
-    spark_schema = PJM_SCHEMA  #don't know this yet...update iso.py pipeline_utils
     options: dict
-    iso_url: str = "https://api.pjm.com/api/v1/" 
-    query_datetime_format: str = "%Y%m%d"
-    required_options = ["feed","api_key", "start_date", "end_date"] # set in iso_runner.py
-
+    required_options = ["api_key", "start_date", "end_date"]  # set in iso_runner.py
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
-        self.spark = spark
-        self.options = options
-        self.feed = self.options.get("feed", "").strip()
-        self.api_key = self.options.get("api_key", "").strip()
-        self.start_date = self.options.get("start_date", "")
-        self.end_date = self.options.get("end_date", "")
-
-
-    def _fetch_from_url(self, url_suffix: str) -> bytes:
-        """
-        Gets data from external ISO API.
-        # this is how didgital Glyde did it in Ingestion3 current version...might be useful ...bedtime
-        # https://bitbucket.org/innowatts/ingestion3.0/src/master/source/ingestion3/connectors/pjm_iso_adapter/pjm_iso_adapter_actual_forecast_connector.py
-
-        Args:
-            url_suffix: String to be used as suffix to iso url.
-
-        Returns:
-            Raw content of the data received.
-        """
-
-        url = f"{self.iso_url}{url_suffix}"
-        feed = self.feed
-        headers = {"Ocp-Apim-Subscription-Key": self.api_key}
-        logging.info(f"Requesting URL - {url}")
-        query = {
-                "startRow": "1",
-                'datetime_beginning_ept': f"{self.start_date}to{self.end_date}",
-                'format': 'csv',
-                'download': 'true'
-            }
-        query_s = '&'.join(['='.join([k,v]) for k, v in query.items()])
-        new_url = f'{url}{feed}?{query_s}'
-        response = requests.get(new_url, headers = headers)
-        code = response.status_code
-
-        if code != 200:
-            raise requests.HTTPError(f"Unable to access URL `{url}`."
-                            f" Received status code {code} with message {response.content}")
-        return response.content
-    
+        self.spark: SparkSession = spark
+        self.options: dict = options
+        self.api_key: str = self.options.get("api_key", "").strip()
+        self.start_date: str = self.options.get("start_date", "")
+        self.end_date: str = self.options.get("end_date", "")
+        self.query_batch_days: int = self.options.get("query_batch_days", 120)
+        self.sleep_duration: int = self.options.get("sleep_duration", 5)
+        self.request_count: int = self.options.get("request_count", 1)
+        self.load_type: str = "actual"
+        self.user_datetime_format = "%Y-%m-%d"
 
     def _pull_data(self) -> pd.DataFrame:
         """
@@ -100,100 +66,83 @@ class PJMHistoricalLoadISOSource(BaseISOSource):
         Returns:
             Raw form of data.
         """
-        # # debug stuff
-        # data = self._fetch_from_url("")
-        # data = data.decode("utf-8")
-        # json.dump(data, open("api_res.json","w"), indent=4)
 
-        df = pd.read_csv(BytesIO(self._fetch_from_url(f"")))
-        print(df)
-        # return df
-       
+        logging.info(f"Historical load requested from {self.start_date} to {self.end_date}")
+        start_date = datetime.strptime(self.start_date, self.user_datetime_format)
+        end_date = datetime.strptime(self.end_date, self.user_datetime_format).replace(hour=23)
 
-     
+        days_diff = (end_date - start_date).days
 
+        logging.info(f"Expected hours for a single zone = {(days_diff + 1) * 24}")
 
+        generated_days_ranges = []
 
+        dates = pd.date_range(start_date, end_date, freq=pd.DateOffset(days=self.query_batch_days))
 
+        for date in dates:
+            py_date = date.to_pydatetime()
+            date_last = (py_date + timedelta(days=self.query_batch_days - 1)).replace(hour=23)
+            date_last = min(date_last, end_date)
+            generated_days_ranges.append((py_date, date_last))
 
+        logging.info(f"Generated date ranges for batch days {self.query_batch_days} are {generated_days_ranges}")
 
+        # Collect all historical data on yearly basis.
+        dfs = []
+        for idx, date_range in enumerate(generated_days_ranges):
+            start_date_str = date_range[0].strftime(self.query_datetime_format)
+            end_date_str = date_range[1].strftime(self.query_datetime_format)
 
+            df = pd.read_csv(BytesIO(self._fetch_from_url("", start_date_str, end_date_str)))
+            dfs.append(df)
 
+            if idx > 0 and idx % self.request_count == 0:
+                logging.info(f"Going to sleep for {self.sleep_duration} seconds")
+                time.sleep(self.sleep_duration)
 
+        df = pd.concat(dfs, sort=False)
+        df = df.reset_index(drop=True)
 
-      
-    # def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
-    #     """
-    #     Creates a new `date_time` column and removes null values.
+        return df
 
-    #     Args:
-    #         df: Raw form of data received from the API.
+    def _validate_options(self) -> bool:
+        """
+        Validates the following options:
+            - `start_date` & `end_data` must be in the correct format.
+            - `start_date` must be behind `end_data`.
+            - `start_date` must not be in the future (UTC).
 
-    #     Returns:
-    #         Data after basic transformations.
+        Returns:
+            True if all looks good otherwise raises Exception.
 
-    #     """
+        """
 
-    #     df.drop(df.index[(df['HourEnding'] == 'HourEnding') | df['PJM MTLF (MWh)'].isna()], inplace=True)
-    #     df.rename(columns={'Market Day': 'date'}, inplace=True)
+        try:
+            start_date = datetime.strptime(self.start_date, self.user_datetime_format)
+        except ValueError:
+            raise ValueError(f"Unable to parse Start date. Please specify in {self.user_datetime_format} format.")
 
-    #     df['date_time'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['HourEnding'].astype(int) - 1, 'h')
-    #     df.drop(['HourEnding', 'date'], axis=1, inplace=True)
+        try:
+            end_date = datetime.strptime(self.end_date, self.user_datetime_format)
+        except ValueError:
+            raise ValueError(f"Unable to parse End date. Please specify in {self.user_datetime_format} format.")
 
-    #     data_cols = df.columns[df.columns != 'date_time']
-    #     df[data_cols] = df[data_cols].astype(float)
+        if start_date > datetime.utcnow() - timedelta(days=1):
+            raise ValueError("Start date can't be in future.")
 
-    #     df.reset_index(inplace=True, drop=True)
+        if start_date > end_date:
+            raise ValueError("Start date can't be ahead of End date.")
 
-    #     return df
+        if end_date > datetime.utcnow() - timedelta(days=1):
+            raise ValueError("End date can't be in future.")
 
+        if self.sleep_duration < 0:
+            raise ValueError("Sleep duration can't be negative.")
 
+        if self.request_count < 0:
+            raise ValueError("Request count can't be negative.")
 
-    # def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
-    #     """
-    #     Filter outs Actual or Forecast data based on `load_type`.
-    #     Args:
-    #         df: Data received after preparation.
+        if self.query_batch_days < 0:
+            raise ValueError("Query batch days count can't be negative.")
 
-    #     Returns:
-    #         Final data either containing Actual or Forecast values.
-
-    #     """
-
-    #     skip_col_suffix = ""
-
-    #     if self.load_type == "actual":
-    #         skip_col_suffix = 'MTLF (MWh)'
-
-    #     elif self.load_type == "forecast":
-    #         skip_col_suffix = 'ActualLoad (MWh)'
-
-    #     df = df[[x for x in df.columns if not x.endswith(skip_col_suffix)]]
-    #     df = df.dropna()
-    #     df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
-
-    #     return df
-    
-
-    # def _validate_options(self) -> bool:
-    #     """
-    #     Validates the following options:
-    #         - `date` must be in the correct format.
-    #         - `load_type` must be valid.
-
-    #     Returns:
-    #         True if all looks good otherwise raises Exception.
-
-    #     """
-
-    #     try:
-    #         datetime.strptime(self.date, self.query_datetime_format)
-    #     except ValueError:
-    #         raise ValueError("Unable to parse Date. Please specify in YYYYMMDD format.")
-
-    #     valid_load_types = ["actual", "forecast"]
-
-    #     if self.load_type not in valid_load_types:
-    #         raise ValueError(f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}.")
-
-    #     return True
+        return True

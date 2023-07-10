@@ -16,14 +16,16 @@ import json
 import logging
 import pandas as pd
 import numpy as np
+import pytz
 import requests
 from pyspark.sql import SparkSession
 from datetime import datetime, timedelta
 from io import BytesIO
 
-from ...._pipeline_utils.iso import PJM_SCHEMA  
+from ...._pipeline_utils.iso import PJM_SCHEMA
 
 from . import BaseISOSource
+
 
 class PJMDailyLoadISOSource(BaseISOSource):
     """
@@ -43,19 +45,20 @@ class PJMDailyLoadISOSource(BaseISOSource):
     """
 
     spark: SparkSession
-    spark_schema = PJM_SCHEMA  
+    spark_schema = PJM_SCHEMA
     options: dict
     iso_url: str = "https://api.pjm.com/api/v1/"
-    query_datetime_format: str = "%Y-%m-%d"
-    required_options = ["api_key", "load_type"]  
+    query_datetime_format: str = "%Y-%m-%d %H:%M"
+    required_options = ["api_key", "load_type"]
+    default_query_timezone = "US/Eastern"
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
-        self.spark = spark
-        self.options = options
-        self.load_type = self.options.get("load_type", "").strip()
-        self.api_key = self.options.get("api_key", "").strip()
-        self.days = self.options.get("days", 7)
+        self.spark: SparkSession = spark
+        self.options: dict = options
+        self.load_type: str = self.options.get("load_type", "").strip()
+        self.api_key: str = self.options.get("api_key", "").strip()
+        self.days: int = self.options.get("days", 7)
 
     def _fetch_from_url(self, url_suffix: str, start_date: str, end_date: str) -> bytes:
         """
@@ -99,12 +102,13 @@ class PJMDailyLoadISOSource(BaseISOSource):
         Returns:
             Raw form of data.
         """
-        start_date = datetime.utcnow() - timedelta(days=1)
-        end_date = start_date + timedelta(days=self.days)
+        start_date = self.current_date - timedelta(days=1)
+        start_date = start_date.replace(hour=0, minute=0)
+        end_date = (start_date + timedelta(days=self.days)).replace(hour=23)
         start_date_str = start_date.strftime(self.query_datetime_format)
         end_date_str = end_date.strftime(self.query_datetime_format)
         df = pd.read_csv(BytesIO(self._fetch_from_url("", start_date_str, end_date_str)))
-     
+
         return df
 
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -122,16 +126,16 @@ class PJMDailyLoadISOSource(BaseISOSource):
 
         if self.load_type == 'forecast':
             df = df.rename(columns={"forecast_datetime_beginning_utc": "start_time",
-                                    "forecast_area": "zone", 
+                                    "forecast_area": "zone",
                                     "forecast_datetime_ending_utc": "end_time",
                                     "forecast_load_mw": "load", })
         else:
             df = df.rename(columns={"datetime_beginning_utc": "start_time",
-                                    "area": "zone", 
+                                    "area": "zone",
                                     "datetime_ending_utc": "end_time",
                                     "actual_load": "load", })
-            
-        df=df[["start_time", "end_time", "zone", "load"]]
+
+        df = df[["start_time", "end_time", "zone", "load"]]
         df = df.replace({np.nan: None, '': None})
 
         date_cols = ["start_time", "end_time"]
@@ -141,11 +145,19 @@ class PJMDailyLoadISOSource(BaseISOSource):
         df["load"] = df["load"].astype(float)
         df = df.replace({np.nan: None, '': None})
         df.columns = list(map(lambda x: x.upper(), df.columns))
+
+        rename_cols = {
+            'START_TIME': 'StartTime',
+            'END_TIME': 'EndTime',
+            'ZONE': 'Zone',
+            'LOAD': 'Load',
+        }
+
+        df = df.rename(columns=rename_cols)
+
         df.reset_index(inplace=True, drop=True)
 
         return df
-
-
 
     def _validate_options(self) -> bool:
         """
