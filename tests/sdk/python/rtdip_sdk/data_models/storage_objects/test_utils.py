@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import sys
-sys.path.insert(0, '.')
-import logging
 import random
 import string
+import sys
+sys.path.insert(0, '.')
+
 
 from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 
@@ -25,13 +24,11 @@ from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 def test_validate():
    
     random.seed()
-    rnd_domain_name: str = '.'.join(''.join(random.choice(string.ascii_lowercase
-                                                          + string.digits) for _ in range(9)) for _ in range(3))
-    rnd_keys: str = ''.join(''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase
-                                                          + string.digits) for _ in range(4)) for _ in range(3))
-    rnd_object_name: str = ''.join(
-        random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits)
-        for _ in range(9)) + '.' + ''.join(random.choice(string.ascii_lowercase) for _ in range(3))
+    letters_and_numbers: string = string.ascii_lowercase + string.digits
+    rnd_domain_name: str = '.'.join(''.join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3))
+    rnd_keys: str = ''.join(''.join(random.choice(letters_and_numbers) for _ in range(4)) for _ in range(3))
+    rnd_object_name: str = ''.join(random.choice(letters_and_numbers)
+     for _ in range(9)) + '.' + ''.join(random.choice(string.ascii_lowercase) for _ in range(3))
 
     rnd_full_s3_uri: str = utils.to_uri(utils.S3_SCHEME, rnd_domain_name, rnd_keys + '/' + rnd_object_name)
     

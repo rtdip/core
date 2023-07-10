@@ -57,6 +57,7 @@ dependencies:
     - databricks-sql-connector==2.5.2
     - semver==3.0.0
     - xlrd==2.0.1
+    - moto==4.1.12
     - pip:
         - dependency-injector==4.41.0
         - azure-functions==1.14.0
