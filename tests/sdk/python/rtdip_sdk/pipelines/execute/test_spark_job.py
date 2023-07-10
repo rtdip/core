@@ -20,7 +20,6 @@ import pytest
 
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import EVENTHUB_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import get_spark_pipeline_job
 
 read_stream_path = "src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_stream"

@@ -16,7 +16,6 @@ import sys
 sys.path.insert(0, '.')
 
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.configuration import SparkConfigurationUtility
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 
 def test_spark_configuration(spark_session: SparkSession):

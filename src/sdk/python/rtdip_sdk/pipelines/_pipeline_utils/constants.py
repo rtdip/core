@@ -31,17 +31,17 @@ def get_default_package(package_name):
                     version="0.6.3"
                 ),
         "spark_azure_eventhub": MavenLibrary(
-                    group_id="com.microsoft.azure", 
+                    group_id="com.microsoft.azure",
                     artifact_id="azure-eventhubs-spark_2.12",
                     version="2.3.22"
                 ),
         "spark_sql_kafka": MavenLibrary(
-                    group_id="org.apache.spark", 
+                    group_id="org.apache.spark",
                     artifact_id="spark-sql-kafka-0-10_2.12",
                     version=_get_package_version("pyspark")
                 ),
         "spark_remote": MavenLibrary(
-                    group_id="org.apache.spark", 
+                    group_id="org.apache.spark",
                     artifact_id="spark-connect_2.12",
                     version=_get_package_version("pyspark")
         ),
@@ -76,6 +76,6 @@ def get_default_package(package_name):
         "pandas": PyPiLibrary(
                     name="pandas",
                     version="2.0.1"
-                ),                      
+                ),
     }
     return DEFAULT_PACKAGES[package_name]
