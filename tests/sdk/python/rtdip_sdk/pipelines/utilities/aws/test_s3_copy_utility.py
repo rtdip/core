@@ -17,8 +17,11 @@ import tempfile
 import string
 import random
 import sys
+from datetime import datetime
 import boto3
 from moto import mock_s3
+
+
 
 
 sys.path.insert(0, '.')
@@ -31,7 +34,7 @@ from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 def test_s3_copy_utility():
 
     length: int = 1024
-    random.seed()
+    random.seed(datetime.now().timestamp())
     rnd_text: str = ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
 
     with tempfile.NamedTemporaryFile(mode='w', suffix = '.txt', delete=False)  as rnd_tempfile:

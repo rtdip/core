@@ -15,15 +15,15 @@
 import random
 import string
 import sys
+from datetime import datetime
 sys.path.insert(0, '.')
-
 
 from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 
 
 def test_validate():
    
-    random.seed()
+    random.seed(datetime.now().timestamp())
     letters_and_numbers: string = string.ascii_lowercase + string.digits
     rnd_domain_name: str = '.'.join(''.join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3))
     rnd_keys: str = ''.join(''.join(random.choice(letters_and_numbers) for _ in range(4)) for _ in range(3))
@@ -52,5 +52,10 @@ def test_validate():
          exception_thrown = True
 
     assert(exception_thrown is True)
+
+
+
+
+
          
         
