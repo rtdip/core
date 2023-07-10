@@ -21,11 +21,11 @@ def create_usage_VO(uid: str,
                     interval_timestamp: int,
                     value: float):
     try:
-        return Usage(uid = uid,
-                        series_id = series_id,
-                        timestamp=timestamp,
-                        interval_timestamp = interval_timestamp,
-                        value = value)
+        return Usage(Uid = uid,
+                        SeriesId = series_id,
+                        Timestamp=timestamp,
+                        IntervalTimestamp = interval_timestamp,
+                        Value = value)
 
     except Exception as ex:
         error_msg_str: str = 'Could not create Usage Value Object: {}'.format(ex)

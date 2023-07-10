@@ -19,8 +19,7 @@ from py4j.protocol import Py4JJavaError
 
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
-
+from ..._pipeline_utils.constants import get_default_package
 class SparkEventhubDestination(DestinationInterface):
     '''
     This Spark destination class is used to write batch or streaming data to Eventhubs. Eventhub configurations need to be specified as options in a dictionary.
@@ -57,7 +56,7 @@ class SparkEventhubDestination(DestinationInterface):
     @staticmethod
     def libraries():
         spark_libraries = Libraries()
-        spark_libraries.add_maven_library(DEFAULT_PACKAGES["spark_azure_eventhub"])
+        spark_libraries.add_maven_library(get_default_package("spark_azure_eventhub"))
         return spark_libraries
     
     @staticmethod

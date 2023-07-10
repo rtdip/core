@@ -35,7 +35,7 @@ def test_timeseries_15min():
     for i in range(intervals_in_one_day_int):
         now_utc_datetime_plus: datetime.datetime = now_utc_datetime_plus + \
                                                     datetime.timedelta(minutes=interval_minutes_int)
-        interval_int: int = utils.get_interval(SeriesType.minutes_15, now_utc_datetime_plus)
+        interval_int: int = utils.get_interval(SeriesType.Minutes15, now_utc_datetime_plus)
         arr_list[interval_int] = 0
         interval_list.append('interval_' + str(interval_int).zfill(2))
     assert (sum(arr_list) == 0)
@@ -54,7 +54,7 @@ def test_timeseries_1h():
     for i in range(intervals_in_one_day_int):
         now_utc_datetime_plus: datetime.datetime = now_utc_datetime_plus + \
                                                     datetime.timedelta(minutes=interval_minutes_int)
-        interval_int: int = utils.get_interval(SeriesType.hour, now_utc_datetime_plus)
+        interval_int: int = utils.get_interval(SeriesType.Hour, now_utc_datetime_plus)
         interval_list[interval_int] = 0
         key_str: str = 'interval_' + str(interval_int).zfill(2)
         interval_dict[key_str] = now_utc_datetime_plus
@@ -71,7 +71,7 @@ def test_timeseries_not_implemented():
     now_utc_datetime_plus = now_utc_datetime
 
     try:
-        utils.get_interval(SeriesType.test, now_utc_datetime_plus)
+        utils.get_interval(SeriesType.Test, now_utc_datetime_plus)
         pytest.fail()
     except SystemError as ex:
         logging.info('Exception catched: {}'.format(ex))

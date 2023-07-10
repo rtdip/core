@@ -24,7 +24,7 @@ from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import EVENTHUB_SCHEMA
 
 from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import get_spark_pipeline_job
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session, DBUtilsSecretsFixture
+from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import DBUtilsSecretsFixture
 
 def test_databricks_secret_scopes(spark_session: SparkSession, mocker: MockerFixture):
     pipeline_job = get_spark_pipeline_job()

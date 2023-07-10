@@ -45,11 +45,11 @@ def test_generate_timeseries_objects_creation():
     timestamp_end_int: int = timestamp_start_int
     timezone_str: str = str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo)
     name_str: str = 'name_' + str(uuid4())
-    uom = UomUsage.kwh
+    uom = UomUsage.KWH
 
-    series_type = SeriesType.minutes_10
-    model_type = ModelType.default
-    value_type = ValueType.usage
+    series_type = SeriesType.Minutes10
+    model_type = ModelType.Default
+    value_type = ValueType.Usage
 
     properties_dict: dict = dict()
     key_str: str = 'key_' + str(uuid4())
@@ -83,6 +83,6 @@ def test_generate_timeseries_objects_creation():
                                                         utils.generate_random_int_number(0,1000) * 0.1)
     logging.debug(usage_vo)
 
-    assert (metadata_vo.series_id == usage_vo.series_id)
+    assert (metadata_vo.SeriesId == usage_vo.SeriesId)
   
 
