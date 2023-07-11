@@ -85,10 +85,14 @@ jobs:
 
       - name: Test
         run: |
-          mkdir -p coverage-reports
           coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
+
+      - name: Test Coverage
+        run: |
+          mkdir -p coverage-reports
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
           echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
+
 
       - name: Mkdocs Test
         run: |
@@ -105,7 +109,7 @@ jobs:
             -Dsonar.organization=rtdip
             -Dsonar.projectKey=rtdip_core
             -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
-            -Dsoner.python.version=3.11
+            -Dsoner.python.version=3.8, 3.9, 3.10, 3.11
             -Dsonar.scm.revision=${{ inputs.HEAD_SHA }}
             -Dsonar.pullrequest.key=${{ inputs.PR_NUMBER }}
             -Dsonar.pullrequest.branch=${{ inputs.PR_HEAD_REF }}

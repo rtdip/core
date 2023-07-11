@@ -22,7 +22,7 @@ on:
 
 jobs:
   job_run_unit_tests:
-    uses: rtdip/core/.github/workflows/test.yml@develop
+    uses: rtdip/core/.github/workflows/test.yml@hotfix/00362
 
   job_pr_artifact:
       needs: job_run_unit_tests
