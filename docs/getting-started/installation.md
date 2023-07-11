@@ -149,7 +149,7 @@ The following provides examples of how to install the RTDIP SDK package with Pip
         - conda-forge
         - defaults
     dependencies:
-        - python==3.10
+        - python==3.11
         - pip==23.0.1
         - pip:
             - rtdip-sdk
@@ -173,7 +173,7 @@ The following provides examples of how to install the RTDIP SDK package with Pip
         - conda-forge
         - defaults
     dependencies:
-        - python==3.10
+        - python==3.11
         - pip==23.0.1
         - pip:
             - rtdip-sdk
