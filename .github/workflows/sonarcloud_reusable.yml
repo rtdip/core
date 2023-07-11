@@ -109,7 +109,7 @@ jobs:
             -Dsonar.organization=rtdip
             -Dsonar.projectKey=rtdip_core
             -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
-            -Dsoner.python.version=3
+            -Dsoner.python.version=3.11
             -Dsonar.scm.revision=${{ inputs.HEAD_SHA }}
             -Dsonar.pullrequest.key=${{ inputs.PR_NUMBER }}
             -Dsonar.pullrequest.branch=${{ inputs.PR_HEAD_REF }}
