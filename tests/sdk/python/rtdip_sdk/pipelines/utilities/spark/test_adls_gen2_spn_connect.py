@@ -27,7 +27,7 @@ def test_adls_gen2_spn_connect_setup(spark_session: SparkSession):
         client_secret="test_client_secret"
     )
 
-    assert adls_gen2_spn_connect_utility.system_type().value == 3
+    assert adls_gen2_spn_connect_utility.system_type().value == 2
     assert adls_gen2_spn_connect_utility.libraries() == Libraries()
     assert isinstance(adls_gen2_spn_connect_utility.settings(), dict)
 
