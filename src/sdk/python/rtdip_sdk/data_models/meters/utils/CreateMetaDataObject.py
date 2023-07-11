@@ -36,20 +36,20 @@ def create_metadata_VO(uid: str,
                        properties: dict):
     
     try:
-        return MetaData(uid = uid,
-                        series_id = series_id,
-                        series_parent_id = series_parent_id,
-                        name = name,
-                        uom = uom,
-                        description = description,
-                        timestamp_start = timestamp_start,
-                        timestamp_end = timestamp_end,
-                        time_zone = time_zone,
-                        version = version,
-                        series_type = series_type,
-                        model_type = model_type,
-                        value_type = value_type,
-                        properties = properties)
+        return MetaData(Uid = uid,
+                        SeriesId = series_id,
+                        SeriesParentId = series_parent_id,
+                        Name = name,
+                        Uom = uom,
+                        Description = description,
+                        TimestampStart = timestamp_start,
+                        TimestampEnd = timestamp_end,
+                        Timezone = time_zone,
+                        Version = version,
+                        SeriesType = series_type,
+                        ModelType = model_type,
+                        ValueType = value_type,
+                        Properties = properties)
     except Exception as ex:
         error_msg_str: str = 'Could not create Metadata Value Object: {}'.format(ex)
         raise SystemError(error_msg_str)

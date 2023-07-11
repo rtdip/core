@@ -48,7 +48,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.11"]
-        pyspark: ["3.4.0"]
+        pyspark: ["3.4.1"]
         delta-spark: ["2.4.0"]
     runs-on: ${{ matrix.os }} 
     steps:
@@ -85,10 +85,14 @@ jobs:
 
       - name: Test
         run: |
-          mkdir -p coverage-reports
           coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
+
+      - name: Test Coverage
+        run: |
+          mkdir -p coverage-reports
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
           echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
+
 
       - name: Mkdocs Test
         run: |

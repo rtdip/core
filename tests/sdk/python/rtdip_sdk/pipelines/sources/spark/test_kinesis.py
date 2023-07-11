@@ -18,7 +18,6 @@ import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.kinesis import SparkKinesisSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import KINESIS_SCHEMA
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 import json
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture

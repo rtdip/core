@@ -19,7 +19,6 @@ from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _get_package_version
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.kafka import SparkKafkaDestination
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 
 class TestStreamingQueryClass():

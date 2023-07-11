@@ -13,14 +13,13 @@
 # limitations under the License.
 
 from io import StringIO
-
+from datetime import datetime, timedelta
 import pandas as pd
 
 import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import MISOHistoricalLoadISOSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import MISO_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
@@ -41,13 +40,13 @@ def get_miso_raw_df(*args, **kwargs) -> pd.DataFrame:
     """
     raw_api_response = "MarketDay,HourEnding,LoadResource Zone,MTLF (MWh),ActualLoad (MWh)\n"
 
-    zones = ["LRZ1",
-             "LRZ2_7",
-             "LRZ3_5",
-             "LRZ4",
-             "LRZ6",
-             "LRZ8_9_10",
-             "MISO"]
+    zones = ["Lrz1",
+             "Lrz2_7",
+             "Lrz3_5",
+             "Lrz4",
+             "Lrz6",
+             "Lrz8_9_10",
+             "Miso"]
 
     data_row_str = "{date},{hour},{zone},{val}\n"
 
@@ -89,13 +88,13 @@ def test_miso_historical_load_iso_read_batch(spark_session: SparkSession, mocker
     pdf = df.toPandas()
     expected_str = str((get_expected_vals() * 9) + get_expected_vals(incr=0.05))
 
-    assert str(pdf['LRZ1'].to_list()) == expected_str
-    assert str(pdf['LRZ2_7'].to_list()) == expected_str
-    assert str(pdf['LRZ3_5'].to_list()) == expected_str
-    assert str(pdf['LRZ4'].to_list()) == expected_str
-    assert str(pdf['LRZ6'].to_list()) == expected_str
-    assert str(pdf['LRZ8_9_10'].to_list()) == expected_str
-    assert str(pdf['MISO'].to_list()) == expected_str
+    assert str(pdf['Lrz1'].to_list()) == expected_str
+    assert str(pdf['Lrz2_7'].to_list()) == expected_str
+    assert str(pdf['Lrz3_5'].to_list()) == expected_str
+    assert str(pdf['Lrz4'].to_list()) == expected_str
+    assert str(pdf['Lrz6'].to_list()) == expected_str
+    assert str(pdf['Lrz8_9_10'].to_list()) == expected_str
+    assert str(pdf['Miso'].to_list()) == expected_str
 
 
 def test_miso_historical_load_iso_read_batch_no_fill(spark_session: SparkSession, mocker: MockerFixture):
@@ -111,13 +110,13 @@ def test_miso_historical_load_iso_read_batch_no_fill(spark_session: SparkSession
     pdf = df.toPandas()
     expected_str = str(get_expected_vals() * 9)
 
-    assert str(pdf['LRZ1'].to_list()) == expected_str
-    assert str(pdf['LRZ2_7'].to_list()) == expected_str
-    assert str(pdf['LRZ3_5'].to_list()) == expected_str
-    assert str(pdf['LRZ4'].to_list()) == expected_str
-    assert str(pdf['LRZ6'].to_list()) == expected_str
-    assert str(pdf['LRZ8_9_10'].to_list()) == expected_str
-    assert str(pdf['MISO'].to_list()) == expected_str
+    assert str(pdf['Lrz1'].to_list()) == expected_str
+    assert str(pdf['Lrz2_7'].to_list()) == expected_str
+    assert str(pdf['Lrz3_5'].to_list()) == expected_str
+    assert str(pdf['Lrz4'].to_list()) == expected_str
+    assert str(pdf['Lrz6'].to_list()) == expected_str
+    assert str(pdf['Lrz8_9_10'].to_list()) == expected_str
+    assert str(pdf['Miso'].to_list()) == expected_str
 
 
 def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
@@ -141,10 +140,12 @@ def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
 
     assert str(exc_info.value) == "Start date can't be ahead of End date."
 
+    future_date = (datetime.utcnow() + timedelta(days=10)).strftime("%Y%m%d")
+
     with pytest.raises(ValueError) as exc_info:
         iso_source = MISOHistoricalLoadISOSource(spark_session, {**iso_configuration,
-                                                                 "start_date": "20240201",
-                                                                 "end_date": "20240205"})
+                                                                 "start_date": future_date,
+                                                                 "end_date": future_date})
         iso_source.pre_read_validation()
 
     assert str(exc_info.value) == "Start date can't be in future."

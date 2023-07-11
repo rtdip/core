@@ -35,10 +35,10 @@ type_checks = [
 
 
 def get_interval(series_type_st: SeriesType, timestamp_datetime: datetime):
-    if series_type_st == SeriesType.minutes_15:
+    if series_type_st == SeriesType.Minutes15:
         minute_of_the_day_int = get_minute_of_the_day(timestamp_datetime)
         return int(minute_of_the_day_int / 15)
-    elif series_type_st == SeriesType.hour:
+    elif series_type_st == SeriesType.Hour:
         minute_of_the_day_int = get_minute_of_the_day(timestamp_datetime)
         return int(minute_of_the_day_int / 60)
     else:
@@ -113,7 +113,7 @@ def generate_random_alpha_num_string(length: int = 8) -> str:
 
 
 def generate_random_int_number(min_value: int, max_value: int) -> int:
-    return random.randint(min_value, max_value)
+    return random.randint(min_value, max_value) # NOSONAR
 
 
 def get_utc_epoch_timestamp() -> int:

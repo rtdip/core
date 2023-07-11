@@ -35,6 +35,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (str): Name of the tag
         timestamps (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zz:zz where %z is the timezone. (Example +00:00 is the UTC timezone)
+        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
 
     Returns:
         DataFrame: A interpolated at time dataframe.
