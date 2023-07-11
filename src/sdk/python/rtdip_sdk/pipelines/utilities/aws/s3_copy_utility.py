@@ -17,7 +17,6 @@ import logging
 import boto3
 from boto3.s3.transfer import S3Transfer
 from botocore.config import Config
-from botocore.exceptions import ClientError
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from  ..._pipeline_utils.constants import get_default_package
@@ -80,7 +79,7 @@ class S3CopyUtility(UtilitiesInterface):
     def settings() -> dict:
         return {}
 
-    def execute(self) -> None:
+    def execute(self) -> bool:
         # S3 to S3 Copy
         if self.source_uri.startswith(utils.S3_SCHEME) \
                 and self.destination_uri.startswith(utils.S3_SCHEME):
