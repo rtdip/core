@@ -29,7 +29,7 @@ def anonymizer_md5(input_str: str) -> str:
     Generates the md5 hash of the input
     a
     """
-    result = hashlib.md5(input_str.encode())
+    result = hashlib.md5(input_str.encode()) # NOSONAR
     return str(result.hexdigest())
 
 

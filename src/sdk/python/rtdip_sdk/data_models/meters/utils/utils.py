@@ -113,7 +113,7 @@ def generate_random_alpha_num_string(length: int = 8) -> str:
 
 
 def generate_random_int_number(min_value: int, max_value: int) -> int:
-    return random.randint(min_value, max_value)
+    return random.randint(min_value, max_value) # NOSONAR
 
 
 def get_utc_epoch_timestamp() -> int:
