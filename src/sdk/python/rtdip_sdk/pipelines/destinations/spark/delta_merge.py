@@ -39,9 +39,9 @@ class SparkDeltaMergeDestination(DestinationInterface):
 
     Args:
         data (DataFrame): Dataframe to be merged into a Delta Table
+        destination (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         merge_condition (str): Condition for matching records between dataframe and delta table. Reference Dataframe columns as `source` and Delta Table columns as `target`. For example `source.id = target.id`.
-        destination (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table
         when_matched_update_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
         when_matched_delete_list (list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that match the `merge_condition`.
         when_not_matched_insert_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when inserting rows that do not match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
@@ -56,9 +56,9 @@ class SparkDeltaMergeDestination(DestinationInterface):
     '''
     spark: SparkSession
     data: DataFrame
+    destination: str
     options: dict
     merge_condition: str
-    destination: str
     when_matched_update_list: List[DeltaMergeConditionValues]
     when_matched_delete_list: List[DeltaMergeCondition]
     when_not_matched_insert_list: List[DeltaMergeConditionValues]
@@ -71,9 +71,9 @@ class SparkDeltaMergeDestination(DestinationInterface):
     def __init__(self, 
                  spark: SparkSession, 
                  data: DataFrame,  
+                 destination:str,
                  options: dict,
                  merge_condition: str, 
-                 destination:str,
                  when_matched_update_list: List[DeltaMergeConditionValues] = None, 
                  when_matched_delete_list: List[DeltaMergeCondition] = None,
                  when_not_matched_insert_list: List[DeltaMergeConditionValues] = None,
@@ -84,9 +84,9 @@ class SparkDeltaMergeDestination(DestinationInterface):
                  query_name: str ="DeltaMergeDestination") -> None: 
         self.spark = spark
         self.data = data
+        self.destination = destination
         self.options = options
         self.merge_condition = merge_condition
-        self.destination = destination
         self.when_matched_update_list = [] if when_matched_update_list is None else when_matched_update_list
         self.when_matched_delete_list = [] if when_matched_delete_list is None else when_matched_delete_list
         self.when_not_matched_insert_list = [] if when_not_matched_insert_list is None else when_not_matched_insert_list
