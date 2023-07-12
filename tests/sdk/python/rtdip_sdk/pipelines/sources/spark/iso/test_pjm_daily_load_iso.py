@@ -22,7 +22,6 @@ import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import PJMDailyLoadISOSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import PJM_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
-# from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
@@ -61,16 +60,15 @@ raw_api_actual_response = (
 
 )
 
-expected_forecast_data = {
-    "StartTime": {"0": 1688875200000, "1": 1688878800000, "2": 1688882400000, "3": 1688886000000, "4": 1688889600000},
-    "EndTime": {"0": 1688878800000, "1": 1688882400000, "2": 1688886000000, "3": 1688889600000, "4": 1688893200000},
-    "Zone": {"0": "AE/MIDATL", "1": "AE/MIDATL", "2": "AE/MIDATL", "3": "AE/MIDATL", "4": "AE/MIDATL"},
-    "Load": {"0": 14.0, "1": 104.0, "2": 144.0, "3": 123.0, "4": 23.0}}
+expected_forecast_data = {"StartTime":{"0":1688878800000,"1":1688882400000,"2":1688886000000,"3":1688889600000,"4":1688893200000},
+                          "EndTime":{"0":1688882400000,"1":1688886000000,"2":1688889600000,"3":1688893200000,"4":1688896800000},
+                          "Zone":{"0":"AE/MIDATL","1":"AE/MIDATL","2":"AE/MIDATL","3":"AE/MIDATL","4":"AE/MIDATL"},
+                          "Load":{"0":14.0,"1":104.0,"2":144.0,"3":123.0,"4":23.0}}
 
-expected_actual_data = {"StartTime": {"0": 1688788800000, "1": 1688788800000, "2": 1688788800000, "3": 1688788800000},
-                        "EndTime": {"0": 1688792400000, "1": 1688792400000, "2": 1688792400000, "3": 1688792400000},
-                        "Zone": {"0": "AEP", "1": "AP", "2": "ATSI", "3": "ComEd"},
-                        "Load": {"0": 14.51, "1": 53.24, "2": 69.94, "3": 10.06}}
+expected_actual_data = {"StartTime":{"0":1688792400000,"1":1688792400000,"2":1688792400000,"3":1688792400000},
+                        "EndTime":{"0":1688796000000,"1":1688796000000,"2":1688796000000,"3":1688796000000},
+                        "Zone":{"0":"AEP","1":"AP","2":"ATSI","3":"ComEd"},
+                        "Load":{"0":14.51,"1":53.24,"2":69.94,"3":10.06}}
 
 
 def test_pjm_daily_load_iso_read_setup(spark_session: SparkSession):
@@ -109,7 +107,6 @@ def test_pjm_daily_load_iso_read_batch_forecast(spark_session: SparkSession, moc
 
     pdf = df.toPandas()
     expected_df = pd.DataFrame(expected_forecast_data)
-
     assert str(pdf.to_json()) == str(expected_df.to_json())
 
 
@@ -136,7 +133,6 @@ def test_pjm_daily_load_iso_read_batch_actual(spark_session: SparkSession, mocke
     assert str(df.schema) == str(PJM_SCHEMA)
 
     pdf = df.toPandas()
-
     expected_df = pd.DataFrame(expected_actual_data)
 
     assert str(pdf.to_json()) == str(expected_df.to_json())

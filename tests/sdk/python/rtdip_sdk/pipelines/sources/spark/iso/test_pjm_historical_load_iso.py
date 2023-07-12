@@ -22,7 +22,6 @@ import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import PJMHistoricalLoadISOSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import PJM_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
-# from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
@@ -46,13 +45,10 @@ raw_api_response = (
 
 )
 
-expected_data = {
-    "StartTime": {"0": 1688788800000, "1": 1688788800000, "2": 1688788800000, "3": 1688788800000, "4": 1688788800000,
-                  "5": 1688788800000, "6": 1688788800000, "7": 1688788800000},
-    "EndTime": {"0": 1688792400000, "1": 1688792400000, "2": 1688792400000, "3": 1688792400000, "4": 1688792400000,
-                "5": 1688792400000, "6": 1688792400000, "7": 1688792400000},
-    "Zone": {"0": "AEP", "1": "AP", "2": "ATSI", "3": "ComEd", "4": "AEP", "5": "AP", "6": "ATSI", "7": "ComEd"},
-    "Load": {"0": 14.51, "1": 53.24, "2": 69.94, "3": 10.06, "4": 14.51, "5": 53.24, "6": 69.94, "7": 10.06}}
+expected_data = {"StartTime":{"0":1688792400000,"1":1688792400000,"2":1688792400000,"3":1688792400000,"4":1688792400000,"5":1688792400000,"6":1688792400000,"7":1688792400000},
+                 "EndTime":{"0":1688796000000,"1":1688796000000,"2":1688796000000,"3":1688796000000,"4":1688796000000,"5":1688796000000,"6":1688796000000,"7":1688796000000},
+                 "Zone":{"0":"AEP","1":"AP","2":"ATSI","3":"ComEd","4":"AEP","5":"AP","6":"ATSI","7":"ComEd"},
+                 "Load":{"0":14.51,"1":53.24,"2":69.94,"3":10.06,"4":14.51,"5":53.24,"6":69.94,"7":10.06}}
 
 
 def test_pjm_historical_load_iso_read_setup(spark_session: SparkSession):
@@ -95,7 +91,6 @@ def test_pjm_historical_load_iso_read_batch_actual(spark_session: SparkSession, 
     assert str(df.schema) == str(PJM_SCHEMA)
 
     pdf = df.toPandas()
-    print(pdf.to_json())
 
     expected_df = pd.DataFrame(expected_data)
 
