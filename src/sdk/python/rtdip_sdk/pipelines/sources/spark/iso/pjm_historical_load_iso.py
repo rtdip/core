@@ -21,30 +21,39 @@ import time
 
 from . import PJMDailyLoadISOSource
 
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
+# pd.set_option('display.max_rows', 500)
+# pd.set_option('display.max_columns', 500)
+# pd.set_option('display.width', 1000)
 
 
 class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
     """
-    The PJM Historical Load ISO Source is used to read historical load data from PJM API.
+    The PJM Historical Load ISO Source is used to read historical load data from PJM API. 
 
-    api        https://api.pjm.com/api/v1/
-    actual     https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition
+    API:               <a href="https://api.pjm.com/api/v1/">https://api.pjm.com/api/v1/</a>  (must be a valid apy key from PJM)
+
+    Historical doc:    <a href="https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition">https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition</a>
+
+    Historical is the same PJM endpoint as Actual, but is called repeatedly within a range established by the start_date & end_date attributes
 
     Args:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations
 
     Attributes:
-        feed (str): a string of a valid service of the  api provided in iso_runner.py
-        api_key (str): a string of a valid api_key provided in iso_runner.py
+        api_key (str): Must be a valid key from PJM, see PJM documentation
+        start_date (str): Must be in `YYYY-MM-DD` format.
+        end_date (str): Must be in `YYYY-MM-DD` format.
+
+        query_batch_days (int): (optional) Number of days must be < 160 as per PJM & is defaulted to `120`
+        sleep_duration (int): (optional) Number of seconds to sleep between request, defaulted to `5` seconds, used to manage requests to PJM endpoint
+        request_count (int): (optional) Number of requests made to PJM endpoint before sleep_duration, currently defaulted to `1`
+
     """
 
     spark: SparkSession
     options: dict
-    required_options = ["api_key", "start_date", "end_date"]  # set in iso_runner.py
+    required_options = ["api_key", "start_date", "end_date"]  
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
@@ -61,7 +70,7 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
 
     def _pull_data(self) -> pd.DataFrame:
         """
-        Pulls data from the PJM API and parses the return.
+        Pulls data from the PJM API and parses the return including date ranges.
 
         Returns:
             Raw form of data.
@@ -72,11 +81,8 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
         end_date = datetime.strptime(self.end_date, self.user_datetime_format).replace(hour=23)
 
         days_diff = (end_date - start_date).days
-
         logging.info(f"Expected hours for a single zone = {(days_diff + 1) * 24}")
-
         generated_days_ranges = []
-
         dates = pd.date_range(start_date, end_date, freq=pd.DateOffset(days=self.query_batch_days))
 
         for date in dates:
@@ -102,12 +108,12 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
 
         df = pd.concat(dfs, sort=False)
         df = df.reset_index(drop=True)
-
         return df
+    
 
     def _validate_options(self) -> bool:
         """
-        Validates the following options:
+        Validates all parameters including the following examples:
             - `start_date` & `end_data` must be in the correct format.
             - `start_date` must be behind `end_data`.
             - `start_date` must not be in the future (UTC).

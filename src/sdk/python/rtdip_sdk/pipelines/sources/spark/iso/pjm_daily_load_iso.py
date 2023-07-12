@@ -29,19 +29,21 @@ from . import BaseISOSource
 
 class PJMDailyLoadISOSource(BaseISOSource):
     """
-    The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Actual/historical and Forecast data.
+    The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Actual and Forecast data. Actual will return 1 day, Forecast will return 7 days
 
-    api        https://api.pjm.com/api/v1/
-    actual     https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition
-    forecast   https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition
+    API:           <a href="https://api.pjm.com/api/v1/">https://api.pjm.com/api/v1/</a>  (must be a valid apy key from PJM)
+
+    Actual doc:    <a href="https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition">https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition</a>
+
+    Forecast doc:  <a href="https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition">https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition</a>
 
     Args:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations
 
     Attributes:
-        load_type (str): a string of a valid service of the  api provided in iso_runner.py
-        api_key (str): a string of a valid api_key provided in iso_runner.py
+        api_key (str): Must be a valid key from PJM, see api url
+        load_type (str): Must be one of `actual` or `forecast`
     """
 
     spark: SparkSession
@@ -51,6 +53,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
     query_datetime_format: str = "%Y-%m-%d %H:%M"
     required_options = ["api_key", "load_type"]
     default_query_timezone = "US/Eastern"
+    
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
@@ -60,11 +63,10 @@ class PJMDailyLoadISOSource(BaseISOSource):
         self.api_key: str = self.options.get("api_key", "").strip()
         self.days: int = self.options.get("days", 7)
 
+
     def _fetch_from_url(self, url_suffix: str, start_date: str, end_date: str) -> bytes:
         """
         Gets data from external ISO API.
-        # this is how didgital Glyde did it in Ingestion3 current version...might be useful ...bedtime
-        # https://bitbucket.org/innowatts/ingestion3.0/src/master/source/ingestion3/connectors/pjm_iso_adapter/pjm_iso_adapter_actual_forecast_connector.py
 
         Args:
             url_suffix: String to be used as suffix to iso url.
@@ -94,6 +96,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
             raise requests.HTTPError(f"Unable to access URL `{url}`."
                                      f" Received status code {code} with message {response.content}")
         return response.content
+    
 
     def _pull_data(self) -> pd.DataFrame:
         """
@@ -110,11 +113,12 @@ class PJMDailyLoadISOSource(BaseISOSource):
         df = pd.read_csv(BytesIO(self._fetch_from_url("", start_date_str, end_date_str)))
 
         return df
+    
 
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
 
         """
-      Creates a new `date_time` column and removes null values.
+      Creates a new date time column and removes null values. Renames columns
 
       Args:
           df: Raw form of data received from the API.
@@ -140,7 +144,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
 
         date_cols = ["start_time", "end_time"]
         for col in date_cols:
-            df[col] = df[col].apply(lambda x: datetime.strptime(x, '%m/%d/%Y %I:%M:%S %p') if x is not None else x)
+            df[col] = df[col].apply(lambda x: datetime.strptime(x, '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=pytz.UTC) if x is not None else x)
 
         df["load"] = df["load"].astype(float)
         df = df.replace({np.nan: None, '': None})

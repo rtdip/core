@@ -153,6 +153,8 @@ nav:
                           - Base ISO: sdk/code-reference/pipelines/sources/spark/iso/base_iso.md
                           - MISO Daily Load: sdk/code-reference/pipelines/sources/spark/iso/miso_daily_load_iso.md
                           - MISO Historical Load: sdk/code-reference/pipelines/sources/spark/iso/miso_historical_load_iso.md
+                          - PJM Daily Load: sdk/code-reference/pipelines/sources/spark/iso/pjm_daily_load_iso.md
+                          - PJM Historical Load: sdk/code-reference/pipelines/sources/spark/iso/pjm_historical_load_iso.md
                       - Weather:
                           - Base Weather: sdk/code-reference/pipelines/sources/spark/weather/base_weather.md
                           - Weather Forecast API V1: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1.md
