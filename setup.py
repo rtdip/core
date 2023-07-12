@@ -29,7 +29,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
-  "databricks-sql-connector==2.5.2",
+  "databricks-sql-connector==2.7.0",
   "azure-identity==1.12.0",
   "pyodbc==4.0.39",
   "pandas==1.5.2",
@@ -41,7 +41,7 @@ INSTALL_REQUIRES = [
   "grpcio>=1.48.1",
   "grpcio-status>=1.48.1",
   "googleapis-common-protos>=1.56.4",
-  "langchain==0.0.208",
+  "langchain==0.0.230",
   "openai==0.27.8"
 ]
 
@@ -52,11 +52,11 @@ PYSPARK_PACKAGES = [
 
 PIPELINE_PACKAGES = [
   "dependency-injector==4.41.0",
-  "dbx==0.8.11",
-  "pydantic==1.10.7",
-  "azure-storage-file-datalake==12.10.1",
-  "boto3==1.26.123",
-  "hvac==1.1.0",
+  "dbx==0.8.17",
+  "pydantic==2.0.2",
+  "azure-storage-file-datalake==12.12.0",
+  "boto3==1.28.2",
+  "hvac==1.1.1",
   "azure-keyvault-secrets==4.7.0",
   "web3==6.5.0"
 ]
