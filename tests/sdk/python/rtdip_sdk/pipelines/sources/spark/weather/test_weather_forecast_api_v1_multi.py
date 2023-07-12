@@ -33,6 +33,7 @@ configuration = {
     ]
 }
 
+         
 raw_api_response2 = {
     "metadata": {
         "language": "en-US",
@@ -391,6 +392,8 @@ expected_json = {
 def get_api_response(url: str) -> str:
     if url == "https://api.weather.com/v1/geocode/32.3667/-95.4/forecast/hourly/360hour.json":
         return json.dumps(raw_api_response)
+
+
     else:
         return json.dumps(raw_api_response2)
 
