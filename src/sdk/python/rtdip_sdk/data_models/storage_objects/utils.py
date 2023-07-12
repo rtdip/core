@@ -25,7 +25,7 @@ GS_SCHEME: str = "gs"
 SPARK_S3_SCHEME: str = "s3a"
 SCHEMAS: list = [AZURE_SCHEME, S3_SCHEME, GS_SCHEME, SPARK_S3_SCHEME]
 
-def validate_uri(uri: str) -> tuple [str]:
+def validate_uri(uri: str):
     """
 
     Validates the uri of a storage object against the supported schemas and extracs the scheme, the domain and the path.
