@@ -23,6 +23,8 @@ from test_weather_forecast_api_v1 import raw_api_response
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
+MOSTLY_CLOUDY = "Mostly Cloudy"
+
 configuration = {
     "api_key": "AA",
     "language": "en-US",
@@ -254,14 +256,14 @@ expected_json = {
         "3": "Showers"
     },
     "PHRASE_22CHAR": {
-        "0": "Mostly Cloudy",
-        "1": "Mostly Cloudy",
+        "0": MOSTLY_CLOUDY,
+        "1": MOSTLY_CLOUDY,
         "2": "Light Rain",
         "3": "Showers"
     },
     "PHRASE_32CHAR": {
-        "0": "Mostly Cloudy",
-        "1": "Mostly Cloudy",
+        "0": MOSTLY_CLOUDY,
+        "1": MOSTLY_CLOUDY,
         "2": "Light Rain",
         "3": "Showers"
     },
