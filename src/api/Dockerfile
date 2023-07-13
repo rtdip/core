@@ -40,3 +40,6 @@ RUN pip install --no-cache-dir pyarrow==12.0.0 \
 
 COPY src/api/ /home/site/wwwroot
 COPY src /home/site/wwwroot/src
+
+RUN adduser appuser
+USER appuser
