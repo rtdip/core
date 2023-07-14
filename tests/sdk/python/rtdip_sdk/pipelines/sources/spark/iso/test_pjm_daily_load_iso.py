@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from datetime import datetime, timedelta
+
 import sys
+from io import StringIO
 
 import pandas as pd
 from requests import HTTPError
@@ -60,15 +61,22 @@ raw_api_actual_response = (
 
 )
 
-expected_forecast_data = {"StartTime":{"0":1688878800000,"1":1688882400000,"2":1688886000000,"3":1688889600000,"4":1688893200000},
-                          "EndTime":{"0":1688882400000,"1":1688886000000,"2":1688889600000,"3":1688893200000,"4":1688896800000},
-                          "Zone":{"0":"AE/MIDATL","1":"AE/MIDATL","2":"AE/MIDATL","3":"AE/MIDATL","4":"AE/MIDATL"},
-                          "Load":{"0":14.0,"1":104.0,"2":144.0,"3":123.0,"4":23.0}}
+expected_forecast_data = (
+    "StartTime,EndTime,Zone,Load\n"
+    "2023-07-09 04:00:00,2023-07-09 05:00:00,AE/MIDATL,14.0\n"
+    "2023-07-09 05:00:00,2023-07-09 06:00:00,AE/MIDATL,104.0\n"
+    "2023-07-09 06:00:00,2023-07-09 07:00:00,AE/MIDATL,144.0\n"
+    "2023-07-09 07:00:00,2023-07-09 08:00:00,AE/MIDATL,123.0\n"
+    "2023-07-09 08:00:00,2023-07-09 09:00:00,AE/MIDATL,23.0\n"
+)
 
-expected_actual_data = {"StartTime":{"0":1688792400000,"1":1688792400000,"2":1688792400000,"3":1688792400000},
-                        "EndTime":{"0":1688796000000,"1":1688796000000,"2":1688796000000,"3":1688796000000},
-                        "Zone":{"0":"AEP","1":"AP","2":"ATSI","3":"ComEd"},
-                        "Load":{"0":14.51,"1":53.24,"2":69.94,"3":10.06}}
+expected_actual_data = (
+    "StartTime,EndTime,Zone,Load\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,AEP,14.51\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,AP,53.24\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,ATSI,69.94\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,ComEd,10.06\n"
+)
 
 
 def test_pjm_daily_load_iso_read_setup(spark_session: SparkSession):
@@ -105,9 +113,12 @@ def test_pjm_daily_load_iso_read_batch_forecast(spark_session: SparkSession, moc
     assert isinstance(df, DataFrame)
     assert str(df.schema) == str(PJM_SCHEMA)
 
-    pdf = df.toPandas()
-    expected_df = pd.DataFrame(expected_forecast_data)
-    assert str(pdf.to_json()) == str(expected_df.to_json())
+    expected_df_spark = spark_session.createDataFrame(
+        pd.read_csv(StringIO(expected_forecast_data), parse_dates=["StartTime", "EndTime"]),
+        schema=PJM_SCHEMA)
+
+    cols = df.columns
+    assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
 
 
 def test_pjm_daily_load_iso_read_batch_actual(spark_session: SparkSession, mocker: MockerFixture):
@@ -132,10 +143,12 @@ def test_pjm_daily_load_iso_read_batch_actual(spark_session: SparkSession, mocke
     assert isinstance(df, DataFrame)
     assert str(df.schema) == str(PJM_SCHEMA)
 
-    pdf = df.toPandas()
-    expected_df = pd.DataFrame(expected_actual_data)
+    expected_df_spark = spark_session.createDataFrame(
+        pd.read_csv(StringIO(expected_actual_data), parse_dates=["StartTime", "EndTime"]),
+        schema=PJM_SCHEMA)
 
-    assert str(pdf.to_json()) == str(expected_df.to_json())
+    cols = df.columns
+    assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
 
 
 def test_pjm_daily_load_iso_iso_fetch_url_fails(spark_session: SparkSession, mocker: MockerFixture):
@@ -163,3 +176,4 @@ def test_pjm_daily_load_iso_invalid_load_type(spark_session: SparkSession):
         iso_source.pre_read_validation()
 
     assert str(exc_info.value) == "Invalid load_type `both` given. Supported values are ['actual', 'forecast']."
+

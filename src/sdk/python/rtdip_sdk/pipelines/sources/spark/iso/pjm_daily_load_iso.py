@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 import pandas as pd
 import numpy as np
-import pytz
 import requests
 from pyspark.sql import SparkSession
-from datetime import datetime, timedelta
+from datetime import timedelta
 from io import BytesIO
 
 from ...._pipeline_utils.iso import PJM_SCHEMA
@@ -53,7 +51,6 @@ class PJMDailyLoadISOSource(BaseISOSource):
     query_datetime_format: str = "%Y-%m-%d %H:%M"
     required_options = ["api_key", "load_type"]
     default_query_timezone = "US/Eastern"
-    
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
@@ -62,7 +59,6 @@ class PJMDailyLoadISOSource(BaseISOSource):
         self.load_type: str = self.options.get("load_type", "").strip()
         self.api_key: str = self.options.get("api_key", "").strip()
         self.days: int = self.options.get("days", 7)
-
 
     def _fetch_from_url(self, url_suffix: str, start_date: str, end_date: str) -> bytes:
         """
@@ -96,7 +92,6 @@ class PJMDailyLoadISOSource(BaseISOSource):
             raise requests.HTTPError(f"Unable to access URL `{url}`."
                                      f" Received status code {code} with message {response.content}")
         return response.content
-    
 
     def _pull_data(self) -> pd.DataFrame:
         """
@@ -113,7 +108,6 @@ class PJMDailyLoadISOSource(BaseISOSource):
         df = pd.read_csv(BytesIO(self._fetch_from_url("", start_date_str, end_date_str)))
 
         return df
-    
 
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
 
@@ -144,7 +138,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
 
         date_cols = ["start_time", "end_time"]
         for col in date_cols:
-            df[col] = df[col].apply(lambda x: datetime.strptime(x, '%m/%d/%Y %I:%M:%S %p').replace(tzinfo=pytz.UTC) if x is not None else x)
+            df[col] = pd.to_datetime(df[col], format='%m/%d/%Y %I:%M:%S %p')
 
         df["load"] = df["load"].astype(float)
         df = df.replace({np.nan: None, '': None})
@@ -178,3 +172,4 @@ class PJMDailyLoadISOSource(BaseISOSource):
             raise ValueError(f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}.")
 
         return True
+

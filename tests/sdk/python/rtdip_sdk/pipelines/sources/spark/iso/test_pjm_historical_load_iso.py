@@ -13,6 +13,7 @@
 # limitations under the License.
 from datetime import datetime, timedelta
 import sys
+from io import StringIO
 
 import pandas as pd
 from requests import HTTPError
@@ -45,10 +46,17 @@ raw_api_response = (
 
 )
 
-expected_data = {"StartTime":{"0":1688792400000,"1":1688792400000,"2":1688792400000,"3":1688792400000,"4":1688792400000,"5":1688792400000,"6":1688792400000,"7":1688792400000},
-                 "EndTime":{"0":1688796000000,"1":1688796000000,"2":1688796000000,"3":1688796000000,"4":1688796000000,"5":1688796000000,"6":1688796000000,"7":1688796000000},
-                 "Zone":{"0":"AEP","1":"AP","2":"ATSI","3":"ComEd","4":"AEP","5":"AP","6":"ATSI","7":"ComEd"},
-                 "Load":{"0":14.51,"1":53.24,"2":69.94,"3":10.06,"4":14.51,"5":53.24,"6":69.94,"7":10.06}}
+expected_data = (
+    "StartTime,EndTime,Zone,Load\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,AEP,14.51\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,AP,53.24\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,ATSI,69.94\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,ComEd,10.06\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,AEP,14.51\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,AP,53.24\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,ATSI,69.94\n"
+    "2023-07-08 04:00:00,2023-07-08 05:00:00,ComEd,10.06\n"
+)
 
 
 def test_pjm_historical_load_iso_read_setup(spark_session: SparkSession):
@@ -90,11 +98,12 @@ def test_pjm_historical_load_iso_read_batch_actual(spark_session: SparkSession, 
     assert isinstance(df, DataFrame)
     assert str(df.schema) == str(PJM_SCHEMA)
 
-    pdf = df.toPandas()
+    expected_df_spark = spark_session.createDataFrame(
+        pd.read_csv(StringIO(expected_data), parse_dates=["StartTime", "EndTime"]),
+        schema=PJM_SCHEMA)
 
-    expected_df = pd.DataFrame(expected_data)
-
-    assert str(pdf.to_json()) == str(expected_df.to_json())
+    cols = df.columns
+    assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
 
 
 def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
@@ -156,3 +165,4 @@ def test_miso_historical_load_iso_invalid_query_batch_days(spark_session: SparkS
         iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration, "query_batch_days": -3})
         iso_source.pre_read_validation()
     assert str(exc_info.value) == "Query batch days count can't be negative."
+
