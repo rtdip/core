@@ -78,6 +78,8 @@ expected_actual_data = (
     "2023-07-08 04:00:00,2023-07-08 05:00:00,ComEd,10.06\n"
 )
 
+patch_module_name = "requests.get"
+
 
 def test_pjm_daily_load_iso_read_setup(spark_session: SparkSession):
     iso_source = PJMDailyLoadISOSource(spark_session, iso_configuration)
@@ -105,7 +107,7 @@ def test_pjm_daily_load_iso_read_batch_forecast(spark_session: SparkSession, moc
         assert headers == {'Ocp-Apim-Subscription-Key': 'SAMPLE'}
         return MyResponse()
 
-    mocker.patch("requests.get", side_effect=get_response)
+    mocker.patch(patch_module_name, side_effect=get_response)
 
     df = iso_source.read_batch()
 
@@ -135,7 +137,7 @@ def test_pjm_daily_load_iso_read_batch_actual(spark_session: SparkSession, mocke
         assert headers == {'Ocp-Apim-Subscription-Key': 'SAMPLE'}
         return MyResponse()
 
-    mocker.patch("requests.get", side_effect=get_response)
+    mocker.patch(patch_module_name, side_effect=get_response)
 
     df = iso_source.read_batch()
 
@@ -160,7 +162,7 @@ def test_pjm_daily_load_iso_iso_fetch_url_fails(spark_session: SparkSession, moc
         status_code = 401
 
     mock_res = MyResponse()
-    mocker.patch("requests.get", side_effect=lambda url, headers: mock_res)
+    mocker.patch(patch_module_name, side_effect=lambda url, headers: mock_res)
 
     with pytest.raises(HTTPError) as exc_info:
         base_iso_source.read_batch()
@@ -176,4 +178,5 @@ def test_pjm_daily_load_iso_invalid_load_type(spark_session: SparkSession):
         iso_source.pre_read_validation()
 
     assert str(exc_info.value) == "Invalid load_type `both` given. Supported values are ['actual', 'forecast']."
+
 
