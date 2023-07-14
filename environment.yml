@@ -61,7 +61,7 @@ dependencies:
     - moto==4.1.12
 =======
     - pygithub==1.59.0
-    - strawberry-graphql[fastapi]==0.194.4
+    - strawberry-graphql[fastapi,pydantic]==0.194.4
     - web3==6.5.0
 >>>>>>> develop
     - pip:
