@@ -61,6 +61,8 @@ class S3CopyUtility(UtilitiesInterface):
         self.source_client = source_client
         self.transfer_config = transfer_config
 
+
+
     @staticmethod
     def system_type():
         '''

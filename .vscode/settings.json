@@ -2,7 +2,7 @@
     "azureFunctions.scmDoBuildDuringDeployment": true,
     "azureFunctions.pythonVenv": "${workspaceFolder}/src/api/.venv",
     "azureFunctions.projectLanguage": "Python",
-    "azureFunctions.projectRuntime": "~4",		
+    "azureFunctions.projectRuntime": "~4",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.formatting.autopep8Path": "/opt/conda/bin/autopep8",
@@ -20,16 +20,18 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.testing.cwd": "${workspaceFolder}",
-    "python.analysis.extraPaths": ["${workspaceFolder}"],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}"
+    ],
     // "terminal.integrated.env.osx":{
     //     "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
     // },    
-    "terminal.integrated.env.linux":{
-        "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"
     },
-    "terminal.integrated.env.windows":{
-        "PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"        
-    },    				
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"
+    },
     "git.alwaysSignOff": true,
     "githubPullRequests.ignoredPullRequestBranches": [
         "develop"
@@ -37,7 +39,7 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
-    "python.formatting.provider": "none",
+    "python.formatting.provider": "black",
     "cSpell.words": [
         "ADLS",
         "Autoloader",
