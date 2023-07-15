@@ -24,21 +24,22 @@ GS_SCHEME: str = "gs"
 SPARK_S3_SCHEME: str = "s3a"
 SCHEMAS: list = [AZURE_SCHEME, S3_SCHEME, GS_SCHEME, SPARK_S3_SCHEME]
 
+
 def validate_uri(uri: str):
     """
-    Validates the uri of a storage object against the supported schemas 
+    Validates the uri of a storage object against the supported schemas
     and extracs the scheme, the domain and the path.
 
     Args:
         uri: The uri to validate.
-    
+
     Returns:
         Tuple: scheme, domain, path
     """
     if uri is not None:
         try:
             uri = uri.strip()
-            if uri.endswith('/'):
+            if uri.endswith("/"):
                 uri = uri[0:-1]
             if not re.search(URI_REGEX, uri):
                 logging.error("URI not valid: %s", uri)
@@ -48,8 +49,10 @@ def validate_uri(uri: str):
                 return parsed_uri.scheme, parsed_uri.hostname, parsed_uri.path
         except Exception as ex:
             logging.error(ex)
-    raise SystemError(f"Could not convert to valid tuple \
-                      or scheme not supported: {uri} {parsed_uri.scheme}")
+    raise SystemError(
+        f"Could not convert to valid tuple \
+                      or scheme not supported: {uri} {parsed_uri.scheme}"
+    )
 
 
 def get_supported_schema() -> list:
@@ -59,6 +62,7 @@ def get_supported_schema() -> list:
         List with valid schemas
     """
     return SCHEMAS
+
 
 def to_uri(scheme: str, domain: str, path: str) -> str:
     """
@@ -71,4 +75,3 @@ def to_uri(scheme: str, domain: str, path: str) -> str:
         string: the uri
     """
     return f"{scheme}://{domain}/{path}"
-                                                                                                                                                                                    
