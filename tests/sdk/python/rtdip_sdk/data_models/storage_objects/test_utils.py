@@ -24,13 +24,18 @@ from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 def test_validate():
    
     random.seed(datetime.now().timestamp())
-    letters_and_numbers: string = string.ascii_lowercase + string.digits
-    rnd_domain_name: str = '.'.join(''.join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3))
-    rnd_keys: str = ''.join(''.join(random.choice(letters_and_numbers) for _ in range(4)) for _ in range(3))
-    rnd_object_name: str = ''.join(random.choice(letters_and_numbers)
+    lan: string = string.ascii_lowercase + string.digits
+    rnd_domain_name: str = '.'.join(''.join(random.choice(lan) 
+                                        for _ in range(9)) for _ in range(3))
+    
+    rnd_keys: str = ''.join(''.join(random.choice(lan) 
+                                    for _ in range(4)) for _ in range(3))
+    
+    rnd_object_name: str = ''.join(random.choice(lan)
      for _ in range(9)) + '.' + ''.join(random.choice(string.ascii_lowercase) for _ in range(3))
 
-    rnd_full_s3_uri: str = utils.to_uri(utils.S3_SCHEME, rnd_domain_name, rnd_keys + '/' + rnd_object_name)
+    rnd_full_s3_uri: str = utils.to_uri(utils.S3_SCHEME, rnd_domain_name, 
+                                        rnd_keys + '/' + rnd_object_name)
     
     scheme, domain, path = utils.validate_uri(rnd_full_s3_uri)
 
@@ -39,14 +44,14 @@ def test_validate():
 
     assert(path == '/' + rnd_keys + '/' + rnd_object_name)
 
-    rnd_protocol: str =  ''.join(random.choice(string.ascii_lowercase) for _ in range(5)) +'://'
+    rnd_protocol: str =  ''.join(random.choice(string.ascii_lowercase) 
+                                 for _ in range(5)) +'://'
     exception_thrown: bool = False
 
     try:
-         rnd_full_invalid_uri: str =  rnd_protocol + rnd_domain_name + '/' + rnd_keys \
+     rnd_full_invalid_uri: str =  rnd_protocol + rnd_domain_name + '/' + rnd_keys \
                                 + '/' + rnd_object_name
-         
-         utils.validate_uri(rnd_full_invalid_uri)
+     utils.validate_uri(rnd_full_invalid_uri)
 
     except SystemError:
          exception_thrown = True

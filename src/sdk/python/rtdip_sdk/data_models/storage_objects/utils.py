@@ -15,9 +15,8 @@
 from urllib.parse import urlparse
 import logging
 import re
-          
-URI_REGEX: str = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?"
 
+URI_REGEX: str = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?"
 
 AZURE_SCHEME: str = "https"
 S3_SCHEME: str = "s3"
@@ -27,15 +26,14 @@ SCHEMAS: list = [AZURE_SCHEME, S3_SCHEME, GS_SCHEME, SPARK_S3_SCHEME]
 
 def validate_uri(uri: str):
     """
-
-    Validates the uri of a storage object against the supported schemas and extracs the scheme, the domain and the path.
+    Validates the uri of a storage object against the supported schemas 
+    and extracs the scheme, the domain and the path.
 
     Args:
         uri: The uri to validate.
     
     Returns:
         Tuple: scheme, domain, path
-
     """
     if uri is not None:
         try:
@@ -50,14 +48,15 @@ def validate_uri(uri: str):
                 return parsed_uri.scheme, parsed_uri.hostname, parsed_uri.path
         except Exception as ex:
             logging.error(ex)
-    raise SystemError(f"Could not convert to valid tuple or scheme not supported: {uri} {parsed_uri.scheme}")
+    raise SystemError(f"Could not convert to valid tuple \
+                      or scheme not supported: {uri} {parsed_uri.scheme}")
 
 
 def get_supported_schema() -> list:
     """
-    
     Returns the schemas that can be validated.
-
+    Returns:
+        List with valid schemas
     """
     return SCHEMAS
 

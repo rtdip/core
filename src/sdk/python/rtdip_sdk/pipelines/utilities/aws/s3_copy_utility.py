@@ -66,7 +66,7 @@ class S3CopyUtility(UtilitiesInterface):
         '''
         Attributes:
             SystemType (Environment): Requires PYTHON
-        '''            
+        '''           
         return SystemType.PYTHON
     
     @staticmethod
