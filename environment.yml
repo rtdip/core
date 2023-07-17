@@ -68,5 +68,5 @@ dependencies:
         - hvac==1.1.1
         - langchain==0.0.230
         - deltalake==0.10.0
-        - moto=4.1.13
+        - moto[s3]=4.1.13
         
