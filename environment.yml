@@ -57,7 +57,6 @@ dependencies:
     - databricks-sql-connector==2.7.0
     - semver==3.0.0
     - xlrd==2.0.1
-    - moto==4.1.12
     - pygithub==1.59.0
     - strawberry-graphql[fastapi,pydantic]==0.194.4
     - web3==6.5.0
@@ -69,4 +68,5 @@ dependencies:
         - hvac==1.1.1
         - langchain==0.0.230
         - deltalake==0.10.0
+        - moto>=3.0.7
         
