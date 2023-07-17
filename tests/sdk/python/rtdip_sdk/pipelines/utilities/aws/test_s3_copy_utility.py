@@ -24,9 +24,8 @@ from moto import mock_s3
 
 sys.path.insert(0, ".")
 
-from src.sdk.python.rtdip_sdk.pipelines.utilities.aws.s3_copy_utility import (
-    S3CopyUtility,
-)
+from src.sdk.python.rtdip_sdk.pipelines.utilities.aws.s3_copy_utility imporrt S3CopyUtility
+
 from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 
 
@@ -74,10 +73,14 @@ def test_s3_copy_utility():
 
     # Create buckets first (required by moto)
     conn = boto3.resource("s3")
-    conn.create_bucket(Bucket=rnd_source_domain_name,  
-                       CreateBucketConfiguration={'LocationConstraint': 'eu-west-1'})
-    conn.create_bucket(Bucket=rnd_destination_domain_name, 
-                       CreateBucketConfiguration={'LocationConstraint': 'eu-west-1'})
+    conn.create_bucket(
+        Bucket=rnd_source_domain_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
+    conn.create_bucket(
+        Bucket=rnd_destination_domain_name,
+        CreateBucketConfiguration={"LocationConstraint": "eu-west-1"},
+    )
 
     # Upload to S3
     s3_copy_utility: S3CopyUtility = S3CopyUtility(
