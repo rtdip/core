@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from semver.version import Version
+from importlib_metadata import version
 from .models import MavenLibrary, PyPiLibrary
-from ..._sdk_utils.compare_versions import _get_python_package_version, _get_package_version
+from ..._sdk_utils.compare_versions import _get_package_version
 
 def get_default_package(package_name):
     delta_spark_artifact_id = "delta-core_2.12"
