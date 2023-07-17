@@ -24,8 +24,9 @@ from ..._pipeline_utils.constants import get_default_package
 import boto3
 import json
 
+
 class S3BucketPolicyUtility(UtilitiesInterface):
-    '''
+    """
     Assigns an IAM Bucket Policy to an S3 Bucket
 
     Args:
@@ -37,7 +38,8 @@ class S3BucketPolicyUtility(UtilitiesInterface):
         effect (str): Effect to be applied to the policy
         principal (str): Principal to be applied to Policy
         resource (list[str]): List of resources to be applied to the policy
-    ''' 
+    """
+
     bucket_name: str
     aws_access_key_id: str
     aws_secret_access_key: str
@@ -48,7 +50,18 @@ class S3BucketPolicyUtility(UtilitiesInterface):
     action: List[str]
     resource: List[str]
 
-    def __init__(self, bucket_name: str, aws_access_key_id: str, aws_secret_access_key: str, aws_session_token: str, sid: str, principal: str, effect: str, action: List[str], resource: List[str]) -> None:
+    def __init__(
+        self,
+        bucket_name: str,
+        aws_access_key_id: str,
+        aws_secret_access_key: str,
+        aws_session_token: str,
+        sid: str,
+        principal: str,
+        effect: str,
+        action: List[str],
+        resource: List[str],
+    ) -> None:
         self.bucket_name = bucket_name
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
@@ -61,10 +74,10 @@ class S3BucketPolicyUtility(UtilitiesInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYTHON
-        '''            
+        """
         return SystemType.PYTHON
 
     @staticmethod
@@ -72,18 +85,18 @@ class S3BucketPolicyUtility(UtilitiesInterface):
         libraries = Libraries()
         libraries.add_pypi_library(get_default_package("aws_boto3"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def execute(self) -> bool:
         try:
             s3_client = boto3.client(
                 "s3",
                 aws_access_key_id=self.aws_access_key_id,
                 aws_secret_access_key=self.aws_secret_access_key,
-                aws_session_token=self.aws_session_token
+                aws_session_token=self.aws_session_token,
             )
 
             bucket_policy = s3_client.get_bucket_policy(Bucket=self.bucket_name)
@@ -93,10 +106,7 @@ class S3BucketPolicyUtility(UtilitiesInterface):
                 policy_statement = json.loads(bucket_policy["Policy"])
 
             if policy_statement is None:
-                policy_statement = {
-                    "Version": "2012-10-17",
-                    "Statement": []
-                }
+                policy_statement = {"Version": "2012-10-17", "Statement": []}
 
             sid_found = False
             for statement in policy_statement["Statement"]:
@@ -119,15 +129,15 @@ class S3BucketPolicyUtility(UtilitiesInterface):
                         "Effect": self.effect,
                         "Principal": self.principal,
                         "Action": self.action,
-                        "Resource": self.resource
+                        "Resource": self.resource,
                     }
                 )
 
             policy = json.dumps(policy_statement)
             s3_client.put_bucket_policy(Bucket=self.bucket_name, Policy=policy)
-            
+
             return True
-        
+
         except Exception as e:
             logging.exception(str(e))
             raise e
