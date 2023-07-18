@@ -21,6 +21,7 @@ For Macbooks with Apple Silicon chips, use the following:
 docker build --platform linux/amd64 --tag rtdip-api:v0.1.0 -f src/api/Dockerfile
 docker run --platform linux/amd64 -p 8080:80 -it --env-file .env rtdip-api:v0.1.0
 ```
+
 REST APIs are then available at `http://localhost:8080/api/v1/{route}`
 
 ### Debugging
