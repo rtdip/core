@@ -24,7 +24,7 @@ from moto import mock_s3
 
 sys.path.insert(0, ".")
 
-from src.sdk.python.rtdip_sdk.pipelines.utilities.aws.s3_copy_utility imporrt S3CopyUtility
+from src.sdk.python.rtdip_sdk.pipelines.utilities.aws.s3_copy_utility import S3CopyUtility
 
 from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 
