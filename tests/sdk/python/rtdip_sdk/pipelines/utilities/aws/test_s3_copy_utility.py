@@ -35,7 +35,7 @@ def test_s3_copy_utility():
     length: int = 1024
     random.seed(datetime.now().timestamp())
     rnd_text: str = "".join(
-        random.choice(string.ascii_lowercase) for _ in range(length)
+        random.choice(string.ascii_lowercase) for _ in range(length) # NOSONAR
     )
 
     with tempfile.NamedTemporaryFile(
@@ -50,19 +50,19 @@ def test_s3_copy_utility():
     letters_and_numbers: string = string.ascii_lowercase + string.digits
 
     rnd_source_domain_name: str = ".".join(
-        "".join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3)
+        "".join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3) # NOSONAR
     )  # NOSONAR
     rnd_destination_domain_name: str = ".".join(
-        "".join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3)
+        "".join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3) # NOSONAR
     )  # NOSONAR
     rnd_keys: str = "".join(
-        "".join(random.choice(letters_and_numbers) for _ in range(4)) for _ in range(3)
+        "".join(random.choice(letters_and_numbers) for _ in range(4)) for _ in range(3) # NOSONAR
     )  # NOSONAR
     rnd_object_name: str = (
         "".join(random.choice(letters_and_numbers) for _ in range(9))  # NOSONAR
         + "."
-        + "".join(random.choice(string.ascii_lowercase) for _ in range(3))
-    )  # NOSONAR
+        + "".join(random.choice(string.ascii_lowercase) for _ in range(3)) # NOSONAR
+    ) 
 
     rnd_full_source_s3_uri: str = utils.to_uri(
         utils.S3_SCHEME, rnd_source_domain_name, rnd_keys + "/" + rnd_object_name
@@ -109,10 +109,10 @@ def test_s3_copy_utility():
     # Upload to S3
     # Bucket does not exist (destination)
     rnd_destination_domain_name: str = ".".join(
-        "".join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3)
-    )  # NOSONAR
+        "".join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3) # NOSONAR
+    ) 
     rnd_full_destination_s3_uri: str = utils.to_uri(
-        utils.S3_SCHEME, rnd_destination_domain_name, rnd_keys + "/" + rnd_object_name
+        utils.S3_SCHEME, rnd_destination_domain_name, rnd_keys + "/" + rnd_object_name # NOSONAR
     )
     s3_copy_utility: S3CopyUtility = S3CopyUtility(
         rnd_tempfile.name, rnd_full_destination_s3_uri
@@ -124,7 +124,7 @@ def test_s3_copy_utility():
     # Bucket does not exist (source)
     os.remove(rnd_tempfile.name)
     rnd_source_domain_name: str = ".".join(
-        "".join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3)
+        "".join(random.choice(letters_and_numbers) for _ in range(9)) for _ in range(3) # NOSONAR
     )
     rnd_full_source_s3_uri: str = utils.to_uri(
         utils.S3_SCHEME, rnd_source_domain_name, rnd_keys + "/" + rnd_object_name
