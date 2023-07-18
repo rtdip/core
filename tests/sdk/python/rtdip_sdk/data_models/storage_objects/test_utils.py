@@ -23,16 +23,16 @@ from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
 
 def test_validate():
    
-    random.seed(datetime.now().timestamp())
+    random.seed(datetime.now().timestamp()) # NOSONAR
     lan: string = string.ascii_lowercase + string.digits
     rnd_domain_name: str = '.'.join(''.join(random.choice(lan) 
-                                        for _ in range(9)) for _ in range(3))
+                                        for _ in range(9)) for _ in range(3)) # NOSONAR
     
     rnd_keys: str = ''.join(''.join(random.choice(lan) 
-                                    for _ in range(4)) for _ in range(3))
+                                    for _ in range(4)) for _ in range(3)) # NOSONAR
     
-    rnd_object_name: str = ''.join(random.choice(lan)
-     for _ in range(9)) + '.' + ''.join(random.choice(string.ascii_lowercase) for _ in range(3))
+    rnd_object_name: str = ''.join(random.choice(lan) # NOSONAR
+     for _ in range(9)) + '.' + ''.join(random.choice(string.ascii_lowercase) for _ in range(3)) # NOSONAR
 
     rnd_full_s3_uri: str = utils.to_uri(utils.S3_SCHEME, rnd_domain_name, 
                                         rnd_keys + '/' + rnd_object_name)
@@ -45,7 +45,7 @@ def test_validate():
     assert(path == '/' + rnd_keys + '/' + rnd_object_name)
 
     rnd_protocol: str =  ''.join(random.choice(string.ascii_lowercase) 
-                                 for _ in range(5)) +'://'
+                                 for _ in range(5)) +'://' # NOSONAR
     exception_thrown: bool = False
 
     try:
