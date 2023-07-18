@@ -41,7 +41,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         DataFrame: A dataframe of metadata.
     '''
     try:
-        query = _query_builder(parameters_dict, metadata=True)
+        query = _query_builder(parameters_dict, "metadata")
 
         try:
             cursor = connection.cursor()

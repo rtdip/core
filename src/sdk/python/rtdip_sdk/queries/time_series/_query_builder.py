@@ -14,6 +14,7 @@
 
 
 from jinjasql import JinjaSql
+from jinja2 import Template
 from six import string_types
 from copy import deepcopy
 import datetime
@@ -98,9 +99,9 @@ def _get_sql_from_template(query: str, bind_params: dict) -> str:
 def _raw_query(parameters_dict: dict) -> str:
 
     raw_query = (
-        "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, TagName, Status, Value FROM "
-        "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
-        "WHERE EventDate BETWEEN to_date(to_timestamp({{ start_date }})) AND to_date(to_timestamp({{ end_date }})) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
+        "SELECT from_utc_timestamp(EventTime, \"{{ time_zone }}\") as EventTime, TagName, Status, Value FROM "
+        "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` "
+        "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
         "{% if include_bad_data is defined and include_bad_data == false %}"
         "AND Status = 'Good'"
         "{% endif %}"
@@ -120,10 +121,8 @@ def _raw_query(parameters_dict: dict) -> str:
         "time_zone": parameters_dict["time_zone"]
     }
 
-    sql_template = JinjaSql(param_style='pyformat')
-    query, bind_params = sql_template.prepare_query(raw_query, raw_parameters)
-    sql_query = _get_sql_from_template(query, bind_params)
-    return sql_query
+    sql_template = Template(raw_query)
+    return sql_template.render(raw_parameters)
 
 def _sample_query(parameters_dict: dict) -> tuple:
 
@@ -256,9 +255,9 @@ def _metadata_query(parameters_dict: dict) -> str:
     
     metadata_query  = (
         "SELECT * FROM "
-        "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_metadata "
-        "{% if tag_names is defined and tag_names|length > 0 %}" + 
-        "WHERE TagName in {{ tag_names | inclause }}"
+        "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_metadata` "
+        "{% if tag_names is defined and tag_names|length > 0 %} "
+        "WHERE TagName in ({{ tag_names | join('\\', \\'') }}) "
         "{% endif %}"
     )
 
@@ -270,35 +269,33 @@ def _metadata_query(parameters_dict: dict) -> str:
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names']))
     }
 
-    sql_template = JinjaSql(param_style='pyformat')
-    query, bind_params = sql_template.prepare_query(metadata_query, metadata_parameters)
-    sql_query = _get_sql_from_template(query, bind_params)
-    return sql_query    
+    sql_template = Template(metadata_query)
+    return sql_template.render(metadata_parameters)
 
-def _query_builder(parameters_dict: dict, metadata=False, interpolation_at_time=False) -> str:
+def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
     tagnames_deduplicated = list(dict.fromkeys(parameters_dict['tag_names'])) #remove potential duplicates in tags
     parameters_dict["tag_names"] = tagnames_deduplicated.copy()
 
-    if metadata:
+    if query_type == "metadata":
         return _metadata_query(parameters_dict)
     
     parameters_dict = _parse_dates(parameters_dict)
     
-    if interpolation_at_time:
-        return _interpolation_at_time(parameters_dict)
+    # if interpolation_at_time:
+    #     return _interpolation_at_time(parameters_dict)
 
-    if "agg_method" not in parameters_dict:
+    if query_type == "raw":
         return _raw_query(parameters_dict)
 
-    if "sample_rate" in parameters_dict:
-        sample_prepared_query, sample_query, sample_parameters = _sample_query(parameters_dict)
+    # if "sample_rate" in parameters_dict:
+    #     sample_prepared_query, sample_query, sample_parameters = _sample_query(parameters_dict)
 
-        if "interpolation_method" not in parameters_dict:
-            return sample_prepared_query
+    #     if "interpolation_method" not in parameters_dict:
+    #         return sample_prepared_query
 
-    if "interpolation_method" in parameters_dict:
-        return _interpolation_query(parameters_dict, sample_query, sample_parameters)
+    # if "interpolation_method" in parameters_dict:
+    #     return _interpolation_query(parameters_dict, sample_query, sample_parameters)
     
     
