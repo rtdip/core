@@ -22,7 +22,13 @@ from ..interfaces import DestinationInterface
 from ..spark.delta import SparkDeltaDestination
 from ..spark.delta_merge import SparkDeltaMergeDestination, DeltaMergeCondition, DeltaMergeConditionValues
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from ..._pipeline_utils.constants import get_default_package
+
+class ValueTypeConstants():
+    INTEGER_VALUE = "ValueType = 'integer'"
+    FLOAT_VALUE = "ValueType = 'float'"
+    STRING_VALUE = "ValueType = 'string'"
+
 
 class SparkPCDMToDeltaDestination(DestinationInterface):
     '''
@@ -31,9 +37,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     Args:
         data (DataFrame): Dataframe to be merged into a Delta Table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
-        table_name_float (str): Name of the Hive Metastore or Unity Catalog Delta Table to store float values
-        table_name_string (str): Name of the Hive Metastore or Unity Catalog Delta Table to store string values
-        table_name_integer (str): Name of the Hive Metastore or Unity Catalog Delta Table to store integer values
+        destination_float (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store float values.
+        destination_string (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store string values.
+        destination_integer (Optional str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store integer values
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
         trigger (str): Frequency of the write operation
         query_name (str): Unique name for the query in associated SparkSession
@@ -47,9 +53,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     spark: SparkSession
     data: DataFrame
     options: dict    
-    table_name_float: str
-    table_name_string: str
-    table_name_integer: str
+    destination_float: str
+    destination_string: str
+    destination_integer: str
     mode: str
     trigger: str
     query_name: str
@@ -61,20 +67,20 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                  spark: SparkSession, 
                  data: DataFrame, 
                  options: dict,
-                 table_name_float: str,
-                 table_name_string: str,
-                 table_name_integer: str = None,
+                 destination_float: str,
+                 destination_string: str,
+                 destination_integer: str = None,
                  mode: str = None,
                  trigger="10 seconds",
                  query_name: str ="PCDMToDeltaMergeDestination",
                  merge: bool = True,
                  try_broadcast_join = False,
-                 remove_duplicates: bool = True) -> None:
+                 remove_duplicates: bool = True) -> None: 
         self.spark = spark
         self.data = data
-        self.table_name_float = table_name_float
-        self.table_name_string = table_name_string
-        self.table_name_integer = table_name_integer
+        self.destination_float = destination_float
+        self.destination_string = destination_string
+        self.destination_integer = destination_integer
         self.options = options
         self.mode = mode
         self.trigger = trigger
@@ -94,7 +100,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
+        libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
     
     @staticmethod
@@ -113,7 +119,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         dates_list = list(dates_df.toPandas()["EventDate"])
         return str(dates_list).replace('[','').replace(']','')
 
-    def _write_delta_batch(self, df: DataFrame, table_name: str):
+    def _write_delta_batch(self, df: DataFrame, destination: str):
         
         if self.merge == True:
             df = df.select("EventDate", "TagName", "EventTime", "Status", "Value", "ChangeType")
@@ -137,32 +143,43 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             when_not_matched_insert_list = [
                 DeltaMergeConditionValues(
                     condition="(source.ChangeType IN ('insert', 'update', 'upsert'))",
-                    values="*"
+                    values={
+                        "EventDate": "source.EventDate", 
+                        "TagName": "source.TagName",
+                        "EventTime": "source.EventTime",
+                        "Status": "source.Status",
+                        "Value": "source.Value"
+                    }
                 )
             ]
 
             merge_condition = "source.EventDate = target.EventDate AND source.TagName = target.TagName AND source.EventTime = target.EventTime"
             
+            perform_merge = True
             if self.try_broadcast_join != True:
                 eventdate_string = self._get_eventdate_string(df)
-                merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
+                if eventdate_string == None or eventdate_string == "":
+                    perform_merge = False
+                else:
+                    merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
 
-            delta = SparkDeltaMergeDestination(
-                spark=self.spark,
-                data=df,
-                table_name=table_name,
-                options=self.options,
-                merge_condition=merge_condition,
-                when_matched_update_list=when_matched_update_list,
-                when_matched_delete_list=when_matched_delete_list,
-                when_not_matched_insert_list=when_not_matched_insert_list,
-                try_broadcast_join=self.try_broadcast_join
-            )
+            if perform_merge == True:
+                delta = SparkDeltaMergeDestination(
+                    spark=self.spark,
+                    data=df,
+                    destination=destination,
+                    options=self.options,
+                    merge_condition=merge_condition,
+                    when_matched_update_list=when_matched_update_list,
+                    when_matched_delete_list=when_matched_delete_list,
+                    when_not_matched_insert_list=when_not_matched_insert_list,
+                    try_broadcast_join=self.try_broadcast_join
+                )
         else:
             df = df.select("TagName", "EventTime", "Status", "Value")
             delta = SparkDeltaDestination(
                 data=df,
-                table_name=table_name,
+                destination=destination,
                 options=self.options
             )
         
@@ -177,21 +194,21 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
         float_df = (
             df
-            .filter("ValueType = 'float'")
+            .filter(ValueTypeConstants.FLOAT_VALUE)
             .withColumn("Value", col("Value").cast("float"))
         )
-        self._write_delta_batch(float_df, self.table_name_float)
+        self._write_delta_batch(float_df, self.destination_float)
 
-        string_df = df.filter("ValueType = 'string'")
-        self._write_delta_batch(string_df, self.table_name_string)
+        string_df = df.filter(ValueTypeConstants.STRING_VALUE)
+        self._write_delta_batch(string_df, self.destination_string)
 
-        if self.table_name_integer != None:
+        if self.destination_integer != None:
             integer_df = (
                 df
-                .filter("ValueType = 'integer'")
+                .filter(ValueTypeConstants.INTEGER_VALUE)
                 .withColumn("Value", col("Value").cast("integer"))
             )
-            self._write_delta_batch(integer_df, self.table_name_integer)            
+            self._write_delta_batch(integer_df, self.destination_integer)         
 
     def _write_stream_microbatches(self, df: DataFrame, epoch_id = None): # NOSONAR
         df.persist()
@@ -237,8 +254,8 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 )
             else:
                 delta_float = SparkDeltaDestination(
-                    data=self.data.filter("ValueType = 'float'").withColumn("Value", col("Value").cast("float")),
-                    table_name=self.table_name_float,
+                    data=self.data.filter(ValueTypeConstants.FLOAT_VALUE).withColumn("Value", col("Value").cast("float")),
+                    destination=self.destination_float,
                     options=self.options,
                     mode=self.mode,
                     trigger=self.trigger,
@@ -248,8 +265,8 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 delta_float.write_stream()                
 
                 delta_string = SparkDeltaDestination(
-                    data=self.data.filter("ValueType = 'string'"),
-                    table_name=self.table_name_string,
+                    data=self.data.filter(ValueTypeConstants.STRING_VALUE),
+                    destination=self.destination_string,
                     options=self.options,
                     mode=self.mode,
                     trigger=self.trigger,
@@ -258,10 +275,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             
                 delta_string.write_stream()
 
-                if self.table_name_integer != None:
+                if self.destination_integer != None:
                     delta_integer = SparkDeltaDestination(
-                        data=self.data.filter("ValueType = 'integer'"),
-                        table_name=self.table_name_integer,
+                        data=self.data.filter(ValueTypeConstants.INTEGER_VALUE),
+                        destination=self.destination_integer,
                         options=self.options,
                         mode=self.mode,
                         trigger=self.trigger,

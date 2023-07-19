@@ -20,7 +20,7 @@ import time
 
 
 series_id_str = 'usage_series_id_001'
-output_header_str: str = 'uid,series_id,timestamp,interval_timestamp,value'
+output_header_str: str = 'Uid,SeriesId,Timestamp,IntervalTimestamp,Value'
 
 transformer_method_str: str = transformers.LAMBDA_TRANSFORM_METHOD_CHECK
 
@@ -29,7 +29,7 @@ def anonymizer_md5(input_str: str) -> str:
     Generates the md5 hash of the input
     a
     """
-    result = hashlib.md5(input_str.encode())
+    result = hashlib.md5(input_str.encode()) # NOSONAR
     return str(result.hexdigest())
 
 

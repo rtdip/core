@@ -14,9 +14,7 @@
 
 import logging
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructField
 from py4j.protocol import Py4JJavaError
-from delta.tables import DeltaTable
 
 from ..interfaces import UtilitiesInterface
 from .configuration import SparkConfigurationUtility

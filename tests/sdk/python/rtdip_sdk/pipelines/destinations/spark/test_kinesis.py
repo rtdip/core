@@ -17,7 +17,6 @@ sys.path.insert(0, '.')
 import pytest
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.kinesis import SparkKinesisDestination
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
 

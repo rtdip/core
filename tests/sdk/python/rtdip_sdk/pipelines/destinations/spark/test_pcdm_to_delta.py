@@ -22,7 +22,6 @@ from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDel
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pcdm_to_delta import SparkPCDMToDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility, DeltaTableColumn
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 from pytest_mock import MockerFixture
@@ -86,7 +85,7 @@ def test_spark_pcdm_to_delta_write_batch_merge(spark_session: SparkSession):
         {"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag1", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": float(1.01)},
         {"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag3", "EventTime": datetime(2023, 1, 20, 2, 0), "Status": "Good", "Value": float(1.05)}
     ]).withColumn("Value", col("Value").cast("float"))
-    delta_destination = SparkDeltaDestination(create_data_float_df, "test_spark_pcdm_to_delta_write_batch_merge_float", {}, "overwrite")
+    delta_destination = SparkDeltaDestination(create_data_float_df, {}, "test_spark_pcdm_to_delta_write_batch_merge_float", "overwrite")
     delta_destination.write_batch()
 
     create_delta_table(spark_session, "test_spark_pcdm_to_delta_write_batch_merge_string", "string")
@@ -94,7 +93,7 @@ def test_spark_pcdm_to_delta_write_batch_merge(spark_session: SparkSession):
         {"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag2", "EventTime": datetime(2023, 1, 20, 1, 0), "Status": "Good", "Value": "test1"},
         {"EventDate": datetime(2023, 1, 20).date(), "TagName": "Tag4", "EventTime": datetime(2023, 1, 20, 4, 0), "Status": "Good", "Value": "test2"}
     ])
-    delta_destination = SparkDeltaDestination(create_data_string_df, "test_spark_pcdm_to_delta_write_batch_merge_string", {}, "overwrite")
+    delta_destination = SparkDeltaDestination(create_data_string_df, {}, "test_spark_pcdm_to_delta_write_batch_merge_string", "overwrite")
     delta_destination.write_batch()
 
     test_df = spark_session.createDataFrame([

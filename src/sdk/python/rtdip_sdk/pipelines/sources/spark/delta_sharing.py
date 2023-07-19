@@ -18,7 +18,7 @@ from py4j.protocol import Py4JJavaError
 
 from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from ..._pipeline_utils.constants import get_default_package
 
 class SparkDeltaSharingSource(SourceInterface):
     '''
@@ -61,7 +61,7 @@ class SparkDeltaSharingSource(SourceInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_sharing"])
+        libraries.add_maven_library(get_default_package("spark_delta_sharing"))
         return libraries
     
     @staticmethod

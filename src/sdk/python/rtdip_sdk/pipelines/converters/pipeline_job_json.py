@@ -21,8 +21,8 @@ from ..execute.models import PipelineJob
 from ..sources import * # NOSONAR
 from ..transformers import * # NOSONAR
 from ..destinations import * # NOSONAR
-from ..utilities import * # NOSONAR
 from ..secrets import * # NOSONAR
+from ..utilities import * # NOSONAR
 
 class PipelineJobFromJsonConverter(ConverterInterface):
     '''

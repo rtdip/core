@@ -17,7 +17,6 @@ sys.path.insert(0, '.')
 import json
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.ssip_pi_binary_json_to_pcdm import SSIPPIJsonStreamToPCDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType, DateType

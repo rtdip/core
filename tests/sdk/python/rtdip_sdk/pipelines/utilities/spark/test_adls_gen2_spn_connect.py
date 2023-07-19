@@ -16,10 +16,9 @@ import sys
 sys.path.insert(0, '.')
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.adls_gen2_spn_connect import SparkADLSGen2SPNConnectUtility
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
 
-def test_adls_gen2_spn_connect_setup():
+def test_adls_gen2_spn_connect_setup(spark_session: SparkSession):
     adls_gen2_spn_connect_utility = SparkADLSGen2SPNConnectUtility(
         spark=spark_session,
         storage_account="test_storage_account",
