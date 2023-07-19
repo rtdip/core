@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import numpy as np
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
@@ -32,7 +33,7 @@ def interpolation_at_time_events_get(base_query_parameters, tag_query_parameters
         )
 
         data = interpolation_at_time.get(connection, parameters)
-        return ResampleInterpolateResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.to_dict(orient="records"))
+        return ResampleInterpolateResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.replace({np.nan: None}).to_dict(orient="records"))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

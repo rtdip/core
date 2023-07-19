@@ -14,7 +14,7 @@
 
 
 import logging
-from logging import Logger
+import numpy as np
 from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
@@ -31,7 +31,7 @@ def raw_events_get(base_query_parameters, raw_query_parameters, tag_query_parame
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(base_query_parameters, raw_query_parameters=raw_query_parameters, tag_query_parameters=tag_query_parameters)
         
         data = raw.get(connection, parameters)
-        return RawResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.to_dict(orient="records"))
+        return RawResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.replace({np.nan: None}).to_dict(orient="records"))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

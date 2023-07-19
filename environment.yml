@@ -19,13 +19,13 @@ channels:
     - defaults
 dependencies:
     - python>=3.8,<3.12
-    - mkdocs-material==9.1.13
+    - mkdocs-material==9.1.18
     - mkdocs-material-extensions==1.1.1
     - jinja2==3.0.3
     - jinjasql==0.1.8
-    - pytest==7.3.1
-    - pytest-mock==3.10.0
-    - pytest-cov==4.0.0
+    - pytest==7.4.0
+    - pytest-mock==3.11.1
+    - pytest-cov==4.1.0
     - pylint==2.17.4
     - pip==23.1.2
     - turbodbc==4.5.10
@@ -34,13 +34,13 @@ dependencies:
     - oauthlib>=3.2.2
     - cryptography>=38.0.3
     - azure-identity==1.12.0
-    - azure-storage-file-datalake==12.10.1
+    - azure-storage-file-datalake==12.12.0
     - azure-keyvault-secrets==4.7.0
-    - boto3==1.26.135
+    - boto3==1.28.2
     - pyodbc==4.0.39
-    - fastapi==0.95.2
-    - httpx==0.24.0
-    - trio==0.22.0
+    - fastapi==0.100.0
+    - httpx==0.24.1
+    - trio==0.22.1
     - pyspark>=3.3.0,<3.5.0
     - delta-spark>=2.2.0,<3.1.0
     - grpcio>=1.48.1
@@ -49,22 +49,24 @@ dependencies:
     - openjdk==11.0.15
     - openai==0.27.8   
     - python-dotenv==1.0.0
-    - mkdocstrings==0.21.2
-    - mkdocstrings-python==1.0.0
+    - mkdocstrings==0.22.0
+    - mkdocstrings-python==1.1.2
     - mkdocs-macros-plugin==1.0.1
     - pygments==2.15.1
     - pymdown-extensions==10.0.1
-    - databricks-sql-connector==2.5.2
+    - databricks-sql-connector==2.7.0
     - semver==3.0.0
     - xlrd==2.0.1
+    - pygithub==1.59.0
+    - strawberry-graphql[fastapi,pydantic]==0.194.4
+    - web3==6.5.0
     - pip:
         - dependency-injector==4.41.0
-        - azure-functions==1.14.0
-        - dbx==0.8.11
-        - deltalake==0.9.0
-        - pygithub==1.58.1
-        - strawberry-graphql[fastapi]==0.176.0
+        - azure-functions==1.15.0
+        - dbx==0.8.17
         - nest_asyncio==1.5.6
-        - hvac==1.1.0
-        - langchain==0.0.208
-        - web3==6.5.0
+        - hvac==1.1.1
+        - langchain==0.0.230
+        - deltalake==0.10.0
+        - moto[s3]==4.1.13
+        

@@ -82,7 +82,7 @@ step_list.append(PipelineStep(
     description="test_step3",
     component=SparkDeltaDestination,
     component_parameters={
-        "table_name": "test_table",
+        "destination": "test_table",
         "options": {},
         "mode": "overwrite"    
     },

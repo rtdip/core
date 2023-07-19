@@ -19,8 +19,11 @@ import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather import WeatherForecastAPIV1MultiSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import WEATHER_FORECAST_MULTI_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
+from test_weather_forecast_api_v1 import raw_api_response
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
+
+MOSTLY_CLOUDY = "Mostly Cloudy"
 
 configuration = {
     "api_key": "AA",
@@ -29,105 +32,6 @@ configuration = {
     "stations": [
         "32.3667,-95.4",
         "51.52,-0.11"
-    ]
-}
-
-raw_api_response1 = {
-    "metadata": {
-        "language": "en-US",
-        "transaction_id": "1686945524067:722833eedd2545334406be2bd368acdf",
-        "version": "1",
-        "latitude": 32.36,
-        "longitude": -95.4,
-        "units": "e",
-        "expire_time_gmt": 1686945840,
-        "status_code": 200
-    },
-    "forecasts": [
-        {
-            "class": "fod_short_range_hourly",
-            "expire_time_gmt": 1686945840,
-            "fcst_valid": 1686945600,
-            "fcst_valid_local": "2023-06-16T15:00:00-0500",
-            "num": 1,
-            "day_ind": "D",
-            "temp": 91,
-            "dewpt": 77,
-            "hi": 105,
-            "wc": 91,
-            "feels_like": 105,
-            "icon_extd": 2800,
-            "wxman": "wx1230",
-            "icon_code": 28,
-            "dow": "Friday",
-            "phrase_12char": "M Cloudy",
-            "phrase_22char": "Mostly Cloudy",
-            "phrase_32char": "Mostly Cloudy",
-            "subphrase_pt1": "Mostly",
-            "subphrase_pt2": "Cloudy",
-            "subphrase_pt3": "",
-            "pop": 15,
-            "precip_type": "rain",
-            "qpf": 0.0,
-            "snow_qpf": 0.0,
-            "rh": 64,
-            "wspd": 6,
-            "wdir": 233,
-            "wdir_cardinal": "SW",
-            "gust": None,
-            "clds": 79,
-            "vis": 10.0,
-            "mslp": 29.77,
-            "uv_index_raw": 5.65,
-            "uv_index": 6,
-            "uv_warning": 0,
-            "uv_desc": "High",
-            "golf_index": 8,
-            "golf_category": "Very Good",
-            "severity": 1
-        },
-        {
-            "class": "fod_short_range_hourly",
-            "expire_time_gmt": 1686945840,
-            "fcst_valid": 1686949200,
-            "fcst_valid_local": "2023-06-16T16:00:00-0500",
-            "num": 2,
-            "day_ind": "D",
-            "temp": 91,
-            "dewpt": 77,
-            "hi": 105,
-            "wc": 91,
-            "feels_like": 105,
-            "icon_extd": 2800,
-            "wxman": "wx1230",
-            "icon_code": 28,
-            "dow": "Friday",
-            "phrase_12char": "M Cloudy",
-            "phrase_22char": "Mostly Cloudy",
-            "phrase_32char": "Mostly Cloudy",
-            "subphrase_pt1": "Mostly",
-            "subphrase_pt2": "Cloudy",
-            "subphrase_pt3": "",
-            "pop": 15,
-            "precip_type": "rain",
-            "qpf": 0.0,
-            "snow_qpf": 0.0,
-            "rh": 63,
-            "wspd": 5,
-            "wdir": 235,
-            "wdir_cardinal": "SW",
-            "gust": None,
-            "clds": 69,
-            "vis": 10.0,
-            "mslp": 29.76,
-            "uv_index_raw": 5.08,
-            "uv_index": 5,
-            "uv_warning": 0,
-            "uv_desc": "Moderate",
-            "golf_index": 8,
-            "golf_category": "Very Good",
-            "severity": 1
-        }
     ]
 }
 
@@ -352,14 +256,14 @@ expected_json = {
         "3": "Showers"
     },
     "PHRASE_22CHAR": {
-        "0": "Mostly Cloudy",
-        "1": "Mostly Cloudy",
+        "0": MOSTLY_CLOUDY,
+        "1": MOSTLY_CLOUDY,
         "2": "Light Rain",
         "3": "Showers"
     },
     "PHRASE_32CHAR": {
-        "0": "Mostly Cloudy",
-        "1": "Mostly Cloudy",
+        "0": MOSTLY_CLOUDY,
+        "1": MOSTLY_CLOUDY,
         "2": "Light Rain",
         "3": "Showers"
     },
@@ -488,7 +392,7 @@ expected_json = {
 
 def get_api_response(url: str) -> str:
     if url == "https://api.weather.com/v1/geocode/32.3667/-95.4/forecast/hourly/360hour.json":
-        return json.dumps(raw_api_response1)
+        return json.dumps(raw_api_response)
     else:
         return json.dumps(raw_api_response2)
 

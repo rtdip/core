@@ -54,7 +54,7 @@ jobs:
           pip install twine
           pip install build
           pip install requests
-          pip install semver==3.0.0.dev3
+          pip install semver==3.0.0
       - name: Determine Next Test PyPI Version
         id: next_ver
         run: |

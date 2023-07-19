@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
@@ -20,7 +21,7 @@ def time_weighted_average_events_get(base_query_parameters, raw_query_parameters
 
         data = time_weighted_average.get(connection, parameters)
         data = data.reset_index()
-        return ResampleInterpolateResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.to_dict(orient="records"))
+        return ResampleInterpolateResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.replace({np.nan: None}).to_dict(orient="records"))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

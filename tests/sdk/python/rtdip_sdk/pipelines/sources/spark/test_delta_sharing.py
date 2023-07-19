@@ -37,7 +37,7 @@ def test_spark_delta_sharing_read_setup(spark_session: SparkSession):
 
 def test_spark_delta_sharing_read_batch(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    delta_destination = SparkDeltaDestination(expected_df, "test_spark_delta_sharing_read_batch", {}, "overwrite")
+    delta_destination = SparkDeltaDestination(expected_df, {}, "test_spark_delta_sharing_read_batch", "overwrite")
     delta_sharing_source = SparkDeltaSharingSource(spark_session, {}, "test_spark_delta_sharing_read_batch")
     delta_destination.write_batch()
     actual_df = delta_sharing_source.read_batch()
