@@ -5,7 +5,6 @@ from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.raw_forecast_to_weath
     RawForecastToWeatherDataModel
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import WEATHER_DATA_MODEL, WEATHER_FORECAST_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession, DataFrame
 
 parent_base_path: str = os.path.join(os.path.dirname(os.path.realpath(__file__)), "raw_forecast_to_weather_data_model")
@@ -22,7 +21,7 @@ def test_raw_forecast_to_weather_data_model(spark_session: SparkSession):
     transformer = RawForecastToWeatherDataModel(spark_session, input_df)
 
     actual_df = transformer.transform()
-    actual_df = actual_df.withColumn("processed_date", to_timestamp(lit("2023-06-30 14:57:50")))
+    actual_df = actual_df.withColumn("ProcessedDate", to_timestamp(lit("2023-06-30 14:57:50")))
     actual_df = spark_session.createDataFrame(actual_df.rdd, schema=WEATHER_DATA_MODEL)
 
     cols = expected_df.columns
