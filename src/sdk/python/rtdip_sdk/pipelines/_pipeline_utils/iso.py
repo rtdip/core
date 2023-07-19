@@ -15,7 +15,7 @@
 from typing import List
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, array, lit, struct, explode
-from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType
+from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType, StringType
 
 MISO_SCHEMA = StructType([
     StructField("Datetime", TimestampType(), True),
@@ -26,6 +26,13 @@ MISO_SCHEMA = StructType([
     StructField("Lrz6", DoubleType(), True),
     StructField("Lrz8_9_10", DoubleType(), True),
     StructField("Miso", DoubleType(), True),
+])
+
+PJM_SCHEMA = StructType([
+    StructField("StartTime", TimestampType(), True),
+    StructField("EndTime", TimestampType(), True),
+    StructField("Zone", StringType(), True),
+    StructField("Load", DoubleType(), True)
 ])
 
 
