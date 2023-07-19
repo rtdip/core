@@ -272,7 +272,7 @@ def _metadata_query(parameters_dict: dict) -> str:
     sql_template = Template(metadata_query)
     return sql_template.render(metadata_parameters)
 
-def _query_builder(parameters_dict: dict, query_type: str) -> str:
+def _query_builder(parameters_dict: dict, query_type: str, interpolation_at_time=False) -> str:
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
     tagnames_deduplicated = list(dict.fromkeys(parameters_dict['tag_names'])) #remove potential duplicates in tags
@@ -283,19 +283,17 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
     
     parameters_dict = _parse_dates(parameters_dict)
     
-    # if interpolation_at_time:
-    #     return _interpolation_at_time(parameters_dict)
+    if interpolation_at_time:
+        return _interpolation_at_time(parameters_dict)
 
     if query_type == "raw":
         return _raw_query(parameters_dict)
 
-    # if "sample_rate" in parameters_dict:
-    #     sample_prepared_query, sample_query, sample_parameters = _sample_query(parameters_dict)
+    if "sample_rate" in parameters_dict:
+        sample_prepared_query, sample_query, sample_parameters = _sample_query(parameters_dict)
 
-    #     if "interpolation_method" not in parameters_dict:
-    #         return sample_prepared_query
+        if "interpolation_method" not in parameters_dict:
+            return sample_prepared_query
 
-    # if "interpolation_method" in parameters_dict:
-    #     return _interpolation_query(parameters_dict, sample_query, sample_parameters)
-    
-    
+    if "interpolation_method" in parameters_dict:
+        return _interpolation_query(parameters_dict, sample_query, sample_parameters)
