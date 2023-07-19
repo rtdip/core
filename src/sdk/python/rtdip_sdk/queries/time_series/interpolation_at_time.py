@@ -47,7 +47,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         raise ValueError("timestamps must be a list")
 
     try:
-        query = _query_builder(parameters_dict, metadata=False, interpolation_at_time=True)
+        query = _query_builder(parameters_dict, "interpolation_at_time", interpolation_at_time=True)
 
         try:
             cursor = connection.cursor()
