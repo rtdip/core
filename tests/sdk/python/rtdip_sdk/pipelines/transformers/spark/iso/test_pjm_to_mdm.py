@@ -26,6 +26,17 @@ from pyspark.sql import SparkSession, DataFrame
 parent_base_path: str = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_data")
 
 
+def compare_dataframes(transformer, actual_df, expected_df, order_cols):
+    actual_df = actual_df.orderBy(*order_cols)
+    expected_df = expected_df.orderBy(*order_cols)
+
+    assert transformer.system_type() == SystemType.PYSPARK
+    assert isinstance(transformer.libraries(), Libraries)
+    assert transformer.settings() == dict()
+    assert str(actual_df.schema) == str(expected_df.schema)
+    assert str(actual_df.collect()) == str(expected_df.collect())
+
+
 def test_pjm_to_mdm_usage(spark_session: SparkSession):
     base_path: str = os.path.join(parent_base_path, "pjm_usage")
 
@@ -35,14 +46,8 @@ def test_pjm_to_mdm_usage(spark_session: SparkSession):
     transformer: BaseRawToMDMTransformer = PJMToMDMTransformer(spark_session, input_df, output_type="usage")
     actual_df = transformer.transform()
 
-    actual_df = actual_df.orderBy("Uid", "Timestamp")
-    expected_df = expected_df.orderBy("Uid", "Timestamp")
-    actual_df.show(100)
-    assert transformer.system_type() == SystemType.PYSPARK
-    assert isinstance(transformer.libraries(), Libraries)
-    assert transformer.settings() == dict()
-    assert str(actual_df.schema) == str(expected_df.schema)
-    assert str(actual_df.collect()) == str(expected_df.collect())
+    order_cols = ["Uid", "Timestamp"]
+    compare_dataframes(transformer, actual_df, expected_df, order_cols)
 
 
 def test_pjm_to_mdm_meta(spark_session: SparkSession):
@@ -54,14 +59,9 @@ def test_pjm_to_mdm_meta(spark_session: SparkSession):
     transformer: BaseRawToMDMTransformer = PJMToMDMTransformer(spark_session, input_df, output_type="meta")
 
     actual_df = transformer.transform()
-    actual_df = actual_df.orderBy("Uid", "TimestampStart")
-    expected_df = expected_df.orderBy("Uid", "TimestampStart")
 
-    assert transformer.system_type() == SystemType.PYSPARK
-    assert isinstance(transformer.libraries(), Libraries)
-    assert transformer.settings() == dict()
-    assert str(actual_df.schema) == str(expected_df.schema)
-    assert str(actual_df.collect()) == str(expected_df.collect())
+    order_cols = ["Uid", "TimestampStart"]
+    compare_dataframes(transformer, actual_df, expected_df, order_cols)
 
 
 def test_pjm_to_mdm_meta_with_params(spark_session: SparkSession):
@@ -101,11 +101,5 @@ def test_pjm_to_mdm_meta_with_params(spark_session: SparkSession):
 
     actual_df = transformer.transform()
 
-    actual_df = actual_df.orderBy("Uid", "TimestampStart")
-    expected_df = expected_df.orderBy("Uid", "TimestampStart")
-
-    assert transformer.system_type() == SystemType.PYSPARK
-    assert isinstance(transformer.libraries(), Libraries)
-    assert transformer.settings() == dict()
-    assert str(actual_df.schema) == str(expected_df.schema)
-    assert str(actual_df.collect()) == str(expected_df.collect())
+    order_cols = ["Uid", "TimestampStart"]
+    compare_dataframes(transformer, actual_df, expected_df, order_cols)
