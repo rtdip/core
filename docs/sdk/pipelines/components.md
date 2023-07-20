@@ -64,6 +64,8 @@ Transformers are components that perform transformations on data. These will tar
 |[PySpark to Pandas DataFrame Conversion](../code-reference/pipelines/transformers/spark/pyspark_to_pandas.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[MISO To Meters Data Model](../code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Raw Forecast to Weather Data Model](../code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[PJM To Meters Data Model](../code-reference/pipelines/transformers/spark/iso/pjm_to_mdm.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
 
