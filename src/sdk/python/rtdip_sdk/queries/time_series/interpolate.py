@@ -50,7 +50,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         raise ValueError("tag_names must be a list")
 
     try:
-        query = _query_builder(parameters_dict)
+        query = _query_builder(parameters_dict, "interpolate")
 
         try:
             cursor = connection.cursor()
