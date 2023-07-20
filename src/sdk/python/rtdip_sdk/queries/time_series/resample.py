@@ -16,6 +16,7 @@ import logging
 import pandas as pd
 from ._query_builder import _query_builder
 
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     An RTDIP Resampling function in spark to resample data by querying databricks SQL warehouses using a connection and authentication method specified by the user. This spark resample function will return a resampled dataframe.
