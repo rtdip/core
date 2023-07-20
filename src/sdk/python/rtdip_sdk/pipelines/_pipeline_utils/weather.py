@@ -50,7 +50,6 @@ WEATHER_FORECAST_SCHEMA = StructType(
         StructField("GolfIndex", DoubleType(), True),
         StructField("GolfCategory", StringType(), True),
         StructField("Severity", IntegerType(), True),
-
     ]
 )
 
