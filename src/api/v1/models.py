@@ -155,10 +155,12 @@ class InterpolationAtTimeQueryParams:
     def __init__(
         self,
         data_type: str = Query(..., description="Data Type"),
-        timestamps: List[Union[date, datetime]] = Query(..., description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+00:00": {"value": "2022-01-01T15:00:00+00:00"}}), 
+        timestamps: List[Union[date, datetime]] = Query(..., description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+00:00": {"value": "2022-01-01T15:00:00+00:00"}}),
+        include_bad_data: bool = Query(..., description="Include or remove Bad data points"),
     ):
         self.data_type = data_type
         self.timestamps = timestamps
+        self.include_bad_data = include_bad_data
 
 class TimeWeightedAverageQueryParams:
     def __init__(
