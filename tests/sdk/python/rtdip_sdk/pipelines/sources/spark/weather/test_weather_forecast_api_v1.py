@@ -128,6 +128,7 @@ raw_api_response = {
     ]
 }
 
+
 expected_json = {"Latitude": {"0": 32.3667, "1": 32.3667}, "Longitude": {"0": -95.4, "1": -95.4},
                  "Class": {"0": "fod_short_range_hourly", "1": "fod_short_range_hourly"},
                  "ExpireTimeGmt": {"0": 1686945840, "1": 1686945840},
