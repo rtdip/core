@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import pytz
 import pandas as pd
 from ._query_builder import _query_builder
 
@@ -46,7 +45,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         DataFrame: A dataframe of raw timeseries data.
     '''
     try:
-        query = _query_builder(parameters_dict)
+        query = _query_builder(parameters_dict, "raw")
 
         try:
             cursor = connection.cursor()
