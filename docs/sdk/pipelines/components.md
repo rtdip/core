@@ -44,9 +44,6 @@ Sources are components that connect to source systems and extract data from them
 |[PJM Historical Load ISO](../code-reference/pipelines/sources/spark/iso/pjm_historical_load_iso.md) ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Weather Forecast API V1](../code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Weather Forecast API V1 Multi](../code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[Weather Forecast API V1](../code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|[Weather Forecast API V1 Multi](../code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-
 !!! note "Note"
     This list will dynamically change as the framework is further developed and new components are added.
 
