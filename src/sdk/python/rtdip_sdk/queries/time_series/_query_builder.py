@@ -12,11 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from jinjasql import JinjaSql
 from jinja2 import Template
-from six import string_types
-from copy import deepcopy
 import datetime
 from datetime import datetime, time
 
@@ -71,31 +67,6 @@ def _parse_dates(parameters_dict):
     
     return parameters_dict
 
-def _quote_sql_string(value):
-    '''
-    If `value` is a string type, escapes single quotes in the string
-    and returns the string enclosed in single quotes.
-    '''
-    if isinstance(value, string_types):
-        new_value = str(value)
-        new_value = new_value.replace("'", "''")
-        return "'{}'".format(new_value)
-    return value
-
-
-def _get_sql_from_template(query: str, bind_params: dict) -> str:
-    '''
-    Given a query and binding parameters produced by JinjaSql's prepare_query(),
-    produce and return a complete SQL query string.
-    '''
-    if not bind_params:
-        return query
-    params = deepcopy(bind_params)
-    for key, val in params.items():
-        params[key] = _quote_sql_string(val)
-    return query % params
-
-
 def _raw_query(parameters_dict: dict) -> str:
 
     raw_query = (
@@ -129,11 +100,12 @@ def _sample_query(parameters_dict: dict) -> tuple:
     sample_query = (
         "WITH raw_events AS (SELECT from_utc_timestamp(EventTime, \"{{ time_zone }}\") as EventTime, TagName, Status, Value FROM "
          "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` "
-        "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') ORDER BY EventTime ) "
+        "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
+        "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
         ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ sample_rate + ' ' + sample_unit }}')) AS timestamp_array, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
         ",window_buckets AS (SELECT timestamp_array AS window_start ,TagName ,LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) "
         ",project_resample_results AS (SELECT d.window_start ,d.window_end ,d.TagName ,FIRST(e.Value) OVER (PARTITION BY d.TagName, d.window_start ORDER BY e.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Value FROM window_buckets d INNER JOIN raw_events e ON e.EventTime >= d.window_start AND e.EventTime < d.window_end AND e.TagName = d.TagName) "
-        "SELECT window_start AS EventTime ,TagName ,Value FROM project_resample_results GROUP BY window_start ,TagName ,Value ORDER BY EventTime "     
+        "SELECT window_start AS EventTime ,TagName ,Value FROM project_resample_results GROUP BY window_start ,TagName ,Value ORDER BY EventTime, TagName "     
     )
 
     sample_parameters = {
@@ -171,7 +143,7 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
         ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ sample_rate + ' ' + sample_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
         "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS Value FROM date_array a "
         "LEFT OUTER JOIN resample b "
-        "ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.EventTime "    
+        "ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.EventTime, a.TagName"    
     )
     
     interpolate_parameters = sample_parameters.copy()
@@ -189,41 +161,24 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
     parameters_dict["max_timestamp"] = max(timestamps_deduplicated)
 
     interpolate_at_time_query = (
-        "SELECT TagName, EventTime, Interpolated_Value as Value FROM "
-        "(SELECT *, lag(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Previous_EventTime, "
-        "lag(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Previous_Value, "
-        "lead(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_EventTime, "
-        "lead(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_Value, "
-        "CASE WHEN Requested_EventTime = Found_EventTime THEN Value WHEN Next_EventTime IS NULL THEN Previous_Value WHEN Previous_EventTime IS NULL and Next_EventTime IS NULL THEN NULL ELSE Previous_Value + ((Next_Value - Previous_Value) * ((unix_timestamp(EventTime) - unix_timestamp(Previous_EventTime)) / (unix_timestamp(Next_EventTime) - unix_timestamp(Previous_EventTime)))) END AS Interpolated_Value FROM "
-        "(SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, a.EventTime as Requested_EventTime, b.EventTime as Found_EventTime, b.Status, b.Value FROM "
-        "(SELECT explode(array( "
-        "{% for timestamp in timestamps -%} "
-        "from_utc_timestamp(to_timestamp({{timestamp}}), {{time_zone}})"
-        "{% if not loop.last %}"
-        ", "
-        "{% endif %}"
-        "{% endfor %} "
-        ")) AS EventTime, "
-        "explode(array{{ tag_names | inclause }}) AS TagName) a FULL OUTER JOIN "
-        "(SELECT * FROM (SELECT * FROM "
-        "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
-        "WHERE EventDate BETWEEN "
+        "WITH raw_events AS (SELECT * FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN "
         "{% if timestamps is defined %} "
-        "date_sub(to_date(to_timestamp({{ min_timestamp }})), 1) AND date_add(to_date(to_timestamp({{ max_timestamp }})), 1) "
-        "{% endif %} "
-        "AND TagName in {{ tag_names | inclause }} "
-        "{% if include_bad_data is defined and include_bad_data == false %} "
-        "AND Status = 'Good' "
-        "{% endif %}"
-        ")) b ON a.EventTime = b.EventTime AND a.TagName = b.TagName)) "
-        "WHERE EventTime in ( "
+        "date_sub(to_date(to_timestamp(\"{{ min_timestamp }}\")), 1) AND date_add(to_date(to_timestamp(\"{{ max_timestamp }}\")), 1) "
+        "{% endif %} AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
+        "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
+        ", date_array AS (SELECT explode(array( "
         "{% for timestamp in timestamps -%} "
-        "from_utc_timestamp(to_timestamp({{timestamp}}), {{time_zone}}) "
-        "{% if not loop.last %} "
-        ", "
-        "{% endif %} "
-        "{% endfor %} "
-        ")"       
+        "from_utc_timestamp(to_timestamp(\"{{timestamp}}\"), \"{{time_zone}}\") "
+        "{% if not loop.last %} , {% endif %} {% endfor %} )) AS EventTime, "
+        "explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
+        ", interpolation_events AS (SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, a.EventTime as Requested_EventTime, b.EventTime as Found_EventTime, b.Status, b.Value FROM date_array a FULL OUTER JOIN  raw_events b ON a.EventTime = b.EventTime AND a.TagName = b.TagName) "
+        ", interpolation_calculations AS (SELECT *, lag(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Previous_EventTime, lag(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Previous_Value, lead(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_EventTime, lead(Value) OVER (PARTITION BY TagName ORDER BY EventTime) AS Next_Value, "
+        "CASE WHEN Requested_EventTime = Found_EventTime THEN Value WHEN Next_EventTime IS NULL THEN Previous_Value WHEN Previous_EventTime IS NULL and Next_EventTime IS NULL THEN NULL "
+        "ELSE Previous_Value + ((Next_Value - Previous_Value) * ((unix_timestamp(EventTime) - unix_timestamp(Previous_EventTime)) / (unix_timestamp(Next_EventTime) - unix_timestamp(Previous_EventTime)))) END AS Interpolated_Value FROM interpolation_events) "
+        "SELECT TagName, EventTime, Interpolated_Value as Value FROM interpolation_calculations WHERE EventTime in ( "
+        "{% for timestamp in timestamps -%} "
+        "from_utc_timestamp(to_timestamp(\"{{timestamp}}\"), \"{{time_zone}}\") "
+        "{% if not loop.last %} , {% endif %} {% endfor %}) "  
     )
     
     interpolation_at_time_parameters = {
@@ -239,11 +194,8 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "min_timestamp": parameters_dict["min_timestamp"],
         "max_timestamp": parameters_dict["max_timestamp"]
     }
-
-    sql_template = JinjaSql(param_style='pyformat')
-    query, bind_params = sql_template.prepare_query(interpolate_at_time_query, interpolation_at_time_parameters)
-    sql_query = _get_sql_from_template(query, bind_params)
-    return sql_query
+    sql_template = Template(interpolate_at_time_query)
+    return sql_template.render(interpolation_at_time_parameters)
 
 def _metadata_query(parameters_dict: dict) -> str:
     
@@ -266,7 +218,7 @@ def _metadata_query(parameters_dict: dict) -> str:
     sql_template = Template(metadata_query)
     return sql_template.render(metadata_parameters)
 
-def _query_builder(parameters_dict: dict, query_type: str, interpolation_at_time=False) -> str:
+def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
     tagnames_deduplicated = list(dict.fromkeys(parameters_dict['tag_names'])) #remove potential duplicates in tags
@@ -277,7 +229,7 @@ def _query_builder(parameters_dict: dict, query_type: str, interpolation_at_time
     
     parameters_dict = _parse_dates(parameters_dict)
     
-    if interpolation_at_time:
+    if query_type == "interpolation_at_time":
         return _interpolation_at_time(parameters_dict)
 
     if query_type == "raw":
