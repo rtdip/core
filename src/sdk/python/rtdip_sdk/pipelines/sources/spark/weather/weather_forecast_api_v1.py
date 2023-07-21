@@ -156,6 +156,9 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
         df["latitude"] = self.lat
         df["longitude"] = self.lon
 
-        result_df = pd.concat([result_df, df]) if result_df is not None else df
+        if result_df is not None:
+            result_df = pd.concat([result_df, df])
+        else:
+            result_df =  df
 
         return result_df
