@@ -76,7 +76,7 @@ def _raw_query(parameters_dict: dict) -> str:
         "{% if include_bad_data is defined and include_bad_data == false %}"
         "AND Status = 'Good'"
         "{% endif %}"
-        "ORDER BY EventTime, TagName"
+        "ORDER BY TagName, EventTime "
     )
 
     raw_parameters = {
