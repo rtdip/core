@@ -163,7 +163,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
     interpolate_at_time_query = (
         "WITH raw_events AS (SELECT * FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN "
         "{% if timestamps is defined %} "
-        "date_sub(to_date(to_timestamp(\"{{ min_timestamp }}\")), 1) AND date_add(to_date(to_timestamp(\"{{ max_timestamp }}\")), 1) "
+        "date_sub(to_date(to_timestamp(\"{{ min_timestamp }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ max_timestamp }}\")), {{ window_length}}) "
         "{% endif %} AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
         "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
         ", date_array AS (SELECT explode(array( "
@@ -192,7 +192,8 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "include_bad_data": parameters_dict["include_bad_data"],
         "time_zone": parameters_dict["time_zone"],
         "min_timestamp": parameters_dict["min_timestamp"],
-        "max_timestamp": parameters_dict["max_timestamp"]
+        "max_timestamp": parameters_dict["max_timestamp"],
+        "window_length": parameters_dict["window_length"]
     }
     sql_template = Template(interpolate_at_time_query)
     return sql_template.render(interpolation_at_time_parameters)
