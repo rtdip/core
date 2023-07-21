@@ -14,7 +14,6 @@
 
 import logging
 import pandas as pd
-from datetime import datetime
 from ._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
@@ -47,7 +46,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         raise ValueError("timestamps must be a list")
 
     try:
-        query = _query_builder(parameters_dict, "interpolation_at_time", interpolation_at_time=True)
+        query = _query_builder(parameters_dict, "interpolation_at_time")
 
         try:
             cursor = connection.cursor()
