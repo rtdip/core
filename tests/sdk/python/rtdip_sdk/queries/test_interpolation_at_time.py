@@ -36,6 +36,7 @@ MOCKED_PARAMETER_DICT = {
         "data_type": "mocked-data-type",
         "tag_names": ["MOCKED-TAGNAME"],
         "timestamps": ["2011-01-01T00:00:00+00:00"],
+        "window_length": 1,
         "include_bad_data": False
         }
 
