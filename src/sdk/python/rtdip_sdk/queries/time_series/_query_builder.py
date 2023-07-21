@@ -127,15 +127,13 @@ def _raw_query(parameters_dict: dict) -> str:
 def _sample_query(parameters_dict: dict) -> tuple:
 
     sample_query = (
-        "SELECT DISTINCT TagName, w.start AS EventTime, {{ agg_method | sqlsafe }}(Value) OVER "
-        "(PARTITION BY TagName, w.start ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING ) AS Value FROM (" +
-        "SELECT from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\") as EventTime, WINDOW(from_utc_timestamp(EventTime, \"{{ time_zone | sqlsafe }}\"), {{ sample_rate + ' ' + sample_unit }}) w, TagName, Status, Value FROM "
-        "{{ business_unit | sqlsafe }}.sensors.{{ asset | sqlsafe }}_{{ data_security_level | sqlsafe }}_events_{{ data_type | sqlsafe }} "
-        "WHERE EventDate BETWEEN to_date(to_timestamp({{ start_date }})) AND to_date(to_timestamp({{ end_date }})) AND EventTime BETWEEN to_timestamp({{ start_date }}) AND to_timestamp({{ end_date }}) AND TagName in {{ tag_names | inclause }} "
-        "{% if include_bad_data is defined and include_bad_data == false %}"
-        "AND Status = 'Good'"
-        "{% endif %}"
-        ")"      
+        "WITH raw_events AS (SELECT from_utc_timestamp(EventTime, \"{{ time_zone }}\") as EventTime, TagName, Status, Value FROM "
+         "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` "
+        "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') ORDER BY EventTime ) "
+        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ sample_rate + ' ' + sample_unit }}')) AS timestamp_array, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
+        ",window_buckets AS (SELECT timestamp_array AS window_start ,TagName ,LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) "
+        ",project_resample_results AS (SELECT d.window_start ,d.window_end ,d.TagName ,FIRST(e.Value) OVER (PARTITION BY d.TagName, d.window_start ORDER BY e.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Value FROM window_buckets d INNER JOIN raw_events e ON e.EventTime >= d.window_start AND e.EventTime < d.window_end AND e.TagName = d.TagName) "
+        "SELECT window_start AS EventTime ,TagName ,Value FROM project_resample_results GROUP BY window_start ,TagName ,Value ORDER BY EventTime "     
     )
 
     sample_parameters = {
@@ -154,9 +152,8 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "time_zone": parameters_dict["time_zone"]
     }
 
-    sql_template = JinjaSql(param_style='pyformat')
-    query, bind_params = sql_template.prepare_query(sample_query, sample_parameters)
-    sql_query = _get_sql_from_template(query, bind_params)
+    sql_template = Template(sample_query)
+    sql_query = sql_template.render(sample_parameters)
     return sql_query, sample_query, sample_parameters    
 
 def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parameters: dict) -> str:
@@ -170,12 +167,11 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
     interpolation_options = interpolation_method.split('/')
 
     interpolate_query = (
-        "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 | sqlsafe }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 | sqlsafe }} AND {{ interpolation_options_2 | sqlsafe }}) AS Value FROM "
-        "(SELECT explode(sequence(from_utc_timestamp(to_timestamp({{ start_date }}), \"{{ time_zone | sqlsafe }}\"), from_utc_timestamp(to_timestamp({{ end_date }}), \"{{ time_zone | sqlsafe }}\"), INTERVAL {{ sample_rate + ' ' + sample_unit }})) AS EventTime, "
-        "explode(array{{ tag_names | inclause }}) AS TagName) a "
-        f"LEFT OUTER JOIN ({sample_query}) b "
-        "ON a.EventTime = b.EventTime "
-        "AND a.TagName = b.TagName"        
+        f"WITH resample AS ({sample_query})"
+        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ sample_rate + ' ' + sample_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
+        "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS Value FROM date_array a "
+        "LEFT OUTER JOIN resample b "
+        "ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.EventTime "    
     )
     
     interpolate_parameters = sample_parameters.copy()
@@ -183,10 +179,8 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
     interpolate_parameters["interpolation_options_1"] = interpolation_options[1]
     interpolate_parameters["interpolation_options_2"] = interpolation_options[2]
 
-    sql_template = JinjaSql(param_style='pyformat')
-    query, bind_params = sql_template.prepare_query(interpolate_query, interpolate_parameters)
-    sql_query = _get_sql_from_template(query, bind_params)
-    return sql_query
+    sql_template = Template(interpolate_query)
+    return sql_template.render(interpolate_parameters)
 
 def _interpolation_at_time(parameters_dict: dict) -> str:
     timestamps_deduplicated = list(dict.fromkeys(parameters_dict['timestamps'])) #remove potential duplicates in tags
@@ -288,12 +282,11 @@ def _query_builder(parameters_dict: dict, query_type: str, interpolation_at_time
 
     if query_type == "raw":
         return _raw_query(parameters_dict)
-
-    if "sample_rate" in parameters_dict:
+    
+    if query_type == "resample":
         sample_prepared_query, sample_query, sample_parameters = _sample_query(parameters_dict)
-
-        if "interpolation_method" not in parameters_dict:
-            return sample_prepared_query
-
-    if "interpolation_method" in parameters_dict:
+        return sample_prepared_query
+    
+    if query_type == "interpolate":
+        sample_prepared_query, sample_query, sample_parameters = _sample_query(parameters_dict)
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
