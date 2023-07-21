@@ -12,11 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from jinjasql import JinjaSql
 from jinja2 import Template
-from six import string_types
-from copy import deepcopy
 import datetime
 from datetime import datetime, time
 
@@ -70,31 +66,6 @@ def _parse_dates(parameters_dict):
     parameters_dict["time_zone"] = datetime.strptime(sample_dt, TIMESTAMP_FORMAT).strftime("%z")
     
     return parameters_dict
-
-def _quote_sql_string(value):
-    '''
-    If `value` is a string type, escapes single quotes in the string
-    and returns the string enclosed in single quotes.
-    '''
-    if isinstance(value, string_types):
-        new_value = str(value)
-        new_value = new_value.replace("'", "''")
-        return "'{}'".format(new_value)
-    return value
-
-
-def _get_sql_from_template(query: str, bind_params: dict) -> str:
-    '''
-    Given a query and binding parameters produced by JinjaSql's prepare_query(),
-    produce and return a complete SQL query string.
-    '''
-    if not bind_params:
-        return query
-    params = deepcopy(bind_params)
-    for key, val in params.items():
-        params[key] = _quote_sql_string(val)
-    return query % params
-
 
 def _raw_query(parameters_dict: dict) -> str:
 
