@@ -39,8 +39,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         tag_names (list): List of tagname or tagnames ["tag_1", "tag_2"]
         start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
-        time_sample_rate (str): The resampling rate (numeric input)
-        time_sample_unit (str): The resampling unit (second, minute, day, hour)
+        time_sample_rate (str): The time interval resampling rate (numeric input)
+        time_sample_unit (str): The time interval resampling unit (second, minute, day, hour)
         agg_method (str): Aggregation Method (first, last, avg, min, max)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
 
