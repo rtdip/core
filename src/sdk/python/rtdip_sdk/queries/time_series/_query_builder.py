@@ -102,7 +102,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
          "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` "
         "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
         "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
-        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ sample_rate + ' ' + sample_unit }}')) AS timestamp_array, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
+        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_sample_rate + ' ' + time_sample_unit }}')) AS timestamp_array, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
         ",window_buckets AS (SELECT timestamp_array AS window_start ,TagName ,LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) "
         ",project_resample_results AS (SELECT d.window_start ,d.window_end ,d.TagName ,FIRST(e.Value) OVER (PARTITION BY d.TagName, d.window_start ORDER BY e.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Value FROM window_buckets d INNER JOIN raw_events e ON e.EventTime >= d.window_start AND e.EventTime < d.window_end AND e.TagName = d.TagName) "
         "SELECT window_start AS EventTime ,TagName ,Value FROM project_resample_results GROUP BY window_start ,TagName ,Value ORDER BY TagName, EventTime "     
@@ -118,8 +118,8 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "end_date": parameters_dict['end_date'],
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
         "include_bad_data": parameters_dict['include_bad_data'],
-        "sample_rate": parameters_dict['sample_rate'],
-        "sample_unit": parameters_dict['sample_unit'],
+        "time_sample_rate": parameters_dict['time_sample_rate'],
+        "time_sample_unit": parameters_dict['time_sample_unit'],
         "agg_method": parameters_dict['agg_method'],
         "time_zone": parameters_dict["time_zone"]
     }
