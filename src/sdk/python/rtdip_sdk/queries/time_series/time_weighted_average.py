@@ -35,7 +35,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         tag_names (list): List of tagname or tagnames
         start_date (str): Start date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
-        window_size_mins (int): Window size in minutes
+        window_size_mins (int): (deprecated) Window size in minutes. Please use time_interval_rate and time_interval_unit below instead.
+        time_interval_rate (str): The time interval rate (numeric input)
+        time_interval_unit (str): The time interval unit (second, minute, day, hour)
         window_length (int): Add longer window time in days for the start or end of specified date to cater for edge cases.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         step (str): data points with step "enabled" or "disabled". The options for step are "metadata", "true" or "false". "metadata" will get the step requirements from the metadata table if applicable.
@@ -44,6 +46,11 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
+    
+    if "window_size_mins" in parameters_dict:
+        logging.warning('Parameter window_size_mins is deprecated and will be removed in v1.0.0. Please use time_interval_rate and time_interval_unit instead.')
+        parameters_dict["time_interval_rate"] = str(parameters_dict["window_size_mins"])
+        parameters_dict["time_interval_unit"] = "minute"
 
     try:
         query = _query_builder(parameters_dict, "time_weighted_average")

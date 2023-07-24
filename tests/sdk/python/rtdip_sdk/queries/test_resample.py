@@ -37,8 +37,8 @@ MOCKED_PARAMETER_DICT = {
         "tag_names": ["MOCKED-TAGNAME"],
         "start_date": "2011-01-01",
         "end_date": "2011-01-02",
-        "time_sample_rate": "1",
-        "time_sample_unit": "hour",
+        "time_interval_rate": "1",
+        "time_interval_unit": "hour",
         "agg_method": "avg",
         "include_bad_data": False
         }
