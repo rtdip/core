@@ -150,16 +150,9 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
         Returns:
             Raw form of data.
         """
-        result_df = None
 
         df = self._pull_for_weather_station(self.lat, self.lon)
         df["latitude"] = self.lat
         df["longitude"] = self.lon
 
-        if result_df is not None:
-            result_df = pd.concat([result_df, df])
-        else:
-            result_df =  df
-
-
-        return result_df
+        return df
