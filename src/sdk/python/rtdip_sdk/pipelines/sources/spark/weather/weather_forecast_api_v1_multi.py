@@ -68,7 +68,6 @@ class WeatherForecastAPIV1MultiSource(WeatherForecastAPIV1Source):
         """
 
         result_df = None
-
         for station in self.stations:
             parts = station.split(",")
             lat, lon = parts
