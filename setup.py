@@ -33,8 +33,7 @@ INSTALL_REQUIRES = [
   "azure-identity==1.12.0",
   "pyodbc==4.0.39",
   "pandas==1.5.2",
-  "jinja2==3.0.3",
-  "jinjasql==0.1.8",
+  "jinja2==3.1.2",
   "importlib_metadata>=1.0.0",
   "semver==3.0.0",
   "xlrd==2.0.1",
@@ -53,7 +52,7 @@ PYSPARK_PACKAGES = [
 PIPELINE_PACKAGES = [
   "dependency-injector==4.41.0",
   "dbx==0.8.17",
-  "pydantic==2.0.2",
+  "pydantic==1.10.11",
   "azure-storage-file-datalake==12.12.0",
   "boto3==1.28.2",
   "hvac==1.1.1",
