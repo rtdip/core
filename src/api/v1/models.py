@@ -136,12 +136,12 @@ class TagsBodyParams(BaseModel):
 class ResampleQueryParams:
     def __init__(
         self,
-        sample_rate: str = Query(..., description="Sample Rate", example=5),
-        sample_unit: str = Query(..., description="Sample Unit", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
+        time_interval_rate: str = Query(..., description="Time Interval Rate", example=5),
+        time_interval_unit: str = Query(..., description="Time Interval Unit", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
         agg_method: str = Query(..., description="Aggregation Method", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
     ):
-        self.sample_rate = sample_rate
-        self.sample_unit = sample_unit
+        self.time_interval_rate = time_interval_rate
+        self.time_interval_unit = time_interval_unit
         self.agg_method = agg_method
 
 class InterpolateQueryParams:
@@ -156,6 +156,7 @@ class InterpolationAtTimeQueryParams:
         self,
         data_type: str = Query(..., description="Data Type"),
         timestamps: List[Union[date, datetime]] = Query(..., description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+00:00": {"value": "2022-01-01T15:00:00+00:00"}}),
+        window_length: int = Query(..., description="Window Length in days", example=1),
         include_bad_data: bool = Query(..., description="Include or remove Bad data points"),
     ):
         self.data_type = data_type
@@ -165,10 +166,12 @@ class InterpolationAtTimeQueryParams:
 class TimeWeightedAverageQueryParams:
     def __init__(
         self,
-        window_size_mins: int = Query(..., description="Window Size Mins", example=20),
-        window_length: int = Query(..., description="Window Length", example=10),
+        time_interval_rate: str = Query(..., description="Time Interval Rate", example=5),
+        time_interval_unit: str = Query(..., description="Time Interval Unit", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
+        window_length: int = Query(..., description="Window Length in days", example=1),
         step: str = Query(..., description="Step", examples={"true": {"value": "true"}, "false": {"value": "false"}, "metadata": {"value": "metadata"}}) 
     ):
-        self.window_size_mins = window_size_mins
+        self.time_interval_rate = time_interval_rate
+        self.time_interval_unit = time_interval_unit
         self.window_length = window_length
         self.step = step
