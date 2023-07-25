@@ -90,3 +90,16 @@ def test_time_weighted_average_fails(mocker: MockerFixture):
 
     with pytest.raises(Exception):
         time_weighted_average_get(mocked_connection, MOCKED_PARAMETER_DICT)
+
+def test_time_weighted_average_tag_name_not_list_fails(mocker: MockerFixture):
+    MOCKED_PARAMETER_DICT["tag_names"] = "abc"
+    mocker.spy(MockedDBConnection, "cursor")
+    mocker.spy(MockedCursor, "execute")
+    mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
+    mocker.spy(MockedCursor, "close")
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
+
+    mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
+
+    with pytest.raises(Exception):
+        time_weighted_average_get(mocked_connection, MOCKED_PARAMETER_DICT)
