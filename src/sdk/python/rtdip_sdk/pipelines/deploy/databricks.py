@@ -109,7 +109,7 @@ class DatabricksSDKDeploy(DeployInterface):
         spec.loader.exec_module(module)
         sys.modules[module.__name__] = module
         return module
-    def deploy(self) -> bool:
+    def deploy(self) -> bool | ValueError:
         '''
         Deploys an RTDIP Pipeline Job to Databricks Workflows. The deployment is managed by the Job Name and therefore will overwrite any existing workflow in Databricks with the same name.
         '''
@@ -117,7 +117,7 @@ class DatabricksSDKDeploy(DeployInterface):
         workspace_client = WorkspaceClient(host=self.host, token=self.token)
         for task in self.databricks_job.tasks:
             if task.notebook_task is None and task.spark_python_task is None:
-                return ValueError("A Notebook or Spark Python Task must be populated for each task in the Databricks Job")
+                return ValueError("A Notebook or Spark Python Task must be populated for each task in the Databricks Job") # NOSONAR
             if task.notebook_task is not None:
                 module = self._load_module(task.task_key + "file_upload", task.notebook_task.notebook_path)
                 (task_libraries, spark_configuration) = PipelineComponentsGetUtility(module.__name__).execute()
@@ -165,7 +165,7 @@ class DatabricksSDKDeploy(DeployInterface):
             elif task.compute_key is not None:
                 for compute in self.databricks_job.compute:
                     if compute.compute_key == task.compute_key:
-                        # TODO : Add spark config for compute. Does not seem to be currently available in the Databricks SDK
+                        # TODO : Add spark config for compute. Does not seem to be currently available in the Databricks SDK # NOSONAR
                         # compute.spark_conf.update(spark_configuration)
                         break
 

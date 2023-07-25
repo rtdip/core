@@ -34,6 +34,9 @@ class DummyJob():
 
     job_id = 1
 
+default_version = "0.0.0rc0"
+default_list_package = "databricks.sdk.service.jobs.JobsAPI.list"
+
 def test_pipeline_job_deploy(mocker: MockerFixture):
     cluster_list = []
     cluster_list.append(JobCluster(
@@ -67,14 +70,14 @@ def test_pipeline_job_deploy(mocker: MockerFixture):
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._load_module", return_value=DummyModule())
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._convert_file_to_binary", return_value=None)
     mocker.patch("databricks.sdk.mixins.workspace.WorkspaceExt.upload", return_value=None)
-    libraries = Libraries(pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version="0.0.0rc0")], maven_libraries=[MavenLibrary(group_id="rtdip", artifact_id="rtdip-sdk", version="0.0.0rc0")], python_wheel_libraries=[PythonWheelLibrary(path="test_wheel.whl")])
+    libraries = Libraries(pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version=default_version)], maven_libraries=[MavenLibrary(group_id="rtdip", artifact_id="rtdip-sdk", version=default_version)], python_wheel_libraries=[PythonWheelLibrary(path="test_wheel.whl")])
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.utilities.pipeline_components.PipelineComponentsGetUtility.execute", return_value=(libraries, {"config": "test_config"}))
-    mocker.patch("databricks.sdk.service.jobs.JobsAPI.list", return_value=[])
+    mocker.patch(default_list_package, return_value=[])
     mocker.patch("databricks.sdk.service.jobs.JobsAPI.create", return_value=None)
     deploy_result = databricks_job.deploy()
     assert deploy_result
 
-    mocker.patch("databricks.sdk.service.jobs.JobsAPI.list", return_value=[DummyJob()])
+    mocker.patch(default_list_package, return_value=[DummyJob()])
     mocker.patch("databricks.sdk.service.jobs.JobsAPI.run_now", return_value=None)
     launch_result = databricks_job.launch()
     assert launch_result
@@ -112,14 +115,14 @@ def test_pipeline_job_deploy_fails(mocker: MockerFixture):
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._load_module", return_value=DummyModule())
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._convert_file_to_binary", return_value=None)
     mocker.patch("databricks.sdk.mixins.workspace.WorkspaceExt.upload", return_value=None)
-    libraries = Libraries(pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version="0.0.0rc0")], maven_libraries=[MavenLibrary(group_id="rtdip", artifact_id="rtdip-sdk", version="0.0.0rc0")], python_wheel_libraries=[PythonWheelLibrary(path="test_wheel.whl")])
+    libraries = Libraries(pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version=default_version)], maven_libraries=[MavenLibrary(group_id="rtdip", artifact_id="rtdip-sdk", version=default_version)], python_wheel_libraries=[PythonWheelLibrary(path="test_wheel.whl")])
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.utilities.pipeline_components.PipelineComponentsGetUtility.execute", return_value=(libraries, {"config": "test_config"}))
-    mocker.patch("databricks.sdk.service.jobs.JobsAPI.list", return_value=[])
+    mocker.patch(default_list_package, return_value=[])
     mocker.patch("databricks.sdk.service.jobs.JobsAPI.create", side_effect=Exception)
     with pytest.raises(Exception):
         databricks_job.deploy()
 
-    mocker.patch("databricks.sdk.service.jobs.JobsAPI.list", return_value=[DummyJob()])
+    mocker.patch(default_list_package, return_value=[DummyJob()])
     mocker.patch("databricks.sdk.service.jobs.JobsAPI.run_now", side_effect=Exception)
     with pytest.raises(Exception):
         databricks_job.launch()
