@@ -70,7 +70,7 @@ def _parse_dates(parameters_dict):
 def _raw_query(parameters_dict: dict) -> str:
 
     raw_query = (
-        "SELECT from_utc_timestamp(EventTime, \"{{ time_zone }}\") as EventTime, TagName, Status, Value FROM "
+        "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(EventTime, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as EventTime, TagName,  Status, Value FROM "
         "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` "
         "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
         "{% if include_bad_data is defined and include_bad_data == false %}"
@@ -98,11 +98,11 @@ def _raw_query(parameters_dict: dict) -> str:
 def _sample_query(parameters_dict: dict) -> tuple:
 
     sample_query = (
-        "WITH raw_events AS (SELECT from_utc_timestamp(EventTime, \"{{ time_zone }}\") as EventTime, TagName, Status, Value FROM "
+        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(EventTime, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as EventTime, TagName,  Status, Value FROM "
          "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` "
         "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
         "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
-        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ sample_rate + ' ' + sample_unit }}')) AS timestamp_array, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
+        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS timestamp_array, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
         ",window_buckets AS (SELECT timestamp_array AS window_start ,TagName ,LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) "
         ",project_resample_results AS (SELECT d.window_start ,d.window_end ,d.TagName ,FIRST(e.Value) OVER (PARTITION BY d.TagName, d.window_start ORDER BY e.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Value FROM window_buckets d INNER JOIN raw_events e ON e.EventTime >= d.window_start AND e.EventTime < d.window_end AND e.TagName = d.TagName) "
         "SELECT window_start AS EventTime ,TagName ,Value FROM project_resample_results GROUP BY window_start ,TagName ,Value ORDER BY TagName, EventTime "     
@@ -118,8 +118,8 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "end_date": parameters_dict['end_date'],
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
         "include_bad_data": parameters_dict['include_bad_data'],
-        "sample_rate": parameters_dict['sample_rate'],
-        "sample_unit": parameters_dict['sample_unit'],
+        "time_interval_rate": parameters_dict['time_interval_rate'],
+        "time_interval_unit": parameters_dict['time_interval_unit'],
         "agg_method": parameters_dict['agg_method'],
         "time_zone": parameters_dict["time_zone"]
     }
@@ -140,7 +140,7 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
 
     interpolate_query = (
         f"WITH resample AS ({sample_query})"
-        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ sample_rate + ' ' + sample_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
+        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
         "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS Value FROM date_array a "
         "LEFT OUTER JOIN resample b "
         "ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.TagName, a.EventTime "    
@@ -161,7 +161,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
     parameters_dict["max_timestamp"] = max(timestamps_deduplicated)
 
     interpolate_at_time_query = (
-        "WITH raw_events AS (SELECT * FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN "
+        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(EventTime, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as EventTime, TagName,  Status, Value FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN "
         "{% if timestamps is defined %} "
         "date_sub(to_date(to_timestamp(\"{{ min_timestamp }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ max_timestamp }}\")), {{ window_length}}) "
         "{% endif %} AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
@@ -220,11 +220,14 @@ def _metadata_query(parameters_dict: dict) -> str:
     return sql_template.render(metadata_parameters)
 
 def _time_weighted_average_query(parameters_dict: dict) -> str:
+    parameters_dict["start_datetime"] = datetime.strptime(parameters_dict['start_date'], TIMESTAMP_FORMAT).strftime('%Y-%m-%dT%H:%M:%S')
+    parameters_dict["end_datetime"] = datetime.strptime(parameters_dict['end_date'], TIMESTAMP_FORMAT).strftime('%Y-%m-%dT%H:%M:%S')
+
     time_weighted_average_query  = (
-        "WITH raw_events AS (SELECT * FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND TagName in ('{{ tag_names | join('\\', \\'') }}')  "
+        "WITH raw_events AS (SELECT DISTINCT EventDate, TagName, from_utc_timestamp(to_timestamp(date_format(EventTime, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as EventTime, Status, Value FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND TagName in ('{{ tag_names | join('\\', \\'') }}')  "
         "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
-        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL \"{{ window_size_mins }} minutes\")) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
-        ",window_events AS (SELECT coalesce(a.TagName, b.TagName) AS TagName, coalesce(a.EventTime, b.EventTime) as EventTime, window(coalesce(a.EventTime, b.EventTime), \"{{ window_size_mins }} minutes\").start WindowEventTime, b.Status, b.Value FROM date_array a "
+        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
+        ",window_events AS (SELECT coalesce(a.TagName, b.TagName) AS TagName, coalesce(a.EventTime, b.EventTime) as EventTime, window(coalesce(a.EventTime, b.EventTime), '{{ time_interval_rate + ' ' + time_interval_unit }}').start WindowEventTime, b.Status, b.Value FROM date_array a "
         "FULL OUTER JOIN raw_events b ON CAST(a.EventTime AS long) = CAST(b.EventTime AS long) AND a.TagName = b.TagName) "
         ",fill_status AS (SELECT *, last_value(Status, true) OVER (PARTITION BY TagName ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as Fill_Status, CASE WHEN Fill_Status = \"Good\" THEN Value ELSE null END AS Good_Value FROM window_events) "
         ",fill_value AS (SELECT *, last_value(Good_Value, true) OVER (PARTITION BY TagName ORDER BY EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Fill_Value FROM fill_status) "
@@ -234,7 +237,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",CASE WHEN Fill_Status = \"Good\" and Next_Status = \"Good\" THEN ((cast(Next_EventTime as double) - cast(EventTime as double)) / 60) WHEN Fill_Status = \"Good\" and Next_Status != \"Good\" THEN ((cast(Next_EventTime as integer) - cast(EventTime as double)) / 60) ELSE 0 END AS good_minutes "
         ",CASE WHEN Step == false THEN ((Fill_Value + Next_Value) * 0.5) * good_minutes ELSE (Fill_Value * good_minutes) END AS twa_value FROM fill_value) "
         ",project_result AS (SELECT TagName, WindowEventTime AS EventTime, sum(twa_value) / sum(good_minutes) AS Value from twa_calculations GROUP BY TagName, WindowEventTime) "
-        "SELECT * FROM project_result WHERE EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") ORDER BY TagName, EventTime "
+        "SELECT * FROM project_result WHERE EventTime BETWEEN to_timestamp(\"{{ start_datetime }}\") AND to_timestamp(\"{{ end_datetime }}\") ORDER BY TagName, EventTime "
     )
 
     time_weighted_average_parameters = {
@@ -245,9 +248,12 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "data_type": parameters_dict['data_type'].lower(),
         "start_date": parameters_dict['start_date'],
         "end_date": parameters_dict['end_date'],
+        "start_datetime": parameters_dict['start_datetime'],
+        "end_datetime": parameters_dict['end_datetime'],
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
-        "window_size_mins": parameters_dict['window_size_mins'],
-        "window_length": parameters_dict['window_length'],
+        "time_interval_rate": parameters_dict['time_interval_rate'],
+        "time_interval_unit": parameters_dict['time_interval_unit'],
+        "window_length": parameters_dict["window_length"],
         "include_bad_data": parameters_dict['include_bad_data'],
         "step": parameters_dict['step'],
         "time_zone": parameters_dict["time_zone"],

@@ -27,7 +27,7 @@ HTTP_PATH = "sql/mock/mock-test"
 ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = 'databricks.sql.connect'
 DATABRICKS_SQL_CONNECT_CURSOR = 'databricks.sql.connect.cursor'
-MOCKED_QUERY= 'WITH resample AS (WITH raw_events AS (SELECT from_utc_timestamp(EventTime, "+0000") as EventTime, TagName, Status, Value FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_mocked-data-type` WHERE EventDate BETWEEN to_date(to_timestamp("2011-01-01T00:00:00+00:00")) AND to_date(to_timestamp("2011-01-02T23:59:59+00:00")) AND EventTime BETWEEN to_timestamp("2011-01-01T00:00:00+00:00") AND to_timestamp("2011-01-02T23:59:59+00:00") AND TagName in (\'MOCKED-TAGNAME\')  AND Status = \'Good\' ) ,date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("2011-01-01T00:00:00+00:00"), "+0000"), from_utc_timestamp(to_timestamp("2011-01-02T23:59:59+00:00"), "+0000"), INTERVAL \'1 hour\')) AS timestamp_array, explode(array(\'MOCKED-TAGNAME\')) AS TagName) ,window_buckets AS (SELECT timestamp_array AS window_start ,TagName ,LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) ,project_resample_results AS (SELECT d.window_start ,d.window_end ,d.TagName ,FIRST(e.Value) OVER (PARTITION BY d.TagName, d.window_start ORDER BY e.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Value FROM window_buckets d INNER JOIN raw_events e ON e.EventTime >= d.window_start AND e.EventTime < d.window_end AND e.TagName = d.TagName) SELECT window_start AS EventTime ,TagName ,Value FROM project_resample_results GROUP BY window_start ,TagName ,Value ORDER BY TagName, EventTime ),date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("2011-01-01T00:00:00+00:00"), "+0000"), from_utc_timestamp(to_timestamp("2011-01-02T23:59:59+00:00"), "+0000"), INTERVAL \'1 hour\')) AS EventTime, explode(array(\'MOCKED-TAGNAME\')) AS TagName) SELECT a.EventTime, a.TagName, last_value(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Value FROM date_array a LEFT OUTER JOIN resample b ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.TagName, a.EventTime '
+MOCKED_QUERY= 'WITH resample AS (WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(EventTime, \'yyyy-MM-dd HH:mm:ss.SSS\')), "+0000") as EventTime, TagName,  Status, Value FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_mocked-data-type` WHERE EventDate BETWEEN to_date(to_timestamp("2011-01-01T00:00:00+00:00")) AND to_date(to_timestamp("2011-01-02T23:59:59+00:00")) AND EventTime BETWEEN to_timestamp("2011-01-01T00:00:00+00:00") AND to_timestamp("2011-01-02T23:59:59+00:00") AND TagName in (\'MOCKED-TAGNAME\')  AND Status = \'Good\' ) ,date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("2011-01-01T00:00:00+00:00"), "+0000"), from_utc_timestamp(to_timestamp("2011-01-02T23:59:59+00:00"), "+0000"), INTERVAL \'15 minute\')) AS timestamp_array, explode(array(\'MOCKED-TAGNAME\')) AS TagName) ,window_buckets AS (SELECT timestamp_array AS window_start ,TagName ,LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) ,project_resample_results AS (SELECT d.window_start ,d.window_end ,d.TagName ,FIRST(e.Value) OVER (PARTITION BY d.TagName, d.window_start ORDER BY e.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Value FROM window_buckets d INNER JOIN raw_events e ON e.EventTime >= d.window_start AND e.EventTime < d.window_end AND e.TagName = d.TagName) SELECT window_start AS EventTime ,TagName ,Value FROM project_resample_results GROUP BY window_start ,TagName ,Value ORDER BY TagName, EventTime ),date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("2011-01-01T00:00:00+00:00"), "+0000"), from_utc_timestamp(to_timestamp("2011-01-02T23:59:59+00:00"), "+0000"), INTERVAL \'15 minute\')) AS EventTime, explode(array(\'MOCKED-TAGNAME\')) AS TagName) SELECT a.EventTime, a.TagName, last_value(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Value FROM date_array a LEFT OUTER JOIN resample b ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.TagName, a.EventTime '
 MOCKED_PARAMETER_DICT = {
         "business_unit": "mocked-buiness-unit",
         "region": "mocked-region",
@@ -37,8 +37,8 @@ MOCKED_PARAMETER_DICT = {
         "tag_names": ["MOCKED-TAGNAME"],
         "start_date": "2011-01-01",
         "end_date": "2011-01-02",
-        "sample_rate": "1",
-        "sample_unit": "hour",
+        "time_interval_rate": "15",
+        "time_interval_unit": "minute",
         "agg_method": "avg",
         "interpolation_method": "forward_fill",
         "include_bad_data": False
@@ -61,7 +61,39 @@ def test_interpolate(mocker: MockerFixture):
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
 
+def test_interpolate_sample_rate_unit(mocker: MockerFixture):
+    MOCKED_PARAMETER_DICT["sample_rate"] = "15"
+    MOCKED_PARAMETER_DICT["sample_unit"] = "minute"
+    mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_execute = mocker.spy(MockedCursor, "execute")
+    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value = pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
+    mocked_close = mocker.spy(MockedCursor, "close")
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
+
+    mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
+
+    actual = interpolate_get(mocked_connection, MOCKED_PARAMETER_DICT)
+
+    mocked_cursor.assert_called_once()
+    mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
+    mocked_fetch_all.assert_called_once()
+    mocked_close.assert_called_once()
+    assert isinstance(actual, pd.DataFrame)
+
 def test_interpolate_fails(mocker: MockerFixture):
+    mocker.spy(MockedDBConnection, "cursor")
+    mocker.spy(MockedCursor, "execute")
+    mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
+    mocker.spy(MockedCursor, "close")
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
+
+    mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
+
+    with pytest.raises(Exception):
+        interpolate_get(mocked_connection, MOCKED_PARAMETER_DICT)
+
+def test_interpolate_tag_name_not_list_fails(mocker: MockerFixture):
+    MOCKED_PARAMETER_DICT["tag_names"] = "abc"
     mocker.spy(MockedDBConnection, "cursor")
     mocker.spy(MockedCursor, "execute")
     mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
