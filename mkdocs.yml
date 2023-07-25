@@ -204,7 +204,7 @@ nav:
                   - Hashicorp Vault: sdk/code-reference/pipelines/secrets/hashicorp_vault.md
                   - Azure Key Vault: sdk/code-reference/pipelines/secrets/azure_key_vault.md
               - Deploy:
-                  - Databricks DBX: sdk/code-reference/pipelines/deploy/databricks_dbx.md
+                  - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
           - Queries:
               - Functions:
                   - Resample: sdk/code-reference/query/resample.md
