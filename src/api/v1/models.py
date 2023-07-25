@@ -136,10 +136,14 @@ class TagsBodyParams(BaseModel):
 class ResampleQueryParams:
     def __init__(
         self,
+        sample_rate: str = Query(..., description="Sample Rate as a numeric input", example=5, deprecated=True),
+        sample_unit: str = Query(..., description="Sample Unit can be one of the options: [second, minute, day, hour]", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}, example=5, deprecated=True),
         time_interval_rate: str = Query(..., description="Time Interval Rate as a numeric input", example=5),
         time_interval_unit: str = Query(..., description="Time Interval Unit can be one of the options: [second, minute, day, hour]", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
         agg_method: str = Query(..., description="Aggregation Method can be one of the following [first, last, avg, min, max]", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
     ):
+        self.sample_rate = sample_rate
+        self.sample_unit = sample_unit
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
         self.agg_method = agg_method
@@ -167,11 +171,13 @@ class InterpolationAtTimeQueryParams:
 class TimeWeightedAverageQueryParams:
     def __init__(
         self,
+        window_size_mins: int = Query(..., description="Window Size Mins as a numeric input", example=20, deprecated=True),
         time_interval_rate: str = Query(..., description="Time Interval Rate as a numeric input", example=5),
         time_interval_unit: str = Query(..., description="Time Interval Unit can be one of the options: [second, minute, day, hour]", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
         window_length: int = Query(..., description="Window Length in days", example=1),
         step: str = Query(..., description="Step can be true or false", examples={"true": {"value": "true"}, "false": {"value": "false"}}) 
     ):
+        self.window_size_mins = window_size_mins
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
         self.window_length = window_length
