@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+from typing import Union
 from importlib_metadata import PackageNotFoundError, version
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
@@ -109,7 +110,7 @@ class DatabricksSDKDeploy(DeployInterface):
         spec.loader.exec_module(module)
         sys.modules[module.__name__] = module
         return module
-    def deploy(self) -> bool | ValueError:
+    def deploy(self) -> Union[bool, ValueError]:
         '''
         Deploys an RTDIP Pipeline Job to Databricks Workflows. The deployment is managed by the Job Name and therefore will overwrite any existing workflow in Databricks with the same name.
         '''
