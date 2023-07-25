@@ -136,8 +136,8 @@ class TagsBodyParams(BaseModel):
 class ResampleQueryParams:
     def __init__(
         self,
-        sample_rate: str = Query(..., description="Sample Rate as a numeric input", example=5, deprecated=True),
-        sample_unit: str = Query(..., description="Sample Unit can be one of the options: [second, minute, day, hour]", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}, example=5, deprecated=True),
+        sample_rate: str = Query(..., description="sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.", example=5, deprecated=True),
+        sample_unit: str = Query(..., description="sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}, example=5, deprecated=True),
         time_interval_rate: str = Query(..., description="Time Interval Rate as a numeric input", example=5),
         time_interval_unit: str = Query(..., description="Time Interval Unit can be one of the options: [second, minute, day, hour]", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
         agg_method: str = Query(..., description="Aggregation Method can be one of the following [first, last, avg, min, max]", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
@@ -171,7 +171,7 @@ class InterpolationAtTimeQueryParams:
 class TimeWeightedAverageQueryParams:
     def __init__(
         self,
-        window_size_mins: int = Query(..., description="Window Size Mins as a numeric input", example=20, deprecated=True),
+        window_size_mins: int = Query(..., description="window_size_mins is deprecated and will be removed in v1.0.0. Please use time_interval_rate and time_interval_unit instead.", example=20, deprecated=True),
         time_interval_rate: str = Query(..., description="Time Interval Rate as a numeric input", example=5),
         time_interval_unit: str = Query(..., description="Time Interval Unit can be one of the options: [second, minute, day, hour]", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
         window_length: int = Query(..., description="Window Length in days", example=1),

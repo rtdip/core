@@ -70,7 +70,7 @@ def _parse_dates(parameters_dict):
 def _raw_query(parameters_dict: dict) -> str:
 
     raw_query = (
-        "SELECT DISTINCT from_utc_timestamp(EventTime, \"{{ time_zone }}\") as EventTime, TagName, Status, Value FROM "
+        "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(EventTime, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as EventTime, TagName,  Status, Value FROM "
         "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` "
         "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
         "{% if include_bad_data is defined and include_bad_data == false %}"
@@ -98,7 +98,7 @@ def _raw_query(parameters_dict: dict) -> str:
 def _sample_query(parameters_dict: dict) -> tuple:
 
     sample_query = (
-        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(EventTime, \"{{ time_zone }}\") as EventTime, TagName, Status, Value FROM "
+        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(EventTime, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as EventTime, TagName,  Status, Value FROM "
          "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` "
         "WHERE EventDate BETWEEN to_date(to_timestamp(\"{{ start_date }}\")) AND to_date(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
         "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
@@ -161,7 +161,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
     parameters_dict["max_timestamp"] = max(timestamps_deduplicated)
 
     interpolate_at_time_query = (
-        "WITH raw_events AS (SELECT DISTINCT * FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN "
+        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(EventTime, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as EventTime, TagName,  Status, Value FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN "
         "{% if timestamps is defined %} "
         "date_sub(to_date(to_timestamp(\"{{ min_timestamp }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ max_timestamp }}\")), {{ window_length}}) "
         "{% endif %} AND TagName in ('{{ tag_names | join('\\', \\'') }}') "
@@ -220,8 +220,11 @@ def _metadata_query(parameters_dict: dict) -> str:
     return sql_template.render(metadata_parameters)
 
 def _time_weighted_average_query(parameters_dict: dict) -> str:
+    parameters_dict["start_datetime"] = datetime.strptime(parameters_dict['start_date'], TIMESTAMP_FORMAT).strftime('%Y-%m-%dT%H:%M:%S')
+    parameters_dict["end_datetime"] = datetime.strptime(parameters_dict['end_date'], TIMESTAMP_FORMAT).strftime('%Y-%m-%dT%H:%M:%S')
+
     time_weighted_average_query  = (
-        "WITH raw_events AS (SELECT DISTINCT * FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND TagName in ('{{ tag_names | join('\\', \\'') }}')  "
+        "WITH raw_events AS (SELECT DISTINCT EventDate, TagName, from_utc_timestamp(to_timestamp(date_format(EventTime, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as EventTime, Status, Value FROM `{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` WHERE EventDate BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND TagName in ('{{ tag_names | join('\\', \\'') }}')  "
         "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
         ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
         ",window_events AS (SELECT coalesce(a.TagName, b.TagName) AS TagName, coalesce(a.EventTime, b.EventTime) as EventTime, window(coalesce(a.EventTime, b.EventTime), '{{ time_interval_rate + ' ' + time_interval_unit }}').start WindowEventTime, b.Status, b.Value FROM date_array a "
@@ -234,7 +237,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",CASE WHEN Fill_Status = \"Good\" and Next_Status = \"Good\" THEN ((cast(Next_EventTime as double) - cast(EventTime as double)) / 60) WHEN Fill_Status = \"Good\" and Next_Status != \"Good\" THEN ((cast(Next_EventTime as integer) - cast(EventTime as double)) / 60) ELSE 0 END AS good_minutes "
         ",CASE WHEN Step == false THEN ((Fill_Value + Next_Value) * 0.5) * good_minutes ELSE (Fill_Value * good_minutes) END AS twa_value FROM fill_value) "
         ",project_result AS (SELECT TagName, WindowEventTime AS EventTime, sum(twa_value) / sum(good_minutes) AS Value from twa_calculations GROUP BY TagName, WindowEventTime) "
-        "SELECT * FROM project_result WHERE EventTime BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") ORDER BY TagName, EventTime "
+        "SELECT * FROM project_result WHERE EventTime BETWEEN to_timestamp(\"{{ start_datetime }}\") AND to_timestamp(\"{{ end_datetime }}\") ORDER BY TagName, EventTime "
     )
 
     time_weighted_average_parameters = {
@@ -245,6 +248,8 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "data_type": parameters_dict['data_type'].lower(),
         "start_date": parameters_dict['start_date'],
         "end_date": parameters_dict['end_date'],
+        "start_datetime": parameters_dict['start_datetime'],
+        "end_datetime": parameters_dict['end_datetime'],
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
         "time_interval_rate": parameters_dict['time_interval_rate'],
         "time_interval_unit": parameters_dict['time_interval_unit'],
