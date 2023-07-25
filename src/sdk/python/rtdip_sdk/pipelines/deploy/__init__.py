@@ -13,4 +13,5 @@
 # limitations under the License.
 
 from .databricks import *
-from .models.databricks import *
+from databricks.sdk.service.jobs import *
+from databricks.sdk.service.compute import *
