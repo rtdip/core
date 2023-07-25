@@ -21,10 +21,11 @@ parameters = {
     "tag_names": ["tag_1", "tag_2"], #list of tags
     "start_date": "2023-01-01", #start_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zz:zz"
     "end_date": "2023-01-31", #end_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zz:zz"
-    "window_size_mins": 15, #numeric input
-    "window_length": 20, #numeric input
+    "time_interval_rate": "15", #numeric input
+    "time_interval_unit": "minute", #options: ["second", "minute", "day", "hour"]
+    "window_length": 1, #numeric input in days
     "include_bad_data": True, #options: [True, False]
-    "step": True
+    "step": "true"
 }
 x = time_weighted_average.get(connection, parameters)
 print(x)
