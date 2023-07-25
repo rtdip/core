@@ -61,6 +61,24 @@ def test_time_weighted_average(mocker: MockerFixture):
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
 
+def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
+    MOCKED_PARAMETER_DICT["window_size_mins"] = 20
+    mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_execute = mocker.spy(MockedCursor, "execute")
+    mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
+    mocked_close = mocker.spy(MockedCursor, "close")
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value = MockedDBConnection())
+
+    mocked_connection = DatabricksSQLConnection(SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN)
+
+    actual = time_weighted_average_get(mocked_connection, MOCKED_PARAMETER_DICT)
+
+    mocked_cursor.assert_called_once()
+    mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
+    mocked_fetch_all.assert_called_once()
+    mocked_close.assert_called_once()
+    assert isinstance(actual, pd.DataFrame)
+
 def test_time_weighted_average_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
     mocker.spy(MockedCursor, "execute")
