@@ -41,7 +41,7 @@ class SparkKafkaEventhubSource(SourceInterface):
     - `kafka.security.protocol` will be set to `SASL_SSL`
     - `kafka.request.timeout.ms` will be set to `60000`
     - `kafka.session.timeout.ms` will be set to `60000`
-    
+
     Required and optional configurations can be found in the Attributes tables below. 
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
     
@@ -198,7 +198,7 @@ class SparkKafkaEventhubSource(SourceInterface):
             if "DATABRICKS_RUNTIME_VERSION" in os.environ:
                 kafka_package = "kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule"
             connection_string = self._connection_string_builder(self.connection_string_properties)
-            options["kafka.sasl.jaas.config"] = "{} required username=\"$ConnectionString\" password=\"{}\";".format(kafka_package, connection_string)
+            options["kafka.sasl.jaas.config"] = "{} required username=\"$ConnectionString\" password=\"{}\";".format(kafka_package, connection_string) # NOSONAR
 
         if "kafka.request.timeout.ms" not in options:
             options["kafka.request.timeout.ms"] = "60000"
