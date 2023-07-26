@@ -28,7 +28,7 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = 'databricks.sql.connect'
 DATABRICKS_SQL_CONNECT_CURSOR = 'databricks.sql.connect.cursor'
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY='SELECT from_utc_timestamp(EventTime, "+0000") as EventTime, TagName, Status, Value FROM mocked-buiness-unit.sensors.mocked-asset_mocked-data-security-level_events_mocked-data-type WHERE EventDate BETWEEN to_date(to_timestamp(\'2011-01-01T00:00:00+00:00\')) AND to_date(to_timestamp(\'2011-01-02T23:59:59+00:00\')) AND EventTime BETWEEN to_timestamp(\'2011-01-01T00:00:00+00:00\') AND to_timestamp(\'2011-01-02T23:59:59+00:00\') AND TagName in (\'MOCKED-TAGNAME\') ORDER BY EventTime'
+MOCKED_QUERY='SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(EventTime, \'yyyy-MM-dd HH:mm:ss.SSS\')), "+0000") as EventTime, TagName,  Status, Value FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_mocked-data-type` WHERE EventDate BETWEEN to_date(to_timestamp("2011-01-01T00:00:00+00:00")) AND to_date(to_timestamp("2011-01-02T23:59:59+00:00")) AND EventTime BETWEEN to_timestamp("2011-01-01T00:00:00+00:00") AND to_timestamp("2011-01-02T23:59:59+00:00") AND TagName in (\'MOCKED-TAGNAME\') ORDER BY TagName, EventTime '
 MOCKED_PARAMETER_DICT = {
         "business_unit": "mocked-buiness-unit",
         "region": "mocked-region",

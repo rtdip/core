@@ -18,65 +18,111 @@ sys.path.insert(0, '.')
 from pytest_mock import MockerFixture
 import pytest
 
-from src.sdk.python.rtdip_sdk.pipelines.deploy.databricks import DatabricksDBXDeploy
-from src.sdk.python.rtdip_sdk.pipelines.deploy.models.databricks import DatabricksCluster, DatabricksJobCluster, DatabricksJobForPipelineJob, DatabricksTaskForPipelineTask
+from src.sdk.python.rtdip_sdk.pipelines.deploy import DatabricksSDKDeploy, CreateJob, JobCluster, ClusterSpec, JobCompute, ComputeSpec, Task, NotebookTask, ComputeSpecKind, AutoScale, RuntimeEngine, DataSecurityMode
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary, MavenLibrary, PythonWheelLibrary
 
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import get_spark_pipeline_job
+class DummyModule():
+    def __init__(self):
+        return None
+    
+    def __name__(self):
+        return "test_module"
+
+class DummyJob():
+    def __init__(self):
+        return None
+
+    job_id = 1
+
+default_version = "0.0.0rc0"
+default_list_package = "databricks.sdk.service.jobs.JobsAPI.list"
 
 def test_pipeline_job_deploy(mocker: MockerFixture):
-    pipeline_job = get_spark_pipeline_job()
-
-    databricks_job_cluster = DatabricksJobCluster(
-        job_cluster_key="test_job_cluster", 
-        new_cluster=DatabricksCluster(
-            spark_version = "11.3.x-scala2.12",
-            virtual_cluster_size = "VirtualSmall",
-            enable_serverless_compute = True
+    cluster_list = []
+    cluster_list.append(JobCluster(
+        job_cluster_key="test_cluster",
+        new_cluster=ClusterSpec(
+            node_type_id="Standard_E4ds_v5",
+            autoscale=AutoScale(min_workers=1, max_workers=3),
+            spark_version="13.2.x-scala2.12",
+            data_security_mode=DataSecurityMode.SINGLE_USER,
+            runtime_engine=RuntimeEngine.PHOTON
         )
+    ))
+
+    task_list = []
+    task_list.append(Task(
+        task_key="test_task",
+        job_cluster_key="test_cluster",
+        notebook_task=NotebookTask(
+            notebook_path="/directory/to/pipeline.py"
+        )
+    ))
+
+    job = CreateJob(
+        name="test_job_rtdip",
+        job_clusters=cluster_list,
+        tasks=task_list
     )
+    
+    databricks_job = DatabricksSDKDeploy(databricks_job=job, host="https://test.databricks.net", token="test_token")
 
-    databricks_task = DatabricksTaskForPipelineTask(name="test_task", job_cluster_key="test_job_cluster")
-
-    databricks_job = DatabricksJobForPipelineJob(
-        job_clusters=[databricks_job_cluster],
-        databricks_task_for_pipeline_task_list=[databricks_task]
-    )
-
-    databricks_job = DatabricksDBXDeploy(pipeline_job=pipeline_job, databricks_job_for_pipeline_job=databricks_job, host="https://test.databricks.net", token="test_token")
-
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.dbx_deploy", return_value=None)
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._load_module", return_value=DummyModule())
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._convert_file_to_binary", return_value=None)
+    mocker.patch("databricks.sdk.mixins.workspace.WorkspaceExt.upload", return_value=None)
+    libraries = Libraries(pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version=default_version)], maven_libraries=[MavenLibrary(group_id="rtdip", artifact_id="rtdip-sdk", version=default_version)], python_wheel_libraries=[PythonWheelLibrary(path="test_wheel.whl")])
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.utilities.pipeline_components.PipelineComponentsGetUtility.execute", return_value=(libraries, {"config": "test_config"}))
+    mocker.patch(default_list_package, return_value=[])
+    mocker.patch("databricks.sdk.service.jobs.JobsAPI.create", return_value=None)
     deploy_result = databricks_job.deploy()
     assert deploy_result
 
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.dbx_launch", return_value=None)
+    mocker.patch(default_list_package, return_value=[DummyJob()])
+    mocker.patch("databricks.sdk.service.jobs.JobsAPI.run_now", return_value=None)
     launch_result = databricks_job.launch()
     assert launch_result
     
 def test_pipeline_job_deploy_fails(mocker: MockerFixture):
-    pipeline_job = get_spark_pipeline_job()
-
-    databricks_job_cluster = DatabricksJobCluster(
-        job_cluster_key="test_job_cluster", 
-        new_cluster=DatabricksCluster(
-            spark_version = "11.3.x-scala2.12",
-            virtual_cluster_size = "VirtualSmall",
-            enable_serverless_compute = True
+    cluster_list = []
+    cluster_list.append(JobCluster(
+        job_cluster_key="test_cluster",
+        new_cluster=ClusterSpec(
+            node_type_id="Standard_E4ds_v5",
+            autoscale=AutoScale(min_workers=1, max_workers=3),
+            spark_version="13.2.x-scala2.12",
+            data_security_mode=DataSecurityMode.SINGLE_USER,
+            runtime_engine=RuntimeEngine.PHOTON
         )
+    ))
+
+    task_list = []
+    task_list.append(Task(
+        task_key="test_task",
+        new_cluster=cluster_list[0].new_cluster,
+        notebook_task=NotebookTask(
+            notebook_path="/directory/to/pipeline.py"
+        )
+    ))
+
+    job = CreateJob(
+        name="test_job_rtdip",
+        job_clusters=cluster_list,
+        tasks=task_list
     )
+    
+    databricks_job = DatabricksSDKDeploy(databricks_job=job, host="https://test.databricks.net", token="test_token")
 
-    databricks_task = DatabricksTaskForPipelineTask(name="test_task", job_cluster_key="test_job_cluster")
-
-    databricks_job = DatabricksJobForPipelineJob(
-        job_clusters=[databricks_job_cluster],
-        databricks_task_for_pipeline_task_list=[databricks_task]
-    )
-
-    databricks_job = DatabricksDBXDeploy(pipeline_job=pipeline_job, databricks_job_for_pipeline_job=databricks_job, host="https://test.databricks.net", token="test_token")
-
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.dbx_deploy", side_effect=Exception)
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._load_module", return_value=DummyModule())
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._convert_file_to_binary", return_value=None)
+    mocker.patch("databricks.sdk.mixins.workspace.WorkspaceExt.upload", return_value=None)
+    libraries = Libraries(pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version=default_version)], maven_libraries=[MavenLibrary(group_id="rtdip", artifact_id="rtdip-sdk", version=default_version)], python_wheel_libraries=[PythonWheelLibrary(path="test_wheel.whl")])
+    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.utilities.pipeline_components.PipelineComponentsGetUtility.execute", return_value=(libraries, {"config": "test_config"}))
+    mocker.patch(default_list_package, return_value=[])
+    mocker.patch("databricks.sdk.service.jobs.JobsAPI.create", side_effect=Exception)
     with pytest.raises(Exception):
         databricks_job.deploy()
 
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.dbx_launch", side_effect=Exception)
+    mocker.patch(default_list_package, return_value=[DummyJob()])
+    mocker.patch("databricks.sdk.service.jobs.JobsAPI.run_now", side_effect=Exception)
     with pytest.raises(Exception):
         databricks_job.launch()
