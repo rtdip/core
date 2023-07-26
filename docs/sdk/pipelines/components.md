@@ -35,6 +35,7 @@ Sources are components that connect to source systems and extract data from them
 |[Delta Sharing](../code-reference/pipelines/sources/spark/delta_sharing.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Autoloader](../code-reference/pipelines/sources/spark/autoloader.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Eventhub](../code-reference/pipelines/sources/spark/eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Eventhub Kafka](../code-reference/pipelines/sources/spark/kafka_eventhub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[IoT Hub](../code-reference/pipelines/sources/spark/iot_hub.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Kafka](../code-reference/pipelines/sources/spark/kafka.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Kinesis](../code-reference/pipelines/sources/spark/kafka.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|

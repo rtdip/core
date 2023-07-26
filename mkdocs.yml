@@ -143,6 +143,7 @@ nav:
               - Sources:
                   - Spark:
                       - Eventhub: sdk/code-reference/pipelines/sources/spark/eventhub.md
+                      - Eventhub Kafka: sdk/code-reference/pipelines/sources/spark/kafka_eventhub.md
                       - Delta: sdk/code-reference/pipelines/sources/spark/delta.md
                       - Delta Sharing: sdk/code-reference/pipelines/sources/spark/delta_sharing.md
                       - Autoloader: sdk/code-reference/pipelines/sources/spark/autoloader.md

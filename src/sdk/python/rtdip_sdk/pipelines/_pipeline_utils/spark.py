@@ -140,6 +140,14 @@ KAFKA_SCHEMA = StructType(
             StructField('timestampType', IntegerType(), True)]
        )
 
+KAFKA_EVENTHUB_SCHEMA = StructType(
+           [StructField('body', BinaryType(), True),
+            StructField('partition', StringType(), True),
+            StructField('sequenceNumber', LongType(), True),
+            StructField('enqueuedTime', TimestampType(), True),
+            StructField('properties', MapType(StringType(), StringType(), True), True)]
+       )
+
 KINESIS_SCHEMA = StructType(
            [StructField('partitionKey', StringType(), True),
             StructField('data', BinaryType(), True),
