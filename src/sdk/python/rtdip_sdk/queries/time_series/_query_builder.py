@@ -204,7 +204,7 @@ def _metadata_query(parameters_dict: dict) -> str:
         "SELECT * FROM "
         "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_metadata` "
         "{% if tag_names is defined and tag_names|length > 0 %} "
-        "WHERE TagName in ({{ tag_names | join('\\', \\'') }}) "
+        "WHERE TagName in ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
     )
 
