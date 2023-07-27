@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import pandas as pd
 from pyspark.sql import SparkSession
 
-from ...._pipeline_utils.weather import WEATHER_FORECAST_MULTI_SCHEMA
+from ...._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
 from .weather_forecast_api_v1 import WeatherForecastAPIV1Source
 
 
@@ -48,7 +47,7 @@ class WeatherForecastAPIV1MultiSource(WeatherForecastAPIV1Source):
 
     spark: SparkSession
     options: dict
-    spark_schema = WEATHER_FORECAST_MULTI_SCHEMA
+    spark_schema = WEATHER_FORECAST_SCHEMA
     required_options = ["stations", "api_key"]
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
@@ -69,7 +68,6 @@ class WeatherForecastAPIV1MultiSource(WeatherForecastAPIV1Source):
         """
 
         result_df = None
-
         for station in self.stations:
             parts = station.split(",")
             lat, lon = parts
@@ -78,7 +76,10 @@ class WeatherForecastAPIV1MultiSource(WeatherForecastAPIV1Source):
             df["latitude"] = lat
             df["longitude"] = lon
 
-            result_df = pd.concat([result_df, df]) if result_df is not None else df
+            if result_df is not None:
+                result_df = pd.concat([result_df, df])
+            else:
+                result_df = df
 
         return result_df
 
