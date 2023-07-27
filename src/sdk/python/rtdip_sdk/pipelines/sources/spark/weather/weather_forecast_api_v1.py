@@ -70,7 +70,52 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
 
         """
 
-        df.columns = list(map(lambda x: x.upper(), df.columns))
+        rename_cols = {
+            "latitude": "Latitude",
+            "longitude": "Longitude",
+            "class": "Class",
+            "expire_time_gmt": "ExpireTimeGmt",
+            "fcst_valid": "FcstValid",
+            "fcst_valid_local": "FcstValidLocal",
+            "num": "Num",
+            "day_ind": "DayInd",
+            "temp": "Temp",
+            "dewpt": "Dewpt",
+            "hi": "Hi",
+            "wc": "Wc",
+            "feels_like": "FeelsLike",
+            "icon_extd": "IconExtd",
+            "wxman": "Wxman",
+            "icon_code": "IconCode",
+            "dow": "Dow",
+            "phrase_12char": "Phrase12Char",
+            "phrase_22char": "Phrase22Char",
+            "phrase_32char": "Phrase32Char",
+            "subphrase_pt1": "SubphrasePt1",
+            "subphrase_pt2": "SubphrasePt2",
+            "subphrase_pt3": "SubphrasePt3",
+            "pop": "Pop",
+            "precip_type": "PrecipType",
+            "qpf": "Qpf",
+            "snow_qpf": "SnowQpf",
+            "rh": "Rh",
+            "wspd": "Wspd",
+            "wdir": "Wdir",
+            "wdir_cardinal": "WdirCardinal",
+            "gust": "Gust",
+            "clds": "Clds",
+            "vis": "Vis",
+            "mslp": "Mslp",
+            "uv_index_raw": "UvIndexRaw",
+            "uv_index": "UvIndex",
+            "uv_warning": "UvWarning",
+            "uv_desc": "UvDesc",
+            "golf_index": "GolfIndex",
+            "golf_category": "GolfCategory",
+            "severity": "Severity",
+        }
+
+        df = df.rename(columns=rename_cols)
 
         fields = self.spark_schema.fields
 
@@ -82,6 +127,8 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
         df[double_cols] = df[double_cols].astype(float)
         df[int_cols] = df[int_cols].astype(int)
 
+        df.reset_index(inplace=True, drop=True)
+
         return df
 
     def _get_api_params(self):
@@ -92,7 +139,6 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
         }
         return params
 
-    print()
     def _pull_for_weather_station(self, lat: str, lon: str) -> pd.DataFrame:
         response = json.loads(self._fetch_from_url(f"{lat}/{lon}/forecast/hourly/360hour.json").decode("utf-8"))
         return pd.DataFrame(response["forecasts"])
@@ -105,4 +151,8 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
             Raw form of data.
         """
 
-        return self._pull_for_weather_station(self.lat, self.lon)
+        df = self._pull_for_weather_station(self.lat, self.lon)
+        df["latitude"] = self.lat
+        df["longitude"] = self.lon
+
+        return df

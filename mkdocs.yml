@@ -176,6 +176,9 @@ nav:
                       - ISO:
                           - MISO To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md
                           - PJM To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/pjm_to_mdm.md
+                      - Weather:
+                          - Raw Forecast To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md
+
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
