@@ -60,6 +60,7 @@ dependencies:
     - pygithub==1.59.0
     - strawberry-graphql[fastapi,pydantic]==0.194.4
     - web3==6.5.0
+    - twine==4.0.2
     - pip:
         - dependency-injector==4.41.0
         - azure-functions==1.15.0
@@ -68,6 +69,7 @@ dependencies:
         - langchain==0.0.247
         - deltalake==0.10.0
         - moto[s3]==4.1.13
+        - build==0.10.0
         - polars==0.18.8
         - kafka-python==2.0.2
         - delta-sharing==0.7.3
