@@ -39,7 +39,7 @@ def metadata_retrieval_get(query_parameters, metadata_query_parameters):
 get_description = """
 ## Metadata 
 
-Retrieval of metadata, including UoM, Description and any other possible fields, if available. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/metadata/) for further information.
+Retrieval of metadata, including UoM, Description and any other possible fields, if available.
 """
 
 @api_v1_router.get(
@@ -48,7 +48,8 @@ Retrieval of metadata, including UoM, Description and any other possible fields,
     description=get_description,
     tags=["Metadata"], 
     dependencies=[Depends(oauth2_scheme)],
-    responses={200: {"model": MetadataResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": MetadataResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Metadata Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/metadata/"}}
 )
 async def metadata_get(query_parameters: BaseQueryParams = Depends(), metadata_query_parameters: MetadataQueryParams = Depends()):
     return metadata_retrieval_get(query_parameters, metadata_query_parameters)
@@ -56,7 +57,7 @@ async def metadata_get(query_parameters: BaseQueryParams = Depends(), metadata_q
 post_description = """
 ## Metadata 
 
-Retrieval of metadata, including UoM, Description and any other possible fields, if available via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/metadata/) for further information.
+Retrieval of metadata, including UoM, Description and any other possible fields, if available via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
 """
 
 @api_v1_router.post(
@@ -65,7 +66,8 @@ Retrieval of metadata, including UoM, Description and any other possible fields,
     description=post_description,
     tags=["Metadata"], 
     dependencies=[Depends(oauth2_scheme)],
-    responses={200: {"model": MetadataResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": MetadataResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Metadata Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/metadata/"}}
 )
 async def metadata_post(query_parameters: BaseQueryParams = Depends(), metadata_query_parameters: TagsBodyParams = Body(default=...)):
     return metadata_retrieval_get(query_parameters, metadata_query_parameters)
