@@ -29,7 +29,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
-  "databricks-sql-connector==2.7.0",
+  "databricks-sql-connector==2.8.0",
   "azure-identity==1.12.0",
   "pyodbc==4.0.39",
   "pandas==1.5.2",
@@ -40,7 +40,7 @@ INSTALL_REQUIRES = [
   "grpcio>=1.48.1",
   "grpcio-status>=1.48.1",
   "googleapis-common-protos>=1.56.4",
-  "langchain==0.0.230",
+  "langchain==0.0.247",
   "openai==0.27.8"
 ]
 

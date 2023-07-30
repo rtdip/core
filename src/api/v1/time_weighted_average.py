@@ -1,3 +1,17 @@
+# Copyright 2022 RTDIP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 import numpy as np
 from src.api.FastAPIApp import api_v1_router
@@ -29,7 +43,7 @@ def time_weighted_average_events_get(base_query_parameters, raw_query_parameters
 get_description = """
 ## Time Weighted Average 
 
-Time weighted average of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/time-weighted-average/) for further information.
+Time weighted average of raw timeseries data.
 """
 
 @api_v1_router.get(
@@ -37,7 +51,8 @@ Time weighted average of raw timeseries data. Refer to the following [documentat
     name="Time Weighted Average GET",
     description=get_description, 
     tags=["Events"], 
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Time Weighted Averages Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/time-weighted-average/"}}
 )
 async def time_weighted_average_get(
         base_query_parameters: BaseQueryParams = Depends(), 
@@ -50,7 +65,7 @@ async def time_weighted_average_get(
 post_description = """
 ## Time Weighted Average 
 
-Time weighted average of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/query/time-weighted-average/) for further information.
+Time weighted average of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
 """
 
 @api_v1_router.post(
@@ -58,7 +73,8 @@ Time weighted average of raw timeseries data via a POST method to enable providi
     name="Time Weighted Average POST",
     description=get_description, 
     tags=["Events"], 
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Time Weighted Averages Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/time-weighted-average/"}}
 )
 async def time_weighted_average_post(
         base_query_parameters: BaseQueryParams = Depends(), 

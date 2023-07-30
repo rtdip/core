@@ -35,6 +35,13 @@ Ensure that you setup the **local.settings.json** file with the relevant paramet
 |DATABRICKS_SQL_SERVER_HOSTNAME|adb-xxxxx.x.azuredatabricks.net|
 |DATABRICKS_SQL_HTTP_PATH|/sql/1.0/warehouses/xxx|
 
+Please also ensure to install all the turbodbc requirements for your machine by reviewing the [installation instructions](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) of turbodbc. On a macbook, this includes executing the following commands:
+
+```bash
+brew install llvm
+brew install boost
+```
+
 ### Swagger and Redoc
 
 Fast API provides endpoints for Swagger and Redoc pages. Ensure that you review these pages after any updates to confirm they are working as expected.
