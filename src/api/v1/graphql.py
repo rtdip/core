@@ -40,8 +40,8 @@ class Query:
       data_type: str = Query(..., description="Data Type", examples={"float": {"value": "float"}, "integer": {"value": "integer"}, "string": {"value": "string"}}), 
       tag_name: List[str] = Query(..., description="Tag Name"),
       include_bad_data: bool = Query(True, description="Include or remove Bad data points"),             
-      start_date: date = Query(..., description="Start Date", example="2022-01-01"),
-      end_date: date = Query(..., description="End Date", example="2022-01-02"),
+      start_date: date = Query(..., description="Start Date", examples="2022-01-01"),
+      end_date: date = Query(..., description="End Date", examples="2022-01-02"),
       authorization: str = Header(None, include_in_schema=False),
       # authorization: str = Depends(oauth2_scheme)
       ) -> RawResponseQL:

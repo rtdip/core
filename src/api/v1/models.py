@@ -113,10 +113,10 @@ class MetadataQueryParams:
 class RawQueryParams:
     def __init__(
         self,
-        data_type: str = Query(..., description="Data Type can be one of the following options:[float, double, integer, string]"), 
+        data_type: str = Query(..., description="Data Type can be one of the following options: float, double, integer, string", examples=["float", "double", "integer", "string"]), 
         include_bad_data: bool = Query(..., description="Include or remove Bad data points"),
-        start_date: Union[date, datetime] = Query(..., description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+00:00": {"value": "2022-01-01T15:00:00+00:00"}}),
-        end_date: Union[date, datetime] = Query(..., description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples={"2022-01-02": {"value": "2022-01-02"}, "2022-01-01T16:00:00": {"value": "2022-01-01T16:00:00"}, "2022-01-01T15:00:00+00:00": {"value": "2022-01-01T15:00:00+00:00"}}),
+        start_date: Union[date, datetime] = Query(..., description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples=["2022-01-01", "2022-01-01T15:00:00", "2022-01-01T15:00:00+00:00"]),
+        end_date: Union[date, datetime] = Query(..., description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples=["2022-01-02", "2022-01-01T16:00:00", "2022-01-01T15:00:00+00:00"]),
     ):
         self.data_type = data_type
         self.include_bad_data = include_bad_data
@@ -136,11 +136,11 @@ class TagsBodyParams(BaseModel):
 class ResampleQueryParams:
     def __init__(
         self,
-        sample_rate: str = Query(..., description="sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.", example=5, deprecated=True),
-        sample_unit: str = Query(..., description="sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}, deprecated=True),
-        time_interval_rate: str = Query(..., description="Time Interval Rate as a numeric input", example=5),
-        time_interval_unit: str = Query(..., description="Time Interval Unit can be one of the options: [second, minute, day, hour]", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
-        agg_method: str = Query(..., description="Aggregation Method can be one of the following [first, last, avg, min, max]", examples={"first": {"value": "first"}, "last": {"value": "last"}, "avg": {"value": "avg"}, "min": {"value": "min"}, "max": {"value": "max"}}),   
+        sample_rate: str = Query(..., description="sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.", examples=[5], deprecated=True),
+        sample_unit: str = Query(..., description="sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.", examples=["second", "minute", "hour", "day"], deprecated=True),
+        time_interval_rate: str = Query(..., description="Time Interval Rate as a numeric input", examples=[5]),
+        time_interval_unit: str = Query(..., description="Time Interval Unit can be one of the options: [second, minute, day, hour]", examples=["second", "minute", "hour", "day"]),
+        agg_method: str = Query(..., description="Aggregation Method can be one of the following [first, last, avg, min, max]", examples=["first", "last", "avg", "min", "max"]),   
     ):
         self.sample_rate = sample_rate
         self.sample_unit = sample_unit
@@ -151,7 +151,7 @@ class ResampleQueryParams:
 class InterpolateQueryParams:
     def __init__(
         self,
-        interpolation_method: str = Query(..., description="Interpolation Method can be forward_fill or backward_fill", examples={"forward_fill": {"value": "forward_fill"}, "backward_fill": {"value": "backward_fill"}}),
+        interpolation_method: str = Query(..., description="Interpolation Method can be forward_fill or backward_fill", examples=["forward_fill", "backward_fill"]),
     ):
         self.interpolation_method = interpolation_method
 
@@ -159,8 +159,8 @@ class InterpolationAtTimeQueryParams:
     def __init__(
         self,
         data_type: str = Query(..., description="Data Type can be one of the following options:[float, double, integer, string]"),
-        timestamps: List[Union[date, datetime]] = Query(..., description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples={"2022-01-01": {"value": "2022-01-01"}, "2022-01-01T15:00:00": {"value": "2022-01-01T15:00:00"}, "2022-01-01T15:00:00+00:00": {"value": "2022-01-01T15:00:00+00:00"}}),
-        window_length: int = Query(..., description="Window Length in days", example=1),
+        timestamps: List[Union[date, datetime]] = Query(..., description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz", examples=["2022-01-01", "2022-01-01T15:00:00", "2022-01-01T15:00:00+00:00"]),
+        window_length: int = Query(..., description="Window Length in days", examples=[1]),
         include_bad_data: bool = Query(..., description="Include or remove Bad data points"),
     ):
         self.data_type = data_type
@@ -171,11 +171,11 @@ class InterpolationAtTimeQueryParams:
 class TimeWeightedAverageQueryParams:
     def __init__(
         self,
-        window_size_mins: int = Query(..., description="window_size_mins is deprecated and will be removed in v1.0.0. Please use time_interval_rate and time_interval_unit instead.", example=20, deprecated=True),
-        time_interval_rate: str = Query(..., description="Time Interval Rate as a numeric input", example=5),
-        time_interval_unit: str = Query(..., description="Time Interval Unit can be one of the options: [second, minute, day, hour]", examples={"second": {"value": "second"}, "minute": {"value": "minute"}, "hour": {"value": "hour"}, "day": {"value": "day"}}),
-        window_length: int = Query(..., description="Window Length in days", example=1),
-        step: str = Query(..., description="Step can be true or false", examples={"true": {"value": "true"}, "false": {"value": "false"}}) 
+        window_size_mins: int = Query(..., description="window_size_mins is deprecated and will be removed in v1.0.0. Please use time_interval_rate and time_interval_unit instead.", examples=[20], deprecated=True),
+        time_interval_rate: str = Query(..., description="Time Interval Rate as a numeric input", examples=[5]),
+        time_interval_unit: str = Query(..., description="Time Interval Unit can be one of the options: [second, minute, day, hour]", examples=["second", "minute", "hour", "day"]),
+        window_length: int = Query(..., description="Window Length in days", examples=[1]),
+        step: str = Query(..., description="Step can be true or false", examples=["true", "false"]) 
     ):
         self.window_size_mins = window_size_mins
         self.time_interval_rate = time_interval_rate
