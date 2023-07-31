@@ -279,17 +279,20 @@ def _decode_to_string(decoder_value, value):
 
 @udf(returnType=MapType(StringType(), StringType()))
 def decode_kafka_headers_to_amqp_properties(headers: dict) -> dict:
-    properties = {}
-    for key, value in headers.items():
-        try:
-            if key in SYSTEM_PROPERTIES:
-                properties[key] = _decode_to_string(SYSTEM_PROPERTIES[key], value)
-            else:
-                decoder_value = value[0:1]
-                buffer_val = memoryview(value)
-                buffer_val, decoded_value = _DECODE_BY_CONSTRUCTOR[buffer_val[0]](buffer_val[1:])
-                properties[key] = _decode_to_string(decoder_value, decoded_value)
-        except Exception as e:
-            print(f"Error decoding header {key}: {e}")
-            properties[key] = _decode_to_string(None, value)
-    return properties
+    if headers is None or len(headers) == 0 or type(headers) is not dict:
+        return {}
+    else:
+        properties = {}
+        for key, value in headers.items():
+            try:
+                if key in SYSTEM_PROPERTIES:
+                    properties[key] = _decode_to_string(SYSTEM_PROPERTIES[key], value)
+                else:
+                    decoder_value = value[0:1]
+                    buffer_val = memoryview(value)
+                    buffer_val, decoded_value = _DECODE_BY_CONSTRUCTOR[buffer_val[0]](buffer_val[1:])
+                    properties[key] = _decode_to_string(decoder_value, decoded_value)
+            except Exception as e:
+                print(f"Error decoding header {key}: {e}")
+                properties[key] = _decode_to_string(None, value)
+        return properties
