@@ -45,7 +45,6 @@ class PythonDeltaDestination(DestinationInterface):
     overwrite_schema: bool
 
     def __init__(self, data: LazyFrame, path: str, options: dict = None, mode: Literal['error', 'append', 'overwrite', 'ignore'] = 'error', overwrite_schema: bool = False, query_name = None) -> None:
-    def __init__(self, data: LazyFrame, path: str, options: dict = None, mode: Literal['error', 'append', 'overwrite', 'ignore'] = 'error', overwrite_schema: bool = False, query_name = None) -> None:
         self.data = data
         self.path = path
         self.options = options
@@ -78,15 +77,11 @@ class PythonDeltaDestination(DestinationInterface):
     def write_batch(self):
         '''
         Writes batch data to Delta without using Spark.
-        '''   
-        if self.options is None:
-            df = self.data.collect()
+        '''  
+        if isinstance(self.data, pl.LazyFrame):
+            df = self.data.collect() 
             df.write_delta(self.path, mode=self.mode, overwrite_schema= self.overwrite_schema, storage_options=self.options, delta_write_options={"overwrite_schema": self.overwrite_schema})
-            return write_deltalake(self.path, self.data, mode=self.mode, overwrite_schema=self.overwrite_schema)
-        elif self.options != None:
-            delta_table = DeltaTable(table_uri=self.path, storage_options=self.options)
-            return write_deltalake(delta_table, self.data, mode=self.mode, overwrite_schema=self.overwrite_schema)
- 
+            
     def write_stream(self):
         '''
         Raises:
