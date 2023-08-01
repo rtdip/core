@@ -17,6 +17,9 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 import polars as pl
 from polars import LazyFrame
+from deltalake import DeltaTable
+import time
+
 class PythonDeltaSource(SourceInterface):
     '''
     The Python Delta Source is used to read data from a Delta table without using Apache Spark, returning a Polars LazyFrame
@@ -45,7 +48,7 @@ class PythonDeltaSource(SourceInterface):
     def system_type():
         '''
         Attributes:
-            SystemType (Environment): Requires PYSPARK
+            SystemType (Environment): Requires PYTHON
         '''            
         return SystemType.PYTHON
 
@@ -65,13 +68,17 @@ class PythonDeltaSource(SourceInterface):
         return True
     
     def read_batch(self):
+        '''
+        Reads data from a Delta table into a Polars LazyFrame
+        '''
         without_files_dict = {"without_files": self.without_files}
-        df = pl.scan_delta(source= self.path, version= self.version, storage_options= self.storage_options, delta_table_options= without_files_dict, pyarrow_options= self.pyarrow_options)
-        return df
+        lf = pl.scan_delta(source= self.path, version= self.version, storage_options= self.storage_options, delta_table_options= without_files_dict, pyarrow_options= self.pyarrow_options)
+        return lf
     
     def read_stream(self):
         '''
         Raises:
             NotImplementedError: Reading from a Delta table using Python is only possible for batch reads. To perform a streaming read, use the read_stream method of the SparkDeltaSource component.
         '''
-        raise NotImplementedError("Reading from a Delta table using Python is only possible for batch reads. To perform a streaming read, use the read_stream method of the SparkDeltaSource component.")
+        raise NotImplementedError("Reading from a Delta table using Python is only possible for batch reads. To perform a streaming read, use the read_stream method of the SparkDeltaSource component")
+        

@@ -160,6 +160,8 @@ nav:
                           - Base Weather: sdk/code-reference/pipelines/sources/spark/weather/base_weather.md
                           - Weather Forecast API V1: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1.md
                           - Weather Forecast API V1 Multi: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md
+                  - Python:
+                      - Delta: sdk/code-reference/pipelines/sources/python/delta.md
               - Transformers:
                   - Spark:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md

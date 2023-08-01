@@ -68,4 +68,7 @@ dependencies:
         - langchain==0.0.230
         - deltalake==0.10.0
         - moto[s3]==4.1.13
+        - polars==0.18.8
+        - kafka-python==2.0.2
+        - delta-sharing==0.7.3
         

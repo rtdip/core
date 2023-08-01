@@ -14,10 +14,13 @@
 
 import logging
 import time
+import pandas as pd
 from deltalake import write_deltalake, DeltaTable
 from typing import Literal
+import pyarrow as pa
+import polars as pl
 from polars import LazyFrame
-
+from typing import Callable
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
@@ -28,17 +31,20 @@ class PythonDeltaDestination(DestinationInterface):
 
     Args:
         data (LazyFrame): Polars LazyFrame to be written to Delta
+        data (LazyFrame): Polars LazyFrame to be written to Delta
         path (str): Path to Delta table to be written to; either local or [remote](https://delta-io.github.io/delta-rs/python/usage.html#loading-a-delta-table){ target="_blank" }. **Locally** if the Table does't exist one will be created, but to write to AWS or Azure, you must have an existing Delta Table
         options (Optional dict): Used if writing to a remote location. For AWS use format {"aws_access_key_id": "<>", "aws_secret_access_key":"<>"}. For Azure use format {"azure_storage_account_name": "storageaccountname", "azure_storage_access_key": "<>"}.
         mode (Literal['error', 'append', 'overwrite', 'ignore']): Defaults to error if table exists, 'ignore' won't write anything if table exists
         overwrite_schema (bool): If True will allow for the Table schema to be overwritten
     '''
     data: LazyFrame
+    data: LazyFrame
     path: str
     options: dict
     mode: Literal['error', 'append', 'overwrite', 'ignore']
     overwrite_schema: bool
 
+    def __init__(self, data: LazyFrame, path: str, options: dict = None, mode: Literal['error', 'append', 'overwrite', 'ignore'] = 'error', overwrite_schema: bool = False, query_name = None) -> None:
     def __init__(self, data: LazyFrame, path: str, options: dict = None, mode: Literal['error', 'append', 'overwrite', 'ignore'] = 'error', overwrite_schema: bool = False, query_name = None) -> None:
         self.data = data
         self.path = path
@@ -72,8 +78,10 @@ class PythonDeltaDestination(DestinationInterface):
     def write_batch(self):
         '''
         Writes batch data to Delta without using Spark.
-        '''
+        '''   
         if self.options is None:
+            df = self.data.collect()
+            df.write_delta(self.path, mode=self.mode, overwrite_schema= self.overwrite_schema, storage_options=self.options, delta_write_options={"overwrite_schema": self.overwrite_schema})
             return write_deltalake(self.path, self.data, mode=self.mode, overwrite_schema=self.overwrite_schema)
         elif self.options != None:
             delta_table = DeltaTable(table_uri=self.path, storage_options=self.options)
@@ -82,6 +90,6 @@ class PythonDeltaDestination(DestinationInterface):
     def write_stream(self):
         '''
         Raises:
-            NotImplementedError: Writing to a Delta table using Python is only possible for batch reads. To perform a streaming writes, use the write_stream method of the SparkDeltaDestination component.
+            NotImplementedError: Writing to a Delta table using Python is only possible for batch writes. To perform a streaming read, use the write_stream method of the SparkDeltaDestination component.
         '''
-        raise NotImplementedError("Writing to a Delta table using Python is only possible for batch reads. To perform a streaming read, use the write_stream method of the SparkDeltaDestination component.")
+        raise NotImplementedError("Writing to a Delta table using Python is only possible for batch writes. To perform a streaming read, use the write_stream method of the SparkDeltaDestination component")
