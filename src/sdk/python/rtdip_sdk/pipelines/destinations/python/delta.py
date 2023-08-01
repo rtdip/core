@@ -31,13 +31,11 @@ class PythonDeltaDestination(DestinationInterface):
 
     Args:
         data (LazyFrame): Polars LazyFrame to be written to Delta
-        data (LazyFrame): Polars LazyFrame to be written to Delta
         path (str): Path to Delta table to be written to; either local or [remote](https://delta-io.github.io/delta-rs/python/usage.html#loading-a-delta-table){ target="_blank" }. **Locally** if the Table does't exist one will be created, but to write to AWS or Azure, you must have an existing Delta Table
-        options (Optional dict): Used if writing to a remote location. For AWS use format {"aws_access_key_id": "<>", "aws_secret_access_key":"<>"}. For Azure use format {"azure_storage_account_name": "storageaccountname", "azure_storage_access_key": "<>"}.
+        options (Optional dict): Used if writing to a remote location. For AWS use format {"aws_access_key_id": "<>", "aws_secret_access_key": "<>"}. For Azure use format {"azure_storage_account_name": "storageaccountname", "azure_storage_access_key": "<>"}
         mode (Literal['error', 'append', 'overwrite', 'ignore']): Defaults to error if table exists, 'ignore' won't write anything if table exists
-        overwrite_schema (bool): If True will allow for the Table schema to be overwritten
+        overwrite_schema (bool): If True will allow for the table schema to be overwritten
     '''
-    data: LazyFrame
     data: LazyFrame
     path: str
     options: dict
