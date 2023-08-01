@@ -27,7 +27,7 @@ from ..._pipeline_utils.constants import get_default_package
 
 class PythonDeltaDestination(DestinationInterface):
     '''
-    The Python Delta Destination is used to write data to a Delta table from a Pandas Dataframe.
+    The Python Delta Destination is used to write data to a Delta table from a Polars LazyFrame.
 
     Args:
         data (LazyFrame): Polars LazyFrame to be written to Delta
@@ -79,6 +79,8 @@ class PythonDeltaDestination(DestinationInterface):
         if isinstance(self.data, pl.LazyFrame):
             df = self.data.collect() 
             df.write_delta(self.path, mode=self.mode, overwrite_schema= self.overwrite_schema, storage_options=self.options, delta_write_options={"overwrite_schema": self.overwrite_schema})
+        else:
+            raise ValueError("Data must be a Polars LazyFrame. See https://pola-rs.github.io/polars/py-polars/html/reference/lazyframe/index.html")
             
     def write_stream(self):
         '''

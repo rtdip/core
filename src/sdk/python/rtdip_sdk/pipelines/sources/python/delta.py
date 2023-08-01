@@ -35,7 +35,7 @@ class PythonDeltaSource(SourceInterface):
     pyarrow_options: dict
     without_files: bool
 
-    def __init__(self, path: str, version: int = None, storage_options: dict = None, pyarrow_options: dict = None, without_files: bool = False) -> LazyFrame:
+    def __init__(self, path: str, version: int = None, storage_options: dict = None, pyarrow_options: dict = None, without_files: bool = False):
         self.path = path
         self.version = version
         self.storage_options = storage_options
@@ -65,7 +65,7 @@ class PythonDeltaSource(SourceInterface):
     def post_read_validation(self):
         return True
     
-    def read_batch(self):
+    def read_batch(self) -> LazyFrame:
         '''
         Reads data from a Delta table into a Polars LazyFrame
         '''
