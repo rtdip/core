@@ -17,8 +17,6 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 import polars as pl
 from polars import LazyFrame
-from deltalake import DeltaTable
-import time
 
 class PythonDeltaSource(SourceInterface):
     '''
