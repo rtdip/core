@@ -21,6 +21,7 @@ from pytest_mock import MockerFixture
 import polars as pl
 
 OPTIONS = {"aws_access_key_id": "id", "aws_secret_access_key": "key"}
+polars_write_mocked = "polars.DataFrame.write_delta"
 
 def test_python_delta_write_setup():
     data = pl.LazyFrame({"col1": [1, 2], "col2": [3, 4]})
@@ -32,7 +33,7 @@ def test_python_delta_write_setup():
     assert delta_destination.post_write_validation()
 
 def test_python_delta_write_batch(mocker: MockerFixture):
-    mocked_write = mocker.patch("polars.DataFrame.write_delta", return_value = None) 
+    mocked_write = mocker.patch(polars_write_mocked, return_value = None) 
 
     data = pl.LazyFrame({"col1": [1, 2], "col2": [3, 4]})
 
@@ -43,7 +44,7 @@ def test_python_delta_write_batch(mocker: MockerFixture):
     assert actual is None
 
 def test_python_delta_write_batch_with_options(mocker: MockerFixture):
-    mocked_write = mocker.patch("polars.DataFrame.write_delta", return_value = None) 
+    mocked_write = mocker.patch(polars_write_mocked, return_value = None) 
 
     data = pl.LazyFrame({"col1": [1, 2], "col2": [3, 4]})
 
@@ -54,7 +55,7 @@ def test_python_delta_write_batch_with_options(mocker: MockerFixture):
     assert actual is None
 
 def test_python_delta_write_batch_fails(mocker: MockerFixture):
-    mocker.patch("polars.DataFrame.write_delta", side_effect = Exception) 
+    mocker.patch(polars_write_mocked, side_effect = Exception) 
 
     data = pl.LazyFrame({"col1": [1, 2], "col2": [3, 4]})
     delta_destination = PythonDeltaDestination(data=data, path="path", mode="overwrite")
@@ -63,7 +64,7 @@ def test_python_delta_write_batch_fails(mocker: MockerFixture):
         delta_destination.write_batch()
 
 def test_python_delta_write_batch_with_options_fails(mocker: MockerFixture):
-    mocker.patch("polars.DataFrame.write_delta", side_effect = Exception) 
+    mocker.patch(polars_write_mocked, side_effect = Exception) 
 
     data = pl.LazyFrame({"col1": [1, 2], "col2": [3, 4]})
     delta_destination = PythonDeltaDestination(data=data, path="path", options=OPTIONS, mode="overwrite")
