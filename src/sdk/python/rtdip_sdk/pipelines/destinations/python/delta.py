@@ -35,19 +35,22 @@ class PythonDeltaDestination(DestinationInterface):
         options (Optional dict): Used if writing to a remote location. For AWS use format {"aws_access_key_id": "<>", "aws_secret_access_key": "<>"}. For Azure use format {"azure_storage_account_name": "storageaccountname", "azure_storage_access_key": "<>"}
         mode (Literal['error', 'append', 'overwrite', 'ignore']): Defaults to error if table exists, 'ignore' won't write anything if table exists
         overwrite_schema (bool): If True will allow for the table schema to be overwritten
+        delta_write_options (dict): Options when writing to a Delta table. See [here](https://delta-io.github.io/delta-rs/python/api_reference.html#writing-deltatables){ target="_blank" } for all options
     '''
     data: LazyFrame
     path: str
     options: dict
     mode: Literal['error', 'append', 'overwrite', 'ignore']
     overwrite_schema: bool
+    delta_write_options: bool
 
-    def __init__(self, data: LazyFrame, path: str, options: dict = None, mode: Literal['error', 'append', 'overwrite', 'ignore'] = 'error', overwrite_schema: bool = False, query_name = None) -> None:
+    def __init__(self, data: LazyFrame, path: str, options: dict = None, mode: Literal['error', 'append', 'overwrite', 'ignore'] = 'error', overwrite_schema: bool = False, delta_write_options: bool = False, query_name = None) -> None:
         self.data = data
         self.path = path
         self.options = options
         self.mode = mode
         self.overwrite_schema = overwrite_schema
+        self.delta_write_options = delta_write_options
 
     @staticmethod
     def system_type():
@@ -77,8 +80,8 @@ class PythonDeltaDestination(DestinationInterface):
         Writes batch data to Delta without using Spark.
         '''  
         if isinstance(self.data, pl.LazyFrame):
-            df = self.data.collect() 
-            df.write_delta(self.path, mode=self.mode, overwrite_schema= self.overwrite_schema, storage_options=self.options, delta_write_options={"overwrite_schema": self.overwrite_schema})
+            df = self.data.collect()
+            df.write_delta(self.path, mode=self.mode, overwrite_schema= self.overwrite_schema, storage_options=self.options, delta_write_options=self.delta_write_options)
         else:
             raise ValueError("Data must be a Polars LazyFrame. See https://pola-rs.github.io/polars/py-polars/html/reference/lazyframe/index.html")
             
