@@ -19,6 +19,7 @@ from src.sdk.python.rtdip_sdk.pipelines.destinations.python.delta import PythonD
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pytest_mock import MockerFixture
 import polars as pl
+import pandas as pd
 
 OPTIONS = {"aws_access_key_id": "id", "aws_secret_access_key": "key"}
 polars_write_mocked = "polars.DataFrame.write_delta"
@@ -71,6 +72,14 @@ def test_python_delta_write_batch_with_options_fails(mocker: MockerFixture):
 
     with pytest.raises(Exception):
         delta_destination.write_batch()
+
+def test_python_delta_write_batch_type_fails():
+    with pytest.raises(ValueError) as excinfo:
+        data = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
+        delta_destination = PythonDeltaDestination(data=data, path="path", options=OPTIONS, mode="overwrite")
+        delta_destination.write_batch()
+        
+    assert str(excinfo.value) == 'Data must be a Polars LazyFrame. See https://pola-rs.github.io/polars/py-polars/html/reference/lazyframe/index.html' 
 
 def test_python_delta_write_stream():
     with pytest.raises(NotImplementedError) as excinfo:
