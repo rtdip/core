@@ -70,4 +70,6 @@ dependencies:
         - deltalake==0.10.0
         - moto[s3]==4.1.13
         - build==0.10.0
+        - polars==0.18.8
+        - delta-sharing==0.7.3
         
