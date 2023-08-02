@@ -162,6 +162,7 @@ nav:
                           - Weather Forecast API V1 Multi: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md
                   - Python:
                       - Delta: sdk/code-reference/pipelines/sources/python/delta.md
+                      - Delta Sharing: sdk/code-reference/pipelines/sources/python/delta_sharing.md
               - Transformers:
                   - Spark:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
