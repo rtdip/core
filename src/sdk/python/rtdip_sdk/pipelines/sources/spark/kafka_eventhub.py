@@ -16,13 +16,16 @@ import os
 import logging
 from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, map_from_entries
+from pyspark.sql.functions import col, map_from_entries, udf
+from pyspark.sql.types import MapType, StringType
 from urllib.parse import urlparse
 
 from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import KAFKA_EVENTHUB_SCHEMA
 from ..._pipeline_utils.constants import get_default_package
+from ..._pipeline_utils.amqp import decode_kafka_headers_to_amqp_properties
+
 
 class SparkKafkaEventhubSource(SourceInterface):
     '''
@@ -209,8 +212,7 @@ class SparkKafkaEventhubSource(SourceInterface):
         if "kafka.group.id" not in options:
             options["kafka.group.id"] = self.consumer_group
 
-        if "includeHeaders" not in options:
-            options["includeHeaders"] = "true"
+        options["includeHeaders"] = "true"
         
         return options
 
@@ -222,7 +224,7 @@ class SparkKafkaEventhubSource(SourceInterface):
                 col("partition").cast("string"),
                 col("offset").alias("sequenceNumber"),
                 col("timestamp").alias("enqueuedTime"),
-                col("headers").alias("properties").cast("map<string,string>")
+                decode_kafka_headers_to_amqp_properties(col("headers")).alias("properties")
             )
         )
     

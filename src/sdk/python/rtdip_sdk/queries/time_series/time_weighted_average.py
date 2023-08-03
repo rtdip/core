@@ -40,7 +40,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
         window_length (int): Add longer window time in days for the start or end of specified date to cater for edge cases.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        step (str): data points with step "enabled" or "disabled". The options for step are "metadata", "true" or "false". "metadata" will get the step requirements from the metadata table if applicable.
+        step (str): data points with step "enabled" or "disabled". The options for step are "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
     '''
