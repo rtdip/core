@@ -12,7 +12,7 @@ Ensure that you have followed the installation instructions as specified in the 
 !!! note "RTDIP SDK installation"
     Ensure you have installed the RTDIP SDK, as a minimum, as follows:
     ```
-    pip install rtdip-sdk[pipelines]
+    pip install "rtdip-sdk[pipelines]"
     ```
 
     For all installation options please see the RTDIP SDK installation [instructions.](../../getting-started/installation.md#installing-the-rtdip-sdk)
@@ -70,7 +70,7 @@ More Information about Pipeline Jobs can be found [here.](jobs.md)
 |![python](images/python.png){: .image-center}|![pyspark](images/apachespark.png){: .image-center}|![databricks](images/databricks_horizontal.png){: .image-center}|![delta](images/dlt.svg){: .image-center}
 
 !!! note "Note"
-    </b>RTDIP are continuously adding more to this list. For detailed information on timelines, read this [blog post](../../blog/rtdip_ingestion_pipelines.md) and check back on this page regularly<br />
+    </b>RTDIP are continuously adding more to this list. For detailed information on timelines, read this [blog post](../../blog/rtdip_ingestion_pipelines.md) and check back on this page regularly.<br />
 
 Pipelines can run in multiple environment types. These include:
 

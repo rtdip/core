@@ -13,20 +13,28 @@
 # limitations under the License.
 
 import os
-from src.sdk.python.rtdip_sdk.odbc.db_sql_connector import DatabricksSQLConnection
+import importlib.util
+from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
+if importlib.util.find_spec("turbodbc") != None:
+    from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
 from src.api.auth import azuread
 
-def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = None, raw_query_parameters = None, tag_query_parameters = None, resample_query_parameters = None, interpolate_query_parameters = None, time_weighted_average_query_parameters = None):
+def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = None, raw_query_parameters = None, tag_query_parameters = None, resample_query_parameters = None, interpolate_query_parameters = None, interpolation_at_time_query_parameters = None, time_weighted_average_query_parameters = None):
     token = azuread.get_azure_ad_token(base_query_parameters.authorization)
     
-    connection = DatabricksSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
+    odbc_connection = os.getenv("RTDIP_ODBC_CONNECTION", "")
+
+    if odbc_connection == "turbodbc":
+        connection = TURBODBCSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
+    else:
+        connection = DatabricksSQLConnection(os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"), os.environ.get("DATABRICKS_SQL_HTTP_PATH"), token)
 
     parameters = base_query_parameters.__dict__
     
     if metadata_query_parameters != None:
         parameters = dict(parameters, **metadata_query_parameters.__dict__)
         if "tag_name" in parameters:
-            if parameters["tag_name"] == None:
+            if parameters["tag_name"] is None:
                 parameters["tag_names"] = []
                 parameters.pop("tag_name")
             else:
@@ -34,8 +42,8 @@ def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = No
 
     if raw_query_parameters != None:
         parameters = dict(parameters, **raw_query_parameters.__dict__)        
-        parameters["start_date"] = str(raw_query_parameters.start_date)
-        parameters["end_date"] = str(raw_query_parameters.end_date)
+        parameters["start_date"] = raw_query_parameters.start_date
+        parameters["end_date"] = raw_query_parameters.end_date
     
     if tag_query_parameters != None:
         parameters = dict(parameters, **tag_query_parameters.__dict__)
@@ -46,6 +54,9 @@ def common_api_setup_tasks(base_query_parameters, metadata_query_parameters = No
 
     if interpolate_query_parameters != None:
         parameters = dict(parameters, **interpolate_query_parameters.__dict__)
+
+    if interpolation_at_time_query_parameters != None:
+        parameters = dict(parameters, **interpolation_at_time_query_parameters.__dict__)
     
     if time_weighted_average_query_parameters != None:
         parameters = dict(parameters, **time_weighted_average_query_parameters.__dict__)

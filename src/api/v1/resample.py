@@ -14,12 +14,13 @@
 
 
 import logging
+import numpy as np
 from requests import request
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
-import json
-from src.sdk.python.rtdip_sdk.functions import resample
+from pandas.io.json import build_table_schema
+from src.sdk.python.rtdip_sdk.queries import resample
 from src.api.v1.models import BaseQueryParams, ResampleInterpolateResponse, HTTPError, RawQueryParams, TagsQueryParams, TagsBodyParams,ResampleQueryParams
 import src.api.v1.common
 
@@ -30,8 +31,7 @@ def resample_events_get(base_query_parameters, raw_query_parameters, tag_query_p
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(base_query_parameters, raw_query_parameters=raw_query_parameters, tag_query_parameters=tag_query_parameters,resample_query_parameters=resample_parameters)
 
         data = resample.get(connection, parameters)
-        response = data.to_json(orient="table", index=False, date_unit="us")
-        return ResampleInterpolateResponse(**json.loads(response))
+        return ResampleInterpolateResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.replace({np.nan: None}).to_dict(orient="records"))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
@@ -39,7 +39,7 @@ def resample_events_get(base_query_parameters, raw_query_parameters, tag_query_p
 get_description = """
 ## Resample 
 
-Resampling of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/resample/) for further information.
+Resampling of raw timeseries data.
 """
 
 @api_v1_router.get(
@@ -47,7 +47,8 @@ Resampling of raw timeseries data. Refer to the following [documentation](https:
     name="Resample GET",
     description=get_description,
     tags=["Events"], 
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Resample Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/resample/"}}
 )
 async def resample_get(
         base_query_parameters: BaseQueryParams = Depends(), 
@@ -60,7 +61,7 @@ async def resample_get(
 post_description = """
 ## Resample 
 
-Resampling of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/resample/) for further information.
+Resampling of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
 """
 
 @api_v1_router.post(
@@ -68,7 +69,8 @@ Resampling of raw timeseries data via a POST method to enable providing a list o
     name="Resample POST",
     description=post_description,
     tags=["Events"], 
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Resample Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/resample/"}}
 )
 async def resample_post(
         base_query_parameters: BaseQueryParams = Depends(), 

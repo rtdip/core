@@ -137,6 +137,3 @@ spark-checkpoints/
 
 # Delta Sharing
 config.share
-
-# DBX package
-src/sdk/python/rtdip_sdk/pipelines/deploy/dbx/.dbx/project.json

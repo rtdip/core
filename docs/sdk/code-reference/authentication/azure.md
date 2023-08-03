@@ -1,2 +1,2 @@
 # Authentication
-::: src.sdk.python.rtdip_sdk.authentication.authenticate
+::: src.sdk.python.rtdip_sdk.authentication.azure

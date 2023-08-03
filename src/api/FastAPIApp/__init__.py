@@ -67,6 +67,7 @@ app=FastAPI(
     openapi_url="/api/openapi.json",
     docs_url=None,
     redoc_url=None,
+    license_info={"name": "Apache License 2.0", "identifier": "Apache-2.0"}
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)

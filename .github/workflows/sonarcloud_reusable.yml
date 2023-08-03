@@ -1,0 +1,119 @@
+# Copyright 2022 RTDIP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: 'Reusable Sonarcloud Scan'
+
+on:
+  workflow_call:
+    inputs:
+      REPO_NAME:
+        required: true
+        type: string
+      HEAD_BRANCH:
+        required: true
+        type: string
+      HEAD_SHA:
+        required: true
+        type: string                        
+      PR_NUMBER:
+        required: true
+        type: string      
+      PR_HEAD_REF:
+        required: true
+        type: string
+      PR_BASE_REF:
+        required: true
+        type: string                    
+    secrets:
+      SONAR_TOKEN:
+        required: true
+        
+jobs:
+  job_test_python_pyspark_latest_version:
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11"]
+        pyspark: ["3.4.1"]
+        delta-spark: ["2.4.0"]
+    runs-on: ${{ matrix.os }} 
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.REPO_NAME }}
+          ref: ${{ inputs.HEAD_BRANCH }}
+          fetch-depth: 0
+
+      - name: Setup Python 
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install Boost
+        run: |
+          sudo apt update
+          sudo apt install -y libboost-all-dev
+
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+
+      - name: Install Conda environment with Micromamba
+        uses: mamba-org/setup-micromamba@main
+        with:
+          environment-file: environment.yml
+          create-args: >-
+            python=${{ matrix.python-version }}
+            pyspark=${{ matrix.pyspark }}
+            delta-spark=${{ matrix.delta-spark }}          
+          cache-environment: true
+
+      - name: Test
+        run: |
+          coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
+
+      - name: Test Coverage
+        run: |
+          mkdir -p coverage-reports
+          coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
+          echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
+
+
+      - name: Mkdocs Test
+        run: |
+          mkdocs build --strict
+
+      - name: Override Coverage Source Path for Sonar   
+        run: |
+          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.organization=rtdip
+            -Dsonar.projectKey=rtdip_core
+            -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
+            -Dsoner.python.version=3.11
+            -Dsonar.scm.revision=${{ inputs.HEAD_SHA }}
+            -Dsonar.pullrequest.key=${{ inputs.PR_NUMBER }}
+            -Dsonar.pullrequest.branch=${{ inputs.PR_HEAD_REF }}
+            -Dsonar.pullrequest.base=${{ inputs.PR_BASE_REF }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

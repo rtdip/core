@@ -1,10 +1,16 @@
 # Real Time Data Ingestion Platform (RTDIP)
 
-| Branch | Workflow Status | Code Coverage | Vulnerabilities | Bugs |
-|--------|-----------------|---------------|----------|------|
-| main | [![Main](https://github.com/rtdip/core/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rtdip/core/actions/workflows/main.yml) | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=coverage&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=vulnerabilities&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=bugs&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) |
+<p align="center"><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></p>
+
+<div align="center">
+
+| Branch | Workflow Status | Code Coverage | Vulnerabilities | Bugs | OpenSSF |
+|--------|-----------------|---------------|----------|------|------|
+| main | [![Main](https://github.com/rtdip/core/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/rtdip/core/actions/workflows/main.yml) | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=coverage&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=vulnerabilities&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=bugs&branch=main)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7557/badge)](https://bestpractices.coreinfrastructure.org/projects/7557) |
 | develop | [![Develop](https://github.com/rtdip/core/actions/workflows/develop.yml/badge.svg)](https://github.com/rtdip/core/actions/workflows/develop.yml) | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=coverage&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=vulnerabilities&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) | [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=rtdip_core&metric=bugs&branch=develop)](https://sonarcloud.io/summary/new_code?id=rtdip_core) |
 | feature | [![.github/workflows/pr.yml](https://github.com/rtdip/core/actions/workflows/pr.yml/badge.svg)](https://github.com/rtdip/core/actions/workflows/pr.yml) |
+
+</div>
 
 This repository contains Real Time Data Ingestion Platform SDK functions and documentation. This README will be a developer guide to understand the repository.
 
@@ -19,60 +25,7 @@ This repository contains Real Time Data Ingestion Platform SDK functions and doc
 See [RTDIP Documentation](https://www.rtdip.io/) for more information on how to use the SDK.
 
 # Repository Guidelines
-The structure of this repository is shown below in the tree diagram.
 
-    ├── .devcontainer
-    ├── .github
-    │   ├── workflows
-    ├── docs
-    │   ├── api
-    │   ├── assets
-    │   ├── blog
-    │   ├── getting-started
-    │   ├── images
-    │   ├── integration
-    │   ├── releases
-    │   ├── roadmap
-    │   ├── sdk
-    │   ├── index.md
-    ├── src
-    │   ├── api
-    │   │   ├── assets
-    │   │   ├── auth
-    │   │   ├── FastAPIApp
-    │   │   ├── v1
-    │   ├── apps
-    │   │   ├── docs
-    │   ├── sdk
-    │   │   ├── python
-    │   │   │    ├── rtdip-sdk
-    │   │   │    │   ├── authentication
-    │   │   │    │   ├── functions
-    │   │   │    │   ├── odbc
-    ├── tests
-    │   ├── api
-    │   │   ├── auth
-    │   │   ├── v1
-    │   ├── apps
-    │   │   ├── docs
-    │   ├── sdk
-    │   │   ├── python
-    │   │   │    ├── rtdip-sdk
-    │   │   │    │   ├── authentication
-    │   │   │    │   ├── functions
-    │   │   │    │   ├── odbc
-    ├── CODE_OF_CONDUCT.md  
-    ├── CODEOWNERS.md 
-    ├── CONTRIBUTING.md
-    ├── GOVERNANCE.md
-    ├── LICENSE.md
-    ├── RELEASE.md
-    ├── SUPPORT.md
-    ├── PYPI-README.md
-    ├── environment.yml
-    ├── mkdocs.yml
-    ├── setup.py   
-    └── .gitignore
 
 ## Folder Structure
 

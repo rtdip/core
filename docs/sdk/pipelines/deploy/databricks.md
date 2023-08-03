@@ -1,16 +1,22 @@
 # Databricks Workflows
 
+Deploying to Databricks is simplified using the RTDIP SDK as this method of deployment will handle the setup of the libraries and spark configuration directly from the components being used in your pipeline.
+
+## Prerequisites 
+
+- This deployment method expects to deploy a local file to Databricks Workflows
+
 ## Import 
 
 ```python
-from rtdip_sdk.pipelines.deploy import DatabricksDBXDeploy, DatabricksCluster, DatabricksJobCluster, DatabricksJobForPipelineJob, DatabricksTaskForPipelineTask
+from rtdip_sdk.pipelines.deploy import DatabricksSDKDeploy, CreateJob, JobCluster, ClusterSpec, Task, NotebookTask, ComputeSpecKind, AutoScale, RuntimeEngine, DataSecurityMode
 ```
 
 ## Authentication
 
 === "Azure Active Directory"
 
-    Refer to the [Azure Active Directory](../../authentication/azure.md) documentation for further options to perform Azure AD authentication, such as Service Principal authentication using certificates or secrets. Below is an example of performing default authentication that retrieives a token for Azure Databricks. 
+    Refer to the [Azure Active Directory](../../authentication/azure.md) documentation for further options to perform Azure AD authentication, such as Service Principal authentication using certificates or secrets. Below is an example of performing default authentication that retrieves a token for Azure Databricks. 
 
     Also refer to the [Code Reference](../../code-reference/authentication/azure.md) for further technical information.
 
@@ -26,7 +32,7 @@ from rtdip_sdk.pipelines.deploy import DatabricksDBXDeploy, DatabricksCluster, D
 
 === "Databricks"
 
-    Refer to the [Databricks](../../authentication/databricks.md) documentation for further information about generating a Databricks PAT Token. Below is an example of performing default authentication that retrieives a token for a Databricks Workspace. 
+    Refer to the [Databricks](../../authentication/databricks.md) documentation for further information about generating a Databricks PAT Token. Below is an example of performing default authentication that retrieves a token for a Databricks Workspace. 
 
     Provide your `dbapi.....` token to the `access_token` in the examples below.
 
@@ -36,7 +42,7 @@ from rtdip_sdk.pipelines.deploy import DatabricksDBXDeploy, DatabricksCluster, D
 
 ## Deploy
 
-Deployments to Databricks are done using [DBX](https://dbx.readthedocs.io/en/latest/). DBX enables users to control exactly how they deploy their RTDIP Pipelines to Databricks.
+Deployments to Databricks are done using the Databricks [SDK](https://docs.databricks.com/dev-tools/sdk-python.html). The Databricks SDK enables users to control exactly how they deploy their RTDIP Pipelines to Databricks.
 
 Any of the Classes below can be imported from the following location:
 
@@ -48,40 +54,55 @@ Parameters for a Databricks Job can be managed using the following Classes:
 
 | Class | Description |
 |-------|-------------|
-|DatabricksCluster| Provides Parameters for setting up a Databricks Cluster|
-|DatabricksJobCluster| Sets up a Jobs Cluster as defined by the provided `DatabricksCluster`|
-|DatabricksTask| Defines the setup of the Task at the Databricks Task level including Task specific Clusters, Libraries, Schedules, Notifications and Timeouts |
-|DatabricksJob| Defines the setup at the Job level including Clusters, Libraries, Schedules, Notifications, Access Controls, Timeouts and Tags |
-|DatabricksTaskForPipelineTask| Provides Databricks Task information to be used for the equivalent named task defined in your RTDIP Pipeline task `PipelineTask`|
-|DatabricksJobForPipelineJob|Provides Databricks Job information to be used for the equivalent named Job defined in your RTDIP Pipeline Job `PipelineJob`|
+|ClusterSpec| Provides Parameters for setting up a Databricks Cluster|
+|JobCluster| Sets up a Jobs Cluster as defined by the provided `DatabricksCluster`|
+|Task| Defines the setup of the Task at the Databricks Task level including Task specific Clusters, Libraries, Schedules, Notifications and Timeouts |
+|CreateJob| Defines the setup at the Job level including Clusters, Libraries, Schedules, Notifications, Access Controls, Timeouts and Tags |
+|NotebookTask| Provides the Notebook information to the `Task`|
+|DatabricksSDKDeploy|Leverages the Databricks SDK to deploy the job to Databricks Workflows|
+
+!!! note "Note"
+    All classes for deployment are available from the Databricks SDK and can be accessed using `from rtdip_sdk.pipelines.deploy import ` and choosing the classes you need for your Databricks deployment
+
+## Example 
 
 A simple example of deploying an RTDIP Pipeline Job to an Azure Databricks Job is below.
 
 ```python
-
 databricks_host_name = "{databricks-host-url}" #Replace with your databricks workspace url
 
 # Setup a Cluster for the Databricks Job
-databricks_job_cluster = DatabricksJobCluster(
-    job_cluster_key="test_job_cluster", 
-    new_cluster=DatabricksCluster(
-        spark_version = "11.3.x-scala2.12",
-        node_type_id = "Standard_D3_v2",
-        num_workers = 2
+cluster_list = []
+cluster_list.append(JobCluster(
+    job_cluster_key="test_cluster",
+    new_cluster=ClusterSpec(
+        node_type_id="Standard_E4ds_v5",
+        autoscale=AutoScale(min_workers=1, max_workers=3),
+        spark_version="13.2.x-scala2.12",
+        data_security_mode=DataSecurityMode.SINGLE_USER,
+        runtime_engine=RuntimeEngine.PHOTON
     )
-)
+))
 
-# Define a Databricks Task for the Pipeline Task
-databricks_task = DatabricksTaskForPipelineTask(name="test_task", job_cluster_key="test_job_cluster")
+# Define a Notebook Task for the Databricks Job
+task_list = []
+task_list.append(Task(
+    task_key="test_task",
+    job_cluster_key="test_cluster",
+    notebook_task=NotebookTask(
+        notebook_path="/directory/to/pipeline.py"
+    )
+))
 
-# Create a Databricks Job for the Pipeline Job
-databricks_job = DatabricksJobForPipelineJob(
-    job_clusters=[databricks_job_cluster],
-    databricks_task_for_pipeline_task_list=[databricks_task]
+# Create a Databricks Job for the Task
+job = CreateJob(
+    name="test_job_rtdip",
+    job_clusters=cluster_list,
+    tasks=task_list
 )
 
 # Deploy to Databricks
-databricks_job = DatabricksDBXDeploy(pipeline_job=pipeline_job, databricks_job_for_pipeline_job=databricks_job, host=databricks_host_name, token=access_token)
+databricks_job = DatabricksSDKDeploy(databricks_job=job, host=databricks_host_name, token=access_token)
 
 deploy_result = databricks_job.deploy()
 ```

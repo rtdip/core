@@ -16,83 +16,40 @@ name: 'Reusable Test Workflow'
 
 on:
   workflow_call:
-    secrets:
-      SONAR_TOKEN:
-        required: true
 
 jobs:
-  job_test_python_latest_version:
-    defaults:
-      run:
-        shell: bash -l {0}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }} 
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 
-
-      - name: Setup Python 
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-      
-      - name: Install Boost
-        run: |
-          sudo apt update
-          sudo apt install -y libboost-all-dev
-
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
-
-      - name: Install Conda environment with Micromamba
-        uses: mamba-org/provision-with-micromamba@main
-        with:
-          environment-file: environment.yml
-          cache-env: true
-
-      - name: Test
-        run: |
-          python setup.py pytest
-          mkdir -p coverage-reports
-          coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
-          coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
-          echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
-        env:
-          RTDIP_SDK_NEXT_VER: "0.0.1"
-
-      - name: Mkdocs Test
-        run: |
-          mkdocs build --strict
-
-      - name: Override Coverage Source Path for Sonar   
-        run: |
-          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.organization=rtdip
-            -Dsonar.projectKey=rtdip_core
-            -Dsonar.python.coverage.reportPaths=coverage-reports/coverage-unittests.xml
-            -Dsoner.python.version=3.11
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  job_test_python_previous_version:
+  job_test_python_pyspark_versions:
       defaults:
         run:
           shell: bash -l {0}
       strategy:
+        fail-fast: false
         matrix:
           os: [ubuntu-latest]
-          python-version: ["3.8", "3.9", "3.10"]
+          python-version: ["3.8", "3.9", "3.10", "3.11"]
+          pyspark: ["3.3.0", "3.3.1", "3.3.2", "3.4.0"]
+          exclude:
+            - pyspark: "3.4.0"
+              python-version: "3.8"
+            - pyspark: "3.4.0"
+              python-version: "3.9"
+            - pyspark: "3.4.0"
+              python-version: "3.10" 
+            - pyspark: "3.3.2"
+              python-version: "3.11"
+            - pyspark: "3.3.1"
+              python-version: "3.11"  
+            - pyspark: "3.3.0"
+              python-version: "3.11"                 
+          include:
+            - pyspark: "3.3.0"
+              delta-spark: "2.2.0"
+            - pyspark: "3.3.1"
+              delta-spark: "2.3.0"
+            - pyspark: "3.3.2"
+              delta-spark: "2.3.0"
+            - pyspark: "3.4.0"
+              delta-spark: "2.4.0"              
       runs-on: ${{ matrix.os }}
       steps:
         - uses: actions/checkout@v3
@@ -115,17 +72,62 @@ jobs:
             echo $CONDA/bin >> $GITHUB_PATH
 
         - name: Install Conda environment with Micromamba
-          uses: mamba-org/provision-with-micromamba@main
+          uses: mamba-org/setup-micromamba@main
           with:
             environment-file: environment.yml
-            cache-env: true
+            create-args: >-
+              python=${{ matrix.python-version }}
+              pyspark=${{ matrix.pyspark }}
+              delta-spark=${{ matrix.delta-spark }}     
+            cache-environment: true
 
         - name: Test
           run: |
-            python setup.py pytest
-            mkdir -p coverage-reports-previous
-            coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests && tests_ok=true
-            coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports-previous/coverage-unittests.xml
-            echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
-          env:
-            RTDIP_SDK_NEXT_VER: "0.0.1"
+            coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
+
+  job_test_mkdocs:
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11"]
+        pyspark: ["3.4.1"]
+        delta-spark: ["2.4.0"]
+    runs-on: ${{ matrix.os }} 
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.REPO_NAME }}
+          ref: ${{ inputs.HEAD_BRANCH }}
+          fetch-depth: 0
+
+      - name: Setup Python 
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install Boost
+        run: |
+          sudo apt update
+          sudo apt install -y libboost-all-dev
+
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+
+      - name: Install Conda environment with Micromamba
+        uses: mamba-org/setup-micromamba@main
+        with:
+          environment-file: environment.yml
+          create-args: >-
+            python=${{ matrix.python-version }}
+            pyspark=${{ matrix.pyspark }}
+            delta-spark=${{ matrix.delta-spark }}          
+          cache-environment: true
+
+      - name: Mkdocs Test
+        run: |
+          mkdocs build --strict

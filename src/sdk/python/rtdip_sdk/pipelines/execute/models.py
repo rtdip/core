@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Type, Union, Dict
+from typing import List, Optional, Type, Union, Dict
 import re
 from pydantic import BaseConfig, BaseModel, validator
 from abc import ABCMeta
 from ..sources.interfaces import SourceInterface
 from ..transformers.interfaces import TransformerInterface
 from ..destinations.interfaces import DestinationInterface
-from ..utilities.interfaces import UtilitiesInterface
 from ..secrets.models import PipelineSecret
-
+from ..utilities.interfaces import UtilitiesInterface
 
 BaseConfig.json_encoders = {
     ABCMeta: lambda x: x.__name__,
@@ -29,7 +28,7 @@ BaseConfig.json_encoders = {
 }
 
 def validate_name(name: str) -> str:
-    if re.match("^[a-z0-9_]*$", name) == None:
+    if re.match("^[a-z0-9_]*$", name) is None:
         raise ValueError('Can only contain lower case letters, numbers and underscores')
     else:
         return name
@@ -37,10 +36,10 @@ def validate_name(name: str) -> str:
 class PipelineStep(BaseModel):
     name: str
     description: str
-    depends_on_step: Optional[list[str]]
+    depends_on_step: Optional[List[str]]
     component: Union[Type[SourceInterface], Type[TransformerInterface], Type[DestinationInterface], Type[UtilitiesInterface]]
     component_parameters: Optional[dict]
-    provide_output_to_step: Optional[list[str]]
+    provide_output_to_step: Optional[List[str]]
 
     class Config:
         json_encoders = {
@@ -56,8 +55,8 @@ class PipelineStep(BaseModel):
 class PipelineTask(BaseModel):
     name: str
     description: str
-    depends_on_task: Optional[list[str]]
-    step_list: list[PipelineStep]
+    depends_on_task: Optional[List[str]]
+    step_list: List[PipelineStep]
     batch_task: Optional[bool]
 
     class Config:
@@ -74,7 +73,7 @@ class PipelineJob(BaseModel):
     name: str
     description: str
     version: str
-    task_list: list[PipelineTask]
+    task_list: List[PipelineTask]
 
     class Config:
         json_encoders = {

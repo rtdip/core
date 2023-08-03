@@ -29,23 +29,35 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
-  "databricks-sql-connector==2.4.0",
-  "azure-identity==1.11.0",
-  "pyodbc==4.0.34",
+  "databricks-sql-connector==2.8.0",
+  "azure-identity==1.12.0",
+  "pyodbc==4.0.39",
   "pandas==1.5.2",
-  "jinja2==3.0.3",
-  "jinjasql==0.1.8"
+  "jinja2==3.1.2",
+  "importlib_metadata>=1.0.0",
+  "semver==3.0.0",
+  "xlrd==2.0.1",
+  "grpcio>=1.48.1",
+  "grpcio-status>=1.48.1",
+  "googleapis-common-protos>=1.56.4",
+  "langchain==0.0.247",
+  "openai==0.27.8"
 ]
 
 PYSPARK_PACKAGES = [
-  "pyspark==3.3.2",
-  "delta-spark==2.2.0",
+  "pyspark>=3.3.0,<3.5.0",
+  "delta-spark>=2.2.0,<2.5.0",
 ]
 
 PIPELINE_PACKAGES = [
   "dependency-injector==4.41.0",
-  "dbx==0.8.10",
-  "pydantic==1.10.6"
+  "databricks-sdk==0.2.1",
+  "pydantic==1.10.12",
+  "azure-storage-file-datalake==12.12.0",
+  "boto3==1.28.2",
+  "hvac==1.1.1",
+  "azure-keyvault-secrets==4.7.0",
+  "web3==6.5.0"
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
@@ -64,6 +76,7 @@ setup(
       "Programming Language :: Python :: 3.8",
       "Programming Language :: Python :: 3.9",
       "Programming Language :: Python :: 3.10",
+      "Programming Language :: Python :: 3.11",
     ],
     project_urls={
         "Issue Tracker": "https://github.com/rtdip/core/issues",
@@ -72,8 +85,9 @@ setup(
     },    
     version=sic(os.environ["RTDIP_SDK_NEXT_VER"]),
     package_dir={"": "src/sdk/python"},
+    include_package_data=True,
     packages=find_packages(where="src/sdk/python"),
-    python_requires=">=3.8, <3.11",
+    python_requires=">=3.8, <3.12",
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_DEPENDENCIES,
     setup_requires=["pytest-runner","setuptools_scm"],

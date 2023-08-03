@@ -15,21 +15,21 @@
 import sys
 sys.path.insert(0, '.')
 
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility
+from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility, DeltaTableColumn
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_optimize import DeltaTableOptimizeUtility
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructField, TimestampType, StringType, FloatType, DateType
 
 def test_spark_delta_table_optimize(spark_session: SparkSession):
     delta_table_create = DeltaTableCreateUtility(
         spark=spark_session,
         table_name="test_table_delta_optimize",
-        columns= [StructField("EventDate", DateType(), False, {"delta.generationExpression": "CAST(EventTime AS DATE)"}),
-                StructField("TagName", StringType(), False),
-                StructField("EventTime", TimestampType(), False),
-                StructField("Status", StringType(), True),
-                StructField("Value", FloatType(), True)],
+        columns=[
+            DeltaTableColumn(name="EventDate", type="date", nullable=False, metadata={"delta.generationExpression": "CAST(EventTime AS DATE)"}),
+            DeltaTableColumn(name="TagName", type="string", nullable=False),
+            DeltaTableColumn(name="EventTime", type="timestamp", nullable=False),
+            DeltaTableColumn(name="Status", type="string", nullable=True),
+            DeltaTableColumn(name="Value", type="float", nullable=True)
+        ],
         partitioned_by=["EventDate"],
         properties={"delta.logRetentionDuration": "7 days", "delta.enableChangeDataFeed": "true"},
         comment="Test Table for Delta Optimize"

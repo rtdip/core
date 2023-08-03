@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import logging
+from typing import List, Optional
+from pydantic import BaseModel
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField
 from py4j.protocol import Py4JJavaError
@@ -20,7 +22,13 @@ from delta.tables import DeltaTable
 
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from ..._pipeline_utils.constants import get_default_package
+
+class DeltaTableColumn(BaseModel):
+    name: str
+    type: str
+    nullable: bool
+    metadata: Optional[dict]
 
 class DeltaTableCreateUtility(UtilitiesInterface):
     '''
@@ -29,21 +37,43 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     Args:
         spark (SparkSession): Spark Session required to read data from cloud storage
         table_name (str): Name of the table, including catalog and schema if table is to be created in Unity Catalog
-        columns (list[StructField]): List of columns and their related column properties
+        columns (list[DeltaTableColumn]): List of columns and their related column properties
         partitioned_by (list[str], optional): List of column names to partition the table by
         location (str, optional): Path to storage location
         properties (dict, optional): Propoerties that can be specified for a Delta Table. Further information on the options available are [here](https://docs.databricks.com/delta/table-properties.html#delta-table-properties)
         comment (str, optional): Provides a comment on the table metadata
+
+    Example:
+        ```python
+        from rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility, DeltaTableColumn
+
+        table_create_utility = DeltaTableCreateUtility(
+            spark=spark_session,
+            table_name="delta_table",
+            columns=[
+                DeltaTableColumn(name="EventDate", type="date", nullable=False, metadata={"delta.generationExpression": "CAST(EventTime AS DATE)"}),
+                DeltaTableColumn(name="TagName", type="string", nullable=False),
+                DeltaTableColumn(name="EventTime", type="timestamp", nullable=False),
+                DeltaTableColumn(name="Status", type="string", nullable=True),
+                DeltaTableColumn(name="Value", type="float", nullable=True)
+            ],
+            partitioned_by=["EventDate"],
+            properties={"delta.logRetentionDuration": "7 days", "delta.enableChangeDataFeed": "true"},
+            comment="Creation of Delta Table"
+        )
+
+        result = table_create_utility.execute()       
+        ```
     ''' 
     spark: SparkSession
     table_name: str
-    columns: list[StructField]
-    partitioned_by: list[str]
+    columns: List[DeltaTableColumn]
+    partitioned_by: List[str]
     location: str
     properties: dict
     comment: str
 
-    def __init__(self, spark: SparkSession, table_name: str, columns: list[StructField], partitioned_by: list[str] = None, location: str = None, properties: dict = None, comment: str = None) -> None:
+    def __init__(self, spark: SparkSession, table_name: str, columns: List[StructField], partitioned_by: List[str] = None, location: str = None, properties: dict = None, comment: str = None) -> None:
         self.spark = spark
         self.table_name = table_name
         self.columns = columns
@@ -63,7 +93,7 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
+        libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
     
     @staticmethod
@@ -72,11 +102,13 @@ class DeltaTableCreateUtility(UtilitiesInterface):
 
     def execute(self) -> bool:
         try:
+            columns = [StructField.fromJson(column.dict()) for column in self.columns]
+
             delta_table = (
                 DeltaTable
                 .createIfNotExists(self.spark)
                 .tableName(self.table_name)
-                .addColumns(self.columns)
+                .addColumns(columns)
             )
 
             if self.partitioned_by is not None:

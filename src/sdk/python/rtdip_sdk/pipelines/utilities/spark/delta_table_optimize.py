@@ -13,14 +13,14 @@
 # limitations under the License.
 
 import logging
-from typing import Optional
+from typing import List, Optional
 from pyspark.sql import SparkSession
 from py4j.protocol import Py4JJavaError
 from delta.tables import DeltaTable
 
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.constants import DEFAULT_PACKAGES
+from ..._pipeline_utils.constants import get_default_package
 
 class DeltaTableOptimizeUtility(UtilitiesInterface):
     '''
@@ -35,9 +35,9 @@ class DeltaTableOptimizeUtility(UtilitiesInterface):
     spark: SparkSession
     table_name: str
     where: Optional[str]
-    zorder_by: Optional[list[str]]
+    zorder_by: Optional[List[str]]
 
-    def __init__(self, spark: SparkSession, table_name: str, where: str = None, zorder_by: list[str] = None) -> None:
+    def __init__(self, spark: SparkSession, table_name: str, where: str = None, zorder_by: List[str] = None) -> None:
         self.spark = spark
         self.table_name = table_name
         self.where = where
@@ -54,7 +54,7 @@ class DeltaTableOptimizeUtility(UtilitiesInterface):
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_maven_library(DEFAULT_PACKAGES["spark_delta_core"])
+        libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
     
     @staticmethod

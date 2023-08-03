@@ -15,6 +15,13 @@ docker build --tag rtdip-api:v0.1.0 -f src/api/Dockerfile .
 docker run -p 8080:80 -it rtdip-api:v0.1.0
 ```
 
+For Macbooks with Apple Silicon chips, use the following:
+
+```bash
+docker build --platform linux/amd64 --tag rtdip-api:v0.1.0 -f src/api/Dockerfile .
+docker run --platform linux/amd64 -p 8080:80 -it --env-file .env rtdip-api:v0.1.0
+```
+
 REST APIs are then available at `http://localhost:8080/api/v1/{route}`
 
 ### Debugging
@@ -27,6 +34,13 @@ Ensure that you setup the **local.settings.json** file with the relevant paramet
 |---------|-------|
 |DATABRICKS_SQL_SERVER_HOSTNAME|adb-xxxxx.x.azuredatabricks.net|
 |DATABRICKS_SQL_HTTP_PATH|/sql/1.0/warehouses/xxx|
+
+Please also ensure to install all the turbodbc requirements for your machine by reviewing the [installation instructions](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) of turbodbc. On a macbook, this includes executing the following commands:
+
+```bash
+brew install llvm
+brew install boost
+```
 
 ### Swagger and Redoc
 

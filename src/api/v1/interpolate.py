@@ -16,8 +16,9 @@ import logging
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
-import json
-from src.sdk.python.rtdip_sdk.functions import interpolate
+from pandas.io.json import build_table_schema
+import numpy as np
+from src.sdk.python.rtdip_sdk.queries import interpolate
 from src.api.v1.models import BaseQueryParams, ResampleInterpolateResponse, HTTPError, RawQueryParams, TagsQueryParams, TagsBodyParams, ResampleQueryParams, InterpolateQueryParams
 import src.api.v1.common
 
@@ -32,10 +33,9 @@ def interpolate_events_get(base_query_parameters, raw_query_parameters, tag_quer
             tag_query_parameters=tag_query_parameters,
             interpolate_query_parameters=interpolate_parameters
         )
-
+        
         data = interpolate.get(connection, parameters)
-        response = data.to_json(orient="table", index=False, date_unit="us")
-        return ResampleInterpolateResponse(**json.loads(response))
+        return ResampleInterpolateResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.replace({np.nan: None}).to_dict(orient="records"))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
@@ -43,7 +43,7 @@ def interpolate_events_get(base_query_parameters, raw_query_parameters, tag_quer
 get_description = """
 ## Interpolate 
 
-Interpolation of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/interpolate/) for further information.
+Interpolation of raw timeseries data.
 """
 
 @api_v1_router.get(
@@ -51,7 +51,8 @@ Interpolation of raw timeseries data. Refer to the following [documentation](htt
     name="Interpolate GET",
     description=get_description, 
     tags=["Events"], 
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Interpolation Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/interpolate/"}}
 )
 async def interpolate_get(
         base_query_parameters: BaseQueryParams = Depends(), 
@@ -65,7 +66,7 @@ async def interpolate_get(
 post_description = """
 ## Interpolate 
 
-Interpolation of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/interpolate/) for further information.
+Interpolation of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
 """
 
 @api_v1_router.post(
@@ -73,7 +74,8 @@ Interpolation of raw timeseries data via a POST method to enable providing a lis
     name="Interpolate POST",
     description=get_description, 
     tags=["Events"], 
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Interpolation Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/interpolate/"}}
 )
 async def interpolate_post(
         base_query_parameters: BaseQueryParams = Depends(), 

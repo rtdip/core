@@ -21,10 +21,10 @@ from ..execute.models import PipelineJob
 from ..sources import * # NOSONAR
 from ..transformers import * # NOSONAR
 from ..destinations import * # NOSONAR
-from ..utilities import * # NOSONAR
 from ..secrets import * # NOSONAR
+from ..utilities import * # NOSONAR
 
-class PipelineJobFromJson(ConverterInterface):
+class PipelineJobFromJsonConverter(ConverterInterface):
     '''
     Converts a json string into a Pipeline Job
 
@@ -62,7 +62,7 @@ class PipelineJobFromJson(ConverterInterface):
 
         return PipelineJob(**pipeline_job_dict)
     
-class PipelineJobToJson(ConverterInterface):
+class PipelineJobToJsonConverter(ConverterInterface):
     '''
     Converts a Pipeline Job into a json string
 

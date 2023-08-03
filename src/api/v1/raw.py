@@ -14,10 +14,11 @@
 
 
 import logging
-import json
+import numpy as np
+from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
-from src.sdk.python.rtdip_sdk.functions import raw
+from src.sdk.python.rtdip_sdk.queries import raw
 from src.api.v1.models import BaseQueryParams, RawResponse, RawQueryParams, TagsQueryParams, TagsBodyParams,HTTPError
 from src.api.auth.azuread import oauth2_scheme
 from src.api.FastAPIApp import api_v1_router
@@ -28,10 +29,9 @@ nest_asyncio.apply()
 def raw_events_get(base_query_parameters, raw_query_parameters, tag_query_parameters):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(base_query_parameters, raw_query_parameters=raw_query_parameters, tag_query_parameters=tag_query_parameters)
-
+        
         data = raw.get(connection, parameters)
-        response = data.to_json(orient="table", index=False, date_unit="us")
-        return RawResponse(**json.loads(response))
+        return RawResponse(schema=build_table_schema(data, index=False, primary_key=False), data=data.replace({np.nan: None}).to_dict(orient="records"))
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
@@ -39,7 +39,7 @@ def raw_events_get(base_query_parameters, raw_query_parameters, tag_query_parame
 get_description = """
 ## Raw 
 
-Retrieval of raw timeseries data. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/raw/) for further information.
+Retrieval of raw timeseries data.
 """
 
 @api_v1_router.get(
@@ -48,7 +48,8 @@ Retrieval of raw timeseries data. Refer to the following [documentation](https:/
     description=get_description,
     tags=["Events"], 
     dependencies=[Depends(oauth2_scheme)],
-    responses={200: {"model": RawResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": RawResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Raw Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/raw/"}}
 )
 async def raw_get(
         base_query_parameters: BaseQueryParams = Depends(), 
@@ -61,7 +62,7 @@ async def raw_get(
 post_description = """
 ## Raw 
 
-Retrieval of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters. Refer to the following [documentation](https://www.rtdip.io/sdk/code-reference/raw/) for further information.
+Retrieval of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
 """
 
 @api_v1_router.post(
@@ -70,7 +71,8 @@ Retrieval of raw timeseries data via a POST method to enable providing a list of
     description=post_description,
     tags=["Events"], 
     dependencies=[Depends(oauth2_scheme)],
-    responses={200: {"model": RawResponse}, 400: {"model": HTTPError}}
+    responses={200: {"model": RawResponse}, 400: {"model": HTTPError}},
+    openapi_extra={"externalDocs": {"description": "RTDIP Raw Query Documentation", "url": "https://www.rtdip.io/sdk/code-reference/query/raw/"}}
 )
 async def raw_post(
         base_query_parameters: BaseQueryParams = Depends(),

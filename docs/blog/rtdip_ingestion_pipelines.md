@@ -16,7 +16,7 @@ The goal of the RTDIP Ingestion Pipeline framework is:
 
 The RTDIP Data Ingestion Pipeline Framework will follow the typical convention of a job that users will be familiar with if they have used orchestration engines such as Apache Airflow or Databricks Workflows.
 
-A pipline job consists of the following components:
+A pipeline job consists of the following components:
 
 ``` mermaid
 erDiagram
@@ -127,12 +127,13 @@ Sources are components that connect to source systems and extract data from them
 | IoT Hub|*:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:||Q2 2023|
 | Kafka|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
 | Kinesis||:heavy_check_mark:|:heavy_check_mark:||:heavy_check_mark:|Q2 2023|
-| IoT Core||:heavy_check_mark:|:heavy_check_mark:||:heavy_check_mark:|Q2 2023|
 | SSIP PI Connector||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
 | Rest API|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
-|MongoDB|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
+| MongoDB|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
 
 *:heavy_check_mark: - target to deliver in the following quarter
+
+There is currently no spark connector for IoT Core. If you know a way to add it as a source component, please raise it by creating an [issue](https://github.com/rtdip/core/blob/develop/CONTRIBUTING.md#issues-guidelines){ target="_blank" } on the GitHub repo.
 
 ### Transformers
 
@@ -169,7 +170,7 @@ Destinations are components that connect to sink/destination systems and write d
 
 ### Utilities
 
-Utilities are components that perform utility functions such as logging, error handling, data object creation, authentication, maintenance and are normally components that can be executed as part of a pipeline or standalone.
+Utilities are components that perform utility functions such as logging, error handling, data object creation, maintenance and are normally components that can be executed as part of a pipeline or standalone.
 
 |Utility Type|Python|Apache Spark|Databricks|Azure|AWS|Target|
 |---------------------------|----------------------|--------------------|----------------------|----------------------|---------|---------|
@@ -182,6 +183,17 @@ Utilities are components that perform utility functions such as logging, error h
 
 *:heavy_check_mark: - target to deliver in the following quarter
 
+### Secrets
+
+Secrets are components that perform authentication functions and are normally components that can be executed as part of a pipeline or standalone.
+
+|Secrets Type|Python|Apache Spark|Databricks|Azure|AWS|Target|
+|---------------------------|----------------------|--------------------|----------------------|----------------------|---------|---------|
+| Databricks Secrets|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
+| Hashicorp Vault|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q2 2023|
+| Azure Key Vault|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
+| AWS Secrets Manager|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|Q3 2023|
+
 ### Edge
 
 Edge components are designed to provide a lightweight, low latency, low resource consumption, data ingestion framework for edge devices. These components will be designed to run on edge devices such as Raspberry Pi, Jetson Nano, etc. For cloud providers, this will be designed to run on AWS Greengrass and Azure IoT Edge.
@@ -189,7 +201,8 @@ Edge components are designed to provide a lightweight, low latency, low resource
 |Edge Type|Azure IoT Edge|AWS Greengrass|Target|
 |---------|--------------|--------------|------|
 | OPC CloudPublisher|:heavy_check_mark:||Q3-Q4 2023|
-| Greengrass OPC UA||:heavy_check_mark:|Q4 2023|
+| Fledge |:heavy_check_mark:|:heavy_check_mark:|Q3-Q4 2023|
+| Edge X |:heavy_check_mark:|:heavy_check_mark:|Q3-Q4 2023|
 
 ## Conclusion
 

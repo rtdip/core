@@ -14,24 +14,26 @@
 
 import sys
 sys.path.insert(0, '.')
-
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _package_version_meets_minimum
+from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility, DeltaTableColumn
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructField, TimestampType, StringType, FloatType, DateType
+
+COMMENT = "Test Table for Delta Create"
 
 def test_spark_delta_table_create(spark_session: SparkSession):
     table_create_utility = DeltaTableCreateUtility(
         spark=spark_session,
         table_name="test_table_delta_create",
-        columns= [StructField("EventDate", DateType(), False, {"delta.generationExpression": "CAST(EventTime AS DATE)"}),
-                StructField("TagName", StringType(), False),
-                StructField("EventTime", TimestampType(), False),
-                StructField("Status", StringType(), True),
-                StructField("Value", FloatType(), True)],
+        columns=[
+            DeltaTableColumn(name="EventDate", type="date", nullable=False, metadata={"delta.generationExpression": "CAST(EventTime AS DATE)"}),
+            DeltaTableColumn(name="TagName", type="string", nullable=False),
+            DeltaTableColumn(name="EventTime", type="timestamp", nullable=False),
+            DeltaTableColumn(name="Status", type="string", nullable=True),
+            DeltaTableColumn(name="Value", type="float", nullable=True)
+        ],
         partitioned_by=["EventDate"],
         properties={"delta.logRetentionDuration": "7 days", "delta.enableChangeDataFeed": "true"},
-        comment="Test Table for Delta Create"
+        comment=COMMENT
     )
 
     result = table_create_utility.execute()
@@ -47,10 +49,20 @@ def test_spark_delta_table_create(spark_session: SparkSession):
     assert table_describe[3][1] == "string"
     assert table_describe[4][0] == "Value"
     assert table_describe[4][1] == "float"
-    assert table_describe[7][1] == "EventDate"
-    assert table_describe[10][1] == "default.test_table_delta_create"
-    assert table_describe[11][1] == "Test Table for Delta Create"
-    assert "spark-warehouse/test_table_delta_create" in table_describe[12][1]
-    assert "delta.enableChangeDataFeed=true" in table_describe[14][1]
-    assert "delta.logRetentionDuration=7 days" in table_describe[14][1]
+    try:
+        _package_version_meets_minimum("delta-spark", "2.4.0")
+        assert table_describe[7][0] == "EventDate"
+        assert table_describe[7][1] == "date"
+        assert table_describe[10][1] == "spark_catalog.default.test_table_delta_create"
+        assert table_describe[12][1] == COMMENT
+        assert "spark-warehouse/test_table_delta_create" in table_describe[13][1]
+        assert "delta.enableChangeDataFeed=true" in table_describe[15][1]
+        assert "delta.logRetentionDuration=7 days" in table_describe[15][1]        
+    except Exception:
+        assert table_describe[7][1] == "EventDate"
+        assert table_describe[10][1] == "default.test_table_delta_create"
+        assert table_describe[11][1] == COMMENT
+        assert "spark-warehouse/test_table_delta_create" in table_describe[12][1]
+        assert "delta.enableChangeDataFeed=true" in table_describe[14][1]
+        assert "delta.logRetentionDuration=7 days" in table_describe[14][1]
     

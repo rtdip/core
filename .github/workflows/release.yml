@@ -20,14 +20,8 @@ on:
     types: [published]
 
 jobs:
-  job_run_unit_tests_and_sonarqube:
-    uses: rtdip/core/.github/workflows/test.yml@main
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   job_build_python_whl:
     runs-on: ubuntu-latest
-    needs: job_run_unit_tests_and_sonarqube
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python 
@@ -39,7 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install twine
           pip install build
-          python -m build --wheel
+          python -m build
         env:
           RTDIP_SDK_NEXT_VER: ${{ github.ref_name }}
       - name: Upload Python wheel as artifact
@@ -115,10 +109,10 @@ jobs:
           sudo apt install -y libboost-all-dev
 
       - name: Install Conda environment with Micromamba
-        uses: mamba-org/provision-with-micromamba@main
+        uses: mamba-org/setup-micromamba@main
         with:
           environment-file: environment.yml
-          cache-env: true
+          cache-environment: true
 
       - name: Deploy
         run: |

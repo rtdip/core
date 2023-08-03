@@ -14,11 +14,12 @@
 
 import sys
 sys.path.insert(0, '.')
+from importlib_metadata import version
 import pytest
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _get_package_version
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.delta import SparkDeltaSource
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import spark_session
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
 from pytest_mock import MockerFixture
@@ -29,7 +30,7 @@ def test_spark_delta_read_setup(spark_session: SparkSession):
     assert delta_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-core_2.12",
-                version="2.2.0"
+                version=_get_package_version("delta-spark")
             )], pypi_libraries=[], pythonwheel_libraries=[])
     assert isinstance(delta_source.settings(), dict)
     assert delta_source.pre_read_validation()
@@ -37,9 +38,9 @@ def test_spark_delta_read_setup(spark_session: SparkSession):
 
 def test_spark_delta_read_batch(spark_session: SparkSession):
     df = spark_session.createDataFrame([{"id": "1"}])
-    delta_destination = SparkDeltaDestination("test_spark_delta_read_batch", {}, "overwrite")       
+    delta_destination = SparkDeltaDestination(df, {}, "test_spark_delta_read_batch", "overwrite")       
     delta_source = SparkDeltaSource(spark_session, {}, "test_spark_delta_read_batch") 
-    delta_destination.write_batch(df)
+    delta_destination.write_batch()
     actual_df = delta_source.read_batch()
     assert isinstance(actual_df, DataFrame)
     assert actual_df.schema == StructType([StructField('id', StringType(), True)])

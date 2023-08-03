@@ -26,7 +26,7 @@ Import the required components of a Pipeline Job.
 ```python 
 from rtdip_sdk.pipelines.execute import PipelineJob, PipelineStep, PipelineTask
 from rtdip_sdk.pipelines.sources import SparkEventhubSource
-from rtdip_sdk.pipelines.transformers import EventhubBodyBinaryToString
+from rtdip_sdk.pipelines.transformers import BinaryToStringTransformer
 from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
 from rtdip_sdk.pipelines.secrets import PipelineSecret, DatabricksSecrets
 import json
@@ -67,8 +67,11 @@ step_list.append(PipelineStep(
 step_list.append(PipelineStep(
     name="test_step2",
     description="test_step2",
-    component=EventhubBodyBinaryToString,
-    component_parameters={},
+    component=BinaryToStringTransformer,
+    component_parameters={
+        "source_column_name": "body",
+        "target_column_name": "body"
+    },
     depends_on_step=["test_step1"],
     provide_output_to_step=["test_step3"]
 ))
@@ -79,7 +82,7 @@ step_list.append(PipelineStep(
     description="test_step3",
     component=SparkDeltaDestination,
     component_parameters={
-        "table_name": "test_table",
+        "destination": "test_table",
         "options": {},
         "mode": "overwrite"    
     },
@@ -130,6 +133,12 @@ pipeline_job = PipelineJob(
 ## Execute
 
 Pipeline Jobs can be executed directly if the run environment where the code has been written facilitates it. To do so, the above Pipeline Job can be executed as follows:
+
+!!! note "Pyspark Installation"
+    Ensure you have [Java](../../getting-started/installation.md#java) installed in your environment and you have installed pyspark using the below command:
+    ```
+    pip install "rtdip-sdk[pipelines,pyspark]"
+    ```
 
 ```python
 from rtdip_sdk.pipelines.execute import PipelineJobExecute
