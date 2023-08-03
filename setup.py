@@ -57,7 +57,8 @@ PIPELINE_PACKAGES = [
   "boto3==1.28.2",
   "hvac==1.1.1",
   "azure-keyvault-secrets==4.7.0",
-  "web3==6.5.0"
+  "web3==6.5.0",
+  "polars==0.18.8"
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
