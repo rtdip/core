@@ -29,7 +29,9 @@ class SparkEventhubDestination(DestinationInterface):
     Args:
         data (DataFrame): Dataframe to be written to Eventhub
         options (dict): A dictionary of Eventhub configurations (See Attributes table below). All Configuration options for Eventhubs can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
-
+        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        query_name (str): Unique name for the query in associated SparkSession
+        
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
         eventhubs.connectionString (str):  Eventhubs connection string is required to connect to the Eventhubs service. (Streaming and Batch)
@@ -38,12 +40,12 @@ class SparkEventhubDestination(DestinationInterface):
         eventhubs.endingPosition: (JSON str): The ending position of a batch query. This works the same as startingPosition. (Batch)
         maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. (Stream)
     '''
-    data: DataFrame
-    options: dict
 
-    def __init__(self, data: DataFrame, options: dict) -> None:
+    def __init__(self, data: DataFrame, options: dict, trigger="10 seconds", query_name="EventhubDestination") -> None:
         self.data = data
         self.options = options
+        self.trigger = trigger
+        self.query_name = query_name
 
     @staticmethod
     def system_type():
@@ -94,11 +96,14 @@ class SparkEventhubDestination(DestinationInterface):
         Writes steaming data to Eventhubs.
         '''
         try:
+            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
             query = (
                 self.data
                 .writeStream
+                .trigger(**TRIGGER_OPTION)
                 .format("eventhubs")
                 .options(**self.options)
+                .queryName(self.query_name)
                 .start()
             )
             while query.isActive:

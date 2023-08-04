@@ -69,6 +69,7 @@ def test_pipeline_job_deploy(mocker: MockerFixture):
 
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._load_module", return_value=DummyModule())
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._convert_file_to_binary", return_value=None)
+    mocker.patch("databricks.sdk.mixins.workspace.WorkspaceExt.mkdirs", return_value=None)
     mocker.patch("databricks.sdk.mixins.workspace.WorkspaceExt.upload", return_value=None)
     libraries = Libraries(pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version=default_version)], maven_libraries=[MavenLibrary(group_id="rtdip", artifact_id="rtdip-sdk", version=default_version)], python_wheel_libraries=[PythonWheelLibrary(path="test_wheel.whl")])
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.utilities.pipeline_components.PipelineComponentsGetUtility.execute", return_value=(libraries, {"config": "test_config"}))
@@ -114,6 +115,7 @@ def test_pipeline_job_deploy_fails(mocker: MockerFixture):
 
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._load_module", return_value=DummyModule())
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.DatabricksSDKDeploy._convert_file_to_binary", return_value=None)
+    mocker.patch("databricks.sdk.mixins.workspace.WorkspaceExt.mkdirs", return_value=None)
     mocker.patch("databricks.sdk.mixins.workspace.WorkspaceExt.upload", return_value=None)
     libraries = Libraries(pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version=default_version)], maven_libraries=[MavenLibrary(group_id="rtdip", artifact_id="rtdip-sdk", version=default_version)], python_wheel_libraries=[PythonWheelLibrary(path="test_wheel.whl")])
     mocker.patch("src.sdk.python.rtdip_sdk.pipelines.utilities.pipeline_components.PipelineComponentsGetUtility.execute", return_value=(libraries, {"config": "test_config"}))
