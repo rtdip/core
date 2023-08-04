@@ -30,7 +30,7 @@ class SparkDeltaDestination(DestinationInterface):
         options (dict): Options that can be specified for a Delta Table write operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         destination (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
-        trigger (str): Frequency of the write operation
+        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
         query_name (str): Unique name for the query in associated SparkSession
 
     Attributes:
@@ -119,12 +119,13 @@ class SparkDeltaDestination(DestinationInterface):
         '''
         Writes streaming data to Delta. Exactly-once processing is guaranteed
         '''
+        TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
         try:
             if "/" in self.destination:
                 query = (
                     self.data
                     .writeStream
-                    .trigger(processingTime=self.trigger)
+                    .trigger(**TRIGGER_OPTION)
                     .format("delta")
                     .queryName(self.query_name)
                     .outputMode(self.mode)
@@ -135,7 +136,7 @@ class SparkDeltaDestination(DestinationInterface):
                 query = (
                     self.data
                     .writeStream
-                    .trigger(processingTime=self.trigger)
+                    .trigger(**TRIGGER_OPTION)
                     .format("delta")
                     .queryName(self.query_name)
                     .outputMode(self.mode)

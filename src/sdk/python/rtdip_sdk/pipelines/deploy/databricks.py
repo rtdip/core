@@ -122,12 +122,14 @@ class DatabricksSDKDeploy(DeployInterface):
             if task.notebook_task is not None:
                 module = self._load_module(task.task_key + "file_upload", task.notebook_task.notebook_path)
                 (task_libraries, spark_configuration) = PipelineComponentsGetUtility(module.__name__).execute()
+                workspace_client.workspace.mkdirs(path=self.workspace_directory)
                 path="{}/{}".format(self.workspace_directory, Path(task.notebook_task.notebook_path).name)
                 workspace_client.workspace.upload(path=path, overwrite=True, content=self._convert_file_to_binary(task.notebook_task.notebook_path))
                 task.notebook_task.notebook_path = path
             else:
                 module = self._load_module(task.task_key + "file_upload", task.spark_python_task.python_file)
                 (task_libraries, spark_configuration) = PipelineComponentsGetUtility(module).execute()
+                workspace_client.workspace.mkdirs(path=self.workspace_directory)
                 path="{}/{}".format(self.workspace_directory, Path(task.spark_python_task.python_file).name)
                 workspace_client.workspace.upload(path=path, overwrite=True, content=self._convert_file_to_binary(task.spark_python_task.python_file))
                 task.spark_python_task.python_file = path
