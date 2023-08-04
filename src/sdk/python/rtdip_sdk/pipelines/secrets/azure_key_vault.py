@@ -61,7 +61,7 @@ class AzureKeyVaultSecrets(SecretsInterface):
     
     def _get_akv_client(self):
         return SecretClient(
-            vault_url=self.vault,
+            vault_url="https://{}.vault.azure.net".format(self.vault),
             credential=self.credential,
             **self.kwargs
         )
@@ -71,7 +71,7 @@ class AzureKeyVaultSecrets(SecretsInterface):
         Retrieves the secret from the Azure Key Vault
         '''
         response = self.client.get_secret(name=self.key)
-        return response
+        return response.value
     
     def set(self):
         '''

@@ -73,7 +73,6 @@ class PipelineComponentsGetUtility(UtilitiesInterface):
                     (issubclass(class_check, UtilitiesInterface) and class_check != UtilitiesInterface)
                 ):
                     component_list.append(cls[1])
-                    print(cls[0])
 
             task_libraries = Libraries()
             task_libraries.get_libraries_from_components(component_list)
