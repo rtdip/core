@@ -39,7 +39,7 @@ def test_databricks_autoloader_read_batch(spark_session: SparkSession):
     with pytest.raises(NotImplementedError) as excinfo:
         autoloader_source = DataBricksAutoLoaderSource(spark_session, {}, path, "parquet")
         autoloader_source.read_batch()
-    assert str(excinfo.value) == 'Auto Loader only supports streaming reads. To perform a batch read, use the read_stream method and specify Trigger on the write_stream as `availableNow=True`' 
+    assert str(excinfo.value) == 'Auto Loader only supports streaming reads. To perform a batch read, use the read_stream method and specify Trigger on the write_stream as `availableNow`' 
 
 def test_databricks_autoloader_read_stream(spark_session: SparkSession, mocker: MockerFixture):
     autoloader_source = DataBricksAutoLoaderSource(spark_session, {}, path, "parquet")

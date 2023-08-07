@@ -48,7 +48,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
         when_not_matched_by_source_update_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that do not match the `merge_condition`.
         when_not_matched_by_source_delete_list (list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that do not match the `merge_condition`.
         try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
-        trigger (str): Frequency of the write operation
+        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
         query_name (str): Unique name for the query in associated SparkSession
 
     Attributes:
@@ -226,11 +226,12 @@ class SparkDeltaMergeDestination(DestinationInterface):
         '''
         Merges streaming data to Delta using foreachBatch
         '''
+        TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
         try:
             query = (
                 self.data
                 .writeStream
-                .trigger(processingTime=self.trigger)
+                .trigger(**TRIGGER_OPTION)
                 .format("delta")
                 .foreachBatch(self._stream_merge_micro_batch)
                 .queryName(self.query_name)

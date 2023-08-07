@@ -30,6 +30,7 @@ jobs:
       outputs:
         pr_info: ${{ steps.pr.outputs.result }}
       runs-on: ubuntu-latest
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
       steps:
         - name: 'Download Artifact'
           uses: actions/github-script@v6
