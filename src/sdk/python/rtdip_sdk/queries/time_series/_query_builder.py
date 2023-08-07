@@ -142,7 +142,7 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
     interpolate_query = (
         f"WITH resample AS ({sample_query})"
         ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
-        "{% if (interpolation_method is defined) and (interpolation_method == \"forward_fill\" or interpolation == \"backward_fill\") %}"
+        "{% if (interpolation_method is defined) and (interpolation_method == \"forward_fill\" or interpolation_method == \"backward_fill\") %}"
         "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS Value FROM date_array a LEFT OUTER JOIN resample b ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.TagName, a.EventTime "
         "{% elif (interpolation_method is defined) and (interpolation_method == \"linear\") %}"
         ",linear_interpolation_calculations AS (SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, a.EventTime as Requested_EventTime, b.EventTime as Found_EventTime, b.Value, "
@@ -151,9 +151,8 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
         "CASE WHEN b.Value is NULL THEN Last_Value + (unix_timestamp(a.EventTime) - unix_timestamp(Last_EventTime)) * ((Next_Value - Last_Value)) / ((unix_timestamp(Next_EventTime) - unix_timestamp(Last_EventTime))) ELSE b.Value END AS linear_interpolated_value FROM date_array a FULL OUTER JOIN resample b ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.EventTime, b.TagName) "
         "SELECT EventTime, TagName, linear_interpolated_value AS Value FROM linear_interpolation_calculations "
         "{% else %}"
-        "SELECT * FROM resample"
+        "SELECT * FROM resample "
         "{% endif %}" 
-        
     )
     
     interpolate_parameters = sample_parameters.copy()

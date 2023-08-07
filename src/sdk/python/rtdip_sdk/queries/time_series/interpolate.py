@@ -23,7 +23,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     An RTDIP interpolation function that is intertwined with the RTDIP Resampling function.
     
-    The Interpolation function will forward fill or backward fill the resampled data depending users specified interpolation method.
+    The Interpolation function will forward fill, backward fill or linearly interpolate the resampled data depending users specified interpolation method.
 
     This function requires the user to input a dictionary of parameters. (See Attributes table below.)
 
