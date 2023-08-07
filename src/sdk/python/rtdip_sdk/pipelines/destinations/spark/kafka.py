@@ -33,6 +33,8 @@ class SparkKafkaDestination(DestinationInterface):
     Args:
         data (DataFrame): Dataframe to be written to Kafka
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
+        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        query_name (str): Unique name for the query in associated SparkSession
 
     The following options must be set for the Kafka destination for both batch and streaming queries.
 
@@ -46,12 +48,11 @@ class SparkKafkaDestination(DestinationInterface):
         includeHeaders (bool): Whether to include the Kafka headers in the row. (Streaming and Batch)
 
     '''
-    data: DataFrame
-    options: dict
-
-    def __init__(self, data: DataFrame, options: dict) -> None:
+    def __init__(self, data: DataFrame, options: dict, trigger="10 seconds", query_name="KafkaDestination") -> None:
         self.data = data
         self.options = options
+        self.trigger = trigger
+        self.query_name = query_name
 
     @staticmethod
     def system_type():
@@ -103,12 +104,15 @@ class SparkKafkaDestination(DestinationInterface):
         Writes steaming data to Kafka.
         '''
         try:
+            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
             query = (
                 self.data
                 .select(to_json(struct("*")).alias("value"))
                 .writeStream
+                .trigger(**TRIGGER_OPTION)
                 .format("kafka")
                 .options(**self.options)
+                .queryName(self.query_name)
                 .start()
             )
             while query.isActive:

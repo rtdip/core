@@ -18,6 +18,9 @@ from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk.pipelines.secrets.azure_key_vault import AzureKeyVaultSecrets
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary
 
+class MockSecretValue():
+    value = "test"
+
 def test_azure_key_vault_secret_setup(mocker: MockerFixture):
     azure_key_vault = AzureKeyVaultSecrets(vault="akv-vault-url", credential=object(), key="test")
     assert azure_key_vault.system_type().value == 1
@@ -29,7 +32,7 @@ def test_azure_key_vault_secret_setup(mocker: MockerFixture):
     assert isinstance(azure_key_vault.settings(), dict)
 
 def test_azure_key_vault_secrets_get(mocker: MockerFixture):
-    mocker.patch("azure.keyvault.secrets.SecretClient.get_secret", return_value="test")
+    mocker.patch("azure.keyvault.secrets.SecretClient.get_secret", return_value=MockSecretValue())
 
     azure_key_vault = AzureKeyVaultSecrets(vault="akv-vault-url", credential=object(), key="vault-key")
 
