@@ -14,7 +14,10 @@
 
 import logging
 import pandas as pd
-from ._query_builder import _query_builder
+import sys
+sys.path.insert(0, '.')
+from src.sdk.python.rtdip_sdk.queries.time_series._query_builder import _query_builder
+
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
@@ -42,7 +45,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
         agg_method (str): Aggregation Method (first, last, avg, min, max)
-        interpolation_method (str): Optional. Interpolation method (forward_fill, backward_fill)
+        interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
 
     Returns:
@@ -75,3 +78,27 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     except Exception as e:
         logging.exception('error with interpolate function')
         raise e
+    
+from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
+from src.sdk.python.rtdip_sdk.connectors.odbc.db_sql_connector import DatabricksSQLConnection
+authentication = DefaultAuth(exclude_visual_studio_code_credential=True).authenticate()
+token = authentication.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+connection = DatabricksSQLConnection("adb-8969364155430721.1.azuredatabricks.net", "/sql/1.0/endpoints/9ecb6a8d6707260c", token)
+ 
+parameters = {
+    "business_unit": "PT",
+    "region": "EMEA",
+    "asset": "GTL",
+    "data_security_level": "restricted",
+    "data_type": "float",
+    "tag_names": ["0095P100.PV"],
+    "start_date": "2022-06-16T23:05:00+00:00",
+    "end_date": "2022-06-18T12:37:00+00:00",
+    "time_interval_rate": "5", #numeric input
+    "time_interval_unit": "minute", #options: ["second", "minute", "day", "hour"]
+    "agg_method": "first", #options: ["first", "last", "avg", "min", "max"]
+    "interpolation_method": "forward_fill", #options: ["forward_fill", "backward_fill"]
+    "include_bad_data": True, #options: [True, False]
+}
+x = get(connection, parameters)
+print(x)
