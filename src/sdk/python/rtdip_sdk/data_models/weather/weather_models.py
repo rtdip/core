@@ -101,6 +101,28 @@ class AtmosphericG215minForecastV1(BaseModel):
     wxman: str 
     """Code combining Hourly sensible weather and temperature conditions"""
     
-
-
-
+class WeatherForecastV1(BaseModel):
+    """
+    This model is used to represent the standardised weather forecast for a given location.
+    """
+    Tagname: str
+    """Unique identifier for the data point"""
+    Longitude: float
+    """Longitude of the location"""
+    Latitude: float
+    """Latitude of the location"""
+    EventDate: datetime
+    """Event date of forecast"""
+    EventTime: datetime
+    """Event time of forecast"""
+    Source: str
+    """Forecast API source i.e. ECMWF"""
+    Status: str
+    """Forecast API status i.e. Success"""
+    Value: float
+    Value: str
+    """Value of forecast measurement"""
+    EnqueuedTime: datetime
+    """Time Forecast API was called"""
+    Latest: bool
+    """Latest forecast Identifier"""
