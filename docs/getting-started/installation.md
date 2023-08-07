@@ -112,17 +112,17 @@ Features of the SDK can be installed using different extras statements when inst
 === "Queries"
     When installing the package for only quering data, simply specify  in your preferred python package installer:
 
-        rtdip-sdk
+        pip install rtdip-sdk
 
 === "Pipelines"
     RTDIP SDK can be installed to include the packages required to build, execute and deploy pipelines. Specify the following extra **[pipelines]** when installing RTDIP SDK so that the required python packages are included during installation.
 
-        rtdip-sdk[pipelines]
+        pip install "rtdip-sdk[pipelines]"
 
 === "Pipelines + Pyspark"
     RTDIP SDK can also execute pyspark functions as a part of the pipelines functionality. Specify the following extra **[pipelines,pyspark]** when installing RTDIP SDK so that the required pyspark python packages are included during installation.
 
-        rtdip-sdk[pipelines,pyspark]
+        pip install "rtdip-sdk[pipelines,pyspark]"
 
     !!! note "Java"
         Ensure that Java is installed prior to installing the rtdip-sdk with the **[pipelines,pyspark]**. See [here](#java) for more information.
