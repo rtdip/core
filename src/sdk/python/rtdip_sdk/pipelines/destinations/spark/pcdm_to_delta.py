@@ -41,7 +41,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         destination_string (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store string values.
         destination_integer (Optional str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store integer values
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
-        trigger (str): Frequency of the write operation
+        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
         query_name (str): Unique name for the query in associated SparkSession
         merge (bool): Use Delta Merge to perform inserts, updates and deletes
         try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
@@ -74,7 +74,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                  destination_integer: str = None,
                  mode: str = None,
                  trigger="10 seconds",
-                 query_name: str ="PCDMToDeltaMergeDestination",
+                 query_name: str ="PCDMToDeltaDestination",
                  merge: bool = True,
                  try_broadcast_join = False,
                  remove_nanoseconds: bool = False,
@@ -247,11 +247,12 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         Writes streaming Process Control Data Model data to Delta using foreachBatch
         '''
         try:
+            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
             if self.merge == True:
                 query = (
                     self.data
                     .writeStream
-                    .trigger(processingTime=self.trigger)
+                    .trigger(**TRIGGER_OPTION)
                     .format("delta")
                     .foreachBatch(self._write_stream_microbatches)
                     .queryName(self.query_name)

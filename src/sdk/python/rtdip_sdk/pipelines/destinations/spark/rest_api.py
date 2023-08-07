@@ -44,7 +44,7 @@ class SparkRestAPIDestination(DestinationInterface):
         batch_size (int): The number of DataFrame rows to be used in each Rest API call
         method (str): The method to be used when calling the Rest API. Allowed values are POST, PATCH and PUT
         parallelism (int): The number of concurrent calls to be made to the Rest API
-        trigger (str): Frequency of the write operation
+        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
         query_name (str): Unique name for the query in associated SparkSession
 
     Attributes:
@@ -172,10 +172,11 @@ class SparkRestAPIDestination(DestinationInterface):
         Writes streaming data to a Rest API
         '''
         try:
+            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
             query = (
                 self.data
                 .writeStream
-                .trigger(processingTime=self.trigger)
+                .trigger(**TRIGGER_OPTION)
                 .foreachBatch(self._api_micro_batch)
                 .queryName(self.query_name)
                 .outputMode("update")
