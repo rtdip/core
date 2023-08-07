@@ -96,9 +96,10 @@ parameters = {
     "end_date": "2022-06-18T12:37:00+00:00",
     "time_interval_rate": "5", #numeric input
     "time_interval_unit": "minute", #options: ["second", "minute", "day", "hour"]
-    "agg_method": "first", #options: ["first", "last", "avg", "min", "max"]
-    "interpolation_method": "forward_fill", #options: ["forward_fill", "backward_fill"]
+    "agg_method": "avg", #options: ["first", "last", "avg", "min", "max"]
+    "interpolation_method": "backward_fill", #options: ["forward_fill", "backward_fill"]
     "include_bad_data": True, #options: [True, False]
 }
 x = get(connection, parameters)
+# pd.set_option('display.max_rows', None)
 print(x)

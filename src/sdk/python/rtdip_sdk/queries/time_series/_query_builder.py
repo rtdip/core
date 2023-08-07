@@ -142,10 +142,9 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
     interpolate_query = (
         f"WITH resample AS ({sample_query})"
         ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
-        "{% if (interpolation_method is defined) and (interpolation_method == forward_fill or interpolation == backward_fill) %}"
+        "{% if (interpolation_method is defined) and (interpolation_method == \"forward_fill\" or interpolation == \"backward_fill\") %}"
         "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS Value FROM date_array a LEFT OUTER JOIN resample b ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.TagName, a.EventTime "
-        "{% endif %}" 
-        "{% if (interpolation_method is defined) and (interpolation_method == linear) %}"
+        "{% elif (interpolation_method is defined) and (interpolation_method == \"linear\") %}"
         ",linear_interpolation_calculations AS (SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, a.EventTime as Requested_EventTime, b.EventTime as Found_EventTime, b.Value, "
         "last_value(b.EventTime, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Last_EventTime, last_value(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Last_Value, "
         "first_value(b.EventTime, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS Next_EventTime, first_value(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS Next_Value, "
@@ -154,6 +153,7 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
         "{% else %}"
         "SELECT * FROM resample"
         "{% endif %}" 
+        
     )
     
     interpolate_parameters = sample_parameters.copy()
