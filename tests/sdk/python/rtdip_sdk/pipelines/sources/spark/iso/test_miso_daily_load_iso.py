@@ -23,6 +23,7 @@ from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import MISODailyLoadIS
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import MISO_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.functions import date_format
 from pytest_mock import MockerFixture
 
 iso_configuration = {
@@ -81,7 +82,7 @@ def test_miso_daily_load_iso_read_batch_actual(spark_session: SparkSession, mock
     assert isinstance(df, DataFrame)
     assert str(df.schema) == str(MISO_SCHEMA)
 
-    pdf = df.toPandas()
+    pdf = df.withColumn("DateTime", date_format("DateTime", "yyyy-MM-dd HH:mm:ss")).toPandas()
     expected_str = str(get_expected_vals())
 
     assert str(pdf['Lrz1'].to_list()) == expected_str
@@ -103,7 +104,7 @@ def test_miso_daily_load_iso_read_batch_forecast(spark_session: SparkSession, mo
     assert isinstance(df, DataFrame)
     assert str(df.schema) == str(MISO_SCHEMA)
 
-    pdf = df.toPandas()
+    pdf = df.withColumn("DateTime", date_format("DateTime", "yyyy-MM-dd HH:mm:ss")).toPandas()
     expected_str = str(get_expected_vals(incr=0.05))
 
     assert str(pdf['Lrz1'].to_list()) == expected_str
