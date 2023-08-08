@@ -26,7 +26,7 @@ from io import BytesIO
 
 from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
-
+from ....._sdk_utils.compare_versions import _package_version_meets_minimum
 
 class BaseISOSource(SourceInterface):
     """
@@ -143,8 +143,13 @@ class BaseISOSource(SourceInterface):
 
         # Reorder columns to keep the data consistent
         df = df[self.spark_schema.names]
-        df.iteritems = df.items
-        
+
+        # Spark < 3.4.0 does not support iteritems method in Pandas
+        try:
+            _package_version_meets_minimum("pyspark", "3.4.0")
+        except:
+            df.iteritems = df.items
+
         return df
 
     @staticmethod
