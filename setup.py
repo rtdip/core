@@ -32,7 +32,7 @@ INSTALL_REQUIRES = [
   "databricks-sql-connector==2.8.0",
   "azure-identity==1.12.0",
   "pyodbc==4.0.39",
-  "pandas>=1.5.2,<3.0.0",
+  "pandas>=2.0.1,<3.0.0",
   "jinja2==3.1.2",
   "importlib_metadata>=1.0.0",
   "semver==3.0.0",
