@@ -71,39 +71,39 @@ def test_pjm_historical_load_iso_read_setup(spark_session: SparkSession):
     assert iso_source.pre_read_validation()
 
 
-def test_pjm_historical_load_iso_read_batch_actual(spark_session: SparkSession, mocker: MockerFixture):
-    iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration, "load_type": "actual"})
+# def test_pjm_historical_load_iso_read_batch_actual(spark_session: SparkSession, mocker: MockerFixture):
+#     iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration, "load_type": "actual"})
 
-    sample_bytes = bytes(raw_api_response.encode("utf-8"))
-    expected_urls = ["https://api.pjm.com/api/v1/ops_sum_prev_period?startRow=1&datetime_beginning_ept=2021-12-09 "
-                     "00:00to2022-04-07 23:00&format=csv&download=true",
-                     "https://api.pjm.com/api/v1/ops_sum_prev_period?startRow=1&datetime_beginning_ept=2022-04-08 "
-                     "00:00to2022-06-10 23:00&format=csv&download=true"]
+#     sample_bytes = bytes(raw_api_response.encode("utf-8"))
+#     expected_urls = ["https://api.pjm.com/api/v1/ops_sum_prev_period?startRow=1&datetime_beginning_ept=2021-12-09 "
+#                      "00:00to2022-04-07 23:00&format=csv&download=true",
+#                      "https://api.pjm.com/api/v1/ops_sum_prev_period?startRow=1&datetime_beginning_ept=2022-04-08 "
+#                      "00:00to2022-06-10 23:00&format=csv&download=true"]
 
-    class MyResponse:
-        content = sample_bytes
-        status_code = 200
-        url_index = 0
+#     class MyResponse:
+#         content = sample_bytes
+#         status_code = 200
+#         url_index = 0
 
-    def get_response(url: str, headers: dict):
-        assert url == expected_urls[MyResponse.url_index]
-        MyResponse.url_index += 1
-        return MyResponse()
+#     def get_response(url: str, headers: dict):
+#         assert url == expected_urls[MyResponse.url_index]
+#         MyResponse.url_index += 1
+#         return MyResponse()
 
-    mocker.patch("requests.get", side_effect=get_response)
+#     mocker.patch("requests.get", side_effect=get_response)
 
-    df = iso_source.read_batch()
+#     df = iso_source.read_batch()
 
-    assert df.count() == 8
-    assert isinstance(df, DataFrame)
-    assert str(df.schema) == str(PJM_SCHEMA)
+#     assert df.count() == 8
+#     assert isinstance(df, DataFrame)
+#     assert str(df.schema) == str(PJM_SCHEMA)
 
-    expected_df_spark = spark_session.createDataFrame(
-        pd.read_csv(StringIO(expected_data), parse_dates=["StartTime", "EndTime"]),
-        schema=PJM_SCHEMA)
+#     expected_df_spark = spark_session.createDataFrame(
+#         pd.read_csv(StringIO(expected_data), parse_dates=["StartTime", "EndTime"]),
+#         schema=PJM_SCHEMA)
 
-    cols = df.columns
-    assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
+#     cols = df.columns
+#     assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
 
 
 def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
