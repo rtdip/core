@@ -143,7 +143,8 @@ class BaseISOSource(SourceInterface):
 
         # Reorder columns to keep the data consistent
         df = df[self.spark_schema.names]
-
+        df.iteritems = df.items
+        
         return df
 
     @staticmethod
