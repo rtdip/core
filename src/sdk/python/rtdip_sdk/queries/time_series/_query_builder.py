@@ -104,7 +104,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
         ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS timestamp_array, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
         ",window_buckets AS (SELECT timestamp_array AS window_start ,TagName ,LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) "
-        ",project_resample_results AS (SELECT d.window_start ,d.window_end ,d.TagName ,FIRST(e.Value) OVER (PARTITION BY d.TagName, d.window_start ORDER BY e.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Value FROM window_buckets d INNER JOIN raw_events e ON e.EventTime >= d.window_start AND e.EventTime < d.window_end AND e.TagName = d.TagName) "
+        ",project_resample_results AS (SELECT d.window_start ,d.window_end ,d.TagName ,{{ agg_method  }}(e.Value) OVER (PARTITION BY d.TagName, d.window_start ORDER BY e.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Value FROM window_buckets d INNER JOIN raw_events e ON e.EventTime >= d.window_start AND e.EventTime < d.window_end AND e.TagName = d.TagName) "
         "SELECT window_start AS EventTime ,TagName ,Value FROM project_resample_results GROUP BY window_start ,TagName ,Value ORDER BY TagName, EventTime "     
     )
 
@@ -131,25 +131,36 @@ def _sample_query(parameters_dict: dict) -> tuple:
 def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parameters: dict) -> str:
 
     if parameters_dict["interpolation_method"] == "forward_fill":
-        interpolation_method = 'last_value/UNBOUNDED PRECEDING/CURRENT ROW'
+        interpolation_methods = 'last_value/UNBOUNDED PRECEDING/CURRENT ROW'
 
     if parameters_dict["interpolation_method"] == "backward_fill":
-        interpolation_method = 'first_value/CURRENT ROW/UNBOUNDED FOLLOWING'
+        interpolation_methods = 'first_value/CURRENT ROW/UNBOUNDED FOLLOWING'
 
-    interpolation_options = interpolation_method.split('/')
+    if parameters_dict["interpolation_method"] == "forward_fill" or parameters_dict["interpolation_method"] == "backward_fill":
+        interpolation_options = interpolation_methods.split('/')
 
     interpolate_query = (
         f"WITH resample AS ({sample_query})"
         ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS EventTime, explode(array('{{ tag_names | join('\\', \\'') }}')) AS TagName) "
-        "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS Value FROM date_array a "
-        "LEFT OUTER JOIN resample b "
-        "ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.TagName, a.EventTime "    
+        "{% if (interpolation_method is defined) and (interpolation_method == \"forward_fill\" or interpolation_method == \"backward_fill\") %}"
+        "SELECT a.EventTime, a.TagName, {{ interpolation_options_0 }}(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS Value FROM date_array a LEFT OUTER JOIN resample b ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.TagName, a.EventTime "
+        "{% elif (interpolation_method is defined) and (interpolation_method == \"linear\") %}"
+        ",linear_interpolation_calculations AS (SELECT coalesce(a.TagName, b.TagName) as TagName, coalesce(a.EventTime, b.EventTime) as EventTime, a.EventTime as Requested_EventTime, b.EventTime as Found_EventTime, b.Value, "
+        "last_value(b.EventTime, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Last_EventTime, last_value(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Last_Value, "
+        "first_value(b.EventTime, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS Next_EventTime, first_value(b.Value, true) OVER (PARTITION BY a.TagName ORDER BY a.EventTime ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS Next_Value, "
+        "CASE WHEN b.Value is NULL THEN Last_Value + (unix_timestamp(a.EventTime) - unix_timestamp(Last_EventTime)) * ((Next_Value - Last_Value)) / ((unix_timestamp(Next_EventTime) - unix_timestamp(Last_EventTime))) ELSE b.Value END AS linear_interpolated_value FROM date_array a FULL OUTER JOIN resample b ON a.EventTime = b.EventTime AND a.TagName = b.TagName ORDER BY a.EventTime, b.TagName) "
+        "SELECT EventTime, TagName, linear_interpolated_value AS Value FROM linear_interpolation_calculations "
+        "{% else %}"
+        "SELECT * FROM resample "
+        "{% endif %}" 
     )
     
     interpolate_parameters = sample_parameters.copy()
-    interpolate_parameters["interpolation_options_0"] = interpolation_options[0]
-    interpolate_parameters["interpolation_options_1"] = interpolation_options[1]
-    interpolate_parameters["interpolation_options_2"] = interpolation_options[2]
+    interpolate_parameters["interpolation_method"] = parameters_dict["interpolation_method"]
+    if parameters_dict["interpolation_method"] == "forward_fill" or parameters_dict["interpolation_method"] == "backward_fill":
+        interpolate_parameters["interpolation_options_0"] = interpolation_options[0]
+        interpolate_parameters["interpolation_options_1"] = interpolation_options[1]
+        interpolate_parameters["interpolation_options_2"] = interpolation_options[2]
 
     sql_template = Template(interpolate_query)
     return sql_template.render(interpolate_parameters)
