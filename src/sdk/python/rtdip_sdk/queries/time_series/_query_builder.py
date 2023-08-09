@@ -155,7 +155,7 @@ def _interpolation_query(parameters_dict: dict, sample_query: str, sample_parame
         "CASE WHEN b.Value is NULL THEN Last_Value + (unix_timestamp(a.EventTime) - unix_timestamp(Last_EventTime)) * ((Next_Value - Last_Value)) / ((unix_timestamp(Next_EventTime) - unix_timestamp(Last_EventTime))) ELSE b.Value END AS linear_interpolated_value FROM date_array a FULL OUTER JOIN resample b ON a.EventTime = b.EventTime AND a.TagName = b.TagName) "
         "SELECT EventTime, TagName, linear_interpolated_value AS Value FROM linear_interpolation_calculations ORDER BY TagName, EventTime "
         "{% else %}"
-        "SELECT * FROM resample "
+        "SELECT * FROM resample ORDER BY TagName, EventTime "
         "{% endif %}" 
     )
     
