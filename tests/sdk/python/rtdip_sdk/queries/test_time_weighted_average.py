@@ -47,6 +47,7 @@ MOCKED_PARAMETER_DICT = {
 
 def test_time_weighted_average(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -57,6 +58,7 @@ def test_time_weighted_average(mocker: MockerFixture):
     actual = time_weighted_average_get(mocked_connection, MOCKED_PARAMETER_DICT)
 
     mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
@@ -65,6 +67,7 @@ def test_time_weighted_average(mocker: MockerFixture):
 def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
     MOCKED_PARAMETER_DICT["window_size_mins"] = 15
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -75,6 +78,7 @@ def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
     actual = time_weighted_average_get(mocked_connection, MOCKED_PARAMETER_DICT)
 
     mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
@@ -84,6 +88,7 @@ def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
 def test_time_weighted_average_metadata_step(mocker: MockerFixture):
     MOCKED_PARAMETER_DICT["step"] = "metadata"
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -94,6 +99,7 @@ def test_time_weighted_average_metadata_step(mocker: MockerFixture):
     actual = time_weighted_average_get(mocked_connection, MOCKED_PARAMETER_DICT)
 
     mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=METADATA_MOCKED_QUERY)
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
@@ -101,6 +107,7 @@ def test_time_weighted_average_metadata_step(mocker: MockerFixture):
 
 def test_time_weighted_average_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
+    mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
     mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")
@@ -114,6 +121,7 @@ def test_time_weighted_average_fails(mocker: MockerFixture):
 def test_time_weighted_average_tag_name_not_list_fails(mocker: MockerFixture):
     MOCKED_PARAMETER_DICT["tag_names"] = "abc"
     mocker.spy(MockedDBConnection, "cursor")
+    mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
     mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")

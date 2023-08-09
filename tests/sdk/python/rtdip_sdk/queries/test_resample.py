@@ -45,6 +45,7 @@ MOCKED_PARAMETER_DICT = {
 
 def test_resample(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -55,6 +56,7 @@ def test_resample(mocker: MockerFixture):
     actual = resample_get(mocked_connection, MOCKED_PARAMETER_DICT)
 
     mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
@@ -64,6 +66,7 @@ def test_resample_sample_rate_unit(mocker: MockerFixture):
     MOCKED_PARAMETER_DICT["sample_rate"] = "15"
     MOCKED_PARAMETER_DICT["sample_unit"] = "minute"
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -74,6 +77,7 @@ def test_resample_sample_rate_unit(mocker: MockerFixture):
     actual = resample_get(mocked_connection, MOCKED_PARAMETER_DICT)
 
     mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
@@ -81,6 +85,7 @@ def test_resample_sample_rate_unit(mocker: MockerFixture):
 
 def test_resample_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
+    mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
     mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")
@@ -94,6 +99,7 @@ def test_resample_fails(mocker: MockerFixture):
 def test_resample_tag_name_not_list_fails(mocker: MockerFixture):
     MOCKED_PARAMETER_DICT["tag_names"] = "abc"
     mocker.spy(MockedDBConnection, "cursor")
+    mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
     mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")
