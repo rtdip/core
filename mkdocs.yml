@@ -101,6 +101,8 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg # Page tree
+  - pymdownx.snippets:
+      url_download: true
 
 nav:
   - Home: index.md
@@ -231,6 +233,20 @@ nav:
 
           - Authentication:
               - Azure Active Directory: sdk/code-reference/authentication/azure.md
+      - Examples:
+          - Pipelines:
+              - Deploy:
+                  - Dagster:
+                      - Databricks Connect: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Databricks.md
+                      - Local: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Local.md
+          - Queries:
+              - Interpolate: sdk/examples/query/Interpolate.md
+              - Interpolation at Time: sdk/examples/query/Interpolation-at-Time.md
+              - Metadata: sdk/examples/query/Metadata.md
+              - Raw: sdk/examples/query/Raw.md
+              - Resample: sdk/examples/query/Resample.md
+              - Time Weighted Average: sdk/examples/query/Time-Weighted-Average.md
+
   - API:
       - Overview: api/overview.md
       - Authentication: api/authentication.md

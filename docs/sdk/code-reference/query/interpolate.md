@@ -3,34 +3,13 @@
 
 ## Example
 ```python
-from rtdip_sdk.authentication.azure import DefaultAuth
-from rtdip_sdk.connectors import DatabricksSQLConnection
-from rtdip_sdk.queries import interpolate
-
-auth = DefaultAuth().authenticate()
-token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
-
-parameters = {
-    "business_unit": "Business Unit",
-    "region": "Region", 
-    "asset": "Asset Name", 
-    "data_security_level": "Security Level", 
-    "data_type": "float", #options:["float", "double", "integer", "string"]
-    "tag_names": ["tag_1", "tag_2"], #list of tags
-    "start_date": "2023-01-01", #start_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zz:zz"
-    "end_date": "2023-01-31", #end_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS" or specify the timezone offset in the format "YYYY-MM-DDTHH:MM:SS+zz:zz"
-    "time_interval_rate": "15", #numeric input
-    "time_interval_unit": "minute", #options: ["second", "minute", "day", "hour"]
-    "agg_method": "first", #options: ["first", "last", "avg", "min", "max"]
-    "interpolation_method": "forward_fill", #options: ["forward_fill", "backward_fill"]
-    "include_bad_data": True, #options: [True, False]
-}
-x = interpolate.get(connection, parameters)
-print(x)
+--8<-- "https://raw.githubusercontent.com/rodalynbarce/samples/feature/dagsterv2/queries/Interpolate/interpolate.py"
 ```
 
 This example is using [```DefaultAuth()```](../authentication/azure.md) and [```DatabricksSQLConnection()```](db-sql-connector.md) to authenticate and connect. You can find other ways to authenticate [here](../authentication/azure.md). The alternative built in connection methods are either by [```PYODBCSQLConnection()```](pyodbc-sql-connector.md), [```TURBODBCSQLConnection()```](turbodbc-sql-connector.md) or [```SparkConnection()```](spark-connector.md).
+
+!!! note "Note"
+    See [Samples Repository](https://github.com/rodalynbarce/samples/tree/feature/dagsterv2/queries) for full list of examples.
 
 !!! note "Note"
     </b>```server_hostname``` and ```http_path``` can be found on the [SQL Warehouses Page](../../queries/databricks/sql-warehouses.md). <br />

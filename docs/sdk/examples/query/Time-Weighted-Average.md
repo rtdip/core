@@ -1,0 +1,1 @@
+--8<-- "https://raw.githubusercontent.com/rodalynbarce/samples/feature/dagsterv2/queries/Time-Weighted-Average/README.md"
