@@ -16,7 +16,6 @@ import logging
 import pandas as pd
 from ._query_builder import _query_builder
 
-
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     An RTDIP interpolation function that is intertwined with the RTDIP Resampling function.
