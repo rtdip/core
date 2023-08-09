@@ -43,6 +43,7 @@ MOCKED_PARAMETER_DICT = {
 
 def test_raw(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value =  pa.Table.from_pandas(pd.DataFrame(data={'EventTime': [pd.to_datetime("2022-01-01 00:10:00+00:00")], 'TagName': ["MOCKED-TAGNAME"], 'Status': ["Good"], 'Value':[177.09220]})))
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -53,6 +54,7 @@ def test_raw(mocker: MockerFixture):
     actual = raw_get(mocked_connection, MOCKED_PARAMETER_DICT)
 
     mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
@@ -60,6 +62,7 @@ def test_raw(mocker: MockerFixture):
 
 def test_raw_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
+    mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
     mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")

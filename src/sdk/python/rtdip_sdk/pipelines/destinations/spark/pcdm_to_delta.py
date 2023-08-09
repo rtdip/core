@@ -29,7 +29,6 @@ class ValueTypeConstants():
     FLOAT_VALUE = "ValueType = 'float'"
     STRING_VALUE = "ValueType = 'string'"
 
-
 class SparkPCDMToDeltaDestination(DestinationInterface):
     '''
     The Process Control Data Model written to Delta
@@ -123,71 +122,78 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         dates_list = list(dates_df.toPandas()["EventDate"])
         return str(dates_list).replace('[','').replace(']','')
 
+    def _write_delta_merge(self, df: DataFrame, destination: str):
+        df = df.select("EventDate", "TagName", "EventTime", "Status", "Value", "ChangeType")
+        when_matched_update_list = [
+            DeltaMergeConditionValues(
+                condition="(source.ChangeType IN ('insert', 'update', 'upsert')) AND ((source.Status != target.Status) OR (source.Value != target.Value))",
+                values={
+                    "EventDate": "source.EventDate", 
+                    "TagName": "source.TagName",
+                    "EventTime": "source.EventTime",
+                    "Status": "source.Status",
+                    "Value": "source.Value"
+                }
+            )
+        ]
+        when_matched_delete_list = [
+            DeltaMergeCondition(
+                condition="source.ChangeType = 'delete'"
+            )
+        ]
+        when_not_matched_insert_list = [
+            DeltaMergeConditionValues(
+                condition="(source.ChangeType IN ('insert', 'update', 'upsert'))",
+                values={
+                    "EventDate": "source.EventDate", 
+                    "TagName": "source.TagName",
+                    "EventTime": "source.EventTime",
+                    "Status": "source.Status",
+                    "Value": "source.Value"
+                }
+            )
+        ]
+
+        merge_condition = "source.EventDate = target.EventDate AND source.TagName = target.TagName AND source.EventTime = target.EventTime"
+        
+        perform_merge = True
+        if self.try_broadcast_join != True:
+            eventdate_string = self._get_eventdate_string(df)
+            if eventdate_string == None or eventdate_string == "":
+                perform_merge = False
+            else:
+                merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
+
+        if perform_merge == True:
+            SparkDeltaMergeDestination(
+                spark=self.spark,
+                data=df,
+                destination=destination,
+                options=self.options,
+                merge_condition=merge_condition,
+                when_matched_update_list=when_matched_update_list,
+                when_matched_delete_list=when_matched_delete_list,
+                when_not_matched_insert_list=when_not_matched_insert_list,
+                try_broadcast_join=self.try_broadcast_join,
+                trigger=self.trigger,
+                query_name=self.query_name
+            ).write_batch()
+
     def _write_delta_batch(self, df: DataFrame, destination: str):
         
         if self.merge == True:
-            df = df.select("EventDate", "TagName", "EventTime", "Status", "Value", "ChangeType")
-            when_matched_update_list = [
-                DeltaMergeConditionValues(
-                    condition="(source.ChangeType IN ('insert', 'update', 'upsert')) AND ((source.Status != target.Status) OR (source.Value != target.Value))",
-                    values={
-                        "EventDate": "source.EventDate", 
-                        "TagName": "source.TagName",
-                        "EventTime": "source.EventTime",
-                        "Status": "source.Status",
-                        "Value": "source.Value"
-                    }
-                )
-            ]
-            when_matched_delete_list = [
-                DeltaMergeCondition(
-                    condition="source.ChangeType = 'delete'"
-                )
-            ]
-            when_not_matched_insert_list = [
-                DeltaMergeConditionValues(
-                    condition="(source.ChangeType IN ('insert', 'update', 'upsert'))",
-                    values={
-                        "EventDate": "source.EventDate", 
-                        "TagName": "source.TagName",
-                        "EventTime": "source.EventTime",
-                        "Status": "source.Status",
-                        "Value": "source.Value"
-                    }
-                )
-            ]
-
-            merge_condition = "source.EventDate = target.EventDate AND source.TagName = target.TagName AND source.EventTime = target.EventTime"
-            
-            perform_merge = True
-            if self.try_broadcast_join != True:
-                eventdate_string = self._get_eventdate_string(df)
-                if eventdate_string == None or eventdate_string == "":
-                    perform_merge = False
-                else:
-                    merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
-
-            if perform_merge == True:
-                delta = SparkDeltaMergeDestination(
-                    spark=self.spark,
-                    data=df,
-                    destination=destination,
-                    options=self.options,
-                    merge_condition=merge_condition,
-                    when_matched_update_list=when_matched_update_list,
-                    when_matched_delete_list=when_matched_delete_list,
-                    when_not_matched_insert_list=when_not_matched_insert_list,
-                    try_broadcast_join=self.try_broadcast_join
-                )
+            self._write_delta_merge(df.filter(col("ChangeType").isin('insert', 'update', 'upsert')), destination)
+            self._write_delta_merge(df.filter(col("ChangeType") == 'delete'), destination)
         else:
             df = df.select("TagName", "EventTime", "Status", "Value")
-            delta = SparkDeltaDestination(
+            SparkDeltaDestination(
                 data=df,
                 destination=destination,
-                options=self.options
-            )
-        
-        delta.write_batch()
+                options=self.options,
+                mode=self.mode,
+                trigger=self.trigger,
+                query_name=self.query_name
+            ).write_batch()
 
     def _write_data_by_type(self, df: DataFrame):
         if self.merge == True:
@@ -197,7 +203,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
             df = df.withColumn("EventTime", (floor(col("EventTime").cast("double")*1000)/1000).cast("timestamp"))
 
         if self.remove_duplicates == True:
-            df = df.drop_duplicates(["TagName", "EventTime"])
+            df = df.drop_duplicates(["TagName", "EventTime", "ChangeType"])
 
         float_df = (
             df

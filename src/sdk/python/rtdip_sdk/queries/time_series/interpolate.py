@@ -16,7 +16,6 @@ import logging
 import pandas as pd
 from ._query_builder import _query_builder
 
-
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     An RTDIP interpolation function that is intertwined with the RTDIP Resampling function.
@@ -68,6 +67,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor.execute(query)
             df = cursor.fetch_all()
             cursor.close()
+            connection.close()
             return df
         except Exception as e:
             logging.exception('error returning dataframe')
