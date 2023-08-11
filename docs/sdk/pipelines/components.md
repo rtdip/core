@@ -23,7 +23,7 @@ Component Types determine system requirements to execute the component:
 - Databricks - components that require a Databricks runtime
 
 !!! note "Note"
-    </b>RTDIP are continuously adding more to this list. For detailed information on timelines, read this [blog post](../../blog/rtdip_ingestion_pipelines.md) and check back on this page regularly.<br />
+    </b>RTDIP are continuously adding more to this list. For detailed information on timelines, read this [blog post](../../blog/posts/rtdip_ingestion_pipelines.md) and check back on this page regularly.<br />
 
 ### Sources
 

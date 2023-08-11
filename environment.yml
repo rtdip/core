@@ -19,7 +19,7 @@ channels:
     - defaults
 dependencies:
     - python>=3.8,<3.12
-    - mkdocs-material==9.1.18
+    # - mkdocs-material==9.1.21
     - mkdocs-material-extensions==1.1.1
     - jinja2==3.1.2
     - pytest==7.4.0
@@ -72,4 +72,5 @@ dependencies:
         - build==0.10.0
         - langchain>=0.0.239,<=0.0.247
         - deltalake==0.10.1
+        - mkdocs-material==9.2.0b3
         
