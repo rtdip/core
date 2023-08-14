@@ -1,8 +1,19 @@
+---
+date: 2022-11-01
+authors:
+  - GBBBAS
+tags:
+  - Pipelines
+  - Delta 
+---
+
 # Delta Lakehouse and Real Time Data Ingestion Platform
 
-<center> ![Delta Lakehouse](images/delta-lakehouse.svg) </center>
+<center> ![Delta Lakehouse](../images/delta-lakehouse.svg){width=50%} </center>
 
 Real Time Data Ingestion Platform leverages Delta and the concept of a Lakehouse to ingest, store and manage it's data. There are many benefits to Delta for performing data engineering tasks on files stored in a data lake including ACID transactions, maintenance, SQL query capability and performance at scale. To find out more about Delta Lakehouse please see [here.](https://databricks.com/product/data-lakehouse)
+
+<!-- more -->
 
 The Real Time Data Ingestion Platform team would like to share some lessons learnt from the implementation of Delta and the Lakehouse concept so that hopefully it helps others on their Delta Lakehouse journey.
 
@@ -47,7 +58,7 @@ This can be difficult to achieve. The most queried columns in RTDIP event data a
 
 One of the best methods to analyse Spark query performance is to analyse the query plan of a query. It is essential that a Spark query plan leverages a partition column. This can be identified by reviewing the query plan in Spark. As per the below query plan, it can be seen that for this particular query only one partition was read by Spark. Make sure to try different queries to identify that the expected number of partitions are being used by Spark in every query. If it does not match your expected number of partitions, it is important to investigate why partition pruning is not being leveraged in your query. 
 
-<center> ![query plan](images/spark-query-plan.png) </center>
+<center> ![query plan](../images/spark-query-plan.png) </center>
 
 ### ZORDER Columns
 
@@ -57,7 +68,7 @@ Zordering organises the data within each file, and along with the Delta Index fi
 
 The most obvious column to ZORDER on in RTDIP is the TagName as every query is likely to use this in its filter. Like partition pruning, it is possible to identify the impact of ZORDERING on your queries by reviewing the files read attribute in the query plan. As per the query plan below, you can see that two files were read within the one partition.
 
-<center> ![query plan](images/spark-query-plan.png) </center>
+<center> ![query plan](../images/spark-query-plan.png) </center>
 
 ### MERGE and File Sizes
 

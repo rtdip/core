@@ -16,6 +16,7 @@ import sys
 sys.path.insert(0, '.')
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.ssip_pi_binary_file_to_pcdm import SSIPPIBinaryFileToPCDMTransformer
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, PyPiLibrary
+from src.sdk.python.rtdip_sdk._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType, DateType
@@ -44,6 +45,7 @@ def test_ssip_binary_file_to_pcdm_udf(spark_session: SparkSession):
     binary_data = parquet_df.to_parquet()
     ssip_pi_binary_df = pd.DataFrame([{"path": "test", "modificationTime": "1", "length": 172, "content": binary_data}])
 
+    ssip_pi_binary_df = _prepare_pandas_to_convert_to_spark(ssip_pi_binary_df)
     binary_file_df: DataFrame = spark_session.createDataFrame(ssip_pi_binary_df)
 
     expected_schema = StructType([

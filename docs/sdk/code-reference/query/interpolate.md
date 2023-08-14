@@ -23,7 +23,7 @@ parameters = {
     "time_interval_rate": "15", #numeric input
     "time_interval_unit": "minute", #options: ["second", "minute", "day", "hour"]
     "agg_method": "first", #options: ["first", "last", "avg", "min", "max"]
-    "interpolation_method": "forward_fill", #options: ["forward_fill", "backward_fill"]
+    "interpolation_method": "forward_fill", #options: ["forward_fill", "backward_fill", "linear"]
     "include_bad_data": True, #options: [True, False]
 }
 x = interpolate.get(connection, parameters)

@@ -151,7 +151,7 @@ class ResampleQueryParams:
 class InterpolateQueryParams:
     def __init__(
         self,
-        interpolation_method: str = Query(..., description="Interpolation Method can be forward_fill or backward_fill", examples=["forward_fill", "backward_fill"]),
+        interpolation_method: str = Query(..., description="Interpolation Method can e one of the following [forward_fill, backward_fill, linear]", examples=["forward_fill", "backward_fill", "linear"]),
     ):
         self.interpolation_method = interpolation_method
 

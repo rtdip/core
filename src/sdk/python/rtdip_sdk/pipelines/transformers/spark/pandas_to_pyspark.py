@@ -18,6 +18,7 @@ from pandas import DataFrame as PandasDataFrame
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from ...._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 
 class PandasToPySparkTransformer(TransformerInterface):
     '''
@@ -62,5 +63,8 @@ class PandasToPySparkTransformer(TransformerInterface):
         Returns:
             DataFrame: A PySpark dataframe converted from a Pandas DataFrame.
         '''
+        
+        self.df = _prepare_pandas_to_convert_to_spark(self.df)
         df = self.spark.createDataFrame(self.df)
+        
         return df
