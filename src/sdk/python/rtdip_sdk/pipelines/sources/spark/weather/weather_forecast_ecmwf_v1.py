@@ -29,28 +29,24 @@ from pyspark.sql.types import StringType, DoubleType, IntegerType
 
 from .base_weather import BaseWeatherSource
 
-__author__ = ["ciaran-g", "Amber-Rigg"]
-
 load_dotenv()
 
 class MARSDownloader:
     """
-    Download nc files from ECMWF MARS server using the ECMWF python API.
+    Download nc files from ECMWF MARS server using the ECMWF python API. 
+    Data is downloaded in parallel using joblib from ECMWF MARS server using the ECMWF python API.
 
-    Parameters
-    ----------
-    save_path : str
-        Path to local directory where the nc files will be stored
-         in format "yyyy-mm-dd_HH.nc"
-    date_start : str
-        Start date of extraction in "YYYY-MM-DD HH:MM:SS" format
-    date_end : str
-        End date of extraction in "YYYY-MM-DD HH:MM:SS" format
-    run_frequency : str
-        Frequency format of runs to download, e.g. "H"
-    run_interval : str
-        Interval of runs, e.g. a run_frequency of "H" and run_interval of "12" will
-        extract the data of the 00 and 12 run for each day.
+    The following environment variables must be set:
+    ECMWF_API_KEY=""
+    ECMWF_API_URL="https://api.ecmwf.int/v1"
+    ECMWF_API_EMAIL=""
+
+    Attributes:
+        save_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
+        date_start (str): Start date of extraction in "YYYY-MM-DD HH:MM:SS" format
+        date_end (str): End date of extraction in "YYYY-MM-DD HH:MM:SS" format
+        run_frequency (str):Frequency format of runs to download, e.g. "H"
+        run_interval (str): Interval of runs, e.g. a run_frequency of "H" and run_interval of "12" will extract the data of the 00 and 12 run for each day.
     """
 
     def __init__(
@@ -69,7 +65,7 @@ class MARSDownloader:
         self.run_interval = run_interval
         self.run_frequency = run_frequency
 
-        # pandas date_list (info best retrieved per forecast day)
+        # Pandas date_list (info best retrieved per forecast day)
         self.dates = pd.date_range(
             start=date_start, end=date_end, freq=run_interval + run_frequency
         )
@@ -84,37 +80,29 @@ class MARSDownloader:
     ):
         """Retrieve the data from the server.
 
+        Function will use the ecmwf api to download the data from the server.
         Note that mars has a max of two active requests per user and 20 queued
         requests.
+        Data is downloaded in parallel using joblib from ECMWF MARS server using the ECMWF python API.
 
-        Parameters
-        ----------
-        mars_dict : dict
-            Dictionary of mars parameters.
-        n_jobs : int, optional
-            Download in parallel? by default None, i.e. no parallelization
-        backend : str, optional
-            Specify the parallelization backend implementation in joblib,
-            by default "loky".
-        tries : int, optional
-            Number of tries for each request if it fails, by default 5
-        cost : bool, optional
-            Pass a cost request to mars to estimate the size and efficiency of your request,
-            but not actually download the data. Can be useful for defining requests,
-            by default False.
 
-        Returns
-        -------
-        self
+        Args:
+            mars_dict (dict): Dictionary of mars parameters.
+            n_jobs (int, optional): Download in parallel? by default None, i.e. no parallelization
+            backend (str, optional) : Specify the parallelization backend implementation in joblib, by default "loky"
+            tries (int, optional): Number of tries for each request if it fails, by default 5
+            cost (bool, optional):  Pass a cost request to mars to estimate the size and efficiency of your request,
+                but not actually download the data. Can be useful for defining requests,
+                by default False.
+
+        Returns:
             self: reference to self
         """
-        # check that date and target are not in dict
         chk = ["date", "target", "time", "format", "output"]
         for i in chk:
             if i in mars_dict.keys():
                 raise ValueError(f"don't include {i} in the mars_dict")
 
-        # parallel query using joblib
         parallel = Parallel(n_jobs=n_jobs, backend=backend)
 
         def _retrieve_datetime(i, j, cost=cost):
@@ -129,7 +117,6 @@ class MARSDownloader:
             target = os.path.join(self.save_path, filename)
             msg = f"retrieving mars data --- {filename}"
 
-            # format query into mars language
             req_dict = {**i_dict, **mars_dict}
             for k, v in req_dict.items():
                 if isinstance(v, (list, tuple)):
@@ -162,12 +149,11 @@ class MARSDownloader:
         return self
 
     def info(self) -> pd.Series:
-        """Return info on each request
+        """
+        Return info on each ECMWF request.
 
-        Returns
-        -------
-        pd.Series
-            Successful request for each run == 1.
+        Returns:
+            pd.Series: Successful request for each run == 1.
         """
         if not self.retrieve_ran:
             raise ValueError(
@@ -179,16 +165,27 @@ class MARSDownloader:
 
 class WeatherForecastECMWFV1Source(BaseWeatherSource):
     """
-    The Weather Forecast API V1 Source class.
+    The Weather Forecast API V1 Source class to doownload nc files from ECMWF MARS server using the ECMWF python API. 
+    
+    The following environment variables must be set:
+    ECMWF_API_KEY=""
+    ECMWF_API_URL="https://api.ecmwf.int/v1"
+    ECMWF_API_EMAIL=""
 
-    URL: <a /a>
 
     Args:
         spark (SparkSession): Spark Session instance
 
     Attributes:
-
-
+        save_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
+        date_start (str): Start date of extraction in "YYYY-MM-DD HH:MM:SS" format    date_end:str, 
+        date_end (str): End date of extraction in "YYYY-MM-DD HH:MM:SS" format
+        ecmwf_class (str): ecmwf classification of data
+        stream (str): Operational model stream
+        expver (str): Version of data
+        leveltype (str): Surface level forecasts
+        ec_vars (list): Variables of forecast measurements.
+        forecast_area (list): N/W/S/E coordinates of the forecast area
     """
 
     spark: SparkSession
@@ -199,6 +196,7 @@ class WeatherForecastECMWFV1Source(BaseWeatherSource):
             self, 
             spark: SparkSession, 
             sc, 
+            save_path: str,
             date_start:str, 
             date_end:str, 
             ecmwf_class: str, 
@@ -212,6 +210,7 @@ class WeatherForecastECMWFV1Source(BaseWeatherSource):
         self.dbutils = dbutils 
         self.sc = sc
 
+        self.save_path = save_path
         self.date_start = date_start
         self.date_end = date_end
         self.ecmwf_class = ecmwf_class
@@ -231,7 +230,7 @@ class WeatherForecastECMWFV1Source(BaseWeatherSource):
         146 -246 - 6 Hour interval
 
         Returns:
-            lead_times in array format.
+            lead_times: Lead times in an array format.
         """
         lead_times = [*range(91), *range(93, 146, 3), *range(150, 246, 6)]
         np.array(lead_times)
@@ -239,6 +238,14 @@ class WeatherForecastECMWFV1Source(BaseWeatherSource):
         return lead_times
     
     def _get_api_params(self, lead_times):
+        """
+        API parameters for the forecast data.
+
+        Returns:
+            params (dict): API parameters for the forecast data.
+        """
+
+
         
         params = {
         "class": self.ecmwf_class, # ecmwf classification of data
@@ -266,7 +273,7 @@ class WeatherForecastECMWFV1Source(BaseWeatherSource):
         ec_conn = MARSDownloader(
             date_start=self.date_start,
             date_end= self.date_end,
-            save_path="../data/ecmwf/oper/fc/sfc/europe/",
+            save_path=self.save_path,
             run_interval="12",
             run_frequency="H"
             )
