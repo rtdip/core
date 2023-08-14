@@ -16,8 +16,7 @@ import os
 import logging
 from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, map_from_entries, udf
-from pyspark.sql.types import MapType, StringType
+from pyspark.sql.functions import col, map_from_entries, map_filter
 from urllib.parse import urlparse
 
 from ..interfaces import SourceInterface
@@ -26,6 +25,24 @@ from ..._pipeline_utils.spark import KAFKA_EVENTHUB_SCHEMA
 from ..._pipeline_utils.constants import get_default_package
 from ..._pipeline_utils.amqp import decode_kafka_headers_to_amqp_properties
 
+eventhub_system_properties = [
+    "x-opt-enqueued-time",
+    "x-opt-sequence-number",
+    "x-opt-offset",
+    "x-opt-publisher",    
+    "x-opt-partition-key",
+    "message-id",
+    "iothub-enqueuedtime",
+    "user-id",
+    "iothub-connection-device-id",
+    "iothub-connection-module-id",
+    "iothub-connection-auth-generation-id",
+    "iothub-connection-auth-method",
+    "iothub-app-iothub-creation-time-utc",
+    "iothub-creation-time-utc",
+    "dt-dataschema",
+    "dt-subject"
+]
 
 class SparkKafkaEventhubSource(SourceInterface):
     '''
@@ -33,10 +50,10 @@ class SparkKafkaEventhubSource(SourceInterface):
     
     The dataframe returned is transformed to ensure the schema is as close to the Eventhub Spark source as possible. There are some minor differences:
     
-    - `offset` is not included in the Kafka source and therefore is not available in the returned Dataframe
-    - `publisher` is not included in the Kafka source and therefore is not available in the returned Dataframe
-    - `partitionKey` is not included in the Kafka source and therefore is not available in the returned Dataframe
-    - `systemProperties` and `properties` are merged in `properties` in the returned Dataframe as Kafka Headers returns them all in the same column with no way to differentiate between them
+    - `offset` is dependent on `x-opt-offset` being populated in the headers provided. If this is not found in the headers, the value will be null
+    - `publisher` is dependent on `x-opt-publisher` being populated in the headers provided. If this is not found in the headers, the value will be null
+    - `partitionKey` is dependent on `x-opt-partition-key` being populated in the headers provided. If this is not found in the headers, the value will be null
+    - `systemProperties` are identified according to the list provided in the [Eventhub documentation](https://learn.microsoft.com/en-us/azure/data-explorer/ingest-data-event-hub-overview#event-system-properties-mapping){ target="_blank" } and [IoT Hub documentation](https://learn.microsoft.com/en-us/azure/data-explorer/ingest-data-iot-hub-overview#event-system-properties-mapping){ target="_blank" } 
 
     Default settings will be specified if not provided in the `options` parameter:
 
@@ -226,6 +243,22 @@ class SparkKafkaEventhubSource(SourceInterface):
                 col("timestamp").alias("enqueuedTime"),
                 decode_kafka_headers_to_amqp_properties(col("headers")).alias("properties")
             )
+            .withColumn("offset", col("properties").getItem("x-opt-offset"))
+            .withColumn("publisher", col("properties").getItem("x-opt-publisher"))
+            .withColumn("partitionKey", col("properties").getItem("x-opt-partition-key"))
+            .withColumn("systemProperties", map_filter(col("properties"), lambda k, _: k.isin(eventhub_system_properties)))
+            .withColumn("properties", map_filter(col("properties"), lambda k, _: ~k.isin(eventhub_system_properties)))
+            .select(
+                col("body"),
+                col("partition"),
+                col("offset"),
+                col("sequenceNumber"),
+                col("enqueuedTime"),
+                col("publisher"),
+                col("partitionKey"),
+                col("properties"),
+                col("systemProperties")
+            )            
         )
     
     def read_batch(self) -> DataFrame:
