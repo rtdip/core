@@ -50,12 +50,8 @@ class SparkConnection(ConnectionInterface):
       self.connection = spark
 
   def close(self) -> None:
-    """Stops the Spark Session."""
-    try:
-      self.connection.stop()
-    except Exception as e:
-      logging.exception('error while closing connection')
-      raise e
+    """Not relevant for spark sessions"""
+    pass
 
   def cursor(self) -> object:
     """
