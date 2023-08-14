@@ -162,6 +162,7 @@ class MARSDownloader:
             )
         y = pd.Series(self.success, index=self.dates, name="success", dtype=bool)
         return y
+    
 
 class WeatherForecastECMWFV1Source(BaseWeatherSource):
     """
@@ -171,8 +172,6 @@ class WeatherForecastECMWFV1Source(BaseWeatherSource):
     ECMWF_API_KEY=""
     ECMWF_API_URL="https://api.ecmwf.int/v1"
     ECMWF_API_EMAIL=""
-
-
     Args:
         spark (SparkSession): Spark Session instance
 
@@ -244,8 +243,6 @@ class WeatherForecastECMWFV1Source(BaseWeatherSource):
         Returns:
             params (dict): API parameters for the forecast data.
         """
-
-
         
         params = {
         "class": self.ecmwf_class, # ecmwf classification of data
@@ -285,3 +282,5 @@ class WeatherForecastECMWFV1Source(BaseWeatherSource):
             )
 
         return 
+    
+    
