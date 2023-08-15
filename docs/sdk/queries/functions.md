@@ -29,7 +29,7 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 ### Interpolation at Time
 
-[Interpolation at Time](../code-reference/query/interpolation_at_time.md) - works out the linear interpolation at a specific time based on the points before and after. This is achieved by providing the following parameter:
+[Interpolation at Time](../code-reference/query/interpolation-at-time.md) - works out the linear interpolation at a specific time based on the points before and after. This is achieved by providing the following parameter:
 
 - Timestamps - A list of timestamp or timestamps
 
@@ -45,6 +45,24 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 !!! note "Note"
     </b>Window Size Mins is deprecated and will be removed in v1.0.0. Please use Time Interval Rate and Time Interval Unit instead.<br />
+
+### Circular Averages
+
+[Circular Averages](../code-reference/query/circular-average.md) computes the circular average for samples in a range. The RTDIP SDK requires the following parameters to perform circular average queries:
+
+- Time Interval Rate - The time interval rate
+- Time Interval Unit - The time interval unit (second, minute, day, hour)
+- Lower Bound - The lower boundary for the sample range
+- Upper Bound - The upper boundary for the sample range
+
+### Circular Standard Deviations
+
+[Circular Standard Deviations](../code-reference/query/circular-standard-deviation.md) computes the circular standard deviations for samples assumed to be in the range. The RTDIP SDK requires the following parameters to perform circular average queries:
+
+- Time Interval Rate - The time interval rate
+- Time Interval Unit - The time interval unit (second, minute, day, hour)
+- Lower Bound - The lower boundary for the sample range
+- Upper Bound - The upper boundary for the sample range
 
 ## Time Series Metadata
 
@@ -66,5 +84,9 @@ For examples of how to use the RTDIP functions, click the following links:
 * [Interpolation at Time](../examples/query/Interpolation-at-Time.md)
 
 * [Time Weighted Averages](../examples/query/Time-Weighted-Average.md)
+
+* [Circular Averages](../examples/query/Circular-Average.md)
+
+* [Circular Standard Deviations](../examples/query/Circular-Standard-Deviation.md)
 
 * [Metadata](../examples/query/Metadata.md)
