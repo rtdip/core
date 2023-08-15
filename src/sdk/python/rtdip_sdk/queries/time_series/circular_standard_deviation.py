@@ -39,7 +39,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
     
     Returns:
-        DataFrame: A dataframe containing the time weighted averages.
+        DataFrame: A dataframe containing the circular standard deviations.
     '''
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
