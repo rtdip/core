@@ -43,6 +43,9 @@ def test_transform(extract_instance, mocker):
         def close(self):
             pass
     mocker.patch('xarray.open_dataset', MockXROpenDataset)
+
+    expected_df = pd.DataFrame([[1, 'a'], [2, 'b']], columns=["col1", "col2"])
+
     
     tag_prefix = "test_tag_prefix"
     variables = ["10u", "10v"]
@@ -51,10 +54,8 @@ def test_transform(extract_instance, mocker):
     
     assert isinstance(df, pd.DataFrame)
     assert len(df) == len(extract_instance.dates) * len(extract_instance.lat) * len(extract_instance.lon) * len(variables)
-    assert all(col in df.columns for col in ["Latitude", "Longitude", "EnqueuedTime", "EventTime", "Value"])
-    assert "Source" in df["Source"].unique()
-    assert "Status" in df["Status"].unique()
-    assert "Latest" in df["Latest"].unique()
-    assert "EventDate" in df["EventDate"].unique()
-    assert "TagName" in df["TagName"].unique()
+    assert all(col in df.columns for col in ["TagName", "Latitude", "Longitude", "EnqueuedTime", "EventTime", "EventDate", "Value", "Source", "Status", "Latest"])
+    assert df["Source"] == "ECMWF_MARS"
+    assert df["Status"] == "Good"
+    assert df["Latest"] == True
 

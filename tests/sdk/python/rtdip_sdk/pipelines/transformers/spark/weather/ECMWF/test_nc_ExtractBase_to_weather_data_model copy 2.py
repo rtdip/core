@@ -38,7 +38,7 @@ def test_transform(extract_instance, mocker):
             pass
     mocker.patch('xarray.open_dataset', MockXROpenDataset)
     
-    tag_prefix = "wind_"
+    tag_prefix = "test_tag_prefix"
     variables = ["10u", "10v"]
     method = "nearest"
     df = extract_instance.transform(tag_prefix, variables, method)
