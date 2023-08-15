@@ -42,6 +42,7 @@ MOCKED_PARAMETER_DICT = {
 
 def test_interpolation_at_time(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(MockedCursor, "fetchall_arrow", return_value = pa.Table.from_pandas(pd.DataFrame(data={'a': [1], 'b': [2], 'c': [3], 'd': [4]})))
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -52,6 +53,7 @@ def test_interpolation_at_time(mocker: MockerFixture):
     actual = interpolation_at_time_get(mocked_connection, MOCKED_PARAMETER_DICT)
 
     mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
@@ -59,6 +61,7 @@ def test_interpolation_at_time(mocker: MockerFixture):
 
 def test_interpolation_at_time_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
+    mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
     mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")

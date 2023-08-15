@@ -66,9 +66,9 @@ class DataBricksAutoLoaderSource(SourceInterface):
     def read_batch(self):
         '''
         Raises:
-            NotImplementedError: Auto Loader only supports streaming reads. To perform a batch read, use the read_stream method of this component and specify the Trigger on the write_stream to be `availableNow=True` to perform batch-like reads of cloud storage files.
+            NotImplementedError: Auto Loader only supports streaming reads. To perform a batch read, use the read_stream method of this component and specify the Trigger on the write_stream to be `availableNow` to perform batch-like reads of cloud storage files.
         '''
-        raise NotImplementedError("Auto Loader only supports streaming reads. To perform a batch read, use the read_stream method and specify Trigger on the write_stream as `availableNow=True`")
+        raise NotImplementedError("Auto Loader only supports streaming reads. To perform a batch read, use the read_stream method and specify Trigger on the write_stream as `availableNow`")
         
     def read_stream(self) -> DataFrame:
         '''

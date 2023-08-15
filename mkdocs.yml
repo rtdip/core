@@ -71,14 +71,22 @@ theme:
     code: Roboto Mono
   favicon: assets/favicon.png
   logo: assets/logo_lfe.png
+  icon:
+    tag:
+        pipelines: fontawesome/solid/timeline
 
 extra:
   generator: false
+  tags:
+    Pipelines: pipelines
 
 plugins:
   - search
   - autorefs
   - mkdocstrings
+  - tags
+  - blog:
+      post_excerpt: required
   - macros:
       module_name: docs/macros
 
@@ -113,6 +121,9 @@ nav:
       - Process Control: 
           - Overview: domains/process_control/overview.md
           - Data Model: domains/process_control/data_model.md
+      - Smart Meter Data: 
+          - Overview: domains/smart_meter/overview.md
+          - Data Model: domains/smart_meter/data_model.md
       - Weather Data: 
           - Overview: domains/weather/overview.md
           - Data Model: domains/weather/data_model.md
@@ -261,9 +272,4 @@ nav:
   - Releases:
       - core: releases/core.md
   - Blog:
-      - Overview: blog/overview.md
-      - Posts:
-          - RTDIP Generative AI SQL Agent: blog/rtdip_generative_ai_sql_agent.md
-          - RTDIP Ingestion Pipelines: blog/rtdip_ingestion_pipelines.md
-          - Delta Lakehouse and RTDIP: blog/delta_and_rtdip.md
-
+      - blog/index.md

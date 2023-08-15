@@ -26,7 +26,8 @@ class SparkKinesisDestination(DestinationInterface):
         data (DataFrame): Dataframe to be written to Delta
         options (dict): A dictionary of Kinesis configurations (See Attributes table below). All Configuration options for Kinesis can be found [here.](https://github.com/qubole/kinesis-sql#kinesis-sink-configuration){ target="_blank" }
         mode (str): Method of writing to Kinesis - append, complete, update
-        trigger (str): Frequency of the write operation
+        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        query_name (str): Unique name for the query in associated SparkSession
         
     Attributes:
         endpointUrl (str): Endpoint of the kinesis stream.
@@ -34,15 +35,12 @@ class SparkKinesisDestination(DestinationInterface):
         awsSecretKey (str): AWS secret access key corresponding to the access key.
         streamName (List[str]): Name of the streams in Kinesis to write to.
     '''
-    options: dict
-    mode: str
-    trigger: str
-
-    def __init__(self, data: DataFrame, options: dict, mode:str = "update", trigger:str= "10 seconds") -> None:
+    def __init__(self, data: DataFrame, options: dict, mode:str = "update", trigger:str= "10 seconds", query_name="KinesisDestination") -> None:
         self.data = data
         self.options = options
         self.mode = mode
         self.trigger = trigger
+        self.query_name = query_name
 
     @staticmethod
     def system_type():
@@ -91,13 +89,15 @@ class SparkKinesisDestination(DestinationInterface):
         Writes steaming data to Kinesis.
         '''
         try:
+            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
             query = (
                 self.data
                 .writeStream
-                .trigger(processingTime=self.trigger)
+                .trigger(**TRIGGER_OPTION)
                 .format("kinesis")
                 .outputMode(self.mode)
                 .options(**self.options)
+                .queryName(self.query_name)
                 .start()
             )
             while query.isActive:

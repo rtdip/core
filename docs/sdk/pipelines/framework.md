@@ -70,7 +70,7 @@ More Information about Pipeline Jobs can be found [here.](jobs.md)
 |![python](images/python.png){: .image-center}|![pyspark](images/apachespark.png){: .image-center}|![databricks](images/databricks_horizontal.png){: .image-center}|![delta](images/dlt.svg){: .image-center}
 
 !!! note "Note"
-    </b>RTDIP are continuously adding more to this list. For detailed information on timelines, read this [blog post](../../blog/rtdip_ingestion_pipelines.md) and check back on this page regularly.<br />
+    </b>RTDIP are continuously adding more to this list. For detailed information on timelines, read this [blog post](../../blog/posts/rtdip_ingestion_pipelines.md) and check back on this page regularly.<br />
 
 Pipelines can run in multiple environment types. These include:
 

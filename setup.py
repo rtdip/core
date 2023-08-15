@@ -32,7 +32,7 @@ INSTALL_REQUIRES = [
   "databricks-sql-connector==2.8.0",
   "azure-identity==1.12.0",
   "pyodbc==4.0.39",
-  "pandas==1.5.2",
+  "pandas>=2.0.1,<3.0.0",
   "jinja2==3.1.2",
   "importlib_metadata>=1.0.0",
   "semver==3.0.0",
@@ -40,7 +40,7 @@ INSTALL_REQUIRES = [
   "grpcio>=1.48.1",
   "grpcio-status>=1.48.1",
   "googleapis-common-protos>=1.56.4",
-  "langchain==0.0.247",
+  "langchain>=0.0.239,<=0.0.247",
   "openai==0.27.8"
 ]
 
@@ -57,7 +57,9 @@ PIPELINE_PACKAGES = [
   "boto3==1.28.2",
   "hvac==1.1.1",
   "azure-keyvault-secrets==4.7.0",
-  "web3==6.5.0"
+  "web3==6.5.0",
+  "polars[deltalake]==0.18.8",
+  "delta-sharing==0.7.4"
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {

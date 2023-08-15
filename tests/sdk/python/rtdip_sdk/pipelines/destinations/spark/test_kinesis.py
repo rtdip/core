@@ -47,21 +47,21 @@ def test_spark_kinesis_write_batch(spark_session: SparkSession, mocker: MockerFi
     assert actual is None
 
 def test_spark_kinesis_write_stream(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(return_value=TestStreamingQueryClass()))))))))))))
+    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(return_value=TestStreamingQueryClass()))))))))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     kinesis_destination = SparkKinesisDestination(expected_df, {}, "update", "10 seconds")
     actual = kinesis_destination.write_stream()
     assert actual is None
 
 def test_spark_kinesis_write_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))))))
+    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     kinesis_destination = SparkKinesisDestination(expected_df, {}, "update", "10 seconds")
     with pytest.raises(Exception):
         kinesis_destination.write_batch()
         
 def test_spark_kinesis_write_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))))))
+    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(outputMode=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(return_value=Exception))))))))))))))
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     kinesis_destination = SparkKinesisDestination(expected_df, {}, "update", "10 seconds")
     with pytest.raises(Exception):
