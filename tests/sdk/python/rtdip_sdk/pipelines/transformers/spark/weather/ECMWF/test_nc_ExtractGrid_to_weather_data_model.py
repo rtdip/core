@@ -6,16 +6,16 @@ import xarray as xr
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.nc_ExtractGrid_to_weather_data_model import ECMWFExtractGridToWeatherDataModel
 
 # Sample test data
-lat_min = 10.0
-lat_max = 20.0
-lon_min = 30.0
-lon_max = 40.0
-grid_step = 1.0
-load_path = "/path/to/load"
-date_start = "2023-08-01 00:00:00"
-date_end = "2023-08-02 00:00:00"
-run_interval = "H"
-run_frequency = "6H"
+lat_max=54.9
+lat_min=54.6
+lon_max=6.9
+lon_min=6.6
+grid_step=0.1
+load_path="../data/ecmwf/oper/fc/sfc/europe/"
+date_start="2020-10-01 00:00:00"
+date_end="2020-10-02 12:00:00"
+run_interval="12"
+run_frequency="H"
 
 @pytest.fixture
 def extract_instance():
@@ -44,7 +44,7 @@ def test_transform(extract_instance, mocker):
             pass
     mocker.patch('xarray.open_dataset', MockXROpenDataset)
     
-    tag_prefix = "wind_"
+    tag_prefix = "test_tag_prefix"
     variables = ["10u", "10v"]
     method = "nearest"
     df = extract_instance.transform(tag_prefix, variables, method)
@@ -58,4 +58,3 @@ def test_transform(extract_instance, mocker):
     assert "EventDate" in df["EventDate"].unique()
     assert "TagName" in df["TagName"].unique()
 
-# Add more tests as needed

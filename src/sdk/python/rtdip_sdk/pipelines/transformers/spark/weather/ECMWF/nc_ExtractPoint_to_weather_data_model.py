@@ -33,7 +33,6 @@ class ECMWFExtractPointToWeatherDataModel(ExtractBase):
 
     def __init__(
         self,
-        tag_prefix: str,
         lat: float,
         lon: float,
         load_path: str,
@@ -46,7 +45,6 @@ class ECMWFExtractPointToWeatherDataModel(ExtractBase):
         lat_xr = xr.DataArray([lat], dims=["latitude"])
         lon_xr = xr.DataArray([lon], dims=["longitude"])
 
-        self.tag_prefix = tag_prefix
         self.lat = lat_xr
         self.lon = lon_xr
         self.load_path = load_path
@@ -57,7 +55,6 @@ class ECMWFExtractPointToWeatherDataModel(ExtractBase):
         self.utc = utc
 
         super(ECMWFExtractPointToWeatherDataModel, self).__init__(
-            tag_prefix=tag_prefix,
             lat=lat_xr,
             lon=lon_xr,
             load_path=load_path,

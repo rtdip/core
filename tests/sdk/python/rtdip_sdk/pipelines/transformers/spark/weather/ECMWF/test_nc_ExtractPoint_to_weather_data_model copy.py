@@ -6,19 +6,19 @@ import xarray as xr
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.nc_ExtractPoint_to_weather_data_model import ECMWFExtractPointToWeatherDataModel
 
 # Sample test data
-tag_prefix = "point_"
-lat = 10.0
-lon = 20.0
-load_path = "/path/to/load"
-date_start = "2023-08-01 00:00:00"
-date_end = "2023-08-02 00:00:00"
-run_interval = "H"
-run_frequency = "6H"
+tag_prefix = "test"
+lat=55.7
+lon=6.6
+load_path="../data/ecmwf/oper/fc/sfc/europe/"
+date_start="2020-10-01 00:00:00",
+date_end="2020-10-02 12:00:00"
+run_interval="12"
+run_frequency="H"
 
 @pytest.fixture
 def extract_instance():
     return ECMWFExtractPointToWeatherDataModel(
-        tag_prefix, lat, lon, load_path, date_start, date_end, run_interval, run_frequency
+        lat, lon, load_path, date_start, date_end, run_interval, run_frequency
     )
 
 def test_constructor(extract_instance):
@@ -37,12 +37,13 @@ def test_transform(extract_instance, mocker):
             pass
     mocker.patch('xarray.open_dataset', MockXROpenDataset)
     
+    tag_prefix = "test_tag_prefix"
     variables = ["10u", "10v"]
     method = "nearest"
-    df = extract_instance.transform(variables, method)
+    df = extract_instance.transform(tag_prefix, variables, method)
     
     assert isinstance(df, pd.DataFrame)
-    assert len(df) == len(extract_instance.dates) * len(variables)
+    assert len(df) == len(extract_instance.dates) * len(extract_instance.lat) * len(extract_instance.lon) * len(variables)
     assert all(col in df.columns for col in ["Latitude", "Longitude", "EnqueuedTime", "EventTime", "Value"])
     assert "Source" in df["Source"].unique()
     assert "Status" in df["Status"].unique()

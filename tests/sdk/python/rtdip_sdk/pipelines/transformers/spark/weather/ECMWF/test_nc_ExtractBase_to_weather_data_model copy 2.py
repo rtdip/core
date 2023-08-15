@@ -7,10 +7,11 @@ from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.nc_Extr
 
 # Sample test data
 load_path = "/path/to/load"
-date_start = "2023-08-01 00:00:00"
-date_end = "2023-08-02 00:00:00"
-run_interval = "H"
-run_frequency = "12H"
+load_path="../data/ecmwf/oper/fc/sfc/europe/"
+date_start="2020-10-01 00:00:00"
+date_end="2020-10-02 12:00:00"
+run_interval="12"
+run_frequency="H"
 lat = xr.DataArray([10, 20], dims="latitude")
 lon = xr.DataArray([30, 40], dims="longitude")
 
