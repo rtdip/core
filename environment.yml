@@ -65,7 +65,7 @@ dependencies:
     - polars==0.18.8
     - moto[s3]==4.1.14
     - xarray[io]>=2023.5.0
-    - ecmwf-api-client==1.6.3
+    - ecmwf-api-client>=1.6.3
     - pip:
         - dependency-injector==4.41.0
         - azure-functions==1.15.0
