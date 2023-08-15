@@ -1,1 +1,1 @@
---8<-- "https://raw.githubusercontent.com/rodalynbarce/samples/feature/dagsterv2/queries/Interpolation-at-Time/README.md"
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Interpolation-at-Time/README.md"

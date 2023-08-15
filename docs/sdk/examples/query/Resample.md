@@ -1,1 +1,1 @@
---8<-- "https://raw.githubusercontent.com/rodalynbarce/samples/feature/dagsterv2/queries/Resample/README.md"
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Resample/README.md"
