@@ -16,21 +16,17 @@ import pandas as pd
 import numpy as np
 import os
 
-from ecmwfapi import ECMWFService
-from joblib import Parallel, delayed
-
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather import MARSDownloader, WeatherForecastECMWFV1Source
 from pyspark.sql import SparkSession
 
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather import WeatherForecastECMWFV1Source, MarsDownloader
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.weather_forecast_ecmwf import WeatherForecastECMWFSource
+
+
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
-from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
 import unittest
 import pytest
 from unittest.mock import Mock, patch
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather import MARSDownloader, WeatherForecastECMWFV1Source
 
 # Mocked SparkSession for testing
 class MockSparkSession:

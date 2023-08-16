@@ -15,7 +15,7 @@ import pandas as pd
 
 import pytest
 from unittest.mock import Mock, patch
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather import MARS_ECMWF_API
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.base_mars_ecmwf import MARS_ECMWF_API
 
 # Sample test data
 date_start = "2020-10-01 00:00:00"
