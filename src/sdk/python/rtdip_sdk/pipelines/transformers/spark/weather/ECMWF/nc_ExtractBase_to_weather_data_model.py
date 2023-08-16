@@ -17,8 +17,8 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 
-#from src.sdk.python.rtdip_sdk.pipelines.transformers.interfaces import TransformerInterface
-from ....interfaces import TransformerInterface
+from src.sdk.python.rtdip_sdk.pipelines.transformers.interfaces import TransformerInterface
+#from ....interfaces import TransformerInterface
 from ....._pipeline_utils.weather_ecmwf import RTDIP_STRING_WEATHER_DATA_MODEL, RTDIP_FLOAT_WEATHER_DATA_MODEL 
 
 
@@ -63,6 +63,30 @@ class ExtractBase(TransformerInterface):
             freq=self.run_interval + self.run_frequency,
         )
 
+    @staticmethod
+    def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''
+        return SystemType.PYSPARK
+
+    @staticmethod
+    def libraries():
+        libraries = Libraries()
+        return libraries
+    
+    @staticmethod
+    def settings() -> dict:
+        return {}
+    
+    def pre_transform_validation(self):
+        return True
+    
+    def post_transform_validation(self):
+        return True
+    
+    @staticmethod
     def _convert_ws_tag_names(x: list):
         """
         Converts the tag names of wind speed from the format used in the nc files to the format used in the weather data model.
@@ -159,6 +183,4 @@ class ExtractBase(TransformerInterface):
 
 
         return df_final
-
-
-
+    

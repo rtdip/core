@@ -16,6 +16,7 @@ import xarray as xr
 
 from .nc_ExtractBase_to_weather_data_model import ExtractBase
 
+
 class ECMWFExtractPointToWeatherDataModel(ExtractBase):
     """
     Extract a single point from a local .nc file downloaded from ecmwf via mars
