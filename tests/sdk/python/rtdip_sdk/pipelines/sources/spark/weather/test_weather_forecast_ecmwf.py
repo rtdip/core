@@ -23,159 +23,62 @@ from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.weather_forecast_e
 
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
 from pytest_mock import MockerFixture
+from pyspark.sql import SparkSession
 
-import unittest
-import pytest
 from unittest.mock import Mock, patch
 
-# Mocked SparkSession for testing
-class MockSparkSession:
-    pass
+date_start = "2020-10-01 00:00:00"
+date_end = "2020-10-02 00:00:00"
+save_path = "/path/to/save"
+#save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_file")
+ecmwf_class = "od"
+stream = "oper"
+expver = "1"
+leveltype = "sfc"
+ec_vars = [
+         "10u", "10v"
+        ]
+np.array(ec_vars)
+forecast_area = [73.5, -27, 33, 45], # N/W/S/E
 
-# Mocked ECMWFService for MARSDownloader testing
-class MockECMWFService:
-    def execute(self, req_dict, target):
-        pass
+  
+def test_get_lead_time(spark_session: SparkSession):
+    weather_source = WeatherForecastECMWFSource(spark_session, date_start, date_end,save_path,ecmwf_class,stream,expver,leveltype,ec_vars,forecast_area)
+    lead_times = weather_source._get_lead_time()
+    expected_lead_times = [  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,
+        13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,
+        26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
+        39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,
+        52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,
+        65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,
+        78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,
+        93,  96,  99, 102, 105, 108, 111, 114, 117, 120, 123, 126, 129,
+       132, 135, 138, 141, 144, 150, 156, 162, 168, 174, 180, 186, 192,
+       198, 204, 210, 216, 222, 228, 234, 240]
+    assert isinstance(lead_times, list)
+    assert expected_lead_times == lead_times
 
 
-def test_retrieve():
-    downloader = MARSDownloader(date_start="2023-01-01", date_end="2023-01-02", save_path="/path")
-    with patch("Parallel") as mock_parallel, patch("ECMWFService", return_value=MockECMWFService()):
-        mock_parallel.return_value = Mock(success=[1, 1])
-        result = downloader.retrieve(mars_dict={}, n_jobs=2)
-    assert result.success == [1, 1]
-    assert result.retrieve_ran == True
-
-def test_info():
-    downloader = MARSDownloader(date_start="2023-01-01", date_end="2023-01-02", save_path="/path")
-    downloader.retrieve_ran = True
-    downloader.success = [1, 0]
-    result = downloader.info()
-    assert result.tolist() == [True, False]
-
-def setUp(self):
-        # Initialize test data and objects
-        self.save_path = "/path/to/save"
-        self.date_start = "2023-08-01 00:00:00"
-        self.date_end = "2023-08-02 00:00:00"
-        self.ecmwf_class = "your_ecmwf_class"
-        self.stream = "your_stream"
-        self.expver = "your_expver"
-        self.leveltype = "your_leveltype"
-        self.ec_vars = ["var1", "var2"]
-        self.forecast_area = [40, -10, 35, -5]  # Replace with your specific coordinates
-        self.weather_source = WeatherForecastECMWFV1Source(
-            self.spark,
-            None,  # You can pass the appropriate SparkContext here if needed
-            self.save_path,
-            self.date_start,
-            self.date_end,
-            self.ecmwf_class,
-            self.stream,
-            self.expver,
-            self.leveltype,
-            self.ec_vars,
-            self.forecast_area
-        )
-
-def test_get_lead_time(self):
-    lead_times = self.weather_source._get_lead_time()
-    expected_lead_times = [0, 1, 2, ..., 243, 244, 245]
-    self.assertEqual(lead_times, expected_lead_times)
-
-def test_get_api_params(self):
-    lead_times = [0, 1, 2, 3]
-    params = self.weather_source._get_api_params(lead_times)
+def test_get_api_params(spark_session: SparkSession):
+    weather_source = WeatherForecastECMWFSource(spark_session, save_path, date_start, date_end ,ecmwf_class,stream,expver,leveltype,ec_vars,forecast_area)
+    lead_times = weather_source._get_lead_time()    
+    params = weather_source._get_api_params(lead_times)
     expected_params = {
-            "class": self.ecmwf_class,
-            "stream": self.stream,
-            "expver": self.expver,
-            "levtype": self.leveltype,
+            "class": ecmwf_class,
+            "stream": stream,
+            "expver": expver,
+            "levtype": leveltype,
             "type": "fc",
-            "param": self.ec_vars,
+            "param": ec_vars,
             "step": lead_times,
-            "area": self.forecast_area,
+            "area": forecast_area,
             "grid": [0.1, 0.1]
         }
-    self.assertEqual(params, expected_params)
-    
-def test_weather_forecast_ecmwf_v1_source():
-    spark = MockSparkSession()
-    sc = spark.sparkContext
-    weather_source = WeatherForecastECMWFV1Source(
-        spark=spark,
-        sc=sc,
-        save_path="/path",
-        date_start="2023-01-01",
-        date_end="2023-01-02",
-        ecmwf_class="class",
-        stream="stream",
-        expver="expver",
-        leveltype="leveltype",
-        ec_vars=["var1", "var2"],
-        forecast_area=[0, 0, 1, 1]
-    )
-    assert weather_source.spark == spark
+    assert expected_params == params    
 
-# Add more test functions as needed
-
-if __name__ == "__main__":
-    pytest.main()
-
-
-class TestWeatherForecastECMWFV1Source(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.spark = SparkSession.builder.master("local").appName("WeatherTest").getOrCreate()
-
-    def setUp(self):
-        # Initialize test data and objects
-        self.save_path = "/path/to/save"
-        self.date_start = "2023-08-01 00:00:00"
-        self.date_end = "2023-08-02 00:00:00"
-        self.ecmwf_class = "your_ecmwf_class"
-        self.stream = "your_stream"
-        self.expver = "your_expver"
-        self.leveltype = "your_leveltype"
-        self.ec_vars = ["var1", "var2"]
-        self.forecast_area = [40, -10, 35, -5]  # Replace with your specific coordinates
-        self.weather_source = WeatherForecastECMWFV1Source(
-            self.spark,
-            None,  # You can pass the appropriate SparkContext here if needed
-            self.save_path,
-            self.date_start,
-            self.date_end,
-            self.ecmwf_class,
-            self.stream,
-            self.expver,
-            self.leveltype,
-            self.ec_vars,
-            self.forecast_area
-        )
-
-    def test_get_lead_time(self):
-        lead_times = self.weather_source._get_lead_time()
-        expected_lead_times = [0, 1, 2, ..., 243, 244, 245]
-        self.assertEqual(lead_times, expected_lead_times)
-
-    def test_get_api_params(self):
-        lead_times = [0, 1, 2, 3]
-        params = self.weather_source._get_api_params(lead_times)
-        expected_params = {
-            "class": self.ecmwf_class,
-            "stream": self.stream,
-            "expver": self.expver,
-            "levtype": self.leveltype,
-            "type": "fc",
-            "param": self.ec_vars,
-            "step": lead_times,
-            "area": self.forecast_area,
-            "grid": [0.1, 0.1]
-        }
-        self.assertEqual(params, expected_params)
-
-    # You can add more test cases to cover other methods as well
-
-if __name__ == '__main__':
-    unittest.main()
+def test_read_batch(spark_session: SparkSession):
+    weather_source = WeatherForecastECMWFSource(spark_session, date_start=date_start, date_end=date_end,save_path=save_path,ecmwf_class=ecmwf_class,stream=stream,expver=expver,leveltype=leveltype,ec_vars=ec_vars,forecast_area=forecast_area)
+    lead_times = weather_source._get_lead_time()    
+    mars_para = weather_source._get_api_params(lead_times)
+    weather_source.read_batch(mars_para=mars_para)
+    assert weather_source.read_batch() == None

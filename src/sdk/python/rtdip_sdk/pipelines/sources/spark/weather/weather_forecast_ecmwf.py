@@ -47,12 +47,10 @@ class WeatherForecastECMWFSource(SourceInterface):
     """
 
     spark: SparkSession
-    weather_url: str = "https://api.ecmwf.int/v1"
 
     def __init__(
             self, 
             spark: SparkSession, 
-            sc, 
             save_path: str,
             date_start:str, 
             date_end:str, 
@@ -64,20 +62,43 @@ class WeatherForecastECMWFSource(SourceInterface):
             forecast_area: list) -> None:
         
         self.spark = spark
-        self.sc = sc
-
         self.save_path = save_path
         self.date_start = date_start
         self.date_end = date_end
         self.ecmwf_class = ecmwf_class
-        self.stream = stream, # operational model
+        self.stream = stream # operational model
         self.expver = expver # experiment version of data
-        self.leveltype = leveltype, # surface level forecasts
-        self.ec_vars = ec_vars, # variables
-        self.forecast_area =  forecast_area, # N/W/S/E
+        self.leveltype = leveltype # surface level forecasts
+        self.ec_vars = ec_vars # variables
+        self.forecast_area =  forecast_area # N/W/S/E
 
-        self.set_spark_conf()
+    @staticmethod
+    def system_type():
+        '''
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        '''            
+        return SystemType.PYSPARK
+
+    @staticmethod
+    def libraries():
+        libraries = Libraries()
+        return libraries
     
+    @staticmethod
+    def settings() -> dict:
+        return {}
+    
+    def pre_read_validation(self):
+        return True
+    
+    def post_read_validation(self):
+        return True
+    
+    def read_stream(self):
+        return True
+    
+    @staticmethod
     def _get_lead_time(self):
         """
         Lead time for the forecast data.
@@ -116,14 +137,13 @@ class WeatherForecastECMWFSource(SourceInterface):
         return params
     
 
-    def read_batch(self):
+    def read_batch(self,mars_para):
         """
         Pulls data from the Weather API and returns as .nc files.
 
         Returns:
             Raw form of data.
         """
-
         ec_conn = MARS_ECMWF_API(
             date_start=self.date_start,
             date_end= self.date_end,
@@ -133,7 +153,7 @@ class WeatherForecastECMWFSource(SourceInterface):
             )
         
         ec_conn.retrieve(
-            mars_dict= self._get_api_params(self._get_lead_times()),
+            mars_dict= mars_para,
             tries=5,
             n_jobs=-1, # maximum of 20 queued requests per user (only two allowed active)
             )
