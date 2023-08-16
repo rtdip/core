@@ -21,7 +21,7 @@ from .nc_ExtractBase_to_weather_data_model import ExtractBase
 class ECMWFExtractGridToWeatherDataModel(ExtractBase):
     """Extract a grid from a local .nc file downloaded from ecmwf via mars
 
-    Attributes:
+    Args:
         lat_min (float): Minimum latitude of grid to extract
         lat_max (float): Maximum latitude of grid to extract
         lon_min (float): Minimum longitude of grid to extract

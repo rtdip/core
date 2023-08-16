@@ -20,7 +20,7 @@ class ECMWFExtractPointToWeatherDataModel(ExtractBase):
     """
     Extract a single point from a local .nc file downloaded from ecmwf via mars
 
-    Attributes:
+    Args:
         lat (float): Latitude of point to extract
         lon (float): Longitude of point to extract
         load_path (str): Path to local directory with nc files downloaded in format "yyyy-mm-dd_HH.nc"

@@ -17,9 +17,10 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 
-from src.sdk.python.rtdip_sdk.pipelines.transformers.interfaces import TransformerInterface
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather_ecmwf import RTDIP_STRING_WEATHER_DATA_MODEL, RTDIP_FLOAT_WEATHER_DATA_MODEL 
-    
+#from src.sdk.python.rtdip_sdk.pipelines.transformers.interfaces import TransformerInterface
+from ....interfaces import TransformerInterface
+from ....._pipeline_utils.weather_ecmwf import RTDIP_STRING_WEATHER_DATA_MODEL, RTDIP_FLOAT_WEATHER_DATA_MODEL 
+
 
 class ExtractBase(TransformerInterface):
     """
