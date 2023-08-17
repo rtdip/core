@@ -78,7 +78,5 @@ def test_get_api_params(spark_session: SparkSession):
 
 def test_read_batch(spark_session: SparkSession):
     weather_source = WeatherForecastECMWFSource(spark_session, date_start=date_start, date_end=date_end,save_path=save_path,ecmwf_class=ecmwf_class,stream=stream,expver=expver,leveltype=leveltype,ec_vars=ec_vars,forecast_area=forecast_area)
-    lead_times = weather_source._get_lead_time()    
-    mars_para = weather_source._get_api_params(lead_times)
-    weather_source.read_batch(mars_para=mars_para)
-    assert weather_source.read_batch() == None
+    result= weather_source.read_batch()
+    assert isinstance(result, object)

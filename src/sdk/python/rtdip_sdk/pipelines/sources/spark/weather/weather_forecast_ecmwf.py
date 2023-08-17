@@ -137,13 +137,17 @@ class WeatherForecastECMWFSource(SourceInterface):
         return params
     
 
-    def read_batch(self,mars_para):
+    def read_batch(self):
         """
         Pulls data from the Weather API and returns as .nc files.
 
         Returns:
             Raw form of data.
         """
+        lead_times = self._get_lead_time(self)
+        print(lead_times)
+        para = self._get_api_params(lead_times=lead_times)
+
         ec_conn = MARS_ECMWF_API(
             date_start=self.date_start,
             date_end= self.date_end,
@@ -153,7 +157,7 @@ class WeatherForecastECMWFSource(SourceInterface):
             )
         
         ec_conn.retrieve(
-            mars_dict= mars_para,
+            mars_dict= para,
             tries=5,
             n_jobs=-1, # maximum of 20 queued requests per user (only two allowed active)
             )
