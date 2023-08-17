@@ -81,3 +81,25 @@ def test_query_builder_metadata(mocker: MockerFixture):
         .metadata(tagname_filter=["mock_tag"])
     )
     assert data == {"test": "data"}
+
+def test_query_builder_circular_average(mocker: MockerFixture):
+    mocker.patch("src.sdk.python.rtdip_sdk.queries.query_builder.circular_average.get", return_value={"test": "data"})
+    
+    data = (
+        QueryBuilder()
+        .connect("mock_connection")
+        .source("mock_catalog.mock_scema.mock_table", status_column=None)
+        .circular_average(tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02", time_interval_rate="1", time_interval_unit="hour", lower_bound=1, upper_bound=2)
+    )
+    assert data == {"test": "data"}   
+
+def test_query_builder_circular_standard_deviation(mocker: MockerFixture):
+    mocker.patch("src.sdk.python.rtdip_sdk.queries.query_builder.circular_standard_deviation.get", return_value={"test": "data"})
+    
+    data = (
+        QueryBuilder()
+        .connect("mock_connection")
+        .source("mock_catalog.mock_scema.mock_table", status_column=None)
+        .circular_standard_deviation(tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02", time_interval_rate="1", time_interval_unit="hour", lower_bound=1, upper_bound=2)
+    )
+    assert data == {"test": "data"}         

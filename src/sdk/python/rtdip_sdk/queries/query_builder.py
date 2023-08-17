@@ -14,7 +14,7 @@
 
 from typing import Union
 from ..connectors.connection_interface import ConnectionInterface
-from .time_series import raw, resample, interpolate, interpolation_at_time, time_weighted_average
+from .time_series import raw, resample, interpolate, interpolation_at_time, time_weighted_average, circular_average, circular_standard_deviation
 from . import metadata
 
 class QueryBuilder():
@@ -89,8 +89,8 @@ class QueryBuilder():
 
         return interpolate.get(self.connection, interpolation_parameters)
     
-    def interpolate_at_time(self, tagname_filter: [str], timestamp_filter: list[str], include_bad_data: bool = False, window_length: int = 1):
-        interpolate_at_time_parameters = {
+    def interpolation_at_time(self, tagname_filter: [str], timestamp_filter: list[str], include_bad_data: bool = False, window_length: int = 1):
+        interpolation_at_time_parameters = {
             "source": self.data_source,
             "tag_names": tagname_filter,
             "timestamps": timestamp_filter,
@@ -102,7 +102,7 @@ class QueryBuilder():
             "value_column": self.value_column              
         }
 
-        return interpolation_at_time.get(self.connection, interpolate_at_time_parameters)
+        return interpolation_at_time.get(self.connection, interpolation_at_time_parameters)
     
     def time_weighted_average(self, tagname_filter: [str], start_date: str, end_date: str, time_interval_rate: str, time_interval_unit: str, step: str, source_metadata: str = None, include_bad_data: bool = False, window_length: int = 1):
         time_weighted_average_parameters = {
@@ -125,9 +125,48 @@ class QueryBuilder():
         return time_weighted_average.get(self.connection, time_weighted_average_parameters)
 
     def metadata(self, tagname_filter: [str]):
-        raw_parameters = {
+        metadata_parameters = {
             "source": self.data_source,
             "tag_names": tagname_filter,
             "tagname_column": self.tagname_column,     
         }
-        return metadata.get(self.connection, raw_parameters)
+
+        return metadata.get(self.connection, metadata_parameters)
+    
+    def circular_average(self, tagname_filter: [str], start_date: str, end_date: str, time_interval_rate: str, time_interval_unit: str, lower_bound: int, upper_bound: int, include_bad_data: bool = False):
+        circular_average_parameters = {
+            "source": self.data_source,
+            "tag_names": tagname_filter,
+            "start_date": start_date,
+            "end_date": end_date,
+            "include_bad_data": include_bad_data,
+            "time_interval_rate": time_interval_rate,
+            "time_interval_unit": time_interval_unit,
+            "lower_bound": lower_bound,
+            "upper_bound": upper_bound,
+            "tagname_column": self.tagname_column,
+            "timestamp_column": self.timestamp_column,
+            "status_column": self.status_column,
+            "value_column": self.value_column           
+        }
+
+        return circular_average.get(self.connection, circular_average_parameters)
+    
+    def circular_standard_deviation(self, tagname_filter: [str], start_date: str, end_date: str, time_interval_rate: str, time_interval_unit: str, lower_bound: int, upper_bound: int, include_bad_data: bool = False):
+        circular_stddev_parameters = {
+            "source": self.data_source,
+            "tag_names": tagname_filter,
+            "start_date": start_date,
+            "end_date": end_date,
+            "include_bad_data": include_bad_data,
+            "time_interval_rate": time_interval_rate,
+            "time_interval_unit": time_interval_unit,
+            "lower_bound": lower_bound,
+            "upper_bound": upper_bound,
+            "tagname_column": self.tagname_column,
+            "timestamp_column": self.timestamp_column,
+            "status_column": self.status_column,
+            "value_column": self.value_column           
+        }
+             
+        return circular_standard_deviation.get(self.connection, circular_stddev_parameters)    

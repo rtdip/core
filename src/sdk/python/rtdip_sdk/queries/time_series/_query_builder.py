@@ -347,35 +347,40 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
 
 def _circular_stats_query(parameters_dict: dict) -> str:
     circular_base_query  = (
-        "WITH raw_events AS (SELECT EventTime,TagName ,Status ,Value FROM "
-        "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` " 
-        "WHERE EventDate BETWEEN TO_DATE(to_timestamp(\"{{ start_date }}\")) AND TO_DATE(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND TagName IN ('{{ tag_names | join('\\', \\'') }}') "
-        "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
-        ",date_array AS (SELECT EXPLODE(SEQUENCE(FROM_UTC_TIMESTAMP(TO_TIMESTAMP(\"{{ start_date }}\"), \"{{ time_zone }}\"), FROM_UTC_TIMESTAMP(TO_TIMESTAMP(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS EventTime, EXPLODE(ARRAY('{{ tag_names | join('\\', \\'') }}')) AS TagName)  "
-        ",window_events AS (SELECT COALESCE(a.TagName, b.TagName) AS TagName, COALESCE(a.EventTime, b.EventTime) AS EventTime, WINDOW(COALESCE(a.EventTime, b.EventTime), '{{ time_interval_rate + ' ' + time_interval_unit }}').START WindowEventTime, b.Status, b.Value FROM date_array a FULL OUTER JOIN raw_events b ON CAST(a.EventTime AS LONG) = CAST(b.EventTime AS LONG) AND a.TagName = b.TagName) "
-        ",calculation_set_up AS (SELECT EventTime ,WindowEventTime ,TagName ,Value ,MOD(Value- {{ lower_bound }}, ({{ upper_bound }} - {{ lower_bound }}))*(2*pi()/({{ upper_bound }} - {{ lower_bound }})) as Value_in_Radians ,LAG(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Previous_EventTime ,(unix_millis(EventTime) - unix_millis(Previous_EventTime)) / 86400000 AS Time_Difference ,COS(Value_in_Radians) as Cos_Value ,SIN(Value_in_Radians) as Sin_Value FROM window_events) "
-        ",circular_average_calculations AS (SELECT WindowEventTime ,TagName ,Time_Difference ,AVG(Cos_Value) OVER (PARTITION BY TagName ORDER BY EventTime ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS Average_Cos ,AVG(Sin_Value) OVER (PARTITION BY TagName ORDER BY EventTime ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS Average_Sin ,SQRT(POW(Average_Cos, 2) + POW(Average_Sin, 2)) AS Vector_Length ,Average_Cos/Vector_Length AS Rescaled_Average_Cos ,Average_Sin/Vector_Length AS Rescaled_Average_Sin ,Time_Difference * Rescaled_Average_Cos AS Diff_Average_Cos ,Time_Difference * Rescaled_Average_Sin AS Diff_Average_Sin FROM calculation_set_up) "
+        "WITH raw_events AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' as `Status`, {% endif %} `{{ value_column }}` FROM "
+        "{% if source is defined and source is not none %}"
+        "`{{ source|lower }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
+        "{% endif %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
+        ",date_array AS (SELECT EXPLODE(SEQUENCE(FROM_UTC_TIMESTAMP(TO_TIMESTAMP(\"{{ start_date }}\"), \"{{ time_zone }}\"), FROM_UTC_TIMESTAMP(TO_TIMESTAMP(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS `{{ timestamp_column }}`, EXPLODE(ARRAY('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`)  "
+        ",window_events AS (SELECT COALESCE(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, COALESCE(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, WINDOW(COALESCE(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`), '{{ time_interval_rate + ' ' + time_interval_unit }}').START `Window{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN raw_events b ON CAST(a.`{{ timestamp_column }}` AS LONG) = CAST(b.`{{ timestamp_column }}` AS LONG) AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
+        ",calculation_set_up AS (SELECT `{{ timestamp_column }}`, `Window{{ timestamp_column }}`, `{{ tagname_column }}`, `{{ value_column }}`, MOD(`{{ value_column }}` - {{ lower_bound }}, ({{ upper_bound }} - {{ lower_bound }}))*(2*pi()/({{ upper_bound }} - {{ lower_bound }})) as `{{ value_column }}_in_Radians`, LAG(`{{ timestamp_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ timestamp_column }}`, (unix_millis(`{{ timestamp_column }}`) - unix_millis(`Previous_{{ timestamp_column }}`)) / 86400000 AS Time_Difference, COS(`{{ value_column }}_in_Radians`) as Cos_Value, SIN(`{{ value_column }}_in_Radians`) as Sin_Value FROM window_events) "
+        ",circular_average_calculations AS (SELECT `Window{{ timestamp_column }}`, `{{ tagname_column }}`, Time_Difference, AVG(Cos_Value) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS Average_Cos, AVG(Sin_Value) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS Average_Sin ,SQRT(POW(Average_Cos, 2) + POW(Average_Sin, 2)) AS Vector_Length, Average_Cos/Vector_Length AS Rescaled_Average_Cos, Average_Sin/Vector_Length AS Rescaled_Average_Sin, Time_Difference * Rescaled_Average_Cos AS Diff_Average_Cos, Time_Difference * Rescaled_Average_Sin AS Diff_Average_Sin FROM calculation_set_up) "
     )
 
     if parameters_dict["circular_function"] == "average":
         circular_stats_query = (
             f"{circular_base_query} "
-            ",project_circular_average_results AS (SELECT WindowEventTime AS EventTime ,TagName ,sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages ,sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages ,array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R ,mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians ,(Circular_Average_Value_in_Radians * ({{ upper_bound }} - {{ lower_bound }})) / (2*pi())+ 0 AS Circular_Average_Value_in_Degrees FROM circular_average_calculations GROUP BY TagName, WindowEventTime) "
-            "SELECT EventTime ,TagName ,Circular_Average_Value_in_Degrees AS Value FROM project_circular_average_results ORDER BY TagName, EventTime "
+            ",project_circular_average_results AS (SELECT `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, `{{ tagname_column }}`, sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages, sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages, array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R, mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians, (Circular_Average_Value_in_Radians * ({{ upper_bound }} - {{ lower_bound }})) / (2*pi())+ 0 AS Circular_Average_Value_in_Degrees FROM circular_average_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
+            "SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, Circular_Average_Value_in_Degrees AS `{{ value_column }}` FROM project_circular_average_results ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         )
     elif parameters_dict["circular_function"] == "standard_deviation":
         circular_stats_query = (
             f"{circular_base_query} "
-            ",project_circular_average_results AS (SELECT WindowEventTime AS EventTime ,TagName ,sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages ,sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages ,array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R ,mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians ,SQRT(-2*LN(R)) * ( {{ upper_bound }} - {{ lower_bound }}) / (2*PI()) AS Circular_Standard_Deviation FROM circular_average_calculations GROUP BY TagName, WindowEventTime) "
-            "SELECT EventTime ,TagName , Circular_Standard_Deviation AS Value FROM project_circular_average_results ORDER BY TagName, EventTime "
+            ",project_circular_average_results AS (SELECT `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, `{{ tagname_column }}` ,sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages, sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages, array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R, mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians, SQRT(-2*LN(R)) * ( {{ upper_bound }} - {{ lower_bound }}) / (2*PI()) AS Circular_Standard_Deviation FROM circular_average_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
+            "SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, Circular_Standard_Deviation AS Value FROM project_circular_average_results ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         )
 
     circular_stats_parameters = {
-        "business_unit": parameters_dict['business_unit'].lower(),
-        "region": parameters_dict['region'].lower(),
-        "asset": parameters_dict['asset'].lower(),
-        "data_security_level": parameters_dict['data_security_level'].lower(),
-        "data_type": parameters_dict['data_type'].lower(),
+        "source": parameters_dict.get("source", None),
+        "business_unit": parameters_dict.get("business_unit"),
+        "region": parameters_dict.get("region"),
+        "asset": parameters_dict.get("asset"),
+        "data_security_level": parameters_dict.get("data_security_level"),
+        "data_type": parameters_dict.get("data_type"),
         "start_date": parameters_dict['start_date'],
         "end_date": parameters_dict['end_date'],
         "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
@@ -385,7 +390,12 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "upper_bound": parameters_dict['upper_bound'],
         "include_bad_data": parameters_dict['include_bad_data'],
         "time_zone": parameters_dict["time_zone"],
-        "circular_function": parameters_dict["circular_function"]
+        "circular_function": parameters_dict["circular_function"],
+        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
+        "include_status": False if "status_column" in parameters_dict and parameters_dict.get("status_column") is None else True,
+        "status_column": "Status" if "status_column" in parameters_dict and parameters_dict.get("status_column") is None else parameters_dict.get("status_column", "Status"),
+        "value_column": parameters_dict.get("value_column", "Value"),        
     }
 
     sql_template = Template(circular_stats_query)
