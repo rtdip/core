@@ -16,13 +16,15 @@ from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
 from pytest_mock import MockerFixture
 
+MOCK_TABLE = "mock_catalog.mock_scema.mock_table"
+MOCK_CONNECTION = "mock_connection"
 def test_query_builder_raw(mocker: MockerFixture):
     mocker.patch("src.sdk.python.rtdip_sdk.queries.query_builder.raw.get", return_value={"test": "data"})
     
     data = (
         QueryBuilder()
-        .connect("mock_connection")
-        .source("mock_catalog.mock_scema.mock_table", status_column=None)
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE, status_column=None)
         .raw(tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02")
     )
     assert data == {"test": "data"}
@@ -32,8 +34,8 @@ def test_query_builder_resample(mocker: MockerFixture):
     
     data = (
         QueryBuilder()
-        .connect("mock_connection")
-        .source("mock_catalog.mock_scema.mock_table")
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE)
         .resample(tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02", time_interval_rate="1", time_interval_unit="hour", agg_method="avg")
     )
     assert data == {"test": "data"}
@@ -43,7 +45,7 @@ def test_query_builder_interpolate(mocker: MockerFixture):
     
     data = (
         QueryBuilder()
-        .connect("mock_connection")
+        .connect(MOCK_CONNECTION)
         .source("mock_catalog.mock_scema.mock_table", status_column=None)
         .interpolate(tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02", time_interval_rate="1", time_interval_unit="hour", agg_method="avg", interpolation_method="linear")
     )
@@ -54,8 +56,8 @@ def test_query_builder_interpolation_at_time(mocker: MockerFixture):
     
     data = (
         QueryBuilder()
-        .connect("mock_connection")
-        .source("mock_catalog.mock_scema.mock_table", status_column=None)
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE, status_column=None)
         .interpolation_at_time(tagname_filter=["mock_tag"], timestamp_filter=["2021-01-02T17:30:00+00:00", "2021-01-02T18:30:00+00:00"])
     )
     assert data == {"test": "data"}
@@ -65,8 +67,8 @@ def test_query_builder_twa(mocker: MockerFixture):
     
     data = (
         QueryBuilder()
-        .connect("mock_connection")
-        .source("mock_catalog.mock_scema.mock_table", status_column=None)
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE, status_column=None)
         .time_weighted_average(tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02", time_interval_rate="1", time_interval_unit="hour", step="metadata", source_metadata="mock_catalog.mock_schema.mock_table_metadata")
     )
     assert data == {"test": "data"}
@@ -76,8 +78,8 @@ def test_query_builder_metadata(mocker: MockerFixture):
     
     data = (
         QueryBuilder()
-        .connect("mock_connection")
-        .source("mock_catalog.mock_scema.mock_metadata_table")
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE)
         .metadata(tagname_filter=["mock_tag"])
     )
     assert data == {"test": "data"}
@@ -87,8 +89,8 @@ def test_query_builder_circular_average(mocker: MockerFixture):
     
     data = (
         QueryBuilder()
-        .connect("mock_connection")
-        .source("mock_catalog.mock_scema.mock_table", status_column=None)
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE, status_column=None)
         .circular_average(tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02", time_interval_rate="1", time_interval_unit="hour", lower_bound=1, upper_bound=2)
     )
     assert data == {"test": "data"}   
@@ -98,8 +100,8 @@ def test_query_builder_circular_standard_deviation(mocker: MockerFixture):
     
     data = (
         QueryBuilder()
-        .connect("mock_connection")
-        .source("mock_catalog.mock_scema.mock_table", status_column=None)
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE, status_column=None)
         .circular_standard_deviation(tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02", time_interval_rate="1", time_interval_unit="hour", lower_bound=1, upper_bound=2)
     )
     assert data == {"test": "data"}         
