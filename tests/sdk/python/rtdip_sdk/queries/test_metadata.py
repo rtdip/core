@@ -28,7 +28,7 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = 'databricks.sql.connect'
 DATABRICKS_SQL_CONNECT_CURSOR = 'databricks.sql.connect.cursor'
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY="SELECT * FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE TagName in ('MOCKED-TAGNAME') "
+MOCKED_QUERY="SELECT * FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE `TagName` in ('MOCKED-TAGNAME') "
 MOCKED_PARAMETER_DICT = {
         "business_unit": "mocked-buiness-unit",
         "region": "mocked-region",

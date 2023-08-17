@@ -69,5 +69,6 @@
         "Turbodbc",
         "TURBODBCSQL",
         "ZORDER"
-    ]
+    ],
+    "licenser.projectName": "RTDIP"
 }
