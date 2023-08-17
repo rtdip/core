@@ -30,7 +30,6 @@ from unittest.mock import Mock, patch
 date_start = "2020-10-01 00:00:00"
 date_end = "2020-10-02 00:00:00"
 save_path = "/path/to/save"
-#save_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_file")
 ecmwf_class = "od"
 stream = "oper"
 expver = "1"
@@ -43,8 +42,8 @@ forecast_area = [73.5, -27, 33, 45], # N/W/S/E
 
   
 def test_get_lead_time(spark_session: SparkSession):
-    weather_source = WeatherForecastECMWFSource(spark_session, date_start, date_end,save_path,ecmwf_class,stream,expver,leveltype,ec_vars,forecast_area)
-    lead_times = weather_source._get_lead_time()
+    ws = WeatherForecastECMWFSource(spark_session, date_start=date_start, date_end=date_end,save_path=save_path,ecmwf_class=ecmwf_class,stream=stream,expver=expver,leveltype=leveltype,ec_vars=ec_vars,forecast_area=forecast_area)
+    lead_times = ws._get_lead_time()
     expected_lead_times = [  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,
         13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,
         26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
@@ -60,9 +59,9 @@ def test_get_lead_time(spark_session: SparkSession):
 
 
 def test_get_api_params(spark_session: SparkSession):
-    weather_source = WeatherForecastECMWFSource(spark_session, save_path, date_start, date_end ,ecmwf_class,stream,expver,leveltype,ec_vars,forecast_area)
-    lead_times = weather_source._get_lead_time()    
-    params = weather_source._get_api_params(lead_times)
+    ws = WeatherForecastECMWFSource(spark_session, date_start=date_start, date_end=date_end,save_path=save_path,ecmwf_class=ecmwf_class,stream=stream,expver=expver,leveltype=leveltype,ec_vars=ec_vars,forecast_area=forecast_area)
+    lead_times = ws._get_lead_time()    
+    params = ws._get_api_params(lead_times)
     expected_params = {
             "class": ecmwf_class,
             "stream": stream,

@@ -98,8 +98,8 @@ class WeatherForecastECMWFSource(SourceInterface):
     def read_stream(self):
         return True
     
-    @staticmethod
-    def _get_lead_time(self):
+    @classmethod
+    def _get_lead_time(cls):
         """
         Lead time for the forecast data.
         90 hours - 1 Hour Interval
@@ -144,8 +144,7 @@ class WeatherForecastECMWFSource(SourceInterface):
         Returns:
             Raw form of data.
         """
-        lead_times = self._get_lead_time(self)
-        print(lead_times)
+        lead_times = self._get_lead_time()
         para = self._get_api_params(lead_times=lead_times)
 
         ec_conn = MARS_ECMWF_API(
