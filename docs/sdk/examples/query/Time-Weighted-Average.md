@@ -1,0 +1,1 @@
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Time-Weighted-Average/README.md"

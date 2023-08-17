@@ -1,0 +1,1 @@
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Circular-Average/README.md"

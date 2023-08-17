@@ -1,9 +1,9 @@
-# Interpolate Function
-::: src.sdk.python.rtdip_sdk.queries.time_series.interpolate
+# Circular Standard Deviation Function
+::: src.sdk.python.rtdip_sdk.queries.time_series.circular_standard_deviation
 
 ## Example
 ```python
---8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Interpolate/interpolate.py"
+ --8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Circular-Standard-Deviation/circular_standard_deviation.py"
 ```
 
 This example is using [```DefaultAuth()```](../authentication/azure.md) and [```DatabricksSQLConnection()```](db-sql-connector.md) to authenticate and connect. You can find other ways to authenticate [here](../authentication/azure.md). The alternative built in connection methods are either by [```PYODBCSQLConnection()```](pyodbc-sql-connector.md), [```TURBODBCSQLConnection()```](turbodbc-sql-connector.md) or [```SparkConnection()```](spark-connector.md).

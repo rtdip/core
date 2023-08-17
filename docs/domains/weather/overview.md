@@ -1,7 +1,7 @@
 
 # Weather Services 
 ## Overview
-Many organizations need weather data for day-to-day operations. RTDIP provides the ability to consume data from examplar weather sources, transform it and store the data in an appropiate open source format to enable generic functions such as:
+Many organizations need weather data for day-to-day operations. RTDIP provides the ability to consume data from examplar weather sources, transform it and store the data in an appropriate open source format to enable generic functions such as:
 
 * Data Science, ML and AI applications to consume the data
 * BI and Analytics
@@ -13,7 +13,7 @@ A primary aim for RTDIP in 2023 is to demonstrate how the platform can be utilis
 * Energy Generation Forecasting
 * Other behind the meter services and insights
 
-Weather data is a primary driver,  together with [meter](/rtdip/core/domains/smart_meter/overview/) data, of variance in load & generation forecasting in the energy domain. 
+Weather data is a primary driver,  together with [meter](../../domains/smart_meter/overview.md) data, of variance in load & generation forecasting in the energy domain. 
 
 ## Weather Data in the Energy Domain
 

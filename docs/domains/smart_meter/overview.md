@@ -17,7 +17,7 @@ At a high level, the electricity system (US example) works as follows:
 An **Independent System Operator (ISO)** sometimes called the Regional Transmission Organisation (RTO) is an organisation that is in charge of the entire process. They coordinate, control, and monitor the electric grid in a specific region, typically a multi-state area.
 
 ## Meter Data Pipelines
-Load forecasting is a technique used by ISO's, and energy-providing companies to predict the power/energy needed to meet the demand and supply equilibrium of the energy grid. RTDIP defines and provides example pipelines for the two primary inputs to energy services like load forecasting, namely [weather](/rtdip/core/domains/weather/overview/) and meter data.
+Load forecasting is a technique used by ISO's, and energy-providing companies to predict the power/energy needed to meet the demand and supply equilibrium of the energy grid. RTDIP defines and provides example pipelines for the two primary inputs to energy services like load forecasting, namely [weather](../../domains/weather/overview.md) and meter data.
 
 Specifically, with respect to meter data RTDIP defines and provides two exemplar ISO's:
 
