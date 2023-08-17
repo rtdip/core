@@ -228,6 +228,7 @@ nav:
               - Deploy:
                   - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
           - Queries:
+              - Query Builder: sdk/code-reference/query/query_builder.md
               - Functions:
                   - Resample: sdk/code-reference/query/resample.md
                   - Interpolate: sdk/code-reference/query/interpolate.md
