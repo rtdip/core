@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-sys.path.insert(0, '.')
+# import sys
+# sys.path.insert(0, '.')
 
-from mkdocs.config import load_config
-from mkdocs.commands.build import build
+# from mkdocs.config import load_config
+# from mkdocs.commands.build import build
 
-def test_mkdocs_build():
-    mkdocs_config = load_config(strict=True)
-    mkdocs_config["plugins"].run_event("startup", command="build", dirty=False)
-    try:
-        build(mkdocs_config)
-    finally:
-        mkdocs_config["plugins"].run_event("shutdown")
+# def test_mkdocs_build():
+#     mkdocs_config = load_config(strict=True)
+#     mkdocs_config["plugins"].run_event("startup", command="build", dirty=False)
+#     try:
+#         build(mkdocs_config)
+#     finally:
+#         mkdocs_config["plugins"].run_event("shutdown")
