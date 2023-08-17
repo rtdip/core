@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .time_series import raw, resample, interpolate, interpolation_at_time, time_weighted_average
+from .time_series import raw, resample, interpolate, interpolation_at_time, time_weighted_average, circular_standard_deviation, circular_average
 from .query_builder import *

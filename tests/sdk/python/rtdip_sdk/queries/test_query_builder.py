@@ -56,7 +56,7 @@ def test_query_builder_interpolation_at_time(mocker: MockerFixture):
         QueryBuilder()
         .connect("mock_connection")
         .source("mock_catalog.mock_scema.mock_table", status_column=None)
-        .interpolate_at_time(tagname_filter=["mock_tag"], timestamp_filter=["2021-01-02T17:30:00+00:00", "2021-01-02T18:30:00+00:00"])
+        .interpolation_at_time(tagname_filter=["mock_tag"], timestamp_filter=["2021-01-02T17:30:00+00:00", "2021-01-02T18:30:00+00:00"])
     )
     assert data == {"test": "data"}
 
