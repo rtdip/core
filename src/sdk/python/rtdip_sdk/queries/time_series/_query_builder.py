@@ -345,6 +345,52 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
     sql_template = Template(time_weighted_average_query)
     return sql_template.render(time_weighted_average_parameters)
 
+def _circular_stats_query(parameters_dict: dict) -> str:
+    circular_base_query  = (
+        "WITH raw_events AS (SELECT EventTime,TagName ,Status ,Value FROM "
+        "`{{ business_unit }}`.`sensors`.`{{ asset }}_{{ data_security_level }}_events_{{ data_type }}` " 
+        "WHERE EventDate BETWEEN TO_DATE(to_timestamp(\"{{ start_date }}\")) AND TO_DATE(to_timestamp(\"{{ end_date }}\")) AND EventTime BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND TagName IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% if include_bad_data is defined and include_bad_data == false %} AND Status = 'Good' {% endif %}) "
+        ",date_array AS (SELECT EXPLODE(SEQUENCE(FROM_UTC_TIMESTAMP(TO_TIMESTAMP(\"{{ start_date }}\"), \"{{ time_zone }}\"), FROM_UTC_TIMESTAMP(TO_TIMESTAMP(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS EventTime, EXPLODE(ARRAY('{{ tag_names | join('\\', \\'') }}')) AS TagName)  "
+        ",window_events AS (SELECT COALESCE(a.TagName, b.TagName) AS TagName, COALESCE(a.EventTime, b.EventTime) AS EventTime, WINDOW(COALESCE(a.EventTime, b.EventTime), '{{ time_interval_rate + ' ' + time_interval_unit }}').START WindowEventTime, b.Status, b.Value FROM date_array a FULL OUTER JOIN raw_events b ON CAST(a.EventTime AS LONG) = CAST(b.EventTime AS LONG) AND a.TagName = b.TagName) "
+        ",calculation_set_up AS (SELECT EventTime ,WindowEventTime ,TagName ,Value ,MOD(Value- {{ lower_bound }}, ({{ upper_bound }} - {{ lower_bound }}))*(2*pi()/({{ upper_bound }} - {{ lower_bound }})) as Value_in_Radians ,LAG(EventTime) OVER (PARTITION BY TagName ORDER BY EventTime) AS Previous_EventTime ,(unix_millis(EventTime) - unix_millis(Previous_EventTime)) / 86400000 AS Time_Difference ,COS(Value_in_Radians) as Cos_Value ,SIN(Value_in_Radians) as Sin_Value FROM window_events) "
+        ",circular_average_calculations AS (SELECT WindowEventTime ,TagName ,Time_Difference ,AVG(Cos_Value) OVER (PARTITION BY TagName ORDER BY EventTime ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS Average_Cos ,AVG(Sin_Value) OVER (PARTITION BY TagName ORDER BY EventTime ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS Average_Sin ,SQRT(POW(Average_Cos, 2) + POW(Average_Sin, 2)) AS Vector_Length ,Average_Cos/Vector_Length AS Rescaled_Average_Cos ,Average_Sin/Vector_Length AS Rescaled_Average_Sin ,Time_Difference * Rescaled_Average_Cos AS Diff_Average_Cos ,Time_Difference * Rescaled_Average_Sin AS Diff_Average_Sin FROM calculation_set_up) "
+    )
+
+    if parameters_dict["circular_function"] == "average":
+        circular_stats_query = (
+            f"{circular_base_query} "
+            ",project_circular_average_results AS (SELECT WindowEventTime AS EventTime ,TagName ,sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages ,sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages ,array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R ,mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians ,(Circular_Average_Value_in_Radians * ({{ upper_bound }} - {{ lower_bound }})) / (2*pi())+ 0 AS Circular_Average_Value_in_Degrees FROM circular_average_calculations GROUP BY TagName, WindowEventTime) "
+            "SELECT EventTime ,TagName ,Circular_Average_Value_in_Degrees AS Value FROM project_circular_average_results ORDER BY TagName, EventTime "
+        )
+    elif parameters_dict["circular_function"] == "standard_deviation":
+        circular_stats_query = (
+            f"{circular_base_query} "
+            ",project_circular_average_results AS (SELECT WindowEventTime AS EventTime ,TagName ,sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages ,sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages ,array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R ,mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians ,SQRT(-2*LN(R)) * ( {{ upper_bound }} - {{ lower_bound }}) / (2*PI()) AS Circular_Standard_Deviation FROM circular_average_calculations GROUP BY TagName, WindowEventTime) "
+            "SELECT EventTime ,TagName , Circular_Standard_Deviation AS Value FROM project_circular_average_results ORDER BY TagName, EventTime "
+        )
+
+    circular_stats_parameters = {
+        "business_unit": parameters_dict['business_unit'].lower(),
+        "region": parameters_dict['region'].lower(),
+        "asset": parameters_dict['asset'].lower(),
+        "data_security_level": parameters_dict['data_security_level'].lower(),
+        "data_type": parameters_dict['data_type'].lower(),
+        "start_date": parameters_dict['start_date'],
+        "end_date": parameters_dict['end_date'],
+        "tag_names": list(dict.fromkeys(parameters_dict['tag_names'])),
+        "time_interval_rate": parameters_dict['time_interval_rate'],
+        "time_interval_unit": parameters_dict['time_interval_unit'],
+        "lower_bound": parameters_dict['lower_bound'],
+        "upper_bound": parameters_dict['upper_bound'],
+        "include_bad_data": parameters_dict['include_bad_data'],
+        "time_zone": parameters_dict["time_zone"],
+        "circular_function": parameters_dict["circular_function"]
+    }
+
+    sql_template = Template(circular_stats_query)
+    return sql_template.render(circular_stats_parameters) 
+
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
@@ -373,3 +419,11 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
     
     if query_type == "time_weighted_average":
         return _time_weighted_average_query(parameters_dict)
+    
+    if query_type == "circular_average":
+        parameters_dict["circular_function"] = "average"
+        return _circular_stats_query(parameters_dict)
+    
+    if query_type == "circular_standard_deviation":
+        parameters_dict["circular_function"] = "standard_deviation"
+        return _circular_stats_query(parameters_dict)
