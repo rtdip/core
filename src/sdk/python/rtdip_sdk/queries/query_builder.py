@@ -153,7 +153,7 @@ class QueryBuilder():
 
         return interpolate.get(self.connection, interpolation_parameters)
     
-    def interpolation_at_time(self, tagname_filter: [str], timestamp_filter: list[str], include_bad_data: bool = False, window_length: int = 1) -> DataFrame:
+    def interpolation_at_time(self, tagname_filter: [str], timestamp_filter: [str], include_bad_data: bool = False, window_length: int = 1) -> DataFrame:
         '''
         A interpolation at time function which works out the linear interpolation at a specific time based on the points before and after
 
