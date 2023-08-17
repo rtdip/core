@@ -12,8 +12,8 @@ lon_max=6.9
 lon_min=6.6
 grid_step=0.1
 load_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_file")
-date_start="2021-10-01 00:00:00"
-date_end="2021-10-01 12:00:00"
+date_start="2021-01-01 00:00:00"
+date_end="2021-01-01 12:00:00"
 run_interval="12"
 run_frequency="H"
 
@@ -38,7 +38,7 @@ def test_transform():
     )
     
     tag_prefix = "test_tag_prefix"
-    variables = ["10u", "10v"]
+    variables = ["10u", "100u"]
     method = "nearest"
     df = extract.transform(tag_prefix, variables, method)
     

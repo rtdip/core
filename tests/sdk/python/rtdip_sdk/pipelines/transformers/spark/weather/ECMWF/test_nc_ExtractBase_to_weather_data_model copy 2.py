@@ -8,8 +8,8 @@ from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.nc_Extr
 
 # Sample test data
 load_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_file")
-date_start="2021-10-01 00:00:00"
-date_end="2021-10-01 12:00:00"
+date_start="2021-01-01 00:00:00"
+date_end="2021-01-01 12:00:00"
 run_interval="12"
 run_frequency="H"
 lat = xr.DataArray([10, 20], dims="latitude")
@@ -27,7 +27,7 @@ def test_transform():
     extract = ExtractBase(load_path, date_start, date_end, run_interval, run_frequency, lat, lon)
 
     tag_prefix = "test_tag_prefix"
-    variables = ["10u", "10v"]
+    variables = ["10u", "100u"]
     method = "nearest"
     df = extract.transform(tag_prefix, variables, method)
     
