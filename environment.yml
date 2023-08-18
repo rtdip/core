@@ -51,6 +51,7 @@ dependencies:
     - mkdocstrings==0.22.0
     - mkdocstrings-python==1.1.2
     - mkdocs-macros-plugin==1.0.1
+    - mkdocs-autorefs==0.4.1
     - pygments==2.15.1
     - pymdown-extensions==10.0.1
     - databricks-sql-connector==2.8.0
