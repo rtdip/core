@@ -48,6 +48,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor.execute(query)
             df = cursor.fetch_all()
             cursor.close()
+            connection.close()
             return df
         except Exception as e:
             logging.exception('error returning dataframe')

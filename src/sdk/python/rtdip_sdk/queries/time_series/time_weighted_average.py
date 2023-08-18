@@ -17,7 +17,7 @@ from ._query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
-    A function that receives a dataframe of raw tag data and performs a timeweighted average, returning the results. 
+    A function that receives a dataframe of raw tag data and performs a time weighted averages, returning the results. 
     
     This function requires the input of a pandas dataframe acquired via the rtdip.functions.raw() method and the user to input a dictionary of parameters. (See Attributes table below)
     
@@ -60,6 +60,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor.execute(query)
             df = cursor.fetch_all()
             cursor.close()
+            connection.close()
             return df
         except Exception as e:
             logging.exception('error returning dataframe')

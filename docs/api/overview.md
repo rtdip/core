@@ -1,4 +1,4 @@
-<center> ![rest](images/rest-api-logo.png) </center>
+<center> ![rest](images/rest-api-logo.png){width=50%} </center>
 
 # RTDIP REST APIs
 

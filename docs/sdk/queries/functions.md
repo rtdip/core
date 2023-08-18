@@ -25,11 +25,11 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 [Interpolate](../code-reference/query/interpolate.md) - takes [resampling](#resample) one step further to estimate the values of unknown data points that fall between existing, known data points. In addition to the resampling parameters, interpolation also requires:
 
-- Interpolation Method - Forward Fill or Backward Fill
+- Interpolation Method - Forward Fill, Backward Fill or Linear
 
 ### Interpolation at Time
 
-[Interpolation at Time](../code-reference/query/interpolation_at_time.md) - works out the linear interpolation at a specific time based on the points before and after. This is achieved by providing the following parameter:
+[Interpolation at Time](../code-reference/query/interpolation-at-time.md) - works out the linear interpolation at a specific time based on the points before and after. This is achieved by providing the following parameter:
 
 - Timestamps - A list of timestamp or timestamps
 
@@ -46,6 +46,24 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 !!! note "Note"
     </b>Window Size Mins is deprecated and will be removed in v1.0.0. Please use Time Interval Rate and Time Interval Unit instead.<br />
 
+### Circular Averages
+
+[Circular Averages](../code-reference/query/circular-average.md) computes the circular average for samples in a range. The RTDIP SDK requires the following parameters to perform circular average queries:
+
+- Time Interval Rate - The time interval rate
+- Time Interval Unit - The time interval unit (second, minute, day, hour)
+- Lower Bound - The lower boundary for the sample range
+- Upper Bound - The upper boundary for the sample range
+
+### Circular Standard Deviations
+
+[Circular Standard Deviations](../code-reference/query/circular-standard-deviation.md) computes the circular standard deviations for samples assumed to be in the range. The RTDIP SDK requires the following parameters to perform circular average queries:
+
+- Time Interval Rate - The time interval rate
+- Time Interval Unit - The time interval unit (second, minute, day, hour)
+- Lower Bound - The lower boundary for the sample range
+- Upper Bound - The upper boundary for the sample range
+
 ## Time Series Metadata
 
 ### Metadata
@@ -55,34 +73,20 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
     </b>RTDIP are continuously adding more to this list so check back regularly.<br />
 
 ## Query Examples
+For examples of how to use the RTDIP functions, click the following links:
 
-1\. To use any of the RTDIP functions, use the commands below.
+* [Raw](../examples/query/Raw.md)
 
-```python
-from rtdip_sdk.queries import resample
-from rtdip_sdk.queries import interpolate
-from rtdip_sdk.queries import interpolation_at_time
-from rtdip_sdk.queries import raw
-from rtdip_sdk.queries import time_weighted_average
-from rtdip_sdk.queries import metadata
-```
+* [Resample](../examples/query/Resample.md)
 
-2\. From functions you can use any of the following methods.
+* [Interpolate](../examples/query/Interpolate.md)
 
-#### Resample
-    resample.get(connection, parameters_dict)
+* [Interpolation at Time](../examples/query/Interpolation-at-Time.md)
 
-#### Interpolate
-    interpolate.get(connection, parameters_dict)
+* [Time Weighted Averages](../examples/query/Time-Weighted-Average.md)
 
-#### Interpolation at Time
-    interpolation_at_time.get(connection, parameters_dict)
+* [Circular Averages](../examples/query/Circular-Average.md)
 
-#### Raw
-    raw.get(connection, parameters_dict)
+* [Circular Standard Deviations](../examples/query/Circular-Standard-Deviation.md)
 
-#### Time Weighted Average
-    time_weighted_average.get(connection, parameter_dict)
-
-#### Metadata
-    metadata.get(connection, parameter_dict)
+* [Metadata](../examples/query/Metadata.md)

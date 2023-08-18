@@ -71,14 +71,22 @@ theme:
     code: Roboto Mono
   favicon: assets/favicon.png
   logo: assets/logo_lfe.png
+  icon:
+    tag:
+        pipelines: fontawesome/solid/timeline
 
 extra:
   generator: false
+  tags:
+    Pipelines: pipelines
 
 plugins:
   - search
   - autorefs
   - mkdocstrings
+  - tags
+  - blog:
+      post_excerpt: required
   - macros:
       module_name: docs/macros
 
@@ -101,6 +109,8 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg # Page tree
+  - pymdownx.snippets:
+      url_download: true
 
 nav:
   - Home: index.md
@@ -111,6 +121,9 @@ nav:
       - Process Control: 
           - Overview: domains/process_control/overview.md
           - Data Model: domains/process_control/data_model.md
+      - Smart Meter Data: 
+          - Overview: domains/smart_meter/overview.md
+          - Data Model: domains/smart_meter/data_model.md
       - Weather Data: 
           - Overview: domains/weather/overview.md
           - Data Model: domains/weather/data_model.md
@@ -217,12 +230,15 @@ nav:
               - Deploy:
                   - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
           - Queries:
+              - Query Builder: sdk/code-reference/query/query_builder.md
               - Functions:
                   - Resample: sdk/code-reference/query/resample.md
                   - Interpolate: sdk/code-reference/query/interpolate.md
-                  - Interpolation at Time: sdk/code-reference/query/interpolation_at_time.md
+                  - Interpolation at Time: sdk/code-reference/query/interpolation-at-time.md
                   - Raw: sdk/code-reference/query/raw.md
                   - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
+                  - Circular Average: sdk/code-reference/query/circular-average.md
+                  - Circular Standard Deviation: sdk/code-reference/query/circular-standard-deviation.md
                   - Metadata: sdk/code-reference/query/metadata.md
               - Connectors:
                   - Databricks SQL Connector: sdk/code-reference/query/db-sql-connector.md
@@ -233,6 +249,21 @@ nav:
 
           - Authentication:
               - Azure Active Directory: sdk/code-reference/authentication/azure.md
+      - Examples:
+          - Pipelines:
+              - Deploy:
+                  - Dagster:
+                      - Databricks Connect: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Databricks.md
+                      - Local: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Local.md
+          - Queries:
+              - Interpolate: sdk/examples/query/Interpolate.md
+              - Interpolation at Time: sdk/examples/query/Interpolation-at-Time.md
+              - Metadata: sdk/examples/query/Metadata.md
+              - Raw: sdk/examples/query/Raw.md
+              - Resample: sdk/examples/query/Resample.md
+              - Time Weighted Average: sdk/examples/query/Time-Weighted-Average.md
+              - Circular Average: sdk/examples/query/Circular-Average.md
+              - Circular Standard Deviation: sdk/examples/query/Circular-Standard-Deviation.md
   - API:
       - Overview: api/overview.md
       - Authentication: api/authentication.md
@@ -247,9 +278,4 @@ nav:
   - Releases:
       - core: releases/core.md
   - Blog:
-      - Overview: blog/overview.md
-      - Posts:
-          - RTDIP Generative AI SQL Agent: blog/rtdip_generative_ai_sql_agent.md
-          - RTDIP Ingestion Pipelines: blog/rtdip_ingestion_pipelines.md
-          - Delta Lakehouse and RTDIP: blog/delta_and_rtdip.md
-
+      - blog/index.md

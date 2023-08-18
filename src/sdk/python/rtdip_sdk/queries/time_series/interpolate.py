@@ -20,7 +20,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     '''
     An RTDIP interpolation function that is intertwined with the RTDIP Resampling function.
     
-    The Interpolation function will forward fill or backward fill the resampled data depending users specified interpolation method.
+    The Interpolation function will forward fill, backward fill or linearly interpolate the resampled data depending users specified interpolation method.
 
     This function requires the user to input a dictionary of parameters. (See Attributes table below.)
 
@@ -42,7 +42,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
         agg_method (str): Aggregation Method (first, last, avg, min, max)
-        interpolation_method (str): Optional. Interpolation method (forward_fill, backward_fill)
+        interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
 
     Returns:
@@ -67,6 +67,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor.execute(query)
             df = cursor.fetch_all()
             cursor.close()
+            connection.close()
             return df
         except Exception as e:
             logging.exception('error returning dataframe')

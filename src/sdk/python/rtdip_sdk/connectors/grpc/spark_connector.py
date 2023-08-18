@@ -50,12 +50,8 @@ class SparkConnection(ConnectionInterface):
       self.connection = spark
 
   def close(self) -> None:
-    """Stops the Spark Session."""
-    try:
-      self.connection.stop()
-    except Exception as e:
-      logging.exception('error while closing connection')
-      raise e
+    """Not relevant for spark sessions"""
+    pass
 
   def cursor(self) -> object:
     """
@@ -96,15 +92,15 @@ class SparkCursor(CursorInterface):
       logging.exception('error while executing the query')
       raise e
 
-  def fetch_all(self) -> pd.DataFrame: 
+  def fetch_all(self) -> DataFrame: 
     """
     Gets all rows of a query.
     
     Returns:
-      DataFrame: Pandas DataFrame of results
+      DataFrame: Spark DataFrame of results
     """
     try:
-      df = self.execute_result.toPandas()
+      df = self.execute_result
       return df
     except Exception as e:
       logging.exception('error while fetching the rows of a query')
