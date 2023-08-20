@@ -15,7 +15,7 @@
 import numpy as np
 import xarray as xr
 
-from .nc_extractbase_to_weather_data_model import ECMWFExtractBaseToWeatherDataModel
+from .extractbase_to_weather_data_model import ECMWFExtractBaseToWeatherDataModel
 
 
 class ECMWFExtractGridToWeatherDataModel(ECMWFExtractBaseToWeatherDataModel):
