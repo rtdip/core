@@ -19,14 +19,6 @@
 				"azureFunctions.pythonVenv": "${workspaceFolder}/src/api/.venv",
 				"azureFunctions.projectLanguage": "Python",
 				"azureFunctions.projectRuntime": "~4",				
-				"python.linting.enabled": true,
-				"python.linting.pylintEnabled": true,
-				"python.formatting.autopep8Path": "/opt/conda/bin/autopep8",
-				"python.formatting.yapfPath": "/opt/conda/bin/yapf",
-				"python.linting.flake8Path": "/opt/conda/bin/flake8",
-				"python.linting.pycodestylePath": "/opt/conda/bin/pycodestyle",
-				"python.linting.pydocstylePath": "/opt/conda/bin/pydocstyle",
-				"python.linting.pylintPath": "/opt/conda/bin/pylint",
 				"python.testing.pytestArgs": [
 					"--cov=.",
 					"--cov-report=xml:cov.xml",					
@@ -42,7 +34,11 @@
 				"git.alwaysSignOff": true,
 				"githubPullRequests.ignoredPullRequestBranches": [
 					"develop"
-				]
+				],
+				"[python]": {
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					"editor.formatOnSave": true
+				}
 			}			
 		}
 	},
