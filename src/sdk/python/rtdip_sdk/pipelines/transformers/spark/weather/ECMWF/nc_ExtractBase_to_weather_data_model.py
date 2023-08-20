@@ -17,17 +17,16 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 
-from src.sdk.python.rtdip_sdk.pipelines.transformers.interfaces import TransformerInterface
-#from ....interfaces import TransformerInterface
+from ....interfaces import TransformerInterface
+from ....._pipeline_utils.models import Libraries, SystemType
 from ....._pipeline_utils.weather_ecmwf import RTDIP_STRING_WEATHER_DATA_MODEL, RTDIP_FLOAT_WEATHER_DATA_MODEL 
 
 
-class ExtractBase(TransformerInterface):
+class ECMWFExtractBaseToWeatherDataModel(TransformerInterface):
     """
     Base class for extracting forecast data downloaded in .nc format from ECMWF.
 
     Args:
-        TransformerInterface (class): Base class for all transformers in the pipeline
         load_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
         date_start (str): Start date of extraction in "YYYY-MM-DD HH:MM:SS" format
         date_end (str): End date of extraction in "YYYY-MM-DD HH:MM:SS" format
@@ -91,8 +90,8 @@ class ExtractBase(TransformerInterface):
         """
         Converts the tag names of wind speed from the format used in the nc files to the format used in the weather data model.
 
-        Attributes:
-            Tag List (list): List of variable names of raw tags to be extracted from the nc files
+        Args:
+            x (list): List of variable names of raw tags to be extracted from the nc files
 
         Returns:
             new_tags(list): List of variable names of raw tags to be extracted from the nc files, converted to the format used in the weather data model.
@@ -111,7 +110,7 @@ class ExtractBase(TransformerInterface):
     def transform(self, tag_prefix: str, variables: list, method: str = "nearest") -> pd.DataFrame:
         """Extract raw data from stored nc filed downloaded via ECMWF MARS.
 
-        Attributes:
+        Args:
             tag_prefix (str): Prefix of the tag names of raw tags to be added to the dataframe
             variables (list): List of variable names of raw tags to be extracted from the nc files
             method (str, optional): The method used to match latitude/longitude in xarray using .sel(), by default "nearest"

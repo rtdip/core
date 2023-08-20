@@ -16,7 +16,7 @@ import numpy as np
 
 from pytest_mock import MockerFixture
 from unittest.mock import Mock, patch
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.base_mars_ecmwf import MARS_ECMWF_API
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.ECMWF.base_mars_ecmwf import BaseMarsECMWFSource
 
 # Sample test data
 date_start = "2020-10-01 00:00:00"
@@ -26,7 +26,7 @@ save_path = "/path/to/save"
 
 def test_retrieve():
 
-    api_instance = MARS_ECMWF_API(date_start, date_end, save_path)
+    api_instance = BaseMarsECMWFSource(date_start, date_end, save_path)
 
     ec_vars = [
          "10u", "10v"
@@ -56,7 +56,7 @@ def test_retrieve():
 
 def test_info_after_retrieve():
     
-    api_instance = MARS_ECMWF_API(date_start, date_end, save_path)
+    api_instance = BaseMarsECMWFSource(date_start, date_end, save_path)
 
     ec_vars = [
          "10u", "10v"

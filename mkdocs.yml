@@ -172,9 +172,10 @@ nav:
                       - Weather:
                           - Base Weather: sdk/code-reference/pipelines/sources/spark/weather/base_weather.md
                           - Weather Forecast API V1: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1.md
-                          - Weather Forecast ECMWF V1 Multi: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md
-                          - Base MARS ECMWF: sdk/code-reference/pipelines/sources/spark/weather/base_weather_ecmwf.md
-                          - Weather Forecast ECMWF: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_ecmwf.md
+                          - Weather Forecast V1 Multi: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_api_v1_multi.md
+                          - ECMWF:
+                                - Base MARS: sdk/code-reference/pipelines/sources/spark/weather/base_mars_ecmwf.md
+                                - Weather Forecast: sdk/code-reference/pipelines/sources/spark/weather/weather_forecast_ecmwf.md
                   - Python:
                       - Delta: sdk/code-reference/pipelines/sources/python/delta.md
                       - Delta Sharing: sdk/code-reference/pipelines/sources/python/delta_sharing.md
@@ -194,10 +195,10 @@ nav:
                           - PJM To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/pjm_to_mdm.md
                       - Weather:
                           - Raw Forecast To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md
-                          - nc Forecast Extract Base To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_ExtractBase_to_weather_data_model.md
-                          - nc Forecast Extract Point To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_ExtractPoint_to_weather_data_model.md
-                          - nc Forecast Extract Grid To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_ExtractGrid_to_weather_data_model.md
-
+                          - ECMWF:
+                                - nc Forecast Extract Base To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractbase_to_weather_data_model.md
+                                - nc Forecast Extract Point To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractpoint_to_weather_data_model.md
+                                - nc Forecast Extract Grid To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractgrid_to_weather_data_model.md
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md

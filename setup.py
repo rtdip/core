@@ -59,7 +59,10 @@ PIPELINE_PACKAGES = [
   "azure-keyvault-secrets==4.7.0",
   "web3==6.5.0",
   "polars[deltalake]==0.18.8",
-  "delta-sharing==0.7.4"
+  "delta-sharing==0.7.4",
+  "xarray==2023.8.0",
+  "ecmwf-api-client==1.6.3",
+  "netCDF4==1.6.4"
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {

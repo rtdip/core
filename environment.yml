@@ -66,7 +66,7 @@ dependencies:
     - moto[s3]==4.1.14
     - xarray>=2023.1.0
     - ecmwf-api-client>=1.6.3
-    - netCDF4 >= 1.6.4
+    - netCDF4>=1.6.4
     - pip:
         - dependency-injector==4.41.0
         - azure-functions==1.15.0

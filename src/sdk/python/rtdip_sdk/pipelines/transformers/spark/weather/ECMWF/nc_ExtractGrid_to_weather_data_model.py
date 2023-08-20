@@ -15,10 +15,10 @@
 import numpy as np
 import xarray as xr
 
-from .nc_ExtractBase_to_weather_data_model import ExtractBase
+from .nc_extractbase_to_weather_data_model import ECMWFExtractBaseToWeatherDataModel
 
 
-class ECMWFExtractGridToWeatherDataModel(ExtractBase):
+class ECMWFExtractGridToWeatherDataModel(ECMWFExtractBaseToWeatherDataModel):
     """Extract a grid from a local .nc file downloaded from ecmwf via mars
 
     Args:

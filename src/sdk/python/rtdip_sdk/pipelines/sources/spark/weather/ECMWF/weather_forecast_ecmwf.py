@@ -16,8 +16,9 @@
 import pandas as pd
 import numpy as np
 
-from ...interfaces import SourceInterface
-from .base_mars_ecmwf import MARS_ECMWF_API
+from ....interfaces import SourceInterface
+from ....._pipeline_utils.models import Libraries, SystemType
+from .base_mars_ecmwf import BaseMarsECMWFSource
 
 from pyspark.sql import SparkSession
 
@@ -27,14 +28,13 @@ class WeatherForecastECMWFSource(SourceInterface):
     The Weather Forecast API V1 Source class to doownload nc files from ECMWF MARS server using the ECMWF python API. 
     
     The following environment variables must be set:
-    ECMWF_API_KEY=""
-    ECMWF_API_URL="https://api.ecmwf.int/v1"
-    ECMWF_API_EMAIL=""
+    
+    - ECMWF_API_KEY=""
+    - ECMWF_API_URL="https://api.ecmwf.int/v1"
+    - ECMWF_API_EMAIL=""
 
     Args:
         spark (SparkSession): Spark Session instance
-
-    Attributes:
         save_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
         date_start (str): Start date of extraction in "YYYY-MM-DD HH:MM:SS" format    date_end:str, 
         date_end (str): End date of extraction in "YYYY-MM-DD HH:MM:SS" format
@@ -140,14 +140,11 @@ class WeatherForecastECMWFSource(SourceInterface):
     def read_batch(self):
         """
         Pulls data from the Weather API and returns as .nc files.
-
-        Returns:
-            Raw form of data.
         """
         lead_times = self._get_lead_time()
         para = self._get_api_params(lead_times=lead_times)
 
-        ec_conn = MARS_ECMWF_API(
+        ec_conn = BaseMarsECMWFSource(
             date_start=self.date_start,
             date_end= self.date_end,
             save_path=self.save_path,

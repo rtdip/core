@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import xarray as xr
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.nc_ExtractPoint_to_weather_data_model import ECMWFExtractPointToWeatherDataModel
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.nc_extractpoint_to_weather_data_model import ECMWFExtractPointToWeatherDataModel
 
 # Sample test data
 lat=55.7
@@ -12,7 +12,7 @@ load_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_file
 date_start="2021-01-01 00:00:00"
 date_end="2021-01-01 12:00:00"
 run_interval="12"
-run_frequency="H"
+run_frequency="H" 
 
 
 def test_constructor():

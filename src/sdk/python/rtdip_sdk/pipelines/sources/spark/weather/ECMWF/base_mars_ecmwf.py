@@ -23,17 +23,12 @@ from joblib import Parallel, delayed
 
 load_dotenv()
 
-class MARS_ECMWF_API:
+class BaseMarsECMWFSource():
     """
     Download nc files from ECMWF MARS server using the ECMWF python API. 
     Data is downloaded in parallel using joblib from ECMWF MARS server using the ECMWF python API.
 
     Args:
-        ECMWF_API_KEY (str): API key for ECMWF MARS server
-        ECMWF_API_URL (str): "https://api.ecmwf.int/v1"
-        ECMWF_API_EMAIL (str): Email address for ECMWF MARS server
-
-    Attributes:
         save_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
         date_start (str): Start date of extraction in "YYYY-MM-DD HH:MM:SS" format
         date_end (str): End date of extraction in "YYYY-MM-DD HH:MM:SS" format
@@ -86,9 +81,6 @@ class MARS_ECMWF_API:
             cost (bool, optional):  Pass a cost request to mars to estimate the size and efficiency of your request,
                 but not actually download the data. Can be useful for defining requests,
                 by default False.
-
-        Returns:
-            self: reference to self
         """
         chk = ["date", "target", "time", "format", "output"]
         for i in chk:
