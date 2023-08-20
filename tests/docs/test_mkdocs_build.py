@@ -12,12 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .spark.binary_to_string import *
-from .spark.opc_publisher_opcua_json_to_pcdm import *
-from .spark.fledge_opcua_json_to_pcdm import *
-from .spark.ssip_pi_binary_file_to_pcdm import *
-from .spark.ssip_pi_binary_json_to_pcdm import *
-from .spark.iso import *
-from .spark.edgex_opcua_json_to_pcdm import *
-from .spark.pcdm_to_honeywell_apm import *
-from .spark.honeywell_apm_to_pcdm import *
+import sys
+sys.path.insert(0, '.')
+
+from mkdocs.config import load_config
+from mkdocs.commands.build import build
+
+def test_mkdocs_build():
+    mkdocs_config = load_config(strict=True)
+    mkdocs_config["plugins"].run_event("startup", command="build", dirty=False)
+    try:
+        build(mkdocs_config)
+    finally:
+        mkdocs_config["plugins"].run_event("shutdown")
