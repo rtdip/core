@@ -8,6 +8,7 @@
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/rtdip-sdk.svg?logo=python&logoColor=FFE873)](https://pypi.org/project/rtdip-sdk/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/rtdip-sdk.svg)](https://pypistats.org/packages/rtdip-sdk)
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7557/badge)](https://bestpractices.coreinfrastructure.org/projects/7557)
+[![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 | Branch | Workflow Status | Code Coverage | Vulnerabilities | Bugs |
 |--------|-----------------|---------------|----------|------|
