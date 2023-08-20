@@ -19,3 +19,5 @@ from .spark.ssip_pi_binary_file_to_pcdm import *
 from .spark.ssip_pi_binary_json_to_pcdm import *
 from .spark.iso import *
 from .spark.edgex_opcua_json_to_pcdm import *
+from .spark.pcdm_to_honeywell_apm import *
+from .spark.honeywell_apm_to_pcdm import *
