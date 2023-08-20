@@ -29,7 +29,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
-  "databricks-sql-connector==2.8.0",
+  "databricks-sql-connector==2.9.2",
   "azure-identity==1.12.0",
   "pyodbc==4.0.39",
   "pandas>=2.0.1,<3.0.0",
