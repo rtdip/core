@@ -23,9 +23,10 @@ from joblib import Parallel, delayed
 
 load_dotenv()
 
-class BaseMarsECMWFSource():
+
+class BaseMarsECMWFSource:
     """
-    Download nc files from ECMWF MARS server using the ECMWF python API. 
+    Download nc files from ECMWF MARS server using the ECMWF python API.
     Data is downloaded in parallel using joblib from ECMWF MARS server using the ECMWF python API.
 
     Args:
@@ -146,4 +147,3 @@ class BaseMarsECMWFSource():
             )
         y = pd.Series(self.success, index=self.dates, name="success", dtype=bool)
         return y
-    

@@ -13,10 +13,12 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
+
+sys.path.insert(0, ".")
 
 from mkdocs.config import load_config
 from mkdocs.commands.build import build
+
 
 def test_mkdocs_build():
     mkdocs_config = load_config(strict=True)

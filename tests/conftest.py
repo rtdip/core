@@ -14,17 +14,20 @@ import pytest
 import os
 import shutil
 
-from src.sdk.python.rtdip_sdk.pipelines.destinations import * # NOSONAR
-from src.sdk.python.rtdip_sdk.pipelines.sources import * # NOSONAR
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import SparkSessionUtility
+from src.sdk.python.rtdip_sdk.pipelines.destinations import *  # NOSONAR
+from src.sdk.python.rtdip_sdk.pipelines.sources import *  # NOSONAR
+from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import (
+    SparkSessionUtility,
+)
 
 SPARK_TESTING_CONFIGURATION = {
     "spark.executor.cores": "4",
     "spark.executor.instances": "4",
     "spark.sql.shuffle.partitions": "4",
-    "spark.app.name": "test_app", 
-    "spark.master": "local[*]"
+    "spark.app.name": "test_app",
+    "spark.master": "local[*]",
 }
+
 
 @pytest.fixture(scope="session")
 def spark_session():
@@ -32,11 +35,10 @@ def spark_session():
     path = spark.conf.get("spark.sql.warehouse.dir")
     prefix = "file:"
     if path.startswith(prefix):
-        path = path[len(prefix):]    
+        path = path[len(prefix) :]
     if os.path.isdir(path):
-        shutil.rmtree(path)    
+        shutil.rmtree(path)
     yield spark
     spark.stop()
     if os.path.isdir(path):
         shutil.rmtree(path)
-

@@ -14,12 +14,12 @@
 
 from abc import ABC, abstractmethod
 
-class DeployInterface(ABC):
 
+class DeployInterface(ABC):
     @abstractmethod
     def deploy(self):
         pass
 
     @abstractmethod
     def launch(self):
-        pass    
+        pass

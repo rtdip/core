@@ -17,18 +17,26 @@ from src.api.auth import azuread
 from azure.identity import DefaultAzureCredential
 from azure.core.credentials import AccessToken
 
+
 def test_auth_azuread_no_auth_header(mocker: MockerFixture):
-    mocker.patch("src.sdk.python.rtdip_sdk.authentication.azure.DefaultAuth.authenticate", return_value=DefaultAzureCredential)
-    mocker.patch("azure.identity.DefaultAzureCredential.get_token", return_value = AccessToken)
-    mocker.patch("azure.core.credentials.AccessToken.token", return_value = "token")
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.authentication.azure.DefaultAuth.authenticate",
+        return_value=DefaultAzureCredential,
+    )
+    mocker.patch(
+        "azure.identity.DefaultAzureCredential.get_token", return_value=AccessToken
+    )
+    mocker.patch("azure.core.credentials.AccessToken.token", return_value="token")
 
     token = azuread.get_azure_ad_token(None)
     assert token.return_value == "token"
+
 
 def test_auth_azuread_bearer_token(mocker: MockerFixture):
     token = azuread.get_azure_ad_token("Bearer token")
     assert token == "token"
 
+
 def test_auth_azuread_bearer_token_no_prefix(mocker: MockerFixture):
     token = azuread.get_azure_ad_token("token")
-    assert token == "token"    
+    assert token == "token"

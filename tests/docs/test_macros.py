@@ -13,15 +13,19 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
+
+sys.path.insert(0, ".")
 from datetime import datetime
 from pytest_mock import MockerFixture
 from docs.macros import define_env
 from mkdocs_macros.plugin import MacrosPlugin
 from mkdocs.config.base import load_config
 
-class MockRelease():
-    def __init__(self, title, html_url, tag_name, published_at, draft, prerelease, body):
+
+class MockRelease:
+    def __init__(
+        self, title, html_url, tag_name, published_at, draft, prerelease, body
+    ):
         self.title = title
         self.html_url = html_url
         self.tag_name = tag_name
@@ -30,27 +34,33 @@ class MockRelease():
         self.prerelease = prerelease
         self.body = body
 
-class MockRepository():
+
+class MockRepository:
     def get_releases(self):
         return [
             MockRelease("title1", "url1", "tag1", "date1", False, False, "body1"),
             MockRelease("title2", "url2", "tag2", "date2", False, False, "body2"),
         ]
 
-class MockGithub():
+
+class MockGithub:
     def get_repo(self, owner, repo=None):
         return MockRepository()
-    
+
     def render_markdown(self, text, context=None):
         return text
-    
+
+
 def test_github_releases(mocker: MockerFixture):
     mocker.patch("docs.macros.Github", return_value=MockGithub())
     config = load_config()
-    env=MacrosPlugin()
+    env = MacrosPlugin()
     env.load_config(config.__dict__)
     env.on_config(config)
     define_env(env)
     result = env.macros["github_releases"]("owner", "repo")
 
-    assert result == '----\r\n##[title1](url1)\r\n:octicons-tag-24:[tag1](url1) :octicons-calendar-24: Published date1 \r\nbody1\r\n----\r\n##[title2](url2)\r\n:octicons-tag-24:[tag2](url2) :octicons-calendar-24: Published date2 \r\nbody2\r\n----\r\n'
+    assert (
+        result
+        == "----\r\n##[title1](url1)\r\n:octicons-tag-24:[tag1](url1) :octicons-calendar-24: Published date1 \r\nbody1\r\n----\r\n##[title2](url2)\r\n:octicons-tag-24:[tag2](url2) :octicons-calendar-24: Published date2 \r\nbody2\r\n----\r\n"
+    )

@@ -22,14 +22,15 @@ from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class SparkKafkaDestination(DestinationInterface):
-    '''
-    This Spark destination class is used to write batch or streaming data from Kafka. Required and optional configurations can be found in the Attributes tables below. 
+    """
+    This Spark destination class is used to write batch or streaming data from Kafka. Required and optional configurations can be found in the Attributes tables below.
 
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
     For compatibility between Spark and Kafka, the columns in the input dataframe are concatenated into one 'value' column of JSON string.
-    
+
     Args:
         data (DataFrame): Dataframe to be written to Kafka
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
@@ -40,15 +41,22 @@ class SparkKafkaDestination(DestinationInterface):
 
     Attributes:
         kafka.bootstrap.servers (A comma-separated list of host︰port): The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
-       
+
     The following configurations are optional:
 
     Attributes:
         topic (str):Sets the topic that all rows will be written to in Kafka. This option overrides any topic column that may exist in the data. (Streaming and Batch)
         includeHeaders (bool): Whether to include the Kafka headers in the row. (Streaming and Batch)
 
-    '''
-    def __init__(self, data: DataFrame, options: dict, trigger="10 seconds", query_name="KafkaDestination") -> None:
+    """
+
+    def __init__(
+        self,
+        data: DataFrame,
+        options: dict,
+        trigger="10 seconds",
+        query_name="KafkaDestination",
+    ) -> None:
         self.data = data
         self.options = options
         self.trigger = trigger
@@ -56,10 +64,10 @@ class SparkKafkaDestination(DestinationInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''             
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -67,27 +75,25 @@ class SparkKafkaDestination(DestinationInterface):
         spark_libraries = Libraries()
         spark_libraries.add_maven_library(get_default_package("spark_sql_kafka"))
         return spark_libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_write_validation(self):
         return True
-    
+
     def post_write_validation(self):
         return True
 
     def write_batch(self):
-        '''
+        """
         Writes batch data to Kafka.
-        '''
+        """
         try:
             return (
-                self.data
-                .select(to_json(struct("*")).alias("value"))
-                .write
-                .format("kafka")
+                self.data.select(to_json(struct("*")).alias("value"))
+                .write.format("kafka")
                 .options(**self.options)
                 .save()
             )
@@ -98,18 +104,20 @@ class SparkKafkaDestination(DestinationInterface):
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def write_stream(self):
-        '''
+        """
         Writes steaming data to Kafka.
-        '''
+        """
         try:
-            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
+            TRIGGER_OPTION = (
+                {"availableNow": True}
+                if self.trigger == "availableNow"
+                else {"processingTime": self.trigger}
+            )
             query = (
-                self.data
-                .select(to_json(struct("*")).alias("value"))
-                .writeStream
-                .trigger(**TRIGGER_OPTION)
+                self.data.select(to_json(struct("*")).alias("value"))
+                .writeStream.trigger(**TRIGGER_OPTION)
                 .format("kafka")
                 .options(**self.options)
                 .queryName(self.query_name)

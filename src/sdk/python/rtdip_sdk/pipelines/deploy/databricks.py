@@ -27,9 +27,10 @@ from ..utilities.pipeline_components import PipelineComponentsGetUtility
 __name__: str
 __version__: str
 __description__: str
-    
+
+
 class DatabricksSDKDeploy(DeployInterface):
-    '''
+    """
     Deploys an RTDIP Pipeline to Databricks Workflows leveraging the Databricks [SDK.](https://docs.databricks.com/dev-tools/sdk-python.html)
 
     Deploying an RTDIP Pipeline to Databricks requires only a few additional pieces of information to ensure the RTDIP Pipeline Job can be run in Databricks. This information includes:
@@ -91,8 +92,15 @@ class DatabricksSDKDeploy(DeployInterface):
         host (str): Databricks URL
         token (str): Token for authenticating with Databricks such as a Databricks PAT Token or Azure AD Token
         workspace_directory (str, optional): Determines the folder location in the Databricks Workspace. Defaults to /rtdip
-    '''
-    def __init__(self, databricks_job: CreateJob, host: str, token: str, workspace_directory: str = "/rtdip") -> None:
+    """
+
+    def __init__(
+        self,
+        databricks_job: CreateJob,
+        host: str,
+        token: str,
+        workspace_directory: str = "/rtdip",
+    ) -> None:
         if databricks_job.name is None or databricks_job.name == "":
             raise ValueError("databricks_job.name cannot be empty")
         self.databricks_job = databricks_job
@@ -103,59 +111,115 @@ class DatabricksSDKDeploy(DeployInterface):
     def _convert_file_to_binary(self, path) -> BytesIO:
         with open(path, "rb") as f:
             return BytesIO(f.read())
-    
+
     def _load_module(self, module_name, path):
         spec = spec_from_file_location(module_name, path)
         module = module_from_spec(spec)
         spec.loader.exec_module(module)
         sys.modules[module.__name__] = module
         return module
+
     def deploy(self) -> Union[bool, ValueError]:
-        '''
+        """
         Deploys an RTDIP Pipeline Job to Databricks Workflows. The deployment is managed by the Job Name and therefore will overwrite any existing workflow in Databricks with the same name.
-        '''
+        """
         # Add libraries to Databricks Job
         workspace_client = WorkspaceClient(host=self.host, token=self.token)
         for task in self.databricks_job.tasks:
             if task.notebook_task is None and task.spark_python_task is None:
-                return ValueError("A Notebook or Spark Python Task must be populated for each task in the Databricks Job") # NOSONAR
+                return ValueError(
+                    "A Notebook or Spark Python Task must be populated for each task in the Databricks Job"
+                )  # NOSONAR
             if task.notebook_task is not None:
-                module = self._load_module(task.task_key + "file_upload", task.notebook_task.notebook_path)
-                (task_libraries, spark_configuration) = PipelineComponentsGetUtility(module.__name__).execute()
+                module = self._load_module(
+                    task.task_key + "file_upload", task.notebook_task.notebook_path
+                )
+                (task_libraries, spark_configuration) = PipelineComponentsGetUtility(
+                    module.__name__
+                ).execute()
                 workspace_client.workspace.mkdirs(path=self.workspace_directory)
-                path="{}/{}".format(self.workspace_directory, Path(task.notebook_task.notebook_path).name)
-                workspace_client.workspace.upload(path=path, overwrite=True, content=self._convert_file_to_binary(task.notebook_task.notebook_path))
+                path = "{}/{}".format(
+                    self.workspace_directory,
+                    Path(task.notebook_task.notebook_path).name,
+                )
+                workspace_client.workspace.upload(
+                    path=path,
+                    overwrite=True,
+                    content=self._convert_file_to_binary(
+                        task.notebook_task.notebook_path
+                    ),
+                )
                 task.notebook_task.notebook_path = path
             else:
-                module = self._load_module(task.task_key + "file_upload", task.spark_python_task.python_file)
-                (task_libraries, spark_configuration) = PipelineComponentsGetUtility(module).execute()
+                module = self._load_module(
+                    task.task_key + "file_upload", task.spark_python_task.python_file
+                )
+                (task_libraries, spark_configuration) = PipelineComponentsGetUtility(
+                    module
+                ).execute()
                 workspace_client.workspace.mkdirs(path=self.workspace_directory)
-                path="{}/{}".format(self.workspace_directory, Path(task.spark_python_task.python_file).name)
-                workspace_client.workspace.upload(path=path, overwrite=True, content=self._convert_file_to_binary(task.spark_python_task.python_file))
+                path = "{}/{}".format(
+                    self.workspace_directory,
+                    Path(task.spark_python_task.python_file).name,
+                )
+                workspace_client.workspace.upload(
+                    path=path,
+                    overwrite=True,
+                    content=self._convert_file_to_binary(
+                        task.spark_python_task.python_file
+                    ),
+                )
                 task.spark_python_task.python_file = path
 
             task.libraries = []
             for pypi_library in task_libraries.pypi_libraries:
-                task.libraries.append(Library(pypi=PythonPyPiLibrary(package=pypi_library.to_string(), repo=pypi_library.repo)))
+                task.libraries.append(
+                    Library(
+                        pypi=PythonPyPiLibrary(
+                            package=pypi_library.to_string(), repo=pypi_library.repo
+                        )
+                    )
+                )
             for maven_library in task_libraries.maven_libraries:
                 if not maven_library.group_id in ["io.delta", "org.apache.spark"]:
-                    task.libraries.append(Library(maven=MavenLibrary(coordinates=maven_library.to_string(), repo=maven_library.repo)))
+                    task.libraries.append(
+                        Library(
+                            maven=MavenLibrary(
+                                coordinates=maven_library.to_string(),
+                                repo=maven_library.repo,
+                            )
+                        )
+                    )
             for wheel_library in task_libraries.pythonwheel_libraries:
                 task.libraries.append(Library(whl=wheel_library))
 
             try:
                 rtdip_version = version("rtdip-sdk")
-                task.libraries.append(Library(pypi=PythonPyPiLibrary(package="rtdip-sdk[pipelines]=={}".format(rtdip_version))))
+                task.libraries.append(
+                    Library(
+                        pypi=PythonPyPiLibrary(
+                            package="rtdip-sdk[pipelines]=={}".format(rtdip_version)
+                        )
+                    )
+                )
             except PackageNotFoundError as e:
-                task.libraries.append(Library(pypi=PythonPyPiLibrary(package="rtdip-sdk[pipelines]")))
+                task.libraries.append(
+                    Library(pypi=PythonPyPiLibrary(package="rtdip-sdk[pipelines]"))
+                )
 
             # Add Spark Configuration to Databricks Job
-            if task.new_cluster is None and task.job_cluster_key is None and task.compute_key is None:
-                return ValueError("A Cluster or Compute must be specified for each task in the Databricks Job")
+            if (
+                task.new_cluster is None
+                and task.job_cluster_key is None
+                and task.compute_key is None
+            ):
+                return ValueError(
+                    "A Cluster or Compute must be specified for each task in the Databricks Job"
+                )
             if task.new_cluster is not None:
                 if spark_configuration is not None:
                     if task.new_cluster.spark_conf is None:
-                        task.new_cluster.spark_conf = {}                
+                        task.new_cluster.spark_conf = {}
                     task.new_cluster.spark_conf.update(spark_configuration)
             elif task.job_cluster_key is not None:
                 for job_cluster in self.databricks_job.job_clusters:
@@ -163,7 +227,9 @@ class DatabricksSDKDeploy(DeployInterface):
                         if spark_configuration is not None:
                             if job_cluster.new_cluster.spark_conf is None:
                                 job_cluster.new_cluster.spark_conf = {}
-                            job_cluster.new_cluster.spark_conf.update(spark_configuration)
+                            job_cluster.new_cluster.spark_conf.update(
+                                spark_configuration
+                            )
                         break
             elif task.compute_key is not None:
                 for compute in self.databricks_job.compute:
@@ -180,28 +246,25 @@ class DatabricksSDKDeploy(DeployInterface):
                 if key in new_settings.__dict__:
                     setattr(new_settings, key, value)
             workspace_client.jobs.reset(
-                job_id=existing_job.job_id,
-                new_settings=new_settings
+                job_id=existing_job.job_id, new_settings=new_settings
             )
-            job_found = True          
+            job_found = True
             break
 
         if job_found == False:
             workspace_client.jobs.create(**self.databricks_job.__dict__)
 
         return True
-                            
+
     def launch(self):
-        '''
+        """
         Launches an RTDIP Pipeline Job in Databricks Workflows. This will perform the equivalent of a `Run Now` in Databricks Workflows
-        '''        
+        """
         workspace_client = WorkspaceClient(host=self.host, token=self.token)
         job_found = False
         for existing_job in workspace_client.jobs.list(name=self.databricks_job.name):
-            workspace_client.jobs.run_now(
-                job_id=existing_job.job_id
-            )
-            job_found = True            
+            workspace_client.jobs.run_now(job_id=existing_job.job_id)
+            job_found = True
             break
 
         if job_found == False:

@@ -13,6 +13,9 @@
 # limitations under the License.
 
 import logging
-logging.warning("rtdip_sdk.authentication.authenticate is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.authentication.azure instead.")
 
-from .azure import * # NOSONAR
+logging.warning(
+    "rtdip_sdk.authentication.authenticate is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.authentication.azure instead."
+)
+
+from .azure import *  # NOSONAR

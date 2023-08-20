@@ -15,40 +15,49 @@
 import pytest
 from src.sdk.python.rtdip_sdk.connectors.connection_interface import ConnectionInterface
 
+
 class TestConnection(ConnectionInterface):
     def __init__(self):
-        pass #passing because method does not need to be not implemented
+        pass  # passing because method does not need to be not implemented
+
     def close(self):
         raise NotImplementedError
+
     def cursor(self):
         raise NotImplementedError
+
 
 def test_close_method_missing():
     class TestConnectionClose(ConnectionInterface):
         def __init__(self):
-            pass #passing because method does not need to be not implemented
+            pass  # passing because method does not need to be not implemented
+
         def cursor(self):
             raise NotImplementedError
-    
-    with pytest.raises(TypeError): 
+
+    with pytest.raises(TypeError):
         TestConnectionClose()
+
 
 def test_cursor_method_missing():
     class TestConnectionCursor(ConnectionInterface):
         def __init__(self):
-            pass #passing because method does not need to be not implemented
+            pass  # passing because method does not need to be not implemented
+
         def close(self):
             raise NotImplementedError
-    
-    with pytest.raises(TypeError): 
+
+    with pytest.raises(TypeError):
         TestConnectionCursor()
+
 
 def test_close_method():
     test_connection = TestConnection()
-    with pytest.raises(NotImplementedError): 
+    with pytest.raises(NotImplementedError):
         test_connection.close()
+
 
 def test_cursor_method():
     test_connection = TestConnection()
-    with pytest.raises(NotImplementedError): 
+    with pytest.raises(NotImplementedError):
         test_connection.cursor()

@@ -32,11 +32,11 @@ import os
 
 
 def process_file(file_source_name_str: str, transformer_list=None) -> str:
-    local_output_file_tmp = tempfile.NamedTemporaryFile(suffix='.csv')
+    local_output_file_tmp = tempfile.NamedTemporaryFile(suffix=".csv")
     local_output_file_tmp_str: str = local_output_file_tmp.name
     local_output_file_tmp.close()
-    logging.debug('File to process  {}'.format(file_source_name_str))
-    logging.debug('Created unquoting tmp file: {}'.format(local_output_file_tmp.name))
+    logging.debug("File to process  {}".format(file_source_name_str))
+    logging.debug("Created unquoting tmp file: {}".format(local_output_file_tmp.name))
     file_source = open(file_source_name_str, "rt")
     file_target = open(local_output_file_tmp_str, "wt")
 
@@ -45,11 +45,14 @@ def process_file(file_source_name_str: str, transformer_list=None) -> str:
 
     ####
     sanitize_map: dict = dict()
-    sanitize_map['"'] = ''
-    PROCESS_REPLACE = 'replace'
+    sanitize_map['"'] = ""
+    PROCESS_REPLACE = "replace"
     process_definitions: dict = dict()
-    process_definitions[PROCESS_REPLACE] = lambda source_str, to_be_replaced_str, to_replaced_with_str: \
-        source_str.replace(to_be_replaced_str, to_replaced_with_str)
+    process_definitions[
+        PROCESS_REPLACE
+    ] = lambda source_str, to_be_replaced_str, to_replaced_with_str: source_str.replace(
+        to_be_replaced_str, to_replaced_with_str
+    )
     sanitize_function = process_definitions[PROCESS_REPLACE]
     ####
 
@@ -60,47 +63,59 @@ def process_file(file_source_name_str: str, transformer_list=None) -> str:
         if len(transformer_list) == 2:
             transformer_method_str: str = transformer_list[0]
             transformer_options_list = transformer_list[1]
-            logging.debug('process_file Transformer method: [{}]'.format(transformer_method_str))
-            logging.debug('process_file Transformer options: [{}]'.format(transformer_options_list))
+            logging.debug(
+                "process_file Transformer method: [{}]".format(transformer_method_str)
+            )
+            logging.debug(
+                "process_file Transformer options: [{}]".format(
+                    transformer_options_list
+                )
+            )
             transformer_options = transformer_options_list[0]
             if len(transformer_options_list) == 2:
                 header_str: str = transformer_options_list[1]
-                logging.debug('process_file Transformer header: [{}]'.format(header_str))
+                logging.debug(
+                    "process_file Transformer header: [{}]".format(header_str)
+                )
             valid_transformer_bool = True
         else:
-            logging.error('Transformer not valid')
-            logging.error('process_file Transformer method: [{}]'.format(transformer_list))
+            logging.error("Transformer not valid")
+            logging.error(
+                "process_file Transformer method: [{}]".format(transformer_list)
+            )
 
     for line in file_source:
         for item_str in sanitize_map:
             line = sanitize_function(line, item_str, sanitize_map[item_str])
             # ignore the header (num_of_records_int >= 0)
             if valid_transformer_bool and num_of_records_int >= 0:
-                line = getattr(transformers, transformer_method_str)(line, transformer_options)
+                line = getattr(transformers, transformer_method_str)(
+                    line, transformer_options
+                )
         if num_of_records_int == -1 and header_str is not None:
-            line = header_str.strip().rstrip('\n') + '\n'
+            line = header_str.strip().rstrip("\n") + "\n"
         # This will allow transformers that aggregate (emit 1 record each 10)
         if line is not None:
             file_target.write(line)
         num_of_records_int = num_of_records_int + 1
     file_source.close()
     file_target.close()
-    logging.debug('Number of records processed: {}'.format(num_of_records_int))
+    logging.debug("Number of records processed: {}".format(num_of_records_int))
     return local_output_file_tmp_str
 
 
 def remove_file(file_path: str):
-    logging.debug('Going to remove: {}'.format(file_path))
+    logging.debug("Going to remove: {}".format(file_path))
     if file_path is None:
-        logging.error('File path is None')
+        logging.error("File path is None")
         return False
     if os.path.exists(file_path):
         try:
             os.remove(file_path)
-            logging.debug('[{}] was deleted'.format(file_path))
+            logging.debug("[{}] was deleted".format(file_path))
             return True
         except Exception as ex:
-            logging.error('Could not remove file: {}'.format(file_path))
+            logging.error("Could not remove file: {}".format(file_path))
     else:
-        logging.error('File path does not exist: {}'.format(file_path))
+        logging.error("File path does not exist: {}".format(file_path))
     return False

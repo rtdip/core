@@ -15,8 +15,8 @@
 from abc import abstractmethod
 from ..interfaces import PipelineComponentBaseInterface
 
+
 class SourceInterface(PipelineComponentBaseInterface):
-    
     @abstractmethod
     def pre_read_validation(self) -> bool:
         pass

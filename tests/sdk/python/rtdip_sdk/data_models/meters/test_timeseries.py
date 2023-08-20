@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
+
+sys.path.insert(0, ".")
 
 
 from src.sdk.python.rtdip_sdk.data_models.meters.utils import CreateMetaDataObject
@@ -32,19 +33,20 @@ import pytest
 
 
 def test_generate_timeseries_objects_creation():
-
     #
     meter_1_uid_str: str = str(uuid4())
     series_1_id_str: str = str(uuid4())
-    series_1_parent_id_str: str = 'parent_id_' + str(uuid4())
-    description_str: str = 'description_' + str(uuid4())
+    series_1_parent_id_str: str = "parent_id_" + str(uuid4())
+    description_str: str = "description_" + str(uuid4())
 
-    version_str: str = 'Version_0_0_1'
+    version_str: str = "Version_0_0_1"
 
     timestamp_start_int: int = int(utils.get_utc_timestamp())
     timestamp_end_int: int = timestamp_start_int
-    timezone_str: str = str(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo)
-    name_str: str = 'name_' + str(uuid4())
+    timezone_str: str = str(
+        datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
+    )
+    name_str: str = "name_" + str(uuid4())
     uom = UomUsage.KWH
 
     series_type = SeriesType.Minutes10
@@ -52,37 +54,38 @@ def test_generate_timeseries_objects_creation():
     value_type = ValueType.Usage
 
     properties_dict: dict = dict()
-    key_str: str = 'key_' + str(uuid4())
-    value_str: str = 'value_' + str(uuid4())
+    key_str: str = "key_" + str(uuid4())
+    value_str: str = "value_" + str(uuid4())
     properties_dict[key_str] = value_str
 
-    metadata_vo: MetaData = CreateMetaDataObject.create_metadata_VO(meter_1_uid_str,
-                                                                            series_1_id_str,
-                                                                            series_1_parent_id_str,
-                                                                            name_str,
-                                                                            uom,
-                                                                            description_str,
-                                                                            timestamp_start_int,
-                                                                            timestamp_end_int,
-                                                                            timezone_str,
-                                                                            version_str,
-                                                                            series_type,
-                                                                            model_type,
-                                                                            value_type,
-                                                                            properties_dict)
-    
-    logging.debug(metadata_vo)
+    metadata_vo: MetaData = CreateMetaDataObject.create_metadata_VO(
+        meter_1_uid_str,
+        series_1_id_str,
+        series_1_parent_id_str,
+        name_str,
+        uom,
+        description_str,
+        timestamp_start_int,
+        timestamp_end_int,
+        timezone_str,
+        version_str,
+        series_type,
+        model_type,
+        value_type,
+        properties_dict,
+    )
 
+    logging.debug(metadata_vo)
 
     # Test for json serialization/deser. Usage
     timestamp_interval_int: int = timestamp_start_int
-    usage_vo: Usage = CreateUsageObject.create_usage_VO(meter_1_uid_str,
-                                                        series_1_id_str,
-                                                        timestamp_start_int,
-                                                        timestamp_interval_int,
-                                                        utils.generate_random_int_number(0,1000) * 0.1)
+    usage_vo: Usage = CreateUsageObject.create_usage_VO(
+        meter_1_uid_str,
+        series_1_id_str,
+        timestamp_start_int,
+        timestamp_interval_int,
+        utils.generate_random_int_number(0, 1000) * 0.1,
+    )
     logging.debug(usage_vo)
 
-    assert (metadata_vo.SeriesId == usage_vo.SeriesId)
-  
-
+    assert metadata_vo.SeriesId == usage_vo.SeriesId

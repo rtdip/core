@@ -17,32 +17,81 @@ from importlib_metadata import version
 from semver.version import Version
 from packaging.version import Version as PyPIVersion
 
+
 def _get_databricks_package_versions(databricks_runtime_version, package_name):
     if package_name == "pyspark":
         from databricks.sdk.runtime import spark
+
         return spark.version
     elif package_name == "delta-spark":
-        if Version.compare(databricks_runtime_version, Version.parse("13.2", optional_minor_and_patch=True)) >= 0:
+        if (
+            Version.compare(
+                databricks_runtime_version,
+                Version.parse("13.2", optional_minor_and_patch=True),
+            )
+            >= 0
+        ):
             return "3.0.0"
-        elif Version.compare(databricks_runtime_version, Version.parse("13.1", optional_minor_and_patch=True)) >= 0:
+        elif (
+            Version.compare(
+                databricks_runtime_version,
+                Version.parse("13.1", optional_minor_and_patch=True),
+            )
+            >= 0
+        ):
             return "2.4.0"
-        elif Version.compare(databricks_runtime_version, Version.parse("13.0", optional_minor_and_patch=True)) >= 0:
-             return "2.3.0"
-        elif Version.compare(databricks_runtime_version, Version.parse("12.1", optional_minor_and_patch=True)) >= 0:
-             return "2.2.0"
-        elif Version.compare(databricks_runtime_version, Version.parse("11.3", optional_minor_and_patch=True)) >= 0:
-             return "2.1.0"                
-        elif Version.compare(databricks_runtime_version, Version.parse("10.4", optional_minor_and_patch=True)) >= 0:
-             return "1.1.0"
+        elif (
+            Version.compare(
+                databricks_runtime_version,
+                Version.parse("13.0", optional_minor_and_patch=True),
+            )
+            >= 0
+        ):
+            return "2.3.0"
+        elif (
+            Version.compare(
+                databricks_runtime_version,
+                Version.parse("12.1", optional_minor_and_patch=True),
+            )
+            >= 0
+        ):
+            return "2.2.0"
+        elif (
+            Version.compare(
+                databricks_runtime_version,
+                Version.parse("11.3", optional_minor_and_patch=True),
+            )
+            >= 0
+        ):
+            return "2.1.0"
+        elif (
+            Version.compare(
+                databricks_runtime_version,
+                Version.parse("10.4", optional_minor_and_patch=True),
+            )
+            >= 0
+        ):
+            return "1.1.0"
+
 
 def _get_package_version(package_name):
-    if "DATABRICKS_RUNTIME_VERSION" in os.environ and package_name in ["delta-spark", "pyspark"]:
-        return _get_databricks_package_versions(Version.parse(os.environ.get("DATABRICKS_RUNTIME_VERSION"), optional_minor_and_patch=True), package_name)
+    if "DATABRICKS_RUNTIME_VERSION" in os.environ and package_name in [
+        "delta-spark",
+        "pyspark",
+    ]:
+        return _get_databricks_package_versions(
+            Version.parse(
+                os.environ.get("DATABRICKS_RUNTIME_VERSION"),
+                optional_minor_and_patch=True,
+            ),
+            package_name,
+        )
     else:
-        return version(package_name)       
+        return version(package_name)
+
 
 def _get_semver_from_python_version(pypi_ver: PyPIVersion):
-    pre=None
+    pre = None
     if pypi_ver.is_prerelease:
         pre = "".join(str(i) for i in pypi_ver.pre)
         pypi_ver = Version(*pypi_ver.release, pre)
@@ -51,15 +100,23 @@ def _get_semver_from_python_version(pypi_ver: PyPIVersion):
 
     return pypi_ver
 
+
 def _get_python_package_version(package_name):
     pypi_ver = PyPIVersion(_get_package_version(package_name))
-    
+
     return _get_semver_from_python_version(pypi_ver)
+
 
 def _package_version_meets_minimum(package_name: str, minimum_version: str) -> bool:
     package_version = _get_python_package_version(package_name)
-    package_minimum_version = _get_semver_from_python_version(PyPIVersion(minimum_version))
-    version_result =  Version.compare(package_version, package_minimum_version)
+    package_minimum_version = _get_semver_from_python_version(
+        PyPIVersion(minimum_version)
+    )
+    version_result = Version.compare(package_version, package_minimum_version)
     if version_result < 0:
-        raise AssertionError("Package {} with version {} does not meet minimum version requirement {}".format(package_name, str(package_version), minimum_version))
+        raise AssertionError(
+            "Package {} with version {} does not meet minimum version requirement {}".format(
+                package_name, str(package_version), minimum_version
+            )
+        )
     return True

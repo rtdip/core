@@ -15,6 +15,7 @@
 from pandas import DataFrame
 from .compare_versions import _package_version_meets_minimum
 
+
 def _prepare_pandas_to_convert_to_spark(df: DataFrame) -> DataFrame:
     # Spark < 3.4.0 does not support iteritems method in Pandas > 2.0.1
     try:

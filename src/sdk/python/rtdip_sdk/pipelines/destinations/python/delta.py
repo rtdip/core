@@ -25,8 +25,9 @@ from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class PythonDeltaDestination(DestinationInterface):
-    '''
+    """
     The Python Delta Destination is used to write data to a Delta table from a Polars LazyFrame.
 
     Args:
@@ -36,15 +37,25 @@ class PythonDeltaDestination(DestinationInterface):
         mode (Literal['error', 'append', 'overwrite', 'ignore']): Defaults to error if table exists, 'ignore' won't write anything if table exists
         overwrite_schema (bool): If True will allow for the table schema to be overwritten
         delta_write_options (dict): Options when writing to a Delta table. See [here](https://delta-io.github.io/delta-rs/python/api_reference.html#writing-deltatables){ target="_blank" } for all options
-    '''
+    """
+
     data: LazyFrame
     path: str
     options: dict
-    mode: Literal['error', 'append', 'overwrite', 'ignore']
+    mode: Literal["error", "append", "overwrite", "ignore"]
     overwrite_schema: bool
     delta_write_options: bool
 
-    def __init__(self, data: LazyFrame, path: str, options: dict = None, mode: Literal['error', 'append', 'overwrite', 'ignore'] = 'error', overwrite_schema: bool = False, delta_write_options: bool = False, query_name = None) -> None:
+    def __init__(
+        self,
+        data: LazyFrame,
+        path: str,
+        options: dict = None,
+        mode: Literal["error", "append", "overwrite", "ignore"] = "error",
+        overwrite_schema: bool = False,
+        delta_write_options: bool = False,
+        query_name=None,
+    ) -> None:
         self.data = data
         self.path = path
         self.options = options
@@ -54,40 +65,50 @@ class PythonDeltaDestination(DestinationInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYTHON
-        '''             
+        """
         return SystemType.PYTHON
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_write_validation(self):
         return True
-    
+
     def post_write_validation(self):
         return True
 
     def write_batch(self):
-        '''
+        """
         Writes batch data to Delta without using Spark.
-        '''  
+        """
         if isinstance(self.data, pl.LazyFrame):
             df = self.data.collect()
-            df.write_delta(self.path, mode=self.mode, overwrite_schema= self.overwrite_schema, storage_options=self.options, delta_write_options=self.delta_write_options)
+            df.write_delta(
+                self.path,
+                mode=self.mode,
+                overwrite_schema=self.overwrite_schema,
+                storage_options=self.options,
+                delta_write_options=self.delta_write_options,
+            )
         else:
-            raise ValueError("Data must be a Polars LazyFrame. See https://pola-rs.github.io/polars/py-polars/html/reference/lazyframe/index.html")
-            
+            raise ValueError(
+                "Data must be a Polars LazyFrame. See https://pola-rs.github.io/polars/py-polars/html/reference/lazyframe/index.html"
+            )
+
     def write_stream(self):
-        '''
+        """
         Raises:
             NotImplementedError: Writing to a Delta table using Python is only possible for batch writes. To perform a streaming read, use the write_stream method of the SparkDeltaDestination component.
-        '''
-        raise NotImplementedError("Writing to a Delta table using Python is only possible for batch writes. To perform a streaming read, use the write_stream method of the SparkDeltaDestination component")
+        """
+        raise NotImplementedError(
+            "Writing to a Delta table using Python is only possible for batch writes. To perform a streaming read, use the write_stream method of the SparkDeltaDestination component"
+        )

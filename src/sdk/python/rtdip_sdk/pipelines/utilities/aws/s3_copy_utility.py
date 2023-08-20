@@ -87,7 +87,6 @@ class S3CopyUtility(UtilitiesInterface):
         if self.source_uri.startswith(
             utils.S3_SCHEME
         ) and self.destination_uri.startswith(utils.S3_SCHEME):
-
             schema, source_domain, source_key = utils.validate_uri(self.source_uri)
             schema, destination_domain, destination_key = utils.validate_uri(
                 self.destination_uri
@@ -116,7 +115,6 @@ class S3CopyUtility(UtilitiesInterface):
         elif (os.path.isfile(self.source_uri)) and self.destination_uri.startswith(
             utils.S3_SCHEME
         ):
-
             schema, destination_domain, destination_key = utils.validate_uri(
                 self.destination_uri
             )
@@ -134,7 +132,6 @@ class S3CopyUtility(UtilitiesInterface):
         elif self.source_uri.startswith(
             utils.S3_SCHEME
         ) and not self.destination_uri.startswith(utils.S3_SCHEME):
-
             try:
                 schema, source_domain, source_key = utils.validate_uri(self.source_uri)
                 s3 = boto3.client(schema)

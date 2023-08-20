@@ -49,8 +49,17 @@ class MISOToMDMTransformer(BaseRawToMDMTransformer):
 
     def _pre_process(self) -> DataFrame:
         df: DataFrame = super(MISOToMDMTransformer, self)._pre_process()
-        df = melt(df,
-                  id_vars=["Datetime"],
-                  value_vars=["Lrz1", "Lrz2_7", "Lrz3_5", "Lrz4", "Lrz6", "Lrz8_9_10", "Miso"]
-                  )
+        df = melt(
+            df,
+            id_vars=["Datetime"],
+            value_vars=[
+                "Lrz1",
+                "Lrz2_7",
+                "Lrz3_5",
+                "Lrz4",
+                "Lrz6",
+                "Lrz8_9_10",
+                "Miso",
+            ],
+        )
         return df

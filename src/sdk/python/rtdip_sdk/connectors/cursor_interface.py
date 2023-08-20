@@ -14,11 +14,12 @@
 
 from abc import ABCMeta, abstractmethod
 
+
 class CursorInterface(metaclass=ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
         return NotImplemented
-    
+
     @abstractmethod
     def execute(self, query: str) -> None:
         pass

@@ -15,8 +15,8 @@
 from abc import abstractmethod
 from ..interfaces import PipelineComponentBaseInterface
 
+
 class SecretsInterface(PipelineComponentBaseInterface):
-    
     @abstractmethod
     def get(self):
         pass

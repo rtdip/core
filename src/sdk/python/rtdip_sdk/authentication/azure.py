@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from azure.identity import ClientSecretCredential, CertificateCredential, DefaultAzureCredential
+from azure.identity import (
+    ClientSecretCredential,
+    CertificateCredential,
+    DefaultAzureCredential,
+)
 import logging
+
 
 class ClientSecretAuth:
     """
@@ -24,24 +29,28 @@ class ClientSecretAuth:
         client_id: The client (application) ID of the service principal
         client_secret: A client secret that was generated for the App Registration used to authenticate the client.
     """
-    def __init__(self, tenant_id: str, client_id: str, client_secret: str) -> None:
-        self.tenant_id=tenant_id
-        self.client_id=client_id
-        self.client_secret=client_secret
 
-    def authenticate(self) -> ClientSecretCredential:   
+    def __init__(self, tenant_id: str, client_id: str, client_secret: str) -> None:
+        self.tenant_id = tenant_id
+        self.client_id = client_id
+        self.client_secret = client_secret
+
+    def authenticate(self) -> ClientSecretCredential:
         """
-        Authenticates as a service principal using a client secret. 
-        
+        Authenticates as a service principal using a client secret.
+
         Returns:
             ClientSecretCredential: Authenticates as a service principal using a client secret.
-        """     
+        """
         try:
-            access_token = ClientSecretCredential(self.tenant_id, self.client_id, self.client_secret)
+            access_token = ClientSecretCredential(
+                self.tenant_id, self.client_id, self.client_secret
+            )
             return access_token
         except Exception as e:
-            logging.exception('error returning client secret credential')
+            logging.exception("error returning client secret credential")
             raise e
+
 
 class CertificateAuth:
     """
@@ -54,24 +63,30 @@ class CertificateAuth:
         client_id: The client (application) ID of the service principal
         certificate_path: Optional path to a certificate file in PEM or PKCS12 format, including the private key. If not provided, certificate_data is required.
     """
-    def __init__(self, tenant_id: str, client_id: str, certificate_path:str=None) -> None:
-        self.tenant_id=tenant_id
-        self.client_id=client_id
-        self.certificate_path=certificate_path
+
+    def __init__(
+        self, tenant_id: str, client_id: str, certificate_path: str = None
+    ) -> None:
+        self.tenant_id = tenant_id
+        self.client_id = client_id
+        self.certificate_path = certificate_path
 
     def authenticate(self) -> CertificateCredential:
         """
         Authenticates as a service principal using a certificate.
-        
+
         Returns:
             CertificateCredential: Authenticates as a service principal using a certificate.
         """
-        try:   
-            access_token = CertificateCredential(self.tenant_id, self.client_id, self.certificate_path)
+        try:
+            access_token = CertificateCredential(
+                self.tenant_id, self.client_id, self.certificate_path
+            )
             return access_token
         except Exception as e:
-            logging.exception('error returning certificate credential')
+            logging.exception("error returning certificate credential")
             raise e
+
 
 class DefaultAuth:
     """
@@ -101,34 +116,52 @@ class DefaultAuth:
         exclude_interactive_browser_credential (Optional): Whether to exclude interactive browser authentication (see InteractiveBrowserCredential). Defaults to False
         logging_enable (Optional): Turn on or off logging. Defaults to False.
     """
-    def __init__(self, exclude_cli_credential=False, exclude_environment_credential=True, exclude_managed_identity_credential=True, exclude_powershell_credential=False, exclude_visual_studio_code_credential=False, exclude_shared_token_cache_credential=False, exclude_interactive_browser_credential=False, logging_enable=False) -> None:
-        self.exclude_cli_credential=exclude_cli_credential
-        self.exclude_environment_credential=exclude_environment_credential
-        self.exclude_managed_identity_credential=exclude_managed_identity_credential
-        self.exclude_powershell_credential=exclude_powershell_credential
-        self.exclude_visual_studio_code_credential=exclude_visual_studio_code_credential
-        self.exclude_shared_token_cache_credential=exclude_shared_token_cache_credential
-        self.exclude_interactive_browser_credential=exclude_interactive_browser_credential
-        self.logging_enable=logging_enable
+
+    def __init__(
+        self,
+        exclude_cli_credential=False,
+        exclude_environment_credential=True,
+        exclude_managed_identity_credential=True,
+        exclude_powershell_credential=False,
+        exclude_visual_studio_code_credential=False,
+        exclude_shared_token_cache_credential=False,
+        exclude_interactive_browser_credential=False,
+        logging_enable=False,
+    ) -> None:
+        self.exclude_cli_credential = exclude_cli_credential
+        self.exclude_environment_credential = exclude_environment_credential
+        self.exclude_managed_identity_credential = exclude_managed_identity_credential
+        self.exclude_powershell_credential = exclude_powershell_credential
+        self.exclude_visual_studio_code_credential = (
+            exclude_visual_studio_code_credential
+        )
+        self.exclude_shared_token_cache_credential = (
+            exclude_shared_token_cache_credential
+        )
+        self.exclude_interactive_browser_credential = (
+            exclude_interactive_browser_credential
+        )
+        self.logging_enable = logging_enable
 
     def authenticate(self) -> DefaultAzureCredential:
         """
         A default credential capable of handling most Azure SDK authentication scenarios.
-        
+
         Returns:
             DefaultAzureCredential: A default credential capable of handling most Azure SDK authentication scenarios.
         """
         try:
             access_token = DefaultAzureCredential(
-                exclude_cli_credential=self.exclude_cli_credential, 
-                exclude_environment_credential=self.exclude_environment_credential, 
-                exclude_managed_identity_credential=self.exclude_managed_identity_credential, 
-                exclude_powershell_credential=self.exclude_powershell_credential, 
-                exclude_visual_studio_code_credential=self.exclude_visual_studio_code_credential, 
-                exclude_shared_token_cache_credential=self.exclude_shared_token_cache_credential, 
-                exclude_interactive_browser_credential=self.exclude_interactive_browser_credential, 
-                logging_enable=self.logging_enable)
+                exclude_cli_credential=self.exclude_cli_credential,
+                exclude_environment_credential=self.exclude_environment_credential,
+                exclude_managed_identity_credential=self.exclude_managed_identity_credential,
+                exclude_powershell_credential=self.exclude_powershell_credential,
+                exclude_visual_studio_code_credential=self.exclude_visual_studio_code_credential,
+                exclude_shared_token_cache_credential=self.exclude_shared_token_cache_credential,
+                exclude_interactive_browser_credential=self.exclude_interactive_browser_credential,
+                logging_enable=self.logging_enable,
+            )
             return access_token
         except Exception as e:
-            logging.exception('error returning default azure credential')
+            logging.exception("error returning default azure credential")
             raise e

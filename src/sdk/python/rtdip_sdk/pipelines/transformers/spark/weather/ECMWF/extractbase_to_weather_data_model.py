@@ -19,7 +19,10 @@ import xarray as xr
 
 from ....interfaces import TransformerInterface
 from ....._pipeline_utils.models import Libraries, SystemType
-from ....._pipeline_utils.weather_ecmwf import RTDIP_STRING_WEATHER_DATA_MODEL, RTDIP_FLOAT_WEATHER_DATA_MODEL 
+from ....._pipeline_utils.weather_ecmwf import (
+    RTDIP_STRING_WEATHER_DATA_MODEL,
+    RTDIP_FLOAT_WEATHER_DATA_MODEL,
+)
 
 
 class ECMWFExtractBaseToWeatherDataModel(TransformerInterface):
@@ -64,27 +67,27 @@ class ECMWFExtractBaseToWeatherDataModel(TransformerInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''
+        """
         return SystemType.PYSPARK
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_transform_validation(self):
         return True
-    
+
     def post_transform_validation(self):
         return True
-    
+
     @staticmethod
     def _convert_ws_tag_names(x: list):
         """
@@ -106,8 +109,10 @@ class ECMWFExtractBaseToWeatherDataModel(TransformerInterface):
         }
         new_tags = [convert_dict[i] if i in convert_dict.keys() else i for i in x]
         return new_tags
-    
-    def transform(self, tag_prefix: str, variables: list, method: str = "nearest") -> pd.DataFrame:
+
+    def transform(
+        self, tag_prefix: str, variables: list, method: str = "nearest"
+    ) -> pd.DataFrame:
         """Extract raw data from stored nc filed downloaded via ECMWF MARS.
 
         Args:
@@ -166,20 +171,38 @@ class ECMWFExtractBaseToWeatherDataModel(TransformerInterface):
 
         df_new = df.reset_index()
 
-        df_new = df_new.rename(columns={"lat": "Latitude", "lon": "Longitude", "run_time": "EnqueuedTime","target_time": "EventTime"})
+        df_new = df_new.rename(
+            columns={
+                "lat": "Latitude",
+                "lon": "Longitude",
+                "run_time": "EnqueuedTime",
+                "target_time": "EventTime",
+            }
+        )
 
-        df_new = (df_new.set_index(['Latitude','Longitude','EnqueuedTime','EventTime'])[vars_processed]
-            .rename_axis('Measure', axis=1)
+        df_new = (
+            df_new.set_index(["Latitude", "Longitude", "EnqueuedTime", "EventTime"])[
+                vars_processed
+            ]
+            .rename_axis("Measure", axis=1)
             .stack()
-            .reset_index(name='Value'))
-        
-        df_new['Source'] = "ECMWF_MARS"
-        df_new['Status'] = "Good"
-        df_new['Latest'] = True
-        df_new['EventDate'] = pd.to_datetime(df_new["EventTime"]).dt.date
-        df_new['TagName'] = tag_prefix + df_new["Latitude"].astype(str) + "_" + df_new["Longitude"].astype(str) + "_" + df_new["Source"] + "_" + df_new["Measure"]
-        df_final = df_new.drop('Measure', axis=1)
+            .reset_index(name="Value")
+        )
 
+        df_new["Source"] = "ECMWF_MARS"
+        df_new["Status"] = "Good"
+        df_new["Latest"] = True
+        df_new["EventDate"] = pd.to_datetime(df_new["EventTime"]).dt.date
+        df_new["TagName"] = (
+            tag_prefix
+            + df_new["Latitude"].astype(str)
+            + "_"
+            + df_new["Longitude"].astype(str)
+            + "_"
+            + df_new["Source"]
+            + "_"
+            + df_new["Measure"]
+        )
+        df_final = df_new.drop("Measure", axis=1)
 
         return df_final
-    

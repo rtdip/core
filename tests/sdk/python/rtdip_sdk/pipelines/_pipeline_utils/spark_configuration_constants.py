@@ -16,20 +16,24 @@ from pathlib import Path
 import shutil
 from dataclasses import dataclass
 
+
 @dataclass
 class FileInfoFixture:
     """
     This class mocks the DBUtils FileInfo object
     """
+
     path: str
     name: str
     size: int
-    modificationTime: int # NOSONAR
+    modificationTime: int  # NOSONAR
+
 
 class DBUtilsFSFixture:
     """
     This class is used for mocking the behavior of DBUtils inside tests.
     """
+
     def __init__(self):
         self.fs = self
 
@@ -40,7 +44,10 @@ class DBUtilsFSFixture:
     def ls(self, path: str):
         _paths = Path(path).glob("*")
         _objects = [
-            FileInfoFixture(str(p.absolute()), p.name, p.stat().st_size, int(p.stat().st_mtime)) for p in _paths
+            FileInfoFixture(
+                str(p.absolute()), p.name, p.stat().st_size, int(p.stat().st_mtime)
+            )
+            for p in _paths
         ]
         return _objects
 
@@ -63,10 +70,12 @@ class DBUtilsFSFixture:
         deletion_func = shutil.rmtree if recurse else os.remove
         deletion_func(path)
 
+
 class DBUtilsSecretsFixture:
     """
     This class is used for mocking the behavior of DBUtils inside tests.
     """
+
     def __init__(self, secret_value):
         self.secrets = self
         self.secret_value = secret_value

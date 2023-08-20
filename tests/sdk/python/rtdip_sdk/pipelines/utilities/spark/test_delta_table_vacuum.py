@@ -13,36 +13,48 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
 
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import DeltaTableCreateUtility, DeltaTableColumn
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_vacuum import DeltaTableVacuumUtility
+sys.path.insert(0, ".")
+
+from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_create import (
+    DeltaTableCreateUtility,
+    DeltaTableColumn,
+)
+from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.delta_table_vacuum import (
+    DeltaTableVacuumUtility,
+)
 from pyspark.sql import SparkSession
+
 
 def test_spark_delta_table_optimize(spark_session: SparkSession):
     delta_table_create = DeltaTableCreateUtility(
         spark=spark_session,
         table_name="test_table_delta_vacuum",
         columns=[
-            DeltaTableColumn(name="EventDate", type="date", nullable=False, metadata={"delta.generationExpression": "CAST(EventTime AS DATE)"}),
+            DeltaTableColumn(
+                name="EventDate",
+                type="date",
+                nullable=False,
+                metadata={"delta.generationExpression": "CAST(EventTime AS DATE)"},
+            ),
             DeltaTableColumn(name="TagName", type="string", nullable=False),
             DeltaTableColumn(name="EventTime", type="timestamp", nullable=False),
             DeltaTableColumn(name="Status", type="string", nullable=True),
-            DeltaTableColumn(name="Value", type="float", nullable=True)
+            DeltaTableColumn(name="Value", type="float", nullable=True),
         ],
         partitioned_by=["EventDate"],
-        properties={"delta.logRetentionDuration": "7 days", "delta.enableChangeDataFeed": "true"},
-        comment="Test Table for Delta Vacuum"
+        properties={
+            "delta.logRetentionDuration": "7 days",
+            "delta.enableChangeDataFeed": "true",
+        },
+        comment="Test Table for Delta Vacuum",
     )
 
     delta_table_create.execute()
 
     delta_table_vacuum = DeltaTableVacuumUtility(
-        spark=spark_session,
-        table_name="test_table_delta_vacuum",
-        retention_hours=168
+        spark=spark_session, table_name="test_table_delta_vacuum", retention_hours=168
     )
 
     result = delta_table_vacuum.execute()
     assert result
-    

@@ -22,7 +22,6 @@ import string
 import random
 
 
-
 type_checks = [
     # (Type, Test)
     (int, int),
@@ -30,7 +29,10 @@ type_checks = [
     (date, lambda value: datetime.datetime.strptime(value, "%Y-%m-%d")),
     (date, lambda value: datetime.datetime.strptime(value, "%Y/%m/%d")),
     (date, lambda value: datetime.datetime.strptime(value, "%d/%m/%Y")),
-    (datetime.datetime, lambda value: datetime.datetime.strptime(value, "%Y-%m-%d %H:%M:%S.%f"))
+    (
+        datetime.datetime,
+        lambda value: datetime.datetime.strptime(value, "%Y-%m-%d %H:%M:%S.%f"),
+    ),
 ]
 
 
@@ -42,7 +44,7 @@ def get_interval(series_type_st: SeriesType, timestamp_datetime: datetime):
         minute_of_the_day_int = get_minute_of_the_day(timestamp_datetime)
         return int(minute_of_the_day_int / 60)
     else:
-        error_msg_str: str = 'Not implemented for: {}'.format(series_type_st)
+        error_msg_str: str = "Not implemented for: {}".format(series_type_st)
         raise SystemError(error_msg_str)
 
 
@@ -50,9 +52,9 @@ def get_intervals(series_type_st: SeriesType, timestamp_date: date):
     # TODO implement this method
     timestamp_next_day_date = timestamp_date + datetime.timedelta(days=1)
 
-    now_utc_datetime: datetime.datetime = datetime.datetime.combine(timestamp_date,
-                                                                    datetime.datetime.min.time(),
-                                                                    timezone.utc)
+    now_utc_datetime: datetime.datetime = datetime.datetime.combine(
+        timestamp_date, datetime.datetime.min.time(), timezone.utc
+    )
     local_time_zone = tz.tzlocal()
     now_local_datetime_plus = now_utc_datetime.astimezone(local_time_zone)
     interval_minutes_int = 60
@@ -60,18 +62,19 @@ def get_intervals(series_type_st: SeriesType, timestamp_date: date):
     logging.debug(now_local_datetime_plus.tzinfo.tzname(now_local_datetime_plus))
 
     while now_local_datetime_plus.date() < timestamp_date:
-        now_local_datetime_plus = now_local_datetime_plus + \
-                                  datetime.timedelta(minutes=interval_minutes_int)
+        now_local_datetime_plus = now_local_datetime_plus + datetime.timedelta(
+            minutes=interval_minutes_int
+        )
 
         i = i + 1
 
 
-def get_intervals(series_type_st: SeriesType,
-                  timestamp_date: date,
-                  time_zone=timezone.utc):
-    now_local_datetime: datetime.datetime = datetime.datetime.combine(timestamp_date,
-                                                                      datetime.datetime.min.time(),
-                                                                      time_zone)
+def get_intervals(
+    series_type_st: SeriesType, timestamp_date: date, time_zone=timezone.utc
+):
+    now_local_datetime: datetime.datetime = datetime.datetime.combine(
+        timestamp_date, datetime.datetime.min.time(), time_zone
+    )
 
     local_time_zone = tz.tzlocal()
     now_local_datetime_plus = now_local_datetime.astimezone(local_time_zone)
@@ -80,8 +83,9 @@ def get_intervals(series_type_st: SeriesType,
     intervals_list: list = list()
     intervals_list.append(now_local_datetime)
     while now_local_datetime_plus.date() <= timestamp_date:
-        now_local_datetime_plus: datetime.datetime = now_local_datetime_plus + \
-                                                     datetime.timedelta(minutes=interval_minutes_int)
+        now_local_datetime_plus: datetime.datetime = (
+            now_local_datetime_plus + datetime.timedelta(minutes=interval_minutes_int)
+        )
 
         intervals_list.append(now_local_datetime_plus)
 
@@ -108,12 +112,14 @@ def get_minute_of_the_day(timestamp_datetime: datetime):
 
 
 def generate_random_alpha_num_string(length: int = 8) -> str:
-    letters_and_numbers: str = string.ascii_lowercase + string.ascii_uppercase + string.digits
-    return ''.join(secrets.choice(letters_and_numbers) for i in range(length))
+    letters_and_numbers: str = (
+        string.ascii_lowercase + string.ascii_uppercase + string.digits
+    )
+    return "".join(secrets.choice(letters_and_numbers) for i in range(length))
 
 
 def generate_random_int_number(min_value: int, max_value: int) -> int:
-    return random.randint(min_value, max_value) # NOSONAR
+    return random.randint(min_value, max_value)  # NOSONAR
 
 
 def get_utc_epoch_timestamp() -> int:
@@ -124,7 +130,7 @@ def infer_type(value):
     for detected_type, check_if in type_checks:
         try:
             result = check_if(value)
-            logging.debug('Result: %s ', result)
+            logging.debug("Result: %s ", result)
             return detected_type
         except ValueError as ex:
             continue

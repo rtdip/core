@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
+
+sys.path.insert(0, ".")
 
 from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import SeriesType
 from src.sdk.python.rtdip_sdk.data_models.meters.utils import utils
@@ -33,14 +34,18 @@ def test_timeseries_15min():
     arr_list: list = [1 for i in range(intervals_in_one_day_int)]
     interval_list: list = list()
     for i in range(intervals_in_one_day_int):
-        now_utc_datetime_plus: datetime.datetime = now_utc_datetime_plus + \
-                                                    datetime.timedelta(minutes=interval_minutes_int)
-        interval_int: int = utils.get_interval(SeriesType.Minutes15, now_utc_datetime_plus)
+        now_utc_datetime_plus: datetime.datetime = (
+            now_utc_datetime_plus + datetime.timedelta(minutes=interval_minutes_int)
+        )
+        interval_int: int = utils.get_interval(
+            SeriesType.Minutes15, now_utc_datetime_plus
+        )
         arr_list[interval_int] = 0
-        interval_list.append('interval_' + str(interval_int).zfill(2))
-    assert (sum(arr_list) == 0)
+        interval_list.append("interval_" + str(interval_int).zfill(2))
+    assert sum(arr_list) == 0
     interval_sorted_list = sorted(interval_list)
-    assert ('00' in interval_sorted_list[0])
+    assert "00" in interval_sorted_list[0]
+
 
 def test_timeseries_1h():
     now_utc_datetime: datetime.datetime = datetime.datetime.now(timezone.utc)
@@ -52,28 +57,28 @@ def test_timeseries_1h():
     interval_dict: dict = dict()
 
     for i in range(intervals_in_one_day_int):
-        now_utc_datetime_plus: datetime.datetime = now_utc_datetime_plus + \
-                                                    datetime.timedelta(minutes=interval_minutes_int)
+        now_utc_datetime_plus: datetime.datetime = (
+            now_utc_datetime_plus + datetime.timedelta(minutes=interval_minutes_int)
+        )
         interval_int: int = utils.get_interval(SeriesType.Hour, now_utc_datetime_plus)
         interval_list[interval_int] = 0
-        key_str: str = 'interval_' + str(interval_int).zfill(2)
+        key_str: str = "interval_" + str(interval_int).zfill(2)
         interval_dict[key_str] = now_utc_datetime_plus
-    assert (sum(interval_list) == 0)
+    assert sum(interval_list) == 0
     interval_sorted_key_list: list = sorted(interval_dict)
     logging.debug(interval_dict)
     for key_str in interval_sorted_key_list:
-        logging.debug('[{}]//[{}]'.format(key_str, interval_dict[key_str]))
-    assert ('00' in interval_sorted_key_list[0])
+        logging.debug("[{}]//[{}]".format(key_str, interval_dict[key_str]))
+    assert "00" in interval_sorted_key_list[0]
+
 
 def test_timeseries_not_implemented():
     now_utc_datetime: datetime.datetime = datetime.datetime.now(timezone.utc)
-    logging.debug('Now in UTC: {}'.format(now_utc_datetime))
+    logging.debug("Now in UTC: {}".format(now_utc_datetime))
     now_utc_datetime_plus = now_utc_datetime
 
     try:
         utils.get_interval(SeriesType.Test, now_utc_datetime_plus)
         pytest.fail()
     except SystemError as ex:
-        logging.info('Exception catched: {}'.format(ex))
-
-
+        logging.info("Exception catched: {}".format(ex))

@@ -21,8 +21,9 @@ from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
-    '''
+    """
     Converts a Spark DataFrame column containing binaryFile parquet data to the Process Control Data Model.
 
     This DataFrame should contain a path and the binary data. Typically this can be done using the Autoloader source component and specify "binaryFile" as the format.
@@ -31,7 +32,8 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
 
     Args:
         data (DataFrame): DataFrame containing the path and binaryFile data
-    '''
+    """
+
     data: DataFrame
 
     def __init__(self, data: DataFrame) -> None:
@@ -39,26 +41,26 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''
+        """
         return SystemType.PYSPARK
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         libraries.add_pypi_library(get_default_package("pyarrow"))
-        libraries.add_pypi_library(get_default_package("pandas"))        
+        libraries.add_pypi_library(get_default_package("pandas"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_transform_validation(self):
         return True
-    
+
     def post_transform_validation(self):
         return True
 
@@ -70,15 +72,17 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
             buf = pa.py_buffer(binary_data)
             table = pq.read_table(buf)
         except Exception:
-            return pd.DataFrame({
-                "EventDate": pd.Series([], dtype="datetime64[ns]"),
-                "TagName": pd.Series([], dtype="str"),
-                "EventTime": pd.Series([], dtype="datetime64[ns]"),
-                "Status": pd.Series([], dtype="str"),
-                "Value": pd.Series([], dtype="str"),
-                "ValueType": pd.Series([], dtype="str"),                
-                "ChangeType": pd.Series([], dtype="str"),
-            })      
+            return pd.DataFrame(
+                {
+                    "EventDate": pd.Series([], dtype="datetime64[ns]"),
+                    "TagName": pd.Series([], dtype="str"),
+                    "EventTime": pd.Series([], dtype="datetime64[ns]"),
+                    "Status": pd.Series([], dtype="str"),
+                    "Value": pd.Series([], dtype="str"),
+                    "ValueType": pd.Series([], dtype="str"),
+                    "ChangeType": pd.Series([], dtype="str"),
+                }
+            )
 
         value_type = str(table.schema.field("Value").type)
         if value_type == "int16" or value_type == "int32":
@@ -90,16 +94,25 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
         output_pdf["Value"] = output_pdf["Value"].astype(str)
         output_pdf["ChangeType"] = "insert"
         output_pdf["ValueType"] = value_type
-        output_pdf = output_pdf[["EventDate", "TagName", "EventTime", "Status", "Value", "ValueType", "ChangeType"]]
+        output_pdf = output_pdf[
+            [
+                "EventDate",
+                "TagName",
+                "EventTime",
+                "Status",
+                "Value",
+                "ValueType",
+                "ChangeType",
+            ]
+        ]
         return output_pdf
 
     def transform(self) -> DataFrame:
-        '''
+        """
         Returns:
             DataFrame: A dataframe with the provided Binary data convert to PCDM
-        '''
-        return (
-            self.data
-            .groupBy("path")
-            .applyInPandas(SSIPPIBinaryFileToPCDMTransformer._convert_binary_to_pandas, schema="EventDate DATE, TagName STRING, EventTime TIMESTAMP, Status STRING, Value STRING, ValueType STRING, ChangeType STRING")
+        """
+        return self.data.groupBy("path").applyInPandas(
+            SSIPPIBinaryFileToPCDMTransformer._convert_binary_to_pandas,
+            schema="EventDate DATE, TagName STRING, EventTime TIMESTAMP, Status STRING, Value STRING, ValueType STRING, ChangeType STRING",
         )

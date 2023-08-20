@@ -68,26 +68,33 @@ class BaseRawToMDMTransformer(TransformerInterface):
     value_type: ValueType
     properties_col: str
 
-    def __init__(self,
-                 spark: SparkSession,
-                 data: DataFrame,
-                 output_type: str,
-                 name: str = None,
-                 description: str = None,
-                 value_type: ValueType = None,
-                 version: str = None,
-                 series_id: str = None,
-                 series_parent_id: str = None,
-                 ):
+    def __init__(
+        self,
+        spark: SparkSession,
+        data: DataFrame,
+        output_type: str,
+        name: str = None,
+        description: str = None,
+        value_type: ValueType = None,
+        version: str = None,
+        series_id: str = None,
+        series_parent_id: str = None,
+    ):
         self.spark = spark
         self.data = data
         self.output_type = output_type
         self.name = name if name is not None else self.name_col
-        self.description = description if description is not None else self.description_col
+        self.description = (
+            description if description is not None else self.description_col
+        )
         self.value_type = value_type if value_type is not None else self.value_type
         self.version = version if version is not None else self.version_col
         self.series_id = series_id if series_id is not None else self.series_id_col
-        self.series_parent_id = series_parent_id if series_parent_id is not None else self.series_parent_id_col
+        self.series_parent_id = (
+            series_parent_id
+            if series_parent_id is not None
+            else self.series_parent_id_col
+        )
 
     @staticmethod
     def system_type():
@@ -105,7 +112,9 @@ class BaseRawToMDMTransformer(TransformerInterface):
     def pre_transform_validation(self) -> bool:
         valid_output_types = ["usage", "meta"]
         if self.output_type not in valid_output_types:
-            raise ValueError(f"Invalid output_type `{self.output_type}` given. Must be one of {valid_output_types}")
+            raise ValueError(
+                f"Invalid output_type `{self.output_type}` given. Must be one of {valid_output_types}"
+            )
 
         assert str(self.data.schema) == str(self.input_schema)
         assert type(self.series_type).__name__ == SeriesType.__name__
