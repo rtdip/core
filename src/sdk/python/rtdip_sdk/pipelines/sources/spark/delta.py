@@ -20,9 +20,10 @@ from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class SparkDeltaSource(SourceInterface):
-    '''
-    The Spark Delta Source is used to read data from a Delta table. 
+    """
+    The Spark Delta Source is used to read data from a Delta table.
 
     Args:
         spark (SparkSession): Spark Session required to read data from a Delta table
@@ -39,7 +40,8 @@ class SparkDeltaSource(SourceInterface):
         withEventTimeOrder (bool str): Whether the initial snapshot should be processed with event time order. (Streaming)
         timestampAsOf (datetime str): Query the Delta Table from a specific point in time. (Batch)
         versionAsOf (int str): Query the Delta Table from a specific version. (Batch)
-    ''' 
+    """
+
     spark: SparkSession
     options: dict
     table_name: str
@@ -51,10 +53,10 @@ class SparkDeltaSource(SourceInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -62,25 +64,24 @@ class SparkDeltaSource(SourceInterface):
         libraries = Libraries()
         libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_read_validation(self):
         return True
-    
+
     def post_read_validation(self):
         return True
 
     def read_batch(self):
-        '''
+        """
         Reads batch data from Delta. Most of the options provided by the Apache Spark DataFrame read API are supported for performing batch reads on Delta tables.
-        '''
+        """
         try:
-            return (self.spark
-                .read
-                .format("delta")
+            return (
+                self.spark.read.format("delta")
                 .options(**self.options)
                 .table(self.table_name)
             )
@@ -91,15 +92,14 @@ class SparkDeltaSource(SourceInterface):
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def read_stream(self) -> DataFrame:
-        '''
+        """
         Reads streaming data from Delta. All of the data in the table is processed as well as any new data that arrives after the stream started. .load() can take table name or path.
-        '''
+        """
         try:
-            return (self.spark
-                .readStream
-                .format("delta")
+            return (
+                self.spark.readStream.format("delta")
                 .options(**self.options)
                 .load(self.table_name)
             )

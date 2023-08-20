@@ -22,8 +22,9 @@ from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class DeltaTableOptimizeUtility(UtilitiesInterface):
-    '''
+    """
     [Optimizes](https://docs.delta.io/latest/optimizations-oss.html) a Delta Table
 
     Args:
@@ -31,13 +32,20 @@ class DeltaTableOptimizeUtility(UtilitiesInterface):
         table_name (str): Name of the table, including catalog and schema if table is to be created in Unity Catalog
         where (str, optional): Apply a partition filter to limit optimize to specific partitions. Example, "date='2021-11-18'" or "EventDate<=current_date()"
         zorder_by (list[str], optional): List of column names to zorder the table by. For more information, see [here.](https://docs.delta.io/latest/optimizations-oss.html#optimize-performance-with-file-management&language-python)
-    ''' 
+    """
+
     spark: SparkSession
     table_name: str
     where: Optional[str]
     zorder_by: Optional[List[str]]
 
-    def __init__(self, spark: SparkSession, table_name: str, where: str = None, zorder_by: List[str] = None) -> None:
+    def __init__(
+        self,
+        spark: SparkSession,
+        table_name: str,
+        where: str = None,
+        zorder_by: List[str] = None,
+    ) -> None:
         self.spark = spark
         self.table_name = table_name
         self.where = where
@@ -45,10 +53,10 @@ class DeltaTableOptimizeUtility(UtilitiesInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -56,18 +64,14 @@ class DeltaTableOptimizeUtility(UtilitiesInterface):
         libraries = Libraries()
         libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
 
     def execute(self) -> bool:
         try:
-            delta_table = (
-                DeltaTable
-                .forName(self.spark, self.table_name)
-                .optimize()
-            )
+            delta_table = DeltaTable.forName(self.spark, self.table_name).optimize()
 
             if self.where is not None:
                 delta_table = delta_table.where(self.where)
@@ -78,7 +82,7 @@ class DeltaTableOptimizeUtility(UtilitiesInterface):
                 delta_table.executeCompaction()
 
             return True
-        
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e

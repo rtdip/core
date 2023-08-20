@@ -23,17 +23,19 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import SparkClient
 from ..pipeline_components import PipelineComponentsGetUtility
 
+
 class SparkSessionUtility(UtilitiesInterface):
-    '''
+    """
     Creates or Gets a Spark Session and uses settings and libraries of the imported RTDIP components to populate the spark configuration and jars in the spark session.
 
-    Call this component after all imports of the RTDIP components to ensure that the spark session is configured correctly. 
+    Call this component after all imports of the RTDIP components to ensure that the spark session is configured correctly.
 
     Args:
         config (dict): Dictionary of spark configuration to be applied to the spark session
         module (optional str): Provide the module to use for imports of rtdip-sdk components. If not populated, it will use the calling module to check for imports
         remote (optional str): Specify the remote parameters if intending to use Spark Connect
-    ''' 
+    """
+
     spark: SparkSession
     config: dict
     module: str
@@ -50,27 +52,33 @@ class SparkSessionUtility(UtilitiesInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
 
     def execute(self) -> SparkSession:
         try:
-            (task_libraries, spark_configuration) = PipelineComponentsGetUtility(self.module).execute()
-            self.spark = SparkClient(spark_configuration=spark_configuration, spark_libraries=task_libraries, spark_remote=self.remote).spark_session
+            (task_libraries, spark_configuration) = PipelineComponentsGetUtility(
+                self.module
+            ).execute()
+            self.spark = SparkClient(
+                spark_configuration=spark_configuration,
+                spark_libraries=task_libraries,
+                spark_remote=self.remote,
+            ).spark_session
             return self.spark
-        
+
         except Exception as e:
             logging.exception(str(e))
             raise e

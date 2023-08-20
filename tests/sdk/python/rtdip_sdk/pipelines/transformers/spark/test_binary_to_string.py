@@ -13,16 +13,25 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.binary_to_string import BinaryToStringTransformer
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+
+sys.path.insert(0, ".")
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.binary_to_string import (
+    BinaryToStringTransformer,
+)
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    SystemType,
+)
 
 from pyspark.sql import SparkSession, DataFrame
+
 
 def test_spark_eventhub_transform_body_to_string(spark_session: SparkSession):
     expected_df: DataFrame = spark_session.createDataFrame([{"body": "1"}])
     binary_df = expected_df.withColumn("body", expected_df["body"].cast("binary"))
-    eventhub_binary_to_string_transformer = BinaryToStringTransformer(binary_df, source_column_name="body", target_column_name="body")    
+    eventhub_binary_to_string_transformer = BinaryToStringTransformer(
+        binary_df, source_column_name="body", target_column_name="body"
+    )
     actual_df = eventhub_binary_to_string_transformer.transform()
 
     assert eventhub_binary_to_string_transformer.system_type() == SystemType.PYSPARK

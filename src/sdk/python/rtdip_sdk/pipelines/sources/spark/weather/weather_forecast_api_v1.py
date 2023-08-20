@@ -119,9 +119,24 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
 
         fields = self.spark_schema.fields
 
-        str_cols = list(map(lambda x: x.name, filter(lambda x: isinstance(x.dataType, StringType), fields)))
-        double_cols = list(map(lambda x: x.name, filter(lambda x: isinstance(x.dataType, DoubleType), fields)))
-        int_cols = list(map(lambda x: x.name, filter(lambda x: isinstance(x.dataType, IntegerType), fields)))
+        str_cols = list(
+            map(
+                lambda x: x.name,
+                filter(lambda x: isinstance(x.dataType, StringType), fields),
+            )
+        )
+        double_cols = list(
+            map(
+                lambda x: x.name,
+                filter(lambda x: isinstance(x.dataType, DoubleType), fields),
+            )
+        )
+        int_cols = list(
+            map(
+                lambda x: x.name,
+                filter(lambda x: isinstance(x.dataType, IntegerType), fields),
+            )
+        )
 
         df[str_cols] = df[str_cols].astype(str)
         df[double_cols] = df[double_cols].astype(float)
@@ -135,12 +150,16 @@ class WeatherForecastAPIV1Source(BaseWeatherSource):
         params = {
             "language": self.language,
             "units": self.units,
-            "apiKey": self.api_key
+            "apiKey": self.api_key,
         }
         return params
 
     def _pull_for_weather_station(self, lat: str, lon: str) -> pd.DataFrame:
-        response = json.loads(self._fetch_from_url(f"{lat}/{lon}/forecast/hourly/360hour.json").decode("utf-8"))
+        response = json.loads(
+            self._fetch_from_url(f"{lat}/{lon}/forecast/hourly/360hour.json").decode(
+                "utf-8"
+            )
+        )
         return pd.DataFrame(response["forecasts"])
 
     def _pull_data(self) -> pd.DataFrame:

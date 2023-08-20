@@ -23,21 +23,25 @@ from ..destinations.interfaces import DestinationInterface
 from ..utilities.interfaces import UtilitiesInterface
 from ..secrets.models import PipelineSecret
 
-class PipelineJobExecute():
-    '''
+
+class PipelineJobExecute:
+    """
     Executes Pipeline components in their intended order as a complete data pipeline. It ensures that components dependencies are injected as needed.
 
     Args:
         job (PipelineJob): Contains the steps and tasks of a PipelineJob to be executed
         batch_job (bool): Specifies if the job is to be executed as a batch job
-    '''
+    """
+
     job: PipelineJob
 
     def __init__(self, job: PipelineJob, batch_job: bool = False):
         self.job = job
 
-    def _get_provider_attributes(self, provider: providers.Factory, component: object) -> providers.Factory:
-        attributes = getattr(component, '__annotations__', {}).items()
+    def _get_provider_attributes(
+        self, provider: providers.Factory, component: object
+    ) -> providers.Factory:
+        attributes = getattr(component, "__annotations__", {}).items()
         # add spark session, if needed
         for key, value in attributes:
             # if isinstance(value, SparkSession): # TODO: fix this as value does not seem to be an instance of SparkSession
@@ -47,16 +51,20 @@ class PipelineJobExecute():
                 provider.add_kwargs(data=None)
         return provider
 
-    def _get_secret_provider_attributes(self, pipeline_secret: PipelineSecret) -> providers.Factory:
+    def _get_secret_provider_attributes(
+        self, pipeline_secret: PipelineSecret
+    ) -> providers.Factory:
         secret_provider = providers.Factory(pipeline_secret.type)
-        secret_provider = self._get_provider_attributes(secret_provider, pipeline_secret.type)
+        secret_provider = self._get_provider_attributes(
+            secret_provider, pipeline_secret.type
+        )
         secret_provider.add_kwargs(vault=pipeline_secret.vault, key=pipeline_secret.key)
         return secret_provider
-    
+
     def _tasks_order(self, task_list: List[PipelineTask]):
-        '''
+        """
         Orders tasks within a job
-        '''
+        """
         ordered_task_list = []
         temp_task_list = task_list.copy()
         while len(temp_task_list) > 0:
@@ -71,11 +79,11 @@ class PipelineJobExecute():
                             temp_task_list.remove(task)
                             break
         return ordered_task_list
-    
+
     def _steps_order(self, step_list: List[PipelineStep]):
-        '''
+        """
         Orders steps within a task
-        '''        
+        """
         ordered_step_list = []
         temp_step_list = step_list.copy()
         while len(temp_step_list) > 0:
@@ -92,20 +100,25 @@ class PipelineJobExecute():
         return ordered_step_list
 
     def _task_setup_dependency_injection(self, step_list: List[PipelineStep]):
-        '''
-        Determines the dependencies to be injected into each component 
-        '''
+        """
+        Determines the dependencies to be injected into each component
+        """
         container = containers.DynamicContainer()
         task_libraries = Libraries()
         task_step_configuration = {}
         task_spark_configuration = {}
         # setup container configuration
         for step in step_list:
-            if step.component.system_type() == SystemType.PYSPARK or step.component.system_type() == SystemType.PYSPARK_DATABRICKS:
-
+            if (
+                step.component.system_type() == SystemType.PYSPARK
+                or step.component.system_type() == SystemType.PYSPARK_DATABRICKS
+            ):
                 # set spark configuration
-                task_spark_configuration = {**task_spark_configuration, **step.component.settings()}
-                        
+                task_spark_configuration = {
+                    **task_spark_configuration,
+                    **step.component.settings(),
+                }
+
                 # set spark libraries
                 component_libraries = step.component.libraries()
                 for library in component_libraries.pypi_libraries:
@@ -128,25 +141,26 @@ class PipelineJobExecute():
             # get secrets
             for param_key, param_value in step.component_parameters.items():
                 if isinstance(param_value, PipelineSecret):
-                    step.component_parameters[param_key] = self._get_secret_provider_attributes(param_value)().get()
+                    step.component_parameters[
+                        param_key
+                    ] = self._get_secret_provider_attributes(param_value)().get()
                 if isinstance(param_value, dict):
                     for key, value in param_value.items():
                         if isinstance(value, PipelineSecret):
-                            step.component_parameters[param_key][key] = self._get_secret_provider_attributes(value)().get()
+                            step.component_parameters[param_key][
+                                key
+                            ] = self._get_secret_provider_attributes(value)().get()
 
             provider.add_kwargs(**step.component_parameters)
 
             # set provider
-            container.set_provider(
-                step.name,
-                provider
-            )
+            container.set_provider(step.name, provider)
         return container
 
     def run(self) -> bool:
-        '''
+        """
         Executes all the steps and tasks in a pipeline job as per the job definition.
-        '''
+        """
         ordered_task_list = self._tasks_order(self.job.task_list)
 
         for task in ordered_task_list:
@@ -162,7 +176,7 @@ class PipelineJobExecute():
                         result = factory().read_batch()
                     else:
                         result = factory().read_stream()
-                        
+
                 # transformer components
                 elif isinstance(factory(), TransformerInterface):
                     result = factory(data=task_results[step.name]).transform()
@@ -170,13 +184,17 @@ class PipelineJobExecute():
                 # destination components
                 elif isinstance(factory(), DestinationInterface):
                     if task.batch_task:
-                        result = factory(data=task_results[step.name], query_name=step.name).write_batch()
+                        result = factory(
+                            data=task_results[step.name], query_name=step.name
+                        ).write_batch()
                     else:
-                        result = factory(data=task_results[step.name], query_name=step.name).write_stream()
+                        result = factory(
+                            data=task_results[step.name], query_name=step.name
+                        ).write_stream()
 
                 # utilities components
                 elif isinstance(factory(), UtilitiesInterface):
-                    result = factory().execute()  
+                    result = factory().execute()
 
                 # store results for steps that need it as input
                 if step.provide_output_to_step is not None:

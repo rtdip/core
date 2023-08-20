@@ -65,5 +65,3 @@ class ECMWFExtractPointToWeatherDataModel(ECMWFExtractBaseToWeatherDataModel):
             run_frequency=run_frequency,
             utc=utc,
         )
-
-

@@ -20,8 +20,10 @@ from py4j.protocol import Py4JJavaError
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
+
+
 class SparkEventhubDestination(DestinationInterface):
-    '''
+    """
     This Spark destination class is used to write batch or streaming data to Eventhubs. Eventhub configurations need to be specified as options in a dictionary.
     Additionally, there are more optional configurations which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
     If using startingPosition or endingPosition make sure to check out **Event Position** section for more details and examples.
@@ -31,7 +33,7 @@ class SparkEventhubDestination(DestinationInterface):
         options (dict): A dictionary of Eventhub configurations (See Attributes table below). All Configuration options for Eventhubs can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
         trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
         query_name (str): Unique name for the query in associated SparkSession
-        
+
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
         eventhubs.connectionString (str):  Eventhubs connection string is required to connect to the Eventhubs service. (Streaming and Batch)
@@ -39,9 +41,15 @@ class SparkEventhubDestination(DestinationInterface):
         eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition. (Streaming and Batch)
         eventhubs.endingPosition: (JSON str): The ending position of a batch query. This works the same as startingPosition. (Batch)
         maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. (Stream)
-    '''
+    """
 
-    def __init__(self, data: DataFrame, options: dict, trigger="10 seconds", query_name="EventhubDestination") -> None:
+    def __init__(
+        self,
+        data: DataFrame,
+        options: dict,
+        trigger="10 seconds",
+        query_name="EventhubDestination",
+    ) -> None:
         self.data = data
         self.options = options
         self.trigger = trigger
@@ -49,10 +57,10 @@ class SparkEventhubDestination(DestinationInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''             
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -60,29 +68,23 @@ class SparkEventhubDestination(DestinationInterface):
         spark_libraries = Libraries()
         spark_libraries.add_maven_library(get_default_package("spark_azure_eventhub"))
         return spark_libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_write_validation(self):
         return True
-    
+
     def post_write_validation(self):
         return True
 
     def write_batch(self):
-        '''
+        """
         Writes batch data to Eventhubs.
-        '''
+        """
         try:
-            return (
-                self.data
-                .write
-                .format("eventhubs")
-                .options(**self.options)
-                .save()
-            )
+            return self.data.write.format("eventhubs").options(**self.options).save()
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
@@ -90,17 +92,19 @@ class SparkEventhubDestination(DestinationInterface):
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def write_stream(self):
-        '''
+        """
         Writes steaming data to Eventhubs.
-        '''
+        """
         try:
-            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
+            TRIGGER_OPTION = (
+                {"availableNow": True}
+                if self.trigger == "availableNow"
+                else {"processingTime": self.trigger}
+            )
             query = (
-                self.data
-                .writeStream
-                .trigger(**TRIGGER_OPTION)
+                self.data.writeStream.trigger(**TRIGGER_OPTION)
                 .format("eventhubs")
                 .options(**self.options)
                 .queryName(self.query_name)

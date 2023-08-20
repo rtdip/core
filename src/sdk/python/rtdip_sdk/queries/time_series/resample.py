@@ -16,14 +16,15 @@ import logging
 import pandas as pd
 from ._query_builder import _query_builder
 
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
-    '''
+    """
     An RTDIP Resampling function in spark to resample data by querying databricks SQL warehouses using a connection and authentication method specified by the user. This spark resample function will return a resampled dataframe.
 
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
-    
+
     The available authentication methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
- 
+
     This function requires the user to input a dictionary of parameters. (See Attributes table below)
 
     Args:
@@ -48,16 +49,20 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
     Returns:
         DataFrame: A resampled dataframe.
-    '''
+    """
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
-    
+
     if "sample_rate" in parameters_dict:
-        logging.warning('Parameter sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.')
+        logging.warning(
+            "Parameter sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead."
+        )
         parameters_dict["time_interval_rate"] = parameters_dict["sample_rate"]
 
     if "sample_unit" in parameters_dict:
-        logging.warning('Parameter sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.')
+        logging.warning(
+            "Parameter sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead."
+        )
         parameters_dict["time_interval_unit"] = parameters_dict["sample_unit"]
 
     try:
@@ -71,9 +76,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             connection.close()
             return df
         except Exception as e:
-            logging.exception('error returning dataframe')
+            logging.exception("error returning dataframe")
             raise e
 
     except Exception as e:
-        logging.exception('error with resampling function')
+        logging.exception("error with resampling function")
         raise e

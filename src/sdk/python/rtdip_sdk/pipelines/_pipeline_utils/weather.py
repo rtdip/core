@@ -4,7 +4,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql.types import StructType, StructField, DoubleType, StringType, IntegerType, TimestampType
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    DoubleType,
+    StringType,
+    IntegerType,
+    TimestampType,
+)
 
 WEATHER_FORECAST_SCHEMA = StructType(
     [
@@ -57,31 +64,31 @@ WEATHER_DATA_MODEL = StructType(
     [
         StructField("Latitude", DoubleType(), False),
         StructField("Longitude", DoubleType(), False),
-        StructField('WeatherDay', StringType(), False),
-        StructField('WeatherHour', IntegerType(), False),
-        StructField('WeatherTimezoneOffset', StringType(), False),
-        StructField('WeatherType', StringType(), False),
-        StructField('ProcessedDate', TimestampType(), False),
-        StructField('Temperature', DoubleType(), True),
-        StructField('DewPoint', DoubleType(), True),
-        StructField('Humidity', DoubleType(), True),
-        StructField('HeatIndex', DoubleType(), True),
-        StructField('WindChill', DoubleType(), True),
-        StructField('WindDirection', DoubleType(), True),
-        StructField('WindSpeed', DoubleType(), True),
-        StructField('CloudCover', DoubleType(), True),
-        StructField('WetBulbTemp', StringType(), True),
-        StructField('SolarIrradiance', StringType(), True),
-        StructField('Precipitation', DoubleType(), True),
-        StructField('DayOrNight', StringType(), True),
-        StructField('DayOfWeek', StringType(), True),
-        StructField('WindGust', IntegerType(), True),
-        StructField('MslPressure', DoubleType(), True),
-        StructField('ForecastDayNum', IntegerType(), True),
-        StructField('PropOfPrecip', IntegerType(), True),
-        StructField('PrecipType', StringType(), True),
-        StructField('SnowAccumulation', DoubleType(), True),
-        StructField('UvIndex', DoubleType(), True),
-        StructField('Visibility', DoubleType(), True)
+        StructField("WeatherDay", StringType(), False),
+        StructField("WeatherHour", IntegerType(), False),
+        StructField("WeatherTimezoneOffset", StringType(), False),
+        StructField("WeatherType", StringType(), False),
+        StructField("ProcessedDate", TimestampType(), False),
+        StructField("Temperature", DoubleType(), True),
+        StructField("DewPoint", DoubleType(), True),
+        StructField("Humidity", DoubleType(), True),
+        StructField("HeatIndex", DoubleType(), True),
+        StructField("WindChill", DoubleType(), True),
+        StructField("WindDirection", DoubleType(), True),
+        StructField("WindSpeed", DoubleType(), True),
+        StructField("CloudCover", DoubleType(), True),
+        StructField("WetBulbTemp", StringType(), True),
+        StructField("SolarIrradiance", StringType(), True),
+        StructField("Precipitation", DoubleType(), True),
+        StructField("DayOrNight", StringType(), True),
+        StructField("DayOfWeek", StringType(), True),
+        StructField("WindGust", IntegerType(), True),
+        StructField("MslPressure", DoubleType(), True),
+        StructField("ForecastDayNum", IntegerType(), True),
+        StructField("PropOfPrecip", IntegerType(), True),
+        StructField("PrecipType", StringType(), True),
+        StructField("SnowAccumulation", DoubleType(), True),
+        StructField("UvIndex", DoubleType(), True),
+        StructField("Visibility", DoubleType(), True),
     ]
 )

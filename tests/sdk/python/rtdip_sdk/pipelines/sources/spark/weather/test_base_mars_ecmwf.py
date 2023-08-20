@@ -16,7 +16,9 @@ import numpy as np
 
 from pytest_mock import MockerFixture
 from unittest.mock import Mock, patch
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.ECMWF.base_mars_ecmwf import BaseMarsECMWFSource
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.ECMWF.base_mars_ecmwf import (
+    BaseMarsECMWFSource,
+)
 
 # Sample test data
 date_start = "2020-10-01 00:00:00"
@@ -25,65 +27,56 @@ save_path = "/path/to/save"
 
 
 def test_retrieve():
-
     api_instance = BaseMarsECMWFSource(date_start, date_end, save_path)
 
-    ec_vars = [
-         "10u", "10v"
-        ]
+    ec_vars = ["10u", "10v"]
     np.array(ec_vars)
 
     lead_times = [*range(91), *range(93, 146, 3), *range(150, 246, 6)]
     np.array(lead_times)
 
     mars_req = {
-        "class": "od", # ecmwf classification of data
-        "stream": "oper", # operational model
-        "expver": "1", # experiment version of data
-        "levtype": "sfc", # surface level forecasts
-        "type": "fc", # forecasts
-        "param": ec_vars, # variables
-        "step": lead_times, # which lead times?
-        "area": [73.5, -27, 33, 45], # N/W/S/E
-        "grid": [0.1, 0.1], # grid res of output
+        "class": "od",  # ecmwf classification of data
+        "stream": "oper",  # operational model
+        "expver": "1",  # experiment version of data
+        "levtype": "sfc",  # surface level forecasts
+        "type": "fc",  # forecasts
+        "param": ec_vars,  # variables
+        "step": lead_times,  # which lead times?
+        "area": [73.5, -27, 33, 45],  # N/W/S/E
+        "grid": [0.1, 0.1],  # grid res of output
     }
-    
-    result = api_instance.retrieve(mars_dict=mars_req,
-    tries=5,
-    n_jobs=-1)
+
+    result = api_instance.retrieve(mars_dict=mars_req, tries=5, n_jobs=-1)
 
     assert isinstance(result, object)
 
+
 def test_info_after_retrieve():
-    
     api_instance = BaseMarsECMWFSource(date_start, date_end, save_path)
 
-    ec_vars = [
-         "10u", "10v"
-        ]
+    ec_vars = ["10u", "10v"]
     np.array(ec_vars)
 
     lead_times = [*range(91), *range(93, 146, 3), *range(150, 246, 6)]
     np.array(lead_times)
 
     mars_req = {
-        "class": "od", # ecmwf classification of data
-        "stream": "oper", # operational model
-        "expver": "1", # experiment version of data
-        "levtype": "sfc", # surface level forecasts
-        "type": "fc", # forecasts
-        "param": ec_vars, # variables
-        "step": lead_times, # which lead times?
-        "area": [73.5, -27, 33, 45], # N/W/S/E
-        "grid": [0.1, 0.1], # grid res of output
+        "class": "od",  # ecmwf classification of data
+        "stream": "oper",  # operational model
+        "expver": "1",  # experiment version of data
+        "levtype": "sfc",  # surface level forecasts
+        "type": "fc",  # forecasts
+        "param": ec_vars,  # variables
+        "step": lead_times,  # which lead times?
+        "area": [73.5, -27, 33, 45],  # N/W/S/E
+        "grid": [0.1, 0.1],  # grid res of output
     }
-    
-    api_instance.retrieve(mars_dict=mars_req,
-    tries=5,
-    n_jobs=-1)
-    
+
+    api_instance.retrieve(mars_dict=mars_req, tries=5, n_jobs=-1)
+
     info = api_instance.info()
-    
+
     assert isinstance(info, pd.Series)
     assert len(info) == len(api_instance.dates)
     assert all(info == api_instance.success)

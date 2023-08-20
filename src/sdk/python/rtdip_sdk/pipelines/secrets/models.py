@@ -18,12 +18,11 @@ from abc import ABCMeta
 
 from .interfaces import SecretsInterface
 
+
 class PipelineSecret(BaseModel):
     type: Type[SecretsInterface]
     vault: str
     key: str
 
     class Config:
-        json_encoders = {
-            ABCMeta: lambda x: x.__name__
-        }    
+        json_encoders = {ABCMeta: lambda x: x.__name__}

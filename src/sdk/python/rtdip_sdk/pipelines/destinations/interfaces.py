@@ -1,8 +1,8 @@
 from abc import abstractmethod
 from ..interfaces import PipelineComponentBaseInterface
 
-class DestinationInterface(PipelineComponentBaseInterface):
 
+class DestinationInterface(PipelineComponentBaseInterface):
     @abstractmethod
     def pre_write_validation(self) -> bool:
         pass

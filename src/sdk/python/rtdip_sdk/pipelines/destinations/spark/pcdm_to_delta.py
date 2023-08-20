@@ -20,17 +20,23 @@ from py4j.protocol import Py4JJavaError
 
 from ..interfaces import DestinationInterface
 from ..spark.delta import SparkDeltaDestination
-from ..spark.delta_merge import SparkDeltaMergeDestination, DeltaMergeCondition, DeltaMergeConditionValues
+from ..spark.delta_merge import (
+    SparkDeltaMergeDestination,
+    DeltaMergeCondition,
+    DeltaMergeConditionValues,
+)
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
-class ValueTypeConstants():
+
+class ValueTypeConstants:
     INTEGER_VALUE = "ValueType = 'integer'"
     FLOAT_VALUE = "ValueType = 'float'"
     STRING_VALUE = "ValueType = 'string'"
 
+
 class SparkPCDMToDeltaDestination(DestinationInterface):
-    '''
+    """
     The Process Control Data Model written to Delta
 
     Args:
@@ -45,14 +51,15 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         merge (bool): Use Delta Merge to perform inserts, updates and deletes
         try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
         remove_nanoseconds (bool): Removes nanoseconds from the EventTime column and replaces with zeros
-        remove_duplicates (bool: Removes duplicates before writing the data 
+        remove_duplicates (bool: Removes duplicates before writing the data
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
-    '''
+    """
+
     spark: SparkSession
     data: DataFrame
-    options: dict    
+    options: dict
     destination_float: str
     destination_string: str
     destination_integer: str
@@ -64,20 +71,22 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     remove_nanoseconds: bool
     remove_duplicates: bool
 
-    def __init__(self, 
-                 spark: SparkSession, 
-                 data: DataFrame, 
-                 options: dict,
-                 destination_float: str,
-                 destination_string: str,
-                 destination_integer: str = None,
-                 mode: str = None,
-                 trigger="10 seconds",
-                 query_name: str ="PCDMToDeltaDestination",
-                 merge: bool = True,
-                 try_broadcast_join = False,
-                 remove_nanoseconds: bool = False,
-                 remove_duplicates: bool = True) -> None: 
+    def __init__(
+        self,
+        spark: SparkSession,
+        data: DataFrame,
+        options: dict,
+        destination_float: str,
+        destination_string: str,
+        destination_integer: str = None,
+        mode: str = None,
+        trigger="10 seconds",
+        query_name: str = "PCDMToDeltaDestination",
+        merge: bool = True,
+        try_broadcast_join=False,
+        remove_nanoseconds: bool = False,
+        remove_duplicates: bool = True,
+    ) -> None:
         self.spark = spark
         self.data = data
         self.destination_float = destination_float
@@ -94,10 +103,10 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''             
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -105,64 +114,69 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         libraries = Libraries()
         libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_write_validation(self):
         return True
-    
+
     def post_write_validation(self):
         return True
 
     def _get_eventdate_string(self, df: DataFrame) -> str:
         dates_df = df.select("EventDate").distinct()
-        dates_df = dates_df.select(date_format("EventDate", "yyyy-MM-dd").alias("EventDate"))
+        dates_df = dates_df.select(
+            date_format("EventDate", "yyyy-MM-dd").alias("EventDate")
+        )
         dates_list = list(dates_df.toPandas()["EventDate"])
-        return str(dates_list).replace('[','').replace(']','')
+        return str(dates_list).replace("[", "").replace("]", "")
 
     def _write_delta_merge(self, df: DataFrame, destination: str):
-        df = df.select("EventDate", "TagName", "EventTime", "Status", "Value", "ChangeType")
+        df = df.select(
+            "EventDate", "TagName", "EventTime", "Status", "Value", "ChangeType"
+        )
         when_matched_update_list = [
             DeltaMergeConditionValues(
                 condition="(source.ChangeType IN ('insert', 'update', 'upsert')) AND ((source.Status != target.Status) OR (source.Value != target.Value))",
                 values={
-                    "EventDate": "source.EventDate", 
+                    "EventDate": "source.EventDate",
                     "TagName": "source.TagName",
                     "EventTime": "source.EventTime",
                     "Status": "source.Status",
-                    "Value": "source.Value"
-                }
+                    "Value": "source.Value",
+                },
             )
         ]
         when_matched_delete_list = [
-            DeltaMergeCondition(
-                condition="source.ChangeType = 'delete'"
-            )
+            DeltaMergeCondition(condition="source.ChangeType = 'delete'")
         ]
         when_not_matched_insert_list = [
             DeltaMergeConditionValues(
                 condition="(source.ChangeType IN ('insert', 'update', 'upsert'))",
                 values={
-                    "EventDate": "source.EventDate", 
+                    "EventDate": "source.EventDate",
                     "TagName": "source.TagName",
                     "EventTime": "source.EventTime",
                     "Status": "source.Status",
-                    "Value": "source.Value"
-                }
+                    "Value": "source.Value",
+                },
             )
         ]
 
         merge_condition = "source.EventDate = target.EventDate AND source.TagName = target.TagName AND source.EventTime = target.EventTime"
-        
+
         perform_merge = True
         if self.try_broadcast_join != True:
             eventdate_string = self._get_eventdate_string(df)
             if eventdate_string == None or eventdate_string == "":
                 perform_merge = False
             else:
-                merge_condition = "target.EventDate in ({}) AND ".format(eventdate_string) + merge_condition
+                merge_condition = (
+                    "target.EventDate in ({}) AND ".format(eventdate_string)
+                    + merge_condition
+                )
 
         if perform_merge == True:
             SparkDeltaMergeDestination(
@@ -176,14 +190,18 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 when_not_matched_insert_list=when_not_matched_insert_list,
                 try_broadcast_join=self.try_broadcast_join,
                 trigger=self.trigger,
-                query_name=self.query_name
+                query_name=self.query_name,
             ).write_batch()
 
     def _write_delta_batch(self, df: DataFrame, destination: str):
-        
         if self.merge == True:
-            self._write_delta_merge(df.filter(col("ChangeType").isin('insert', 'update', 'upsert')), destination)
-            self._write_delta_merge(df.filter(col("ChangeType") == 'delete'), destination)
+            self._write_delta_merge(
+                df.filter(col("ChangeType").isin("insert", "update", "upsert")),
+                destination,
+            )
+            self._write_delta_merge(
+                df.filter(col("ChangeType") == "delete"), destination
+            )
         else:
             df = df.select("TagName", "EventTime", "Status", "Value")
             SparkDeltaDestination(
@@ -192,23 +210,31 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 options=self.options,
                 mode=self.mode,
                 trigger=self.trigger,
-                query_name=self.query_name
+                query_name=self.query_name,
             ).write_batch()
 
     def _write_data_by_type(self, df: DataFrame):
         if self.merge == True:
-            df = df.withColumn("ChangeType", when(df["ChangeType"].isin("insert", "update"), "upsert").otherwise(df["ChangeType"]))
+            df = df.withColumn(
+                "ChangeType",
+                when(df["ChangeType"].isin("insert", "update"), "upsert").otherwise(
+                    df["ChangeType"]
+                ),
+            )
 
         if self.remove_nanoseconds == True:
-            df = df.withColumn("EventTime", (floor(col("EventTime").cast("double")*1000)/1000).cast("timestamp"))
+            df = df.withColumn(
+                "EventTime",
+                (floor(col("EventTime").cast("double") * 1000) / 1000).cast(
+                    "timestamp"
+                ),
+            )
 
         if self.remove_duplicates == True:
             df = df.drop_duplicates(["TagName", "EventTime", "ChangeType"])
 
-        float_df = (
-            df
-            .filter(ValueTypeConstants.FLOAT_VALUE)
-            .withColumn("Value", col("Value").cast("float"))
+        float_df = df.filter(ValueTypeConstants.FLOAT_VALUE).withColumn(
+            "Value", col("Value").cast("float")
         )
         self._write_delta_batch(float_df, self.destination_float)
 
@@ -216,22 +242,20 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         self._write_delta_batch(string_df, self.destination_string)
 
         if self.destination_integer != None:
-            integer_df = (
-                df
-                .filter(ValueTypeConstants.INTEGER_VALUE)
-                .withColumn("Value", col("Value").cast("integer"))
+            integer_df = df.filter(ValueTypeConstants.INTEGER_VALUE).withColumn(
+                "Value", col("Value").cast("integer")
             )
-            self._write_delta_batch(integer_df, self.destination_integer)         
+            self._write_delta_batch(integer_df, self.destination_integer)
 
-    def _write_stream_microbatches(self, df: DataFrame, epoch_id = None): # NOSONAR
+    def _write_stream_microbatches(self, df: DataFrame, epoch_id=None):  # NOSONAR
         df.persist()
         self._write_data_by_type(df)
         df.unpersist()
 
     def write_batch(self):
-        '''
+        """
         Writes Process Control Data Model data to Delta
-        '''
+        """
         try:
             if self.try_broadcast_join != True:
                 self.data.persist()
@@ -247,18 +271,20 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def write_stream(self):
-        '''
+        """
         Writes streaming Process Control Data Model data to Delta using foreachBatch
-        '''
+        """
         try:
-            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
+            TRIGGER_OPTION = (
+                {"availableNow": True}
+                if self.trigger == "availableNow"
+                else {"processingTime": self.trigger}
+            )
             if self.merge == True:
                 query = (
-                    self.data
-                    .writeStream
-                    .trigger(**TRIGGER_OPTION)
+                    self.data.writeStream.trigger(**TRIGGER_OPTION)
                     .format("delta")
                     .foreachBatch(self._write_stream_microbatches)
                     .queryName(self.query_name)
@@ -268,15 +294,17 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 )
             else:
                 delta_float = SparkDeltaDestination(
-                    data=self.data.filter(ValueTypeConstants.FLOAT_VALUE).withColumn("Value", col("Value").cast("float")),
+                    data=self.data.filter(ValueTypeConstants.FLOAT_VALUE).withColumn(
+                        "Value", col("Value").cast("float")
+                    ),
                     destination=self.destination_float,
                     options=self.options,
                     mode=self.mode,
                     trigger=self.trigger,
-                    query_name=self.query_name + "_float"
+                    query_name=self.query_name + "_float",
                 )
-            
-                delta_float.write_stream()                
+
+                delta_float.write_stream()
 
                 delta_string = SparkDeltaDestination(
                     data=self.data.filter(ValueTypeConstants.STRING_VALUE),
@@ -284,9 +312,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     options=self.options,
                     mode=self.mode,
                     trigger=self.trigger,
-                    query_name=self.query_name + "_string"
+                    query_name=self.query_name + "_string",
                 )
-            
+
                 delta_string.write_stream()
 
                 if self.destination_integer != None:
@@ -296,15 +324,17 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                         options=self.options,
                         mode=self.mode,
                         trigger=self.trigger,
-                        query_name=self.query_name + "_integer"
+                        query_name=self.query_name + "_integer",
                     )
-                
+
                     delta_integer.write_stream()
 
                 while self.spark.streams.active != []:
                     for query in self.spark.streams.active:
                         if query.lastProgress:
-                            logging.info("{}: {}".format(query.name, query.lastProgress))
+                            logging.info(
+                                "{}: {}".format(query.name, query.lastProgress)
+                            )
                     time.sleep(10)
 
         except Py4JJavaError as e:

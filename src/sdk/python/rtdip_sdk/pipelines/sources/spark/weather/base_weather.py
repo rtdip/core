@@ -60,8 +60,10 @@ class BaseWeatherSource(BaseISOSource):
         code = response.status_code
 
         if code != 200:
-            raise HTTPError(f"Unable to access URL `{url}`."
-                            f" Received status code {code} with message {response.content}")
+            raise HTTPError(
+                f"Unable to access URL `{url}`."
+                f" Received status code {code} with message {response.content}"
+            )
         return response.content
 
     def _fetch_from_url(self, url_suffix: str) -> bytes:

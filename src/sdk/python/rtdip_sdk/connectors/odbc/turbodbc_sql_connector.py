@@ -20,111 +20,115 @@ from ..cursor_interface import CursorInterface
 import logging
 import os
 
+
 class TURBODBCSQLConnection(ConnectionInterface):
-  """
-  Turbodbc is a python module used to access relational databases through an ODBC interface. It will allow a user to connect to databricks clusters or sql warehouses.
-  
-  Turbodbc offers built-in NumPy support allowing it to be much faster for processing compared to other connectors.
-  To find details for SQL warehouses server_hostname and http_path location to the SQL Warehouse tab in the documentation.
-
-  Args:
-      server_hostname: hostname for the cluster or SQL Warehouse
-      http_path: Http path for the cluster or SQL Warehouse
-      access_token: Azure AD Token
-
-  Note: 
-      More fields such as driver can be configured upon extension.
-  """
-  def __init__(self, server_hostname: str, http_path: str, access_token: str) -> None:
-    _package_version_meets_minimum("turbodbc", "4.0.0")
-    
-    options = make_options(
-        autocommit=True, 
-        read_buffer_size=Megabytes(100),
-        use_async_io=True)
-    
-    self.connection = connect(Driver="Simba Spark ODBC Driver",
-                              Host=server_hostname,
-                              Port=443,
-                              SparkServerType=3,
-                              ThriftTransport=2,
-                              SSL=1,
-                              AuthMech=11,
-                              Auth_AccessToken=access_token,
-                              Auth_Flow=0,
-                              HTTPPath=http_path,
-                              UseNativeQuery=1,
-                              FastSQLPrepare=1,
-                              ApplyFastSQLPrepareToAllQueries=1,
-                              DisableLimitZero=1,                      
-                              EnableAsyncExec=1,
-                              RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BLOCK_SIZE", 500000),
-                              turbodbc_options=options)
-
-  def close(self) -> None:
-    """Closes connection to database."""
-    try:
-      self.connection.close()
-    except Exception as e:
-      logging.exception('error while closing the connection')
-      raise e
-
-  def cursor(self) -> object:
     """
-    Intiates the cursor and returns it.
+    Turbodbc is a python module used to access relational databases through an ODBC interface. It will allow a user to connect to databricks clusters or sql warehouses.
 
-    Returns:
-      TURBODBCSQLCursor: Object to represent a databricks workspace with methods to interact with clusters/jobs.
+    Turbodbc offers built-in NumPy support allowing it to be much faster for processing compared to other connectors.
+    To find details for SQL warehouses server_hostname and http_path location to the SQL Warehouse tab in the documentation.
+
+    Args:
+        server_hostname: hostname for the cluster or SQL Warehouse
+        http_path: Http path for the cluster or SQL Warehouse
+        access_token: Azure AD Token
+
+    Note:
+        More fields such as driver can be configured upon extension.
     """
-    try:
-      return TURBODBCSQLCursor(self.connection.cursor())
-    except Exception as e:
-      logging.exception('error with cursor object')
-      raise e
+
+    def __init__(self, server_hostname: str, http_path: str, access_token: str) -> None:
+        _package_version_meets_minimum("turbodbc", "4.0.0")
+
+        options = make_options(
+            autocommit=True, read_buffer_size=Megabytes(100), use_async_io=True
+        )
+
+        self.connection = connect(
+            Driver="Simba Spark ODBC Driver",
+            Host=server_hostname,
+            Port=443,
+            SparkServerType=3,
+            ThriftTransport=2,
+            SSL=1,
+            AuthMech=11,
+            Auth_AccessToken=access_token,
+            Auth_Flow=0,
+            HTTPPath=http_path,
+            UseNativeQuery=1,
+            FastSQLPrepare=1,
+            ApplyFastSQLPrepareToAllQueries=1,
+            DisableLimitZero=1,
+            EnableAsyncExec=1,
+            RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BLOCK_SIZE", 500000),
+            turbodbc_options=options,
+        )
+
+    def close(self) -> None:
+        """Closes connection to database."""
+        try:
+            self.connection.close()
+        except Exception as e:
+            logging.exception("error while closing the connection")
+            raise e
+
+    def cursor(self) -> object:
+        """
+        Intiates the cursor and returns it.
+
+        Returns:
+          TURBODBCSQLCursor: Object to represent a databricks workspace with methods to interact with clusters/jobs.
+        """
+        try:
+            return TURBODBCSQLCursor(self.connection.cursor())
+        except Exception as e:
+            logging.exception("error with cursor object")
+            raise e
 
 
 class TURBODBCSQLCursor(CursorInterface):
-  """
-  Object to represent a databricks workspace with methods to interact with clusters/jobs.
-
-  Args:
-      cursor: controls execution of commands on cluster or SQL Warehouse
-  """  
-  def __init__(self, cursor: object) -> None:
-    self.cursor = cursor
-
-  def execute(self, query: str) -> None:
     """
-    Prepares and runs a database query.
+    Object to represent a databricks workspace with methods to interact with clusters/jobs.
 
     Args:
-        query: sql query to execute on the cluster or SQL Warehouse
+        cursor: controls execution of commands on cluster or SQL Warehouse
     """
-    try:
-      self.cursor.execute(query)
-    except Exception as e:
-      logging.exception('error while executing the query')
-      raise e
 
-  def fetch_all(self) -> list: 
-    """
-    Gets all rows of a query.
-    
-    Returns:
-        list: list of results
-    """
-    try:
-      result = self.cursor.fetchallarrow()
-      df = result.to_pandas()
-      return df
-    except Exception as e:
-      logging.exception('error while fetching the rows from the query')
-      raise e
+    def __init__(self, cursor: object) -> None:
+        self.cursor = cursor
 
-  def close(self) -> None: 
-    """Closes the cursor."""
-    try:
-      self.cursor.close()
-    except Exception as e:
-      logging.exception('error while closing the cursor')
-      raise e
+    def execute(self, query: str) -> None:
+        """
+        Prepares and runs a database query.
+
+        Args:
+            query: sql query to execute on the cluster or SQL Warehouse
+        """
+        try:
+            self.cursor.execute(query)
+        except Exception as e:
+            logging.exception("error while executing the query")
+            raise e
+
+    def fetch_all(self) -> list:
+        """
+        Gets all rows of a query.
+
+        Returns:
+            list: list of results
+        """
+        try:
+            result = self.cursor.fetchallarrow()
+            df = result.to_pandas()
+            return df
+        except Exception as e:
+            logging.exception("error while fetching the rows from the query")
+            raise e
+
+    def close(self) -> None:
+        """Closes the cursor."""
+        try:
+            self.cursor.close()
+        except Exception as e:
+            logging.exception("error while closing the cursor")
+            raise e

@@ -16,24 +16,25 @@ import logging
 import pandas as pd
 from ._query_builder import _query_builder
 
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
-    '''
-    A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user. 
-    
+    """
+    A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
+
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
-    
+
     The available authentication methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
 
     This function requires the user to input a dictionary of parameters. (See Attributes table below)
-    
+
     Args:
         connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        business_unit (str): Business unit 
+        business_unit (str): Business unit
         region (str): Region
-        asset (str): Asset 
+        asset (str): Asset
         data_security_level (str): Level of data security
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (list): List of tagname or tagnames ["tag_1", "tag_2"]
@@ -43,7 +44,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
     Returns:
         DataFrame: A dataframe of raw timeseries data.
-    '''
+    """
     try:
         query = _query_builder(parameters_dict, "raw")
 
@@ -55,9 +56,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             connection.close()
             return df
         except Exception as e:
-            logging.exception('error returning dataframe')
+            logging.exception("error returning dataframe")
             raise e
 
     except Exception as e:
-        logging.exception('error with raw function')
+        logging.exception("error with raw function")
         raise e

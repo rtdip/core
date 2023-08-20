@@ -18,8 +18,9 @@ from ..._pipeline_utils.constants import get_default_package
 import polars as pl
 from polars import LazyFrame
 
+
 class PythonDeltaSource(SourceInterface):
-    '''
+    """
     The Python Delta Source is used to read data from a Delta table without using Apache Spark, returning a Polars LazyFrame
 
     Args:
@@ -28,55 +29,70 @@ class PythonDeltaSource(SourceInterface):
         storage_options (optional dict): Used to read from AWS/Azure storage. For AWS use format {"aws_access_key_id": "<>", "aws_secret_access_key":"<>"}. For Azure use format {"azure_storage_account_name": "<>", "azure_storage_account_key": "<>"}.
         pyarrow_options (optional dict): Data Access and Efficiency options when reading from Delta. See [to_pyarrow_dataset](https://delta-io.github.io/delta-rs/python/api_reference.html#deltalake.table.DeltaTable.to_pyarrow_dataset){ target="_blank" }.
         without_files (optional bool): If True loads the table without tracking files
-    '''
+    """
+
     path: str
     version: int
     storage_options: dict
     pyarrow_options: dict
     without_files: bool
 
-    def __init__(self, path: str, version: int = None, storage_options: dict = None, pyarrow_options: dict = None, without_files: bool = False):
+    def __init__(
+        self,
+        path: str,
+        version: int = None,
+        storage_options: dict = None,
+        pyarrow_options: dict = None,
+        without_files: bool = False,
+    ):
         self.path = path
         self.version = version
         self.storage_options = storage_options
         self.pyarrow_options = pyarrow_options
         self.without_files = without_files
-        
+
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYTHON
-        '''            
+        """
         return SystemType.PYTHON
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_read_validation(self):
         return True
-    
+
     def post_read_validation(self):
         return True
-    
+
     def read_batch(self) -> LazyFrame:
-        '''
+        """
         Reads data from a Delta table into a Polars LazyFrame
-        '''
+        """
         without_files_dict = {"without_files": self.without_files}
-        lf = pl.scan_delta(source= self.path, version= self.version, storage_options= self.storage_options, delta_table_options= without_files_dict, pyarrow_options= self.pyarrow_options)
+        lf = pl.scan_delta(
+            source=self.path,
+            version=self.version,
+            storage_options=self.storage_options,
+            delta_table_options=without_files_dict,
+            pyarrow_options=self.pyarrow_options,
+        )
         return lf
-    
+
     def read_stream(self):
-        '''
+        """
         Raises:
             NotImplementedError: Reading from a Delta table using Python is only possible for batch reads. To perform a streaming read, use the read_stream method of the SparkDeltaSource component.
-        '''
-        raise NotImplementedError("Reading from a Delta table using Python is only possible for batch reads. To perform a streaming read, use the read_stream method of the SparkDeltaSource component")
-        
+        """
+        raise NotImplementedError(
+            "Reading from a Delta table using Python is only possible for batch reads. To perform a streaming read, use the read_stream method of the SparkDeltaSource component"
+        )

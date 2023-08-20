@@ -15,22 +15,23 @@ import logging
 import pandas as pd
 from ._query_builder import _query_builder
 
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
-    '''
-    A function that receives a dataframe of raw tag data and performs a time weighted averages, returning the results. 
-    
+    """
+    A function that receives a dataframe of raw tag data and performs a time weighted averages, returning the results.
+
     This function requires the input of a pandas dataframe acquired via the rtdip.functions.raw() method and the user to input a dictionary of parameters. (See Attributes table below)
-    
+
     Pi data points will either have step enabled (True) or step disabled (False). You can specify whether you want step to be fetched by "Pi" or you can set the step parameter to True/False in the dictionary below.
-    
+
     Args:
         connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
         parameters_dict (dict): A dictionary of parameters (see Attributes table below)
     Attributes:
-        business_unit (str): Business unit 
+        business_unit (str): Business unit
         region (str): Region
-        asset (str): Asset 
-        data_security_level (str): Level of data security 
+        asset (str): Asset
+        data_security_level (str): Level of data security
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (list): List of tagname or tagnames
         start_date (str): Start date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
@@ -43,12 +44,14 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         step (str): data points with step "enabled" or "disabled". The options for step are "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
-    '''
+    """
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
-    
+
     if "window_size_mins" in parameters_dict:
-        logging.warning('Parameter window_size_mins is deprecated and will be removed in v1.0.0. Please use time_interval_rate and time_interval_unit instead.')
+        logging.warning(
+            "Parameter window_size_mins is deprecated and will be removed in v1.0.0. Please use time_interval_rate and time_interval_unit instead."
+        )
         parameters_dict["time_interval_rate"] = str(parameters_dict["window_size_mins"])
         parameters_dict["time_interval_unit"] = "minute"
 
@@ -63,9 +66,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             connection.close()
             return df
         except Exception as e:
-            logging.exception('error returning dataframe')
+            logging.exception("error returning dataframe")
             raise e
 
     except Exception as e:
-        logging.exception('error with time weighted average function')
+        logging.exception("error with time weighted average function")
         raise e

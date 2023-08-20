@@ -14,7 +14,7 @@
 
 import sys
 
-sys.path.insert(0, '.')
+sys.path.insert(0, ".")
 from pytest_mock import MockerFixture
 from pyspark.sql import SparkSession
 
@@ -23,22 +23,36 @@ from src.sdk.python.rtdip_sdk.pipelines.secrets.databricks import DatabricksSecr
 from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import EVENTHUB_SCHEMA
 
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import get_spark_pipeline_job
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import DBUtilsSecretsFixture
+from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import (
+    get_spark_pipeline_job,
+)
+from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark_configuration_constants import (
+    DBUtilsSecretsFixture,
+)
+
 
 def test_databricks_secret_scopes(spark_session: SparkSession, mocker: MockerFixture):
     pipeline_job = get_spark_pipeline_job()
 
-    pipeline_job.task_list[0].step_list[0].component_parameters["options"]["eventhubs.connectionString"] = PipelineSecret(type=DatabricksSecrets, vault="test_vault", key="test_key")
+    pipeline_job.task_list[0].step_list[0].component_parameters["options"][
+        "eventhubs.connectionString"
+    ] = PipelineSecret(type=DatabricksSecrets, vault="test_vault", key="test_key")
 
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.secrets.databricks.get_dbutils", return_value=DBUtilsSecretsFixture(secret_value="Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;EntityPath=test"))
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.secrets.databricks.get_dbutils",
+        return_value=DBUtilsSecretsFixture(
+            secret_value="Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test;EntityPath=test"
+        ),
+    )
 
     expected_df = spark_session.createDataFrame(data=[], schema=EVENTHUB_SCHEMA)
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch", return_value=expected_df)
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch",
+        return_value=expected_df,
+    )
 
     pipeline = PipelineJobExecute(pipeline_job)
 
     result = pipeline.run()
-    
+
     assert result
-    

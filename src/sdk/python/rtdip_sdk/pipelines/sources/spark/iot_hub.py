@@ -21,8 +21,9 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import EVENTHUB_SCHEMA
 from ..._pipeline_utils.constants import get_default_package
 
+
 class SparkIoThubSource(SourceInterface):
-    '''
+    """
     This Spark source class is used to read batch or streaming data from an IoT Hub. IoT Hub configurations need to be specified as options in a dictionary.
     Additionally, there are more optional configurations which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
     If using startingPosition or endingPosition make sure to check out the **Event Position** section for more details and examples.
@@ -36,8 +37,8 @@ class SparkIoThubSource(SourceInterface):
         eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition. (Streaming and Batch)
         eventhubs.endingPosition: (JSON str): The ending position of a batch query. This works the same as startingPosition. (Batch)
         maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. (Stream)
-    
-    '''
+
+    """
 
     options: dict
     spark: SparkSession
@@ -49,12 +50,12 @@ class SparkIoThubSource(SourceInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
@@ -64,31 +65,29 @@ class SparkIoThubSource(SourceInterface):
         spark_libraries = Libraries()
         spark_libraries.add_maven_library(get_default_package("spark_azure_eventhub"))
         return spark_libraries
-    
-    
+
     def pre_read_validation(self) -> bool:
         return True
-    
+
     def post_read_validation(self, df: DataFrame) -> bool:
         assert df.schema == self.schema
         return True
 
     def read_batch(self) -> DataFrame:
-        '''
+        """
         Reads batch data from IoT Hubs.
-        '''
+        """
         iothub_connection_string = "eventhubs.connectionString"
         try:
             if iothub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options[iothub_connection_string] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(self.options[iothub_connection_string])
+                self.options[
+                    iothub_connection_string
+                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                    self.options[iothub_connection_string]
+                )
 
-            return (self.spark
-                .read
-                .format("eventhubs")
-                .options(**self.options)
-                .load()
-            )
+            return self.spark.read.format("eventhubs").options(**self.options).load()
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
@@ -96,22 +95,23 @@ class SparkIoThubSource(SourceInterface):
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def read_stream(self) -> DataFrame:
-        '''
+        """
         Reads streaming data from IoT Hubs.
-        '''
+        """
         iothub_connection_string = "eventhubs.connectionString"
         try:
             if iothub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options[iothub_connection_string] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(self.options[iothub_connection_string])
+                self.options[
+                    iothub_connection_string
+                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                    self.options[iothub_connection_string]
+                )
 
-            return (self.spark
-                .readStream
-                .format("eventhubs")
-                .options(**self.options)
-                .load()
+            return (
+                self.spark.readStream.format("eventhubs").options(**self.options).load()
             )
 
         except Py4JJavaError as e:

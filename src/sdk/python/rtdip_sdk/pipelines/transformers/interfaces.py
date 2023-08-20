@@ -15,8 +15,8 @@
 from abc import abstractmethod
 from ..interfaces import PipelineComponentBaseInterface
 
+
 class TransformerInterface(PipelineComponentBaseInterface):
-    
     @abstractmethod
     def pre_transform_validation(self) -> bool:
         pass

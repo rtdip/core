@@ -20,16 +20,18 @@ from typing import List, Tuple
 from .interfaces import UtilitiesInterface
 from .._pipeline_utils.models import Libraries, SystemType
 
+
 class PipelineComponentsGetUtility(UtilitiesInterface):
-    '''
+    """
     Gets the list of imported RTDIP components. Returns the libraries and settings of the components to be used in the pipeline.
 
-    Call this component after all imports of the RTDIP components to ensure that the components can be determined. 
+    Call this component after all imports of the RTDIP components to ensure that the components can be determined.
 
     Args:
         module (optional str): Provide the module to use for imports of rtdip-sdk components. If not populated, it will use the calling module to check for imports
-    ''' 
-    def __init__(self, module:str = None) -> None:
+    """
+
+    def __init__(self, module: str = None) -> None:
         if module == None:
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
@@ -39,17 +41,17 @@ class PipelineComponentsGetUtility(UtilitiesInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYTHON
-        '''            
+        """
         return SystemType.PYTHON
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
@@ -60,17 +62,39 @@ class PipelineComponentsGetUtility(UtilitiesInterface):
         from ..deploy.interfaces import DeployInterface
         from ..secrets.interfaces import SecretsInterface
         from ..transformers.interfaces import TransformerInterface
+
         try:
-            classes_imported = inspect.getmembers(sys.modules[self.module], inspect.isclass)
+            classes_imported = inspect.getmembers(
+                sys.modules[self.module], inspect.isclass
+            )
             component_list = []
             for cls in classes_imported:
                 class_check = getattr(sys.modules[self.module], cls[0])
-                if ((issubclass(class_check, SourceInterface) and class_check != SourceInterface) or
-                    (issubclass(class_check, DestinationInterface) and class_check != DestinationInterface) or
-                    (issubclass(class_check, DeployInterface) and class_check != DeployInterface) or
-                    (issubclass(class_check, SecretsInterface) and class_check != SecretsInterface) or
-                    (issubclass(class_check, TransformerInterface) and class_check != TransformerInterface) or
-                    (issubclass(class_check, UtilitiesInterface) and class_check != UtilitiesInterface)
+                if (
+                    (
+                        issubclass(class_check, SourceInterface)
+                        and class_check != SourceInterface
+                    )
+                    or (
+                        issubclass(class_check, DestinationInterface)
+                        and class_check != DestinationInterface
+                    )
+                    or (
+                        issubclass(class_check, DeployInterface)
+                        and class_check != DeployInterface
+                    )
+                    or (
+                        issubclass(class_check, SecretsInterface)
+                        and class_check != SecretsInterface
+                    )
+                    or (
+                        issubclass(class_check, TransformerInterface)
+                        and class_check != TransformerInterface
+                    )
+                    or (
+                        issubclass(class_check, UtilitiesInterface)
+                        and class_check != UtilitiesInterface
+                    )
                 ):
                     component_list.append(cls[1])
 
@@ -80,7 +104,7 @@ class PipelineComponentsGetUtility(UtilitiesInterface):
             for component in component_list:
                 spark_configuration = {**spark_configuration, **component.settings()}
             return (task_libraries, spark_configuration)
-        
+
         except Exception as e:
             logging.exception(str(e))
             raise e

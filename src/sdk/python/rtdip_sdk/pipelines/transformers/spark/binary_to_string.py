@@ -17,53 +17,56 @@ from pyspark.sql import DataFrame
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
+
 class BinaryToStringTransformer(TransformerInterface):
-    '''
+    """
     Converts a dataframe body column from a binary to a string.
 
     Args:
         data (DataFrame): Dataframe to be transformed
         source_column_name (str): Spark Dataframe column containing the Binary data
         target_column_name (str): Spark Dataframe column name to be used for the String data
-    '''
+    """
+
     data: DataFrame
     source_column_name: str
     target_column_name: str
 
-    def __init__(self, data: DataFrame, source_column_name: str, target_column_name: str) -> None:
+    def __init__(
+        self, data: DataFrame, source_column_name: str, target_column_name: str
+    ) -> None:
         self.data = data
         self.source_column_name = source_column_name
         self.target_column_name = target_column_name
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''
+        """
         return SystemType.PYSPARK
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_transform_validation(self):
         return True
-    
+
     def post_transform_validation(self):
         return True
 
     def transform(self) -> DataFrame:
-        '''
+        """
         Returns:
             DataFrame: A dataframe with the body column converted to string.
-        '''
-        return (
-            self.data
-            .withColumn(self.target_column_name, self.data[self.source_column_name].cast("string"))
+        """
+        return self.data.withColumn(
+            self.target_column_name, self.data[self.source_column_name].cast("string")
         )

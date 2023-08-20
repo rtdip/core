@@ -26,6 +26,7 @@ class UomUsage(Enum):
     """
     Units of measurement
     """
+
     W = 0
     """Watts"""
     WH = 1
@@ -42,8 +43,9 @@ class UomUsage(Enum):
 
 class SeriesType(IntFlag):
     """
-    Definition of the type of timeseries for the measurements (e.g. realtime or interval based) and the type of the computation if the series is aggregated/derived 
+    Definition of the type of timeseries for the measurements (e.g. realtime or interval based) and the type of the computation if the series is aggregated/derived
     """
+
     RealTime = auto()
     """
     The data has no specific time pattern
@@ -137,11 +139,11 @@ class SeriesType(IntFlag):
     Test = auto()
 
 
-
 class Usage(BaseModel):
     """
-    Usage. a usage measurement from an AMI meter 
+    Usage. a usage measurement from an AMI meter
     """
+
     Uid: str
     """
     A unique identifier associated to the source of the measurement (e.g. sensor, meter, etc.)
@@ -164,15 +166,15 @@ class Usage(BaseModel):
     """
 
 
-
 class ValueType(IntFlag):
     """
     Defines the type of value
     """
+
     Counter = auto()
     """
     The value is cumulative increasing monotinically
-    """   
+    """
     Gauge = auto()
     """
     The value can arbitrarily go up and down
@@ -221,10 +223,12 @@ class ValueType(IntFlag):
     ShortTermForecast = ShortTerm | Forecast
     LongTermForecast = LongTerm | Forecast
 
+
 class MetaData(BaseModel):
     """
     Metadata for a sensor, meter, etc. and its association to sets of time series
     """
+
     Uid: str
     """
     A unique identifier associated to the source of the measurement (e.g. sensor, meter, etc.)

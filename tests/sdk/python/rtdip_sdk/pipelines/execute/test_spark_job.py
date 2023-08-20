@@ -13,14 +13,17 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
+
+sys.path.insert(0, ".")
 from pytest_mock import MockerFixture
 from pyspark.sql import SparkSession
 import pytest
 
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import EVENTHUB_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines.execute.job import PipelineJobExecute
-from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import get_spark_pipeline_job
+from tests.sdk.python.rtdip_sdk.pipelines._pipeline_utils.pipeline_job_templates import (
+    get_spark_pipeline_job,
+)
 
 read_stream_path = "src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_stream"
 read_batch_path = "src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch"
@@ -31,35 +34,48 @@ def test_pipeline_job_execute_batch(spark_session: SparkSession, mocker: MockerF
 
     expected_df = spark_session.createDataFrame(data=[], schema=EVENTHUB_SCHEMA)
     mocker.patch(read_batch_path, return_value=expected_df)
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta.SparkDeltaDestination.write_batch", return_value=None)
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta.SparkDeltaDestination.write_batch",
+        return_value=None,
+    )
 
     pipeline = PipelineJobExecute(pipeline_job)
 
     result = pipeline.run()
-    
+
     assert result
 
-def test_pipeline_job_execute_stream(spark_session: SparkSession, mocker: MockerFixture):
+
+def test_pipeline_job_execute_stream(
+    spark_session: SparkSession, mocker: MockerFixture
+):
     pipeline_job = get_spark_pipeline_job()
     pipeline_job.task_list[0].batch_task = False
     expected_df = spark_session.createDataFrame(data=[], schema=EVENTHUB_SCHEMA)
     mocker.patch(read_stream_path, return_value=expected_df)
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta.SparkDeltaDestination.write_stream", return_value=None)
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta.SparkDeltaDestination.write_stream",
+        return_value=None,
+    )
     pipeline = PipelineJobExecute(pipeline_job)
 
     result = pipeline.run()
-    
+
     assert result
+
 
 def test_pipeline_job_execute_batch_fails(mocker: MockerFixture):
     pipeline_job = get_spark_pipeline_job()
     pipeline = PipelineJobExecute(pipeline_job)
 
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch", side_effect=Exception)
-
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.sources.spark.eventhub.SparkEventhubSource.read_batch",
+        side_effect=Exception,
+    )
 
     with pytest.raises(Exception):
         pipeline.run()
+
 
 def test_pipeline_job_execute_stream_fails_on_read(mocker: MockerFixture):
     pipeline_job = get_spark_pipeline_job()
@@ -67,17 +83,21 @@ def test_pipeline_job_execute_stream_fails_on_read(mocker: MockerFixture):
 
     mocker.patch(read_stream_path, side_effect=Exception)
 
-
     with pytest.raises(Exception):
         pipeline.run()
 
-def test_pipeline_job_execute_stream_fails_on_write(spark_session: SparkSession, mocker: MockerFixture):
+
+def test_pipeline_job_execute_stream_fails_on_write(
+    spark_session: SparkSession, mocker: MockerFixture
+):
     pipeline_job = get_spark_pipeline_job()
     pipeline = PipelineJobExecute(pipeline_job)
     expected_df = spark_session.createDataFrame(data=[], schema=EVENTHUB_SCHEMA)
     mocker.patch(read_stream_path, return_value=expected_df)
-    mocker.patch("src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta.SparkDeltaDestination.write_stream", side_effect=Exception)
-
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta.SparkDeltaDestination.write_stream",
+        side_effect=Exception,
+    )
 
     with pytest.raises(Exception):
         pipeline.run()

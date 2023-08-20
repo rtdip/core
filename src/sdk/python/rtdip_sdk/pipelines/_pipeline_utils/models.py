@@ -16,8 +16,10 @@ from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel
 
+
 class SystemType(Enum):
     """The type of the system."""
+
     # Executable in a python environment
     PYTHON = 1
     # Executable in a pyspark environment
@@ -25,10 +27,12 @@ class SystemType(Enum):
     # Executable in a databricks environment
     PYSPARK_DATABRICKS = 3
 
+
 class LibraryTypes(Enum):
     MAVEN = 1
     PYPI = 2
     PYTHONWHL = 3
+
 
 class MavenLibrary(BaseModel):
     group_id: str
@@ -39,6 +43,7 @@ class MavenLibrary(BaseModel):
     def to_string(self) -> str:
         return f"{self.group_id}:{self.artifact_id}:{self.version}"
 
+
 class PyPiLibrary(BaseModel):
     name: str
     version: str
@@ -47,8 +52,10 @@ class PyPiLibrary(BaseModel):
     def to_string(self) -> str:
         return f"{self.name}=={self.version}"
 
+
 class PythonWheelLibrary(BaseModel):
     path: str
+
 
 class Libraries(BaseModel):
     maven_libraries: List[MavenLibrary] = []
@@ -64,7 +71,7 @@ class Libraries(BaseModel):
     def add_pythonwhl_library(self, whl_library: PythonWheelLibrary):
         self.pythonwheel_libraries.append(whl_library)
 
-    def get_libraries_from_components(self, component_list: list):   
+    def get_libraries_from_components(self, component_list: list):
         for component in component_list:
             component_libraries = component.libraries()
             for library in component_libraries.pypi_libraries:

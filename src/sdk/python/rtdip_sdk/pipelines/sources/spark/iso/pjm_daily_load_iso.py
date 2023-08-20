@@ -74,23 +74,34 @@ class PJMDailyLoadISOSource(BaseISOSource):
         url = f"{self.iso_url}{url_suffix}"
         headers = {"Ocp-Apim-Subscription-Key": self.api_key}
         logging.info(
-            f"Requesting URL - {url}, start_date={start_date}, end_date={end_date}, load_type={self.load_type}")
-        load_key = 'datetime_beginning_ept' if self.load_type != 'forecast' else 'forecast_datetime_beginning_ept'
-        feed = 'ops_sum_prev_period' if self.load_type != 'forecast' else 'load_frcstd_7_day'
+            f"Requesting URL - {url}, start_date={start_date}, end_date={end_date}, load_type={self.load_type}"
+        )
+        load_key = (
+            "datetime_beginning_ept"
+            if self.load_type != "forecast"
+            else "forecast_datetime_beginning_ept"
+        )
+        feed = (
+            "ops_sum_prev_period"
+            if self.load_type != "forecast"
+            else "load_frcstd_7_day"
+        )
         query = {
             "startRow": "1",
             load_key: f"{start_date}to{end_date}",
-            'format': 'csv',
-            'download': 'true'
+            "format": "csv",
+            "download": "true",
         }
-        query_s = '&'.join(['='.join([k, v]) for k, v in query.items()])
-        new_url = f'{url}{feed}?{query_s}'
+        query_s = "&".join(["=".join([k, v]) for k, v in query.items()])
+        new_url = f"{url}{feed}?{query_s}"
         response = requests.get(new_url, headers=headers)
         code = response.status_code
 
         if code != 200:
-            raise requests.HTTPError(f"Unable to access URL `{url}`."
-                                     f" Received status code {code} with message {response.content}")
+            raise requests.HTTPError(
+                f"Unable to access URL `{url}`."
+                f" Received status code {code} with message {response.content}"
+            )
         return response.content
 
     def _pull_data(self) -> pd.DataFrame:
@@ -105,50 +116,59 @@ class PJMDailyLoadISOSource(BaseISOSource):
         end_date = (start_date + timedelta(days=self.days)).replace(hour=23)
         start_date_str = start_date.strftime(self.query_datetime_format)
         end_date_str = end_date.strftime(self.query_datetime_format)
-        df = pd.read_csv(BytesIO(self._fetch_from_url("", start_date_str, end_date_str)))
+        df = pd.read_csv(
+            BytesIO(self._fetch_from_url("", start_date_str, end_date_str))
+        )
 
         return df
 
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Creates a new date time column and removes null values. Renames columns
+
+        Args:
+            df: Raw form of data received from the API.
+
+        Returns:
+            Data after basic transformations.
 
         """
-      Creates a new date time column and removes null values. Renames columns
 
-      Args:
-          df: Raw form of data received from the API.
-
-      Returns:
-          Data after basic transformations.
-
-      """
-
-        if self.load_type == 'forecast':
-            df = df.rename(columns={"forecast_datetime_beginning_utc": "start_time",
-                                    "forecast_area": "zone",
-                                    "forecast_datetime_ending_utc": "end_time",
-                                    "forecast_load_mw": "load", })
+        if self.load_type == "forecast":
+            df = df.rename(
+                columns={
+                    "forecast_datetime_beginning_utc": "start_time",
+                    "forecast_area": "zone",
+                    "forecast_datetime_ending_utc": "end_time",
+                    "forecast_load_mw": "load",
+                }
+            )
         else:
-            df = df.rename(columns={"datetime_beginning_utc": "start_time",
-                                    "area": "zone",
-                                    "datetime_ending_utc": "end_time",
-                                    "actual_load": "load", })
+            df = df.rename(
+                columns={
+                    "datetime_beginning_utc": "start_time",
+                    "area": "zone",
+                    "datetime_ending_utc": "end_time",
+                    "actual_load": "load",
+                }
+            )
 
         df = df[["start_time", "end_time", "zone", "load"]]
-        df = df.replace({np.nan: None, '': None})
+        df = df.replace({np.nan: None, "": None})
 
         date_cols = ["start_time", "end_time"]
         for col in date_cols:
-            df[col] = pd.to_datetime(df[col], format='%m/%d/%Y %I:%M:%S %p')
+            df[col] = pd.to_datetime(df[col], format="%m/%d/%Y %I:%M:%S %p")
 
         df["load"] = df["load"].astype(float)
-        df = df.replace({np.nan: None, '': None})
+        df = df.replace({np.nan: None, "": None})
         df.columns = list(map(lambda x: x.upper(), df.columns))
 
         rename_cols = {
-            'START_TIME': 'StartTime',
-            'END_TIME': 'EndTime',
-            'ZONE': 'Zone',
-            'LOAD': 'Load',
+            "START_TIME": "StartTime",
+            "END_TIME": "EndTime",
+            "ZONE": "Zone",
+            "LOAD": "Load",
         }
 
         df = df.rename(columns=rename_cols)
@@ -169,7 +189,8 @@ class PJMDailyLoadISOSource(BaseISOSource):
         valid_load_types = ["actual", "forecast"]
 
         if self.load_type not in valid_load_types:
-            raise ValueError(f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}.")
+            raise ValueError(
+                f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}."
+            )
 
         return True
-

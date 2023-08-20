@@ -15,20 +15,18 @@
 
 from ..ami_meters import Usage
 
-def create_usage_VO(uid: str,
-                    series_id: str,
-                    timestamp: int,
-                    interval_timestamp: int,
-                    value: float):
+
+def create_usage_VO(
+    uid: str, series_id: str, timestamp: int, interval_timestamp: int, value: float
+):
     try:
-        return Usage(Uid = uid,
-                        SeriesId = series_id,
-                        Timestamp=timestamp,
-                        IntervalTimestamp = interval_timestamp,
-                        Value = value)
+        return Usage(
+            Uid=uid,
+            SeriesId=series_id,
+            Timestamp=timestamp,
+            IntervalTimestamp=interval_timestamp,
+            Value=value,
+        )
 
     except Exception as ex:
-        error_msg_str: str = 'Could not create Usage Value Object: {}'.format(ex)
-
-
-
+        error_msg_str: str = "Could not create Usage Value Object: {}".format(ex)

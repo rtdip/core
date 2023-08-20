@@ -17,8 +17,9 @@ from web3 import Web3
 from ..._pipeline_utils.models import Libraries, SystemType
 from ...destinations.interfaces import DestinationInterface
 
+
 class EVMContractDestination(DestinationInterface):
-    '''
+    """
     The EVM Contract Destination is used to write to a smart contract blockchain.
     Args:
         url (str): Blockchain network URL e.g. 'https://polygon-mumbai.g.alchemy.com/v2/⟨API_KEY⟩'
@@ -37,7 +38,8 @@ class EVMContractDestination(DestinationInterface):
         nonce (int): The number of transactions sent from a given address.
         to (hexadecimal str): Address of recipient for a transaction.
         value (int Wei): Value being transferred in a transaction. Integers are specified in Wei, web3's to_wei function can be used to specify the amount in a different currency.
-    '''
+    """
+
     url: str
     account: str
     private_key: str
@@ -47,7 +49,17 @@ class EVMContractDestination(DestinationInterface):
     function_params: tuple
     transaction: dict
 
-    def __init__(self, url: str, account: str, private_key: str, abi: str, contract: str = None, function_name: str = None, function_params: tuple = None, transaction: dict = None) -> None:
+    def __init__(
+        self,
+        url: str,
+        account: str,
+        private_key: str,
+        abi: str,
+        contract: str = None,
+        function_name: str = None,
+        function_params: tuple = None,
+        transaction: dict = None,
+    ) -> None:
         self.url = url
         self.account = account
         self.private_key = private_key
@@ -66,34 +78,34 @@ class EVMContractDestination(DestinationInterface):
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
 
     def pre_write_validation(self) -> bool:
         return True
-    
+
     def post_write_validation(self) -> bool:
         return True
-    
+
     def _process_transaction(self):
-        if 'nonce' not in self.transaction.keys():
+        if "nonce" not in self.transaction.keys():
             nonce = self.web3.eth.get_transaction_count(self.account)
-            self.transaction['nonce'] = nonce
-        if 'from' not in self.transaction.keys():
-            self.transaction['from'] = self.account
-    
+            self.transaction["nonce"] = nonce
+        if "from" not in self.transaction.keys():
+            self.transaction["from"] = self.account
+
     def write_batch(self) -> str:
-        '''
+        """
         Writes to a smart contract deployed in a blockchain and returns the transaction hash.
 
         Example:
         ```
         from web3 import Web3
-        
+
         web3 = Web3(Web3.HTTPProvider("https://polygon-mumbai.g.alchemy.com/v2/<API_KEY>"))
-        
+
         x = EVMContractDestination(
                             url="https://polygon-mumbai.g.alchemy.com/v2/<API_KEY>",
                             account='<ACCOUNT>',
@@ -110,21 +122,23 @@ class EVMContractDestination(DestinationInterface):
 
         print(x.write_batch())
         ```
-        '''
-        contract = self.web3.eth.contract(address = self.contract, abi = self.abi)
+        """
+        contract = self.web3.eth.contract(address=self.contract, abi=self.abi)
 
         self._process_transaction()
-        tx = contract.functions[self.function_name](*self.function_params).build_transaction(self.transaction)
-        
+        tx = contract.functions[self.function_name](
+            *self.function_params
+        ).build_transaction(self.transaction)
+
         signed_tx = self.web3.eth.account.sign_transaction(tx, self.private_key)
         tx_hash = self.web3.eth.send_raw_transaction(signed_tx.rawTransaction)
         self.web3.eth.wait_for_transaction_receipt(tx_hash)
 
         return str(self.web3.to_hex(tx_hash))
-    
+
     def write_stream(self):
-        '''
+        """
         Raises:
             NotImplementedError: Write stream is not supported.
-        '''
+        """
         raise NotImplementedError("EVMContractDestination only supports batch writes.")

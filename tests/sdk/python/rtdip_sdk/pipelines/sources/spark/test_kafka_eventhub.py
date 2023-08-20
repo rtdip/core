@@ -1,4 +1,4 @@
-#Copyright 2022 RTDIP
+# Copyright 2022 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,65 +13,137 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
+
+sys.path.insert(0, ".")
 from importlib_metadata import version
 import pytest
 from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _get_package_version
 from src.sdk.python.rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import KAFKA_EVENTHUB_SCHEMA
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    MavenLibrary,
+)
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.spark import (
+    KAFKA_EVENTHUB_SCHEMA,
+)
 import json
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
-kafka_configuration_dict = {
-        "failOnDataLoss": "true", 
-        "startingOffsets": "earliest"
-    }
+kafka_configuration_dict = {"failOnDataLoss": "true", "startingOffsets": "earliest"}
 
 eventhub_connection_string = "Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"
 
+
 def test_spark_kafka_read_setup(spark_session: SparkSession):
     kafka_configuration = kafka_configuration_dict
-    kafka_source = SparkKafkaEventhubSource(spark_session, kafka_configuration, eventhub_connection_string, "test_consumer_group")
+    kafka_source = SparkKafkaEventhubSource(
+        spark_session,
+        kafka_configuration,
+        eventhub_connection_string,
+        "test_consumer_group",
+    )
     assert kafka_source.system_type().value == 2
-    assert kafka_source.libraries() == Libraries(maven_libraries=[MavenLibrary(
-                group_id="org.apache.spark", 
+    assert kafka_source.libraries() == Libraries(
+        maven_libraries=[
+            MavenLibrary(
+                group_id="org.apache.spark",
                 artifact_id="spark-sql-kafka-0-10_2.12",
-                version=_get_package_version("pyspark")
-            )], pypi_libraries=[], pythonwheel_libraries=[])
+                version=_get_package_version("pyspark"),
+            )
+        ],
+        pypi_libraries=[],
+        pythonwheel_libraries=[],
+    )
     assert isinstance(kafka_source.settings(), dict)
     assert kafka_source.pre_read_validation()
     df = spark_session.createDataFrame(data=[], schema=KAFKA_EVENTHUB_SCHEMA)
     assert kafka_source.post_read_validation(df)
 
+
 def test_spark_kafka_read_batch(spark_session: SparkSession):
     kafka_configuration = kafka_configuration_dict
-    kafka_source = SparkKafkaEventhubSource(spark_session, kafka_configuration, eventhub_connection_string, "test_consumer_group")
+    kafka_source = SparkKafkaEventhubSource(
+        spark_session,
+        kafka_configuration,
+        eventhub_connection_string,
+        "test_consumer_group",
+    )
     assert kafka_source.pre_read_validation()
     df = kafka_source.read_batch()
     assert isinstance(df, DataFrame)
     assert kafka_source.post_read_validation(df)
 
+
 def test_spark_kafka_read_stream(spark_session: SparkSession):
     kafka_configuration = kafka_configuration_dict
-    kafka_source = SparkKafkaEventhubSource(spark_session, kafka_configuration, eventhub_connection_string, "test_consumer_group")
+    kafka_source = SparkKafkaEventhubSource(
+        spark_session,
+        kafka_configuration,
+        eventhub_connection_string,
+        "test_consumer_group",
+    )
     assert kafka_source.pre_read_validation()
     df = kafka_source.read_stream()
     assert isinstance(df, DataFrame)
     assert kafka_source.post_read_validation(df)
 
-def test_spark_kafka_read_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
-    kafka_source = SparkKafkaEventhubSource(spark_session, {}, eventhub_connection_string, "test_consumer_group")
-    mocker.patch.object(kafka_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(read=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(side_effect=Exception)))))))))
+
+def test_spark_kafka_read_batch_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    kafka_source = SparkKafkaEventhubSource(
+        spark_session, {}, eventhub_connection_string, "test_consumer_group"
+    )
+    mocker.patch.object(
+        kafka_source,
+        "spark",
+        new_callable=mocker.PropertyMock(
+            return_value=mocker.Mock(
+                read=mocker.Mock(
+                    format=mocker.Mock(
+                        return_value=mocker.Mock(
+                            options=mocker.Mock(
+                                return_value=mocker.Mock(
+                                    load=mocker.Mock(side_effect=Exception)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+    )
     assert kafka_source.pre_read_validation()
     with pytest.raises(Exception):
         kafka_source.read_batch()
 
-def test_spark_kafka_read_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
-    kafka_source = SparkKafkaEventhubSource(spark_session, {}, eventhub_connection_string, "test_consumer_group")
-    mocker.patch.object(kafka_source, "spark", new_callable=mocker.PropertyMock(return_value=mocker.Mock(readStream=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(load=mocker.Mock(side_effect=Exception)))))))))
+
+def test_spark_kafka_read_stream_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    kafka_source = SparkKafkaEventhubSource(
+        spark_session, {}, eventhub_connection_string, "test_consumer_group"
+    )
+    mocker.patch.object(
+        kafka_source,
+        "spark",
+        new_callable=mocker.PropertyMock(
+            return_value=mocker.Mock(
+                readStream=mocker.Mock(
+                    format=mocker.Mock(
+                        return_value=mocker.Mock(
+                            options=mocker.Mock(
+                                return_value=mocker.Mock(
+                                    load=mocker.Mock(side_effect=Exception)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+    )
     assert kafka_source.pre_read_validation()
     with pytest.raises(Exception):
         kafka_source.read_stream()
-

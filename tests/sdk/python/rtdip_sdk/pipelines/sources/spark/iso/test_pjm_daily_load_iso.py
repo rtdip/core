@@ -18,7 +18,7 @@ from io import StringIO
 import pandas as pd
 from requests import HTTPError
 
-sys.path.insert(0, '.')
+sys.path.insert(0, ".")
 import pytest
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import PJMDailyLoadISOSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import PJM_SCHEMA
@@ -26,10 +26,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
-iso_configuration = {
-    "load_type": "forecast",
-    "api_key": "SAMPLE"
-}
+iso_configuration = {"load_type": "forecast", "api_key": "SAMPLE"}
 
 raw_api_forecast_response = (
     "evaluated_at_datetime_utc,evaluated_at_datetime_ept,forecast_datetime_beginning_utc,"
@@ -58,7 +55,6 @@ raw_api_actual_response = (
     "70.00,69.94,2.42\n"
     "7/8/2023 4:00:00 AM,7/8/2023 12:00:00 AM,7/8/2023 5:00:00 AM,7/8/2023 1:00:00 AM,7/9/2023 8:00:24 AM,ComEd,"
     "10.00,10.06,9.80\n"
-
 )
 
 expected_forecast_data = (
@@ -85,7 +81,9 @@ def test_pjm_daily_load_iso_read_setup(spark_session: SparkSession):
     iso_source = PJMDailyLoadISOSource(spark_session, iso_configuration)
 
     assert iso_source.system_type().value == 2
-    assert iso_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
+    assert iso_source.libraries() == Libraries(
+        maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[]
+    )
 
     assert isinstance(iso_source.settings(), dict)
 
@@ -153,7 +151,9 @@ def test_pjm_daily_load_iso_read_setup(spark_session: SparkSession):
 #     assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
 
 
-def test_pjm_daily_load_iso_iso_fetch_url_fails(spark_session: SparkSession, mocker: MockerFixture):
+def test_pjm_daily_load_iso_iso_fetch_url_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
     base_iso_source = PJMDailyLoadISOSource(spark_session, iso_configuration)
     sample_bytes = bytes("Unknown Error".encode("utf-8"))
 
@@ -167,16 +167,21 @@ def test_pjm_daily_load_iso_iso_fetch_url_fails(spark_session: SparkSession, moc
     with pytest.raises(HTTPError) as exc_info:
         base_iso_source.read_batch()
 
-    expected = ("Unable to access URL `https://api.pjm.com/api/v1/`."
-                " Received status code 401 with message b'Unknown Error'")
+    expected = (
+        "Unable to access URL `https://api.pjm.com/api/v1/`."
+        " Received status code 401 with message b'Unknown Error'"
+    )
     assert str(exc_info.value) == expected
 
 
 def test_pjm_daily_load_iso_invalid_load_type(spark_session: SparkSession):
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMDailyLoadISOSource(spark_session, {**iso_configuration, "load_type": "both"})
+        iso_source = PJMDailyLoadISOSource(
+            spark_session, {**iso_configuration, "load_type": "both"}
+        )
         iso_source.pre_read_validation()
 
-    assert str(exc_info.value) == "Invalid load_type `both` given. Supported values are ['actual', 'forecast']."
-
-
+    assert (
+        str(exc_info.value)
+        == "Invalid load_type `both` given. Supported values are ['actual', 'forecast']."
+    )
