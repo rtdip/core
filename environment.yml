@@ -50,7 +50,7 @@ dependencies:
     - python-dotenv==1.0.0
     - mkdocstrings==0.22.0
     - mkdocstrings-python==1.4.0
-    - mkdocs-macros-plugin==1.0.4
+    - mkdocs-macros-plugin==1.0.1
     - pygments==2.16.1
     - pymdown-extensions==10.1.0
     - databricks-sql-connector==2.9.2
