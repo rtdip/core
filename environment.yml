@@ -55,7 +55,6 @@ dependencies:
     - pymdown-extensions==10.1.0
     - databricks-sql-connector==2.9.2
     - databricks-sdk==0.6.0
-    - langchain==0.0.268
     - semver==3.0.0
     - xlrd==2.0.1
     - pygithub==1.59.0
@@ -74,6 +73,7 @@ dependencies:
         - azure-functions==1.15.0
         - nest_asyncio==1.5.6
         - hvac==1.1.1
+        - langchain==0.0.268
         - build==0.10.0
         - deltalake==0.10.1
         - mkdocs-material==9.2.0b3
