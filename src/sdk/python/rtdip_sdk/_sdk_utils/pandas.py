@@ -19,8 +19,11 @@ from .compare_versions import _package_version_meets_minimum
 def _prepare_pandas_to_convert_to_spark(df: DataFrame) -> DataFrame:
     # Spark < 3.4.0 does not support iteritems method in Pandas > 2.0.1
     try:
-        _package_version_meets_minimum("pyspark", "3.4.0")
+        _package_version_meets_minimum("pandas", "2.0.0")
+        try:
+            _package_version_meets_minimum("pyspark", "3.4.0")
+        except:
+            df.iteritems = df.items
+        return df
     except:
-        df.iteritems = df.items
-
-    return df
+        return df
