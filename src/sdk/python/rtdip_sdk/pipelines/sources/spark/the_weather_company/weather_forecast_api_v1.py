@@ -17,11 +17,11 @@ import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType, DoubleType, IntegerType
 
-from .base_weather import BaseWeatherSource
+from .base_weather import SparkWeatherCompanyBaseWeatherSource
 from ...._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
 
 
-class WeatherForecastAPIV1Source(BaseWeatherSource):
+class SparkWeatherCompanyForecastAPIV1Source(SparkWeatherCompanyBaseWeatherSource):
     """
     The Weather Forecast API V1 Source is used to read 15 days forecast from the Weather API.
 

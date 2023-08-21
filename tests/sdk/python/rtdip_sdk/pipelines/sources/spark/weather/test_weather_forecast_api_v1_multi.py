@@ -16,7 +16,7 @@ import json
 import pandas as pd
 import pytest
 
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather import (
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.the_weather_company import (
     WeatherForecastAPIV1MultiSource,
 )
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import (

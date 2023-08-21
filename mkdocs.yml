@@ -195,12 +195,12 @@ nav:
                       - ISO:
                           - MISO To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md
                           - PJM To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/pjm_to_mdm.md
-                      - Weather:
+                      - The Weather Company:
                           - Raw Forecast To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md
-                          - ECMWF:
-                                - .nc MARS Forecast Extract Base To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractbase_to_weather_data_model.md
-                                - .nc MARS Forecast Extract Point To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractpoint_to_weather_data_model.md
-                                - .nc MARS Forecast Extract Grid To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractgrid_to_weather_data_model.md
+                      - ECMWF:
+                          - .nc MARS Forecast Extract Base To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractbase_to_weather_data_model.md
+                          - .nc MARS Forecast Extract Point To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractpoint_to_weather_data_model.md
+                          - .nc MARS Forecast Extract Grid To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractgrid_to_weather_data_model.md
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md

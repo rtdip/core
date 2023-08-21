@@ -21,10 +21,9 @@ from .spark.kafka import *
 from .spark.kafka_eventhub import *
 from .spark.kinesis import *
 from .spark.iso import *
-from .spark.weather import *
+from .spark.the_weather_company import *
 from .python.delta import *
 from .python.delta_sharing import *
-from .spark.weather.ECMWF.base_mars_ecmwf import *
-from .spark.weather.weather_forecast_api_v1 import *
-from .spark.weather.weather_forecast_api_v1_multi import *
-from .spark.weather.ECMWF.weather_forecast_ecmwf import *
+from .spark.the_weather_company.weather_forecast_api_v1 import *
+from .spark.the_weather_company.weather_forecast_api_v1_multi import *
+from .spark.ecmwf.weather_forecast import *

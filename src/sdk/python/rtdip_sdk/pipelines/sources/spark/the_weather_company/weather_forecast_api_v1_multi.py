@@ -16,10 +16,10 @@ import pandas as pd
 from pyspark.sql import SparkSession
 
 from ...._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
-from .weather_forecast_api_v1 import WeatherForecastAPIV1Source
+from .weather_forecast_api_v1 import SparkWeatherCompanyForecastAPIV1Source
 
 
-class WeatherForecastAPIV1MultiSource(WeatherForecastAPIV1Source):
+class WeatherForecastAPIV1MultiSource(SparkWeatherCompanyForecastAPIV1Source):
     """
     The Weather Forecast API V1 Multi Source is used to read 15 days forecast from the Weather API. It allows to
     pull weather data for multiple stations and returns all of them in a single DataFrame.

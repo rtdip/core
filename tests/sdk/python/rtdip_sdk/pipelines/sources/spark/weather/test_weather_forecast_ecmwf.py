@@ -18,7 +18,7 @@ import os
 
 from pyspark.sql import SparkSession
 
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.ECMWF.weather_forecast_ecmwf import (
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.the_weather_company.ECMWF.weather_forecast_ecmwf import (
     WeatherForecastECMWFSource,
 )
 

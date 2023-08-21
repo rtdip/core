@@ -16,7 +16,7 @@ import numpy as np
 
 from pytest_mock import MockerFixture
 from unittest.mock import Mock, patch
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.weather.ECMWF.base_mars_ecmwf import (
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.the_weather_company.ECMWF.base_mars_ecmwf import (
     BaseMarsECMWFSource,
 )
 

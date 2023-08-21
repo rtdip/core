@@ -17,13 +17,13 @@ import pandas as pd
 import numpy as np
 
 from ....interfaces import SourceInterface
-from ....._pipeline_utils.models import Libraries, SystemType
-from .base_mars_ecmwf import BaseMarsECMWFSource
+from ...._pipeline_utils.models import Libraries, SystemType
+from .base_mars import SparkeECMWFBaseMarsSource
 
 from pyspark.sql import SparkSession
 
 
-class WeatherForecastECMWFSource(SourceInterface):
+class SparkECMWFWeatherForecastSource(SourceInterface):
     """
     The Weather Forecast API V1 Source class to doownload nc files from ECMWF MARS server using the ECMWF python API.
 
@@ -144,7 +144,7 @@ class WeatherForecastECMWFSource(SourceInterface):
         lead_times = self._get_lead_time()
         para = self._get_api_params(lead_times=lead_times)
 
-        ec_conn = BaseMarsECMWFSource(
+        ec_conn = SparkeECMWFBaseMarsSource(
             date_start=self.date_start,
             date_end=self.date_end,
             save_path=self.save_path,

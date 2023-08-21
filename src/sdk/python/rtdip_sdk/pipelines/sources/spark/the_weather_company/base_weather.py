@@ -19,7 +19,7 @@ from requests import HTTPError
 from ..iso import BaseISOSource
 
 
-class BaseWeatherSource(BaseISOSource):
+class SparkWeatherCompanyBaseWeatherSource(BaseISOSource):
     """
     Base class for all the Weather related sources. Provides common functionality.
 
