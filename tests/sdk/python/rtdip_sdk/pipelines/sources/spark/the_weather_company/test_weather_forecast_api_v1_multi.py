@@ -381,7 +381,7 @@ def test_weather_forecast_api_v1_multi_invalid_stations(spark_session: SparkSess
     )
 
     with pytest.raises(ValueError) as exc_info:
-        iso_source = WeatherForecastAPIV1MultiSource(
+        iso_source = SparkWeatherCompanyForecastAPIV1Source(
             spark_session, {**configuration, "stations": ["45, "]}
         )
         iso_source.pre_read_validation()
