@@ -17,7 +17,7 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 
-from ....interfaces import TransformerInterface
+from ...interfaces import TransformerInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 from ...._pipeline_utils.weather_ecmwf import (
     RTDIP_STRING_WEATHER_DATA_MODEL,

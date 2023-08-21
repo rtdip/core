@@ -24,7 +24,7 @@ from joblib import Parallel, delayed
 load_dotenv()
 
 
-class SparkeECMWFBaseMarsSource:
+class SparkECMWFBaseMarsSource:
     """
     Download nc files from ECMWF MARS server using the ECMWF python API.
     Data is downloaded in parallel using joblib from ECMWF MARS server using the ECMWF python API.
