@@ -13,19 +13,32 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.pandas_to_pyspark import PandasToPySparkTransformer
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+
+sys.path.insert(0, ".")
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.pandas_to_pyspark import (
+    PandasToPySparkTransformer,
+)
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    SystemType,
+)
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 import pandas as pd
 
-def test_pandas_to_pyspark(spark_session: SparkSession):
-    expected_df = spark_session.createDataFrame([(1, "a"), (2, "b"),], ["col1", "col2"])
 
-    df = pd.DataFrame([[1, 'a'], [2, 'b']], columns=["col1", "col2"])
-    
+def test_pandas_to_pyspark(spark_session: SparkSession):
+    expected_df = spark_session.createDataFrame(
+        [
+            (1, "a"),
+            (2, "b"),
+        ],
+        ["col1", "col2"],
+    )
+
+    df = pd.DataFrame([[1, "a"], [2, "b"]], columns=["col1", "col2"])
+
     pyspark_conversion_transformer = PandasToPySparkTransformer(spark_session, df)
     actual_df = pyspark_conversion_transformer.transform()
 

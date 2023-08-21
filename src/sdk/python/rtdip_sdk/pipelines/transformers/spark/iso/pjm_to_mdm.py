@@ -46,4 +46,3 @@ class PJMToMDMTransformer(BaseRawToMDMTransformer):
     model_type = ModelType.Default
     value_type = ValueType.Usage
     properties_col = "null"
-

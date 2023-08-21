@@ -24,14 +24,16 @@ from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class DeltaTableColumn(BaseModel):
     name: str
     type: str
     nullable: bool
     metadata: Optional[dict]
 
+
 class DeltaTableCreateUtility(UtilitiesInterface):
-    '''
+    """
     Creates a Delta Table in a Hive Metastore or in Databricks Unity Catalog.
 
     Args:
@@ -62,9 +64,10 @@ class DeltaTableCreateUtility(UtilitiesInterface):
             comment="Creation of Delta Table"
         )
 
-        result = table_create_utility.execute()       
+        result = table_create_utility.execute()
         ```
-    ''' 
+    """
+
     spark: SparkSession
     table_name: str
     columns: List[DeltaTableColumn]
@@ -73,7 +76,16 @@ class DeltaTableCreateUtility(UtilitiesInterface):
     properties: dict
     comment: str
 
-    def __init__(self, spark: SparkSession, table_name: str, columns: List[StructField], partitioned_by: List[str] = None, location: str = None, properties: dict = None, comment: str = None) -> None:
+    def __init__(
+        self,
+        spark: SparkSession,
+        table_name: str,
+        columns: List[StructField],
+        partitioned_by: List[str] = None,
+        location: str = None,
+        properties: dict = None,
+        comment: str = None,
+    ) -> None:
         self.spark = spark
         self.table_name = table_name
         self.columns = columns
@@ -84,10 +96,10 @@ class DeltaTableCreateUtility(UtilitiesInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -95,7 +107,7 @@ class DeltaTableCreateUtility(UtilitiesInterface):
         libraries = Libraries()
         libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
@@ -105,8 +117,7 @@ class DeltaTableCreateUtility(UtilitiesInterface):
             columns = [StructField.fromJson(column.dict()) for column in self.columns]
 
             delta_table = (
-                DeltaTable
-                .createIfNotExists(self.spark)
+                DeltaTable.createIfNotExists(self.spark)
                 .tableName(self.table_name)
                 .addColumns(columns)
             )
@@ -120,13 +131,13 @@ class DeltaTableCreateUtility(UtilitiesInterface):
             if self.properties is not None:
                 for key, value in self.properties.items():
                     delta_table = delta_table.property(key, value)
-            
+
             if self.comment is not None:
                 delta_table = delta_table.comment(self.comment)
 
             delta_table.execute()
             return True
-        
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e

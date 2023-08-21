@@ -24,7 +24,7 @@ from . import PJMDailyLoadISOSource
 
 class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
     """
-    The PJM Historical Load ISO Source is used to read historical load data from PJM API. 
+    The PJM Historical Load ISO Source is used to read historical load data from PJM API.
 
     API:               <a href="https://api.pjm.com/api/v1/">https://api.pjm.com/api/v1/</a>  (must be a valid apy key from PJM)
 
@@ -49,7 +49,7 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
 
     spark: SparkSession
     options: dict
-    required_options = ["api_key", "start_date", "end_date"]  
+    required_options = ["api_key", "start_date", "end_date"]
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
         super().__init__(spark, options)
@@ -72,22 +72,32 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
             Raw form of data.
         """
 
-        logging.info(f"Historical load requested from {self.start_date} to {self.end_date}")
+        logging.info(
+            f"Historical load requested from {self.start_date} to {self.end_date}"
+        )
         start_date = datetime.strptime(self.start_date, self.user_datetime_format)
-        end_date = datetime.strptime(self.end_date, self.user_datetime_format).replace(hour=23)
+        end_date = datetime.strptime(self.end_date, self.user_datetime_format).replace(
+            hour=23
+        )
 
         days_diff = (end_date - start_date).days
         logging.info(f"Expected hours for a single zone = {(days_diff + 1) * 24}")
         generated_days_ranges = []
-        dates = pd.date_range(start_date, end_date, freq=pd.DateOffset(days=self.query_batch_days))
+        dates = pd.date_range(
+            start_date, end_date, freq=pd.DateOffset(days=self.query_batch_days)
+        )
 
         for date in dates:
             py_date = date.to_pydatetime()
-            date_last = (py_date + timedelta(days=self.query_batch_days - 1)).replace(hour=23)
+            date_last = (py_date + timedelta(days=self.query_batch_days - 1)).replace(
+                hour=23
+            )
             date_last = min(date_last, end_date)
             generated_days_ranges.append((py_date, date_last))
 
-        logging.info(f"Generated date ranges for batch days {self.query_batch_days} are {generated_days_ranges}")
+        logging.info(
+            f"Generated date ranges for batch days {self.query_batch_days} are {generated_days_ranges}"
+        )
 
         # Collect all historical data on yearly basis.
         dfs = []
@@ -95,7 +105,9 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
             start_date_str = date_range[0].strftime(self.query_datetime_format)
             end_date_str = date_range[1].strftime(self.query_datetime_format)
 
-            df = pd.read_csv(BytesIO(self._fetch_from_url("", start_date_str, end_date_str)))
+            df = pd.read_csv(
+                BytesIO(self._fetch_from_url("", start_date_str, end_date_str))
+            )
             dfs.append(df)
 
             if idx > 0 and idx % self.request_count == 0:
@@ -105,7 +117,6 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
         df = pd.concat(dfs, sort=False)
         df = df.reset_index(drop=True)
         return df
-    
 
     def _validate_options(self) -> bool:
         """
@@ -122,12 +133,16 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
         try:
             start_date = datetime.strptime(self.start_date, self.user_datetime_format)
         except ValueError:
-            raise ValueError(f"Unable to parse Start date. Please specify in {self.user_datetime_format} format.")
+            raise ValueError(
+                f"Unable to parse Start date. Please specify in {self.user_datetime_format} format."
+            )
 
         try:
             end_date = datetime.strptime(self.end_date, self.user_datetime_format)
         except ValueError:
-            raise ValueError(f"Unable to parse End date. Please specify in {self.user_datetime_format} format.")
+            raise ValueError(
+                f"Unable to parse End date. Please specify in {self.user_datetime_format} format."
+            )
 
         if start_date > datetime.utcnow() - timedelta(days=1):
             raise ValueError("Start date can't be in future.")

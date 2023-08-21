@@ -29,7 +29,7 @@ eventhub_system_properties = [
     "x-opt-enqueued-time",
     "x-opt-sequence-number",
     "x-opt-offset",
-    "x-opt-publisher",    
+    "x-opt-publisher",
     "x-opt-partition-key",
     "message-id",
     "iothub-enqueuedtime",
@@ -41,19 +41,20 @@ eventhub_system_properties = [
     "iothub-app-iothub-creation-time-utc",
     "iothub-creation-time-utc",
     "dt-dataschema",
-    "dt-subject"
+    "dt-subject",
 ]
 
+
 class SparkKafkaEventhubSource(SourceInterface):
-    '''
+    """
     This Spark source class is used to read batch or streaming data from an Eventhub using the Kafka protocol. This enables Eventhubs to be used as a source in applications like Delta Live Tables or Databricks Serverless Jobs as the Spark Eventhubs JAR is not supported in this scenarios.
-    
+
     The dataframe returned is transformed to ensure the schema is as close to the Eventhub Spark source as possible. There are some minor differences:
-    
+
     - `offset` is dependent on `x-opt-offset` being populated in the headers provided. If this is not found in the headers, the value will be null
     - `publisher` is dependent on `x-opt-publisher` being populated in the headers provided. If this is not found in the headers, the value will be null
     - `partitionKey` is dependent on `x-opt-partition-key` being populated in the headers provided. If this is not found in the headers, the value will be null
-    - `systemProperties` are identified according to the list provided in the [Eventhub documentation](https://learn.microsoft.com/en-us/azure/data-explorer/ingest-data-event-hub-overview#event-system-properties-mapping){ target="_blank" } and [IoT Hub documentation](https://learn.microsoft.com/en-us/azure/data-explorer/ingest-data-iot-hub-overview#event-system-properties-mapping){ target="_blank" } 
+    - `systemProperties` are identified according to the list provided in the [Eventhub documentation](https://learn.microsoft.com/en-us/azure/data-explorer/ingest-data-event-hub-overview#event-system-properties-mapping){ target="_blank" } and [IoT Hub documentation](https://learn.microsoft.com/en-us/azure/data-explorer/ingest-data-iot-hub-overview#event-system-properties-mapping){ target="_blank" }
 
     Default settings will be specified if not provided in the `options` parameter:
 
@@ -62,35 +63,35 @@ class SparkKafkaEventhubSource(SourceInterface):
     - `kafka.request.timeout.ms` will be set to `60000`
     - `kafka.session.timeout.ms` will be set to `60000`
 
-    Required and optional configurations can be found in the Attributes tables below. 
+    Required and optional configurations can be found in the Attributes tables below.
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
-    
+
     Args:
         spark (SparkSession): Spark Session
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
         connection_string (str): Eventhubs connection string is required to connect to the Eventhubs service. This must include the Eventhub name as the `EntityPath` parameter. Example `"Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"`
         consumer_group (str): The Eventhub consumer group to use for the connection
 
-    The following options are the most common configurations for Kafka. 
-    
+    The following options are the most common configurations for Kafka.
+
     The only configuration that must be set for the Kafka source for both batch and streaming queries is listed below.
- 
+
     Attributes:
         kafka.bootstrap.servers (A comma-separated list of host︰port):  The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
 
     There are multiple ways of specifying which topics to subscribe to. You should provide only one of these parameters:
-     
+
     Attributes:
         assign (json string {"topicA"︰[0,1],"topicB"︰[2,4]}):  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
         subscribe (A comma-separated list of topics): The topic list to subscribe. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
         subscribePattern (Java regex string): The pattern used to subscribe to topic(s). Only one of "assign, "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
-    
+
     The following configurations are optional:
 
     Attributes:
-        startingTimestamp (timestamp str): The start point of timestamp when a query is started, a string specifying a starting timestamp for all partitions in topics being subscribed. Please refer the note on starting timestamp offset options below. (Streaming and Batch)     
+        startingTimestamp (timestamp str): The start point of timestamp when a query is started, a string specifying a starting timestamp for all partitions in topics being subscribed. Please refer the note on starting timestamp offset options below. (Streaming and Batch)
         startingOffsetsByTimestamp (JSON str): The start point of timestamp when a query is started, a json string specifying a starting timestamp for each TopicPartition. Please refer the note on starting timestamp offset options below. (Streaming and Batch)
-        startingOffsets ("earliest", "latest" (streaming only), or JSON string): The start point when a query is started, either "earliest" which is from the earliest offsets, "latest" which is just from the latest offsets, or a json string specifying a starting offset for each TopicPartition. In the json, -2 as an offset can be used to refer to earliest, -1 to latest. 
+        startingOffsets ("earliest", "latest" (streaming only), or JSON string): The start point when a query is started, either "earliest" which is from the earliest offsets, "latest" which is just from the latest offsets, or a json string specifying a starting offset for each TopicPartition. In the json, -2 as an offset can be used to refer to earliest, -1 to latest.
         endingTimestamp (timestamp str): The end point when a batch query is ended, a json string specifying an ending timestamp for all partitions in topics being subscribed. Please refer the note on ending timestamp offset options below. (Batch)
         endingOffsetsByTimestamp (JSON str): The end point when a batch query is ended, a json string specifying an ending timestamp for each TopicPartition. Please refer the note on ending timestamp offset options below. (Batch)
         endingOffsets (latest or JSON str): The end point when a batch query is ended, either "latest" which is just referred to the latest, or a json string specifying an ending offset for each TopicPartition. In the json, -1 as an offset can be used to refer to latest, and -2 (earliest) as an offset is not allowed. (Batch)
@@ -99,36 +100,44 @@ class SparkKafkaEventhubSource(SourceInterface):
         failOnDataLoss (bool): Whether to fail the query when it's possible that data is lost (e.g., topics are deleted, or offsets are out of range). This may be a false alarm. You can disable it when it doesn't work as you expected.
         minPartitions (int): Desired minimum number of partitions to read from Kafka. By default, Spark has a 1-1 mapping of topicPartitions to Spark partitions consuming from Kafka. (Streaming and Batch)
         includeHeaders (bool): Whether to include the Kafka headers in the row. (Streaming and Batch)
-    
+
     !!! note "Starting Timestamp Offset Note"
         If Kafka doesn't return the matched offset, the behavior will follow to the value of the option <code>startingOffsetsByTimestampStrategy</code>.
-        
+
         <code>startingTimestamp</code> takes precedence over <code>startingOffsetsByTimestamp</code> and </code>startingOffsets</code>.
 
         For streaming queries, this only applies when a new query is started, and that resuming will always pick up from where the query left off. Newly discovered partitions during a query will start at earliest.
 
     !!! note "Ending Timestamp Offset Note"
         If Kafka doesn't return the matched offset, the offset will be set to latest.
-        
+
         <code>endingOffsetsByTimestamp</code> takes precedence over <code>endingOffsets</code>.
 
-    '''
-    def __init__(self, spark: SparkSession, options: dict, connection_string: str, consumer_group: str) -> None:
+    """
+
+    def __init__(
+        self,
+        spark: SparkSession,
+        options: dict,
+        connection_string: str,
+        consumer_group: str,
+    ) -> None:
         self.spark = spark
         self.options = options
         self.connection_string = connection_string
         self.consumer_group = consumer_group
-        self.connection_string_properties = self._parse_connection_string(connection_string)
+        self.connection_string_properties = self._parse_connection_string(
+            connection_string
+        )
         self.schema = KAFKA_EVENTHUB_SCHEMA
         self.options = self._configure_options(options)
 
-
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -136,14 +145,14 @@ class SparkKafkaEventhubSource(SourceInterface):
         spark_libraries = Libraries()
         spark_libraries.add_maven_library(get_default_package("spark_sql_kafka"))
         return spark_libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_read_validation(self) -> bool:
         return True
-    
+
     def post_read_validation(self, df: DataFrame) -> bool:
         assert df.schema == self.schema
         return True
@@ -191,21 +200,34 @@ class SparkKafkaEventhubSource(SourceInterface):
         connection_string = "Endpoint=" + properties.get("endpoint") + ";"
 
         if properties.get("shared_access_key"):
-            connection_string += "SharedAccessKey=" + properties.get("shared_access_key") + ";"
+            connection_string += (
+                "SharedAccessKey=" + properties.get("shared_access_key") + ";"
+            )
 
         if properties.get("shared_access_key_name"):
-            connection_string += "SharedAccessKeyName=" + properties.get("shared_access_key_name") + ";"
+            connection_string += (
+                "SharedAccessKeyName=" + properties.get("shared_access_key_name") + ";"
+            )
 
         if properties.get("shared_access_signature"):
-            connection_string += "SharedAccessSignature=" + properties.get("shared_access_signature") + ";"
+            connection_string += (
+                "SharedAccessSignature="
+                + properties.get("shared_access_signature")
+                + ";"
+            )
         return connection_string
-    
+
     def _configure_options(self, options: dict) -> dict:
         if "subscribe" not in options:
-            options["subscribe"] = self.connection_string_properties.get("eventhub_name")
-        
+            options["subscribe"] = self.connection_string_properties.get(
+                "eventhub_name"
+            )
+
         if "kafka.bootstrap.servers" not in options:
-            options["kafka.bootstrap.servers"] = self.connection_string_properties.get("fully_qualified_namespace") + ":9093"
+            options["kafka.bootstrap.servers"] = (
+                self.connection_string_properties.get("fully_qualified_namespace")
+                + ":9093"
+            )
 
         if "kafka.sasl.mechanism" not in options:
             options["kafka.sasl.mechanism"] = "PLAIN"
@@ -217,8 +239,14 @@ class SparkKafkaEventhubSource(SourceInterface):
             kafka_package = "org.apache.kafka.common.security.plain.PlainLoginModule"
             if "DATABRICKS_RUNTIME_VERSION" in os.environ:
                 kafka_package = "kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule"
-            connection_string = self._connection_string_builder(self.connection_string_properties)
-            options["kafka.sasl.jaas.config"] = "{} required username=\"$ConnectionString\" password=\"{}\";".format(kafka_package, connection_string) # NOSONAR
+            connection_string = self._connection_string_builder(
+                self.connection_string_properties
+            )
+            options[
+                "kafka.sasl.jaas.config"
+            ] = '{} required username="$ConnectionString" password="{}";'.format(
+                kafka_package, connection_string
+            )  # NOSONAR
 
         if "kafka.request.timeout.ms" not in options:
             options["kafka.request.timeout.ms"] = "60000"
@@ -230,24 +258,38 @@ class SparkKafkaEventhubSource(SourceInterface):
             options["kafka.group.id"] = self.consumer_group
 
         options["includeHeaders"] = "true"
-        
+
         return options
 
     def _transform_to_eventhub_schema(self, df: DataFrame) -> DataFrame:
-        return (df
-            .withColumn("headers", map_from_entries(col("headers")))
+        return (
+            df.withColumn("headers", map_from_entries(col("headers")))
             .select(
                 col("value").alias("body"),
                 col("partition").cast("string"),
                 col("offset").alias("sequenceNumber"),
                 col("timestamp").alias("enqueuedTime"),
-                decode_kafka_headers_to_amqp_properties(col("headers")).alias("properties")
+                decode_kafka_headers_to_amqp_properties(col("headers")).alias(
+                    "properties"
+                ),
             )
             .withColumn("offset", col("properties").getItem("x-opt-offset"))
             .withColumn("publisher", col("properties").getItem("x-opt-publisher"))
-            .withColumn("partitionKey", col("properties").getItem("x-opt-partition-key"))
-            .withColumn("systemProperties", map_filter(col("properties"), lambda k, _: k.isin(eventhub_system_properties)))
-            .withColumn("properties", map_filter(col("properties"), lambda k, _: ~k.isin(eventhub_system_properties)))
+            .withColumn(
+                "partitionKey", col("properties").getItem("x-opt-partition-key")
+            )
+            .withColumn(
+                "systemProperties",
+                map_filter(
+                    col("properties"), lambda k, _: k.isin(eventhub_system_properties)
+                ),
+            )
+            .withColumn(
+                "properties",
+                map_filter(
+                    col("properties"), lambda k, _: ~k.isin(eventhub_system_properties)
+                ),
+            )
             .select(
                 col("body"),
                 col("partition"),
@@ -257,43 +299,33 @@ class SparkKafkaEventhubSource(SourceInterface):
                 col("publisher"),
                 col("partitionKey"),
                 col("properties"),
-                col("systemProperties")
-            )            
-        )
-    
-    def read_batch(self) -> DataFrame:
-        '''
-        Reads batch data from Kafka.
-        '''
-        try:
-            df = (self.spark
-                .read
-                .format("kafka")
-                .options(**self.options)
-                .load()
+                col("systemProperties"),
             )
+        )
+
+    def read_batch(self) -> DataFrame:
+        """
+        Reads batch data from Kafka.
+        """
+        try:
+            df = self.spark.read.format("kafka").options(**self.options).load()
             return self._transform_to_eventhub_schema(df)
-        
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def read_stream(self) -> DataFrame:
-        '''
+        """
         Reads streaming data from Kafka.
-        '''
+        """
         try:
-            df = (self.spark
-                .readStream
-                .format("kafka")
-                .options(**self.options)
-                .load()
-            )
+            df = self.spark.readStream.format("kafka").options(**self.options).load()
             return self._transform_to_eventhub_schema(df)
-        
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e

@@ -81,13 +81,18 @@ class MISODailyLoadISOSource(BaseISOSource):
 
         """
 
-        df.drop(df.index[(df['HourEnding'] == 'HourEnding') | df['MISO MTLF (MWh)'].isna()], inplace=True)
-        df.rename(columns={'Market Day': 'date'}, inplace=True)
+        df.drop(
+            df.index[(df["HourEnding"] == "HourEnding") | df["MISO MTLF (MWh)"].isna()],
+            inplace=True,
+        )
+        df.rename(columns={"Market Day": "date"}, inplace=True)
 
-        df['date_time'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['HourEnding'].astype(int) - 1, 'h')
-        df.drop(['HourEnding', 'date'], axis=1, inplace=True)
+        df["date_time"] = pd.to_datetime(df["date"]) + pd.to_timedelta(
+            df["HourEnding"].astype(int) - 1, "h"
+        )
+        df.drop(["HourEnding", "date"], axis=1, inplace=True)
 
-        data_cols = df.columns[df.columns != 'date_time']
+        data_cols = df.columns[df.columns != "date_time"]
         df[data_cols] = df[data_cols].astype(float)
 
         df.reset_index(inplace=True, drop=True)
@@ -108,24 +113,24 @@ class MISODailyLoadISOSource(BaseISOSource):
         skip_col_suffix = ""
 
         if self.load_type == "actual":
-            skip_col_suffix = 'MTLF (MWh)'
+            skip_col_suffix = "MTLF (MWh)"
 
         elif self.load_type == "forecast":
-            skip_col_suffix = 'ActualLoad (MWh)'
+            skip_col_suffix = "ActualLoad (MWh)"
 
         df = df[[x for x in df.columns if not x.endswith(skip_col_suffix)]]
         df = df.dropna()
-        df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
+        df.columns = [str(x.split(" ")[0]).upper() for x in df.columns]
 
         rename_cols = {
-            'LRZ1': 'Lrz1',
-            'LRZ2_7': 'Lrz2_7',
-            'LRZ3_5': 'Lrz3_5',
-            'LRZ4': 'Lrz4',
-            'LRZ6': 'Lrz6',
-            'LRZ8_9_10': 'Lrz8_9_10',
-            'MISO': 'Miso',
-            'DATE_TIME': 'Datetime'
+            "LRZ1": "Lrz1",
+            "LRZ2_7": "Lrz2_7",
+            "LRZ3_5": "Lrz3_5",
+            "LRZ4": "Lrz4",
+            "LRZ6": "Lrz6",
+            "LRZ8_9_10": "Lrz8_9_10",
+            "MISO": "Miso",
+            "DATE_TIME": "Datetime",
         }
 
         df = df.rename(columns=rename_cols)
@@ -154,6 +159,8 @@ class MISODailyLoadISOSource(BaseISOSource):
         valid_load_types = ["actual", "forecast"]
 
         if self.load_type not in valid_load_types:
-            raise ValueError(f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}.")
+            raise ValueError(
+                f"Invalid load_type `{self.load_type}` given. Supported values are {valid_load_types}."
+            )
 
         return True

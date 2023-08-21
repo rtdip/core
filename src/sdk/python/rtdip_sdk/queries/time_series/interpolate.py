@@ -16,10 +16,11 @@ import logging
 import pandas as pd
 from ._query_builder import _query_builder
 
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
-    '''
+    """
     An RTDIP interpolation function that is intertwined with the RTDIP Resampling function.
-    
+
     The Interpolation function will forward fill, backward fill or linearly interpolate the resampled data depending users specified interpolation method.
 
     This function requires the user to input a dictionary of parameters. (See Attributes table below.)
@@ -32,7 +33,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         business_unit (str): Business unit of the data
         region (str): Region
         asset (str):  Asset
-        data_security_level (str): Level of data security 
+        data_security_level (str): Level of data security
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (list): List of tagname or tagnames ["tag_1", "tag_2"]
         start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
@@ -47,16 +48,20 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
     Returns:
         DataFrame: A resampled and interpolated dataframe.
-    '''
+    """
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
-    
+
     if "sample_rate" in parameters_dict:
-        logging.warning('Parameter sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.')
+        logging.warning(
+            "Parameter sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead."
+        )
         parameters_dict["time_interval_rate"] = parameters_dict["sample_rate"]
 
     if "sample_unit" in parameters_dict:
-        logging.warning('Parameter sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.')
+        logging.warning(
+            "Parameter sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead."
+        )
         parameters_dict["time_interval_unit"] = parameters_dict["sample_unit"]
 
     try:
@@ -70,9 +75,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             connection.close()
             return df
         except Exception as e:
-            logging.exception('error returning dataframe')
+            logging.exception("error returning dataframe")
             raise e
 
     except Exception as e:
-        logging.exception('error with interpolate function')
+        logging.exception("error with interpolate function")
         raise e

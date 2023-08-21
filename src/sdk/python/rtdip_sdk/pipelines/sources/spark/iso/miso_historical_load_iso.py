@@ -21,20 +21,20 @@ from . import MISODailyLoadISOSource
 
 class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
     """
-        The MISO Historical Load ISO Source is used to read historical load data from MISO API.
+    The MISO Historical Load ISO Source is used to read historical load data from MISO API.
 
-        API: <a href="https://docs.misoenergy.org/marketreports/">https://docs.misoenergy.org/marketreports/</a>
+    API: <a href="https://docs.misoenergy.org/marketreports/">https://docs.misoenergy.org/marketreports/</a>
 
-        Args:
-            spark (SparkSession): Spark Session instance
-            options (dict): A dictionary of ISO Source specific configurations
+    Args:
+        spark (SparkSession): Spark Session instance
+        options (dict): A dictionary of ISO Source specific configurations
 
-        Attributes:
-            start_date (str): Must be in `YYYYMMDD` format.
-            end_date (str): Must be in `YYYYMMDD` format.
-            fill_missing (str): Set to `"true"` to fill missing Actual load with Forecast load. Default - `true`.
+    Attributes:
+        start_date (str): Must be in `YYYYMMDD` format.
+        end_date (str): Must be in `YYYYMMDD` format.
+        fill_missing (str): Set to `"true"` to fill missing Actual load with Forecast load. Default - `true`.
 
-        """
+    """
 
     spark: SparkSession
     options: dict
@@ -48,16 +48,26 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
     def _get_historical_data_for_date(self, date: datetime) -> pd.DataFrame:
         logging.info(f"Getting historical data for date {date}")
-        df = pd.read_excel(self._fetch_from_url(f"{date.strftime(self.query_datetime_format)}_dfal_HIST.xls"),
-                           skiprows=5)
+        df = pd.read_excel(
+            self._fetch_from_url(
+                f"{date.strftime(self.query_datetime_format)}_dfal_HIST.xls"
+            ),
+            skiprows=5,
+        )
 
         if date.month == 12 and date.day == 31:
-            expected_year_rows = pd.Timestamp(date.year, 12, 31).dayofyear * 24 * 7  # Every hour has 7 zones.
-            received_year_rows = len(df[df['MarketDay'] != 'MarketDay']) - 2  # Last 2 rows are invalid.
+            expected_year_rows = (
+                pd.Timestamp(date.year, 12, 31).dayofyear * 24 * 7
+            )  # Every hour has 7 zones.
+            received_year_rows = (
+                len(df[df["MarketDay"] != "MarketDay"]) - 2
+            )  # Last 2 rows are invalid.
 
             if expected_year_rows != received_year_rows:
-                logging.warning(f"Didn't receive full year historical data for year {date.year}."
-                                f" Expected {expected_year_rows} but Received {received_year_rows}")
+                logging.warning(
+                    f"Didn't receive full year historical data for year {date.year}."
+                    f" Expected {expected_year_rows} but Received {received_year_rows}"
+                )
 
         return df
 
@@ -69,17 +79,26 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
             Raw form of data.
         """
 
-        logging.info(f"Historical load requested from {self.start_date} to {self.end_date}")
+        logging.info(
+            f"Historical load requested from {self.start_date} to {self.end_date}"
+        )
 
         start_date = self._get_localized_datetime(self.start_date)
         end_date = self._get_localized_datetime(self.end_date)
 
-        dates = pd.date_range(start_date, end_date + timedelta(days=365), freq='Y', inclusive='left')
+        dates = pd.date_range(
+            start_date, end_date + timedelta(days=365), freq="Y", inclusive="left"
+        )
         logging.info(f"Generated date ranges are - {dates}")
 
         # Collect all historical data on yearly basis.
-        df = pd.concat([self._get_historical_data_for_date(min(date, self.current_date))
-                        for date in dates], sort=False)
+        df = pd.concat(
+            [
+                self._get_historical_data_for_date(min(date, self.current_date))
+                for date in dates
+            ],
+            sort=False,
+        )
 
         return df
 
@@ -95,36 +114,44 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
         """
 
-        df = df[df['MarketDay'] != 'MarketDay']
+        df = df[df["MarketDay"] != "MarketDay"]
 
         # Fill missing actual values with the forecast values to avoid gaps.
         if self.fill_missing:
-            df = df.fillna({'ActualLoad (MWh)': df['MTLF (MWh)']})
+            df = df.fillna({"ActualLoad (MWh)": df["MTLF (MWh)"]})
 
-        df = df.rename(columns={'MarketDay': 'date',
-                                'HourEnding': 'hour',
-                                'ActualLoad (MWh)': 'load',
-                                'LoadResource Zone': 'zone'})
+        df = df.rename(
+            columns={
+                "MarketDay": "date",
+                "HourEnding": "hour",
+                "ActualLoad (MWh)": "load",
+                "LoadResource Zone": "zone",
+            }
+        )
         df = df.dropna()
 
-        df['date_time'] = pd.to_datetime(df['date']) + pd.to_timedelta(df['hour'].astype(int) - 1, 'h')
+        df["date_time"] = pd.to_datetime(df["date"]) + pd.to_timedelta(
+            df["hour"].astype(int) - 1, "h"
+        )
 
-        df.drop(['hour', 'date'], axis=1, inplace=True)
-        df['load'] = df['load'].astype(float)
+        df.drop(["hour", "date"], axis=1, inplace=True)
+        df["load"] = df["load"].astype(float)
 
-        df = df.pivot_table(index='date_time', values='load', columns='zone').reset_index()
+        df = df.pivot_table(
+            index="date_time", values="load", columns="zone"
+        ).reset_index()
 
-        df.columns = [str(x.split(' ')[0]).upper() for x in df.columns]
+        df.columns = [str(x.split(" ")[0]).upper() for x in df.columns]
 
         rename_cols = {
-            'LRZ1': 'Lrz1',
-            'LRZ2_7': 'Lrz2_7',
-            'LRZ3_5': 'Lrz3_5',
-            'LRZ4': 'Lrz4',
-            'LRZ6': 'Lrz6',
-            'LRZ8_9_10': 'Lrz8_9_10',
-            'MISO': 'Miso',
-            'DATE_TIME': 'Datetime'
+            "LRZ1": "Lrz1",
+            "LRZ2_7": "Lrz2_7",
+            "LRZ3_5": "Lrz3_5",
+            "LRZ4": "Lrz4",
+            "LRZ6": "Lrz6",
+            "LRZ8_9_10": "Lrz8_9_10",
+            "MISO": "Miso",
+            "DATE_TIME": "Datetime",
         }
 
         df = df.rename(columns=rename_cols)
@@ -144,12 +171,16 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         """
 
         start_date = self._get_localized_datetime(self.start_date)
-        end_date = self._get_localized_datetime(self.end_date).replace(hour=23, minute=59, second=59)
+        end_date = self._get_localized_datetime(self.end_date).replace(
+            hour=23, minute=59, second=59
+        )
 
-        df = df[(df["Datetime"] >= start_date.replace(tzinfo=None)) &
-                (df["Datetime"] <= end_date.replace(tzinfo=None))]
+        df = df[
+            (df["Datetime"] >= start_date.replace(tzinfo=None))
+            & (df["Datetime"] <= end_date.replace(tzinfo=None))
+        ]
 
-        df = df.sort_values(by='Datetime', ascending=True).reset_index(drop=True)
+        df = df.sort_values(by="Datetime", ascending=True).reset_index(drop=True)
 
         expected_rows = ((min(end_date, self.current_date) - start_date).days + 1) * 24
 
@@ -174,12 +205,16 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         try:
             start_date = self._get_localized_datetime(self.start_date)
         except ValueError:
-            raise ValueError("Unable to parse Start date. Please specify in YYYYMMDD format.")
+            raise ValueError(
+                "Unable to parse Start date. Please specify in YYYYMMDD format."
+            )
 
         try:
             end_date = self._get_localized_datetime(self.end_date)
         except ValueError:
-            raise ValueError("Unable to parse End date. Please specify in YYYYMMDD format.")
+            raise ValueError(
+                "Unable to parse End date. Please specify in YYYYMMDD format."
+            )
 
         if start_date > self.current_date:
             raise ValueError("Start date can't be in future.")

@@ -20,9 +20,10 @@ from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class SparkDeltaSharingSource(SourceInterface):
-    '''
-    The Spark Delta Sharing Source is used to read data from a Delta table where Delta sharing is configured 
+    """
+    The Spark Delta Sharing Source is used to read data from a Delta table where Delta sharing is configured
 
     Args:
         spark (SparkSession): Spark Session required to read data from a Delta table
@@ -39,8 +40,8 @@ class SparkDeltaSharingSource(SourceInterface):
         readChangeFeed (bool str): Stream read the change data feed of the shared table. (Batch & Streaming)
         timestampAsOf (datetime str): Query the Delta Table from a specific point in time. (Batch)
         versionAsOf (int str): Query the Delta Table from a specific version. (Batch)
-    ''' 
-    
+    """
+
     spark: SparkSession
     options: dict
     table_path: str
@@ -52,10 +53,10 @@ class SparkDeltaSharingSource(SourceInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''          
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -63,25 +64,24 @@ class SparkDeltaSharingSource(SourceInterface):
         libraries = Libraries()
         libraries.add_maven_library(get_default_package("spark_delta_sharing"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_read_validation(self):
         return True
-    
+
     def post_read_validation(self):
         return True
 
     def read_batch(self):
-        '''
+        """
         Reads batch data from Delta. Most of the options provided by the Apache Spark DataFrame read API are supported for performing batch reads on Delta tables.
-        '''
+        """
         try:
-            return (self.spark
-                .read
-                .format("deltaSharing")
+            return (
+                self.spark.read.format("deltaSharing")
                 .options(**self.options)
                 .table(self.table_path)
             )
@@ -92,19 +92,18 @@ class SparkDeltaSharingSource(SourceInterface):
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def read_stream(self) -> DataFrame:
-        '''
+        """
         Reads streaming data from Delta. All of the data in the table is processed as well as any new data that arrives after the stream started. .load() can take table name or path.
-        '''
+        """
         try:
-            return (self.spark
-                .readStream
-                .format("deltaSharing")
+            return (
+                self.spark.readStream.format("deltaSharing")
                 .options(**self.options)
                 .load(self.table_path)
             )
-        
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e

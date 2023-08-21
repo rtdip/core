@@ -13,69 +13,56 @@
 # limitations under the License.
 from semver.version import Version
 from .models import MavenLibrary, PyPiLibrary
-from ..._sdk_utils.compare_versions import _get_python_package_version, _get_package_version
+from ..._sdk_utils.compare_versions import (
+    _get_python_package_version,
+    _get_package_version,
+)
+
 
 def get_default_package(package_name):
     delta_spark_artifact_id = "delta-core_2.12"
-    if Version.compare(_get_python_package_version("delta-spark"), Version.parse("3.0.0")) >= 0:
+    if (
+        Version.compare(
+            _get_python_package_version("delta-spark"), Version.parse("3.0.0")
+        )
+        >= 0
+    ):
         delta_spark_artifact_id = "delta-spark_2.12"
     DEFAULT_PACKAGES = {
         "spark_delta_core": MavenLibrary(
-                    group_id="io.delta",
-                    artifact_id=delta_spark_artifact_id,
-                    version=_get_package_version("delta-spark")
-                ),
-        "spark_delta_sharing": MavenLibrary(
-                    group_id="io.delta",
-                    artifact_id="delta-sharing-spark_2.12",
-                    version="0.6.3"
-                ),
-        "spark_azure_eventhub": MavenLibrary(
-                    group_id="com.microsoft.azure",
-                    artifact_id="azure-eventhubs-spark_2.12",
-                    version="2.3.22"
-                ),
-        "spark_sql_kafka": MavenLibrary(
-                    group_id="org.apache.spark",
-                    artifact_id="spark-sql-kafka-0-10_2.12",
-                    version=_get_package_version("pyspark")
-                ),
-        "spark_remote": MavenLibrary(
-                    group_id="org.apache.spark",
-                    artifact_id="spark-connect_2.12",
-                    version=_get_package_version("pyspark")
+            group_id="io.delta",
+            artifact_id=delta_spark_artifact_id,
+            version=_get_package_version("delta-spark"),
         ),
-        "rtdip_sdk": PyPiLibrary(
-                    name="rtdip_sdk",
-                    version="0.5.1"
-                ),
+        "spark_delta_sharing": MavenLibrary(
+            group_id="io.delta", artifact_id="delta-sharing-spark_2.12", version="0.6.3"
+        ),
+        "spark_azure_eventhub": MavenLibrary(
+            group_id="com.microsoft.azure",
+            artifact_id="azure-eventhubs-spark_2.12",
+            version="2.3.22",
+        ),
+        "spark_sql_kafka": MavenLibrary(
+            group_id="org.apache.spark",
+            artifact_id="spark-sql-kafka-0-10_2.12",
+            version=_get_package_version("pyspark"),
+        ),
+        "spark_remote": MavenLibrary(
+            group_id="org.apache.spark",
+            artifact_id="spark-connect_2.12",
+            version=_get_package_version("pyspark"),
+        ),
+        "rtdip_sdk": PyPiLibrary(name="rtdip_sdk", version="0.5.1"),
         "azure_adls_gen_2": PyPiLibrary(
-                    name="azure-storage-file-datalake",
-                    version="12.10.1"
-                ),
+            name="azure-storage-file-datalake", version="12.10.1"
+        ),
         "azure_key_vault_secret": PyPiLibrary(
-                    name="azure-keyvault-secrets",
-                    version="4.7.0"
-                ),
-        "aws_boto3": PyPiLibrary(
-                    name="boto3",
-                    version="1.26.118"
-                ),
-        "hashicorp_vault": PyPiLibrary(
-                    name="hvac",
-                    version="1.1.0"
-                ),
-        "api_requests": PyPiLibrary(
-                    name="requests",
-                    version="2.30.0"
-                ),
-        "pyarrow": PyPiLibrary(
-                    name="pyarrow",
-                    version="12.0.0"
-                ),
-        "pandas": PyPiLibrary(
-                    name="pandas",
-                    version="2.0.1"
-                ),
+            name="azure-keyvault-secrets", version="4.7.0"
+        ),
+        "aws_boto3": PyPiLibrary(name="boto3", version="1.26.118"),
+        "hashicorp_vault": PyPiLibrary(name="hvac", version="1.1.0"),
+        "api_requests": PyPiLibrary(name="requests", version="2.30.0"),
+        "pyarrow": PyPiLibrary(name="pyarrow", version="12.0.0"),
+        "pandas": PyPiLibrary(name="pandas", version="2.0.1"),
     }
     return DEFAULT_PACKAGES[package_name]

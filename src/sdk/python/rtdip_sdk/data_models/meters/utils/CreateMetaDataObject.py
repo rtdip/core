@@ -20,36 +20,39 @@ from ..ami_meters import ModelType
 from ..ami_meters import UomUsage
 
 
-def create_metadata_VO(uid: str,
-                       series_id: str,
-                       series_parent_id: str,
-                       name: str,
-                       uom: UomUsage,
-                       description: str,
-                       timestamp_start: int,
-                       timestamp_end: int,
-                       time_zone: str,
-                       version: str,
-                       series_type: SeriesType,
-                       model_type: ModelType,
-                       value_type: ValueType,
-                       properties: dict):
-    
+def create_metadata_VO(
+    uid: str,
+    series_id: str,
+    series_parent_id: str,
+    name: str,
+    uom: UomUsage,
+    description: str,
+    timestamp_start: int,
+    timestamp_end: int,
+    time_zone: str,
+    version: str,
+    series_type: SeriesType,
+    model_type: ModelType,
+    value_type: ValueType,
+    properties: dict,
+):
     try:
-        return MetaData(Uid = uid,
-                        SeriesId = series_id,
-                        SeriesParentId = series_parent_id,
-                        Name = name,
-                        Uom = uom,
-                        Description = description,
-                        TimestampStart = timestamp_start,
-                        TimestampEnd = timestamp_end,
-                        Timezone = time_zone,
-                        Version = version,
-                        SeriesType = series_type,
-                        ModelType = model_type,
-                        ValueType = value_type,
-                        Properties = properties)
+        return MetaData(
+            Uid=uid,
+            SeriesId=series_id,
+            SeriesParentId=series_parent_id,
+            Name=name,
+            Uom=uom,
+            Description=description,
+            TimestampStart=timestamp_start,
+            TimestampEnd=timestamp_end,
+            Timezone=time_zone,
+            Version=version,
+            SeriesType=series_type,
+            ModelType=model_type,
+            ValueType=value_type,
+            Properties=properties,
+        )
     except Exception as ex:
-        error_msg_str: str = 'Could not create Metadata Value Object: {}'.format(ex)
+        error_msg_str: str = "Could not create Metadata Value Object: {}".format(ex)
         raise SystemError(error_msg_str)

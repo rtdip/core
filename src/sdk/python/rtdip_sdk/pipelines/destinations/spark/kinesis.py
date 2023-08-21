@@ -19,8 +19,9 @@ from py4j.protocol import Py4JJavaError
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
+
 class SparkKinesisDestination(DestinationInterface):
-    '''
+    """
     This Kinesis destination class is used to write batch or streaming data to Kinesis. Kinesis configurations need to be specified as options in a dictionary.
     Args:
         data (DataFrame): Dataframe to be written to Delta
@@ -28,14 +29,22 @@ class SparkKinesisDestination(DestinationInterface):
         mode (str): Method of writing to Kinesis - append, complete, update
         trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
         query_name (str): Unique name for the query in associated SparkSession
-        
+
     Attributes:
         endpointUrl (str): Endpoint of the kinesis stream.
         awsAccessKey (str): AWS access key.
         awsSecretKey (str): AWS secret access key corresponding to the access key.
         streamName (List[str]): Name of the streams in Kinesis to write to.
-    '''
-    def __init__(self, data: DataFrame, options: dict, mode:str = "update", trigger:str= "10 seconds", query_name="KinesisDestination") -> None:
+    """
+
+    def __init__(
+        self,
+        data: DataFrame,
+        options: dict,
+        mode: str = "update",
+        trigger: str = "10 seconds",
+        query_name="KinesisDestination",
+    ) -> None:
         self.data = data
         self.options = options
         self.mode = mode
@@ -44,10 +53,10 @@ class SparkKinesisDestination(DestinationInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK_DATABRICKS
-        '''
+        """
         return SystemType.PYSPARK_DATABRICKS
 
     @staticmethod
@@ -66,34 +75,30 @@ class SparkKinesisDestination(DestinationInterface):
         return True
 
     def write_batch(self):
-        '''
+        """
         Writes batch data to Kinesis.
-        '''
+        """
         try:
-            return (
-                self.data
-                .write
-                .format("kinesis")
-                .options(**self.options)
-                .save()
-            )
+            return self.data.write.format("kinesis").options(**self.options).save()
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def write_stream(self):
-        '''
+        """
         Writes steaming data to Kinesis.
-        '''
+        """
         try:
-            TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
+            TRIGGER_OPTION = (
+                {"availableNow": True}
+                if self.trigger == "availableNow"
+                else {"processingTime": self.trigger}
+            )
             query = (
-                self.data
-                .writeStream
-                .trigger(**TRIGGER_OPTION)
+                self.data.writeStream.trigger(**TRIGGER_OPTION)
                 .format("kinesis")
                 .outputMode(self.mode)
                 .options(**self.options)

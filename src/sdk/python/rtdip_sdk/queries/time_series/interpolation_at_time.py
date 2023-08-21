@@ -16,10 +16,11 @@ import logging
 import pandas as pd
 from ._query_builder import _query_builder
 
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
-    '''
+    """
     An RTDIP interpolation at time function which works out the linear interpolation at a specific time based on the points before and after.
-    
+
     This function requires the user to input a dictionary of parameters. (See Attributes table below.)
 
     Args:
@@ -30,7 +31,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         business_unit (str): Business unit of the data
         region (str): Region
         asset (str):  Asset
-        data_security_level (str): Level of data security 
+        data_security_level (str): Level of data security
         data_type (str): Type of the data (float, integer, double, string)
         tag_names (str): Name of the tag
         timestamps (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zz:zz where %z is the timezone. (Example +00:00 is the UTC timezone)
@@ -39,7 +40,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
     Returns:
         DataFrame: A interpolated at time dataframe.
-    '''
+    """
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
 
@@ -57,9 +58,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             connection.close()
             return df
         except Exception as e:
-            logging.exception('error returning dataframe')
+            logging.exception("error returning dataframe")
             raise e
 
     except Exception as e:
-        logging.exception('error with interpolation at time function')
+        logging.exception("error with interpolation at time function")
         raise e

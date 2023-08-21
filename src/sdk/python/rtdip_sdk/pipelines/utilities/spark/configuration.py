@@ -21,14 +21,16 @@ from py4j.protocol import Py4JJavaError
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
+
 class SparkConfigurationUtility(UtilitiesInterface):
-    '''
+    """
     Sets configuration key value pairs to a Spark Session
 
     Args:
         spark (SparkSession): Spark Session required to read data from cloud storage
         config (dict): Dictionary of spark configuration to be applied to the spark session
-    ''' 
+    """
+
     spark: SparkSession
     config: dict
     columns: List[StructField]
@@ -43,17 +45,17 @@ class SparkConfigurationUtility(UtilitiesInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
@@ -63,7 +65,7 @@ class SparkConfigurationUtility(UtilitiesInterface):
             for configuration in self.config.items():
                 self.spark.conf.set(configuration[0], configuration[1])
             return True
-        
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e

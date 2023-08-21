@@ -18,9 +18,11 @@ from io import StringIO
 import pandas as pd
 from requests import HTTPError
 
-sys.path.insert(0, '.')
+sys.path.insert(0, ".")
 import pytest
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import PJMHistoricalLoadISOSource
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import (
+    PJMHistoricalLoadISOSource,
+)
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import PJM_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import DataFrame, SparkSession
@@ -29,7 +31,7 @@ from pytest_mock import MockerFixture
 iso_configuration = {
     "start_date": "2021-12-09",
     "end_date": "2022-06-10",
-    "api_key": "SAMPLE"
+    "api_key": "SAMPLE",
 }
 
 raw_api_response = (
@@ -43,7 +45,6 @@ raw_api_response = (
     "70.00,69.94,2.42\n"
     "7/8/2023 4:00:00 AM,7/8/2023 12:00:00 AM,7/8/2023 5:00:00 AM,7/8/2023 1:00:00 AM,7/9/2023 8:00:24 AM,ComEd,"
     "10.00,10.06,9.80\n"
-
 )
 
 expected_data = (
@@ -63,7 +64,9 @@ def test_pjm_historical_load_iso_read_setup(spark_session: SparkSession):
     iso_source = PJMHistoricalLoadISOSource(spark_session, iso_configuration)
 
     assert iso_source.system_type().value == 2
-    assert iso_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
+    assert iso_source.libraries() == Libraries(
+        maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[]
+    )
 
     assert isinstance(iso_source.settings(), dict)
 
@@ -108,21 +111,32 @@ def test_pjm_historical_load_iso_read_setup(spark_session: SparkSession):
 
 def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration, "start_date": "2021/01/01"})
+        iso_source = PJMHistoricalLoadISOSource(
+            spark_session, {**iso_configuration, "start_date": "2021/01/01"}
+        )
         iso_source.pre_read_validation()
 
-    assert str(exc_info.value) == "Unable to parse Start date. Please specify in %Y-%m-%d format."
+    assert (
+        str(exc_info.value)
+        == "Unable to parse Start date. Please specify in %Y-%m-%d format."
+    )
 
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration, "end_date": "20230501"})
+        iso_source = PJMHistoricalLoadISOSource(
+            spark_session, {**iso_configuration, "end_date": "20230501"}
+        )
         iso_source.pre_read_validation()
 
-    assert str(exc_info.value) == "Unable to parse End date. Please specify in %Y-%m-%d format."
+    assert (
+        str(exc_info.value)
+        == "Unable to parse End date. Please specify in %Y-%m-%d format."
+    )
 
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration,
-                                                                "start_date": "2023-03-01",
-                                                                "end_date": "2023-02-01"})
+        iso_source = PJMHistoricalLoadISOSource(
+            spark_session,
+            {**iso_configuration, "start_date": "2023-03-01", "end_date": "2023-02-01"},
+        )
         iso_source.pre_read_validation()
 
     assert str(exc_info.value) == "Start date can't be ahead of End date."
@@ -130,17 +144,19 @@ def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
     future_date = (datetime.utcnow() + timedelta(days=10)).strftime("%Y-%m-%d")
 
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration,
-                                                                "start_date": future_date,
-                                                                "end_date": future_date})
+        iso_source = PJMHistoricalLoadISOSource(
+            spark_session,
+            {**iso_configuration, "start_date": future_date, "end_date": future_date},
+        )
         iso_source.pre_read_validation()
 
     assert str(exc_info.value) == "Start date can't be in future."
 
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration,
-                                                                "start_date": "2023-01-01",
-                                                                "end_date": future_date})
+        iso_source = PJMHistoricalLoadISOSource(
+            spark_session,
+            {**iso_configuration, "start_date": "2023-01-01", "end_date": future_date},
+        )
         iso_source.pre_read_validation()
 
     assert str(exc_info.value) == "End date can't be in future."
@@ -148,21 +164,26 @@ def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
 
 def test_miso_historical_load_iso_invalid_sleep_duration(spark_session: SparkSession):
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration, "sleep_duration": -10})
+        iso_source = PJMHistoricalLoadISOSource(
+            spark_session, {**iso_configuration, "sleep_duration": -10}
+        )
         iso_source.pre_read_validation()
     assert str(exc_info.value) == "Sleep duration can't be negative."
 
 
 def test_miso_historical_load_iso_invalid_request_count(spark_session: SparkSession):
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration, "request_count": -20})
+        iso_source = PJMHistoricalLoadISOSource(
+            spark_session, {**iso_configuration, "request_count": -20}
+        )
         iso_source.pre_read_validation()
     assert str(exc_info.value) == "Request count can't be negative."
 
 
 def test_miso_historical_load_iso_invalid_query_batch_days(spark_session: SparkSession):
     with pytest.raises(ValueError) as exc_info:
-        iso_source = PJMHistoricalLoadISOSource(spark_session, {**iso_configuration, "query_batch_days": -3})
+        iso_source = PJMHistoricalLoadISOSource(
+            spark_session, {**iso_configuration, "query_batch_days": -3}
+        )
         iso_source.pre_read_validation()
     assert str(exc_info.value) == "Query batch days count can't be negative."
-

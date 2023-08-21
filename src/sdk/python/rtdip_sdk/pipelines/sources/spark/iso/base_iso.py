@@ -28,6 +28,7 @@ from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 from ....._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 
+
 class BaseISOSource(SourceInterface):
     """
     Base class for all the ISO Sources. It provides common functionality and helps in reducing the code redundancy.
@@ -48,7 +49,9 @@ class BaseISOSource(SourceInterface):
     def __init__(self, spark: SparkSession, options: dict) -> None:
         self.spark = spark
         self.options = options
-        self.query_timezone = pytz.timezone(self.options.get("query_timezone", self.default_query_timezone))
+        self.query_timezone = pytz.timezone(
+            self.options.get("query_timezone", self.default_query_timezone)
+        )
         self.current_date = datetime.now(timezone.utc).astimezone(self.query_timezone)
 
     def _fetch_from_url(self, url_suffix: str) -> bytes:
@@ -69,8 +72,10 @@ class BaseISOSource(SourceInterface):
         code = response.status_code
 
         if code != 200:
-            raise HTTPError(f"Unable to access URL `{url}`."
-                            f" Received status code {code} with message {response.content}")
+            raise HTTPError(
+                f"Unable to access URL `{url}`."
+                f" Received status code {code} with message {response.content}"
+            )
 
         return response.content
 
@@ -213,4 +218,6 @@ class BaseISOSource(SourceInterface):
 
         """
 
-        raise NotImplementedError(f"{self.__class__.__name__} connector doesn't support stream operation.")
+        raise NotImplementedError(
+            f"{self.__class__.__name__} connector doesn't support stream operation."
+        )

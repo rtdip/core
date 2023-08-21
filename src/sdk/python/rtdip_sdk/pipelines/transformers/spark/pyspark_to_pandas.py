@@ -18,13 +18,15 @@ from pandas import DataFrame as PandasDataFrame
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
+
 class PySparkToPandasTransformer(TransformerInterface):
-    '''
+    """
     Converts a PySpark DataFrame to a Pandas DataFrame
 
     Args:
         df (DataFrame): PySpark DataFrame to be converted
-    ''' 
+    """
+
     df: PySparkDataFrame
 
     def __init__(self, df: PySparkDataFrame) -> None:
@@ -32,31 +34,31 @@ class PySparkToPandasTransformer(TransformerInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
 
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_transform_validation(self):
         return True
-    
+
     def post_transform_validation(self):
         return True
 
     def transform(self) -> PandasDataFrame:
-        '''
+        """
         Returns:
             DataFrame: A Pandas dataframe converted from a PySpark DataFrame.
-        '''
+        """
         df = self.df.toPandas()
         return df

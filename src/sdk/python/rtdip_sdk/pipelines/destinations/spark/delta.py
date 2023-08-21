@@ -21,9 +21,10 @@ from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class SparkDeltaDestination(DestinationInterface):
-    '''
-    The Spark Delta Destination is used to write data to a Delta table. 
+    """
+    The Spark Delta Destination is used to write data to a Delta table.
 
     Args:
         data (DataFrame): Dataframe to be written to Delta
@@ -41,7 +42,8 @@ class SparkDeltaDestination(DestinationInterface):
         replaceWhere (str): Condition(s) for overwriting. (Batch)
         partitionOverwriteMode (str): When set to dynamic, overwrites all existing data in each logical partition for which the write will commit new data. Default is static. (Batch)
         overwriteSchema (bool str): If True, overwrites the schema as well as the table data. (Batch)
-    '''
+    """
+
     data: DataFrame
     options: dict
     destination: str
@@ -49,7 +51,15 @@ class SparkDeltaDestination(DestinationInterface):
     trigger: str
     query_name: str
 
-    def __init__(self, data: DataFrame, options: dict, destination:str, mode: str = "append", trigger="10 seconds", query_name="DeltaDestination") -> None:
+    def __init__(
+        self,
+        data: DataFrame,
+        options: dict,
+        destination: str,
+        mode: str = "append",
+        trigger="10 seconds",
+        query_name="DeltaDestination",
+    ) -> None:
         self.data = data
         self.options = options
         self.destination = destination
@@ -59,10 +69,10 @@ class SparkDeltaDestination(DestinationInterface):
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''             
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -70,80 +80,76 @@ class SparkDeltaDestination(DestinationInterface):
         libraries = Libraries()
         libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {
             "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
-            "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+            "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
         }
-    
+
     def pre_write_validation(self):
         return True
-    
+
     def post_write_validation(self):
         return True
 
     def write_batch(self):
-        '''
+        """
         Writes batch data to Delta. Most of the options provided by the Apache Spark DataFrame write API are supported for performing batch writes on tables.
-        '''
+        """
         try:
             if "/" in self.destination:
                 return (
-                    self.data
-                    .write
-                    .format("delta")
+                    self.data.write.format("delta")
                     .mode(self.mode)
                     .options(**self.options)
                     .save(self.destination)
                 )
             else:
                 return (
-                    self.data
-                    .write
-                    .format("delta")
+                    self.data.write.format("delta")
                     .mode(self.mode)
                     .options(**self.options)
                     .saveAsTable(self.destination)
                 )
-            
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def write_stream(self):
-        '''
+        """
         Writes streaming data to Delta. Exactly-once processing is guaranteed
-        '''
-        TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
+        """
+        TRIGGER_OPTION = (
+            {"availableNow": True}
+            if self.trigger == "availableNow"
+            else {"processingTime": self.trigger}
+        )
         try:
             if "/" in self.destination:
                 query = (
-                    self.data
-                    .writeStream
-                    .trigger(**TRIGGER_OPTION)
+                    self.data.writeStream.trigger(**TRIGGER_OPTION)
                     .format("delta")
                     .queryName(self.query_name)
                     .outputMode(self.mode)
                     .options(**self.options)
                     .start(self.destination)
                 )
-            else: 
+            else:
                 query = (
-                    self.data
-                    .writeStream
-                    .trigger(**TRIGGER_OPTION)
+                    self.data.writeStream.trigger(**TRIGGER_OPTION)
                     .format("delta")
                     .queryName(self.query_name)
                     .outputMode(self.mode)
                     .options(**self.options)
                     .toTable(self.destination)
                 )
-            
+
             while query.isActive:
                 if query.lastProgress:
                     logging.info(query.lastProgress)
