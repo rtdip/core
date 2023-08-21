@@ -198,9 +198,9 @@ nav:
                       - Weather:
                           - Raw Forecast To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/raw_forecast_to_weather_data_model.md
                           - ECMWF:
-                                - Forecast Extract Base To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/extractbase_to_weather_data_model.md
-                                - Forecast Extract Point To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/extractpoint_to_weather_data_model.md
-                                - Forecast Extract Grid To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/extractgrid_to_weather_data_model.md
+                                - .nc MARS Forecast Extract Base To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractbase_to_weather_data_model.md
+                                - .nc MARS Forecast Extract Point To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractpoint_to_weather_data_model.md
+                                - .nc MARS Forecast Extract Grid To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/weather/ECMWF/nc_extractgrid_to_weather_data_model.md
               - Destinations:
                   - Spark:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md

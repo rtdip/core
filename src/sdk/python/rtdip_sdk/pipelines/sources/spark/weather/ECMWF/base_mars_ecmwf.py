@@ -119,7 +119,7 @@ class BaseMarsECMWFSource:
                     server = ECMWFService("mars")
                     server.execute(req_dict, target)
                     return 1 # NOSONAR
-                except:
+                except: #NOSONAR
                     if j < tries - 1:
                         continue # NOSONAR
                     else:

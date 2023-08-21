@@ -129,7 +129,7 @@ class WeatherForecastECMWFSource(SourceInterface):
             "levtype": self.leveltype,  # surface level forecasts
             "type": "fc",  # forecasts
             "param": self.ec_vars,  # variables
-            "step": lead_times,  # which lead times?
+            "step": lead_times,  # which lead times to download
             "area": self.forecast_area,  # N/W/S/E
             "grid": [0.1, 0.1],  # grid res of output
         }
@@ -139,6 +139,7 @@ class WeatherForecastECMWFSource(SourceInterface):
     def read_batch(self):
         """
         Pulls data from the Weather API and returns as .nc files.
+
         """
         lead_times = self._get_lead_time()
         para = self._get_api_params(lead_times=lead_times)

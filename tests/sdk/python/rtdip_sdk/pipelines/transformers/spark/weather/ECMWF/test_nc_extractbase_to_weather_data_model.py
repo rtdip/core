@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 import xarray as xr
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.extractbase_to_weather_data_model import (
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.nc_extractbase_to_weather_data_model import (
     ECMWFExtractBaseToWeatherDataModel,
 )
 
