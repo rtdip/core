@@ -14,4 +14,4 @@
 
 from .base_weather import SparkWeatherCompanyBaseWeatherSource
 from .weather_forecast_api_v1 import SparkWeatherCompanyForecastAPIV1Source
-from .weather_forecast_api_v1_multi import SparkWeatherCompanyForecastAPIV1Source
+from .weather_forecast_api_v1_multi import SparkWeatherForecastAPIV1MultiSource

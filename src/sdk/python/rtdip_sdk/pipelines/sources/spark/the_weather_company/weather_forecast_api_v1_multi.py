@@ -19,7 +19,7 @@ from ...._pipeline_utils.weather import WEATHER_FORECAST_SCHEMA
 from .weather_forecast_api_v1 import SparkWeatherCompanyForecastAPIV1Source
 
 
-class WeatherForecastAPIV1MultiSource(SparkWeatherCompanyForecastAPIV1Source):
+class SparkWeatherForecastAPIV1MultiSource(SparkWeatherCompanyForecastAPIV1Source):
     """
     The Weather Forecast API V1 Multi Source is used to read 15 days forecast from the Weather API. It allows to
     pull weather data for multiple stations and returns all of them in a single DataFrame.
@@ -51,7 +51,7 @@ class WeatherForecastAPIV1MultiSource(SparkWeatherCompanyForecastAPIV1Source):
     required_options = ["stations", "api_key"]
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
-        super(WeatherForecastAPIV1MultiSource, self).__init__(spark, options)
+        super(SparkWeatherForecastAPIV1MultiSource, self).__init__(spark, options)
         self.spark = spark
         self.options = options
         self.stations = self.options.get("stations", [])

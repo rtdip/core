@@ -17,7 +17,7 @@ import pandas as pd
 import pytest
 
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.the_weather_company.weather_forecast_api_v1_multi import (
-    SparkWeatherCompanyForecastAPIV1Source,
+    SparkWeatherForecastAPIV1MultiSource,
 )
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import (
     WEATHER_FORECAST_SCHEMA,
@@ -308,7 +308,7 @@ def get_api_response(url: str) -> str:
 
 
 def test_weather_forecast_api_v1_multi_read_setup(spark_session: SparkSession):
-    weather_source = SparkWeatherCompanyForecastAPIV1Source(spark_session, configuration)
+    weather_source = SparkWeatherForecastAPIV1MultiSource(spark_session, configuration)
 
     assert weather_source.system_type().value == 2
     assert weather_source.libraries() == Libraries(
@@ -323,7 +323,7 @@ def test_weather_forecast_api_v1_multi_read_setup(spark_session: SparkSession):
 
 
 def test_weather_forecast_api_v1_multi_params(spark_session: SparkSession):
-    weather_source = SparkWeatherCompanyForecastAPIV1Source(spark_session, configuration)
+    weather_source = SparkWeatherForecastAPIV1MultiSource(spark_session, configuration)
 
     assert weather_source.units == "e"
     assert weather_source.api_key == "AA"
@@ -333,7 +333,7 @@ def test_weather_forecast_api_v1_multi_params(spark_session: SparkSession):
 def test_weather_forecast_api_v1_multi_read_batch(
     spark_session: SparkSession, mocker: MockerFixture
 ):
-    weather_source = SparkWeatherCompanyForecastAPIV1Source(spark_session, configuration)
+    weather_source = SparkWeatherForecastAPIV1MultiSource(spark_session, configuration)
 
     class MyResponse:
         content = bytes()
@@ -370,7 +370,7 @@ def test_weather_forecast_api_v1_multi_read_batch(
 
 def test_weather_forecast_api_v1_multi_invalid_stations(spark_session: SparkSession):
     with pytest.raises(ValueError) as exc_info:
-        iso_source = SparkWeatherCompanyForecastAPIV1Source(
+        iso_source = SparkWeatherForecastAPIV1MultiSource(
             spark_session, {**configuration, "stations": ["45", "22"]}
         )
         iso_source.pre_read_validation()
@@ -381,7 +381,7 @@ def test_weather_forecast_api_v1_multi_invalid_stations(spark_session: SparkSess
     )
 
     with pytest.raises(ValueError) as exc_info:
-        iso_source = SparkWeatherCompanyForecastAPIV1Source(
+        iso_source = SparkWeatherForecastAPIV1MultiSource(
             spark_session, {**configuration, "stations": ["45, "]}
         )
         iso_source.pre_read_validation()
