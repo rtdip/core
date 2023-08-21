@@ -16,9 +16,9 @@
 import pandas as pd
 import numpy as np
 
-from ....interfaces import SourceInterface
+from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
-from .base_mars import SparkeECMWFBaseMarsSource
+from .base_mars import SparkECMWFBaseMarsSource
 
 from pyspark.sql import SparkSession
 
@@ -144,7 +144,7 @@ class SparkECMWFWeatherForecastSource(SourceInterface):
         lead_times = self._get_lead_time()
         para = self._get_api_params(lead_times=lead_times)
 
-        ec_conn = SparkeECMWFBaseMarsSource(
+        ec_conn = SparkECMWFBaseMarsSource(
             date_start=self.date_start,
             date_end=self.date_end,
             save_path=self.save_path,

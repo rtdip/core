@@ -35,7 +35,7 @@ class SparkWeatherCompanyBaseWeatherSource(BaseISOSource):
     api_params: dict = {}
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
-        super(BaseWeatherSource, self).__init__(spark, options)
+        super(SparkWeatherCompanyBaseWeatherSource, self).__init__(spark, options)
         self.spark = spark
         self.options = options
 
