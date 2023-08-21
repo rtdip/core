@@ -11,16 +11,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-class MockS3Client():
 
+class MockS3Client:
     put_bucket_name: str
     put_bucket_policy: str
+
     def __init__(self, bucket_policy=None):
         self.bucket_policy = bucket_policy
-    
-    def get_bucket_policy(self, **kwargs): # NOSONAR
+
+    def get_bucket_policy(self, **kwargs):  # NOSONAR
         return self.bucket_policy
-    
-    def put_bucket_policy(self, Bucket, Policy): # NOSONAR
+
+    def put_bucket_policy(self, Bucket, Policy):  # NOSONAR
         self.put_bucket_name = Bucket
         self.put_bucket_policy = Policy

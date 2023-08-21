@@ -19,8 +19,9 @@ from ..interfaces import SourceInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import KINESIS_SCHEMA
 
+
 class SparkKinesisSource(SourceInterface):
-    '''
+    """
     The Spark Kinesis Source is used to read data from Kinesis in a Databricks environment.
     Structured streaming from Kinesis is **not** supported in open source Spark.
     Args:
@@ -33,7 +34,8 @@ class SparkKinesisSource(SourceInterface):
         region (str): The region the streams are defined in.
         endpoint (str): The regional endpoint for Kinesis Data Streams.
         initialPosition (str): The point to start reading from; earliest, latest, or at_timestamp.
-    '''
+    """
+
     spark: SparkSession
     options: dict
 
@@ -41,49 +43,47 @@ class SparkKinesisSource(SourceInterface):
         self.spark = spark
         self.options = options
         self.schema = KINESIS_SCHEMA
-        
+
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK_DATABRICKS
-        '''
+        """
         return SystemType.PYSPARK_DATABRICKS
-    
+
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_read_validation(self):
         return True
-    
+
     def post_read_validation(self, df: DataFrame) -> bool:
         assert df.schema == self.schema
         return True
-    
+
     def read_batch(self):
-        '''
+        """
         Raises:
             NotImplementedError: Kinesis only supports streaming reads. To perform a batch read, use the read_stream method of this component and specify the Trigger on the write_stream to be `availableNow=True` to perform batch-like reads of cloud storage files.
-        '''
-        raise NotImplementedError("Kinesis only supports streaming reads. To perform a batch read, use the read_stream method and specify Trigger on the write_stream as `availableNow=True`")
+        """
+        raise NotImplementedError(
+            "Kinesis only supports streaming reads. To perform a batch read, use the read_stream method and specify Trigger on the write_stream as `availableNow=True`"
+        )
 
-        
     def read_stream(self) -> DataFrame:
-        '''
+        """
         Reads streaming data from Kinesis. All of the data in the table is processed as well as any new data that arrives after the stream started.
-        '''
+        """
         try:
-            return (self.spark
-                .readStream
-                .format("kinesis")
-                .options(**self.options)
-                .load()
+            return (
+                self.spark.readStream.format("kinesis").options(**self.options).load()
             )
         except Py4JJavaError as e:
             logging.exception(e.errmsg)

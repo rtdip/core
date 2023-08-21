@@ -18,11 +18,16 @@ import pytest
 import pandas as pd
 import pyarrow as pa
 
-HOST_NAME= "myHostName"
+HOST_NAME = "myHostName"
 HTTP_PATH = "myServerAddress"
 ACCESS_TOKEN = "myToken"
-TURBODBC_CONNECT = 'src.sdk.python.rtdip_sdk.connectors.odbc.turbodbc_sql_connector.connect'
-TURBODBC_CONNECT_CURSOR = 'src.sdk.python.rtdip_sdk.connectors.odbc.turbodbc_sql_connector.connect.cursor'
+TURBODBC_CONNECT = (
+    "src.sdk.python.rtdip_sdk.connectors.odbc.turbodbc_sql_connector.connect"
+)
+TURBODBC_CONNECT_CURSOR = (
+    "src.sdk.python.rtdip_sdk.connectors.odbc.turbodbc_sql_connector.connect.cursor"
+)
+
 
 class MockedTURBODBCConnection:
     def close(self) -> None:
@@ -30,6 +35,7 @@ class MockedTURBODBCConnection:
 
     def cursor(self) -> object:
         return MockedTURBODBCCursor()
+
 
 class MockedTURBODBCCursor:
     def execute(self, query) -> None:
@@ -40,9 +46,10 @@ class MockedTURBODBCCursor:
 
     def fetchallarrow(self) -> list:
         return pa.Table
-    
+
     def close(self) -> None:
         return None
+
 
 def test_connection_close(mocker: MockerFixture):
     mocker.patch(TURBODBC_CONNECT, return_value=MockedTURBODBCConnection())
@@ -52,6 +59,7 @@ def test_connection_close(mocker: MockerFixture):
     mocked_connection.close()
 
     mocked_close.assert_called_once()
+
 
 def test_connection_cursor(mocker: MockerFixture):
     mocker.patch(TURBODBC_CONNECT, return_value=MockedTURBODBCConnection())
@@ -63,6 +71,7 @@ def test_connection_cursor(mocker: MockerFixture):
     assert isinstance(result, object)
     mocked_cursor.assert_called_once()
 
+
 def test_cursor_execute(mocker: MockerFixture):
     mocked_execute = mocker.spy(MockedTURBODBCCursor, "execute")
 
@@ -71,17 +80,37 @@ def test_cursor_execute(mocker: MockerFixture):
 
     mocked_execute.assert_called_with(mocker.ANY, query="test")
 
+
 def test_cursor_fetch_all(mocker: MockerFixture):
-    mocker.patch.object(MockedTURBODBCCursor, "fetchallarrow", return_value= pa.Table.from_pylist([{"column_name_1": "1", "column_name_2": "2", "column_name_3": "3", "column_name_4": "4"}]))
+    mocker.patch.object(
+        MockedTURBODBCCursor,
+        "fetchallarrow",
+        return_value=pa.Table.from_pylist(
+            [
+                {
+                    "column_name_1": "1",
+                    "column_name_2": "2",
+                    "column_name_3": "3",
+                    "column_name_4": "4",
+                }
+            ]
+        ),
+    )
 
     foo = MockedTURBODBCCursor()
-    foo.description = (('column_name_1', 0, 1, 2), ('column_name_2', 2, 3, 4), ('column_name_3', 4, 5, 6), ('column_name_4', 6, 7, 8))
+    foo.description = (
+        ("column_name_1", 0, 1, 2),
+        ("column_name_2", 2, 3, 4),
+        ("column_name_3", 4, 5, 6),
+        ("column_name_4", 6, 7, 8),
+    )
 
     mocked_cursor = TURBODBCSQLCursor(foo)
     result = mocked_cursor.fetch_all()
 
     assert isinstance(result, pd.DataFrame)
     assert len(result.columns) == 4
+
 
 def test_cursor_close(mocker: MockerFixture):
     mocked_close = mocker.spy(MockedTURBODBCCursor, "close")
@@ -90,6 +119,7 @@ def test_cursor_close(mocker: MockerFixture):
     mocked_cursor.close()
 
     mocked_close.assert_called_once()
+
 
 def test_connection_close_fails(mocker: MockerFixture):
     mocker.patch(TURBODBC_CONNECT, return_value=MockedTURBODBCConnection())
@@ -100,7 +130,8 @@ def test_connection_close_fails(mocker: MockerFixture):
     with pytest.raises(Exception):
         assert mocked_connection.close()
 
-def test_connection_cursor_fails(mocker: MockerFixture): 
+
+def test_connection_cursor_fails(mocker: MockerFixture):
     mocker.patch(TURBODBC_CONNECT, return_value=MockedTURBODBCConnection())
     mocker.patch.object(MockedTURBODBCConnection, "cursor", side_effect=Exception)
 
@@ -108,6 +139,7 @@ def test_connection_cursor_fails(mocker: MockerFixture):
 
     with pytest.raises(Exception):
         assert mocked_connection.cursor()
+
 
 def test_cursor_execute_fails(mocker: MockerFixture):
     mocker.patch.object(MockedTURBODBCCursor, "execute", side_effect=Exception)
@@ -117,6 +149,7 @@ def test_cursor_execute_fails(mocker: MockerFixture):
     with pytest.raises(Exception):
         assert mocked_cursor.execute("test")
 
+
 def test_cursor_fetch_all_fails(mocker: MockerFixture):
     mocker.patch.object(MockedTURBODBCCursor, "fetchall", side_effect=Exception)
 
@@ -124,6 +157,7 @@ def test_cursor_fetch_all_fails(mocker: MockerFixture):
 
     with pytest.raises(Exception):
         assert mocked_cursor.fetch_all()
+
 
 def test_cursor_close_fails(mocker: MockerFixture):
     mocker.patch.object(MockedTURBODBCCursor, "close", side_effect=Exception)

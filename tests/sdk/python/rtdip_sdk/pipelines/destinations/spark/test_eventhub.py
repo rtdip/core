@@ -13,52 +13,154 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
-import pytest 
+
+sys.path.insert(0, ".")
+import pytest
 from pytest_mock import MockerFixture
-from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.eventhub import SparkEventhubDestination
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, MavenLibrary
+from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.eventhub import (
+    SparkEventhubDestination,
+)
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    MavenLibrary,
+)
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.streaming import StreamingQuery
 
-class TestStreamingQueryClass():
+
+class TestStreamingQueryClass:
     isActive: bool = False  # NOSONAR
+
 
 def test_spark_eventhub_write_setup():
     eventhub_destination = SparkEventhubDestination(None, {})
     assert eventhub_destination.system_type().value == 2
-    assert eventhub_destination.libraries() == Libraries(maven_libraries=[MavenLibrary(
-                group_id="com.microsoft.azure", 
+    assert eventhub_destination.libraries() == Libraries(
+        maven_libraries=[
+            MavenLibrary(
+                group_id="com.microsoft.azure",
                 artifact_id="azure-eventhubs-spark_2.12",
-                version="2.3.22"
-            )], pypi_libraries=[], pythonwheel_libraries=[])
+                version="2.3.22",
+            )
+        ],
+        pypi_libraries=[],
+        pythonwheel_libraries=[],
+    )
     assert isinstance(eventhub_destination.settings(), dict)
     assert eventhub_destination.pre_write_validation()
     assert eventhub_destination.post_write_validation()
 
+
 def test_spark_eventhub_write_batch(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(return_value=None))))))))
+    mocker.patch(
+        "pyspark.sql.DataFrame.write",
+        new_callable=mocker.Mock(
+            return_value=mocker.Mock(
+                format=mocker.Mock(
+                    return_value=mocker.Mock(
+                        options=mocker.Mock(
+                            return_value=mocker.Mock(
+                                save=mocker.Mock(return_value=None)
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+    )
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     eventhub_destination = SparkEventhubDestination(expected_df, {})
     actual = eventhub_destination.write_batch()
     assert actual is None
 
-def test_spark_eventhub_write_stream(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(return_value=TestStreamingQueryClass()))))))))))))
+
+def test_spark_eventhub_write_stream(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    mocker.patch(
+        "pyspark.sql.DataFrame.writeStream",
+        new_callable=mocker.Mock(
+            return_value=mocker.Mock(
+                trigger=mocker.Mock(
+                    return_value=mocker.Mock(
+                        format=mocker.Mock(
+                            return_value=mocker.Mock(
+                                options=mocker.Mock(
+                                    return_value=mocker.Mock(
+                                        queryName=mocker.Mock(
+                                            return_value=mocker.Mock(
+                                                start=mocker.Mock(
+                                                    return_value=TestStreamingQueryClass()
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+    )
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     eventhub_destination = SparkEventhubDestination(expected_df, {})
     actual = eventhub_destination.write_stream()
     assert actual is None
 
-def test_spark_eventhub_write_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.write", new_callable=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(save=mocker.Mock(side_effect=Exception))))))))
+
+def test_spark_eventhub_write_batch_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    mocker.patch(
+        "pyspark.sql.DataFrame.write",
+        new_callable=mocker.Mock(
+            return_value=mocker.Mock(
+                format=mocker.Mock(
+                    return_value=mocker.Mock(
+                        options=mocker.Mock(
+                            return_value=mocker.Mock(
+                                save=mocker.Mock(side_effect=Exception)
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+    )
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     eventhub_destination = SparkEventhubDestination(expected_df, {})
     with pytest.raises(Exception):
         eventhub_destination.write_batch()
 
-def test_spark_eventhub_write_stream_fails(spark_session: SparkSession, mocker: MockerFixture):
-    mocker.patch("pyspark.sql.DataFrame.writeStream", new_callable=mocker.Mock(return_value=mocker.Mock(trigger=mocker.Mock(return_value=mocker.Mock(format=mocker.Mock(return_value=mocker.Mock(options=mocker.Mock(return_value=mocker.Mock(queryName=mocker.Mock(return_value=mocker.Mock(start=mocker.Mock(side_effect=Exception))))))))))))
+
+def test_spark_eventhub_write_stream_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    mocker.patch(
+        "pyspark.sql.DataFrame.writeStream",
+        new_callable=mocker.Mock(
+            return_value=mocker.Mock(
+                trigger=mocker.Mock(
+                    return_value=mocker.Mock(
+                        format=mocker.Mock(
+                            return_value=mocker.Mock(
+                                options=mocker.Mock(
+                                    return_value=mocker.Mock(
+                                        queryName=mocker.Mock(
+                                            return_value=mocker.Mock(
+                                                start=mocker.Mock(side_effect=Exception)
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+    )
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     eventhub_destination = SparkEventhubDestination(expected_df, {})
     with pytest.raises(Exception):

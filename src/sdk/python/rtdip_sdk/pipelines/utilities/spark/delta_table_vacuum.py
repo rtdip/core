@@ -22,30 +22,34 @@ from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 
+
 class DeltaTableVacuumUtility(UtilitiesInterface):
-    '''
+    """
     [Vacuums](https://docs.delta.io/latest/delta-utility.html#-delta-vacuum) a Delta Table
 
     Args:
         spark (SparkSession): Spark Session required to read data from cloud storage
         table_name (str): Name of the table, including catalog and schema if table is to be created in Unity Catalog
         retention_hours (int, optional): Apply a partition filter to limit optimize to specific partitions. Example, "date='2021-11-18'" or "EventDate<=current_date()"
-    ''' 
+    """
+
     spark: SparkSession
     table_name: str
     retention_hours: Optional[int]
 
-    def __init__(self, spark: SparkSession, table_name: str, retention_hours: int = None) -> None:
+    def __init__(
+        self, spark: SparkSession, table_name: str, retention_hours: int = None
+    ) -> None:
         self.spark = spark
         self.table_name = table_name
         self.retention_hours = retention_hours
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''            
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -53,22 +57,19 @@ class DeltaTableVacuumUtility(UtilitiesInterface):
         libraries = Libraries()
         libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {}
 
     def execute(self) -> bool:
         try:
-            delta_table = (
-                DeltaTable
-                .forName(self.spark, self.table_name)
-            )
+            delta_table = DeltaTable.forName(self.spark, self.table_name)
 
             delta_table.vacuum(retentionHours=self.retention_hours)
 
             return True
-        
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e

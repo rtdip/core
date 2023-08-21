@@ -13,22 +13,21 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '.')
 
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.configuration import SparkConfigurationUtility
+sys.path.insert(0, ".")
+
+from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.configuration import (
+    SparkConfigurationUtility,
+)
 from pyspark.sql import SparkSession
+
 
 def test_spark_configuration(spark_session: SparkSession):
     spark_config_utility = SparkConfigurationUtility(
-        spark=spark_session,
-        config={
-            "config1": "test1",
-            "config2": "test2"
-        }
+        spark=spark_session, config={"config1": "test1", "config2": "test2"}
     )
 
     result = spark_config_utility.execute()
     assert result
     assert "test1" == spark_session.conf.get("config1")
     assert "test2" == spark_session.conf.get("config2")
-    

@@ -14,11 +14,15 @@
 
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import RedirectResponse
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html, get_swagger_ui_oauth2_redirect_html
+from fastapi.openapi.docs import (
+    get_swagger_ui_html,
+    get_redoc_html,
+    get_swagger_ui_oauth2_redirect_html,
+)
 from fastapi.middleware.gzip import GZipMiddleware
 import os
 
-api_v1_router = APIRouter(prefix='/api/v1')
+api_v1_router = APIRouter(prefix="/api/v1")
 TITLE = "Real Time Data Ingestion Platform"
 
 tags_metadata = [
@@ -29,7 +33,7 @@ tags_metadata = [
     {
         "name": "Metadata",
         "description": "Contextual metadata about timeseries events",
-    } 
+    },
 ]
 
 description = """
@@ -57,9 +61,11 @@ Please refer to the following links for further information about these APIs and
 [ReDoc](/redoc)
 
 [Real Time Data Ingestion Platform](https://www.rtdip.io/)
-""".format(os.environ.get("TENANT_ID"))
+""".format(
+    os.environ.get("TENANT_ID")
+)
 
-app=FastAPI(
+app = FastAPI(
     title=TITLE,
     description=description,
     version="1.0.0",
@@ -67,14 +73,16 @@ app=FastAPI(
     openapi_url="/api/openapi.json",
     docs_url=None,
     redoc_url=None,
-    license_info={"name": "Apache License 2.0", "identifier": "Apache-2.0"}
+    license_info={"name": "Apache License 2.0", "identifier": "Apache-2.0"},
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
+
 @app.get("/", include_in_schema=False)
 async def home():
-    return RedirectResponse(url='/docs')
+    return RedirectResponse(url="/docs")
+
 
 @app.get("/docs", include_in_schema=False)
 async def swagger_ui_html():
@@ -84,21 +92,23 @@ async def swagger_ui_html():
         title=TITLE + " - Swagger",
         swagger_favicon_url="https://raw.githubusercontent.com/rtdip/core/develop/docs/assets/favicon.png",
         init_oauth={
-            "usePkceWithAuthorizationCodeGrant": True, 
+            "usePkceWithAuthorizationCodeGrant": True,
             "clientId": client_id,
-            "scopes": "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default"
+            "scopes": "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default",
         },
-        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
     )
+
 
 @app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)
 async def swagger_ui_redirect():
     return get_swagger_ui_oauth2_redirect_html()
+
 
 @app.get("/redoc", include_in_schema=False)
 async def redoc_ui_html():
     return get_redoc_html(
         openapi_url="api/openapi.json",
         title=TITLE + " - ReDoc",
-        redoc_favicon_url="https://raw.githubusercontent.com/rtdip/core/develop/docs/assets/favicon.png"
+        redoc_favicon_url="https://raw.githubusercontent.com/rtdip/core/develop/docs/assets/favicon.png",
     )

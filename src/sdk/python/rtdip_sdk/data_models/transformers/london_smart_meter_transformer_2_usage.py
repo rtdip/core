@@ -19,24 +19,48 @@ import hashlib
 import time
 
 
-series_id_str = 'usage_series_id_001'
-output_header_str: str = 'Uid,SeriesId,Timestamp,IntervalTimestamp,Value'
+series_id_str = "usage_series_id_001"
+output_header_str: str = "Uid,SeriesId,Timestamp,IntervalTimestamp,Value"
 
 transformer_method_str: str = transformers.LAMBDA_TRANSFORM_METHOD_CHECK
+
 
 def anonymizer_md5(input_str: str) -> str:
     """
     Generates the md5 hash of the input
     a
     """
-    result = hashlib.md5(input_str.encode()) # NOSONAR
+    result = hashlib.md5(input_str.encode())  # NOSONAR
     return str(result.hexdigest())
 
 
-transformer_configuration = \
-            lambda input_list: str(anonymizer_md5(input_list[0])) + ',' + series_id_str + '_' + input_list[1] + ',' + \
-                               str(int(time.mktime(datetime.datetime.strptime(str(input_list[2]).replace(".0", "."),
-                                                                          "%Y-%m-%d %H:%M:%S.%f").timetuple()))) + ',' + \
-                               str(int(time.mktime(datetime.datetime.strptime(str(input_list[2]).replace(".0", "."),
-                                                                          "%Y-%m-%d %H:%M:%S.%f").timetuple()))) + ',' + \
-                               str(float(input_list[3])).replace(' ', '') + '\n'
+transformer_configuration = (
+    lambda input_list: str(anonymizer_md5(input_list[0]))
+    + ","
+    + series_id_str
+    + "_"
+    + input_list[1]
+    + ","
+    + str(
+        int(
+            time.mktime(
+                datetime.datetime.strptime(
+                    str(input_list[2]).replace(".0", "."), "%Y-%m-%d %H:%M:%S.%f"
+                ).timetuple()
+            )
+        )
+    )
+    + ","
+    + str(
+        int(
+            time.mktime(
+                datetime.datetime.strptime(
+                    str(input_list[2]).replace(".0", "."), "%Y-%m-%d %H:%M:%S.%f"
+                ).timetuple()
+            )
+        )
+    )
+    + ","
+    + str(float(input_list[3])).replace(" ", "")
+    + "\n"
+)

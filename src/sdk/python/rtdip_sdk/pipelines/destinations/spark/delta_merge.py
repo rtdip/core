@@ -26,15 +26,18 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ...._sdk_utils.compare_versions import _package_version_meets_minimum
 from ..._pipeline_utils.constants import get_default_package
 
+
 class DeltaMergeConditionValues(BaseModel):
     condition: Optional[str]
     values: Union[dict, str]
 
+
 class DeltaMergeCondition(BaseModel):
     condition: Optional[str]
 
+
 class SparkDeltaMergeDestination(DestinationInterface):
-    '''
+    """
     The Spark Delta Merge Destination is used to merge data into a Delta table. Refer to this [documentation](https://docs.delta.io/latest/delta-update.html#upsert-into-a-table-using-merge&language-python) for more information about Delta Merge.
 
     Args:
@@ -53,7 +56,8 @@ class SparkDeltaMergeDestination(DestinationInterface):
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
-    '''
+    """
+
     spark: SparkSession
     data: DataFrame
     destination: str
@@ -68,83 +72,104 @@ class SparkDeltaMergeDestination(DestinationInterface):
     trigger: str
     query_name: str
 
-    def __init__(self, 
-                 spark: SparkSession, 
-                 data: DataFrame,  
-                 destination:str,
-                 options: dict,
-                 merge_condition: str, 
-                 when_matched_update_list: List[DeltaMergeConditionValues] = None, 
-                 when_matched_delete_list: List[DeltaMergeCondition] = None,
-                 when_not_matched_insert_list: List[DeltaMergeConditionValues] = None,
-                 when_not_matched_by_source_update_list: List[DeltaMergeConditionValues] = None,
-                 when_not_matched_by_source_delete_list: List[DeltaMergeCondition] = None,
-                 try_broadcast_join: bool = False,
-                 trigger="10 seconds",
-                 query_name: str ="DeltaMergeDestination") -> None: 
+    def __init__(
+        self,
+        spark: SparkSession,
+        data: DataFrame,
+        destination: str,
+        options: dict,
+        merge_condition: str,
+        when_matched_update_list: List[DeltaMergeConditionValues] = None,
+        when_matched_delete_list: List[DeltaMergeCondition] = None,
+        when_not_matched_insert_list: List[DeltaMergeConditionValues] = None,
+        when_not_matched_by_source_update_list: List[DeltaMergeConditionValues] = None,
+        when_not_matched_by_source_delete_list: List[DeltaMergeCondition] = None,
+        try_broadcast_join: bool = False,
+        trigger="10 seconds",
+        query_name: str = "DeltaMergeDestination",
+    ) -> None:
         self.spark = spark
         self.data = data
         self.destination = destination
         self.options = options
         self.merge_condition = merge_condition
-        self.when_matched_update_list = [] if when_matched_update_list is None else when_matched_update_list
-        self.when_matched_delete_list = [] if when_matched_delete_list is None else when_matched_delete_list
-        self.when_not_matched_insert_list = [] if when_not_matched_insert_list is None else when_not_matched_insert_list
-        if isinstance(when_not_matched_by_source_update_list, list) and len(when_not_matched_by_source_update_list) > 0:
+        self.when_matched_update_list = (
+            [] if when_matched_update_list is None else when_matched_update_list
+        )
+        self.when_matched_delete_list = (
+            [] if when_matched_delete_list is None else when_matched_delete_list
+        )
+        self.when_not_matched_insert_list = (
+            [] if when_not_matched_insert_list is None else when_not_matched_insert_list
+        )
+        if (
+            isinstance(when_not_matched_by_source_update_list, list)
+            and len(when_not_matched_by_source_update_list) > 0
+        ):
             _package_version_meets_minimum("delta-spark", "2.3.0")
-        self.when_not_matched_by_source_update_list = [] if when_not_matched_by_source_update_list is None else when_not_matched_by_source_update_list
-        if isinstance(when_not_matched_by_source_delete_list, list) and len(when_not_matched_by_source_delete_list) > 0:
-            _package_version_meets_minimum("delta-spark", "2.3.0")        
-        self.when_not_matched_by_source_delete_list = [] if when_not_matched_by_source_delete_list is None else when_not_matched_by_source_delete_list
+        self.when_not_matched_by_source_update_list = (
+            []
+            if when_not_matched_by_source_update_list is None
+            else when_not_matched_by_source_update_list
+        )
+        if (
+            isinstance(when_not_matched_by_source_delete_list, list)
+            and len(when_not_matched_by_source_delete_list) > 0
+        ):
+            _package_version_meets_minimum("delta-spark", "2.3.0")
+        self.when_not_matched_by_source_delete_list = (
+            []
+            if when_not_matched_by_source_delete_list is None
+            else when_not_matched_by_source_delete_list
+        )
         self.try_broadcast_join = try_broadcast_join
         self.trigger = trigger
         self.query_name = query_name
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''             
+        """
         return SystemType.PYSPARK
 
     @staticmethod
     def libraries():
-        
         libraries = Libraries()
         libraries.add_maven_library(get_default_package("spark_delta_core"))
         return libraries
-    
+
     @staticmethod
     def settings() -> dict:
         return {
             "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
             "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-            "spark.databricks.delta.schema.autoMerge.enabled": "true"
+            "spark.databricks.delta.schema.autoMerge.enabled": "true",
         }
-    
+
     def pre_write_validation(self):
         return True
-    
+
     def post_write_validation(self):
         return True
 
-    def _delta_merge_builder(self, df: DataFrame, try_broadcast_join: bool) -> DeltaMergeBuilder:
+    def _delta_merge_builder(
+        self, df: DataFrame, try_broadcast_join: bool
+    ) -> DeltaMergeBuilder:
         if "/" in self.destination:
             delta_table = DeltaTable.forPath(self.spark, self.destination)
         else:
             delta_table = DeltaTable.forName(self.spark, self.destination)
-        
+
         if try_broadcast_join == True:
             delta_merge_builder = delta_table.alias("target").merge(
-                source=broadcast(df).alias("source"),
-                condition=self.merge_condition
+                source=broadcast(df).alias("source"), condition=self.merge_condition
             )
         else:
             delta_merge_builder = delta_table.alias("target").merge(
-                source=df.alias("source"),
-                condition=self.merge_condition
-            )            
+                source=df.alias("source"), condition=self.merge_condition
+            )
 
         for when_matched_update in self.when_matched_update_list:
             if when_matched_update.values == "*":
@@ -154,13 +179,13 @@ class SparkDeltaMergeDestination(DestinationInterface):
             else:
                 delta_merge_builder = delta_merge_builder.whenMatchedUpdate(
                     condition=when_matched_update.condition,
-                    set=when_matched_update.values
+                    set=when_matched_update.values,
                 )
 
         for when_matched_delete in self.when_matched_delete_list:
             delta_merge_builder = delta_merge_builder.whenMatchedDelete(
                 condition=when_matched_delete.condition,
-            )       
+            )
 
         for when_not_matched_insert in self.when_not_matched_insert_list:
             if when_not_matched_insert.values == "*":
@@ -170,37 +195,45 @@ class SparkDeltaMergeDestination(DestinationInterface):
             else:
                 delta_merge_builder = delta_merge_builder.whenNotMatchedInsert(
                     condition=when_not_matched_insert.condition,
-                    values=when_not_matched_insert.values
+                    values=when_not_matched_insert.values,
                 )
 
-        for when_not_matched_by_source_update in self.when_not_matched_by_source_update_list:
+        for (
+            when_not_matched_by_source_update
+        ) in self.when_not_matched_by_source_update_list:
             delta_merge_builder = delta_merge_builder.whenNotMatchedBySourceUpdate(
                 condition=when_not_matched_by_source_update.condition,
-                set=when_not_matched_by_source_update.values
+                set=when_not_matched_by_source_update.values,
             )
 
-        for when_not_matched_by_source_delete in self.when_not_matched_by_source_delete_list:
+        for (
+            when_not_matched_by_source_delete
+        ) in self.when_not_matched_by_source_delete_list:
             delta_merge_builder = delta_merge_builder.whenNotMatchedBySourceDelete(
                 condition=when_not_matched_by_source_delete.condition,
-            ) 
-        
+            )
+
         return delta_merge_builder
 
-    def _stream_merge_micro_batch(self, micro_batch_df: DataFrame, epoch_id = None): # NOSONAR
+    def _stream_merge_micro_batch(
+        self, micro_batch_df: DataFrame, epoch_id=None
+    ):  # NOSONAR
         micro_batch_df.persist()
 
         retry_delta_merge = False
 
         if self.try_broadcast_join == True:
             try:
-                delta_merge = self._delta_merge_builder(micro_batch_df, self.try_broadcast_join)
+                delta_merge = self._delta_merge_builder(
+                    micro_batch_df, self.try_broadcast_join
+                )
                 delta_merge.execute()
             except Exception as e:
                 if "SparkOutOfMemoryError" in str(e):
                     retry_delta_merge = True
                 else:
                     raise e
-        
+
         if self.try_broadcast_join == False or retry_delta_merge == True:
             delta_merge = self._delta_merge_builder(micro_batch_df, False)
             delta_merge.execute()
@@ -208,9 +241,9 @@ class SparkDeltaMergeDestination(DestinationInterface):
         micro_batch_df.unpersist()
 
     def write_batch(self):
-        '''
+        """
         Merges batch data into a Delta Table.
-        '''
+        """
         try:
             delta_merge = self._delta_merge_builder(self.data, self.try_broadcast_join)
             return delta_merge.execute()
@@ -221,17 +254,19 @@ class SparkDeltaMergeDestination(DestinationInterface):
         except Exception as e:
             logging.exception(str(e))
             raise e
-        
+
     def write_stream(self):
-        '''
+        """
         Merges streaming data to Delta using foreachBatch
-        '''
-        TRIGGER_OPTION = {'availableNow': True} if self.trigger == "availableNow" else {'processingTime': self.trigger}
+        """
+        TRIGGER_OPTION = (
+            {"availableNow": True}
+            if self.trigger == "availableNow"
+            else {"processingTime": self.trigger}
+        )
         try:
             query = (
-                self.data
-                .writeStream
-                .trigger(**TRIGGER_OPTION)
+                self.data.writeStream.trigger(**TRIGGER_OPTION)
                 .format("delta")
                 .foreachBatch(self._stream_merge_micro_batch)
                 .queryName(self.query_name)
@@ -239,7 +274,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
                 .options(**self.options)
                 .start()
             )
-            
+
             while query.isActive:
                 if query.lastProgress:
                     logging.info(query.lastProgress)

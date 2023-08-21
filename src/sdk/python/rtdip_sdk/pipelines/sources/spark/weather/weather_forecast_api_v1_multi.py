@@ -88,6 +88,8 @@ class WeatherForecastAPIV1MultiSource(WeatherForecastAPIV1Source):
             parts = station.split(",")
 
             if len(parts) != 2 or parts[0].strip() == "" or parts[1].strip() == "":
-                raise ValueError(f"Each station item must contain comma separated Latitude & Longitude. Eg: 10.23:45.2")
+                raise ValueError(
+                    f"Each station item must contain comma separated Latitude & Longitude. Eg: 10.23:45.2"
+                )
 
         return True

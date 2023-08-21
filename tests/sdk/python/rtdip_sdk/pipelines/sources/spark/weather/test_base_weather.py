@@ -20,16 +20,16 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
-configuration = {
-
-}
+configuration = {}
 
 
 def test_base_weather_read_setup(spark_session: SparkSession):
     base_weather_source = BaseWeatherSource(spark_session, configuration)
 
     assert base_weather_source.system_type().value == 2
-    assert base_weather_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
+    assert base_weather_source.libraries() == Libraries(
+        maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[]
+    )
 
     assert isinstance(base_weather_source.settings(), dict)
 
@@ -42,7 +42,10 @@ def test_weather_iso_read_stream_exception(spark_session: SparkSession):
         base_weather_source = BaseWeatherSource(spark_session, configuration)
         base_weather_source.read_stream()
 
-    assert str(exc_info.value) == "BaseWeatherSource connector doesn't support stream operation."
+    assert (
+        str(exc_info.value)
+        == "BaseWeatherSource connector doesn't support stream operation."
+    )
 
 
 def test_weather_iso_required_options_fails(spark_session: SparkSession):
@@ -54,7 +57,9 @@ def test_weather_iso_required_options_fails(spark_session: SparkSession):
     assert str(exc_info.value) == "Required option `lat` is missing."
 
 
-def test_weather_iso_fetch_url_fails(spark_session: SparkSession, mocker: MockerFixture):
+def test_weather_iso_fetch_url_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
     base_weather_source = BaseWeatherSource(spark_session, configuration)
     sample_bytes = bytes("Unknown Error".encode("utf-8"))
 
@@ -72,11 +77,18 @@ def test_weather_iso_fetch_url_fails(spark_session: SparkSession, mocker: Mocker
     assert str(exc_info.value) == expected
 
 
-def test_weather_iso_read_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
+def test_weather_iso_read_batch_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
     base_weather_source = BaseWeatherSource(spark_session, {})
 
-    mocker.patch.object(base_weather_source, "spark", new_callable=mocker.PropertyMock(
-        return_value=mocker.Mock(createDataFrame=mocker.Mock(side_effect=Exception))))
+    mocker.patch.object(
+        base_weather_source,
+        "spark",
+        new_callable=mocker.PropertyMock(
+            return_value=mocker.Mock(createDataFrame=mocker.Mock(side_effect=Exception))
+        ),
+    )
 
     assert base_weather_source.pre_read_validation()
 

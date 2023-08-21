@@ -15,8 +15,8 @@
 from abc import abstractmethod
 from ..interfaces import PipelineComponentBaseInterface
 
-class UtilitiesInterface(PipelineComponentBaseInterface):
 
+class UtilitiesInterface(PipelineComponentBaseInterface):
     @abstractmethod
     def execute(self):
         pass

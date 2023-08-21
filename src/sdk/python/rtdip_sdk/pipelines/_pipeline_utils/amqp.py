@@ -20,7 +20,7 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import MapType, StringType
 
 SYSTEM_PROPERTIES = {
-    "x-opt-sequence-number": b'\x52',
+    "x-opt-sequence-number": b"\x52",
     "x-opt-offset": b"\xa1",
     "x-opt-partition-key": b"\xa1",
     "x-opt-enqueued-time": b"\x83",
@@ -39,17 +39,18 @@ SYSTEM_PROPERTIES = {
     "reply-to-group-id": b"\xa1",
 }
 
-c_unsigned_char = struct.Struct('>B')
-c_signed_char = struct.Struct('>b')
-c_unsigned_short = struct.Struct('>H')
-c_signed_short = struct.Struct('>h')
-c_unsigned_int = struct.Struct('>I')
-c_signed_int = struct.Struct('>i')
-c_unsigned_long = struct.Struct('>L')
-c_unsigned_long_long = struct.Struct('>Q')
-c_signed_long_long = struct.Struct('>q')
-c_float = struct.Struct('>f')
-c_double = struct.Struct('>d')
+c_unsigned_char = struct.Struct(">B")
+c_signed_char = struct.Struct(">b")
+c_unsigned_short = struct.Struct(">H")
+c_signed_short = struct.Struct(">h")
+c_unsigned_int = struct.Struct(">I")
+c_signed_int = struct.Struct(">i")
+c_unsigned_long = struct.Struct(">L")
+c_unsigned_long_long = struct.Struct(">Q")
+c_signed_long_long = struct.Struct(">q")
+c_float = struct.Struct(">f")
+c_double = struct.Struct(">d")
+
 
 def _decode_null(buffer):
     return buffer, None
@@ -72,7 +73,7 @@ def _decode_empty(buffer):
 
 
 def _decode_boolean(buffer):
-    return buffer[1:], buffer[:1] == b'\x01'
+    return buffer[1:], buffer[:1] == b"\x01"
 
 
 def _decode_ubyte(buffer):
@@ -168,10 +169,10 @@ def _decode_list_large(buffer):
 
 
 def _decode_map_small(buffer):
-    count = int(buffer[1]/2)
+    count = int(buffer[1] / 2)
     buffer = buffer[2:]
     values = {}
-    for  _ in range(count):
+    for _ in range(count):
         buffer, key = _DECODE_BY_CONSTRUCTOR[buffer[0]](buffer[1:])
         buffer, value = _DECODE_BY_CONSTRUCTOR[buffer[0]](buffer[1:])
         values[key] = value
@@ -179,10 +180,10 @@ def _decode_map_small(buffer):
 
 
 def _decode_map_large(buffer):
-    count = int(c_unsigned_long.unpack(buffer[4:8])[0]/2)
+    count = int(c_unsigned_long.unpack(buffer[4:8])[0] / 2)
     buffer = buffer[8:]
     values = {}
-    for  _ in range(count):
+    for _ in range(count):
         buffer, key = _DECODE_BY_CONSTRUCTOR[buffer[0]](buffer[1:])
         buffer, value = _DECODE_BY_CONSTRUCTOR[buffer[0]](buffer[1:])
         values[key] = value
@@ -212,13 +213,15 @@ def _decode_array_large(buffer):
         return buffer, values
     return buffer[8:], []
 
+
 _COMPOSITES = {
-    35: 'received',
-    36: 'accepted',
-    37: 'rejected',
-    38: 'released',
-    39: 'modified',
+    35: "received",
+    36: "accepted",
+    37: "rejected",
+    38: "released",
+    39: "modified",
 }
+
 
 def _decode_described(buffer):
     composite_type = buffer[0]
@@ -229,6 +232,7 @@ def _decode_described(buffer):
         return buffer, {composite_type: value}
     except KeyError:
         return buffer, value
+
 
 _DECODE_BY_CONSTRUCTOR: List[Callable] = cast(List[Callable], [None] * 256)
 _DECODE_BY_CONSTRUCTOR[0] = _decode_described
@@ -271,11 +275,14 @@ _DECODE_BY_CONSTRUCTOR[240] = _decode_array_large
 
 def _decode_to_string(decoder_value, value):
     if decoder_value == b"\x83":
-        return datetime.fromtimestamp(int(value)/1000).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        return datetime.fromtimestamp(int(value) / 1000).strftime(
+            "%Y-%m-%dT%H:%M:%S.%fZ"
+        )
     elif type(value) is bytes or type(value) is bytearray:
         return value.decode("utf-8")
     else:
         return str(value)
+
 
 @udf(returnType=MapType(StringType(), StringType()))
 def decode_kafka_headers_to_amqp_properties(headers: dict) -> dict:
@@ -290,7 +297,9 @@ def decode_kafka_headers_to_amqp_properties(headers: dict) -> dict:
                 else:
                     decoder_value = value[0:1]
                     buffer_val = memoryview(value)
-                    buffer_val, decoded_value = _DECODE_BY_CONSTRUCTOR[buffer_val[0]](buffer_val[1:])
+                    buffer_val, decoded_value = _DECODE_BY_CONSTRUCTOR[buffer_val[0]](
+                        buffer_val[1:]
+                    )
                     properties[key] = _decode_to_string(decoder_value, decoded_value)
             except Exception as e:
                 print(f"Error decoding header {key}: {e}")

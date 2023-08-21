@@ -23,27 +23,32 @@ from ..._pipeline_utils.weather import WEATHER_DATA_MODEL
 
 
 class RawForecastToWeatherDataModel(TransformerInterface):
-    '''
+    """
     Converts a raw forecast into weather data model
 
     Args:
         spark (SparkSession): Spark Session instance.
         data (DataFrame): Dataframe to be transformed
-    '''
+    """
+
     spark: SparkSession
     data: DataFrame
 
-    def __init__(self, spark: SparkSession, data: DataFrame, ) -> None:
+    def __init__(
+        self,
+        spark: SparkSession,
+        data: DataFrame,
+    ) -> None:
         self.spark = spark
         self.data = data
         self.target_schema = WEATHER_DATA_MODEL
 
     @staticmethod
     def system_type():
-        '''
+        """
         Attributes:
             SystemType (Environment): Requires PYSPARK
-        '''
+        """
         return SystemType.PYSPARK
 
     @staticmethod
@@ -73,26 +78,27 @@ class RawForecastToWeatherDataModel(TransformerInterface):
         df: DataFrame = self.data
         df = df.select(self.target_schema.names)
 
-
         for field in self.target_schema.fields:
             df = df.withColumn(field.name, col(field.name).cast(field.dataType))
 
         self.data = self.spark.createDataFrame(df.rdd, self.target_schema)
 
     def transform(self) -> DataFrame:
-        '''
+        """
         Returns:
             DataFrame: A Forecast dataframe converted into Weather Data Model
-        '''
+        """
 
         self.pre_transform_validation()
 
         processed_date = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
         df = (
-            self.data
-            .withColumn("WeatherDay", substring("FcstValidLocal", 0, 10))
-            .withColumn("WeatherHour", (substring("FcstValidLocal", 12, 2).cast(IntegerType()) + 1))
+            self.data.withColumn("WeatherDay", substring("FcstValidLocal", 0, 10))
+            .withColumn(
+                "WeatherHour",
+                (substring("FcstValidLocal", 12, 2).cast(IntegerType()) + 1),
+            )
             .withColumn("WeatherTimezoneOffset", substring("FcstValidLocal", 20, 5))
             .withColumn("WeatherType", lit("F"))
             .withColumn("ProcessedDate", lit(processed_date))
@@ -121,7 +127,9 @@ class RawForecastToWeatherDataModel(TransformerInterface):
 
         columns = df.columns
         for column in columns:
-            df = df.withColumn(column, when(col(column) == "", lit(None)).otherwise(col(column)))
+            df = df.withColumn(
+                column, when(col(column) == "", lit(None)).otherwise(col(column))
+            )
 
         self.data = df
         self._convert_into_target_schema()

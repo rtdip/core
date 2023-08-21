@@ -16,16 +16,17 @@ import logging
 import pandas as pd
 from .time_series._query_builder import _query_builder
 
+
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
-    '''
-    A function to return back the metadata by querying databricks SQL Warehouse using a connection specified by the user. 
-    
+    """
+    A function to return back the metadata by querying databricks SQL Warehouse using a connection specified by the user.
+
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
-    
+
     The available authentcation methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
 
     This function requires the user to input a dictionary of parameters. (See Attributes table below)
-    
+
     Args:
         connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
         parameters_dict: A dictionary of parameters (see Attributes table below)
@@ -33,13 +34,13 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     Attributes:
         business_unit (str): Business unit
         region (str): Region
-        asset (str): Asset 
+        asset (str): Asset
         data_security_level (str): Level of data security
         tag_names (optional, list): Either pass a list of tagname/tagnames ["tag_1", "tag_2"] or leave the list blank [] or leave the parameter out completely
 
     Returns:
         DataFrame: A dataframe of metadata.
-    '''
+    """
     try:
         query = _query_builder(parameters_dict, "metadata")
 
@@ -51,9 +52,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             connection.close()
             return df
         except Exception as e:
-            logging.exception('error returning dataframe')
+            logging.exception("error returning dataframe")
             raise e
 
     except Exception as e:
-        logging.exception('error returning metadata function')
+        logging.exception("error returning metadata function")
         raise e

@@ -13,6 +13,9 @@
 # limitations under the License.
 
 import logging
-logging.warning('Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead.')
 
-from ..queries.time_series.resample import * # NOSONAR
+logging.warning(
+    "Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead."
+)
+
+from ..queries.time_series.resample import *  # NOSONAR

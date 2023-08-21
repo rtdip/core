@@ -15,8 +15,8 @@
 from abc import ABCMeta, abstractmethod
 from .cursor_interface import CursorInterface
 
-class ConnectionInterface(metaclass=ABCMeta):
 
+class ConnectionInterface(metaclass=ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
         return NotImplemented
@@ -24,7 +24,7 @@ class ConnectionInterface(metaclass=ABCMeta):
     @abstractmethod
     def close(self) -> None:
         pass
-    
+
     @abstractmethod
     def cursor(self) -> CursorInterface:
         pass

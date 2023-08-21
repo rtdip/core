@@ -14,8 +14,8 @@
 
 from abc import ABC, abstractmethod
 
-class ConverterInterface(ABC):
 
+class ConverterInterface(ABC):
     @abstractmethod
     def convert(self):
-        pass  
+        pass

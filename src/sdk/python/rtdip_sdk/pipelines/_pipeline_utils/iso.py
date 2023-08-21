@@ -15,30 +15,44 @@
 from typing import List
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, array, lit, struct, explode
-from pyspark.sql.types import StructType, StructField, TimestampType, DoubleType, StringType
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    TimestampType,
+    DoubleType,
+    StringType,
+)
 
-MISO_SCHEMA = StructType([
-    StructField("Datetime", TimestampType(), True),
-    StructField("Lrz1", DoubleType(), True),
-    StructField("Lrz2_7", DoubleType(), True),
-    StructField("Lrz3_5", DoubleType(), True),
-    StructField("Lrz4", DoubleType(), True),
-    StructField("Lrz6", DoubleType(), True),
-    StructField("Lrz8_9_10", DoubleType(), True),
-    StructField("Miso", DoubleType(), True),
-])
+MISO_SCHEMA = StructType(
+    [
+        StructField("Datetime", TimestampType(), True),
+        StructField("Lrz1", DoubleType(), True),
+        StructField("Lrz2_7", DoubleType(), True),
+        StructField("Lrz3_5", DoubleType(), True),
+        StructField("Lrz4", DoubleType(), True),
+        StructField("Lrz6", DoubleType(), True),
+        StructField("Lrz8_9_10", DoubleType(), True),
+        StructField("Miso", DoubleType(), True),
+    ]
+)
 
-PJM_SCHEMA = StructType([
-    StructField("StartTime", TimestampType(), True),
-    StructField("EndTime", TimestampType(), True),
-    StructField("Zone", StringType(), True),
-    StructField("Load", DoubleType(), True)
-])
+PJM_SCHEMA = StructType(
+    [
+        StructField("StartTime", TimestampType(), True),
+        StructField("EndTime", TimestampType(), True),
+        StructField("Zone", StringType(), True),
+        StructField("Load", DoubleType(), True),
+    ]
+)
 
 
 def melt(
-        df: DataFrame, id_vars: List[str], value_vars: List[str],
-        var_name: str = "variable", value_name: str = "value") -> DataFrame:
+    df: DataFrame,
+    id_vars: List[str],
+    value_vars: List[str],
+    var_name: str = "variable",
+    value_name: str = "value",
+) -> DataFrame:
     """
     Unpivot the data. Convert column values into rows.
 
@@ -53,8 +67,12 @@ def melt(
 
     """
 
-    _vars_and_vals = array(*(struct(lit(c).alias(var_name), col(c).alias(value_name)) for c in value_vars))
+    _vars_and_vals = array(
+        *(struct(lit(c).alias(var_name), col(c).alias(value_name)) for c in value_vars)
+    )
     df = df.withColumn("_vars_and_vals", explode(_vars_and_vals))
-    cols = list(map(col, id_vars)) + [col("_vars_and_vals")[x].alias(x) for x in [var_name, value_name]]
+    cols = list(map(col, id_vars)) + [
+        col("_vars_and_vals")[x].alias(x) for x in [var_name, value_name]
+    ]
 
     return df.select(*cols)

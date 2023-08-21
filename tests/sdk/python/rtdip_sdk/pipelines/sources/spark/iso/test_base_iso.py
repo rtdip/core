@@ -21,16 +21,16 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
-iso_configuration = {
-
-}
+iso_configuration = {}
 
 
 def test_base_iso_read_setup(spark_session: SparkSession):
     base_iso_source = BaseISOSource(spark_session, iso_configuration)
 
     assert base_iso_source.system_type().value == 2
-    assert base_iso_source.libraries() == Libraries(maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[])
+    assert base_iso_source.libraries() == Libraries(
+        maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[]
+    )
 
     assert isinstance(base_iso_source.settings(), dict)
 
@@ -43,7 +43,10 @@ def test_base_iso_read_stream_exception(spark_session: SparkSession):
         base_iso_source = BaseISOSource(spark_session, iso_configuration)
         base_iso_source.read_stream()
 
-    assert str(exc_info.value) == "BaseISOSource connector doesn't support stream operation."
+    assert (
+        str(exc_info.value)
+        == "BaseISOSource connector doesn't support stream operation."
+    )
 
 
 def test_base_iso_read_batch(spark_session: SparkSession, mocker: MockerFixture):
@@ -91,11 +94,18 @@ def test_base_iso_fetch_url_fails(spark_session: SparkSession, mocker: MockerFix
     assert str(exc_info.value) == expected
 
 
-def test_base_iso_source_read_batch_fails(spark_session: SparkSession, mocker: MockerFixture):
+def test_base_iso_source_read_batch_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
     base_iso_source = BaseISOSource(spark_session, {})
 
-    mocker.patch.object(base_iso_source, "spark", new_callable=mocker.PropertyMock(
-        return_value=mocker.Mock(createDataFrame=mocker.Mock(side_effect=Exception))))
+    mocker.patch.object(
+        base_iso_source,
+        "spark",
+        new_callable=mocker.PropertyMock(
+            return_value=mocker.Mock(createDataFrame=mocker.Mock(side_effect=Exception))
+        ),
+    )
 
     assert base_iso_source.pre_read_validation()
 
