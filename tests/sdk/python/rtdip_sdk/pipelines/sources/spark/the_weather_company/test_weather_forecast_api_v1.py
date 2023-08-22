@@ -15,7 +15,7 @@
 import json
 import pandas as pd
 
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.the_weather_company.weather_forecast_api_v1 import (
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.the_weather_company import (
     SparkWeatherCompanyForecastAPIV1Source,
 )
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.weather import (

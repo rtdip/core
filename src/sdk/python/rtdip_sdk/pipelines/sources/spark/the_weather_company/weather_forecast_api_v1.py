@@ -49,7 +49,7 @@ class SparkWeatherCompanyForecastAPIV1Source(SparkWeatherCompanyBaseWeatherSourc
     required_options = ["lat", "lon", "api_key"]
 
     def __init__(self, spark: SparkSession, options: dict) -> None:
-        super(WeatherForecastAPIV1Source, self).__init__(spark, options)
+        super(SparkWeatherCompanyForecastAPIV1Source, self).__init__(spark, options)
         self.spark = spark
         self.options = options
         self.lat = self.options.get("lat", "").strip()
