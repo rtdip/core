@@ -19,7 +19,7 @@ from .nc_extractbase_to_weather_data_model import ECMWFExtractBaseToWeatherDataM
 
 class ECMWFExtractPointToWeatherDataModel(ECMWFExtractBaseToWeatherDataModel):
     """
-    Extract a single point from a local .nc file downloaded from ecmwf via mars
+    Extract a single point from a local .nc file downloaded from ECMWF via MARS
 
     Args:
         lat (float): Latitude of point to extract

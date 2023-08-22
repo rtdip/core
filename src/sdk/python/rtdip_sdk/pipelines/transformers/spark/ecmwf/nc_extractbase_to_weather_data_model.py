@@ -27,7 +27,7 @@ from ...._pipeline_utils.weather_ecmwf import (
 
 class ECMWFExtractBaseToWeatherDataModel(TransformerInterface):
     """
-    Base class for extracting forecast data downloaded in .nc format from ECMWF.
+    Base class for extracting forecast data downloaded in .nc format from ECMWF MARS Server.
 
     Args:
         load_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
