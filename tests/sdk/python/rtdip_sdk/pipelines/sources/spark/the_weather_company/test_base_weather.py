@@ -90,9 +90,7 @@ def test_weather_iso_fetch_url_fails(
 def test_weather_iso_read_batch_fails(
     spark_session: SparkSession, mocker: MockerFixture
 ):
-    base_weather_source = SparkWeatherCompanyBaseWeatherSource(
-        spark_session, {}
-    )
+    base_weather_source = SparkWeatherCompanyBaseWeatherSource(spark_session, {})
 
     mocker.patch.object(
         base_weather_source,

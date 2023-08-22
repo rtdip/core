@@ -119,11 +119,11 @@ class SparkECMWFBaseMarsSource:
                     server = ECMWFService("mars")
                     server.execute(req_dict, target)
                     return 1  # NOSONAR
-                except: #NOSONAR
+                except:  # NOSONAR
                     if j < tries - 1:
-                        continue # NOSONAR
+                        continue  # NOSONAR
                     else:
-                        return 0 # NOSONAR
+                        return 0  # NOSONAR
 
         self.success = parallel(
             delayed(_retrieve_datetime)(str(k.date()), f"{k.hour:02}")
@@ -148,3 +148,4 @@ class SparkECMWFBaseMarsSource:
         y = pd.Series(self.success, index=self.dates, name="success", dtype=bool)
         
         return y
+    

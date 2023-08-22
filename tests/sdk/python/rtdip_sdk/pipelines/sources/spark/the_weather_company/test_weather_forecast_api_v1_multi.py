@@ -327,7 +327,7 @@ def test_weather_forecast_api_v1_multi_read_setup(spark_session: SparkSession):
 def test_weather_forecast_api_v1_multi_params(spark_session: SparkSession):
     weather_source = SparkWeatherCompanyForecastAPIV1MultiSource(
         spark_session, configuration
-        )
+    )
 
     assert weather_source.units == "e"
     assert weather_source.api_key == "AA"
@@ -339,7 +339,7 @@ def test_weather_forecast_api_v1_multi_read_batch(
 ):
     weather_source = SparkWeatherCompanyForecastAPIV1MultiSource(
         spark_session, configuration
-        )
+    )
 
     class MyResponse:
         content = bytes()
@@ -396,4 +396,3 @@ def test_weather_forecast_api_v1_multi_invalid_stations(spark_session: SparkSess
         str(exc_info.value)
         == "Each station item must contain comma separated Latitude & Longitude. Eg: 10.23:45.2"
     )
-    
