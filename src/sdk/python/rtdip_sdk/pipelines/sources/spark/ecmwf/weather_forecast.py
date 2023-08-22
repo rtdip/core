@@ -157,4 +157,3 @@ class SparkECMWFWeatherForecastSource(SourceInterface):
             tries=5,
             n_jobs=-1,  # maximum of 20 queued requests per user (only two allowed active)
         )
-        

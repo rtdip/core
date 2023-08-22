@@ -176,4 +176,3 @@ class SparkWeatherCompanyForecastAPIV1Source(SparkWeatherCompanyBaseWeatherSourc
 
         return df
     
-    

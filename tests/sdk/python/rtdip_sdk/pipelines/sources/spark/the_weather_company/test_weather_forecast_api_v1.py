@@ -245,4 +245,3 @@ def test_weather_forecast_api_v1_read_batch(
     pdf = df.toPandas()
     expected_df = pd.DataFrame(expected_json)
     assert str(pdf.to_json()) == str(expected_df.to_json())
-    

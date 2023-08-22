@@ -148,4 +148,3 @@ class SparkECMWFBaseMarsSource:
         y = pd.Series(self.success, index=self.dates, name="success", dtype=bool)
         
         return y
-    
