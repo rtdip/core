@@ -17,7 +17,7 @@ import numpy as np
 from pytest_mock import MockerFixture
 from unittest.mock import Mock, patch
 from src.sdk.python.rtdip_sdk.pipelines.sources.spark.ecmwf.base_mars import (
-    SparkECMWFBaseMarsSource
+    SparkECMWFBaseMarsSource,
 )
 
 # Sample test data

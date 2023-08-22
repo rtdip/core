@@ -187,7 +187,9 @@ def get_api_response() -> str:
 
 
 def test_weather_forecast_api_v1_read_setup(spark_session: SparkSession):
-    weather_source = SparkWeatherCompanyForecastAPIV1Source(spark_session, configuration)
+    weather_source = SparkWeatherCompanyForecastAPIV1Source(
+        spark_session, configuration
+    )
 
     assert weather_source.system_type().value == 2
     assert weather_source.libraries() == Libraries(
@@ -202,7 +204,9 @@ def test_weather_forecast_api_v1_read_setup(spark_session: SparkSession):
 
 
 def test_weather_forecast_api_v1_params(spark_session: SparkSession):
-    weather_source = SparkWeatherCompanyForecastAPIV1Source(spark_session, configuration)
+    weather_source = SparkWeatherCompanyForecastAPIV1Source(
+        spark_session, configuration
+    )
 
     assert weather_source.units == "e"
     assert weather_source.api_key == "AA"
@@ -212,7 +216,9 @@ def test_weather_forecast_api_v1_params(spark_session: SparkSession):
 def test_weather_forecast_api_v1_read_batch(
     spark_session: SparkSession, mocker: MockerFixture
 ):
-    weather_source = SparkWeatherCompanyForecastAPIV1Source(spark_session, configuration)
+    weather_source = SparkWeatherCompanyForecastAPIV1Source(
+        spark_session, configuration
+    )
 
     sample_bytes = bytes(get_api_response().encode("utf-8"))
 
@@ -239,3 +245,4 @@ def test_weather_forecast_api_v1_read_batch(
     pdf = df.toPandas()
     expected_df = pd.DataFrame(expected_json)
     assert str(pdf.to_json()) == str(expected_df.to_json())
+    

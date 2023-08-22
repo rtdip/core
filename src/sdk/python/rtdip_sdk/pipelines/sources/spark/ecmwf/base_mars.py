@@ -94,10 +94,10 @@ class SparkECMWFBaseMarsSource:
             i_dict = {"date": i, "time": j}
 
             if cost:
-                filename = f"{i}_{j}.txt" # NOSONAR
+                filename = f"{i}_{j}.txt"  # NOSONAR
             else:
                 filename = f"{i}_{j}.nc"
-                i_dict["format"] = "netcdf"    # NOSONAR
+                i_dict["format"] = "netcdf"  # NOSONAR
 
             target = os.path.join(self.save_path, filename)
             msg = f"retrieving mars data --- {filename}"
@@ -105,20 +105,20 @@ class SparkECMWFBaseMarsSource:
             req_dict = {**i_dict, **mars_dict}
             for k, v in req_dict.items():
                 if isinstance(v, (list, tuple)):
-                    req_dict[k] = "/".join([str(x) for x in v]) # NOSONAR
+                    req_dict[k] = "/".join([str(x) for x in v])  # NOSONAR
 
             req_dict = ["{}={}".format(k, v) for k, v in req_dict.items()]
             if cost:
-                req_dict = "list,output=cost,{}".format(",".join(req_dict)) # NOSONAR
+                req_dict = "list,output=cost,{}".format(",".join(req_dict))  # NOSONAR
             else:
-                req_dict = "retrieve,{}".format(",".join(req_dict)) # NOSONAR
+                req_dict = "retrieve,{}".format(",".join(req_dict))  # NOSONAR
 
             for j in range(tries):
                 try:
                     print(msg)
                     server = ECMWFService("mars")
                     server.execute(req_dict, target)
-                    return 1 # NOSONAR
+                    return 1  # NOSONAR
                 except: #NOSONAR
                     if j < tries - 1:
                         continue # NOSONAR
