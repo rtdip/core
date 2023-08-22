@@ -1,1 +1,0 @@
-::: src.sdk.python.rtdip_sdk.pipelines.transformers.spark.weather.ECMWF.extractpoint_to_weather_data_model
