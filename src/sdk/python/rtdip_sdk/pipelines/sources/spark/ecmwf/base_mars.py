@@ -17,11 +17,7 @@ import numpy as np
 import os
 
 from ecmwfapi import ECMWFService
-from dotenv import load_dotenv
 from joblib import Parallel, delayed
-
-
-load_dotenv()
 
 
 class SparkECMWFBaseMarsSource:
@@ -33,6 +29,9 @@ class SparkECMWFBaseMarsSource:
         save_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
         date_start (str): Start date of extraction in "YYYY-MM-DD HH:MM:SS" format
         date_end (str): End date of extraction in "YYYY-MM-DD HH:MM:SS" format
+        ecmwf_api_key (str): API key for ECMWF MARS server
+        ecwmf_api_url (str): URL for ECMWF MARS server
+        ecmwf_api_email (str): Email for ECMWF MARS server
         run_frequency (str):Frequency format of runs to download, e.g. "H"
         run_interval (str): Interval of runs, e.g. a run_frequency of "H" and run_interval of "12" will extract the data of the 00 and 12 run for each day.
     """
@@ -42,6 +41,9 @@ class SparkECMWFBaseMarsSource:
         date_start: str,
         date_end: str,
         save_path: str,
+        ecmwf_api_key: str,
+        ecmwf_api_email: str,
+        ecmwf_api_url: str = "https://api.ecmwf.int/v1",
         run_interval: str = "12",
         run_frequency: str = "H",
     ):
@@ -52,6 +54,9 @@ class SparkECMWFBaseMarsSource:
         self.format = format
         self.run_interval = run_interval
         self.run_frequency = run_frequency
+        self.ecmwf_api_key = ecmwf_api_key
+        self.ecmwf_api_url = ecmwf_api_url
+        self.ecmwf_api_email = ecmwf_api_email
 
         # Pandas date_list (info best retrieved per forecast day)
         self.dates = pd.date_range(
@@ -116,7 +121,12 @@ class SparkECMWFBaseMarsSource:
             for j in range(tries):
                 try:
                     print(msg)
-                    server = ECMWFService("mars")
+                    server = ECMWFService(
+                        "mars",
+                        url=self.ecmwf_api_url,
+                        email=self.ecmwf_api_email,
+                        key=self.ecmwf_api_key,
+                    )
                     server.execute(req_dict, target)
                     return 1  # NOSONAR
                 except:  # NOSONAR

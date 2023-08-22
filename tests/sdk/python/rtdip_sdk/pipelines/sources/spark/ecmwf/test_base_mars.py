@@ -24,10 +24,14 @@ from src.sdk.python.rtdip_sdk.pipelines.sources.spark.ecmwf.base_mars import (
 date_start = "2020-10-01 00:00:00"
 date_end = "2020-10-02 00:00:00"
 save_path = "/path/to/save"
+ecmwf_api_key = "1234567890"
+ecmwf_api_email = "john.smith@email.com"
 
 
 def test_retrieve():
-    api_instance = SparkECMWFBaseMarsSource(date_start, date_end, save_path)
+    api_instance = SparkECMWFBaseMarsSource(
+        date_start, date_end, save_path, ecmwf_api_key, ecmwf_api_email
+    )
 
     ec_vars = ["10u", "10v"]
     np.array(ec_vars)
@@ -53,7 +57,9 @@ def test_retrieve():
 
 
 def test_info_after_retrieve():
-    api_instance = SparkECMWFBaseMarsSource(date_start, date_end, save_path)
+    api_instance = SparkECMWFBaseMarsSource(
+        date_start, date_end, save_path, ecmwf_api_key, ecmwf_api_email
+    )
 
     ec_vars = ["10u", "10v"]
     np.array(ec_vars)

@@ -27,12 +27,6 @@ class SparkECMWFWeatherForecastSource(SourceInterface):
     """
     The Weather Forecast API V1 Source class to doownload nc files from ECMWF MARS server using the ECMWF python API.
 
-    The following environment variables must be set:
-
-    - ECMWF_API_KEY=""
-    - ECMWF_API_URL="https://api.ecmwf.int/v1"
-    - ECMWF_API_EMAIL=""
-
     Args:
         spark (SparkSession): Spark Session instance
         save_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
@@ -44,6 +38,8 @@ class SparkECMWFWeatherForecastSource(SourceInterface):
         leveltype (str): Surface level forecasts
         ec_vars (list): Variables of forecast measurements.
         forecast_area (list): N/W/S/E coordinates of the forecast area
+        ecmwf_api_key (str): API key for ECMWF API
+        ecmwf_api_email (str): Email for ECMWF API
     """
 
     spark: SparkSession
@@ -60,6 +56,8 @@ class SparkECMWFWeatherForecastSource(SourceInterface):
         leveltype: str,
         ec_vars: list,
         forecast_area: list,
+        ecmwf_api_key: str,
+        ecmwf_api_email: str,
     ) -> None:
         self.spark = spark
         self.save_path = save_path
@@ -71,6 +69,8 @@ class SparkECMWFWeatherForecastSource(SourceInterface):
         self.leveltype = leveltype  # surface level forecasts
         self.ec_vars = ec_vars  # variables
         self.forecast_area = forecast_area  # N/W/S/E
+        self.ecmwf_api_key = ecmwf_api_key
+        self.ecmwf_api_email = ecmwf_api_email
 
     @staticmethod
     def system_type():
@@ -150,6 +150,9 @@ class SparkECMWFWeatherForecastSource(SourceInterface):
             save_path=self.save_path,
             run_interval="12",
             run_frequency="H",
+            ecmwf_api_key=self.ecmwf_api_key,
+            ecmwf_api_email=self.ecmwf_api_email,
+            ecmwf_api_url="https://api.ecmwf.int/v1",
         )
 
         ec_conn.retrieve(

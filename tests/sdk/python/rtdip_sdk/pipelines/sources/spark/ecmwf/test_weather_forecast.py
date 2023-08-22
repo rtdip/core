@@ -41,6 +41,8 @@ leveltype = "sfc"
 ec_vars = ["10u", "10v"]
 np.array(ec_vars)
 forecast_area = ([73.5, -27, 33, 45],)  # N/W/S/E
+ecmwf_api_key = "1234567890"
+ecmwf_api_email = "john.smith@email.com"
 
 
 def test_get_lead_time(spark_session: SparkSession):
@@ -55,6 +57,8 @@ def test_get_lead_time(spark_session: SparkSession):
         leveltype=leveltype,
         ec_vars=ec_vars,
         forecast_area=forecast_area,
+        ecmwf_api_key=ecmwf_api_key,
+        ecmwf_api_email=ecmwf_api_email,
     )
     lead_times = ws._get_lead_time()
     expected_lead_times = [
@@ -200,6 +204,8 @@ def test_get_api_params(spark_session: SparkSession):
         leveltype=leveltype,
         ec_vars=ec_vars,
         forecast_area=forecast_area,
+        ecmwf_api_key=ecmwf_api_key,
+        ecmwf_api_email=ecmwf_api_email,
     )
     lead_times = ws._get_lead_time()
     params = ws._get_api_params(lead_times)
@@ -229,6 +235,8 @@ def test_read_batch(spark_session: SparkSession):
         leveltype=leveltype,
         ec_vars=ec_vars,
         forecast_area=forecast_area,
+        ecmwf_api_key=ecmwf_api_key,
+        ecmwf_api_email=ecmwf_api_email,
     )
     result = weather_source.read_batch()
     assert isinstance(result, object)
