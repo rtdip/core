@@ -21,6 +21,7 @@ changelog:
       - invalid
       - wontfix
       - question
+      - release
     authors:
       - dependabot[bot]
       - mend-bolt-for-github[bot]
@@ -37,9 +38,9 @@ changelog:
     - title: Documentation
       labels:
         - documentation
-    - title: Ingestion Framework
+    - title: Pipelines
       labels:
-        - ingestion framework      
+        - pipelines      
     - title: Other Changes
       labels:
         - "*"
