@@ -86,8 +86,10 @@ class SparkEventhubDestination(DestinationInterface):
             if self.data.schema["body"].dataType not in [StringType(), BinaryType()]:
                 try:
                     self.data.withColumn("body", col("body").cast(StringType()))
-                except:
-                    raise ValueError("'body' column must be of string or binary type")
+                except Exception as e:
+                    raise ValueError(
+                        "'body' column must be of string or binary type", e
+                    )
         else:
             self.data = self.data.withColumn(
                 "body",
@@ -110,8 +112,8 @@ class SparkEventhubDestination(DestinationInterface):
                     self.data = self.data.withColumn(
                         column.name, col(column.name).cast(StringType())
                     )
-                except:
-                    raise ValueError(f"Column {column.name} must be of string type")
+                except Exception as e:
+                    raise ValueError(f"Column {column.name} must be of string type", e)
         return self.data.select(
             [
                 column
