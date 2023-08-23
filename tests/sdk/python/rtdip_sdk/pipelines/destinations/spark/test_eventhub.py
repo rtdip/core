@@ -25,7 +25,14 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     MavenLibrary,
 )
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.streaming import StreamingQuery
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    LongType,
+)
+from datetime import datetime
 
 
 class TestStreamingQueryClass:
@@ -49,6 +56,49 @@ def test_spark_eventhub_write_setup():
     assert isinstance(eventhub_destination.settings(), dict)
     assert eventhub_destination.pre_write_validation()
     assert eventhub_destination.post_write_validation()
+
+
+def test_prepare_columns(spark_session: SparkSession):
+    pcdm_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), False),
+            StructField("Value", StringType(), True),
+            StructField("ValueType", StringType(), False),
+            StructField("ChangeType", StringType(), False),
+            StructField("partitionId", LongType(), False),
+        ]
+    )
+
+    pcdm_data = [
+        {
+            "TagName": "test.item1",
+            "EventTime": datetime.fromisoformat("2023-07-31T06:53:00+00:00"),
+            "Status": "Good",
+            "Value": 5.0,
+            "ValueType": "float",
+            "ChangeType": "insert",
+            "partitionId": 134343345,
+        },
+        {
+            "TagName": "Test_item2",
+            "EventTime": datetime.fromisoformat("2023-07-31T06:54:00+00:00"),
+            "Status": "Good",
+            "Value": 1,
+            "ValueType": "float",
+            "ChangeType": "insert",
+            "partitionId": 134343345,
+        },
+    ]
+    pcdm_df: DataFrame = spark_session.createDataFrame(
+        schema=pcdm_schema, data=pcdm_data
+    )
+    eventhub_destination = SparkEventhubDestination(pcdm_df, {})
+    prepared_df = eventhub_destination.prepare_columns()
+    assert len(prepared_df.schema) == 2
+    assert prepared_df.schema["body"].dataType == StringType()
+    assert prepared_df.schema["partitionId"].dataType == StringType()
 
 
 def test_spark_eventhub_write_batch(spark_session: SparkSession, mocker: MockerFixture):
