@@ -195,6 +195,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
     def _write_delta_batch(self, df: DataFrame, destination: str):
         if self.merge == True:
+            if "EventDate" not in df.columns:
+                df = df.withColumn("EventDate", date_format("EventTime", "yyyy-MM-dd"))
+
             self._write_delta_merge(
                 df.filter(col("ChangeType").isin("insert", "update", "upsert")),
                 destination,
