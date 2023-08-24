@@ -77,7 +77,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         data: DataFrame,
         options: dict,
         destination_float: str,
-        destination_string: str,
+        destination_string: str = None,
         destination_integer: str = None,
         mode: str = None,
         trigger="10 seconds",
@@ -241,8 +241,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         )
         self._write_delta_batch(float_df, self.destination_float)
 
-        string_df = df.filter(ValueTypeConstants.STRING_VALUE)
-        self._write_delta_batch(string_df, self.destination_string)
+        if self.destination_string != None:
+            string_df = df.filter(ValueTypeConstants.STRING_VALUE)
+            self._write_delta_batch(string_df, self.destination_string)
 
         if self.destination_integer != None:
             integer_df = df.filter(ValueTypeConstants.INTEGER_VALUE).withColumn(
@@ -297,9 +298,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 )
             else:
                 delta_float = SparkDeltaDestination(
-                    data=self.data.filter(ValueTypeConstants.FLOAT_VALUE).withColumn(
-                        "Value", col("Value").cast("float")
-                    ),
+                    data=self.data.select("TagName", "EventTime", "Status", "Value")
+                    .filter(ValueTypeConstants.FLOAT_VALUE)
+                    .withColumn("Value", col("Value").cast("float")),
                     destination=self.destination_float,
                     options=self.options,
                     mode=self.mode,
@@ -309,20 +310,25 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
                 delta_float.write_stream()
 
-                delta_string = SparkDeltaDestination(
-                    data=self.data.filter(ValueTypeConstants.STRING_VALUE),
-                    destination=self.destination_string,
-                    options=self.options,
-                    mode=self.mode,
-                    trigger=self.trigger,
-                    query_name=self.query_name + "_string",
-                )
+                if self.destination_string != None:
+                    delta_string = SparkDeltaDestination(
+                        data=self.data.select(
+                            "TagName", "EventTime", "Status", "Value"
+                        ).filter(ValueTypeConstants.STRING_VALUE),
+                        destination=self.destination_string,
+                        options=self.options,
+                        mode=self.mode,
+                        trigger=self.trigger,
+                        query_name=self.query_name + "_string",
+                    )
 
-                delta_string.write_stream()
+                    delta_string.write_stream()
 
                 if self.destination_integer != None:
                     delta_integer = SparkDeltaDestination(
-                        data=self.data.filter(ValueTypeConstants.INTEGER_VALUE),
+                        data=self.data.select(
+                            "TagName", "EventTime", "Status", "Value"
+                        ).filter(ValueTypeConstants.INTEGER_VALUE),
                         destination=self.destination_integer,
                         options=self.options,
                         mode=self.mode,
