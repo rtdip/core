@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..ami_meters import SeriesType
+from ..timeseries import SeriesType
 from datetime import date, timezone
 from dateutil import tz
 import datetime

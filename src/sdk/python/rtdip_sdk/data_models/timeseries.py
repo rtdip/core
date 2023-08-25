@@ -13,39 +13,43 @@
 # limitations under the License.
 
 
+
 from enum import IntFlag, auto
 from pydantic import BaseModel
 from enum import Enum
 
 
-class ModelType(IntFlag):
-    Default = auto()
-
-
-class UomUsage(Enum):
+class Uom(IntFlag):
     """
     Units of measurement
     """
-
-    W = 0
+    W = auto()
     """Watts"""
-    WH = 1
+    WH = auto()
     """Watts/Hour"""
-    KW = 2
+    KW = auto()
     """Kilowatts"""
-    KWH = 3
+    KWH = auto()
     """Kilowatts/Hour"""
-    MW = 4
+    MW = auto()
     """Megawatts"""
-    MWH = 5
+    MWH = auto()
     """Megawatts/Hour"""
+    WEATHER = auto()
+    """Weather related data"""
+
+
+class ModelType(IntFlag):
+    AMI = auto()
+    WEATHER_AG2 = auto()
+    WEATHER_ECMWF = auto()
+    Default = auto()
 
 
 class SeriesType(IntFlag):
     """
     Definition of the type of timeseries for the measurements (e.g. realtime or interval based) and the type of the computation if the series is aggregated/derived
     """
-
     RealTime = auto()
     """
     The data has no specific time pattern
@@ -138,39 +142,10 @@ class SeriesType(IntFlag):
     # Testing
     Test = auto()
 
-
-class Usage(BaseModel):
-    """
-    Usage. a usage measurement from an AMI meter
-    """
-
-    Uid: str
-    """
-    A unique identifier associated to the source of the measurement (e.g. sensor, meter, etc.)
-    """
-    SeriesId: str
-    """
-    Identifier for a particular timeseries set
-    """
-    Timestamp: int
-    """
-    Creation time. Always UTC. Seconds since EPOCH
-    """
-    IntervalTimestamp: int
-    """
-    The timestamp for the interval. Always UTC. Seconds since EPOCH
-    """
-    Value: float
-    """
-    The actual value of the measurement
-    """
-
-
 class ValueType(IntFlag):
     """
     Defines the type of value
     """
-
     Counter = auto()
     """
     The value is cumulative increasing monotinically
@@ -245,7 +220,7 @@ class MetaData(BaseModel):
     """
     Name of the sensor
     """
-    Uom: UomUsage
+    Uom: Uom
     """
     Unit of measure for this sensor
     """
@@ -285,3 +260,4 @@ class MetaData(BaseModel):
     """
     Any other additional properties (Key/Value)
     """
+

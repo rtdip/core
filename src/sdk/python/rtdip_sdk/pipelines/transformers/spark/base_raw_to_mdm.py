@@ -17,7 +17,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import col, expr, lit
 from pyspark.sql.types import StructType
 
-from ....data_models.meters.ami_meters import ValueType, SeriesType, ModelType
+from ....data_models.timeseries import ValueType, SeriesType, ModelType
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.mdm import MDM_USAGE_SCHEMA, MDM_META_SCHEMA
 from ..._pipeline_utils.models import Libraries, SystemType

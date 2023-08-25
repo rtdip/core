@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from ..ami_meters import Usage
+from ..ami_meter import Usage
 
 
 def create_usage_VO(

@@ -13,19 +13,19 @@
 # limitations under the License.
 
 
-from ..ami_meters import SeriesType
-from ..ami_meters import MetaData
-from ..ami_meters import ValueType
-from ..ami_meters import ModelType
-from ..ami_meters import UomUsage
+from ..timeseries import SeriesType
+from ..timeseries import MetaData
+from ..timeseries import ValueType
+from ..timeseries import ModelType
+from ..timeseries import Uom
 
 
-def create_metadata_VO(
+def create_timeseries_VO(
     uid: str,
     series_id: str,
     series_parent_id: str,
     name: str,
-    uom: UomUsage,
+    uom: Uom,
     description: str,
     timestamp_start: int,
     timestamp_end: int,

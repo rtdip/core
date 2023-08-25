@@ -17,15 +17,15 @@ import sys
 sys.path.insert(0, ".")
 
 
-from src.sdk.python.rtdip_sdk.data_models.meters.utils import CreateMetaDataObject
+from src.sdk.python.rtdip_sdk.data_models.utils import CreateTimeSeriesObject
 from src.sdk.python.rtdip_sdk.data_models.meters.utils import CreateUsageObject
-from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import SeriesType
-from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import MetaData
-from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import ValueType
-from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import ModelType
-from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import UomUsage
-from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import Usage
-from src.sdk.python.rtdip_sdk.data_models.meters.utils import utils
+from src.sdk.python.rtdip_sdk.data_models.timeseries import SeriesType
+from src.sdk.python.rtdip_sdk.data_models.timeseries import MetaData
+from src.sdk.python.rtdip_sdk.data_models.timeseries import ValueType
+from src.sdk.python.rtdip_sdk.data_models.timeseries import ModelType
+from src.sdk.python.rtdip_sdk.data_models.timeseries import Uom
+from src.sdk.python.rtdip_sdk.data_models.meters.ami_meter import Usage
+from src.sdk.python.rtdip_sdk.data_models.utils import timeseries_utils
 from uuid import uuid4
 import datetime
 import logging
@@ -41,13 +41,13 @@ def test_generate_timeseries_objects_creation():
 
     version_str: str = "Version_0_0_1"
 
-    timestamp_start_int: int = int(utils.get_utc_timestamp())
+    timestamp_start_int: int = int(timeseries_utils.get_utc_timestamp())
     timestamp_end_int: int = timestamp_start_int
     timezone_str: str = str(
         datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
     )
     name_str: str = "name_" + str(uuid4())
-    uom = UomUsage.KWH
+    uom = Uom.KWH
 
     series_type = SeriesType.Minutes10
     model_type = ModelType.Default
@@ -58,7 +58,7 @@ def test_generate_timeseries_objects_creation():
     value_str: str = "value_" + str(uuid4())
     properties_dict[key_str] = value_str
 
-    metadata_vo: MetaData = CreateMetaDataObject.create_metadata_VO(
+    metadata_vo: MetaData = CreateTimeSeriesObject.create_timeseries_VO(
         meter_1_uid_str,
         series_1_id_str,
         series_1_parent_id_str,
@@ -84,7 +84,7 @@ def test_generate_timeseries_objects_creation():
         series_1_id_str,
         timestamp_start_int,
         timestamp_interval_int,
-        utils.generate_random_int_number(0, 1000) * 0.1,
+        timeseries_utils.generate_random_int_number(0, 1000) * 0.1,
     )
     logging.debug(usage_vo)
 
