@@ -19,23 +19,23 @@ from pydantic import BaseModel
 from enum import Enum
 
 
-class Uom(IntFlag):
+class Uom(Enum):
     """
     Units of measurement
     """
-    W = auto()
+    W = 0
     """Watts"""
-    WH = auto()
+    WH = 1
     """Watts/Hour"""
-    KW = auto()
+    KW = 2
     """Kilowatts"""
-    KWH = auto()
+    KWH = 3
     """Kilowatts/Hour"""
-    MW = auto()
+    MW = 4
     """Megawatts"""
-    MWH = auto()
+    MWH = 5
     """Megawatts/Hour"""
-    WEATHER = auto()
+    WEATHER = 6
     """Weather related data"""
 
 
