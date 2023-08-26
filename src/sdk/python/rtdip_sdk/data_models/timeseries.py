@@ -22,6 +22,7 @@ class UomUsage(Enum):
     """
     Units of measurement
     """
+
     W = 0
     """Watts"""
     WH = 1
@@ -38,6 +39,7 @@ class UomUsage(Enum):
 
 class ModelType(IntFlag):
     Default = auto()
+
 
 class SeriesType(IntFlag):
     """
