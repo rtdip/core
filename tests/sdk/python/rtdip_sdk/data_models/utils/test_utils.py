@@ -59,7 +59,9 @@ def test_timeseries_1h():
         now_utc_datetime_plus: datetime.datetime = (
             now_utc_datetime_plus + datetime.timedelta(minutes=interval_minutes_int)
         )
-        interval_int: int = timeseries_utils.get_interval(SeriesType.Hour, now_utc_datetime_plus)
+        interval_int: int = timeseries_utils.get_interval(
+            SeriesType.Hour, now_utc_datetime_plus
+        )
         interval_list[interval_int] = 0
         key_str: str = "interval_" + str(interval_int).zfill(2)
         interval_dict[key_str] = now_utc_datetime_plus

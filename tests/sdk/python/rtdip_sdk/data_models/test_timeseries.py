@@ -23,7 +23,7 @@ from src.sdk.python.rtdip_sdk.data_models.timeseries import SeriesType
 from src.sdk.python.rtdip_sdk.data_models.timeseries import MetaData
 from src.sdk.python.rtdip_sdk.data_models.timeseries import ValueType
 from src.sdk.python.rtdip_sdk.data_models.timeseries import ModelType
-from src.sdk.python.rtdip_sdk.data_models.timeseries import Uom
+from src.sdk.python.rtdip_sdk.data_models.timeseries import UomUsage
 from src.sdk.python.rtdip_sdk.data_models.meters.ami_meter import Usage
 from src.sdk.python.rtdip_sdk.data_models.utils import timeseries_utils
 from uuid import uuid4
@@ -47,7 +47,7 @@ def test_generate_timeseries_objects_creation():
         datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
     )
     name_str: str = "name_" + str(uuid4())
-    uom = Uom.KWH
+    uom = UomUsage.KWH
 
     series_type = SeriesType.Minutes10
     model_type = ModelType.Default

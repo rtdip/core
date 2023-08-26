@@ -42,7 +42,9 @@ def test_validate():
     )  # NOSONAR
 
     rnd_full_s3_uri: str = storage_objects_utils.to_uri(
-        storage_objects_utils.S3_SCHEME, rnd_domain_name, rnd_keys + "/" + rnd_object_name
+        storage_objects_utils.S3_SCHEME,
+        rnd_domain_name,
+        rnd_keys + "/" + rnd_object_name,
     )
 
     scheme, domain, path = storage_objects_utils.validate_uri(rnd_full_s3_uri)

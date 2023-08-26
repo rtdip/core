@@ -69,10 +69,14 @@ def test_s3_copy_utility():
     )
 
     rnd_full_source_s3_uri: str = storage_objects_utils.to_uri(
-        storage_objects_utils.S3_SCHEME, rnd_source_domain_name, rnd_keys + "/" + rnd_object_name
+        storage_objects_utils.S3_SCHEME,
+        rnd_source_domain_name,
+        rnd_keys + "/" + rnd_object_name,
     )
     rnd_full_destination_s3_uri: str = storage_objects_utils.to_uri(
-        storage_objects_utils.S3_SCHEME, rnd_destination_domain_name, rnd_keys + "/" + rnd_object_name
+        storage_objects_utils.S3_SCHEME,
+        rnd_destination_domain_name,
+        rnd_keys + "/" + rnd_object_name,
     )
 
     # Create buckets first (required by moto)
@@ -135,7 +139,9 @@ def test_s3_copy_utility():
         for _ in range(3)  # NOSONAR
     )
     rnd_full_source_s3_uri: str = storage_objects_utils.to_uri(
-        storage_objects_utils.S3_SCHEME, rnd_source_domain_name, rnd_keys + "/" + rnd_object_name
+        storage_objects_utils.S3_SCHEME,
+        rnd_source_domain_name,
+        rnd_keys + "/" + rnd_object_name,
     )
     s3_copy_utility: S3CopyUtility = S3CopyUtility(
         rnd_full_source_s3_uri, rnd_tempfile.name
