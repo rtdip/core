@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from enum import Enum
 
 
-class UomUsage(Enum):
+class Uom(Enum):
     """
     Units of measurement
     """
@@ -218,7 +218,7 @@ class MetaData(BaseModel):
     """
     Name of the sensor
     """
-    Uom: UomUsage
+    Uom: Uom
     """
     Unit of measure for this sensor
     """
