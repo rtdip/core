@@ -41,7 +41,3 @@ class Usage(BaseModel):
     """
     The actual value of the measurement
     """
-
-
-
-

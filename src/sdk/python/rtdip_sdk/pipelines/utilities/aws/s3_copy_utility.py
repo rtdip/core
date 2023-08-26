@@ -87,10 +87,14 @@ class S3CopyUtility(UtilitiesInterface):
         if self.source_uri.startswith(
             storage_objects_utils.S3_SCHEME
         ) and self.destination_uri.startswith(storage_objects_utils.S3_SCHEME):
-            schema, source_domain, source_key = storage_objects_utils.validate_uri(self.source_uri)
-            schema, destination_domain, destination_key = storage_objects_utils.validate_uri(
-                self.destination_uri
+            schema, source_domain, source_key = storage_objects_utils.validate_uri(
+                self.source_uri
             )
+            (
+                schema,
+                destination_domain,
+                destination_key,
+            ) = storage_objects_utils.validate_uri(self.destination_uri)
 
             s3 = boto3.resource(schema)
             copy_source = {"Bucket": source_domain, "Key": source_key}
@@ -115,9 +119,11 @@ class S3CopyUtility(UtilitiesInterface):
         elif (os.path.isfile(self.source_uri)) and self.destination_uri.startswith(
             storage_objects_utils.S3_SCHEME
         ):
-            schema, destination_domain, destination_key = storage_objects_utils.validate_uri(
-                self.destination_uri
-            )
+            (
+                schema,
+                destination_domain,
+                destination_key,
+            ) = storage_objects_utils.validate_uri(self.destination_uri)
 
             s3_client = boto3.client(schema)
 
@@ -133,7 +139,9 @@ class S3CopyUtility(UtilitiesInterface):
             storage_objects_utils.S3_SCHEME
         ) and not self.destination_uri.startswith(storage_objects_utils.S3_SCHEME):
             try:
-                schema, source_domain, source_key = storage_objects_utils.validate_uri(self.source_uri)
+                schema, source_domain, source_key = storage_objects_utils.validate_uri(
+                    self.source_uri
+                )
                 s3 = boto3.client(schema)
                 s3.download_file(source_domain, source_key, self.destination_uri)
             except Exception as ex:

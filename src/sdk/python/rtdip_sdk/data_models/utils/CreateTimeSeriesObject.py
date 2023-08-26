@@ -17,7 +17,7 @@ from ..timeseries import SeriesType
 from ..timeseries import MetaData
 from ..timeseries import ValueType
 from ..timeseries import ModelType
-from ..timeseries import Uom
+from ..timeseries import UomUsage
 
 
 def create_timeseries_VO(
@@ -25,7 +25,7 @@ def create_timeseries_VO(
     series_id: str,
     series_parent_id: str,
     name: str,
-    uom: Uom,
+    uom: UomUsage,
     description: str,
     timestamp_start: int,
     timestamp_end: int,
