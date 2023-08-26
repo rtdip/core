@@ -35,10 +35,23 @@ class Uom(Enum):
     """Megawatts"""
     MWH = 5
     """Megawatts/Hour"""
+    WEATHER = 6
+    """Weather related"""
 
 
 class ModelType(IntFlag):
+    """
+    Specifies the type of model that will be represneted
+    """
+
     Default = auto()
+    """Default value"""
+    AMI_USAGE = auto()
+    """Advanced Meter Infrastructure usage"""
+    WEATHER_AG2 = auto()
+    """Atmospheric G2 Format"""
+    WEATHER_ECMWF = auto()
+    """European Centre for Medium-Range Weather Forecasts Format"""
 
 
 class SeriesType(IntFlag):
