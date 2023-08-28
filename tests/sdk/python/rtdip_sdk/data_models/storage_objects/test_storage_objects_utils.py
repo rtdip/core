@@ -22,6 +22,7 @@ sys.path.insert(0, ".")
 from src.sdk.python.rtdip_sdk.data_models.storage_objects import storage_objects_utils
 
 
+
 def test_validate():
     random.seed(datetime.now().timestamp())  # NOSONAR
     lan: string = string.ascii_lowercase + string.digits
@@ -35,10 +36,10 @@ def test_validate():
 
     rnd_object_name: str = (
         "".join(
-            random.choice(lan) for _ in range(9)  # NOSONAR                 # NOSONAR
+            random.choice(lan) for _ in range(9)  # NOSONAR                
         )
         + "."
-        + "".join(random.choice(string.ascii_lowercase) for _ in range(3))
+        + "".join(random.choice(string.ascii_lowercase) for _ in range(3))  # NOSONAR
     )  # NOSONAR
 
     rnd_full_s3_uri: str = storage_objects_utils.to_uri(
