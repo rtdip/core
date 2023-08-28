@@ -20,7 +20,7 @@ from ..timeseries import ModelType
 from ..timeseries import Uom
 
 
-def create_timeseries_VO(
+def create_timeseries_vo(
     uid: str,
     series_id: str,
     series_parent_id: str,
