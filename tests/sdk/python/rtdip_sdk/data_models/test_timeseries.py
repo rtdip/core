@@ -83,7 +83,8 @@ def test_generate_timeseries_objects_creation():
         series_1_id_str,
         timestamp_start_int,
         timestamp_interval_int,
-        timeseries_utils.generate_random_int_number(0, 1000) * 0.1)
+        timeseries_utils.generate_random_int_number(0, 1000) * 0.1,
+    )
     logging.debug(usage_vo)
 
     assert metadata_vo.SeriesId == usage_vo.SeriesId
