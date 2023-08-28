@@ -63,6 +63,7 @@ PIPELINE_PACKAGES = [
     "xarray>=2023.1.0,<2023.8.0",
     "ecmwf-api-client==1.6.3",
     "netCDF4==1.6.4",
+    "joblib==1.3.2",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
