@@ -490,13 +490,17 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             + " "
             + parameters_dict["time_interval_unit"][0]
         )
-
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
         return sample_prepared_query
 
     if query_type == "interpolate":
+        parameters_dict["range_join_seconds"] = _convert_to_seconds(
+            parameters_dict["time_interval_rate"]
+            + " "
+            + parameters_dict["time_interval_unit"][0]
+        )
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
