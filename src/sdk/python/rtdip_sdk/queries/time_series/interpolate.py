@@ -14,6 +14,7 @@
 
 import logging
 import pandas as pd
+import sys
 from ._query_builder import _query_builder
 
 
