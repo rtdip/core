@@ -17,6 +17,7 @@ import datetime
 from datetime import datetime, time
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
+seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
 
 def _is_date_format(dt, format):
@@ -76,6 +77,10 @@ def _parse_dates(parameters_dict):
     return parameters_dict
 
 
+def _convert_to_seconds(s):
+    return int(s[:-1]) * seconds_per_unit[s[-1]]
+
+
 def _raw_query(parameters_dict: dict) -> str:
     raw_query = (
         "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") as `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
@@ -130,9 +135,9 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% endif %}"
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` in ('{{ tag_names | join('\\', \\'') }}') "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
-        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS timestamp_array, explode(array('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`) "
-        ",window_buckets AS (SELECT timestamp_array AS window_start, `{{ tagname_column }}`, LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) "
-        ",project_resample_results AS (SELECT d.window_start, d.window_end, d.`{{ tagname_column }}`, {{ agg_method }}(e.`{{ value_column }}`) OVER (PARTITION BY d.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `{{ value_column }}` FROM window_buckets d INNER JOIN raw_events e ON e.`{{ timestamp_column }}` >= d.window_start AND e.`{{ timestamp_column }}` < d.window_end AND e.`{{ tagname_column }}` = d.`{{ tagname_column }}`) "
+        ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
+        ",window_buckets AS (SELECT timestamp_array AS window_start, LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) "
+        ",project_resample_results AS (SELECT /*+ RANGE_JOIN(d, {{ range_join_seconds }} ) */ d.window_start, d.window_end, e.`{{ tagname_column }}`, {{ agg_method }}(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `{{ value_column }}` FROM window_buckets d INNER JOIN raw_events e ON d.window_start <= e.`{{ timestamp_column }}` AND d.window_end > e.`{{ timestamp_column }}`) "
         "SELECT window_start AS `{{ timestamp_column }}`, `{{ tagname_column }}`, `{{ value_column }}` FROM project_resample_results GROUP BY window_start, `{{ tagname_column }}`, `{{ value_column }}` "
         "{% if is_resample is defined and is_resample == true %}"
         "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
@@ -166,6 +171,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         and parameters_dict.get("status_column") is None
         else parameters_dict.get("status_column", "Status"),
         "value_column": parameters_dict.get("value_column", "Value"),
+        "range_join_seconds": parameters_dict["range_join_seconds"],
     }
 
     sql_template = Template(sample_query)
@@ -479,12 +485,22 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
         return _raw_query(parameters_dict)
 
     if query_type == "resample":
+        parameters_dict["range_join_seconds"] = _convert_to_seconds(
+            parameters_dict["time_interval_rate"]
+            + " "
+            + parameters_dict["time_interval_unit"][0]
+        )
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
         return sample_prepared_query
 
     if query_type == "interpolate":
+        parameters_dict["range_join_seconds"] = _convert_to_seconds(
+            parameters_dict["time_interval_rate"]
+            + " "
+            + parameters_dict["time_interval_unit"][0]
+        )
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
