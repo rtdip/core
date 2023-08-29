@@ -87,7 +87,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         Returns:
             DataFrame: A dataframe with with rows in Honeywell APM format
         """
-        if self.data.isStreaming and self.history_samples_per_message > 1:
+        if self.data.isStreaming == False and self.history_samples_per_message > 1:
             pcdm_df = self.data.withColumn("counter", monotonically_increasing_id())
             w = Window.orderBy("counter")
             cleaned_pcdm_df = (

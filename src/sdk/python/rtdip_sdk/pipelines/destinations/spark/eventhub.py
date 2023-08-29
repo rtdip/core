@@ -14,7 +14,7 @@
 
 import logging
 import time
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from py4j.protocol import Py4JJavaError
 from pyspark.sql.functions import col, struct, to_json
 from pyspark.sql.types import StringType, BinaryType
@@ -31,6 +31,7 @@ class SparkEventhubDestination(DestinationInterface):
     If using startingPosition or endingPosition make sure to check out **Event Position** section for more details and examples.
 
     Args:
+        spark (SparkSession): Spark Session
         data (DataFrame): Dataframe to be written to Eventhub
         options (dict): A dictionary of Eventhub configurations (See Attributes table below). All Configuration options for Eventhubs can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
         trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
@@ -47,11 +48,13 @@ class SparkEventhubDestination(DestinationInterface):
 
     def __init__(
         self,
+        spark: SparkSession,
         data: DataFrame,
         options: dict,
         trigger="10 seconds",
         query_name="EventhubDestination",
     ) -> None:
+        self.spark = spark
         self.data = data
         self.options = options
         self.trigger = trigger
