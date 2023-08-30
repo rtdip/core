@@ -33,6 +33,14 @@ from pyspark.sql.types import (
     LongType,
 )
 from datetime import datetime
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    LongType,
+)
+from datetime import datetime
 
 
 class TestStreamingQueryClass:
