@@ -132,32 +132,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
             )
 
         df = cleaned_pcdm_df.withColumn(
-        df = cleaned_pcdm_df.withColumn(
             "CloudPlatformEvent",
-            struct(
-                lit(datetime.now(tz=pytz.UTC)).alias("CreatedTime"),
-                lit(expr("uuid()")).alias("Id"),
-                col("guid").alias("CreatorId"),
-                lit("CloudPlatformSystem").alias("CreatorType"),
-                lit(None).alias("GeneratorId"),
-                lit("CloudPlatformTenant").alias("GeneratorType"),
-                col("guid").alias("TargetId"),
-                lit("CloudPlatformTenant").alias("TargetType"),
-                lit(None).alias("TargetContext"),
-                struct(
-                    lit("TextualBody").alias("type"),
-                    to_json(col("value")).alias("value"),
-                    lit("application/json").alias("format"),
-                ).alias("Body"),
-                array(
-                    struct(
-                        lit("SystemType").alias("Key"),
-                        lit("apm-system").alias("Value"),
-                    ),
-                    struct(lit("SystemGuid").alias("Key"), col("guid").alias("Value")),
-                ).alias("BodyProperties"),
-                lit("DataChange.Update").alias("EventType"),
-            ),
             struct(
                 lit(datetime.now(tz=pytz.UTC)).alias("CreatedTime"),
                 lit(expr("uuid()")).alias("Id"),

@@ -132,17 +132,7 @@ class SparkEventhubDestination(DestinationInterface):
         Writes batch data to Eventhubs.
         """
         eventhub_connection_string = "eventhubs.connectionString"
-        eventhub_connection_string = "eventhubs.connectionString"
         try:
-            if eventhub_connection_string in self.options:
-                sc = self.spark.sparkContext
-                self.options[
-                    eventhub_connection_string
-                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
-                    self.options[eventhub_connection_string]
-                )
-            df = self.prepare_columns()
-            return df.write.format("eventhubs").options(**self.options).save()
             if eventhub_connection_string in self.options:
                 sc = self.spark.sparkContext
                 self.options[
@@ -165,7 +155,6 @@ class SparkEventhubDestination(DestinationInterface):
         Writes steaming data to Eventhubs.
         """
         eventhub_connection_string = "eventhubs.connectionString"
-        eventhub_connection_string = "eventhubs.connectionString"
         try:
             TRIGGER_OPTION = (
                 {"availableNow": True}
@@ -187,25 +176,7 @@ class SparkEventhubDestination(DestinationInterface):
                     if column in ["partitionId", "partitionKey", "body"]
                 ]
             )
-
-            if eventhub_connection_string in self.options:
-                sc = self.spark.sparkContext
-                self.options[
-                    eventhub_connection_string
-                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
-                    self.options[eventhub_connection_string]
-                )
-            df = self.prepare_columns()
-            df = self.data.select(
-                [
-                    column
-                    for column in self.data.columns
-                    if column in ["partitionId", "partitionKey", "body"]
-                ]
-            )
-
             query = (
-                df.writeStream.trigger(**TRIGGER_OPTION)
                 df.writeStream.trigger(**TRIGGER_OPTION)
                 .format("eventhubs")
                 .options(**self.options)
