@@ -14,8 +14,9 @@
 import importlib.util
 
 from .odbc.db_sql_connector import *
-from .odbc.pyodbc_sql_connector import *
 
+if importlib.util.find_spec("pyodbc") != None:
+    from .odbc.pyodbc_sql_connector import *
 if importlib.util.find_spec("turbodbc") != None:
     from .odbc.turbodbc_sql_connector import *
 if importlib.util.find_spec("pyspark") != None:
