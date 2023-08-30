@@ -32,7 +32,6 @@ from pytest_mock import MockerFixture
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from datetime import datetime
 import uuid
-import uuid
 
 
 def test_pcdm_to_honeywell_apm(spark_session: SparkSession, mocker: MockerFixture):

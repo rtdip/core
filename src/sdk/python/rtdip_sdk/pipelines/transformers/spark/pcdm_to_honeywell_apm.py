@@ -42,7 +42,6 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         data (Dataframe): Spark Dataframe in PCDM format
         quality (str): Value for quality inside HistorySamples
         history_samples_per_message (int): The number of HistorySamples for each row in the DataFrame (Batch Only)
-        history_samples_per_message (int): The number of HistorySamples for each row in the DataFrame (Batch Only)
 
     """
 
