@@ -17,7 +17,6 @@ from pyspark.sql.functions import (
     to_json,
     col,
     struct,
-    create_map,
     lit,
     array,
     monotonically_increasing_id,
@@ -156,6 +155,6 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                 ).alias("BodyProperties"),
                 lit("DataChange.Update").alias("EventType"),
             ),
-        ).withColumn("AnnotationStreamIds", lit("self.AnnotationStreamIds"))
+        ).withColumn("AnnotationStreamIds", lit(","))
 
         return df.select("CloudPlatformEvent", "AnnotationStreamIds")
