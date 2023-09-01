@@ -44,7 +44,7 @@ class PythonDeltaDestination(DestinationInterface):
     options: dict
     mode: Literal["error", "append", "overwrite", "ignore"]
     overwrite_schema: bool
-    delta_write_options: bool
+    delta_write_options: dict
 
     def __init__(
         self,
@@ -53,7 +53,7 @@ class PythonDeltaDestination(DestinationInterface):
         options: dict = None,
         mode: Literal["error", "append", "overwrite", "ignore"] = "error",
         overwrite_schema: bool = False,
-        delta_write_options: bool = False,
+        delta_write_options: dict = {},
         query_name=None,
     ) -> None:
         self.data = data
