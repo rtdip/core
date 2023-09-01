@@ -26,25 +26,6 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
 from ..._pipeline_utils.amqp import decode_kafka_headers_to_amqp_properties
 
-eventhub_system_properties = [
-    "x-opt-enqueued-time",
-    "x-opt-sequence-number",
-    "x-opt-offset",
-    "x-opt-publisher",
-    "x-opt-partition-key",
-    "message-id",
-    "iothub-enqueuedtime",
-    "user-id",
-    "iothub-connection-device-id",
-    "iothub-connection-module-id",
-    "iothub-connection-auth-generation-id",
-    "iothub-connection-auth-method",
-    "iothub-app-iothub-creation-time-utc",
-    "iothub-creation-time-utc",
-    "dt-dataschema",
-    "dt-subject",
-]
-
 
 class SparkKafkaEventhubDestination(DestinationInterface):
     """
@@ -65,7 +46,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
         query_name (str): Unique name for the query in associated SparkSession
 
-    The following are all the possible parameters in the options dict
+    The following are commonly used parameters to be included in the options dict. kafka.bootstrap.servers is the only required config. A full list of configs can be found [here](https://kafka.apache.org/documentation/#producerconfigs){ target="_blank" }
 
     Attributes:
         kafka.bootstrap.servers (A comma-separated list of host︰port):  The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
