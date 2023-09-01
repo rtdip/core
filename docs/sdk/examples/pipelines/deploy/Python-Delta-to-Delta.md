@@ -1,1 +1,0 @@
---8<-- "https://raw.githubusercontent.com/rtdip/samples/main/pipelines/deploy/Python-Delta-to-Delta/README.md"
