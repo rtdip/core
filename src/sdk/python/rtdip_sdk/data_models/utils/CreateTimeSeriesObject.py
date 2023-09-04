@@ -35,7 +35,7 @@ def create_timeseries_vo(
     model_type: ModelType,
     value_type: ValueType,
     properties: dict,
-):
+): # NO SONAR
     try:
         return MetaData(
             Uid=uid,

@@ -32,7 +32,7 @@ def test_timeseries_15min():
     intervals_in_one_day_int: int = int((24 * 60) / interval_minutes_int)
     arr_list: list = [1 for i in range(intervals_in_one_day_int)]
     interval_list: list = list()
-    for i in range(intervals_in_one_day_int):
+    for i in range(intervals_in_one_day_int):  # NO SONAR
         now_utc_datetime_plus: datetime.datetime = (
             now_utc_datetime_plus + datetime.timedelta(minutes=interval_minutes_int)
         )
@@ -55,7 +55,7 @@ def test_timeseries_1h():
     interval_list: list = [1 for i in range(intervals_in_one_day_int)]
     interval_dict: dict = dict()
 
-    for i in range(intervals_in_one_day_int):
+    for i in range(intervals_in_one_day_int):  # NO SONAR
         now_utc_datetime_plus: datetime.datetime = (
             now_utc_datetime_plus + datetime.timedelta(minutes=interval_minutes_int)
         )

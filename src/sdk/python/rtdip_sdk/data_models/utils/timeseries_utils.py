@@ -20,6 +20,7 @@ import secrets
 import logging
 import string
 import random
+import logging
 
 
 type_checks = [
@@ -48,49 +49,6 @@ def get_interval(series_type_st: SeriesType, timestamp_datetime: datetime):
         raise SystemError(error_msg_str)
 
 
-def get_intervals(series_type_st: SeriesType, timestamp_date: date):
-    # TODO implement this method
-    timestamp_next_day_date = timestamp_date + datetime.timedelta(days=1)
-
-    now_utc_datetime: datetime.datetime = datetime.datetime.combine(
-        timestamp_date, datetime.datetime.min.time(), timezone.utc
-    )
-    local_time_zone = tz.tzlocal()
-    now_local_datetime_plus = now_utc_datetime.astimezone(local_time_zone)
-    interval_minutes_int = 60
-    i = 0
-    logging.debug(now_local_datetime_plus.tzinfo.tzname(now_local_datetime_plus))
-
-    while now_local_datetime_plus.date() < timestamp_date:
-        now_local_datetime_plus = now_local_datetime_plus + datetime.timedelta(
-            minutes=interval_minutes_int
-        )
-
-        i = i + 1
-
-
-def get_intervals(
-    series_type_st: SeriesType, timestamp_date: date, time_zone=timezone.utc
-):
-    now_local_datetime: datetime.datetime = datetime.datetime.combine(
-        timestamp_date, datetime.datetime.min.time(), time_zone
-    )
-
-    local_time_zone = tz.tzlocal()
-    now_local_datetime_plus = now_local_datetime.astimezone(local_time_zone)
-    interval_minutes_int = 60
-    i = 0
-    intervals_list: list = list()
-    intervals_list.append(now_local_datetime)
-    while now_local_datetime_plus.date() <= timestamp_date:
-        now_local_datetime_plus: datetime.datetime = (
-            now_local_datetime_plus + datetime.timedelta(minutes=interval_minutes_int)
-        )
-
-        intervals_list.append(now_local_datetime_plus)
-
-    return intervals_list
-
 
 def get_utc() -> datetime:
     return datetime.now(timezone.utc)
@@ -115,7 +73,7 @@ def generate_random_alpha_num_string(length: int = 8) -> str:
     letters_and_numbers: str = (
         string.ascii_lowercase + string.ascii_uppercase + string.digits
     )
-    return "".join(secrets.choice(letters_and_numbers) for i in range(length))
+    return "".join(secrets.choice(letters_and_numbers) for i in range(length)) # NO SONAR
 
 
 def generate_random_int_number(min_value: int, max_value: int) -> int:
@@ -132,7 +90,8 @@ def infer_type(value):
             result = check_if(value)
             logging.debug("Result: %s ", result)
             return detected_type
-        except ValueError as ex:
+        except ValueError as e:
+            logging.exception(e)
             continue
     # We could not find a match.  Default to str type
     return str
