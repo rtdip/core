@@ -47,7 +47,6 @@ dependencies:
     - googleapis-common-protos>=1.56.4
     - openjdk==11.0.15
     - openai==0.27.8   
-    - python-dotenv==1.0.0
     - mkdocstrings==0.22.0
     - mkdocstrings-python==1.4.0
     - mkdocs-macros-plugin==1.0.1
