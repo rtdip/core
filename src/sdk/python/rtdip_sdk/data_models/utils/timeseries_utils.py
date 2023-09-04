@@ -49,7 +49,6 @@ def get_interval(series_type_st: SeriesType, timestamp_datetime: datetime):
         raise SystemError(error_msg_str)
 
 
-
 def get_utc() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -73,7 +72,9 @@ def generate_random_alpha_num_string(length: int = 8) -> str:
     letters_and_numbers: str = (
         string.ascii_lowercase + string.ascii_uppercase + string.digits
     )
-    return "".join(secrets.choice(letters_and_numbers) for i in range(length)) # NO SONAR
+    return "".join(
+        secrets.choice(letters_and_numbers) for i in range(length)
+    )  # NO SONAR
 
 
 def generate_random_int_number(min_value: int, max_value: int) -> int:
