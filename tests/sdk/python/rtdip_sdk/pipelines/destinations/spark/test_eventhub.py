@@ -33,14 +33,22 @@ from pyspark.sql.types import (
     LongType,
 )
 from datetime import datetime
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    LongType,
+)
+from datetime import datetime
 
 
 class TestStreamingQueryClass:
     isActive: bool = False  # NOSONAR
 
 
-def test_spark_eventhub_write_setup():
-    eventhub_destination = SparkEventhubDestination(None, {})
+def test_spark_eventhub_write_setup(spark_session: SparkSession):
+    eventhub_destination = SparkEventhubDestination(spark_session, None, {})
     assert eventhub_destination.system_type().value == 2
     assert eventhub_destination.libraries() == Libraries(
         maven_libraries=[
@@ -94,7 +102,7 @@ def test_prepare_columns(spark_session: SparkSession):
     pcdm_df: DataFrame = spark_session.createDataFrame(
         schema=pcdm_schema, data=pcdm_data
     )
-    eventhub_destination = SparkEventhubDestination(pcdm_df, {})
+    eventhub_destination = SparkEventhubDestination(spark_session, pcdm_df, {})
     prepared_df = eventhub_destination.prepare_columns()
     assert len(prepared_df.schema) == 2
     assert prepared_df.schema["body"].dataType == StringType()
@@ -119,7 +127,7 @@ def test_spark_eventhub_write_batch(spark_session: SparkSession, mocker: MockerF
         ),
     )
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    eventhub_destination = SparkEventhubDestination(expected_df, {})
+    eventhub_destination = SparkEventhubDestination(spark_session, expected_df, {})
     actual = eventhub_destination.write_batch()
     assert actual is None
 
@@ -154,9 +162,19 @@ def test_spark_eventhub_write_stream(
         ),
     )
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    eventhub_destination = SparkEventhubDestination(expected_df, {})
+    eventhub_destination = SparkEventhubDestination(spark_session, expected_df, {})
     actual = eventhub_destination.write_stream()
     assert actual is None
+
+
+def test_spark_eventhub_prepare_columns_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    input_df = spark_session.createDataFrame([{"body": 1}])
+    mocker.patch("pyspark.sql.DataFrame.withColumn", side_effect=Exception)
+    eventhub_destination = SparkEventhubDestination(input_df, {})
+    with pytest.raises(ValueError):
+        eventhub_destination.write_batch()
 
 
 def test_spark_eventhub_write_batch_fails(
@@ -179,8 +197,18 @@ def test_spark_eventhub_write_batch_fails(
         ),
     )
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    eventhub_destination = SparkEventhubDestination(expected_df, {})
+    eventhub_destination = SparkEventhubDestination(spark_session, expected_df, {})
     with pytest.raises(Exception):
+        eventhub_destination.write_batch()
+
+
+def test_spark_eventhub_prepare_columns_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    input_df = spark_session.createDataFrame([{"body": 1}])
+    mocker.patch("pyspark.sql.DataFrame.withColumn", side_effect=Exception)
+    eventhub_destination = SparkEventhubDestination(spark_session, input_df, {})
+    with pytest.raises(ValueError):
         eventhub_destination.write_batch()
 
 
@@ -212,6 +240,6 @@ def test_spark_eventhub_write_stream_fails(
         ),
     )
     expected_df = spark_session.createDataFrame([{"id": "1"}])
-    eventhub_destination = SparkEventhubDestination(expected_df, {})
+    eventhub_destination = SparkEventhubDestination(spark_session, expected_df, {})
     with pytest.raises(Exception):
         eventhub_destination.write_stream()

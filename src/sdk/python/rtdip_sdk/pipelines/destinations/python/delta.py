@@ -12,15 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-import time
-import pandas as pd
-from deltalake import write_deltalake, DeltaTable
 from typing import Literal
-import pyarrow as pa
 import polars as pl
 from polars import LazyFrame
-from typing import Callable
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
@@ -44,7 +38,7 @@ class PythonDeltaDestination(DestinationInterface):
     options: dict
     mode: Literal["error", "append", "overwrite", "ignore"]
     overwrite_schema: bool
-    delta_write_options: bool
+    delta_write_options: dict
 
     def __init__(
         self,
@@ -53,7 +47,7 @@ class PythonDeltaDestination(DestinationInterface):
         options: dict = None,
         mode: Literal["error", "append", "overwrite", "ignore"] = "error",
         overwrite_schema: bool = False,
-        delta_write_options: bool = False,
+        delta_write_options: dict = None,
         query_name=None,
     ) -> None:
         self.data = data
