@@ -25,9 +25,9 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     MavenLibrary,
 )
-import json
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
+from py4j.protocol import Py4JJavaError
 
 kafka_configuration_dict = {"failOnDataLoss": "true", "startingOffsets": "earliest"}
 
@@ -165,6 +165,90 @@ def test_spark_kafka_write_batch_fails(
     assert kafka_destination.pre_write_validation()
     with pytest.raises(Exception):
         kafka_destination.write_batch()
+
+
+def test_spark_kafka_fails_on_invalid_connection_string_malformed(
+    spark_session: SparkSession,
+):
+    kafka_configuration = kafka_configuration_dict
+    with pytest.raises(ValueError) as error:
+        SparkKafkaEventhubDestination(
+            spark=spark_session,
+            data=spark_session.createDataFrame([{"value": 1}]),
+            options=kafka_configuration,
+            connection_string="Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath",
+            consumer_group="test_consumer_group",
+        )
+    assert str(error.value) == "Connection string is either blank or malformed."
+
+
+def test_spark_kafka_fails_on_invalid_connection_string_sharedaccesssignature(
+    spark_session: SparkSession,
+):
+    kafka_configuration = kafka_configuration_dict
+    with pytest.raises(ValueError) as error:
+        SparkKafkaEventhubDestination(
+            spark=spark_session,
+            data=spark_session.createDataFrame([{"value": 1}]),
+            options=kafka_configuration,
+            connection_string="Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub;SharedAccessSignature=test",
+            consumer_group="test_consumer_group",
+        )
+    assert (
+        str(error.value)
+        == "Only one of the SharedAccessKey or SharedAccessSignature must be present."
+    )
+
+
+def test_spark_kafka_fails_on_invalid_connection_string_sharedaccesssignature(
+    spark_session: SparkSession,
+):
+    kafka_configuration = kafka_configuration_dict
+    with pytest.raises(ValueError) as error:
+        SparkKafkaEventhubDestination(
+            spark=spark_session,
+            data=spark_session.createDataFrame([{"value": 1}]),
+            options=kafka_configuration,
+            connection_string="Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub;SharedAccessSignature=test",
+            consumer_group="test_consumer_group",
+        )
+    assert (
+        str(error.value)
+        == "Only one of the SharedAccessKey or SharedAccessSignature must be present."
+    )
+
+
+def test_spark_kafka_fails_on_invalid_connection_string_missing_sharedaccesskey(
+    spark_session: SparkSession,
+):
+    kafka_configuration = kafka_configuration_dict
+    with pytest.raises(ValueError) as error:
+        SparkKafkaEventhubDestination(
+            spark=spark_session,
+            data=spark_session.createDataFrame([{"value": 1}]),
+            options=kafka_configuration,
+            connection_string="Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;EntityPath=test_eventhub",
+            consumer_group="test_consumer_group",
+        )
+    assert (
+        str(error.value)
+        == "Connection string must have both SharedAccessKeyName and SharedAccessKey."
+    )
+
+
+def test_spark_kafka_fails_on_invalid_connection_string_missing_endpoint(
+    spark_session: SparkSession,
+):
+    kafka_configuration = kafka_configuration_dict
+    with pytest.raises(ValueError) as error:
+        SparkKafkaEventhubDestination(
+            spark=spark_session,
+            data=spark_session.createDataFrame([{"value": 1}]),
+            options=kafka_configuration,
+            connection_string="TestNoEndpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub",
+            consumer_group="test_consumer_group",
+        )
+    assert str(error.value) == "Connection string is either blank or malformed."
 
 
 def test_spark_kafka_write_stream_fails(
