@@ -24,7 +24,10 @@ Replace **server_hostname**, **http_path** and **access_token** with your own in
 
 ### PYODBC SQL Connector
 
-[PYDOBC](https://pypi.org/project/pyodbc/) is a popular python package for querying data using ODBC. Refer to their [documentation](https://github.com/mkleehammer/pyodbc/wiki) for more information about pyodbc and how you can leverage it in your code.
+[PYDOBC](https://pypi.org/project/pyodbc/) is a popular python package for querying data using ODBC. Refer to their [documentation](https://github.com/mkleehammer/pyodbc/wiki) for more information about pyodbc, how to install it and how you can leverage it in your code.
+
+!!! Warning
+    The RTDIP SDK does not specify `pyodbc` as one of its package dependencies. It will need to be installed into your environment separately.
 
 View information about how pyodbc is implemented in the RTDIP SDK [here.](../code-reference/query/pyodbc-sql-connector.md)
 
@@ -44,6 +47,9 @@ Replace **server_hostname**, **http_path** and **access_token** with your own in
 ### TURBODBC SQL Connector 
 
 Turbodbc is a powerful python ODBC package that has advanced options for querying performance. Find out more about installing it on your operation system and what Turbodbc can do [here](https://turbodbc.readthedocs.io/en/latest/) and refer to this [documentation](../code-reference/query/turbodbc-sql-connector.md) for more information about how it is implemented in the RTDIP SDK.
+
+!!! Warning
+    The RTDIP SDK does not specify `turbodbc` as one of its package dependencies. It will need to be installed into your environment separately.
 
 ```python
 from rtdip_sdk.connectors import TURBODBCSQLConnection
