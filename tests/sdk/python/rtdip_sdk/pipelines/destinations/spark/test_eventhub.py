@@ -159,6 +159,16 @@ def test_spark_eventhub_write_stream(
     assert actual is None
 
 
+def test_spark_eventhub_prepare_columns_fails(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    input_df = spark_session.createDataFrame([{"body": 1}])
+    mocker.patch("pyspark.sql.DataFrame.withColumn", side_effect=Exception)
+    eventhub_destination = SparkEventhubDestination(input_df, {})
+    with pytest.raises(ValueError):
+        eventhub_destination.write_batch()
+
+
 def test_spark_eventhub_write_batch_fails(
     spark_session: SparkSession, mocker: MockerFixture
 ):
