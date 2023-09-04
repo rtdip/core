@@ -18,6 +18,7 @@ from ..timeseries import MetaData
 from ..timeseries import ValueType
 from ..timeseries import ModelType
 from ..timeseries import Uom
+import logging
 
 
 def create_timeseries_vo(
@@ -53,6 +54,7 @@ def create_timeseries_vo(
             ValueType=value_type,
             Properties=properties,
         )
-    except Exception as ex:
-        error_msg_str: str = "Could not create Metadata Value Object: {}".format(ex)
+    except Exception as e:
+        error_msg_str: str = "Could not create Metadata Value Object: {}".format(e)
+        logging.exception(e)
         raise SystemError(error_msg_str)
