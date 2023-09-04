@@ -259,6 +259,7 @@ nav:
       - Examples:
           - Pipelines:
               - Deploy:
+                  - Python Delta to Delta: sdk/examples/pipelines/deploy/Python-Delta-to-Delta.md
                   - Dagster:
                       - Databricks Connect: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Databricks.md
                       - Local: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Local.md
