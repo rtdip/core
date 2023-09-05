@@ -37,11 +37,16 @@ class PJMDailyLoadISOSource(BaseISOSource):
 
     Args:
         spark (SparkSession): Spark Session instance
-        options (dict): A dictionary of ISO Source specific configurations
+        options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
     Attributes:
         api_key (str): Must be a valid key from PJM, see api url
         load_type (str): Must be one of `actual` or `forecast`
+
+    Please check the BaseISOSource for available methods.
+        
+    BaseISOSource:
+        ::: src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso.base_iso
     """
 
     spark: SparkSession

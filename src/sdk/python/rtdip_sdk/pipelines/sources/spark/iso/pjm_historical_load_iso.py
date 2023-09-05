@@ -34,7 +34,7 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
 
     Args:
         spark (SparkSession): Spark Session instance
-        options (dict): A dictionary of ISO Source specific configurations
+        options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
     Attributes:
         api_key (str): Must be a valid key from PJM, see PJM documentation
@@ -45,7 +45,10 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
         sleep_duration (int): (optional) Number of seconds to sleep between request, defaulted to `5` seconds, used to manage requests to PJM endpoint
         request_count (int): (optional) Number of requests made to PJM endpoint before sleep_duration, currently defaulted to `1`
 
-    """
+    Please check the BaseISOSource for available methods.
+        
+    BaseISOSource:
+        ::: src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso.base_iso    """
 
     spark: SparkSession
     options: dict

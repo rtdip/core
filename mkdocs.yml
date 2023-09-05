@@ -261,9 +261,10 @@ nav:
                   - Dagster:
                       - Databricks Connect: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Databricks.md
                       - Local: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Local.md
-                  - Miso:
-                      - MISO Daily Load Databricks: sdk/examples/pipelines/deploy/ISO/MISODailyLoad-Batch-Pipeline-Databricks.md
-                      - MISO Daily Load Local: sdk/examples/pipelines/deploy/ISO/MISODailyLoad-Batch-Pipeline-Local.md
+                  - Databricks:
+                      - MISO Daily Load Databricks: sdk/examples/pipelines/deploy/databricks/MISODailyLoad-Batch-Pipeline-Databricks.md
+                  - MISO Daily Load Local: sdk/examples/pipelines/deploy/MISODailyLoad-Batch-Pipeline-Local.md
+                  - PJM Daily Load Local: sdk/examples/pipelines/deploy/PJMDailyLoad-Batch-Pipeline-Local.md
           - Queries:
               - Interpolate: sdk/examples/query/Interpolate.md
               - Interpolation at Time: sdk/examples/query/Interpolation-at-Time.md
