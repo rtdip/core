@@ -73,8 +73,8 @@ def generate_random_alpha_num_string(length: int = 8) -> str:
         string.ascii_lowercase + string.ascii_uppercase + string.digits
     )
     return "".join(
-        secrets.choice(letters_and_numbers) for i in range(length)
-    )  # NO SONAR
+        secrets.choice(letters_and_numbers) for i in range(length)  # NOSONAR
+    )
 
 
 def generate_random_int_number(min_value: int, max_value: int) -> int:
