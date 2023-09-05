@@ -44,7 +44,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
         load_type (str): Must be one of `actual` or `forecast`
 
     Please check the BaseISOSource for available methods.
-        
+
     BaseISOSource:
         ::: src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso.base_iso
     """

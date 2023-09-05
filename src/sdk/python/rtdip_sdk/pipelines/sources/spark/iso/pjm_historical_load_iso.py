@@ -46,9 +46,9 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
         request_count (int): (optional) Number of requests made to PJM endpoint before sleep_duration, currently defaulted to `1`
 
     Please check the BaseISOSource for available methods.
-        
+
     BaseISOSource:
-        ::: src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso.base_iso    """
+        ::: src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso.base_iso"""
 
     spark: SparkSession
     options: dict

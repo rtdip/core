@@ -35,7 +35,7 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
         fill_missing (str): Set to `"true"` to fill missing Actual load with Forecast load. Default - `true`.
 
     Please check the BaseISOSource for available methods.
-        
+
     BaseISOSource:
         ::: src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso.base_iso
     """

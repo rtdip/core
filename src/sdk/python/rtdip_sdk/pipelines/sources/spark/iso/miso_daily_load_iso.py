@@ -39,7 +39,7 @@ class MISODailyLoadISOSource(BaseISOSource):
         date (str): Must be in `YYYYMMDD` format.
 
     Please check the BaseISOSource for available methods.
-        
+
     BaseISOSource:
         ::: src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso.base_iso
     """
