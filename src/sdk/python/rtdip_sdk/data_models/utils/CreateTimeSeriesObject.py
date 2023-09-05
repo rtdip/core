@@ -21,8 +21,8 @@ from ..timeseries import Uom
 import logging
 
 
-def create_timeseries_vo(
-    uid: str,
+def create_timeseries_vo( # NOSONAR
+    uid: str, 
     series_id: str,
     series_parent_id: str,
     name: str,
@@ -36,7 +36,7 @@ def create_timeseries_vo(
     model_type: ModelType,
     value_type: ValueType,
     properties: dict,
-):  # NOSONAR
+):  
     try:
         return MetaData(
             Uid=uid,

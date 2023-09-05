@@ -30,7 +30,7 @@ def test_timeseries_15min():
     # Generate 96 Intervals of 15 min in 24h
     interval_minutes_int = 15
     intervals_in_one_day_int: int = int((24 * 60) / interval_minutes_int)
-    arr_list: list = [1 for i in range(intervals_in_one_day_int)]
+    arr_list: list = [1 for i in range(intervals_in_one_day_int)]  # NOSONAR
     interval_list: list = list()
     for i in range(intervals_in_one_day_int):  # NOSONAR
         now_utc_datetime_plus: datetime.datetime = (
@@ -52,7 +52,7 @@ def test_timeseries_1h():
     # Generate 24 Intervals of 1h in 24h
     interval_minutes_int = 60
     intervals_in_one_day_int: int = 24
-    interval_list: list = [1 for i in range(intervals_in_one_day_int)]
+    interval_list: list = [1 for i in range(intervals_in_one_day_int)] # NOSONAR
     interval_dict: dict = dict()
 
     for i in range(intervals_in_one_day_int):  # NOSONAR
