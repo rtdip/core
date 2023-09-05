@@ -21,7 +21,7 @@ from ..timeseries import Uom
 import logging
 
 
-def create_timeseries_vo(  # NOSONAR
+def create_timeseries_vo(   # NOSONAR
     uid: str,
     series_id: str,
     series_parent_id: str,
