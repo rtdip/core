@@ -23,7 +23,10 @@ class PJMToMDMTransformer(BaseRawToMDMTransformer):
     """
     Converts PJM Raw data into Meters Data Model.
 
-    Please check the [BaseRawToMDMTransformer](../base_raw_to_mdm.md) for more info.
+    Please check the BaseRawToMDMTransformer for the required arguments and methods.
+
+    BaseRawToMDMTransformer:
+        ::: src.sdk.python.rtdip_sdk.pipelines.transformers.spark.base_raw_to_mdm
     """
 
     spark: SparkSession
