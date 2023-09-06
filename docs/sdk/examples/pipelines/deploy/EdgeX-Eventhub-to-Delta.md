@@ -1,0 +1,1 @@
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/pipelines/deploy/EdgeX-Eventhub-to-Delta/README.md"
