@@ -21,38 +21,23 @@ from ..timeseries import Uom
 import logging
 
 
-def create_timeseries_vo(  # NOSONAR
-    uid: str,
-    series_id: str,
-    series_parent_id: str,
-    name: str,
-    uom: Uom,
-    description: str,
-    timestamp_start: int,
-    timestamp_end: int,
-    time_zone: str,
-    version: str,
-    series_type: SeriesType,
-    model_type: ModelType,
-    value_type: ValueType,
-    properties: dict,
-):
+def create_timeseries_vo(**kwargs):
     try:
         return MetaData(
-            Uid=uid,
-            SeriesId=series_id,
-            SeriesParentId=series_parent_id,
-            Name=name,
-            Uom=uom,
-            Description=description,
-            TimestampStart=timestamp_start,
-            TimestampEnd=timestamp_end,
-            Timezone=time_zone,
-            Version=version,
-            SeriesType=series_type,
-            ModelType=model_type,
-            ValueType=value_type,
-            Properties=properties,
+            Uid=kwargs["uid"],
+            SeriesId=kwargs["series_id"],
+            SeriesParentId=kwargs["series_parent_id"],
+            Name=kwargs["name"],
+            Uom=kwargs["uom"],
+            Description=kwargs["description"],
+            TimestampStart=kwargs["timestamp_start"],
+            TimestampEnd=kwargs["timestamp_end"],
+            Timezone=kwargs["time_zone"],
+            Version=kwargs["version"],
+            SeriesType=kwargs["series_type"],
+            ModelType=kwargs["model_type"],
+            ValueType=kwargs["value_type"],
+            Properties=kwargs["properties"],
         )
     except Exception as e:
         error_msg_str: str = "Could not create Metadata Value Object: {}".format(e)
