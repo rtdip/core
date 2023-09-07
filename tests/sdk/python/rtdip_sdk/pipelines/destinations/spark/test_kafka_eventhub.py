@@ -200,24 +200,6 @@ def test_spark_kafka_fails_on_invalid_connection_string_sharedaccesssignature(
     )
 
 
-def test_spark_kafka_fails_on_invalid_connection_string_sharedaccesssignature(
-    spark_session: SparkSession,
-):
-    kafka_configuration = kafka_configuration_dict
-    with pytest.raises(ValueError) as error:
-        SparkKafkaEventhubDestination(
-            spark=spark_session,
-            data=spark_session.createDataFrame([{"value": 1}]),
-            options=kafka_configuration,
-            connection_string="Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub;SharedAccessSignature=test",
-            consumer_group="test_consumer_group",
-        )
-    assert (
-        str(error.value)
-        == "Only one of the SharedAccessKey or SharedAccessSignature must be present."
-    )
-
-
 def test_spark_kafka_fails_on_invalid_connection_string_missing_sharedaccesskey(
     spark_session: SparkSession,
 ):
