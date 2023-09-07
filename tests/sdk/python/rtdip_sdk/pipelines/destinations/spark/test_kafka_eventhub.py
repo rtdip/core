@@ -27,7 +27,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
-from py4j.protocol import Py4JJavaError
+
 
 kafka_configuration_dict = {"failOnDataLoss": "true", "startingOffsets": "earliest"}
 
@@ -180,24 +180,6 @@ def test_spark_kafka_fails_on_invalid_connection_string_malformed(
             consumer_group="test_consumer_group",
         )
     assert str(error.value) == "Connection string is either blank or malformed."
-
-
-def test_spark_kafka_fails_on_invalid_connection_string_sharedaccesssignature(
-    spark_session: SparkSession,
-):
-    kafka_configuration = kafka_configuration_dict
-    with pytest.raises(ValueError) as error:
-        SparkKafkaEventhubDestination(
-            spark=spark_session,
-            data=spark_session.createDataFrame([{"value": 1}]),
-            options=kafka_configuration,
-            connection_string="Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub;SharedAccessSignature=test",
-            consumer_group="test_consumer_group",
-        )
-    assert (
-        str(error.value)
-        == "Only one of the SharedAccessKey or SharedAccessSignature must be present."
-    )
 
 
 def test_spark_kafka_fails_on_invalid_connection_string_sharedaccesssignature(
