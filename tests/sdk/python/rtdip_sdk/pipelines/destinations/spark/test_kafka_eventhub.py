@@ -27,7 +27,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
-from py4j.protocol import Py4JJavaError
+
 
 kafka_configuration_dict = {"failOnDataLoss": "true", "startingOffsets": "earliest"}
 
