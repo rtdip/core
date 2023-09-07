@@ -204,6 +204,7 @@ nav:
                       - Delta: sdk/code-reference/pipelines/destinations/spark/delta.md
                       - Delta Merge: sdk/code-reference/pipelines/destinations/spark/delta_merge.md
                       - Eventhub: sdk/code-reference/pipelines/destinations/spark/eventhub.md
+                      - Eventhub Kafka: sdk/code-reference/pipelines/destinations/spark/kafka_eventhub.md
                       - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
                       - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Rest API: sdk/code-reference/pipelines/destinations/spark/rest_api.md
