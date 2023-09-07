@@ -275,3 +275,13 @@ APM_SCHEMA = StructType(
         ),
     ]
 )
+
+MQTT_SCHEMA = StructType(
+    [
+        StructField("d", ArrayType(StringType(), True), True),
+        StructField("dID", StringType(), True),
+        StructField("m", StringType(), True),
+        StructField("t", LongType(), True),
+        StructField("v", StringType(), True),
+    ]
+)
