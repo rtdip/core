@@ -36,19 +36,19 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
 
     expected_schema = StructType(
         [
-            StructField("TagName", StringType(), True),
             StructField("EventTime", TimestampType(), True),
+            StructField("TagName", StringType(), True),
             StructField("Status", StringType(), False),
             StructField("Value", StringType(), True),
-            StructField("ValueType", StringType(), False),
+            StructField("ValueType", StringType(), True),
             StructField("ChangeType", StringType(), False),
         ]
     )
 
     expected_data = [
         {
-            "TagName": "502_obc_timeStamp",
             "EventTime": datetime.fromisoformat("2023-09-06T15:13:13.000+0000"),
+            "TagName": "502_obc_timeStamp",
             "Status": "Good",
             "Value": "1685025760.46",
             "ValueType": "double",
@@ -61,7 +61,7 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
     )
 
     mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
-        data=mqtt_df, source_column_name="body"
+        data=mqtt_df, source_column_name="body", version=10
     )
     actual_df = mqtt_json_to_pcdm_transformer.transform()
 
