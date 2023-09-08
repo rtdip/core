@@ -25,3 +25,4 @@ from .spark.ecmwf.nc_extractpoint_to_weather_data_model import *
 from .spark.the_weather_company.raw_forecast_to_weather_data_model import *
 from .spark.pcdm_to_honeywell_apm import *
 from .spark.honeywell_apm_to_pcdm import *
+from .spark.mqtt_json_to_pcdm import *
