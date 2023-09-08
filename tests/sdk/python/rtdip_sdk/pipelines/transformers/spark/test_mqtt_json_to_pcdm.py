@@ -47,7 +47,7 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
 
     expected_data = [
         {
-            "EventTime": datetime.fromisoformat("2023-09-06T15:13:13.000+0000"),
+            "EventTime": datetime.fromisoformat("2023-09-06T15:13:13.000+00:00"),
             "TagName": "502_obc_timeStamp",
             "Status": "Good",
             "Value": "1685025760.46",
