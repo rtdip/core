@@ -28,6 +28,7 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import MQTT_SCHEMA
 from ..._pipeline_utils import obc_field_mappings
 
+
 class MQTTJsonToPCDMTransformer(TransformerInterface):
     """
     Converts a Spark Dataframe column containing a json string created by MQTT to the Process Control Data Model
@@ -38,11 +39,13 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
         status_null_value (optional str): If populated, will replace 'Good' in the Status column with the specified value.
         change_type_value (optional str): If populated, will replace 'insert' in the ChangeType column with the specified value.
     """
+
     data: DataFrame
     source_column_name: str
     version: int
     status_null_value: str
     change_type_value: str
+
     def __init__(
         self,
         data: DataFrame,
@@ -56,6 +59,7 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
         self.version = version
         self.status_null_value = status_null_value
         self.change_type_value = change_type_value
+
     @staticmethod
     def system_type():
         """
@@ -63,17 +67,22 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
             SystemType (Environment): Requires PYSPARK
         """
         return SystemType.PYSPARK
+
     @staticmethod
     def libraries():
         libraries = Libraries()
         return libraries
+
     @staticmethod
     def settings() -> dict:
         return {}
+
     def pre_transform_validation(self):
         return True
+
     def post_transform_validation(self):
         return True
+
     def transform(self) -> DataFrame:
         """
         Returns:
@@ -114,8 +123,8 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
                 .withColumn(
                     "ValueType", udf(lambda row: mapping[row]["ValueType"])(col("pos"))
                 )
-                .withColumn("Status", lit("Good"))
-                .withColumn("ChangeType", lit("insert"))
+                .withColumn("Status", lit(self.status_null_value))
+                .withColumn("ChangeType", lit(self.change_type_value))
             )
             return df.select(
                 "EventTime", "TagName", "Status", "Value", "ValueType", "ChangeType"
