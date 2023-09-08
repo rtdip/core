@@ -27,13 +27,17 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
     Args:
         spark (SparkSession): Spark Session instance
-        options (dict): A dictionary of ISO Source specific configurations
+        options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
     Attributes:
         start_date (str): Must be in `YYYYMMDD` format.
         end_date (str): Must be in `YYYYMMDD` format.
         fill_missing (str): Set to `"true"` to fill missing Actual load with Forecast load. Default - `true`.
 
+    Please check the BaseISOSource for available methods.
+
+    BaseISOSource:
+        ::: src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso.base_iso
     """
 
     spark: SparkSession
