@@ -184,6 +184,7 @@ nav:
                       - OPC Publisher Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/opc_publisher_opcua_json_to_pcdm.md
                       - Fledge Json To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/fledge_opcua_json_to_pcdm.md
                       - EdgeX JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/edgex_opcua_json_to_pcdm.md
+                      - MQTT data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/mqtt_json_to_pcdm.md
                       - SSIP PI Binary File data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_file_to_pcdm.md
                       - SSIP PI Binary JSON data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/ssip_pi_binary_json_to_pcdm.md
                       - Pandas to PySpark DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pandas_to_pyspark.md
