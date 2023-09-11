@@ -17,7 +17,6 @@ from pyspark.sql.functions import (
     to_json,
     col,
     struct,
-    create_map,
     lit,
     array,
     monotonically_increasing_id,
@@ -87,7 +86,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         Returns:
             DataFrame: A dataframe with with rows in Honeywell APM format
         """
-        if self.data.isStreaming and self.history_samples_per_message > 1:
+        if self.data.isStreaming == False and self.history_samples_per_message > 1:
             pcdm_df = self.data.withColumn("counter", monotonically_increasing_id())
             w = Window.orderBy("counter")
             cleaned_pcdm_df = (
@@ -121,12 +120,14 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                 "value",
                 struct(
                     col("guid").alias("SystemGuid"),
-                    struct(
-                        col("TagName").alias("ItemName"),
-                        lit(self.quality).alias("Quality"),
-                        col("EventTime").alias("Time"),
-                        col("Value").alias("Value"),
-                    ).alias("HistorySamples"),
+                    array(
+                        struct(
+                            col("TagName").alias("ItemName"),
+                            lit(self.quality).alias("Quality"),
+                            col("EventTime").alias("Time"),
+                            col("Value").alias("Value"),
+                        ).alias("HistorySamples"),
+                    ),
                 ),
             )
 
@@ -156,6 +157,6 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                 ).alias("BodyProperties"),
                 lit("DataChange.Update").alias("EventType"),
             ),
-        ).withColumn("AnnotationStreamIds", lit("self.AnnotationStreamIds"))
+        ).withColumn("AnnotationStreamIds", lit(","))
 
         return df.select("CloudPlatformEvent", "AnnotationStreamIds")

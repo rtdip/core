@@ -47,7 +47,7 @@ eventhub_system_properties = [
 
 class SparkKafkaEventhubSource(SourceInterface):
     """
-    This Spark source class is used to read batch or streaming data from an Eventhub using the Kafka protocol. This enables Eventhubs to be used as a source in applications like Delta Live Tables or Databricks Serverless Jobs as the Spark Eventhubs JAR is not supported in this scenarios.
+    This Spark source class is used to read batch or streaming data from an Eventhub using the Kafka protocol. This enables Eventhubs to be used as a source in applications like Delta Live Tables or Databricks Serverless Jobs as the Spark Eventhubs JAR is not supported in these scenarios.
 
     The dataframe returned is transformed to ensure the schema is as close to the Eventhub Spark source as possible. There are some minor differences:
 
@@ -71,8 +71,6 @@ class SparkKafkaEventhubSource(SourceInterface):
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
         connection_string (str): Eventhubs connection string is required to connect to the Eventhubs service. This must include the Eventhub name as the `EntityPath` parameter. Example `"Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"`
         consumer_group (str): The Eventhub consumer group to use for the connection
-
-    The following options are the most common configurations for Kafka.
 
     The only configuration that must be set for the Kafka source for both batch and streaming queries is listed below.
 
