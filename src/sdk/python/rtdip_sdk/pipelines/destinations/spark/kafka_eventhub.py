@@ -16,7 +16,7 @@ import os
 import logging
 from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, struct, to_json
+from pyspark.sql.functions import col, struct, to_json, array
 from urllib.parse import urlparse
 from pyspark.sql.types import StringType, BinaryType, ArrayType, IntegerType
 import time
@@ -234,9 +234,9 @@ class SparkKafkaEventhubDestination(DestinationInterface):
                 df = df.withColumn("key", col("key").cast(StringType()))
             except Exception as e:
                 raise ValueError("Couldn't convert 'key' column to string type", e)
-        if "headers" in df.columns and df.schema["headers"].dataType != ArrayType():
+        if "headers" in df.columns and df.schema["headers"].dataType != ArrayType:
             try:
-                df = df.withColumn("headers", col("headers").cast(ArrayType()))
+                df = df.withColumn("headers", array(col("headers")))
             except Exception as e:
                 raise ValueError("Couldn't convert 'headers' column to array type", e)
         if "topic" in df.columns and df.schema["topic"].dataType != StringType():

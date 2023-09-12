@@ -27,6 +27,13 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    IntegerType,
+    ArrayType,
+)
 
 
 kafka_configuration_dict = {"failOnDataLoss": "true", "startingOffsets": "earliest"}
@@ -82,11 +89,17 @@ def test_spark_kafka_write_batch(spark_session: SparkSession, mocker: MockerFixt
         ),
     )
     kafka_configuration = kafka_configuration_dict
-    data = [(1, 2, ("header1"), 3, "1")]
-    df = spark_session.createDataFrame(data)
     kafka_destination = SparkKafkaEventhubDestination(
         spark=spark_session,
-        data=df,
+        data=spark_session.createDataFrame(
+            [
+                {"value": 1},
+                {"key": 2},
+                {"headers": ("header1")},
+                {"topic": 3},
+                {"partition": "1"},
+            ]
+        ),
         options=kafka_configuration,
         connection_string=eventhub_connection_string,
         consumer_group="test_consumer_group",
