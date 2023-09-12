@@ -18,7 +18,7 @@ from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import col, struct, to_json
 from urllib.parse import urlparse
-from pyspark.sql.types import StringType, BinaryType
+from pyspark.sql.types import StringType, BinaryType, ArrayType, IntegerType
 import time
 
 from ..interfaces import DestinationInterface
@@ -161,10 +161,8 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         return connection_string
 
     def _configure_options(self, options: dict) -> dict:
-        if "subscribe" not in options:
-            options["subscribe"] = self.connection_string_properties.get(
-                "eventhub_name"
-            )
+        if "topic" not in options:
+            options["topic"] = self.connection_string_properties.get("eventhub_name")
 
         if "kafka.bootstrap.servers" not in options:
             options["kafka.bootstrap.servers"] = (
@@ -205,14 +203,16 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         return options
 
     def _transform_to_eventhub_schema(self, df: DataFrame) -> DataFrame:
-        if "value" in df.columns:
-            if df.schema["value"].dataType not in [StringType(), BinaryType()]:
-                try:
-                    df.withColumn("value", col("value").cast(StringType()))
-                except Exception as e:
-                    raise ValueError(
-                        "Couldn't convert 'value' column to string or binary type", e
-                    )
+        if "value" in df.columns and df.schema["value"].dataType not in [
+            StringType(),
+            BinaryType(),
+        ]:
+            try:
+                df = df.withColumn("value", col("value").cast(StringType()))
+            except Exception as e:
+                raise ValueError(
+                    "Couldn't convert 'value' column to string or binary type", e
+                )
         else:
             df = df.withColumn(
                 "value",
@@ -226,6 +226,34 @@ class SparkKafkaEventhubDestination(DestinationInterface):
                     )
                 ),
             )
+        if "key" in df.columns and df.schema["key"].dataType not in [
+            StringType(),
+            BinaryType(),
+        ]:
+            try:
+                df = df.withColumn("key", col("key").cast(StringType()))
+            except Exception as e:
+                raise ValueError("Couldn't convert 'key' column to string type", e)
+        if "headers" in df.columns and df.schema["headers"].dataType != ArrayType():
+            try:
+                df = df.withColumn("headers", col("headers").cast(ArrayType()))
+            except Exception as e:
+                raise ValueError("Couldn't convert 'headers' column to array type", e)
+        if "topic" in df.columns and df.schema["topic"].dataType != StringType():
+            try:
+                df = df.withColumn("topic", col("topic").cast(StringType()))
+            except Exception as e:
+                raise ValueError("Couldn't convert 'topic' column to string type", e)
+        if (
+            "partition" in df.columns
+            and df.schema["partition"].dataType != IntegerType()
+        ):
+            try:
+                df = df.withColumn("partition", col("partition").cast(IntegerType()))
+            except Exception as e:
+                raise ValueError(
+                    "Couldn't convert 'partition' column to integer type", e
+                )
         return df.select(
             [
                 column
