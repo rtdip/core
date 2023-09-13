@@ -30,6 +30,9 @@ DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 
 
 class MockedDBConnection:
+    def __init__(self):
+        self.open = True
+
     def close(self) -> None:
         return None
 
