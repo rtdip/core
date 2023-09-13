@@ -33,6 +33,7 @@ DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 INTERPOLATION_METHOD = "test/test/test"
 MOCKED_QUERY = 'SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`EventTime`, \'yyyy-MM-dd HH:mm:ss.SSS\')), "+0000") as `EventTime`, `TagName`,  `Status`,  `Value` FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp("2011-01-01T00:00:00+00:00") AND to_timestamp("2011-01-02T23:59:59+00:00") AND `TagName` in (\'MOCKED-TAGNAME\') ORDER BY `TagName`, `EventTime` '
+MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 MOCKED_PARAMETER_DICT = {
     "business_unit": "mocked-buiness-unit",
     "region": "mocked-region",
@@ -76,6 +77,46 @@ def test_raw(mocker: MockerFixture):
     mocked_cursor.assert_called_once()
     mocked_connection_close.assert_called_once()
     mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY)
+    mocked_fetch_all.assert_called_once()
+    mocked_close.assert_called_once()
+    assert isinstance(actual, pd.DataFrame)
+
+
+def test_raw_offset_limit(mocker: MockerFixture):
+    mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
+    mocked_execute = mocker.spy(MockedCursor, "execute")
+    mocked_fetch_all = mocker.patch.object(
+        MockedCursor,
+        "fetchall_arrow",
+        return_value=pa.Table.from_pandas(
+            pd.DataFrame(
+                data={
+                    "EventTime": [pd.to_datetime("2022-01-01 00:10:00+00:00")],
+                    "TagName": ["MOCKED-TAGNAME"],
+                    "Status": ["Good"],
+                    "Value": [177.09220],
+                }
+            )
+        ),
+    )
+    mocked_close = mocker.spy(MockedCursor, "close")
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value=MockedDBConnection())
+
+    mocked_connection = DatabricksSQLConnection(
+        SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN
+    )
+
+    MOCKED_PARAMETER_OFFSET_LIMIT_DICT = MOCKED_PARAMETER_DICT.copy()
+    MOCKED_PARAMETER_OFFSET_LIMIT_DICT["offset"] = 10
+    MOCKED_PARAMETER_OFFSET_LIMIT_DICT["limit"] = 10
+    actual = raw_get(mocked_connection, MOCKED_PARAMETER_OFFSET_LIMIT_DICT)
+
+    mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
+    mocked_execute.assert_called_once_with(
+        mocker.ANY, query=MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT
+    )
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
