@@ -237,37 +237,3 @@ def test_time_weighted_average_tag_name_not_list_fails(mocker: MockerFixture):
 
     with pytest.raises(Exception):
         time_weighted_average_get(mocked_connection, MOCKED_PARAMETER_DICT)
-
-
-def test_time_weighted_averages():
-    from src.sdk.python.rtdip_sdk.queries import QueryBuilder
-    from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
-    from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
-
-    auth = DefaultAuth().authenticate()
-    token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-
-    connection = DatabricksSQLConnection(
-        "adb-8969364155430721.1.azuredatabricks.net",
-        "/sql/1.0/endpoints/9ecb6a8d6707260c",
-        token,
-    )
-
-    twa_data = (
-        QueryBuilder()
-        .connect(connection)
-        .source("pt.sensors.hydrocracking_restricted_events_float")
-        .time_weighted_average(
-            tagname_filter=["STCA5765TI100", "STCA5765TI105", "STCA5765TI110"],
-            start_date="2023-04-26T10:04:56",
-            end_date="2023-04-27T10:04:56",
-            time_interval_rate="1",
-            time_interval_unit="days",
-            window_length=1,
-            include_bad_data=True,
-            step="false",
-            pivot=True,
-        )
-    )
-
-    print(twa_data)
