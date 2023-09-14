@@ -37,7 +37,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         timestamps (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zz:zz where %z is the timezone. (Example +00:00 is the UTC timezone)
         window_length (int): Add longer window time in days for the start or end of specified date to cater for edge cases.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-
+        pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
+        limit (optional int): Limit the number of rows to be returned
+        offset (optional int): The number of rows to skip before beginning to return rows
     Returns:
         DataFrame: A interpolated at time dataframe.
     """

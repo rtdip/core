@@ -34,6 +34,7 @@ class QueryBuilder:
 
     parameters: dict
     connection: ConnectionInterface
+    close_connection: bool
     data_source: str
     tagname_column: str
     timestamp_column: str
@@ -81,6 +82,8 @@ class QueryBuilder:
         start_date: str,
         end_date: str,
         include_bad_data: bool = False,
+        limit: int = None,
+        offset: int = None,
     ) -> DataFrame:
         """
         A function to return back raw data
@@ -90,6 +93,8 @@ class QueryBuilder:
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            limit (optional int): Limit the number of rows to be returned
+            offset (optional int): The number of rows to skip before beginning to return rows
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
@@ -100,6 +105,8 @@ class QueryBuilder:
             "start_date": start_date,
             "end_date": end_date,
             "include_bad_data": include_bad_data,
+            "limit": limit,
+            "offset": offset,
             "tagname_column": self.tagname_column,
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
@@ -116,6 +123,7 @@ class QueryBuilder:
         time_interval_unit: str,
         agg_method: str,
         include_bad_data: bool = False,
+        pivot: bool = False,
     ) -> DataFrame:
         """
         A query to resample the source data
@@ -128,6 +136,7 @@ class QueryBuilder:
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
             agg_method (str): Aggregation Method (first, last, avg, min, max)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
 
         Returns:
             DataFrame: A dataframe of resampled timeseries data.
@@ -142,6 +151,7 @@ class QueryBuilder:
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
             "agg_method": agg_method,
+            "pivot": pivot,
             "tagname_column": self.tagname_column,
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
@@ -160,6 +170,7 @@ class QueryBuilder:
         agg_method: str,
         interpolation_method: str,
         include_bad_data: bool = False,
+        pivot: bool = False,
     ) -> DataFrame:
         """
         The Interpolate function will forward fill, backward fill or linearly interpolate the resampled data depending on the parameters specified
@@ -173,6 +184,7 @@ class QueryBuilder:
             agg_method (str): Aggregation Method (first, last, avg, min, max)
             interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
 
         Returns:
             DataFrame: A dataframe of interpolated timeseries data.
@@ -187,6 +199,7 @@ class QueryBuilder:
             "time_interval_unit": time_interval_unit,
             "agg_method": agg_method,
             "interpolation_method": interpolation_method,
+            "pivot": pivot,
             "tagname_column": self.tagname_column,
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
@@ -201,6 +214,7 @@ class QueryBuilder:
         timestamp_filter: [str],
         include_bad_data: bool = False,
         window_length: int = 1,
+        pivot: bool = False,
     ) -> DataFrame:
         """
         A interpolation at time function which works out the linear interpolation at a specific time based on the points before and after
@@ -209,7 +223,8 @@ class QueryBuilder:
             tagname_filter (list str): List of tagnames to filter on the source
             timestamp_filter (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zz:zz where %z is the timezone. (Example +00:00 is the UTC timezone)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
-            window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases.
+            window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases
+            pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
 
         Returns:
             DataFrame: A dataframe of interpolation at time timeseries data
@@ -220,6 +235,7 @@ class QueryBuilder:
             "timestamps": timestamp_filter,
             "include_bad_data": include_bad_data,
             "window_length": window_length,
+            "pivot": pivot,
             "tagname_column": self.tagname_column,
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
@@ -241,6 +257,7 @@ class QueryBuilder:
         source_metadata: str = None,
         include_bad_data: bool = False,
         window_length: int = 1,
+        pivot: bool = False,
     ) -> DataFrame:
         """
         A function that receives a dataframe of raw tag data and performs a time weighted averages
@@ -254,7 +271,8 @@ class QueryBuilder:
             step (str): data points with step "enabled" or "disabled". The options for step are "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table
             source_metadata (optional str): if step is set to "metadata", then this parameter must be populated with the source containing the tagname metadata with a column called "Step"
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
-            window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases.
+            window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases
+            pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
 
         Returns:
             DataFrame: A dataframe of time weighted averages timeseries data
@@ -268,8 +286,11 @@ class QueryBuilder:
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
             "step": step,
-            "source_metadata": "`.`".join(source_metadata.split(".")),
+            "source_metadata": None
+            if source_metadata is None
+            else "`.`".join(source_metadata.split(".")),
             "window_length": window_length,
+            "pivot": pivot,
             "tagname_column": self.tagname_column,
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
@@ -308,6 +329,7 @@ class QueryBuilder:
         lower_bound: int,
         upper_bound: int,
         include_bad_data: bool = False,
+        pivot: bool = False,
     ) -> DataFrame:
         """
         A function that receives a dataframe of raw tag data and computes the circular mean for samples in a range
@@ -321,6 +343,7 @@ class QueryBuilder:
             lower_bound (int): Lower boundary for the sample range
             upper_bound (int): Upper boundary for the sample range
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
 
         Returns:
             DataFrame: A dataframe containing the circular averages
@@ -335,6 +358,7 @@ class QueryBuilder:
             "time_interval_unit": time_interval_unit,
             "lower_bound": lower_bound,
             "upper_bound": upper_bound,
+            "pivot": pivot,
             "tagname_column": self.tagname_column,
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
@@ -353,6 +377,7 @@ class QueryBuilder:
         lower_bound: int,
         upper_bound: int,
         include_bad_data: bool = False,
+        pivot: bool = False,
     ) -> DataFrame:
         """
         A function that receives a dataframe of raw tag data and computes the circular standard deviation for samples assumed to be in the range
@@ -366,6 +391,7 @@ class QueryBuilder:
             lower_bound (int): Lower boundary for the sample range
             upper_bound (int): Upper boundary for the sample range
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
 
         Returns:
             DataFrame: A dataframe containing the circular standard deviations
@@ -380,6 +406,7 @@ class QueryBuilder:
             "time_interval_unit": time_interval_unit,
             "lower_bound": lower_bound,
             "upper_bound": upper_bound,
+            "pivot": pivot,
             "tagname_column": self.tagname_column,
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
