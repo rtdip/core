@@ -32,7 +32,7 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY = "SELECT * FROM `mocked-business-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE `TagName` in ('MOCKED-TAGNAME') ORDER BY `TagName` "
+MOCKED_QUERY = "SELECT * FROM `mocked-business-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE `TagName` IN ('MOCKED-TAGNAME') ORDER BY `TagName` "
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 MOCKED_PARAMETER_DICT = {
     "business_unit": "mocked-business-unit",
