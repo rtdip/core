@@ -14,7 +14,7 @@
 
 from datetime import datetime
 from tracemalloc import start
-from pydantic import BaseModel, Field, Extra
+from pydantic import BaseModel, Field, Extra, ConfigDict
 import strawberry
 from typing import List, Union, Dict, Any
 from fastapi import Query, Header, Depends
@@ -89,9 +89,20 @@ class ResampleInterpolateRow(BaseModel):
     Value: Union[float, int, str, None]
 
 
+class PivotRow(BaseModel):
+    EventTime: datetime
+
+    model_config = ConfigDict(extra="allow")
+
+
 class ResampleInterpolateResponse(BaseModel):
     field_schema: FieldSchema = Field(None, alias="schema")
     data: List[ResampleInterpolateRow]
+
+
+class PivotResponse(BaseModel):
+    field_schema: FieldSchema = Field(None, alias="schema")
+    data: List[PivotRow]
 
 
 class HTTPError(BaseModel):
@@ -201,6 +212,17 @@ class ResampleQueryParams:
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
         self.agg_method = agg_method
+
+
+class PivotQueryParams:
+    def __init__(
+        self,
+        pivot: bool = Query(
+            default=False,
+            description="Pivot the data on timestamp column with True or do not pivot the data with False",
+        ),
+    ):
+        self.pivot = pivot
 
 
 class InterpolateQueryParams:

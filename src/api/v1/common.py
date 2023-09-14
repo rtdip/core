@@ -30,6 +30,7 @@ def common_api_setup_tasks(
     interpolate_query_parameters=None,
     interpolation_at_time_query_parameters=None,
     time_weighted_average_query_parameters=None,
+    pivot_query_parameters=None,
 ):
     token = azuread.get_azure_ad_token(base_query_parameters.authorization)
 
@@ -79,5 +80,8 @@ def common_api_setup_tasks(
 
     if time_weighted_average_query_parameters != None:
         parameters = dict(parameters, **time_weighted_average_query_parameters.__dict__)
+
+    if pivot_query_parameters != None:
+        parameters = dict(parameters, **pivot_query_parameters.__dict__)
 
     return connection, parameters

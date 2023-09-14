@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+from typing import Union
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
@@ -22,12 +23,14 @@ from src.sdk.python.rtdip_sdk.queries import interpolate
 from src.api.v1.models import (
     BaseQueryParams,
     ResampleInterpolateResponse,
+    PivotResponse,
     HTTPError,
     RawQueryParams,
     TagsQueryParams,
     TagsBodyParams,
     ResampleQueryParams,
     InterpolateQueryParams,
+    PivotQueryParams,
 )
 import src.api.v1.common
 
@@ -40,6 +43,7 @@ def interpolate_events_get(
     tag_query_parameters,
     resample_parameters,
     interpolate_parameters,
+    pivot_parameters,
 ):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
@@ -48,13 +52,20 @@ def interpolate_events_get(
             resample_query_parameters=resample_parameters,
             tag_query_parameters=tag_query_parameters,
             interpolate_query_parameters=interpolate_parameters,
+            pivot_query_parameters=pivot_parameters,
         )
 
         data = interpolate.get(connection, parameters)
-        return ResampleInterpolateResponse(
-            schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
-        )
+        if parameters.get("pivot") == True:
+            return PivotResponse(
+                schema=build_table_schema(data, index=False, primary_key=False),
+                data=data.replace({np.nan: None}).to_dict(orient="records"),
+            )
+        else:
+            return ResampleInterpolateResponse(
+                schema=build_table_schema(data, index=False, primary_key=False),
+                data=data.replace({np.nan: None}).to_dict(orient="records"),
+            )
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
@@ -72,7 +83,10 @@ Interpolation of raw timeseries data.
     name="Interpolate GET",
     description=get_description,
     tags=["Events"],
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    responses={
+        200: {"model": Union[ResampleInterpolateResponse, PivotResponse]},
+        400: {"model": HTTPError},
+    },
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation Query Documentation",
@@ -86,6 +100,7 @@ async def interpolate_get(
     tag_query_parameters: TagsQueryParams = Depends(),
     resample_parameters: ResampleQueryParams = Depends(),
     interpolate_parameters: InterpolateQueryParams = Depends(),
+    pivot_parameters: PivotQueryParams = Depends(),
 ):
     return interpolate_events_get(
         base_query_parameters,
@@ -93,6 +108,7 @@ async def interpolate_get(
         tag_query_parameters,
         resample_parameters,
         interpolate_parameters,
+        pivot_parameters,
     )
 
 
@@ -108,7 +124,10 @@ Interpolation of raw timeseries data via a POST method to enable providing a lis
     name="Interpolate POST",
     description=get_description,
     tags=["Events"],
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    responses={
+        200: {"model": Union[ResampleInterpolateResponse, PivotResponse]},
+        400: {"model": HTTPError},
+    },
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation Query Documentation",
@@ -122,6 +141,7 @@ async def interpolate_post(
     tag_query_parameters: TagsBodyParams = Body(default=...),
     resample_parameters: ResampleQueryParams = Depends(),
     interpolate_parameters: InterpolateQueryParams = Depends(),
+    pivot_parameters: PivotQueryParams = Depends(),
 ):
     return interpolate_events_get(
         base_query_parameters,
@@ -129,4 +149,5 @@ async def interpolate_post(
         tag_query_parameters,
         resample_parameters,
         interpolate_parameters,
+        pivot_parameters,
     )
