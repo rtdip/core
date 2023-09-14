@@ -27,6 +27,14 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
+from pyspark.sql.types import (
+    StructField,
+    StructType,
+    StringType,
+    IntegerType,
+    BinaryType,
+    ArrayType,
+)
 
 
 kafka_configuration_dict = {"failOnDataLoss": "true", "startingOffsets": "earliest"}
@@ -88,7 +96,6 @@ def test_spark_kafka_write_batch(spark_session: SparkSession, mocker: MockerFixt
             [
                 {"value": 1},
                 {"key": 2},
-                {"headers": ("header1")},
                 {"topic": 3},
                 {"partition": "1"},
             ]
@@ -173,6 +180,55 @@ def test_spark_kafka_write_batch_fails(
     assert kafka_destination.pre_write_validation()
     with pytest.raises(Exception):
         kafka_destination.write_batch()
+
+
+def test_spark_kafka_fails_on_converting_column_type(
+    spark_session: SparkSession,
+):
+    kafka_configuration = kafka_configuration_dict
+    schema = StructType(
+        [
+            StructField("value", IntegerType(), True),
+            StructField("key", IntegerType(), True),
+            StructField(
+                "headers",
+                ArrayType(
+                    StructType(
+                        [
+                            StructField("key", StringType(), True),
+                            StructField("value", StringType(), False),
+                        ]
+                    ),
+                    False,
+                ),
+                True,
+            ),
+            StructField("topic", IntegerType(), True),
+            StructField("partition", StringType(), True),
+        ]
+    )
+    df = spark_session.createDataFrame(
+        [
+            {
+                "value": 1,
+                "key": 2,
+                "headers": [{"key": "testKey", "value": "strValue"}],
+                "topic": 3,
+                "partition": "nonInt",
+            }
+        ],
+        schema=schema,
+    )
+    destination = SparkKafkaEventhubDestination(
+        spark=spark_session,
+        data=df,
+        options=kafka_configuration,
+        connection_string=eventhub_connection_string,
+        consumer_group="test_consumer_group",
+    )
+    with pytest.raises(ValueError) as error:
+        destination._transform_to_eventhub_schema(df)
+    assert str(error.value) == "key and value in the headers column cannot be nullable"
 
 
 def test_spark_kafka_fails_on_invalid_connection_string_malformed(
