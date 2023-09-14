@@ -224,14 +224,11 @@ class SparkKafkaEventhubDestination(DestinationInterface):
                     )
                 ),
             )
-        if "headers" in df.columns:
-            if (
-                df.schema["headers"].dataType.elementType["key"].nullable == True
-                or df.schema["headers"].dataType.elementType["value"].nullable == True
-            ):
-                raise ValueError(
-                    "key and value in the headers column cannot be nullable"
-                )
+        if "headers" in df.columns and (
+            df.schema["headers"].dataType.elementType["key"].nullable == True
+            or df.schema["headers"].dataType.elementType["value"].nullable == True
+        ):
+            raise ValueError("key and value in the headers column cannot be nullable")
 
         return df.select(
             [
