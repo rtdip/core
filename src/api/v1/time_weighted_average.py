@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+from typing import Union
 import numpy as np
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
@@ -22,11 +23,13 @@ from src.sdk.python.rtdip_sdk.queries import time_weighted_average
 from src.api.v1.models import (
     BaseQueryParams,
     ResampleInterpolateResponse,
+    PivotResponse,
     HTTPError,
     RawQueryParams,
     TagsQueryParams,
     TagsBodyParams,
     TimeWeightedAverageQueryParams,
+    PivotQueryParams,
 )
 import src.api.v1.common
 
@@ -38,6 +41,7 @@ def time_weighted_average_events_get(
     raw_query_parameters,
     tag_query_parameters,
     time_weighted_average_parameters,
+    pivot_parameters,
 ):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
@@ -45,14 +49,21 @@ def time_weighted_average_events_get(
             raw_query_parameters=raw_query_parameters,
             tag_query_parameters=tag_query_parameters,
             time_weighted_average_query_parameters=time_weighted_average_parameters,
+            pivot_query_parameters=pivot_parameters,
         )
 
         data = time_weighted_average.get(connection, parameters)
         data = data.reset_index()
-        return ResampleInterpolateResponse(
-            schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
-        )
+        if parameters.get("pivot") == True:
+            return PivotResponse(
+                schema=build_table_schema(data, index=False, primary_key=False),
+                data=data.replace({np.nan: None}).to_dict(orient="records"),
+            )
+        else:
+            return ResampleInterpolateResponse(
+                schema=build_table_schema(data, index=False, primary_key=False),
+                data=data.replace({np.nan: None}).to_dict(orient="records"),
+            )
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
@@ -70,7 +81,10 @@ Time weighted average of raw timeseries data.
     name="Time Weighted Average GET",
     description=get_description,
     tags=["Events"],
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    responses={
+        200: {"model": Union[ResampleInterpolateResponse, PivotResponse]},
+        400: {"model": HTTPError},
+    },
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Time Weighted Averages Query Documentation",
@@ -83,12 +97,14 @@ async def time_weighted_average_get(
     raw_query_parameters: RawQueryParams = Depends(),
     tag_query_parameters: TagsQueryParams = Depends(),
     time_weighted_average_parameters: TimeWeightedAverageQueryParams = Depends(),
+    pivot_parameters: PivotQueryParams = Depends(),
 ):
     return time_weighted_average_events_get(
         base_query_parameters,
         raw_query_parameters,
         tag_query_parameters,
         time_weighted_average_parameters,
+        pivot_parameters,
     )
 
 
@@ -104,7 +120,10 @@ Time weighted average of raw timeseries data via a POST method to enable providi
     name="Time Weighted Average POST",
     description=get_description,
     tags=["Events"],
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    responses={
+        200: {"model": Union[ResampleInterpolateResponse, PivotResponse]},
+        400: {"model": HTTPError},
+    },
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Time Weighted Averages Query Documentation",
@@ -117,10 +136,12 @@ async def time_weighted_average_post(
     raw_query_parameters: RawQueryParams = Depends(),
     tag_query_parameters: TagsBodyParams = Body(default=...),
     time_weighted_average_parameters: TimeWeightedAverageQueryParams = Depends(),
+    pivot_parameters: PivotQueryParams = Depends(),
 ):
     return time_weighted_average_events_get(
         base_query_parameters,
         raw_query_parameters,
         tag_query_parameters,
         time_weighted_average_parameters,
+        pivot_parameters,
     )

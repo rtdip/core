@@ -14,8 +14,12 @@
 
 import logging
 import time
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from py4j.protocol import Py4JJavaError
+from pyspark.sql.functions import col, struct, to_json
+from pyspark.sql.types import StringType, BinaryType
+from pyspark.sql.functions import col, struct, to_json
+from pyspark.sql.types import StringType, BinaryType
 
 from ..interfaces import DestinationInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -29,6 +33,7 @@ class SparkEventhubDestination(DestinationInterface):
     If using startingPosition or endingPosition make sure to check out **Event Position** section for more details and examples.
 
     Args:
+        spark (SparkSession): Spark Session
         data (DataFrame): Dataframe to be written to Eventhub
         options (dict): A dictionary of Eventhub configurations (See Attributes table below). All Configuration options for Eventhubs can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
         trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
@@ -45,11 +50,13 @@ class SparkEventhubDestination(DestinationInterface):
 
     def __init__(
         self,
+        spark: SparkSession,
         data: DataFrame,
         options: dict,
         trigger="10 seconds",
         query_name="EventhubDestination",
     ) -> None:
+        self.spark = spark
         self.data = data
         self.options = options
         self.trigger = trigger
@@ -79,12 +86,62 @@ class SparkEventhubDestination(DestinationInterface):
     def post_write_validation(self):
         return True
 
+    def prepare_columns(self):
+        if "body" in self.data.columns:
+            if self.data.schema["body"].dataType not in [StringType(), BinaryType()]:
+                try:
+                    self.data.withColumn("body", col("body").cast(StringType()))
+                except Exception as e:
+                    raise ValueError(
+                        "'body' column must be of string or binary type", e
+                    )
+        else:
+            self.data = self.data.withColumn(
+                "body",
+                to_json(
+                    struct(
+                        [
+                            col(column).alias(column)
+                            for column in self.data.columns
+                            if column not in ["partitionId", "partitionKey"]
+                        ]
+                    )
+                ),
+            )
+        for column in self.data.schema:
+            if (
+                column.name in ["partitionId", "partitionKey"]
+                and column.dataType != StringType()
+            ):
+                try:
+                    self.data = self.data.withColumn(
+                        column.name, col(column.name).cast(StringType())
+                    )
+                except Exception as e:
+                    raise ValueError(f"Column {column.name} must be of string type", e)
+        return self.data.select(
+            [
+                column
+                for column in self.data.columns
+                if column in ["partitionId", "partitionKey", "body"]
+            ]
+        )
+
     def write_batch(self):
         """
         Writes batch data to Eventhubs.
         """
+        eventhub_connection_string = "eventhubs.connectionString"
         try:
-            return self.data.write.format("eventhubs").options(**self.options).save()
+            if eventhub_connection_string in self.options:
+                sc = self.spark.sparkContext
+                self.options[
+                    eventhub_connection_string
+                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                    self.options[eventhub_connection_string]
+                )
+            df = self.prepare_columns()
+            return df.write.format("eventhubs").options(**self.options).save()
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
@@ -97,14 +154,30 @@ class SparkEventhubDestination(DestinationInterface):
         """
         Writes steaming data to Eventhubs.
         """
+        eventhub_connection_string = "eventhubs.connectionString"
         try:
             TRIGGER_OPTION = (
                 {"availableNow": True}
                 if self.trigger == "availableNow"
                 else {"processingTime": self.trigger}
             )
+            if eventhub_connection_string in self.options:
+                sc = self.spark.sparkContext
+                self.options[
+                    eventhub_connection_string
+                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                    self.options[eventhub_connection_string]
+                )
+            df = self.prepare_columns()
+            df = self.data.select(
+                [
+                    column
+                    for column in self.data.columns
+                    if column in ["partitionId", "partitionKey", "body"]
+                ]
+            )
             query = (
-                self.data.writeStream.trigger(**TRIGGER_OPTION)
+                df.writeStream.trigger(**TRIGGER_OPTION)
                 .format("eventhubs")
                 .options(**self.options)
                 .queryName(self.query_name)
