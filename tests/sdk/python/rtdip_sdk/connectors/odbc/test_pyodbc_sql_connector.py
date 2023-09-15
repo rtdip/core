@@ -29,6 +29,9 @@ CURSOR_DESCIPTION = "cursor.description"
 
 
 class PMockedDBConnection:
+    def __init__(self) -> None:
+        self.open = True
+
     def close(self) -> None:
         return None
 

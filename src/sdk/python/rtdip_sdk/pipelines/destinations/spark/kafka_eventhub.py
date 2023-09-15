@@ -16,9 +16,16 @@ import os
 import logging
 from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, struct, to_json
+from pyspark.sql.functions import col, struct, to_json, array
 from urllib.parse import urlparse
-from pyspark.sql.types import StringType, BinaryType
+from pyspark.sql.types import (
+    StringType,
+    BinaryType,
+    ArrayType,
+    IntegerType,
+    StructType,
+    StructField,
+)
 import time
 
 from ..interfaces import DestinationInterface
@@ -161,10 +168,8 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         return connection_string
 
     def _configure_options(self, options: dict) -> dict:
-        if "subscribe" not in options:
-            options["subscribe"] = self.connection_string_properties.get(
-                "eventhub_name"
-            )
+        if "topic" not in options:
+            options["topic"] = self.connection_string_properties.get("eventhub_name")
 
         if "kafka.bootstrap.servers" not in options:
             options["kafka.bootstrap.servers"] = (
@@ -205,15 +210,8 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         return options
 
     def _transform_to_eventhub_schema(self, df: DataFrame) -> DataFrame:
-        if "value" in df.columns:
-            if df.schema["value"].dataType not in [StringType(), BinaryType()]:
-                try:
-                    df.withColumn("value", col("value").cast(StringType()))
-                except Exception as e:
-                    raise ValueError(
-                        "Couldn't convert 'value' column to string or binary type", e
-                    )
-        else:
+        column_list = ["key", "headers", "topic", "partition"]
+        if "value" not in df.columns:
             df = df.withColumn(
                 "value",
                 to_json(
@@ -221,11 +219,17 @@ class SparkKafkaEventhubDestination(DestinationInterface):
                         [
                             col(column).alias(column)
                             for column in df.columns
-                            if column not in ["key", "headers", "topic", "partition"]
+                            if column not in column_list
                         ]
                     )
                 ),
             )
+        if "headers" in df.columns and (
+            df.schema["headers"].dataType.elementType["key"].nullable == True
+            or df.schema["headers"].dataType.elementType["value"].nullable == True
+        ):
+            raise ValueError("key and value in the headers column cannot be nullable")
+
         return df.select(
             [
                 column

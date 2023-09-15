@@ -39,35 +39,49 @@ class TURBODBCSQLConnection(ConnectionInterface):
 
     def __init__(self, server_hostname: str, http_path: str, access_token: str) -> None:
         _package_version_meets_minimum("turbodbc", "4.0.0")
+        self.server_hostname = server_hostname
+        self.http_path = http_path
+        self.access_token = access_token
+        # call auth method
+        self.connection = self._connect()
+        self.open = True
 
-        options = make_options(
-            autocommit=True, read_buffer_size=Megabytes(100), use_async_io=True
-        )
+    def _connect(self):
+        """Connects to the endpoint"""
+        try:
+            options = make_options(
+                autocommit=True, read_buffer_size=Megabytes(100), use_async_io=True
+            )
 
-        self.connection = connect(
-            Driver="Simba Spark ODBC Driver",
-            Host=server_hostname,
-            Port=443,
-            SparkServerType=3,
-            ThriftTransport=2,
-            SSL=1,
-            AuthMech=11,
-            Auth_AccessToken=access_token,
-            Auth_Flow=0,
-            HTTPPath=http_path,
-            UseNativeQuery=1,
-            FastSQLPrepare=1,
-            ApplyFastSQLPrepareToAllQueries=1,
-            DisableLimitZero=1,
-            EnableAsyncExec=1,
-            RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BLOCK_SIZE", 500000),
-            turbodbc_options=options,
-        )
+            return connect(
+                Driver="Simba Spark ODBC Driver",
+                Host=self.server_hostname,
+                Port=443,
+                SparkServerType=3,
+                ThriftTransport=2,
+                SSL=1,
+                AuthMech=11,
+                Auth_AccessToken=self.access_token,
+                Auth_Flow=0,
+                HTTPPath=self.http_path,
+                UseNativeQuery=1,
+                FastSQLPrepare=1,
+                ApplyFastSQLPrepareToAllQueries=1,
+                DisableLimitZero=1,
+                EnableAsyncExec=1,
+                RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BLOCK_SIZE", 500000),
+                turbodbc_options=options,
+            )
+
+        except Exception as e:
+            logging.exception("error while connecting to the endpoint")
+            raise e
 
     def close(self) -> None:
         """Closes connection to database."""
         try:
             self.connection.close()
+            self.open = False
         except Exception as e:
             logging.exception("error while closing the connection")
             raise e
@@ -80,6 +94,8 @@ class TURBODBCSQLConnection(ConnectionInterface):
           TURBODBCSQLCursor: Object to represent a databricks workspace with methods to interact with clusters/jobs.
         """
         try:
+            if self.open == False:
+                self.connection = self._connect()
             return TURBODBCSQLCursor(self.connection.cursor())
         except Exception as e:
             logging.exception("error with cursor object")

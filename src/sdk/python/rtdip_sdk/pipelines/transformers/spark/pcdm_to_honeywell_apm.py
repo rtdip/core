@@ -120,11 +120,13 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                 "value",
                 struct(
                     col("guid").alias("SystemGuid"),
-                    struct(
-                        col("TagName").alias("ItemName"),
-                        lit(self.quality).alias("Quality"),
-                        col("EventTime").alias("Time"),
-                        col("Value").alias("Value"),
+                    array(
+                        struct(
+                            col("TagName").alias("ItemName"),
+                            lit(self.quality).alias("Quality"),
+                            col("EventTime").alias("Time"),
+                            col("Value").alias("Value"),
+                        ),
                     ).alias("HistorySamples"),
                 ),
             )
