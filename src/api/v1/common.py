@@ -19,10 +19,12 @@ from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 if importlib.util.find_spec("turbodbc") != None:
     from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
 from src.api.auth import azuread
+from src.api.v1.models import BaseHeaders
 
 
 def common_api_setup_tasks(
     base_query_parameters,
+    base_headers: BaseHeaders,
     metadata_query_parameters=None,
     raw_query_parameters=None,
     tag_query_parameters=None,
@@ -31,21 +33,34 @@ def common_api_setup_tasks(
     interpolation_at_time_query_parameters=None,
     time_weighted_average_query_parameters=None,
     pivot_query_parameters=None,
+    limit_offset_query_parameters=None,
 ):
     token = azuread.get_azure_ad_token(base_query_parameters.authorization)
 
     odbc_connection = os.getenv("RTDIP_ODBC_CONNECTION", "")
 
+    databricks_server_host_name = (
+        os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME")
+        if base_headers.x_databricks_server_hostname is None
+        else base_headers.x_databricks_server_hostname
+    )
+
+    databricks_http_path = (
+        os.getenv("DATABRICKS_SQL_HTTP_PATH")
+        if base_headers.x_databricks_http_path is None
+        else base_headers.x_databricks_http_path
+    )
+
     if odbc_connection == "turbodbc":
         connection = TURBODBCSQLConnection(
-            os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"),
-            os.environ.get("DATABRICKS_SQL_HTTP_PATH"),
+            databricks_server_host_name,
+            databricks_http_path,
             token,
         )
     else:
         connection = DatabricksSQLConnection(
-            os.environ.get("DATABRICKS_SQL_SERVER_HOSTNAME"),
-            os.environ.get("DATABRICKS_SQL_HTTP_PATH"),
+            databricks_server_host_name,
+            databricks_http_path,
             token,
         )
 
@@ -83,5 +98,8 @@ def common_api_setup_tasks(
 
     if pivot_query_parameters != None:
         parameters = dict(parameters, **pivot_query_parameters.__dict__)
+
+    if limit_offset_query_parameters != None:
+        parameters = dict(parameters, **limit_offset_query_parameters.__dict__)
 
     return connection, parameters

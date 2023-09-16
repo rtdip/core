@@ -37,8 +37,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         asset (str): Asset
         data_security_level (str): Level of data security
         tag_names (optional, list): Either pass a list of tagname/tagnames ["tag_1", "tag_2"] or leave the list blank [] or leave the parameter out completely
-        limit (optional int): Limit the number of rows to be returned
-        offset (optional int): The number of rows to skip before beginning to return rows
+        limit (optional int): The number of rows to be returned
+        offset (optional int): The number of rows to skip before returning rows
     Returns:
         DataFrame: A dataframe of metadata.
     """

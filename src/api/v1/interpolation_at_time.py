@@ -22,6 +22,7 @@ from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.queries import interpolation_at_time
 from src.api.v1.models import (
     BaseQueryParams,
+    BaseHeaders,
     ResampleInterpolateResponse,
     PivotResponse,
     HTTPError,
@@ -29,6 +30,7 @@ from src.api.v1.models import (
     TagsBodyParams,
     InterpolationAtTimeQueryParams,
     PivotQueryParams,
+    LimitOffsetQueryParams,
 )
 import src.api.v1.common
 
@@ -40,6 +42,8 @@ def interpolation_at_time_events_get(
     tag_query_parameters,
     interpolation_at_time_query_parameters,
     pivot_parameters,
+    limit_offset_parameters,
+    base_headers,
 ):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
@@ -47,6 +51,8 @@ def interpolation_at_time_events_get(
             tag_query_parameters=tag_query_parameters,
             interpolation_at_time_query_parameters=interpolation_at_time_query_parameters,
             pivot_query_parameters=pivot_parameters,
+            limit_offset_query_parameters=limit_offset_parameters,
+            base_headers=base_headers,
         )
 
         data = interpolation_at_time.get(connection, parameters)
@@ -93,12 +99,16 @@ async def interpolate_get(
     tag_query_parameters: TagsQueryParams = Depends(),
     interpolation_at_time_query_parameters: InterpolationAtTimeQueryParams = Depends(),
     pivot_parameters: PivotQueryParams = Depends(),
+    limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return interpolation_at_time_events_get(
         base_query_parameters,
         tag_query_parameters,
         interpolation_at_time_query_parameters,
         pivot_parameters,
+        limit_offset_query_parameters,
+        base_headers,
     )
 
 
@@ -130,10 +140,14 @@ async def interpolate_post(
     tag_query_parameters: TagsBodyParams = Body(default=...),
     interpolation_at_time_query_parameters: InterpolationAtTimeQueryParams = Depends(),
     pivot_parameters: PivotQueryParams = Depends(),
+    limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return interpolation_at_time_events_get(
         base_query_parameters,
         tag_query_parameters,
         interpolation_at_time_query_parameters,
         pivot_parameters,
+        limit_offset_query_parameters,
+        base_headers,
     )

@@ -41,8 +41,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        limit (optional int): Limit the number of rows to be returned
-        offset (optional int): The number of rows to skip before beginning to return rows
+        limit (optional int): The number of rows to be returned
+        offset (optional int): The number of rows to skip before returning rows
 
     Returns:
         DataFrame: A dataframe of raw timeseries data.
