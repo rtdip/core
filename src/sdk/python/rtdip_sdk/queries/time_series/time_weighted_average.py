@@ -43,8 +43,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         step (str): data points with step "enabled" or "disabled". The options for step are "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
-        limit (optional int): Limit the number of rows to be returned
-        offset (optional int): The number of rows to skip before beginning to return rows
+        limit (optional int): The number of rows to be returned
+        offset (optional int): The number of rows to skip before returning rows
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
     """
