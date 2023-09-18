@@ -20,11 +20,13 @@ from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
 from src.sdk.python.rtdip_sdk.queries import raw
 from src.api.v1.models import (
+    BaseHeaders,
     BaseQueryParams,
     RawResponse,
     RawQueryParams,
     TagsQueryParams,
     TagsBodyParams,
+    LimitOffsetQueryParams,
     HTTPError,
 )
 from src.api.auth.azuread import oauth2_scheme
@@ -34,12 +36,20 @@ import src.api.v1.common
 nest_asyncio.apply()
 
 
-def raw_events_get(base_query_parameters, raw_query_parameters, tag_query_parameters):
+def raw_events_get(
+    base_query_parameters,
+    raw_query_parameters,
+    tag_query_parameters,
+    limit_offset_parameters,
+    base_headers,
+):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
             base_query_parameters,
             raw_query_parameters=raw_query_parameters,
             tag_query_parameters=tag_query_parameters,
+            limit_offset_query_parameters=limit_offset_parameters,
+            base_headers=base_headers,
         )
 
         data = raw.get(connection, parameters)
@@ -77,9 +87,15 @@ async def raw_get(
     base_query_parameters: BaseQueryParams = Depends(),
     raw_query_parameters: RawQueryParams = Depends(),
     tag_query_parameters: TagsQueryParams = Depends(),
+    limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return raw_events_get(
-        base_query_parameters, raw_query_parameters, tag_query_parameters
+        base_query_parameters,
+        raw_query_parameters,
+        tag_query_parameters,
+        limit_offset_query_parameters,
+        base_headers,
     )
 
 
@@ -108,7 +124,13 @@ async def raw_post(
     base_query_parameters: BaseQueryParams = Depends(),
     raw_query_parameters: RawQueryParams = Depends(),
     tag_query_parameters: TagsBodyParams = Body(default=...),
+    limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return raw_events_get(
-        base_query_parameters, raw_query_parameters, tag_query_parameters
+        base_query_parameters,
+        raw_query_parameters,
+        tag_query_parameters,
+        limit_offset_query_parameters,
+        base_headers,
     )

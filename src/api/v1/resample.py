@@ -24,6 +24,7 @@ from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.queries import resample
 from src.api.v1.models import (
     BaseQueryParams,
+    BaseHeaders,
     ResampleInterpolateResponse,
     PivotResponse,
     HTTPError,
@@ -32,6 +33,7 @@ from src.api.v1.models import (
     TagsBodyParams,
     ResampleQueryParams,
     PivotQueryParams,
+    LimitOffsetQueryParams,
 )
 import src.api.v1.common
 
@@ -44,6 +46,8 @@ def resample_events_get(
     tag_query_parameters,
     resample_parameters,
     pivot_parameters,
+    limit_offset_parameters,
+    base_headers,
 ):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
@@ -52,6 +56,8 @@ def resample_events_get(
             tag_query_parameters=tag_query_parameters,
             resample_query_parameters=resample_parameters,
             pivot_query_parameters=pivot_parameters,
+            limit_offset_query_parameters=limit_offset_parameters,
+            base_headers=base_headers,
         )
 
         data = resample.get(connection, parameters)
@@ -99,6 +105,8 @@ async def resample_get(
     tag_query_parameters: TagsQueryParams = Depends(),
     resample_parameters: ResampleQueryParams = Depends(),
     pivot_parameters: PivotQueryParams = Depends(),
+    limit_offset_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return resample_events_get(
         base_query_parameters,
@@ -106,6 +114,8 @@ async def resample_get(
         tag_query_parameters,
         resample_parameters,
         pivot_parameters,
+        limit_offset_parameters,
+        base_headers,
     )
 
 
@@ -138,6 +148,8 @@ async def resample_post(
     tag_query_parameters: TagsBodyParams = Body(default=...),
     resample_parameters: ResampleQueryParams = Depends(),
     pivot_parameters: PivotQueryParams = Depends(),
+    limit_offset_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return resample_events_get(
         base_query_parameters,
@@ -145,4 +157,6 @@ async def resample_post(
         tag_query_parameters,
         resample_parameters,
         pivot_parameters,
+        limit_offset_parameters,
+        base_headers,
     )

@@ -146,10 +146,16 @@ TIME_WEIGHTED_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT["tag_name"] = [
     "MOCKED-TAGNAME2",
 ]
 
-TEST_HEADERS = {"Authorization": "Bearer Test Token"}
+TEST_HEADERS = {
+    "Authorization": "Bearer Test Token",
+    "x-databricks-server-hostname": "test_server",
+    "x-databricks-http-path": "test_path",
+}
 TEST_HEADERS_POST = {
     "Authorization": "Bearer Test Token",
     "Content-Type": "application/json",
+    "x-databricks-server-hostname": "test_server",
+    "x-databricks-http-path": "test_path",
 }
 
 
