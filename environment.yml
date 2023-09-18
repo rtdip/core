@@ -52,7 +52,7 @@ dependencies:
     - mkdocs-macros-plugin==1.0.1
     - pygments==2.16.1
     - pymdown-extensions==10.1.0
-    - databricks-sql-connector==2.9.2
+    - databricks-sql-connector==2.9.3
     - databricks-sdk==0.6.0
     - semver==3.0.0
     - xlrd==2.0.1
@@ -72,7 +72,7 @@ dependencies:
         - azure-functions==1.15.0
         - nest_asyncio==1.5.6
         - hvac==1.1.1
-        - langchain==0.0.268
+        - langchain==0.0.291
         - build==0.10.0
         - deltalake==0.10.1
         - mkdocs-material==9.2.0b3

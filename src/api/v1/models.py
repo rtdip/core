@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from datetime import datetime
 from tracemalloc import start
 from pydantic import BaseModel, Field, Extra, ConfigDict
@@ -112,6 +113,32 @@ class HTTPError(BaseModel):
         schema_extra = {
             "example": {"detail": "HTTPException raised."},
         }
+
+
+class BaseHeaders:
+    def __init__(
+        self,
+        x_databricks_server_hostname: str = Header(
+            default=...
+            if os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME") is None
+            else os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME"),
+            description="Databricks SQL Server Hostname",
+            include_in_schema=True
+            if os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME") is None
+            else False,
+        ),
+        x_databricks_http_path: str = Header(
+            default=...
+            if os.getenv("DATABRICKS_SQL_HTTP_PATH") is None
+            else os.getenv("DATABRICKS_SQL_HTTP_PATH"),
+            description="Databricks SQL HTTP Path",
+            include_in_schema=True
+            if os.getenv("DATABRICKS_SQL_HTTP_PATH") is None
+            else False,
+        ),
+    ):
+        self.x_databricks_server_hostname = x_databricks_server_hostname
+        self.x_databricks_http_path = x_databricks_http_path
 
 
 class BaseQueryParams:
@@ -223,6 +250,22 @@ class PivotQueryParams:
         ),
     ):
         self.pivot = pivot
+
+
+class LimitOffsetQueryParams:
+    def __init__(
+        self,
+        limit: int = Query(
+            default=None,
+            description="The number of rows to be returned",
+        ),
+        offset: int = Query(
+            default=None,
+            description="The number of rows to skip before returning rows",
+        ),
+    ):
+        self.limit = limit
+        self.offset = offset
 
 
 class InterpolateQueryParams:
