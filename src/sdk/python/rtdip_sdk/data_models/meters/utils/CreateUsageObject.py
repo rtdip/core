@@ -13,10 +13,10 @@
 # limitations under the License.
 
 
-from ..ami_meters import Usage
+from ..ami_meter import Usage
 
 
-def create_usage_VO(
+def create_usage_vo(
     uid: str, series_id: str, timestamp: int, interval_timestamp: int, value: float
 ):
     try:
