@@ -73,8 +73,8 @@ def test_sem_json_to_pcdm(spark_session: SparkSession):
             assert isinstance(sem_json_to_pcdm_transformer.libraries(), Libraries)
             assert expected_schema == actual_df.schema
             assert expected_df.collect() == actual_df.collect()
-    except Exception as e:
-        with pytest.raises(e):
+    except:
+        with pytest.raises(Exception):
             sem_json_to_pcdm_transformer = SEMJsonToPCDMTransformer(
                 data=sem_df, source_column_name="body", version=10
             )
