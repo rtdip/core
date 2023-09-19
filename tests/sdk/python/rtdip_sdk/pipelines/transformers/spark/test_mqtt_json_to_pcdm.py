@@ -29,9 +29,7 @@ from datetime import datetime, timezone
 
 
 def test_mqtt_json_to_pcdm(spark_session: SparkSession):
-    mqtt_json_data = (
-        '{"d":["1685025760.46"],"dID":"502","m":"data","t":1694013193129,"v":"8"}'
-    )
+    mqtt_json_data = '{"readings":[{"resourceName":"d","value":"[1685025760.46]"},{"resourceName":"dID","value":"502"},{"resourceName":"t", "value":"1695047439192"}]}'
     mqtt_df: DataFrame = spark_session.createDataFrame([{"body": mqtt_json_data}])
 
     expected_schema = StructType(
@@ -39,7 +37,7 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
             StructField("EventTime", TimestampType(), True),
             StructField("TagName", StringType(), True),
             StructField("Status", StringType(), False),
-            StructField("Value", StringType(), True),
+            StructField("Value", StringType(), False),
             StructField("ValueType", StringType(), True),
             StructField("ChangeType", StringType(), False),
         ]
@@ -47,7 +45,7 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
 
     expected_data = [
         {
-            "EventTime": datetime.fromisoformat("2023-09-06T15:13:13.000+00:00"),
+            "EventTime": datetime.fromisoformat("2023-09-18T14:30:39.192+0000"),
             "TagName": "502_obc_timeStamp",
             "Status": "Good",
             "Value": "1685025760.46",
