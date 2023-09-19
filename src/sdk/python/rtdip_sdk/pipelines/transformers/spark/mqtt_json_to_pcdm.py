@@ -26,6 +26,7 @@ from pyspark.sql.functions import (
     split,
     expr,
 )
+from pyspark.pandas import melt
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import MQTT_SCHEMA
