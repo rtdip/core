@@ -19,7 +19,7 @@ from datetime import datetime
 
 sys.path.insert(0, ".")
 
-from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
+from src.sdk.python.rtdip_sdk.data_models.storage_objects import storage_objects_utils
 
 
 def test_validate():
@@ -34,20 +34,20 @@ def test_validate():
     )
 
     rnd_object_name: str = (
-        "".join(
-            random.choice(lan) for _ in range(9)  # NOSONAR                 # NOSONAR
-        )
+        "".join(random.choice(lan) for _ in range(9))  # NOSONAR
         + "."
-        + "".join(random.choice(string.ascii_lowercase) for _ in range(3))
+        + "".join(random.choice(string.ascii_lowercase) for _ in range(3))  # NOSONAR
     )  # NOSONAR
 
-    rnd_full_s3_uri: str = utils.to_uri(
-        utils.S3_SCHEME, rnd_domain_name, rnd_keys + "/" + rnd_object_name
+    rnd_full_s3_uri: str = storage_objects_utils.to_uri(
+        storage_objects_utils.S3_SCHEME,
+        rnd_domain_name,
+        rnd_keys + "/" + rnd_object_name,
     )
 
-    scheme, domain, path = utils.validate_uri(rnd_full_s3_uri)
+    scheme, domain, path = storage_objects_utils.validate_uri(rnd_full_s3_uri)
 
-    assert scheme == utils.S3_SCHEME
+    assert scheme == storage_objects_utils.S3_SCHEME
     assert domain == rnd_domain_name
 
     assert path == "/" + rnd_keys + "/" + rnd_object_name
@@ -62,7 +62,7 @@ def test_validate():
         rnd_full_invalid_uri: str = (
             rnd_protocol + rnd_domain_name + "/" + rnd_keys + "/" + rnd_object_name
         )
-        utils.validate_uri(rnd_full_invalid_uri)
+        storage_objects_utils.validate_uri(rnd_full_invalid_uri)
 
     except SystemError:
         exception_thrown = True

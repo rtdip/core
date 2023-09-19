@@ -16,7 +16,7 @@ import os
 import pytest
 from pyspark.sql.functions import expr, lit
 
-from src.sdk.python.rtdip_sdk.data_models.meters.ami_meters import ValueType
+from src.sdk.python.rtdip_sdk.data_models.timeseries import ValueType
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.base_raw_to_mdm import (
     BaseRawToMDMTransformer,
 )
