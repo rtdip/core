@@ -26,20 +26,20 @@ from pyspark.sql.functions import (
     split,
     expr,
 )
-from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
+from ...._sdk_utils.compare_versions import (
     _package_version_meets_minimum,
 )
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.spark import MQTT_SCHEMA
+from ..._pipeline_utils.spark import SEM_SCHEMA
 from ..._pipeline_utils import obc_field_mappings
 
 
-class MQTTJsonToPCDMTransformer(TransformerInterface):
+class SEMJsonToPCDMTransformer(TransformerInterface):
     """
-    Converts a Spark Dataframe column containing a json string created by MQTT to the Process Control Data Model
+    Converts a Spark Dataframe column containing a json string created by SEM to the Process Control Data Model
     Args:
-        data (DataFrame): Dataframe containing the column with MQTT data
+        data (DataFrame): Dataframe containing the column with SEM data
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         version (int): The version for the OBC field mappings. The latest version is 10.
         status_null_value (optional str): If populated, will replace 'Good' in the Status column with the specified value.
@@ -100,7 +100,7 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
             df = (
                 self.data.withColumn(
                     self.source_column_name,
-                    from_json(self.source_column_name, MQTT_SCHEMA),
+                    from_json(self.source_column_name, SEM_SCHEMA),
                 )
                 .select(self.source_column_name + ".readings")
                 .melt(
