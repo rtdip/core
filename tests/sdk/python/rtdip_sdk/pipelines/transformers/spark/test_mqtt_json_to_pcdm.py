@@ -26,23 +26,15 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from datetime import datetime
-from pytest_mock import MockerFixture
+import pytest
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
+    _package_version_meets_minimum,
+)
 
 
-class MockPackageClass:
-    version: str
-
-
-DISTRIBUTION_FROM_NAME = "importlib_metadata.Distribution.from_name"
-
-
-def test_mqtt_json_to_pcdm(spark_session: SparkSession, mocker: MockerFixture):
+def test_mqtt_json_to_pcdm(spark_session: SparkSession):
     mqtt_json_data = '{"readings":[{"resourceName":"d","value":"[1685025760.46]"},{"resourceName":"dID","value":"502"},{"resourceName":"t", "value":"1695047439192"}]}'
     mqtt_df: DataFrame = spark_session.createDataFrame([{"body": mqtt_json_data}])
-
-    mock_package = MockPackageClass()
-    mock_package.version = "3.4.0"
-    mocker.patch(DISTRIBUTION_FROM_NAME, return_value=mock_package)
 
     expected_schema = StructType(
         [
@@ -70,12 +62,18 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession, mocker: MockerFixture):
         schema=expected_schema, data=expected_data
     )
 
-    mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
-        data=mqtt_df, source_column_name="body", version=10
-    )
-    actual_df = mqtt_json_to_pcdm_transformer.transform()
+    if _package_version_meets_minimum("pyspark", "3.4.0"):
+        mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
+            data=mqtt_df, source_column_name="body", version=10
+        )
+        actual_df = mqtt_json_to_pcdm_transformer.transform()
 
-    assert mqtt_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
-    assert isinstance(mqtt_json_to_pcdm_transformer.libraries(), Libraries)
-    assert expected_schema == actual_df.schema
-    assert expected_df.collect() == actual_df.collect()
+        assert mqtt_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
+        assert isinstance(mqtt_json_to_pcdm_transformer.libraries(), Libraries)
+        assert expected_schema == actual_df.schema
+        assert expected_df.collect() == actual_df.collect()
+    else:
+        with pytest.raises(Exception):
+            mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
+                data=mqtt_df, source_column_name="body", version=10
+            )
