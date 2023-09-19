@@ -32,7 +32,7 @@ config = ConfigSettigns()
 def test_methods(mocker: MockerFixture):
     db = DataBase(config)
 
-    # mocker.patch("openstef_dbc.data_interface._DataInterface", new=_DataInterface)
+    mocker.patch("openstef_dbc.data_interface._DataInterface", new=_DataInterface)
 
     # # write methods
     # x = db.write_weather_data # influx
@@ -62,7 +62,7 @@ def test_methods(mocker: MockerFixture):
     # # weather methods
     # x = db.get_weather_forecast_locations()
     # x = db.get_weather_data(location='Deelen', 
-    #                         weatherparams=["radiation", "temp"], 
+    #                         weatherparams=["pressure", "temp"], 
     #                         datetime_start=datetime(2023, 8, 29), 
     #                         datetime_end=datetime(2023, 8, 30),
     #                         source="harm_arome")
@@ -80,18 +80,18 @@ def test_methods(mocker: MockerFixture):
     # x = db.get_load_profiles() # using influx
 
     # historic cdb data service
-    # x = db.get_load_sid(
-    #     sid=['Location_A_System_1', 'Location_A_System_10', 'Location_C_System_2'],
-    #     datetime_start=datetime(2023, 8, 29),
-    #     datetime_end=datetime(2023, 8, 30), 
-    #     forecast_resolution='15T',
-    #     aggregated=True
-    # )
+    x = db.get_load_sid(
+        sid=['Location_A_System_1', 'Location_A_System_10', 'Location_C_System_2'],
+        datetime_start=datetime(2023, 8, 29),
+        datetime_end=datetime(2023, 8, 30), 
+        forecast_resolution='15T',
+        aggregated=True
+    )
     # x = db.get_load_pid(313, datetime(2023,1,1), datetime(2023,1,2))
 
     # # splitting methods
     # x = db.get_wind_ref('Deelen', datetime(2023,1,1), datetime(2023,1,2))
-    x = db.get_energy_split_coefs({"id": "317"}) 
+    # x = db.get_energy_split_coefs({"id": "317"}) 
     # x = db.get_input_energy_splitting({"id": "317"}) # influx
 
     # # predictions methods

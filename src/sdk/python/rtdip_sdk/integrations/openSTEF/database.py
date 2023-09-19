@@ -120,15 +120,12 @@ class DataBase(metaclass=Singleton):
                 api_admin_username (str): API admin username.
                 api_admin_password (str): API admin password.
                 api_url (str): API url.
-                influxdb_token (str): Token to authenticate to InfluxDB.
-                influxdb_host (str): InfluxDB host.
-                influxdb_port (int): InfluxDB port.
-                influx_organization (str): InfluxDB organization.
-                mysql_hostname (str): MySQL hostname.
-                mysql_token (str): MySQL token.
-                mysql_port (int): MYSQL port.
-                mysql_http_path (str): MySQL http path.
-                mysql_database_name (str): MySQL database name.
+                db_host (str): Databricks hostname.
+                db_token (str): Databricks token.
+                db_port (int): Databricks port.
+                db_catalog (str): Databricks catalog.
+                db_schema (str): Databricks schema.
+                db_http_path (str): SQL warehouse http path.
                 proxies Union[dict[str, str], None]: Proxies.
 
         """

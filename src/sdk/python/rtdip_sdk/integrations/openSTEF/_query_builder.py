@@ -46,8 +46,8 @@ def _build_parameters(query):
         parameters["time_interval_unit"] = "minute"
         parameters["range_join_seconds"] = int(parameters["time_interval_rate"][0]) * 60
 
-    filter_sections = re.findall(r"\|> filter\(fn: \(r\) => (.*?)\)", query, re.DOTALL)
-    filter = " AND ".join(["(" + i.strip() + ")" for i in filter_sections])
+    filter_sections = re.findall(r"\|> filter\(fn: \(r\) => (.*?)(?=\s*\||$)", query, re.DOTALL)
+    filter = " AND ".join(["(" + i.strip() for i in filter_sections])
 
     where = re.sub(r"r\.", "", filter)
     if where.count("(") != where.count(")"):
@@ -81,8 +81,9 @@ def _raw_query(query: str) -> str:
         " FROM `{{ table }}` "
         "WHERE {{ where }} "
         "AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\")) "
-         "SELECT * FROM raw_events"
+        "SELECT lat AS Latitude, lon AS Longitude, current_timestamp() AS EnqueuedTime, _time AS EventTime, _value AS Value, source AS Source, \"Good\" AS Status, True AS Latest, date(_time) AS EventDate, concat(_field, \":\", input_city, \":\", source) AS TagName, _time, _value, _field, input_city, source FROM raw_events a INNER JOIN nametolatlon b ON a.input_city = b.regionInput ORDER BY EventTime"
     )
+
 
     sql_template = Template(flux_query)
     sql_query = sql_template.render(parameters)

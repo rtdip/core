@@ -12,14 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 import geopy
-from influxdb_client import InfluxDBClient
-from influxdb_client.client.write_api import SYNCHRONOUS
-from jinja2 import Template
 import pandas as pd
-import numpy as np
-import requests
 import sqlalchemy
 
 from openstef_dbc.data_interface import _DataInterface
@@ -27,12 +21,13 @@ from openstef_dbc import Singleton
 from openstef_dbc.ktp_api import KtpApi
 from openstef_dbc.log import logging
 from ._query_builder import _query_builder
+from importlib_metadata import version
 
 class _DataInterface(_DataInterface, metaclass=Singleton):
     def __init__(self, config):
         """Generic data interface.
 
-        All connections and queries to the InfluxDB database, MySQL databases and
+        All connections and queries to the Databricks databases and
         influx API are governed by this class.
 
         Args:
@@ -80,7 +75,8 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         # urllib.request.ProxyHandler for more details).
         # The proxies value for using system proxies is None.
         geopy.geocoders.options.default_proxies = config.proxies
-        geopy.geocoders.options.default_user_agent = "rtdip/0.7.8" # User-Agent header to send with the requests to geocoder API -> User-Agent: <product> / <product-version> <comment>
+        geopy.geocoders.options.default_user_agent = "rtdip-sdk/0.7.8"
+        # geopy.geocoders.options.default_user_agent = f"rtdip-sdk/{version('rtdip-sdk')}" 
 
         _DataInterface._instance = self
 
@@ -104,11 +100,8 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         schema: str,
         http_path: str,
     ):  
-        """Create MySQL engine.
-
-        Differs from sql_connection in the sense that this write_engine
-        *can* write pandas dataframe directly.
-
+        """
+        Create Databricks engine.
         """
 
         conn_string = sqlalchemy.engine.URL.create(
@@ -123,14 +116,13 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         try:
             return sqlalchemy.engine.create_engine(conn_string)
         except Exception as exc:
-            self.logger.error("Could not connect to MySQL database", exc_info=exc)
+            self.logger.error("Could not connect to Databricks database", exc_info=exc)
             raise
 
     def exec_influx_query(self, query: str, bind_params: dict = {}):
         """Execute an InfluxDB query.
 
-        When there is data it returns a defaultdict with as key the measurement and
-        as value a DataFrame. When there is NO data it returns an empty dictionairy.
+        When there is data it returns a DataFrame or list of DataFrames. When there is NO data it returns an empty dictionary.
 
         Args:
             query (str): Influx query string.
@@ -143,14 +135,14 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             query_list = _query_builder(query)
 
             if len(query_list) == 1:
-                return pd.read_sql(query_list[0], self.mysql_engine)
+                return pd.read_sql(query_list[0], self.mysql_engine) # params = bind_params?
             elif len(query_list) > 1:
                 df = [pd.read_sql(query, self.mysql_engine) for query in query_list]
                 return df
 
         except Exception as e:
             self.logger.error(
-                "Error occured during executing InfluxDB query", query=query, exc_info=e
+                "Error occured during executing query", query=query, exc_info=e
             )
             raise
 
@@ -164,10 +156,25 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         field_columns: list = None,
         time_precision: str = "s",
     ) -> bool:
-        return None
+        try:
+            df.to_sql(measurement, self.mysql_engine, index=False)
+            return True
+        except Exception as e:
+            self.logger.error(
+                "Exception occured during writing to Databricks database", exc_info=e
+            )
+            raise
 
     def check_influx_available(self):
-        return None
+        return self.check_mysql_available(self)
+    
+        # """Check if a basic Databricks SQL query gives a valid response"""
+        # query = "SHOW DATABASES"
+        # response = self.exec_sql_query(query)
+
+        # available = len(list(response["Database"])) > 0
+
+        # return available
 
     def exec_sql_query(self, query: str, params: dict = None, **kwargs):
         if params is None:
@@ -175,7 +182,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         try:
             return pd.read_sql(query, self.mysql_engine, params=params, **kwargs)
         except sqlalchemy.exc.OperationalError as e:
-            self.logger.error("Lost connection to MySQL database", exc_info=e)
+            self.logger.error("Lost connection to Databricks database", exc_info=e)
             raise
         except sqlalchemy.exc.ProgrammingError as e:
             self.logger.error(
@@ -183,7 +190,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             )
             raise
         except sqlalchemy.exc.DatabaseError as e:
-            self.logger.error("Can't connect to MySQL database", exc_info=e)
+            self.logger.error("Can't connect to Databricks database", exc_info=e)
             raise
 
     def exec_sql_write(self, statement: str, params: dict = None) -> None:
@@ -204,7 +211,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         dataframe.to_sql(table, self.mysql_engine, index=False, **kwargs)
 
     def check_mysql_available(self):
-        """Check if a basic mysql query gives a valid response"""
+        """Check if a basic Databricks SQL query gives a valid response"""
         query = "SHOW DATABASES"
         response = self.exec_sql_query(query)
 
