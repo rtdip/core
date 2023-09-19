@@ -26,7 +26,9 @@ from pyspark.sql.functions import (
     split,
     expr,
 )
-from pyspark.pandas import melt
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
+    _package_version_meets_minimum,
+)
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import MQTT_SCHEMA
@@ -58,6 +60,7 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
         status_null_value: str = "Good",
         change_type_value: str = "insert",
     ) -> None:
+        _package_version_meets_minimum("pyspark", "3.4.0")
         self.data = data
         self.source_column_name = source_column_name
         self.version = version
