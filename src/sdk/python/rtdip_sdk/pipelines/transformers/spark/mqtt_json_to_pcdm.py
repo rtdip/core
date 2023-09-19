@@ -22,6 +22,12 @@ from pyspark.sql.functions import (
     concat,
     lit,
     udf,
+    map_from_arrays,
+    split,
+    expr,
+)
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
+    _package_version_meets_minimum,
 )
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -54,6 +60,7 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
         status_null_value: str = "Good",
         change_type_value: str = "insert",
     ) -> None:
+        _package_version_meets_minimum("pyspark", "3.4.0")
         self.data = data
         self.source_column_name = source_column_name
         self.version = version
@@ -95,19 +102,25 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
                     self.source_column_name,
                     from_json(self.source_column_name, MQTT_SCHEMA),
                 )
+                .select(self.source_column_name + ".readings")
+                .melt(
+                    ids=["readings.resourceName"],
+                    values=["readings.value"],
+                    variableColumnName="var",
+                    valueColumnName="value",
+                )
+                .drop("var")
+                .select(map_from_arrays("resourceName", "value").alias("resourceName"))
+                .select("resourceName.dID", "resourceName.d", "resourceName.t")
                 .select(
-                    regexp_replace(
-                        col("{}.t".format(self.source_column_name)).cast("string"),
-                        "(\d{10})(\d+)",
-                        "$1.$2",
-                    )
-                    .cast("long")
-                    .alias("t"),
-                    "{}.dID".format(self.source_column_name),
-                    posexplode("{}.d".format(self.source_column_name)),
+                    regexp_replace(col("t").cast("string"), "(\d{10})(\d+)", "$1.$2")
+                    .cast("double")
+                    .alias("timestamp"),
+                    "dID",
+                    posexplode(split(expr("substring(d, 2, length(d)-2)"), ",")),
                 )
                 .select(
-                    to_timestamp("t").alias("EventTime"),
+                    to_timestamp("timestamp").alias("EventTime"),
                     col("dID"),
                     col("pos").cast("string"),
                     col("col").alias("Value"),

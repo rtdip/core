@@ -25,13 +25,15 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
-from datetime import datetime, timezone
+from datetime import datetime
+import pytest
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
+    _package_version_meets_minimum,
+)
 
 
 def test_mqtt_json_to_pcdm(spark_session: SparkSession):
-    mqtt_json_data = (
-        '{"d":["1685025760.46"],"dID":"502","m":"data","t":1694013193129,"v":"8"}'
-    )
+    mqtt_json_data = '{"readings":[{"resourceName":"d","value":"[1685025760.46]"},{"resourceName":"dID","value":"502"},{"resourceName":"t", "value":"1695047439192"}]}'
     mqtt_df: DataFrame = spark_session.createDataFrame([{"body": mqtt_json_data}])
 
     expected_schema = StructType(
@@ -39,7 +41,7 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
             StructField("EventTime", TimestampType(), True),
             StructField("TagName", StringType(), True),
             StructField("Status", StringType(), False),
-            StructField("Value", StringType(), True),
+            StructField("Value", StringType(), False),
             StructField("ValueType", StringType(), True),
             StructField("ChangeType", StringType(), False),
         ]
@@ -47,7 +49,7 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
 
     expected_data = [
         {
-            "EventTime": datetime.fromisoformat("2023-09-06T15:13:13.000+00:00"),
+            "EventTime": datetime.fromisoformat("2023-09-18T14:30:39.192+00:00"),
             "TagName": "502_obc_timeStamp",
             "Status": "Good",
             "Value": "1685025760.46",
@@ -60,12 +62,19 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
         schema=expected_schema, data=expected_data
     )
 
-    mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
-        data=mqtt_df, source_column_name="body", version=10
-    )
-    actual_df = mqtt_json_to_pcdm_transformer.transform()
+    try:
+        if _package_version_meets_minimum("pyspark", "3.4.0"):
+            mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
+                data=mqtt_df, source_column_name="body", version=10
+            )
+            actual_df = mqtt_json_to_pcdm_transformer.transform()
 
-    assert mqtt_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
-    assert isinstance(mqtt_json_to_pcdm_transformer.libraries(), Libraries)
-    assert expected_schema == actual_df.schema
-    assert expected_df.collect() == actual_df.collect()
+            assert mqtt_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
+            assert isinstance(mqtt_json_to_pcdm_transformer.libraries(), Libraries)
+            assert expected_schema == actual_df.schema
+            assert expected_df.collect() == actual_df.collect()
+    except:
+        with pytest.raises(Exception):
+            mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
+                data=mqtt_df, source_column_name="body", version=10
+            )
