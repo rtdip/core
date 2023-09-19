@@ -34,7 +34,7 @@ def _build_parameters(query):
     parameters["start"] = start
     parameters["stop"] = stop
 
-    window_pattern = r"\|> aggregateWindow\((.*?)\)"
+    window_pattern = r"\|> aggregateWindow\((.*)\)"
     window = re.findall(window_pattern, query)
     if window:
         every = re.findall(r"every: ([^,]+)m", str(window))
@@ -51,7 +51,7 @@ def _build_parameters(query):
 
     where = re.sub(r"r\.", "", filter)
     if where.count("(") != where.count(")"):
-        where += ")"
+        where = "(" + where
         
     parameters["where"] = where
 
@@ -66,7 +66,7 @@ def _build_parameters(query):
 
     return parameters
 
-def _raw_query(query: str) -> str:
+def _raw_query(query: str) -> list:
     parameters = _build_parameters(query)
 
     flux_query = (
@@ -81,16 +81,30 @@ def _raw_query(query: str) -> str:
         " FROM `{{ table }}` "
         "WHERE {{ where }} "
         "AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\")) "
-        "SELECT lat AS Latitude, lon AS Longitude, current_timestamp() AS EnqueuedTime, _time AS EventTime, _value AS Value, source AS Source, \"Good\" AS Status, True AS Latest, date(_time) AS EventDate, concat(_field, \":\", input_city, \":\", source) AS TagName, _time, _value, _field, input_city, source FROM raw_events a INNER JOIN nametolatlon b ON a.input_city = b.regionInput ORDER BY EventTime"
-    )
-
-
+        
+        "{% if table == 'weather'%}"
+        "SELECT lat AS Latitude, lon AS Longitude, current_timestamp() AS EnqueuedTime, _time AS EventTime, _value AS Value, source AS Source, \"Good\" AS Status, True AS Latest, date(_time) AS EventDate, concat(_field, \":\", input_city, \":\", source) AS TagName, _time, _field, _value, input_city, source FROM raw_events a INNER JOIN nametolatlon b ON a.input_city = b.regionInput ORDER BY TagName, EventTime"
+        "{% else %}"
+        "SELECT _time AS EventTime, _value AS Value, \"Good\" AS Status, concat(_field"
+        "{% for col in columns %}"
+        ", \":\", {{ col }}"
+        "{% endfor %}"
+        ") AS TagName, _time, _field, _value"
+        "{% for col in columns %}"
+        ", {{ col }}"
+        "{% endfor %}"
+        " FROM raw_events "
+        "ORDER BY TagName, EventTime"
+        "{% endif %}"
+        )  
+    
     sql_template = Template(flux_query)
     sql_query = sql_template.render(parameters)
     return [sql_query]
 
 def _resample_query(query: str) -> str:
     parameters = _build_parameters(query)
+    parameters["filters"] = re.findall(r'r\.system == "([^"]+)"', query)
 
     resample_base_query = (
         "WITH raw_events AS (SELECT * FROM `{{ table }}` WHERE {{ where }} AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\")) "
@@ -114,9 +128,9 @@ def _resample_query(query: str) -> str:
             "{% endfor %}"
             " DENSE_RANK() OVER (ORDER BY table) - 1 AS rank_table FROM resample) "  
             "{% if yield is defined and yields|length > 0 %}"
-            " SELECT \"{{ yield }}\" AS result, " 
+            " , resample_results AS (SELECT \"{{ yield }}\" AS result, " 
             "{% else %}"
-            " SELECT \"_result\" AS result, "
+            " , resample_results AS (SELECT \"_result\" AS result, "
             "{% endif %}"
             "rank_table AS table, to_timestamp(\"{{ start }}\") AS _start, to_timestamp(\"{{ stop }}\") AS _stop, window_end AS _time, {{ agg_method[0] }}(_value) AS _value, coalesce(_field_forward, _field_backward) AS _field, \"{{ table }}\" AS _measurement "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
@@ -126,13 +140,13 @@ def _resample_query(query: str) -> str:
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", coalesce({{ col }}_forward, {{ col }}_backward) "
             "{% endfor %}"
-            "ORDER BY table, _time "
+            "ORDER BY table, _time) "
 
             "{% else %}"
             "{% if yield is defined and yields|length > 0 %}"
-            " SELECT \"{{ yield }}\" AS result, " 
+            " , resample_results AS SELECT \"{{ yield }}\" AS result, " 
             "{% else %}"
-            " SELECT \"_result\" AS result, "
+            " , resample_results AS (SELECT \"_result\" AS result, "
             "{% endif %}"
             "DENSE_RANK() OVER (ORDER BY table) - 1 AS table, to_timestamp(\"{{ start }}\") AS _start, to_timestamp(\"{{ stop }}\") AS _stop, window_end AS _time, {{ agg_method[0] }}(_value) AS _value,  _field, \"{{ table }}\" AS _measurement "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
@@ -142,7 +156,25 @@ def _resample_query(query: str) -> str:
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", {{ col }} "
             "{% endfor %}"
-            "ORDER BY table, _time "
+            "ORDER BY table, _time) "
+            "{% endif %}"
+        )
+
+        flux_query = (
+            f"{flux_query}"
+            "{% if table == 'weather'%}"
+            "SELECT lat AS Latitude, lon AS Longitude, current_timestamp() AS EnqueuedTime, _time AS EventTime, _value AS Value, source AS Source, \"Good\" AS Status, True AS Latest, date(_time) AS EventDate, concat(_field, \":\", input_city, \":\", source) AS TagName, _time, _field, _value, input_city, source FROM resample_results a INNER JOIN nametolatlon b ON a.input_city = b.regionInput ORDER BY TagName, EventTime"
+            "{% else %}"
+            "SELECT _time AS EventTime, _value AS Value, \"Good\" AS Status, concat(_field"
+            "{% for col in columns %}"
+            ", \":\", {{ col }}"
+            "{% endfor %}"
+            ") AS TagName, _time, _field, _value"
+            "{% for col in columns %}"
+            ", {{ col }}"
+            "{% endfor %}"
+            " FROM resample_results "
+            "ORDER BY TagName, EventTime"
             "{% endif %}"
         )
 
@@ -163,8 +195,16 @@ def _resample_query(query: str) -> str:
             ", date_intervals_2 AS (SELECT table, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), \"yyyy-MM-dd HH:mm:ss\") AS timestamp_array FROM date_array_2) "
             ", window_buckets_2 AS (SELECT table, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals_2) "
             ", project_resample_results AS (SELECT /*+ RANGE_JOIN(a, {{ range_join_seconds }}) */ b.result, a.table, a.window_end AS _time, b._start, b._stop, b._value FROM window_buckets_2 a FULL OUTER JOIN resample_results b ON a.window_start <= b._time AND a.window_end > b._time AND a.table = b.table) "
-            ", resample_sum AS (SELECT \"{{ yield[0] }}\" AS result, 0 AS table, _time, to_timestamp(\"{{ start }}\") AS _start, to_timestamp(\"{{ stop }}\") AS _stop, {{ agg_method[1] }}(_value) AS _value FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time, _start, _stop ORDER BY _time ) "
-            ", resample_count AS (SELECT \"{{ yield[1] }}\" AS result, 0 AS table, _time, to_timestamp(\"{{ start }}\") AS _start,to_timestamp(\"{{ stop }}\") AS _stop, {{ agg_method[2] }}(_value) AS _value FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time, _start, _stop ORDER BY _time) "
+            ", resample_sum AS (SELECT _time AS EventTime, sum(_value) AS Value, \"Good\" AS Status, concat(_field" 
+            "{% for filter in filters %}"
+            ", \":\", \"{{ filter }}\" "
+            "{% endfor %}"
+            ") AS TagName, _time, sum(_value) AS _value FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY _time, _field ORDER BY EventTime)"
+            ", resample_count AS (SELECT _time AS EventTime, count(_value) AS Value, \"Good\" AS Status, concat(_field" 
+            "{% for filter in filters %}"
+            ", \":\", \"{{ filter }}\" "
+            "{% endfor %}"
+            ") AS TagName, _time, count(_value) AS _value FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY _time, _field ORDER BY EventTime)"
         )
 
         sum_query = (
@@ -179,8 +219,10 @@ def _resample_query(query: str) -> str:
 
         sum_template = Template(sum_query)
         sum_query = sum_template.render(parameters)
+
         count_template = Template(count_query)
         count_query = count_template.render(parameters)
+        
         return [sum_query, count_query]
 
 def _pivot_query(query: str) -> str:
@@ -204,7 +246,11 @@ def _pivot_query(query: str) -> str:
         "{% endif %}"
         "{% endfor %}"
         " )) ORDER BY table, _time) "
-        " SELECT * FROM pivot_table WHERE "
+        " SELECT _time AS EventTime" 
+        "{% for filter in filters %}"
+        ", filter"
+        "{% endfor %}"
+        ", _time FROM pivot_table WHERE "
         "{% for filter in filters %}"
         " {{ filter }} IS NOT NULL "
         "{% if not loop.last %}"
@@ -223,7 +269,7 @@ def _max_query() -> str:
         "WITH raw_events AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY table ORDER BY _time) AS numbered_rows FROM `weather` WHERE (_field == 'source_run' AND source == 'harm_arome') AND _time >= to_timestamp(timestampadd(day, -2, current_timestamp())))"
         ", max_events AS (SELECT *, MAX(_value) OVER (PARTITION BY table) AS max_value FROM raw_events WHERE numbered_rows <= 10)"
         ", results AS (SELECT a.*, ROW_NUMBER() OVER (PARTITION BY a.table ORDER BY a._time) AS ordered_rows FROM max_events a INNER JOIN raw_events b ON a._time = b._time AND a.max_value = b._value)"
-        "SELECT result, DENSE_RANK() OVER (ORDER BY table) - 1 AS table, current_timestamp() AS _start, current_timestamp() AS _stop, _time, _value, _field, _measurement, input_city, source FROM results WHERE ordered_rows = 1"    
+        "SELECT _time AS EventTime, _value AS Value, \"Good\" AS Status, concat(_field, \":\", system) AS TagName, _value FROM results WHERE ordered_rows = 1"    
     )
     
     return [sql_query]
