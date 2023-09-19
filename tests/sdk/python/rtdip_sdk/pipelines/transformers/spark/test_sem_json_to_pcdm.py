@@ -15,8 +15,8 @@
 import sys
 
 sys.path.insert(0, ".")
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.mqtt_json_to_pcdm import (
-    MQTTJsonToPCDMTransformer,
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.sem_json_to_pcdm import (
+    SEMJsonToPCDMTransformer,
 )
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
@@ -32,9 +32,9 @@ from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
 )
 
 
-def test_mqtt_json_to_pcdm(spark_session: SparkSession):
-    mqtt_json_data = '{"readings":[{"resourceName":"d","value":"[1685025760.46]"},{"resourceName":"dID","value":"502"},{"resourceName":"t", "value":"1695047439192"}]}'
-    mqtt_df: DataFrame = spark_session.createDataFrame([{"body": mqtt_json_data}])
+def test_sem_json_to_pcdm(spark_session: SparkSession):
+    sem_json_data = '{"readings":[{"resourceName":"d","value":"[1685025760.46]"},{"resourceName":"dID","value":"502"},{"resourceName":"t", "value":"1695047439192"}]}'
+    sem_df: DataFrame = spark_session.createDataFrame([{"body": sem_json_data}])
 
     expected_schema = StructType(
         [
@@ -64,17 +64,17 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
 
     try:
         if _package_version_meets_minimum("pyspark", "3.4.0"):
-            mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
-                data=mqtt_df, source_column_name="body", version=10
+            sem_json_to_pcdm_transformer = SEMJsonToPCDMTransformer(
+                data=sem_df, source_column_name="body", version=10
             )
-            actual_df = mqtt_json_to_pcdm_transformer.transform()
+            actual_df = sem_json_to_pcdm_transformer.transform()
 
-            assert mqtt_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
-            assert isinstance(mqtt_json_to_pcdm_transformer.libraries(), Libraries)
+            assert sem_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
+            assert isinstance(sem_json_to_pcdm_transformer.libraries(), Libraries)
             assert expected_schema == actual_df.schema
             assert expected_df.collect() == actual_df.collect()
-    except:
-        with pytest.raises(Exception):
-            mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
-                data=mqtt_df, source_column_name="body", version=10
+    except Exception as e:
+        with pytest.raises(e):
+            sem_json_to_pcdm_transformer = SEMJsonToPCDMTransformer(
+                data=sem_df, source_column_name="body", version=10
             )

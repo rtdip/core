@@ -276,7 +276,7 @@ APM_SCHEMA = StructType(
     ]
 )
 
-MQTT_SCHEMA = StructType(
+SEM_SCHEMA = StructType(
     [
         StructField("apiVersion", StringType(), True),
         StructField("deviceName", StringType(), True),
