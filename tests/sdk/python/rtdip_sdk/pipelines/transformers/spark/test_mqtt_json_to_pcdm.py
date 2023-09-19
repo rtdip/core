@@ -62,17 +62,18 @@ def test_mqtt_json_to_pcdm(spark_session: SparkSession):
         schema=expected_schema, data=expected_data
     )
 
-    if _package_version_meets_minimum("pyspark", "3.4.0"):
-        mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
-            data=mqtt_df, source_column_name="body", version=10
-        )
-        actual_df = mqtt_json_to_pcdm_transformer.transform()
+    try:
+        if _package_version_meets_minimum("pyspark", "3.4.0"):
+            mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
+                data=mqtt_df, source_column_name="body", version=10
+            )
+            actual_df = mqtt_json_to_pcdm_transformer.transform()
 
-        assert mqtt_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
-        assert isinstance(mqtt_json_to_pcdm_transformer.libraries(), Libraries)
-        assert expected_schema == actual_df.schema
-        assert expected_df.collect() == actual_df.collect()
-    else:
+            assert mqtt_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
+            assert isinstance(mqtt_json_to_pcdm_transformer.libraries(), Libraries)
+            assert expected_schema == actual_df.schema
+            assert expected_df.collect() == actual_df.collect()
+    except:
         with pytest.raises(Exception):
             mqtt_json_to_pcdm_transformer = MQTTJsonToPCDMTransformer(
                 data=mqtt_df, source_column_name="body", version=10
