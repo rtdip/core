@@ -54,8 +54,9 @@ class SparkRestAPIDestination(DestinationInterface):
         batch_size (int): The number of DataFrame rows to be used in each Rest API call
         method (str): The method to be used when calling the Rest API. Allowed values are POST, PATCH and PUT
         parallelism (int): The number of concurrent calls to be made to the Rest API
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (str): Unique name for the query in associated SparkSession
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -70,6 +71,7 @@ class SparkRestAPIDestination(DestinationInterface):
     parallelism: int
     trigger: str
     query_name: str
+    query_wait_interval: int
 
     def __init__(
         self,
@@ -82,6 +84,7 @@ class SparkRestAPIDestination(DestinationInterface):
         parallelism: int = 8,
         trigger="1 minutes",
         query_name: str = "DeltaRestAPIDestination",
+        query_wait_interval: int = None,
     ) -> None:
         self.data = data
         self.options = options
@@ -92,6 +95,7 @@ class SparkRestAPIDestination(DestinationInterface):
         self.parallelism = parallelism
         self.trigger = trigger
         self.query_name = query_name
+        self.query_wait_interval = query_wait_interval
 
     @staticmethod
     def system_type():
@@ -203,10 +207,11 @@ class SparkRestAPIDestination(DestinationInterface):
                 .start()
             )
 
-            while query.isActive:
-                if query.lastProgress:
-                    logging.info(query.lastProgress)
-                time.sleep(10)
+            if self.query_wait_interval:
+                while query.isActive:
+                    if query.lastProgress:
+                        logging.info(query.lastProgress)
+                    time.sleep(self.query_wait_interval)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
