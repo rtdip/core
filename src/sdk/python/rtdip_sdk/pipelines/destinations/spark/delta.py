@@ -45,6 +45,14 @@ class SparkDeltaDestination(DestinationInterface):
         overwriteSchema (bool str): If True, overwrites the schema as well as the table data. (Batch)
     """
 
+    data: DataFrame
+    options: dict
+    destination: str
+    mode: str
+    trigger: str
+    query_name: str
+    wait_while_query_active: bool
+
     def __init__(
         self,
         data: DataFrame,
