@@ -33,7 +33,7 @@ class SparkDeltaDestination(DestinationInterface):
         mode (optional str): Method of writing to Delta Table - append/overwrite (batch), append/update/complete (stream). Default is append
         trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (optional str): Unique name for the query in associated SparkSession. (stream) Default is DeltaDestination
-        wait_while_query_active (optional bool): If True, waits for the streaming query to complete before returning. (stream) Default is False
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -51,7 +51,7 @@ class SparkDeltaDestination(DestinationInterface):
     mode: str
     trigger: str
     query_name: str
-    wait_while_query_active: bool
+    query_wait_interval: int
 
     def __init__(
         self,
@@ -61,7 +61,7 @@ class SparkDeltaDestination(DestinationInterface):
         mode: str = "append",
         trigger: str = "10 seconds",
         query_name: str = "DeltaDestination",
-        wait_while_query_active: bool = False,
+        query_wait_interval: int = None,
     ) -> None:
         self.data = data
         self.options = options
@@ -69,7 +69,7 @@ class SparkDeltaDestination(DestinationInterface):
         self.mode = mode
         self.trigger = trigger
         self.query_name = query_name
-        self.wait_while_query_active = wait_while_query_active
+        self.query_wait_interval = query_wait_interval
 
     @staticmethod
     def system_type():
@@ -154,11 +154,11 @@ class SparkDeltaDestination(DestinationInterface):
                     .toTable(self.destination)
                 )
 
-            if self.wait_while_query_active == True:
+            if self.query_wait_interval:
                 while query.isActive:
                     if query.lastProgress:
                         logging.info(query.lastProgress)
-                    time.sleep(10)
+                    time.sleep(self.query_wait_interval)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
