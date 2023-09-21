@@ -278,7 +278,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
                 else {"processingTime": self.trigger}
             )
             query = (
-                self.data.writeStream.trigger(**TRIGGER_OPTION)
+                df.writeStream.trigger(**TRIGGER_OPTION)
                 .format("kafka")
                 .options(**self.options)
                 .queryName(self.query_name)
