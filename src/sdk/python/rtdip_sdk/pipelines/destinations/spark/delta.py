@@ -30,9 +30,10 @@ class SparkDeltaDestination(DestinationInterface):
         data (DataFrame): Dataframe to be written to Delta
         options (dict): Options that can be specified for a Delta Table write operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         destination (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table
-        mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
-        query_name (str): Unique name for the query in associated SparkSession
+        mode (optional str): Method of writing to Delta Table - append/overwrite (batch), append/update/complete (stream). Default is append
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
+        query_name (optional str): Unique name for the query in associated SparkSession. (stream) Default is DeltaDestination
+        wait_while_query_active (optional bool): If True, waits for the streaming query to complete before returning. (stream) Default is False
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -44,21 +45,15 @@ class SparkDeltaDestination(DestinationInterface):
         overwriteSchema (bool str): If True, overwrites the schema as well as the table data. (Batch)
     """
 
-    data: DataFrame
-    options: dict
-    destination: str
-    mode: str
-    trigger: str
-    query_name: str
-
     def __init__(
         self,
         data: DataFrame,
         options: dict,
         destination: str,
         mode: str = "append",
-        trigger="10 seconds",
-        query_name="DeltaDestination",
+        trigger: str = "10 seconds",
+        query_name: str = "DeltaDestination",
+        wait_while_query_active: bool = False,
     ) -> None:
         self.data = data
         self.options = options
@@ -66,6 +61,7 @@ class SparkDeltaDestination(DestinationInterface):
         self.mode = mode
         self.trigger = trigger
         self.query_name = query_name
+        self.wait_while_query_active = wait_while_query_active
 
     @staticmethod
     def system_type():
@@ -150,10 +146,11 @@ class SparkDeltaDestination(DestinationInterface):
                     .toTable(self.destination)
                 )
 
-            while query.isActive:
-                if query.lastProgress:
-                    logging.info(query.lastProgress)
-                time.sleep(10)
+            if self.wait_while_query_active == True:
+                while query.isActive:
+                    if query.lastProgress:
+                        logging.info(query.lastProgress)
+                    time.sleep(10)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
