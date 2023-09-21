@@ -54,45 +54,45 @@ def test_spark_rest_api_write_setup():
     assert delta_merge_destination.post_write_validation()
 
 
-# def test_spark_rest_api_write_stream(
-#     spark_session: SparkSession, mocker: MockerFixture
-# ):
-#     mocker.patch(
-#         "pyspark.sql.DataFrame.writeStream",
-#         new_callable=mocker.Mock(
-#             return_value=mocker.Mock(
-#                 trigger=mocker.Mock(
-#                     return_value=mocker.Mock(
-#                         foreachBatch=mocker.Mock(
-#                             return_value=mocker.Mock(
-#                                 queryName=mocker.Mock(
-#                                     return_value=mocker.Mock(
-#                                         outputMode=mocker.Mock(
-#                                             return_value=mocker.Mock(
-#                                                 options=mocker.Mock(
-#                                                     return_value=mocker.Mock(
-#                                                         start=mocker.Mock(
-#                                                             return_value=TestStreamingQueryClass()
-#                                                         )
-#                                                     )
-#                                                 )
-#                                             )
-#                                         )
-#                                     )
-#                                 )
-#                             )
-#                         )
-#                     )
-#                 )
-#             )
-#         ),
-#     )
-#     expected_df = spark_session.createDataFrame([{"id": "1"}])
-#     restapi_destination = SparkRestAPIDestination(
-#         expected_df, {}, test_url, {}, 1, parallelism=1
-#     )
-#     actual = restapi_destination.write_stream()
-#     assert actual is None
+def test_spark_rest_api_write_stream(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    mocker.patch(
+        "pyspark.sql.DataFrame.writeStream",
+        new_callable=mocker.Mock(
+            return_value=mocker.Mock(
+                trigger=mocker.Mock(
+                    return_value=mocker.Mock(
+                        foreachBatch=mocker.Mock(
+                            return_value=mocker.Mock(
+                                queryName=mocker.Mock(
+                                    return_value=mocker.Mock(
+                                        outputMode=mocker.Mock(
+                                            return_value=mocker.Mock(
+                                                options=mocker.Mock(
+                                                    return_value=mocker.Mock(
+                                                        start=mocker.Mock(
+                                                            return_value=TestStreamingQueryClass()
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+    )
+    expected_df = spark_session.createDataFrame([{"id": "1"}])
+    restapi_destination = SparkRestAPIDestination(
+        expected_df, {}, test_url, {}, 1, parallelism=1
+    )
+    actual = restapi_destination.write_stream()
+    assert actual is None
 
 
 # def test_spark_rest_api_write_batch_fails(
