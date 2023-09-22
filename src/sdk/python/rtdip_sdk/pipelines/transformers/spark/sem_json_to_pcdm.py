@@ -129,7 +129,7 @@ class SEMJsonToPCDMTransformer(TransformerInterface):
                     "TagName",
                     concat(
                         col("dID"),
-                        lit("_"),
+                        lit(":"),
                         udf(lambda row: mapping[row]["TagName"])(col("pos")),
                     ),
                 )
