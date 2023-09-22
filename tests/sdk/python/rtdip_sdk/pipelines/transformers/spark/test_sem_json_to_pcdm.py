@@ -50,10 +50,10 @@ def test_sem_json_to_pcdm(spark_session: SparkSession):
     expected_data = [
         {
             "EventTime": datetime.fromisoformat("2023-09-18T14:30:39.192+00:00"),
-            "TagName": "502_obc_timeStamp",
+            "TagName": "502:obc_timeStamp",
             "Status": "Good",
             "Value": "1685025760.46",
-            "ValueType": "double",
+            "ValueType": "float",
             "ChangeType": "insert",
         }
     ]
