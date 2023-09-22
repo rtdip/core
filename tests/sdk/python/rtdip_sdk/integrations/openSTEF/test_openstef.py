@@ -17,12 +17,18 @@ class ConfigSettigns(BaseSettings):
     api_admin_username: str = "None"
     api_admin_password: str = "None"
     api_url: str = "None"
+    pcdm_host: str = ""
+    pcdm_token: str = ""
+    pcdm_port: int = 443
+    pcdm_http_path: str = ""
+    pcdm_catalog: str = "rtdip"
+    pcdm_schema: str = "openstef"
     db_host: str = ""
     db_token: str = ""
     db_port: int = 443
     db_http_path: str = ""
-    db_catalog: str = ""
-    db_schema: str = ""
+    db_catalog: str = "rtdip"
+    db_schema: str = "sensors"
     proxies: Union[dict[str, str], None] = None
 
 
@@ -35,7 +41,7 @@ def test_methods(mocker: MockerFixture):
     mocker.patch("openstef_dbc.data_interface._DataInterface", new=_DataInterface)
 
     # # write methods
-    # x = db.write_weather_data # influx
+    # x = db.write_weather_data()
     # x = db.write_realised # influx
     # x = db.write_realised_pvdata # influx
     # x = db.write_kpi # influx
@@ -80,13 +86,13 @@ def test_methods(mocker: MockerFixture):
     # x = db.get_load_profiles() # using influx
 
     # historic cdb data service
-    x = db.get_load_sid(
-        sid=['Location_A_System_1', 'Location_A_System_10', 'Location_C_System_2'],
-        datetime_start=datetime(2023, 8, 29),
-        datetime_end=datetime(2023, 8, 30), 
-        forecast_resolution='15T',
-        aggregated=True
-    )
+    # x = db.get_load_sid(
+    #     sid=['Location_A_System_1', 'Location_A_System_10', 'Location_C_System_2'],
+    #     datetime_start=datetime(2023, 8, 29),
+    #     datetime_end=datetime(2023, 8, 30), 
+    #     forecast_resolution='15T',
+    #     aggregated=True
+    # )
     # x = db.get_load_pid(313, datetime(2023,1,1), datetime(2023,1,2))
 
     # # splitting methods
@@ -96,12 +102,11 @@ def test_methods(mocker: MockerFixture):
 
     # # predictions methods
     # x = db.get_predicted_load({"id": "317", "resolution_minutes": 3})
-    # x = db.get_predicted_load_tahead(
-    #     start_time=datetime(2023, 8, 29),
-    #     end_time=datetime(2023, 8, 30),
-    #     pj={"id": "317", "resolution_minutes": 3},
-    #     t_ahead='0'
-    #     )  
+    x = db.get_predicted_load_tahead(
+        start_time=datetime(2023, 8, 29),
+        end_time=datetime(2023, 8, 30),
+        pj={"id": "317", "resolution_minutes": 3}
+        )  
     # x = db.get_prediction_including_components(
     #     start_time=datetime(2023, 8, 29),
     #     end_time=datetime(2023, 8, 30),

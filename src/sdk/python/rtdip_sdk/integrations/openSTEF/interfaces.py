@@ -37,6 +37,14 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
                 api_admin_username (str): API admin username.
                 api_admin_password (str): API admin password.
                 api_url (str): API url.
+
+                pcdm_host (str): Databricks hostname.
+                pcdm_token (str): Databricks token.
+                pcdm_port (int): Databricks port.
+                pcdm_catalog (str): Databricks catalog.
+                pcdm_schema (str): Databricks schema.
+                pcdm_http_path (str): SQL warehouse http path.
+
                 db_host (str): Databricks hostname.
                 db_token (str): Databricks token.
                 db_port (int): Databricks port.
@@ -57,7 +65,16 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             proxies=config.proxies,
         )
 
-        self.mysql_engine = self._create_mysql_engine(
+        self.pcdm_engine = self._create_mysql_engine(
+            hostname=config.pcdm_host,
+            token=config.pcdm_token,
+            port=config.pcdm_port,
+            http_path=config.pcdm_http_path,
+            catalog=config.pcdm_catalog,
+            schema=config.pcdm_schema,
+        )
+
+        self.db_engine = self._create_mysql_engine(
             hostname=config.db_host,
             token=config.db_token,
             port=config.db_port,
@@ -135,9 +152,9 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             query_list = _query_builder(query)
 
             if len(query_list) == 1:
-                return pd.read_sql(query_list[0], self.mysql_engine) # params = bind_params?
+                return pd.read_sql(query_list[0], self.pcdm_engine) # params = bind_params?
             elif len(query_list) > 1:
-                df = [pd.read_sql(query, self.mysql_engine) for query in query_list]
+                df = [pd.read_sql(query, self.pcdm_engine) for query in query_list]
                 return df
 
         except Exception as e:
@@ -157,7 +174,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         time_precision: str = "s",
     ) -> bool:
         try:
-            df.to_sql(measurement, self.mysql_engine, index=False)
+            df.to_sql(measurement, self.pcdm_engine, index=False)
             return True
         except Exception as e:
             self.logger.error(
@@ -180,7 +197,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         if params is None:
             params = {}
         try:
-            return pd.read_sql(query, self.mysql_engine, params=params, **kwargs)
+            return pd.read_sql(query, self.db_engine, params=params, **kwargs)
         except sqlalchemy.exc.OperationalError as e:
             self.logger.error("Lost connection to Databricks database", exc_info=e)
             raise
@@ -197,7 +214,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         if params is None:
             params = {}
         try:
-            with self.mysql_engine.connect() as connection:
+            with self.db_engine.connect() as connection:
                 connection.execute(statement, params=params)
         except Exception as e:
             self.logger.error(
@@ -208,7 +225,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
     def exec_sql_dataframe_write(
         self, dataframe: pd.DataFrame, table: str, **kwargs
     ) -> None:
-        dataframe.to_sql(table, self.mysql_engine, index=False, **kwargs)
+        dataframe.to_sql(table, self.db_engine, index=False, **kwargs)
 
     def check_mysql_available(self):
         """Check if a basic Databricks SQL query gives a valid response"""

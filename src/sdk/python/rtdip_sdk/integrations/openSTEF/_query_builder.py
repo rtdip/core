@@ -49,6 +49,7 @@ def _build_parameters(query):
     filter_sections = re.findall(r"\|> filter\(fn: \(r\) => (.*?)(?=\s*\||$)", query, re.DOTALL)
     filter = " AND ".join(["(" + i.strip() for i in filter_sections])
 
+
     where = re.sub(r"r\.", "", filter)
     if where.count("(") != where.count(")"):
         where = "(" + where
@@ -66,37 +67,23 @@ def _build_parameters(query):
 
     return parameters
 
+
 def _raw_query(query: str) -> list:
     parameters = _build_parameters(query)
-
+    
     flux_query = (
-        "WITH raw_events AS (SELECT " 
-        "result, DENSE_RANK() OVER (ORDER BY table) - 1 AS table, to_timestamp(\"{{ start }}\") AS _start, to_timestamp(\"{{ stop }}\") AS _stop, _time, _value, _field, _measurement, " 
-        "{% for col in columns %}"
-        "{{ col }}"
-        "{% if not loop.last %}"
-        ", "
-        "{% endif %}"
-        "{% endfor %}"
-        " FROM `{{ table }}` "
-        "WHERE {{ where }} "
-        "AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\")) "
-        
         "{% if table == 'weather'%}"
-        "SELECT lat AS Latitude, lon AS Longitude, current_timestamp() AS EnqueuedTime, _time AS EventTime, _value AS Value, source AS Source, \"Good\" AS Status, True AS Latest, date(_time) AS EventDate, concat(_field, \":\", input_city, \":\", source) AS TagName, _time, _field, _value, input_city, source FROM raw_events a INNER JOIN nametolatlon b ON a.input_city = b.regionInput ORDER BY TagName, EventTime"
+        "WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, \":\") AS tags_array, tags_array[0] AS _field, tags_array[1] AS input_city, tags_array[2] AS source, \"weather\" AS _measurement FROM `weather`) "
         "{% else %}"
-        "SELECT _time AS EventTime, _value AS Value, \"Good\" AS Status, concat(_field"
+        "WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, \":\") AS tags_array, "
+        "tags_array[0] AS _field, "
         "{% for col in columns %}"
-        ", \":\", {{ col }}"
+        "tags_array[{{ columns.index(col) + 1 }}] AS {{ col }}, "
         "{% endfor %}"
-        ") AS TagName, _time, _field, _value"
-        "{% for col in columns %}"
-        ", {{ col }}"
-        "{% endfor %}"
-        " FROM raw_events "
-        "ORDER BY TagName, EventTime"
+        "\"{{ table }}\" AS _measurement FROM `{{ table }}`)"
         "{% endif %}"
-        )  
+        "SELECT * FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\")"
+    )
     
     sql_template = Template(flux_query)
     sql_query = sql_template.render(parameters)
@@ -107,75 +94,72 @@ def _resample_query(query: str) -> str:
     parameters["filters"] = re.findall(r'r\.system == "([^"]+)"', query)
 
     resample_base_query = (
-        "WITH raw_events AS (SELECT * FROM `{{ table }}` WHERE {{ where }} AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\")) "
-        ", date_array AS (SELECT DISTINCT table, explode(sequence(to_timestamp(\"{{ start }}\"), to_timestamp(\"{{ stop }}\"), INTERVAL \"{{ time_interval_rate[0] + \" \" + time_interval_unit }}\")) AS timestamp_array FROM raw_events) "
-        ", date_intervals AS (SELECT table, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), \"yyyy-MM-dd HH:mm:ss\") AS timestamp_array FROM date_array) "
-        ", window_buckets AS (SELECT table, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals) "
-        ", resample AS ( SELECT /*+ RANGE_JOIN(a, {{ range_join_seconds }}) */ b.result, a.table, b._start, b._stop, a.window_start, a.window_end, b._value, b._field, b._measurement "
+        "{% if table == 'weather'%}"
+        "WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, \":\") AS tags_array, tags_array[0] AS _field, tags_array[1] AS input_city, tags_array[2] AS source, \"weather\" AS _measurement FROM `weather`) "
+        "{% else %}"
+        "WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, \":\") AS tags_array, "
+        "tags_array[0] AS _field, "
+        "{% for col in columns %}"
+        "tags_array[{{ columns.index(col) + 1 }}] AS {{ col }}, "
+        "{% endfor %}"
+        "\"{{ table }}\" AS _measurement FROM `{{ table }}`)"
+        "{% endif %}"
+        ", raw_events_filtered AS (SELECT * FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\"))"
+        ", date_array AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp(\"{{ start }}\"), to_timestamp(\"{{ stop }}\"), INTERVAL \"{{ time_interval_rate[0] + \" \" + time_interval_unit }}\")) AS timestamp_array FROM raw_events_filtered) "
+        ", date_intervals AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), \"yyyy-MM-dd HH:mm:ss\") AS timestamp_array FROM date_array) "
+        ", window_buckets AS (SELECT TagName, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals) "
+        ", resample AS (SELECT a.TagName, window_end AS _time, _value, Status, _field"
         "{% for col in columns if columns is defined and columns|length > 0 %}"
         ", b.{{ col }}"
         "{% endfor %}"
-        " FROM window_buckets a FULL OUTER JOIN raw_events b ON a.window_start <= b._time AND a.window_end > b._time AND a.table = b.table) "   
-    )
+        " FROM window_buckets a FULL OUTER JOIN raw_events b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName) "   
+        )
 
     if len(re.findall(r'\|> aggregateWindow', query)) == 1:
         flux_query = (
             f"{resample_base_query}"
             "{% if createEmpty == 'true' %}"
-            ", fill_nulls AS (SELECT *, last_value(_field, true) OVER (PARTITION BY table ORDER BY table ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS _field_forward, first_value(_field, true) OVER (PARTITION BY table ORDER BY table ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS _field_backward, "
+            ", fill_nulls AS (SELECT *, last_value(_field, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS _field_forward, first_value(_field, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS _field_backward "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
-            "last_value({{ col }}, true) OVER (PARTITION BY table ORDER BY table ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS {{ col }}_forward, first_value({{ col }}, true) OVER (PARTITION BY table ORDER BY table ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING ) AS {{ col }}_backward, "
+            ", last_value({{ col }}, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS {{ col }}_forward, first_value({{ col }}, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING ) AS {{ col }}_backward "
             "{% endfor %}"
-            " DENSE_RANK() OVER (ORDER BY table) - 1 AS rank_table FROM resample) "  
-            "{% if yield is defined and yields|length > 0 %}"
-            " , resample_results AS (SELECT \"{{ yield }}\" AS result, " 
+            " FROM resample"
+            "{% if yield is defined and yield|length > 0 %}"
+            " ), resample_results AS (SELECT \"{{ yield[0] }}\" AS result, " 
             "{% else %}"
-            " , resample_results AS (SELECT \"_result\" AS result, "
+            " ), resample_results AS (SELECT \"_result\" AS result, "
             "{% endif %}"
-            "rank_table AS table, to_timestamp(\"{{ start }}\") AS _start, to_timestamp(\"{{ stop }}\") AS _stop, window_end AS _time, {{ agg_method[0] }}(_value) AS _value, coalesce(_field_forward, _field_backward) AS _field, \"{{ table }}\" AS _measurement "
+            "_time, {{ agg_method[0] }}(_value) AS _value, \"Good\" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", CAST(coalesce({{ col }}_forward, {{ col }}_backward) AS STRING) AS {{ col }} "
             "{% endfor %}"
-            "FROM fill_nulls WHERE window_end BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, rank_table, _start, _stop, _time, coalesce(_field_forward, _field_backward), _measurement "
+            "FROM fill_nulls WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time, Status, TagName, coalesce(_field_forward, _field_backward) "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", coalesce({{ col }}_forward, {{ col }}_backward) "
             "{% endfor %}"
-            "ORDER BY table, _time) "
+            "ORDER BY TagName, _time) "
 
             "{% else %}"
-            "{% if yield is defined and yields|length > 0 %}"
-            " , resample_results AS SELECT \"{{ yield }}\" AS result, " 
+            "{% if yield is defined and yield|length > 0 %}"
+            ", resample_results AS (SELECT \"{{ yield[0] }}\" AS result, " 
             "{% else %}"
-            " , resample_results AS (SELECT \"_result\" AS result, "
+            ", resample_results AS (SELECT \"_result\" AS result, "
             "{% endif %}"
-            "DENSE_RANK() OVER (ORDER BY table) - 1 AS table, to_timestamp(\"{{ start }}\") AS _start, to_timestamp(\"{{ stop }}\") AS _stop, window_end AS _time, {{ agg_method[0] }}(_value) AS _value,  _field, \"{{ table }}\" AS _measurement "
+            "_time, {{ agg_method[0] }}(_value) AS _value, \"Good\" AS Status, TagName, _field "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", CAST({{ col }} AS STRING) "
             "{% endfor %}"
-            "FROM resample WHERE window_end BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") AND result IS NOT NULL GROUP BY result, table, _start, _stop, _time, _field, _measurement "
+            "FROM resample WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") AND _field IS NOT NULL GROUP BY result, Status, TagName, _time, _field "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", {{ col }} "
             "{% endfor %}"
-            "ORDER BY table, _time) "
+            "ORDER BY TagName, _time) "
             "{% endif %}"
         )
 
         flux_query = (
             f"{flux_query}"
-            "{% if table == 'weather'%}"
-            "SELECT lat AS Latitude, lon AS Longitude, current_timestamp() AS EnqueuedTime, _time AS EventTime, _value AS Value, source AS Source, \"Good\" AS Status, True AS Latest, date(_time) AS EventDate, concat(_field, \":\", input_city, \":\", source) AS TagName, _time, _field, _value, input_city, source FROM resample_results a INNER JOIN nametolatlon b ON a.input_city = b.regionInput ORDER BY TagName, EventTime"
-            "{% else %}"
-            "SELECT _time AS EventTime, _value AS Value, \"Good\" AS Status, concat(_field"
-            "{% for col in columns %}"
-            ", \":\", {{ col }}"
-            "{% endfor %}"
-            ") AS TagName, _time, _field, _value"
-            "{% for col in columns %}"
-            ", {{ col }}"
-            "{% endfor %}"
-            " FROM resample_results "
-            "ORDER BY TagName, EventTime"
-            "{% endif %}"
+            "SELECT * FROM resample_results "
         )
 
         sql_template = Template(flux_query)
@@ -185,26 +169,18 @@ def _resample_query(query: str) -> str:
     elif len(re.findall(r'\|> aggregateWindow', query)) > 1:
         sql_query = (
             f"{resample_base_query}"
-            ", fill_nulls AS (SELECT *, last_value(_field, true) OVER (PARTITION BY table ORDER BY table ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS _field_forward, first_value(_field, true) OVER (PARTITION BY table ORDER BY table ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS _field_backward, "
+            ", fill_nulls AS (SELECT *, last_value(_field, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS _field_forward, first_value(_field, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS _field_backward "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
-            "last_value({{ col }}, true) OVER (PARTITION BY table ORDER BY table ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS {{ col }}_forward, first_value({{ col }}, true) OVER (PARTITION BY table ORDER BY table ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING ) AS {{ col }}_backward, "
+            ", last_value({{ col }}, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS {{ col }}_forward, first_value({{ col }}, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING ) AS {{ col }}_backward "
             "{% endfor %}"
-            " DENSE_RANK() OVER (ORDER BY table) - 1 AS rank_table FROM resample) " 
-            ", resample_results AS (SELECT \"_result\" AS result, rank_table AS table, to_timestamp(\"{{ start }}\") AS _start, to_timestamp(\"{{ stop }}\") AS _stop, window_end AS _time, {{ agg_method[0] }}(_value) AS _value, coalesce(_field_forward, _field_backward) AS _field, \"{{ table }}\" AS _measurement, CAST(system AS STRING) FROM fill_nulls GROUP BY result, rank_table, _start, _stop, _time, coalesce(_field_forward, _field_backward), _measurement, system ORDER BY table, _time) "
-            ", date_array_2 AS (SELECT DISTINCT table, explode(sequence(to_timestamp(\"{{ start }}\"), timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, to_timestamp(\"{{ stop }}\")), INTERVAL \"{{ time_interval_rate[0] + \" \" + time_interval_unit }}\")) AS timestamp_array FROM resample_results) "
-            ", date_intervals_2 AS (SELECT table, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), \"yyyy-MM-dd HH:mm:ss\") AS timestamp_array FROM date_array_2) "
-            ", window_buckets_2 AS (SELECT table, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals_2) "
-            ", project_resample_results AS (SELECT /*+ RANGE_JOIN(a, {{ range_join_seconds }}) */ b.result, a.table, a.window_end AS _time, b._start, b._stop, b._value FROM window_buckets_2 a FULL OUTER JOIN resample_results b ON a.window_start <= b._time AND a.window_end > b._time AND a.table = b.table) "
-            ", resample_sum AS (SELECT _time AS EventTime, sum(_value) AS Value, \"Good\" AS Status, concat(_field" 
-            "{% for filter in filters %}"
-            ", \":\", \"{{ filter }}\" "
-            "{% endfor %}"
-            ") AS TagName, _time, sum(_value) AS _value FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY _time, _field ORDER BY EventTime)"
-            ", resample_count AS (SELECT _time AS EventTime, count(_value) AS Value, \"Good\" AS Status, concat(_field" 
-            "{% for filter in filters %}"
-            ", \":\", \"{{ filter }}\" "
-            "{% endfor %}"
-            ") AS TagName, _time, count(_value) AS _value FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY _time, _field ORDER BY EventTime)"
+            " FROM resample) " 
+            ", resample_results AS (SELECT _time, {{ agg_method[0] }}(_value) AS _value, \"Good\" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field, CAST(coalesce(system_forward, system_backward) AS STRING) AS system FROM fill_nulls GROUP BY _time, Status, TagName, coalesce(_field_forward, _field_backward), coalesce(system_forward, system_backward) ORDER BY TagName, _time) "
+            ", date_array_2 AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp(\"{{ start }}\"), timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, to_timestamp(\"{{ stop }}\")), INTERVAL \"{{ time_interval_rate[0] + \" \" + time_interval_unit }}\")) AS timestamp_array FROM resample_results) "
+            ", date_intervals_2 AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), \"yyyy-MM-dd HH:mm:ss\") AS timestamp_array FROM date_array_2) "
+            ", window_buckets_2 AS (SELECT TagName, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals_2) "
+            ", project_resample_results AS (SELECT a.TagName, window_end AS _time, _value, Status, _field, system FROM window_buckets_2 a FULL OUTER JOIN resample_results b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName) "
+            ", resample_sum AS (SELECT \"load\" AS result, _time, sum(_value) AS _value, \"Good\" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time, Status ORDER BY _time)"
+            ", resample_count AS (SELECT \"nEntries\" AS result, _time, count(_value) AS _value, \"Good\" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time, Status ORDER BY _time)"
         )
 
         sum_query = (
@@ -222,7 +198,6 @@ def _resample_query(query: str) -> str:
 
         count_template = Template(count_query)
         count_query = count_template.render(parameters)
-        
         return [sum_query, count_query]
 
 def _pivot_query(query: str) -> str:
@@ -230,27 +205,28 @@ def _pivot_query(query: str) -> str:
     parameters["filters"] = re.findall(r'r\.system == "([^"]+)"', query)
 
     flux_query = (
-        "WITH raw_events AS (SELECT * FROM `power` WHERE {{ where }} AND _time >= to_timestamp(\"{{ start }}\") AND _time <= to_timestamp(\"{{ stop }}\")) "
-        ", pivot_table AS (SELECT result, 0 AS table, to_timestamp(\"{{ start }}\") AS _start, to_timestamp(\"{{ stop }}\") AS _stop, _time, _field, _measurement, "
+        "WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, \":\") AS tags_array, tags_array [0] AS _field, tags_array [1] AS system, \"power\" AS _measurement FROM `power`)"
+        ", raw_events_filtered AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY system ORDER BY _time) AS ordered FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\"))"
+        ", pivot_table AS (SELECT _time, Status, TagName, _field, _measurement, "
         "{% for filter in filters %}"
-        " first_value({{ filter }}, true) OVER (PARTITION BY _time ORDER BY _time, table ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS {{ filter }} "
+        " first_value({{ filter }}, true) OVER (PARTITION BY _time ORDER BY _time, TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS {{ filter }} "
         "{% if not loop.last %}"
         ", "
         "{% endif %}"
         "{% endfor %}"
-        " FROM raw_events PIVOT (MAX(_value) FOR system IN ("
+        " FROM raw_events_filtered PIVOT (MAX(_value) FOR system IN ("
         "{% for filter in filters %}"
         " \"{{ filter }}\" "
         "{% if not loop.last %}"
         ", "
         "{% endif %}"
         "{% endfor %}"
-        " )) ORDER BY table, _time) "
-        " SELECT _time AS EventTime" 
+        " )) ORDER BY TagName, _time) "
+        " SELECT _time, Status" 
         "{% for filter in filters %}"
-        ", filter"
+        ", {{ filter }}"
         "{% endfor %}"
-        ", _time FROM pivot_table WHERE "
+        " FROM pivot_table WHERE "
         "{% for filter in filters %}"
         " {{ filter }} IS NOT NULL "
         "{% if not loop.last %}"
@@ -266,10 +242,11 @@ def _pivot_query(query: str) -> str:
 
 def _max_query() -> str:
     sql_query = (
-        "WITH raw_events AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY table ORDER BY _time) AS numbered_rows FROM `weather` WHERE (_field == 'source_run' AND source == 'harm_arome') AND _time >= to_timestamp(timestampadd(day, -2, current_timestamp())))"
-        ", max_events AS (SELECT *, MAX(_value) OVER (PARTITION BY table) AS max_value FROM raw_events WHERE numbered_rows <= 10)"
-        ", results AS (SELECT a.*, ROW_NUMBER() OVER (PARTITION BY a.table ORDER BY a._time) AS ordered_rows FROM max_events a INNER JOIN raw_events b ON a._time = b._time AND a.max_value = b._value)"
-        "SELECT _time AS EventTime, _value AS Value, \"Good\" AS Status, concat(_field, \":\", system) AS TagName, _value FROM results WHERE ordered_rows = 1"    
+        "WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, \":\") AS tags_array, tags_array [0] AS _field, tags_array [1] AS input_city, tags_array [2] AS source, \"weather\" AS _measurement FROM `weather`)"
+        ", raw_events_filtered AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY TagName ORDER BY _time) AS ordered FROM raw_events WHERE (_measurement == \"weather\" and source == \"harm_arome\" and _field == \"source_run\") AND _time >= to_timestamp(timestampadd(day, -2, current_timestamp())))"
+        ", max_events AS (SELECT _time, MAX(_value) OVER (PARTITION BY TagName) AS _value, Status, TagName, _field, _measurement, input_city, source FROM raw_events_filtered WHERE ordered <= 10)"
+        ", results AS (SELECT a._time, a._value, a.Status, a.TagName, a._field, a._measurement, a.input_city, a.source, ROW_NUMBER() OVER (PARTITION BY a.TagName ORDER BY a._time) AS ordered FROM max_events a INNER JOIN raw_events_filtered b ON a._time = b._time AND a._value = b._value)"
+        "SELECT _time, _value, Status, TagName, _field, input_city, source FROM results WHERE ordered = 1"    
     )
     
     return [sql_query]
