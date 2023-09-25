@@ -32,12 +32,23 @@ class DatabricksSQLConnection(ConnectionInterface):
     """
 
     def __init__(self, server_hostname: str, http_path: str, access_token: str) -> None:
+        self.server_hostname = server_hostname
+        self.http_path = http_path
+        self.access_token = access_token
         # call auth method
-        self.connection = sql.connect(
-            server_hostname=server_hostname,
-            http_path=http_path,
-            access_token=access_token,
-        )
+        self.connection = self._connect()
+
+    def _connect(self):
+        """Connects to the endpoint"""
+        try:
+            return sql.connect(
+                server_hostname=self.server_hostname,
+                http_path=self.http_path,
+                access_token=self.access_token,
+            )
+        except Exception as e:
+            logging.exception("error while connecting to the endpoint")
+            raise e
 
     def close(self) -> None:
         """Closes connection to database."""
@@ -49,12 +60,14 @@ class DatabricksSQLConnection(ConnectionInterface):
 
     def cursor(self) -> object:
         """
-        Intiates the cursor and returns it.
+        Initiates the cursor and returns it.
 
         Returns:
           DatabricksSQLCursor: Object to represent a databricks workspace with methods to interact with clusters/jobs.
         """
         try:
+            if self.connection.open == False:
+                self.connection = self._connect()
             return DatabricksSQLCursor(self.connection.cursor())
         except Exception as e:
             logging.exception("error with cursor object")

@@ -16,9 +16,16 @@ import os
 import logging
 from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, struct, to_json
+from pyspark.sql.functions import col, struct, to_json, array
 from urllib.parse import urlparse
-from pyspark.sql.types import StringType, BinaryType
+from pyspark.sql.types import (
+    StringType,
+    BinaryType,
+    ArrayType,
+    IntegerType,
+    StructType,
+    StructField,
+)
 import time
 
 from ..interfaces import DestinationInterface
@@ -43,8 +50,9 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         data (DataFrame): Any columns not listed in the required schema [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#writing-data-to-kafka){ target="_blank" } will be merged into a single column named "value", or ignored if "value" is an existing column
         connection_string (str): Eventhubs connection string is required to connect to the Eventhubs service. This must include the Eventhub name as the `EntityPath` parameter. Example `"Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"`
         options (dict): A dictionary of Kafka configurations (See Attributes tables below)
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (str): Unique name for the query in associated SparkSession
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
 
     The following are commonly used parameters that may be included in the options dict. kafka.bootstrap.servers is the only required config. A full list of configs can be found [here](https://kafka.apache.org/documentation/#producerconfigs){ target="_blank" }
 
@@ -53,6 +61,16 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         topic (string): Required if there is no existing topic column in your DataFrame. Sets the topic that all rows will be written to in Kafka. (Streaming and Batch)
         includeHeaders (bool): Determines whether to include the Kafka headers in the row; defaults to False. (Streaming and Batch)
     """
+
+    spark: SparkSession
+    data: DataFrame
+    connection_string: str
+    options: dict
+    consumer_group: str
+    trigger: str
+    query_name: str
+    connection_string_properties: dict
+    query_wait_interval: int
 
     def __init__(
         self,
@@ -63,6 +81,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         consumer_group: str,
         trigger: str = "10 seconds",
         query_name: str = "KafkaEventhubDestination",
+        query_wait_interval: int = None,
     ) -> None:
         self.spark = spark
         self.data = data
@@ -75,6 +94,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
             connection_string
         )
         self.options = self._configure_options(options)
+        self.query_wait_interval = query_wait_interval
 
     @staticmethod
     def system_type():
@@ -161,10 +181,8 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         return connection_string
 
     def _configure_options(self, options: dict) -> dict:
-        if "subscribe" not in options:
-            options["subscribe"] = self.connection_string_properties.get(
-                "eventhub_name"
-            )
+        if "topic" not in options:
+            options["topic"] = self.connection_string_properties.get("eventhub_name")
 
         if "kafka.bootstrap.servers" not in options:
             options["kafka.bootstrap.servers"] = (
@@ -205,15 +223,8 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         return options
 
     def _transform_to_eventhub_schema(self, df: DataFrame) -> DataFrame:
-        if "value" in df.columns:
-            if df.schema["value"].dataType not in [StringType(), BinaryType()]:
-                try:
-                    df.withColumn("value", col("value").cast(StringType()))
-                except Exception as e:
-                    raise ValueError(
-                        "Couldn't convert 'value' column to string or binary type", e
-                    )
-        else:
+        column_list = ["key", "headers", "topic", "partition"]
+        if "value" not in df.columns:
             df = df.withColumn(
                 "value",
                 to_json(
@@ -221,11 +232,17 @@ class SparkKafkaEventhubDestination(DestinationInterface):
                         [
                             col(column).alias(column)
                             for column in df.columns
-                            if column not in ["key", "headers", "topic", "partition"]
+                            if column not in column_list
                         ]
                     )
                 ),
             )
+        if "headers" in df.columns and (
+            df.schema["headers"].dataType.elementType["key"].nullable == True
+            or df.schema["headers"].dataType.elementType["value"].nullable == True
+        ):
+            raise ValueError("key and value in the headers column cannot be nullable")
+
         return df.select(
             [
                 column
@@ -261,17 +278,18 @@ class SparkKafkaEventhubDestination(DestinationInterface):
                 else {"processingTime": self.trigger}
             )
             query = (
-                self.data.writeStream.trigger(**TRIGGER_OPTION)
+                df.writeStream.trigger(**TRIGGER_OPTION)
                 .format("kafka")
                 .options(**self.options)
                 .queryName(self.query_name)
                 .start()
             )
-            while query.isActive:
-                if query.lastProgress:
-                    logging.info(query.lastProgress)
-                time.sleep(10)
-            df.writeStream.format("kafka").options(**self.options).start()
+
+            if self.query_wait_interval:
+                while query.isActive:
+                    if query.lastProgress:
+                        logging.info(query.lastProgress)
+                    time.sleep(self.query_wait_interval)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)

@@ -22,18 +22,24 @@ from pyspark.sql.functions import (
     concat,
     lit,
     udf,
+    map_from_arrays,
+    split,
+    expr,
+)
+from ...._sdk_utils.compare_versions import (
+    _package_version_meets_minimum,
 )
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.spark import MQTT_SCHEMA
+from ..._pipeline_utils.spark import SEM_SCHEMA
 from ..._pipeline_utils import obc_field_mappings
 
 
-class MQTTJsonToPCDMTransformer(TransformerInterface):
+class SEMJsonToPCDMTransformer(TransformerInterface):
     """
-    Converts a Spark Dataframe column containing a json string created by MQTT to the Process Control Data Model
+    Converts a Spark Dataframe column containing a json string created by SEM to the Process Control Data Model
     Args:
-        data (DataFrame): Dataframe containing the column with MQTT data
+        data (DataFrame): Dataframe containing the column with SEM data
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         version (int): The version for the OBC field mappings. The latest version is 10.
         status_null_value (optional str): If populated, will replace 'Good' in the Status column with the specified value.
@@ -54,6 +60,7 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
         status_null_value: str = "Good",
         change_type_value: str = "insert",
     ) -> None:
+        _package_version_meets_minimum("pyspark", "3.4.0")
         self.data = data
         self.source_column_name = source_column_name
         self.version = version
@@ -93,21 +100,27 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
             df = (
                 self.data.withColumn(
                     self.source_column_name,
-                    from_json(self.source_column_name, MQTT_SCHEMA),
+                    from_json(self.source_column_name, SEM_SCHEMA),
+                )
+                .select(self.source_column_name + ".readings")
+                .melt(
+                    ids=["readings.resourceName"],
+                    values=["readings.value"],
+                    variableColumnName="var",
+                    valueColumnName="value",
+                )
+                .drop("var")
+                .select(map_from_arrays("resourceName", "value").alias("resourceName"))
+                .select("resourceName.dID", "resourceName.d", "resourceName.t")
+                .select(
+                    regexp_replace(col("t").cast("string"), "(\d{10})(\d+)", "$1.$2")
+                    .cast("double")
+                    .alias("timestamp"),
+                    "dID",
+                    posexplode(split(expr("substring(d, 2, length(d)-2)"), ",")),
                 )
                 .select(
-                    regexp_replace(
-                        col("{}.t".format(self.source_column_name)).cast("string"),
-                        "(\d{10})(\d+)",
-                        "$1.$2",
-                    )
-                    .cast("long")
-                    .alias("t"),
-                    "{}.dID".format(self.source_column_name),
-                    posexplode("{}.d".format(self.source_column_name)),
-                )
-                .select(
-                    to_timestamp("t").alias("EventTime"),
+                    to_timestamp("timestamp").alias("EventTime"),
                     col("dID"),
                     col("pos").cast("string"),
                     col("col").alias("Value"),
@@ -116,7 +129,7 @@ class MQTTJsonToPCDMTransformer(TransformerInterface):
                     "TagName",
                     concat(
                         col("dID"),
-                        lit("_"),
+                        lit(":"),
                         udf(lambda row: mapping[row]["TagName"])(col("pos")),
                     ),
                 )

@@ -36,8 +36,9 @@ class SparkEventhubDestination(DestinationInterface):
         spark (SparkSession): Spark Session
         data (DataFrame): Dataframe to be written to Eventhub
         options (dict): A dictionary of Eventhub configurations (See Attributes table below). All Configuration options for Eventhubs can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (str): Unique name for the query in associated SparkSession
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -48,6 +49,13 @@ class SparkEventhubDestination(DestinationInterface):
         maxEventsPerTrigger (long): Rate limit on maximum number of events processed per trigger interval. The specified total number of events will be proportionally split across partitions of different volume. (Stream)
     """
 
+    spark: SparkSession
+    data: DataFrame
+    options: dict
+    trigger: str
+    query_name: str
+    query_wait_interval: int
+
     def __init__(
         self,
         spark: SparkSession,
@@ -55,12 +63,14 @@ class SparkEventhubDestination(DestinationInterface):
         options: dict,
         trigger="10 seconds",
         query_name="EventhubDestination",
+        query_wait_interval: int = None,
     ) -> None:
         self.spark = spark
         self.data = data
         self.options = options
         self.trigger = trigger
         self.query_name = query_name
+        self.query_wait_interval = query_wait_interval
 
     @staticmethod
     def system_type():
@@ -183,10 +193,12 @@ class SparkEventhubDestination(DestinationInterface):
                 .queryName(self.query_name)
                 .start()
             )
-            while query.isActive:
-                if query.lastProgress:
-                    logging.info(query.lastProgress)
-                time.sleep(10)
+
+            if self.query_wait_interval:
+                while query.isActive:
+                    if query.lastProgress:
+                        logging.info(query.lastProgress)
+                    time.sleep(self.query_wait_interval)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)

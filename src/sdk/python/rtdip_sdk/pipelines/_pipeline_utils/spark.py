@@ -276,12 +276,31 @@ APM_SCHEMA = StructType(
     ]
 )
 
-MQTT_SCHEMA = StructType(
+SEM_SCHEMA = StructType(
     [
-        StructField("d", ArrayType(StringType(), True), True),
-        StructField("dID", StringType(), True),
-        StructField("m", StringType(), True),
-        StructField("t", LongType(), True),
-        StructField("v", StringType(), True),
+        StructField("apiVersion", StringType(), True),
+        StructField("deviceName", StringType(), True),
+        StructField("id", StringType(), True),
+        StructField("origin", LongType(), True),
+        StructField("profileName", StringType(), True),
+        StructField(
+            "readings",
+            ArrayType(
+                StructType(
+                    [
+                        StructField("deviceName", StringType(), True),
+                        StructField("id", StringType(), True),
+                        StructField("origin", LongType(), True),
+                        StructField("profileName", StringType(), True),
+                        StructField("resourceName", StringType(), True),
+                        StructField("value", StringType(), True),
+                        StructField("valueType", StringType(), True),
+                    ]
+                ),
+                True,
+            ),
+            True,
+        ),
+        StructField("sourceName", StringType(), True),
     ]
 )

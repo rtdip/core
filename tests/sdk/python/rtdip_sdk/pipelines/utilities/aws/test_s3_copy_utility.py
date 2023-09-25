@@ -28,7 +28,7 @@ from src.sdk.python.rtdip_sdk.pipelines.utilities.aws.s3_copy_utility import (
     S3CopyUtility,
 )
 
-from src.sdk.python.rtdip_sdk.data_models.storage_objects import utils
+from src.sdk.python.rtdip_sdk.data_models.storage_objects import storage_objects_utils
 
 
 @mock_s3
@@ -68,11 +68,15 @@ def test_s3_copy_utility():
         + "".join(random.choice(string.ascii_lowercase) for _ in range(3))  # NOSONAR
     )
 
-    rnd_full_source_s3_uri: str = utils.to_uri(
-        utils.S3_SCHEME, rnd_source_domain_name, rnd_keys + "/" + rnd_object_name
+    rnd_full_source_s3_uri: str = storage_objects_utils.to_uri(
+        storage_objects_utils.S3_SCHEME,
+        rnd_source_domain_name,
+        rnd_keys + "/" + rnd_object_name,
     )
-    rnd_full_destination_s3_uri: str = utils.to_uri(
-        utils.S3_SCHEME, rnd_destination_domain_name, rnd_keys + "/" + rnd_object_name
+    rnd_full_destination_s3_uri: str = storage_objects_utils.to_uri(
+        storage_objects_utils.S3_SCHEME,
+        rnd_destination_domain_name,
+        rnd_keys + "/" + rnd_object_name,
     )
 
     # Create buckets first (required by moto)
@@ -116,8 +120,8 @@ def test_s3_copy_utility():
         "".join(random.choice(letters_and_numbers) for _ in range(9))
         for _ in range(3)  # NOSONAR
     )
-    rnd_full_destination_s3_uri: str = utils.to_uri(
-        utils.S3_SCHEME,
+    rnd_full_destination_s3_uri: str = storage_objects_utils.to_uri(
+        storage_objects_utils.S3_SCHEME,
         rnd_destination_domain_name,
         rnd_keys + "/" + rnd_object_name,  # NOSONAR
     )
@@ -134,8 +138,10 @@ def test_s3_copy_utility():
         "".join(random.choice(letters_and_numbers) for _ in range(9))
         for _ in range(3)  # NOSONAR
     )
-    rnd_full_source_s3_uri: str = utils.to_uri(
-        utils.S3_SCHEME, rnd_source_domain_name, rnd_keys + "/" + rnd_object_name
+    rnd_full_source_s3_uri: str = storage_objects_utils.to_uri(
+        storage_objects_utils.S3_SCHEME,
+        rnd_source_domain_name,
+        rnd_keys + "/" + rnd_object_name,
     )
     s3_copy_utility: S3CopyUtility = S3CopyUtility(
         rnd_full_source_s3_uri, rnd_tempfile.name

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+from typing import Union
 import numpy as np
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
@@ -21,11 +22,15 @@ from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.queries import interpolation_at_time
 from src.api.v1.models import (
     BaseQueryParams,
+    BaseHeaders,
     ResampleInterpolateResponse,
+    PivotResponse,
     HTTPError,
     TagsQueryParams,
     TagsBodyParams,
     InterpolationAtTimeQueryParams,
+    PivotQueryParams,
+    LimitOffsetQueryParams,
 )
 import src.api.v1.common
 
@@ -33,20 +38,34 @@ nest_asyncio.apply()
 
 
 def interpolation_at_time_events_get(
-    base_query_parameters, tag_query_parameters, interpolation_at_time_query_parameters
+    base_query_parameters,
+    tag_query_parameters,
+    interpolation_at_time_query_parameters,
+    pivot_parameters,
+    limit_offset_parameters,
+    base_headers,
 ):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
             base_query_parameters,
             tag_query_parameters=tag_query_parameters,
             interpolation_at_time_query_parameters=interpolation_at_time_query_parameters,
+            pivot_query_parameters=pivot_parameters,
+            limit_offset_query_parameters=limit_offset_parameters,
+            base_headers=base_headers,
         )
 
         data = interpolation_at_time.get(connection, parameters)
-        return ResampleInterpolateResponse(
-            schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
-        )
+        if parameters.get("pivot") == True:
+            return PivotResponse(
+                schema=build_table_schema(data, index=False, primary_key=False),
+                data=data.replace({np.nan: None}).to_dict(orient="records"),
+            )
+        else:
+            return ResampleInterpolateResponse(
+                schema=build_table_schema(data, index=False, primary_key=False),
+                data=data.replace({np.nan: None}).to_dict(orient="records"),
+            )
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
@@ -64,7 +83,10 @@ Interpolation at Time of raw timeseries data.
     name="Interpolation at Time GET",
     description=get_description,
     tags=["Events"],
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    responses={
+        200: {"model": Union[ResampleInterpolateResponse, PivotResponse]},
+        400: {"model": HTTPError},
+    },
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation At Time Query Documentation",
@@ -76,11 +98,17 @@ async def interpolate_get(
     base_query_parameters: BaseQueryParams = Depends(),
     tag_query_parameters: TagsQueryParams = Depends(),
     interpolation_at_time_query_parameters: InterpolationAtTimeQueryParams = Depends(),
+    pivot_parameters: PivotQueryParams = Depends(),
+    limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return interpolation_at_time_events_get(
         base_query_parameters,
         tag_query_parameters,
         interpolation_at_time_query_parameters,
+        pivot_parameters,
+        limit_offset_query_parameters,
+        base_headers,
     )
 
 
@@ -96,7 +124,10 @@ Interpolation at time of raw timeseries data via a POST method to enable providi
     name="Interpolation at Time POST",
     description=get_description,
     tags=["Events"],
-    responses={200: {"model": ResampleInterpolateResponse}, 400: {"model": HTTPError}},
+    responses={
+        200: {"model": Union[ResampleInterpolateResponse, PivotResponse]},
+        400: {"model": HTTPError},
+    },
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation At Time Query Documentation",
@@ -108,9 +139,15 @@ async def interpolate_post(
     base_query_parameters: BaseQueryParams = Depends(),
     tag_query_parameters: TagsBodyParams = Body(default=...),
     interpolation_at_time_query_parameters: InterpolationAtTimeQueryParams = Depends(),
+    pivot_parameters: PivotQueryParams = Depends(),
+    limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return interpolation_at_time_events_get(
         base_query_parameters,
         tag_query_parameters,
         interpolation_at_time_query_parameters,
+        pivot_parameters,
+        limit_offset_query_parameters,
+        base_headers,
     )

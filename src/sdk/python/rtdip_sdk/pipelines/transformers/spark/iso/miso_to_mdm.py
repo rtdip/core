@@ -14,7 +14,7 @@
 
 from pyspark.sql import DataFrame, SparkSession
 
-from .....data_models.meters.ami_meters import SeriesType, ModelType, ValueType
+from .....data_models.timeseries import SeriesType, ModelType, ValueType
 from ..base_raw_to_mdm import BaseRawToMDMTransformer
 from ...._pipeline_utils.iso import melt, MISO_SCHEMA
 

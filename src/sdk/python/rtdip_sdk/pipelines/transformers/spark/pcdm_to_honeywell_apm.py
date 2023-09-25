@@ -126,8 +126,8 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                             lit(self.quality).alias("Quality"),
                             col("EventTime").alias("Time"),
                             col("Value").alias("Value"),
-                        ).alias("HistorySamples"),
-                    ),
+                        ),
+                    ).alias("HistorySamples"),
                 ),
             )
 

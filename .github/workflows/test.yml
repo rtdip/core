@@ -132,7 +132,7 @@ jobs:
         run: |
           mkdocs build --strict
 
-  job_python_lint_black:
+  job_lint_python_black:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

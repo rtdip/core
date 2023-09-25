@@ -99,27 +99,10 @@ def test_spark_rest_api_write_batch_fails(
     spark_session: SparkSession, mocker: MockerFixture
 ):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.rest_api",
-        new_callable=mocker.Mock(
-            return_value=mocker.Mock(
-                SparkRestAPIDestination=mocker.Mock(
-                    return_value=mocker.Mock(
-                        _api_micro_batch=mocker.Mock(
-                            return_value=mocker.Mock(
-                                udf=mocker.Mock(
-                                    return_value=mocker.Mock(
-                                        _rest_api_execute=mocker.Mock(
-                                            side_effect=Exception
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        ),
+        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.rest_api.SparkRestAPIDestination._api_micro_batch",
+        side_effect=Exception,
     )
+
     expected_df = spark_session.createDataFrame([{"id": "1"}])
     restapi_destination = SparkRestAPIDestination(
         expected_df, {}, test_url, {}, 1, parallelism=1

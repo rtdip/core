@@ -172,7 +172,7 @@ def test_spark_kinesis_write_stream_fails(
                                                 queryName=mocker.Mock(
                                                     return_value=mocker.Mock(
                                                         start=mocker.Mock(
-                                                            return_value=Exception
+                                                            side_effect=Exception
                                                         )
                                                     )
                                                 )

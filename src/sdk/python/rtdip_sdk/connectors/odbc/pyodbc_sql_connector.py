@@ -42,29 +42,44 @@ class PYODBCSQLConnection(ConnectionInterface):
     def __init__(
         self, driver_path: str, server_hostname: str, http_path: str, access_token: str
     ) -> None:
-        self.connection = pyodbc.connect(
-            "Driver="
-            + driver_path
-            + ";"
-            + "HOST="
-            + server_hostname
-            + ";"
-            + "PORT=443;"
-            + "Schema=default;"
-            + "SparkServerType=3;"
-            + "AuthMech=11;"
-            + "UID=token;"
-            +
-            #'PWD=' + access_token+ ";" +
-            "Auth_AccessToken=" + access_token + ";"
-            "ThriftTransport=2;" + "SSL=1;" + "HTTPPath=" + http_path,
-            autocommit=True,
-        )
+        self.driver_path = driver_path
+        self.server_hostname = server_hostname
+        self.http_path = http_path
+        self.access_token = access_token
+        # call auth method
+        self.connection = self._connect()
+        self.open = True
+
+    def _connect(self):
+        """Connects to the endpoint"""
+        try:
+            return pyodbc.connect(
+                "Driver="
+                + self.driver_path
+                + ";"
+                + "HOST="
+                + self.server_hostname
+                + ";"
+                + "PORT=443;"
+                + "Schema=default;"
+                + "SparkServerType=3;"
+                + "AuthMech=11;"
+                + "UID=token;"
+                +
+                #'PWD=' + access_token+ ";" +
+                "Auth_AccessToken=" + self.access_token + ";"
+                "ThriftTransport=2;" + "SSL=1;" + "HTTPPath=" + self.http_path,
+                autocommit=True,
+            )
+        except Exception as e:
+            logging.exception("error while connecting to the endpoint")
+            raise e
 
     def close(self) -> None:
         """Closes connection to database."""
         try:
             self.connection.close()
+            self.open = False
         except Exception as e:
             logging.exception("error while closing the connection")
             raise e
@@ -77,6 +92,8 @@ class PYODBCSQLConnection(ConnectionInterface):
           PYODBCSQLCursor: Object to represent a databricks workspace with methods to interact with clusters/jobs.
         """
         try:
+            if self.open == False:
+                self.connection = self._connect()
             return PYODBCSQLCursor(self.connection.cursor())
         except Exception as e:
             logging.exception("error with cursor object")
