@@ -252,27 +252,37 @@ EDGEX_SCHEMA = StructType(
 
 APM_SCHEMA = StructType(
     [
-        StructField("Id", StringType(), True),
-        StructField("TenantId", StringType(), True),
-        StructField("IdType", StringType(), True),
         StructField(
-            "Samples",
-            ArrayType(
-                StructType(
-                    [
-                        StructField("ItemName", StringType(), True),
-                        StructField("Time", StringType(), True),
-                        StructField("Value", StringType(), True),
-                        StructField("Unit", StringType(), True),
-                        StructField("NormalizedQuality", StringType(), True),
-                        StructField("HighValue", DoubleType(), True),
-                        StructField("LowValue", DoubleType(), True),
-                        StructField("TargetValue", DoubleType(), True),
-                    ]
-                )
+            "SystemTimeSeries",
+            StructType(
+                [
+                    StructField("Id", StringType(), True),
+                    StructField("TenantId", StringType(), True),
+                    StructField("IdType", StringType(), True),
+                    StructField(
+                        "Samples",
+                        ArrayType(
+                            StructType(
+                                [
+                                    StructField("ItemName", StringType(), True),
+                                    StructField("Time", StringType(), True),
+                                    StructField("Value", StringType(), True),
+                                    StructField("Unit", StringType(), True),
+                                    StructField(
+                                        "NormalizedQuality", StringType(), True
+                                    ),
+                                    StructField("HighValue", DoubleType(), True),
+                                    StructField("LowValue", DoubleType(), True),
+                                    StructField("TargetValue", DoubleType(), True),
+                                ]
+                            )
+                        ),
+                        True,
+                    ),
+                ]
             ),
             True,
-        ),
+        )
     ]
 )
 
