@@ -78,7 +78,7 @@ class HoneywellAPMJsonToPCDMTransformer(TransformerInterface):
         """
         df = (
             self.data.withColumn("body", from_json(self.source_column_name, APM_SCHEMA))
-            .select(explode("body.Samples"))
+            .select(explode("body.SystemTimeSeries.Samples"))
             .selectExpr("*", "to_timestamp(col.Time) as EventTime")
             .withColumn("TagName", col("col.Itemname"))
             .withColumn("Status", lit(self.status_null_value))
