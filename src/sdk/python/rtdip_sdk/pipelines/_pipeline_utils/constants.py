@@ -35,7 +35,7 @@ def get_default_package(package_name):
             version=_get_package_version("delta-spark"),
         ),
         "spark_delta_sharing": MavenLibrary(
-            group_id="io.delta", artifact_id="delta-sharing-spark_2.12", version="0.6.3"
+            group_id="io.delta", artifact_id="delta-sharing-spark_2.12", version="1.0.0"
         ),
         "spark_azure_eventhub": MavenLibrary(
             group_id="com.microsoft.azure",
@@ -52,14 +52,13 @@ def get_default_package(package_name):
             artifact_id="spark-connect_2.12",
             version=_get_package_version("pyspark"),
         ),
-        "rtdip_sdk": PyPiLibrary(name="rtdip_sdk", version="0.5.1"),
         "azure_adls_gen_2": PyPiLibrary(
-            name="azure-storage-file-datalake", version="12.10.1"
+            name="azure-storage-file-datalake", version="12.12.0"
         ),
         "azure_key_vault_secret": PyPiLibrary(
             name="azure-keyvault-secrets", version="4.7.0"
         ),
-        "aws_boto3": PyPiLibrary(name="boto3", version="1.26.118"),
+        "aws_boto3": PyPiLibrary(name="boto3", version="1.28.2"),
         "hashicorp_vault": PyPiLibrary(name="hvac", version="1.1.0"),
         "api_requests": PyPiLibrary(name="requests", version="2.30.0"),
         "pyarrow": PyPiLibrary(name="pyarrow", version="12.0.0"),
