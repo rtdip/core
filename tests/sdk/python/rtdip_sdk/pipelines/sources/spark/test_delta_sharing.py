@@ -41,7 +41,7 @@ def test_spark_delta_sharing_read_setup(spark_session: SparkSession):
             MavenLibrary(
                 group_id="io.delta",
                 artifact_id="delta-sharing-spark_2.12",
-                version="0.6.3",
+                version="1.0.0",
             )
         ],
         pypi_libraries=[],
