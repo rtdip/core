@@ -330,9 +330,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
                 if self.destination_integer != None:
                     delta_integer = SparkDeltaDestination(
-                        data=self.data.select(
-                            "TagName", "EventTime", "Status", "Value"
-                        ).filter(ValueTypeConstants.INTEGER_VALUE),
+                        data=self.data.select("TagName", "EventTime", "Status", "Value")
+                        .filter(ValueTypeConstants.INTEGER_VALUE)
+                        .withColumn("Value", col("Value").cast("integer")),
                         destination=self.destination_integer,
                         options=self.options,
                         mode=self.mode,
