@@ -60,7 +60,7 @@ dependencies:
     - strawberry-graphql[fastapi,pydantic]==0.194.4
     - web3==6.5.0
     - twine==4.0.2
-    - delta-sharing-python==0.7.4
+    - delta-sharing-python==1.0.0
     - polars==0.18.8
     - moto[s3]==4.1.14
     - xarray>=2023.1.0,<2023.8.0
