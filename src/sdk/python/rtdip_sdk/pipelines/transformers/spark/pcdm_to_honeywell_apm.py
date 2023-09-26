@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, Window
+from pyspark.sql.types import StringType
 from pyspark.sql.functions import (
     to_json,
     col,
@@ -24,14 +25,16 @@ from pyspark.sql.functions import (
     row_number,
     collect_list,
     expr,
+    udf,
+    sha2,
+    when,
 )
-from pyspark.sql import Window
 from datetime import datetime
 import pytz
+import gzip
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.spark import EDGEX_SCHEMA
 
 
 class PCDMToHoneywellAPMTransformer(TransformerInterface):
@@ -41,7 +44,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         data (Dataframe): Spark Dataframe in PCDM format
         quality (str): Value for quality inside HistorySamples
         history_samples_per_message (int): The number of HistorySamples for each row in the DataFrame (Batch Only)
-
+        compress_payload (bool): If True compresses body.value with gzip compression
     """
 
     data: DataFrame
@@ -53,10 +56,12 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         data: DataFrame,
         quality: str = "Good",
         history_samples_per_message: int = 1,
+        compress_payload: bool = False,
     ) -> None:
         self.data = data
         self.quality = quality
         self.history_samples_per_message = history_samples_per_message
+        self.compress_payload = compress_payload
 
     @staticmethod
     def system_type():
@@ -81,11 +86,16 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
     def post_transform_validation(self):
         return True
 
+    def _compress_body(data):
+        compressed_data = gzip.compress(bytes(data, "utf-8"))
+        return compressed_data
+
     def transform(self) -> DataFrame:
         """
         Returns:
             DataFrame: A dataframe with with rows in Honeywell APM format
         """
+        compress_udf = udf(self._compress_body, StringType())
         if self.data.isStreaming == False and self.history_samples_per_message > 1:
             pcdm_df = self.data.withColumn("counter", monotonically_increasing_id())
             w = Window.orderBy("counter")
@@ -105,9 +115,9 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                         col("Value").alias("Value"),
                     ).alias("HistorySamples"),
                 )
-                .groupBy("index")
+                .groupBy("TagName", "index")
                 .agg(collect_list("HistorySamples").alias("HistorySamples"))
-                .withColumn("guid", expr("uuid()"))
+                .withColumn("guid", sha2(col("TagName"), 256).cast("string"))
                 .withColumn(
                     "value",
                     struct(
@@ -131,32 +141,43 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                 ),
             )
 
-        df = cleaned_pcdm_df.withColumn(
-            "CloudPlatformEvent",
-            struct(
-                lit(datetime.now(tz=pytz.UTC)).alias("CreatedTime"),
-                lit(expr("uuid()")).alias("Id"),
-                col("guid").alias("CreatorId"),
-                lit("CloudPlatformSystem").alias("CreatorType"),
-                lit(None).alias("GeneratorId"),
-                lit("CloudPlatformTenant").alias("GeneratorType"),
-                col("guid").alias("TargetId"),
-                lit("CloudPlatformTenant").alias("TargetType"),
-                lit(None).alias("TargetContext"),
+        df = (
+            cleaned_pcdm_df.withColumn(
+                "CloudPlatformEvent",
                 struct(
-                    lit("TextualBody").alias("type"),
-                    to_json(col("value")).alias("value"),
-                    lit("application/json").alias("format"),
-                ).alias("Body"),
-                array(
+                    lit(datetime.now(tz=pytz.UTC)).alias("CreatedTime"),
+                    lit(expr("uuid()")).alias("Id"),
+                    col("guid").alias("CreatorId"),
+                    lit("CloudPlatformSystem").alias("CreatorType"),
+                    lit(None).alias("GeneratorId"),
+                    lit("CloudPlatformTenant").alias("GeneratorType"),
+                    col("guid").alias("TargetId"),
+                    lit("CloudPlatformTenant").alias("TargetType"),
+                    lit(None).alias("TargetContext"),
                     struct(
-                        lit("SystemType").alias("Key"),
-                        lit("apm-system").alias("Value"),
-                    ),
-                    struct(lit("SystemGuid").alias("Key"), col("guid").alias("Value")),
-                ).alias("BodyProperties"),
-                lit("DataChange.Update").alias("EventType"),
-            ),
-        ).withColumn("AnnotationStreamIds", lit(","))
+                        lit("TextualBody").alias("type"),
+                        when(
+                            self.compress_payload == True,
+                            compress_udf(to_json(col("value"))),
+                        )
+                        .otherwise(to_json(col("value")))
+                        .alias("value"),
+                        lit("application/json").alias("format"),
+                    ).alias("Body"),
+                    array(
+                        struct(
+                            lit("SystemType").alias("Key"),
+                            lit("apm-system").alias("Value"),
+                        ),
+                        struct(
+                            lit("SystemGuid").alias("Key"), col("guid").alias("Value")
+                        ),
+                    ).alias("BodyProperties"),
+                    lit("DataChange.Update").alias("EventType"),
+                ),
+            )
+            .withColumn("AnnotationStreamIds", lit(","))
+            .withColumn("partitionKey", col("guid"))
+        )
 
-        return df.select("CloudPlatformEvent", "AnnotationStreamIds")
+        return df.select("CloudPlatformEvent", "AnnotationStreamIds", "partitionKey")

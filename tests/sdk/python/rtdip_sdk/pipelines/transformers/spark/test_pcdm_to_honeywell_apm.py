@@ -31,7 +31,6 @@ from pyspark.sql import SparkSession, DataFrame
 from pytest_mock import MockerFixture
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from datetime import datetime
-import uuid
 
 
 def test_pcdm_to_honeywell_apm(spark_session: SparkSession, mocker: MockerFixture):
@@ -73,14 +72,17 @@ def test_pcdm_to_honeywell_apm(spark_session: SparkSession, mocker: MockerFixtur
 
     actual_df = PCDM_to_honeywell_eventhub_json_transformer.transform()
     df_row = actual_df.collect()[0]
-    assert isinstance(uuid.UUID(df_row["CloudPlatformEvent"]["CreatorId"]), uuid.UUID)
+    assert (
+        df_row["CloudPlatformEvent"]["CreatorId"]
+        == "a567edda0e37a9c98b0e73536234ad1b951dc6fa3b4bee4644ce54fc0df7cadd"
+    )
     assert (
         PCDM_to_honeywell_eventhub_json_transformer.system_type() == SystemType.PYSPARK
     )
     assert isinstance(
         PCDM_to_honeywell_eventhub_json_transformer.libraries(), Libraries
     )
-    assert len(df_row) == 2
+    assert len(df_row) == 3
     assert len(df_row["CloudPlatformEvent"]) == 12
     assert len(df_row["CloudPlatformEvent"]["Body"]) == 3
     assert len(df_row["CloudPlatformEvent"]["BodyProperties"]) == 2
