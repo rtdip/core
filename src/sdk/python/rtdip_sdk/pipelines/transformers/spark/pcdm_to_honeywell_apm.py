@@ -50,6 +50,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
     data: DataFrame
     quality: str
     history_samples_per_message: int
+    compress_payload: bool
 
     def __init__(
         self,
@@ -144,7 +145,8 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
             )
 
         df = (
-            cleaned_pcdm_df.withColumn(
+            cleaned_pcdm_df.withColumn("compress_payload", lit(self.compress_payload))
+            .withColumn(
                 "CloudPlatformEvent",
                 struct(
                     lit(datetime.now(tz=pytz.UTC)).alias("CreatedTime"),
@@ -159,7 +161,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                     struct(
                         lit("TextualBody").alias("type"),
                         when(
-                            self.compress_payload == True,
+                            col("compress_payload") == True,
                             compress_udf(to_json(col("value"))),
                         )
                         .otherwise(to_json(col("value")))
