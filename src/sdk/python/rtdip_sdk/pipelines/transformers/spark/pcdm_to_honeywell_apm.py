@@ -57,7 +57,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         data: DataFrame,
         quality: str = "Good",
         history_samples_per_message: int = 1,
-        compress_payload: bool = False,
+        compress_payload: bool = True,
     ) -> None:
         self.data = data
         self.quality = quality
