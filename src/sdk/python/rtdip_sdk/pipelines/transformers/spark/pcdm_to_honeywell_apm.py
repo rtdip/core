@@ -126,7 +126,9 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                 )
             )
         else:
-            cleaned_pcdm_df = self.data.withColumn("guid", expr("uuid()")).withColumn(
+            cleaned_pcdm_df = self.data.withColumn(
+                "guid", sha2(col("TagName"), 256).cast("string")
+            ).withColumn(
                 "value",
                 struct(
                     col("guid").alias("SystemGuid"),
