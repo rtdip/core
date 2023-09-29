@@ -40,13 +40,14 @@ dependencies:
     - fastapi==0.100.1
     - httpx==0.24.1
     - trio==0.22.1
-    - pyspark>=3.3.0,<3.5.0
+    - pyspark>=3.3.0,<3.6.0
     - delta-spark>=2.2.0,<3.1.0
     - grpcio>=1.48.1
     - grpcio-status>=1.48.1
     - googleapis-common-protos>=1.56.4
     - openjdk==11.0.15
-    - openai==0.27.8   
+    - openai==0.27.8
+    - mkdocs-material==9.3.1
     - mkdocstrings==0.22.0
     - mkdocstrings-python==1.4.0
     - mkdocs-macros-plugin==1.0.1
@@ -75,5 +76,4 @@ dependencies:
         - langchain==0.0.291
         - build==0.10.0
         - deltalake==0.10.1
-        - mkdocs-material==9.2.0b3
         
