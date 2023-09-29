@@ -50,8 +50,9 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         data (DataFrame): Any columns not listed in the required schema [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#writing-data-to-kafka){ target="_blank" } will be merged into a single column named "value", or ignored if "value" is an existing column
         connection_string (str): Eventhubs connection string is required to connect to the Eventhubs service. This must include the Eventhub name as the `EntityPath` parameter. Example `"Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"`
         options (dict): A dictionary of Kafka configurations (See Attributes tables below)
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (str): Unique name for the query in associated SparkSession
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
 
     The following are commonly used parameters that may be included in the options dict. kafka.bootstrap.servers is the only required config. A full list of configs can be found [here](https://kafka.apache.org/documentation/#producerconfigs){ target="_blank" }
 
@@ -60,6 +61,16 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         topic (string): Required if there is no existing topic column in your DataFrame. Sets the topic that all rows will be written to in Kafka. (Streaming and Batch)
         includeHeaders (bool): Determines whether to include the Kafka headers in the row; defaults to False. (Streaming and Batch)
     """
+
+    spark: SparkSession
+    data: DataFrame
+    connection_string: str
+    options: dict
+    consumer_group: str
+    trigger: str
+    query_name: str
+    connection_string_properties: dict
+    query_wait_interval: int
 
     def __init__(
         self,
@@ -70,6 +81,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         consumer_group: str,
         trigger: str = "10 seconds",
         query_name: str = "KafkaEventhubDestination",
+        query_wait_interval: int = None,
     ) -> None:
         self.spark = spark
         self.data = data
@@ -82,6 +94,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
             connection_string
         )
         self.options = self._configure_options(options)
+        self.query_wait_interval = query_wait_interval
 
     @staticmethod
     def system_type():
@@ -265,17 +278,18 @@ class SparkKafkaEventhubDestination(DestinationInterface):
                 else {"processingTime": self.trigger}
             )
             query = (
-                self.data.writeStream.trigger(**TRIGGER_OPTION)
+                df.writeStream.trigger(**TRIGGER_OPTION)
                 .format("kafka")
                 .options(**self.options)
                 .queryName(self.query_name)
                 .start()
             )
-            while query.isActive:
-                if query.lastProgress:
-                    logging.info(query.lastProgress)
-                time.sleep(10)
-            df.writeStream.format("kafka").options(**self.options).start()
+
+            if self.query_wait_interval:
+                while query.isActive:
+                    if query.lastProgress:
+                        logging.info(query.lastProgress)
+                    time.sleep(self.query_wait_interval)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)

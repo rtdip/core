@@ -252,36 +252,65 @@ EDGEX_SCHEMA = StructType(
 
 APM_SCHEMA = StructType(
     [
-        StructField("Id", StringType(), True),
-        StructField("TenantId", StringType(), True),
-        StructField("IdType", StringType(), True),
         StructField(
-            "Samples",
-            ArrayType(
-                StructType(
-                    [
-                        StructField("ItemName", StringType(), True),
-                        StructField("Time", StringType(), True),
-                        StructField("Value", StringType(), True),
-                        StructField("Unit", StringType(), True),
-                        StructField("NormalizedQuality", StringType(), True),
-                        StructField("HighValue", DoubleType(), True),
-                        StructField("LowValue", DoubleType(), True),
-                        StructField("TargetValue", DoubleType(), True),
-                    ]
-                )
+            "SystemTimeSeries",
+            StructType(
+                [
+                    StructField("Id", StringType(), True),
+                    StructField("TenantId", StringType(), True),
+                    StructField("IdType", StringType(), True),
+                    StructField(
+                        "Samples",
+                        ArrayType(
+                            StructType(
+                                [
+                                    StructField("ItemName", StringType(), True),
+                                    StructField("Time", StringType(), True),
+                                    StructField("Value", StringType(), True),
+                                    StructField("Unit", StringType(), True),
+                                    StructField(
+                                        "NormalizedQuality", StringType(), True
+                                    ),
+                                    StructField("HighValue", DoubleType(), True),
+                                    StructField("LowValue", DoubleType(), True),
+                                    StructField("TargetValue", DoubleType(), True),
+                                ]
+                            )
+                        ),
+                        True,
+                    ),
+                ]
             ),
             True,
-        ),
+        )
     ]
 )
 
-MQTT_SCHEMA = StructType(
+SEM_SCHEMA = StructType(
     [
-        StructField("d", ArrayType(StringType(), True), True),
-        StructField("dID", StringType(), True),
-        StructField("m", StringType(), True),
-        StructField("t", LongType(), True),
-        StructField("v", StringType(), True),
+        StructField("apiVersion", StringType(), True),
+        StructField("deviceName", StringType(), True),
+        StructField("id", StringType(), True),
+        StructField("origin", LongType(), True),
+        StructField("profileName", StringType(), True),
+        StructField(
+            "readings",
+            ArrayType(
+                StructType(
+                    [
+                        StructField("deviceName", StringType(), True),
+                        StructField("id", StringType(), True),
+                        StructField("origin", LongType(), True),
+                        StructField("profileName", StringType(), True),
+                        StructField("resourceName", StringType(), True),
+                        StructField("value", StringType(), True),
+                        StructField("valueType", StringType(), True),
+                    ]
+                ),
+                True,
+            ),
+            True,
+        ),
+        StructField("sourceName", StringType(), True),
     ]
 )

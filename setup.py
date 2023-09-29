@@ -44,7 +44,7 @@ INSTALL_REQUIRES = [
 ]
 
 PYSPARK_PACKAGES = [
-    "pyspark>=3.3.0,<3.5.0",
+    "pyspark>=3.3.0,<3.6.0",
     "delta-spark>=2.2.0,<2.5.0",
 ]
 
@@ -58,7 +58,7 @@ PIPELINE_PACKAGES = [
     "azure-keyvault-secrets==4.7.0",
     "web3==6.5.0",
     "polars[deltalake]==0.18.8",
-    "delta-sharing==0.7.4",
+    "delta-sharing==1.0.0",
     "xarray>=2023.1.0,<2023.8.0",
     "ecmwf-api-client==1.6.3",
     "netCDF4==1.6.4",

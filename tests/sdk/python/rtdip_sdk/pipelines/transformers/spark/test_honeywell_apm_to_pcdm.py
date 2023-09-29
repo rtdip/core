@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 
 
 def test_honeywell_apm_to_pcdm(spark_session: SparkSession):
-    honeywell_json_data = '{"Id": "testId","TenantId": "testTenantId","IdType": "calculatedpoint","Samples": [{"ItemName": "test.item1", "Time": "2023-07-31T06:53:00+00:00","Value": "5.0","Unit": null,"NormalizedQuality": "good", "HighValue": null,"LowValue": null,"TargetValue": null},{"ItemName": "test_item2","Time": "2023-07-31T06:53:00+00:00","Value": 0.0,"Unit": null,"NormalizedQuality": "good","HighValue": null,"LowValue": null,"TargetValue": null},{"ItemName": "testItem3","Time": "2023-07-31T06:53:00.205+00:00","Value": "test_string","Unit": null,"NormalizedQuality": "good","HighValue": null,"LowValue": null,"TargetValue": null}]}'
+    honeywell_json_data = '{"SystemTimeSeries": {"Id": "testId","TenantId": "testTenantId","IdType": "calculatedpoint","Samples": [{"ItemName": "test.item1", "Time": "2023-07-31T06:53:00+00:00","Value": "5.0","Unit": null,"NormalizedQuality": "good", "HighValue": null,"LowValue": null,"TargetValue": null},{"ItemName": "test_item2","Time": "2023-07-31T06:53:00+00:00","Value": 0.0,"Unit": null,"NormalizedQuality": "good","HighValue": null,"LowValue": null,"TargetValue": null},{"ItemName": "testItem3","Time": "2023-07-31T06:53:00.205+00:00","Value": "test_string","Unit": null,"NormalizedQuality": "good","HighValue": null,"LowValue": null,"TargetValue": null}]}}'
     honeywell_df: DataFrame = spark_session.createDataFrame(
         [{"body": honeywell_json_data}]
     )

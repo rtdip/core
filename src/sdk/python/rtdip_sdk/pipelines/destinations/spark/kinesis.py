@@ -27,8 +27,9 @@ class SparkKinesisDestination(DestinationInterface):
         data (DataFrame): Dataframe to be written to Delta
         options (dict): A dictionary of Kinesis configurations (See Attributes table below). All Configuration options for Kinesis can be found [here.](https://github.com/qubole/kinesis-sql#kinesis-sink-configuration){ target="_blank" }
         mode (str): Method of writing to Kinesis - append, complete, update
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (str): Unique name for the query in associated SparkSession
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
 
     Attributes:
         endpointUrl (str): Endpoint of the kinesis stream.
@@ -37,6 +38,13 @@ class SparkKinesisDestination(DestinationInterface):
         streamName (List[str]): Name of the streams in Kinesis to write to.
     """
 
+    data: DataFrame
+    options: dict
+    mode: str
+    trigger: str
+    query_name: str
+    query_wait_interval: int
+
     def __init__(
         self,
         data: DataFrame,
@@ -44,12 +52,14 @@ class SparkKinesisDestination(DestinationInterface):
         mode: str = "update",
         trigger: str = "10 seconds",
         query_name="KinesisDestination",
+        query_wait_interval: int = None,
     ) -> None:
         self.data = data
         self.options = options
         self.mode = mode
         self.trigger = trigger
         self.query_name = query_name
+        self.query_wait_interval = query_wait_interval
 
     @staticmethod
     def system_type():
@@ -105,10 +115,13 @@ class SparkKinesisDestination(DestinationInterface):
                 .queryName(self.query_name)
                 .start()
             )
-            while query.isActive:
-                if query.lastProgress:
-                    logging.info(query.lastProgress)
-                time.sleep(10)
+
+            if self.query_wait_interval:
+                while query.isActive:
+                    if query.lastProgress:
+                        logging.info(query.lastProgress)
+                    time.sleep(self.query_wait_interval)
+
         except Py4JJavaError as e:
             logging.exception(e.errmsg)
             raise e

@@ -19,6 +19,7 @@ from .spark.kafka import *
 from .spark.kinesis import *
 from .spark.rest_api import *
 from .spark.pcdm_to_delta import *
+from .spark.pcdm_latest_to_delta import *
 from .spark.kafka_eventhub import *
 from .blockchain.evm import *
 from .python.delta import *

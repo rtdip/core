@@ -13,14 +13,14 @@
 # limitations under the License.
 
 OBC_FIELD_MAPPINGS_V10 = {
-    "0": {"TagName": "obc_timeStamp", "ValueType": "double"},
+    "0": {"TagName": "obc_timeStamp", "ValueType": "float"},
     "1": {"TagName": "obc_errorState", "ValueType": "integer"},
     "2": {"TagName": "obc_energyThreshold", "ValueType": "float"},
     "3": {"TagName": "obc_energyLevel", "ValueType": "float"},
     "4": {"TagName": "gps_errorState", "ValueType": "integer"},
     "5": {"TagName": "gps_utcTime", "ValueType": "string"},
-    "6": {"TagName": "gps_latitude", "ValueType": "double"},
-    "7": {"TagName": "gps_longitude", "ValueType": "double"},
+    "6": {"TagName": "gps_latitude", "ValueType": "float"},
+    "7": {"TagName": "gps_longitude", "ValueType": "float"},
     "8": {"TagName": "gps_fixQuality", "ValueType": "integer"},
     "9": {"TagName": "gps_dilution", "ValueType": "float"},
     "10": {"TagName": "gps_speed", "ValueType": "float"},
@@ -52,8 +52,8 @@ OBC_FIELD_MAPPINGS_V10 = {
     "36": {"TagName": "sup_VoltageIn", "ValueType": "integer"},
     "37": {"TagName": "all_msSinceReset", "ValueType": "integer"},
     "38": {"TagName": "iot_errorState", "ValueType": "integer"},
-    "39": {"TagName": "iot_route", "ValueType": "text"},
-    "40": {"TagName": "cell_mode", "ValueType": "text"},
+    "39": {"TagName": "iot_route", "ValueType": "integer"},
+    "40": {"TagName": "cell_mode", "ValueType": "string"},
     "41": {"TagName": "cell_rssi", "ValueType": "integer"},
     "42": {"TagName": "wifi_power", "ValueType": "integer"},
     "43": {"TagName": "message_id", "ValueType": "string"},
