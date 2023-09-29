@@ -47,7 +47,6 @@ def create_delta_table(spark_session, name):
         spark=spark_session,
         table_name=name,
         columns=[
-            DeltaTableColumn(name="EventDate", type="date", nullable=True),
             DeltaTableColumn(name="TagName", type="string", nullable=True),
             DeltaTableColumn(name="EventTime", type="timestamp", nullable=True),
             DeltaTableColumn(name="Status", type="string", nullable=True),
@@ -119,7 +118,6 @@ def test_spark_pcdm_latest_to_delta_write_batch(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame(
         [
             {
-                "EventDate": datetime(2023, 1, 20).date(),
                 "TagName": "Tag1",
                 "EventTime": datetime(2023, 1, 20, 1, 1),
                 "Status": "Good",
@@ -131,7 +129,6 @@ def test_spark_pcdm_latest_to_delta_write_batch(spark_session: SparkSession):
             }
         ]
     ).select(
-        "EventDate",
         "TagName",
         "EventTime",
         "Status",
