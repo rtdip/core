@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-GBBBAS:
-  name: Bryce Bartmann
-  description: Contributor
-  avatar: https://github.com/GBBBAS.png
+authors:
+  GBBBAS:
+    name: Bryce Bartmann
+    description: Contributor
+    avatar: https://github.com/GBBBAS.png
