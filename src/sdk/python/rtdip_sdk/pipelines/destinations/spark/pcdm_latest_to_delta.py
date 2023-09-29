@@ -168,7 +168,6 @@ class SparkPCDMLatestToDeltaDestination(DestinationInterface):
         when_not_matched_insert_list = [
             DeltaMergeConditionValues(
                 values={
-                    "EventDate": "source.EventDate",
                     "TagName": "source.TagName",
                     "EventTime": "source.EventTime",
                     "Status": "source.Status",
