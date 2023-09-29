@@ -17,11 +17,6 @@ import sys
 sys.path.insert(0, ".")
 import pytest
 from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _get_package_version
-from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta_merge import (
-    SparkDeltaMergeDestination,
-    DeltaMergeCondition,
-    DeltaMergeConditionValues,
-)
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.delta import (
     SparkDeltaDestination,
 )

@@ -83,6 +83,7 @@ Destinations are components that connect to sink/destination systems and write d
 |[Kinesis](../code-reference/pipelines/destinations/spark/kafka.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Rest API](../code-reference/pipelines/destinations/spark/rest_api.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Process Control Data Model To Delta](../code-reference/pipelines/destinations/spark/pcdm_to_delta.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[Process Control Data Model Latest Values To Delta](../code-reference/pipelines/destinations/spark/pcdm_latest_to_delta.md)|||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[EVM](../code-reference/pipelines/destinations/blockchain/evm.md)|:heavy_check_mark:|||:heavy_check_mark:|:heavy_check_mark:|
 
 !!! note "Note"
