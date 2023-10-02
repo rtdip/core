@@ -50,7 +50,7 @@ PYSPARK_PACKAGES = [
 
 PIPELINE_PACKAGES = [
     "dependency-injector==4.41.0",
-    "databricks-sdk==0.2.1",
+    "databricks-sdk==0.9.0",
     "pydantic==1.10.12",
     "azure-storage-file-datalake==12.12.0",
     "boto3==1.28.2",

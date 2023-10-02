@@ -12,14 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .time_series import (
-    raw,
-    latest,
-    resample,
-    interpolate,
-    interpolation_at_time,
-    time_weighted_average,
-    circular_standard_deviation,
-    circular_average,
+import logging
+
+logging.warning(
+    "Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead."
 )
-from .query_builder import *
+
+from ..queries.metadata import *  # NOSONAR
