@@ -239,10 +239,11 @@ nav:
           - Queries:
               - Query Builder: sdk/code-reference/query/query_builder.md
               - Functions:
+                  - Raw: sdk/code-reference/query/raw.md
+                  - Latest: sdk/code-reference/query/latest.md                                
                   - Resample: sdk/code-reference/query/resample.md
                   - Interpolate: sdk/code-reference/query/interpolate.md
                   - Interpolation at Time: sdk/code-reference/query/interpolation-at-time.md
-                  - Raw: sdk/code-reference/query/raw.md
                   - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
                   - Circular Average: sdk/code-reference/query/circular-average.md
                   - Circular Standard Deviation: sdk/code-reference/query/circular-standard-deviation.md
