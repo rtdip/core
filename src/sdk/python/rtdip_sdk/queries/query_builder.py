@@ -328,7 +328,7 @@ class QueryBuilder:
 
     def metadata(
         self,
-        tagname_filter: [str],
+        tagname_filter: [str] = None,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -345,7 +345,7 @@ class QueryBuilder:
         """
         metadata_parameters = {
             "source": self.data_source,
-            "tag_names": tagname_filter,
+            "tag_names": [] if tagname_filter is None else tagname_filter,
             "tagname_column": self.tagname_column,
             "limit": limit,
             "offset": offset,
@@ -355,7 +355,7 @@ class QueryBuilder:
 
     def latest(
         self,
-        tagname_filter: [str],
+        tagname_filter: [str] = None,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -372,7 +372,7 @@ class QueryBuilder:
         """
         latest_parameters = {
             "source": self.data_source,
-            "tag_names": tagname_filter,
+            "tag_names": [] if tagname_filter is None else tagname_filter,
             "tagname_column": self.tagname_column,
             "limit": limit,
             "offset": offset,
