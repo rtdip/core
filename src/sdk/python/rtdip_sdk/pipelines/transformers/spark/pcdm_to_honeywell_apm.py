@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, Window, SparkSession
 from pyspark.sql.types import StringType
 from pyspark.sql.functions import (
     to_json,
@@ -32,6 +32,8 @@ from pyspark.sql.functions import (
 from datetime import datetime
 import pytz
 import gzip
+import base64
+from pyspark import SparkContext
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -54,11 +56,13 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
 
     def __init__(
         self,
+        spark: SparkSession,
         data: DataFrame,
         quality: str = "Good",
         history_samples_per_message: int = 1,
         compress_payload: bool = True,
     ) -> None:
+        self.spark = spark
         self.data = data
         self.quality = quality
         self.history_samples_per_message = history_samples_per_message
@@ -89,19 +93,20 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
 
     def _compress_body(data):
         compressed_data = gzip.compress(bytes(data, "utf-8"))
-        return compressed_data
+        encoded_data = base64.b64encode(compressed_data).decode("utf-8")
+        return encoded_data
 
     def transform(self) -> DataFrame:
         """
         Returns:
             DataFrame: A dataframe with with rows in Honeywell APM format
         """
+        # self.data = self.spark.sparkContext.broadcast(self.data).value
         compress_udf = udf(self._compress_body, StringType())
         if self.data.isStreaming == False and self.history_samples_per_message > 1:
-            pcdm_df = self.data.withColumn("counter", monotonically_increasing_id())
-            w = Window.orderBy("counter")
+            w = Window.partitionBy("TagName").orderBy("TagName")
             cleaned_pcdm_df = (
-                pcdm_df.withColumn(
+                self.data.withColumn(
                     "index",
                     floor(
                         (row_number().over(w) - 0.01) / self.history_samples_per_message
@@ -163,6 +168,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                         when(
                             col("compress_payload") == True,
                             compress_udf(to_json(col("value"))),
+                            # to_json(col("value")),
                         )
                         .otherwise(to_json(col("value")))
                         .alias("value"),
