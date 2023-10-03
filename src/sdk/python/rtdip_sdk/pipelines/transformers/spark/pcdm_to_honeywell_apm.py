@@ -20,7 +20,6 @@ from pyspark.sql.functions import (
     struct,
     lit,
     array,
-    monotonically_increasing_id,
     floor,
     row_number,
     collect_list,
@@ -33,7 +32,6 @@ from datetime import datetime
 import pytz
 import gzip
 import base64
-from pyspark import SparkContext
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -62,8 +60,8 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         history_samples_per_message: int = 1,
         compress_payload: bool = True,
     ) -> None:
-        self.spark = spark
         self.data = data
+        self.spark = spark
         self.quality = quality
         self.history_samples_per_message = history_samples_per_message
         self.compress_payload = compress_payload
@@ -92,7 +90,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         return True
 
     def _compress_body(data):
-        compressed_data = gzip.compress(bytes(data, "utf-8"))
+        compressed_data = gzip.compress(data.encode("utf-8"))
         encoded_data = base64.b64encode(compressed_data).decode("utf-8")
         return encoded_data
 
@@ -101,8 +99,8 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         Returns:
             DataFrame: A dataframe with with rows in Honeywell APM format
         """
-        # self.data = self.spark.sparkContext.broadcast(self.data).value
-        compress_udf = udf(self._compress_body, StringType())
+        self.spark.udf.register("compress_udf", self._compress_body, StringType())
+        # compress_udf = udf(self._compress_body, StringType())
         if self.data.isStreaming == False and self.history_samples_per_message > 1:
             w = Window.partitionBy("TagName").orderBy("TagName")
             cleaned_pcdm_df = (
@@ -167,8 +165,8 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                         lit("TextualBody").alias("type"),
                         when(
                             col("compress_payload") == True,
-                            compress_udf(to_json(col("value"))),
-                            # to_json(col("value")),
+                            # compress_udf(to_json(col("value"))),
+                            expr("compress_udf(to_json(value))"),
                         )
                         .otherwise(to_json(col("value")))
                         .alias("value"),
