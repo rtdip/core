@@ -53,6 +53,17 @@ class MetadataRow(BaseModel):
         extra = Extra.allow
 
 
+class LatestRow(BaseModel):
+    TagName: str
+    EventTime: datetime
+    Status: str
+    Value: str
+    ValueType: str
+    GoodEventTime: datetime
+    GoodValue: str
+    GoodValueType: str
+
+
 class RawRow(BaseModel):
     EventTime: datetime
     TagName: str
@@ -71,6 +82,11 @@ class RawRowQL:
 class MetadataResponse(BaseModel):
     field_schema: FieldSchema = Field(None, alias="schema")
     data: List[MetadataRow]
+
+
+class LatestResponse(BaseModel):
+    field_schema: FieldSchema = Field(None, alias="schema")
+    data: List[LatestRow]
 
 
 class RawResponse(BaseModel):

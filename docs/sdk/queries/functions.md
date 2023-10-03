@@ -8,6 +8,11 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 [Raw](../code-reference/query/raw.md) facilitates performing raw extracts of time series data, typically filtered by a Tag Name or Device Name and an event time.
 
+### Latest
+
+[Latest](../code-reference/query/latest.md) queries provides the latest event values. The RTDIP SDK requires the following parameters to retrieve the latest event values:
+- TagNames - A list of tag names
+
 ### Resample
 
 [Resample](../code-reference/query/resample.md) enables changing the frequency of time series observations. This is achieved by providing the following parameters:
@@ -68,6 +73,7 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 ### Metadata
 [Metadata](../code-reference/query/metadata.md) queries provide contextual information for time series measurements and include information such as names, descriptions and units of measure.
+
 
 !!! note "Note"
     </b>RTDIP are continuously adding more to this list so check back regularly.<br />

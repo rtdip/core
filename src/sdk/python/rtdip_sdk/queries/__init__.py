@@ -14,6 +14,7 @@
 
 from .time_series import (
     raw,
+    latest,
     resample,
     interpolate,
     interpolation_at_time,
