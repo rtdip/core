@@ -124,7 +124,9 @@ class DatabricksSDKDeploy(DeployInterface):
         Deploys an RTDIP Pipeline Job to Databricks Workflows. The deployment is managed by the Job Name and therefore will overwrite any existing workflow in Databricks with the same name.
         """
         # Add libraries to Databricks Job
-        workspace_client = WorkspaceClient(host=self.host, token=self.token)
+        workspace_client = WorkspaceClient(
+            host=self.host, token=self.token, auth_type="token"
+        )
         for task in self.databricks_job.tasks:
             if task.notebook_task is None and task.spark_python_task is None:
                 return ValueError(
@@ -260,7 +262,9 @@ class DatabricksSDKDeploy(DeployInterface):
         """
         Launches an RTDIP Pipeline Job in Databricks Workflows. This will perform the equivalent of a `Run Now` in Databricks Workflows
         """
-        workspace_client = WorkspaceClient(host=self.host, token=self.token)
+        workspace_client = WorkspaceClient(
+            host=self.host, token=self.token, auth_type="token"
+        )
         job_found = False
         for existing_job in workspace_client.jobs.list(name=self.databricks_job.name):
             workspace_client.jobs.run_now(job_id=existing_job.job_id)
