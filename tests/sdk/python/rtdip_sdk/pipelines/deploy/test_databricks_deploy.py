@@ -49,10 +49,46 @@ class DummyModule:
 
 
 class DummyJob:
+    jobs = []
+
+    def __init__(
+        self,
+    ):
+        return None
+
+    def create(self, **kwargs):
+        return None
+
+    def reset(self, job_id=None, new_settings=None):
+        return None
+
+    def run_now(self, job_id=None):
+        return None
+
+    def list(self, name=None, job_id=None):
+        return [self]
+
+    job_id = 1
+
+
+class DummyWorkspace:
     def __init__(self):
         return None
 
-    job_id = 1
+    def mkdirs(self, path=None):
+        return None
+
+    def upload(self, path=None, overwrite=True, content=None):
+        return None
+
+
+class DummyWorkspaceClient:
+    def __init__(self):
+        return None
+
+    workspace = DummyWorkspace()
+
+    jobs = DummyJob()
 
 
 default_version = "0.0.0rc0"
@@ -98,11 +134,15 @@ def test_pipeline_job_deploy(mocker: MockerFixture):
         return_value=None,
     )
     mocker.patch(
-        "databricks.sdk.mixins.workspace.WorkspaceExt.mkdirs", return_value=None
+        "src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.WorkspaceClient",
+        return_value=DummyWorkspaceClient(),
     )
-    mocker.patch(
-        "databricks.sdk.mixins.workspace.WorkspaceExt.upload", return_value=None
-    )
+    # mocker.patch(
+    #     "databricks.sdk.mixins.workspace.WorkspaceExt.mkdirs", return_value=None
+    # )
+    # mocker.patch(
+    #     "databricks.sdk.mixins.workspace.WorkspaceExt.upload", return_value=None
+    # )
     libraries = Libraries(
         pypi_libraries=[PyPiLibrary(name="rtdip-sdk", version=default_version)],
         maven_libraries=[
