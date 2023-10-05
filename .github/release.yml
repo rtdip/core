@@ -40,7 +40,10 @@ changelog:
         - documentation
     - title: Pipelines
       labels:
-        - pipelines      
+        - pipelines
+    - title: Queries
+      labels:
+        - queries        
     - title: Other Changes
       labels:
         - "*"
