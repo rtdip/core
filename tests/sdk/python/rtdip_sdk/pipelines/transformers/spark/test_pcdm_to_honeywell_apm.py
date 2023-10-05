@@ -65,7 +65,7 @@ def test_pcdm_to_honeywell_apm(spark_session: SparkSession):
         schema=pcdm_schema, data=pcdm_data
     )
     PCDM_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
-        data=pcdm_df, history_samples_per_message=3, spark=spark_session
+        data=pcdm_df, history_samples_per_message=3
     )
 
     actual_df = PCDM_to_honeywell_eventhub_json_transformer.transform()

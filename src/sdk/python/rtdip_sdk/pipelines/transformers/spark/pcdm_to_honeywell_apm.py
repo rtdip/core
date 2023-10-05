@@ -37,6 +37,12 @@ from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
 
+def _compress_payload(data):
+    compressed_data = gzip.compress(data.encode("utf-8"))
+    encoded_data = base64.b64encode(compressed_data).decode("utf-8")
+    return encoded_data
+
+
 class PCDMToHoneywellAPMTransformer(TransformerInterface):
     """
     Converts a Spark Dataframe in PCDM format to Honeywell APM format.
@@ -89,18 +95,11 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
     def post_transform_validation(self):
         return True
 
-    def _compress_body(data):
-        compressed_data = gzip.compress(data.encode("utf-8"))
-        encoded_data = base64.b64encode(compressed_data).decode("utf-8")
-        return encoded_data
-
     def transform(self) -> DataFrame:
         """
         Returns:
             DataFrame: A dataframe with with rows in Honeywell APM format
         """
-        self.spark.udf.register("compress_udf", self._compress_body, StringType())
-        # compress_udf = udf(self._compress_body, StringType())
         if self.data.isStreaming == False and self.history_samples_per_message > 1:
             w = Window.partitionBy("TagName").orderBy("TagName")
             cleaned_pcdm_df = (
@@ -148,8 +147,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
             )
 
         df = (
-            cleaned_pcdm_df.withColumn("compress_payload", lit(self.compress_payload))
-            .withColumn(
+            cleaned_pcdm_df.withColumn(
                 "CloudPlatformEvent",
                 struct(
                     lit(datetime.now(tz=pytz.UTC)).alias("CreatedTime"),
@@ -163,13 +161,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                     lit(None).alias("TargetContext"),
                     struct(
                         lit("TextualBody").alias("type"),
-                        when(
-                            col("compress_payload") == True,
-                            # compress_udf(to_json(col("value"))),
-                            expr("compress_udf(to_json(value))"),
-                        )
-                        .otherwise(to_json(col("value")))
-                        .alias("value"),
+                        to_json(col("value")).alias("value"),
                         lit("application/json").alias("format"),
                     ).alias("Body"),
                     array(
@@ -187,5 +179,14 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
             .withColumn("AnnotationStreamIds", lit(","))
             .withColumn("partitionKey", col("guid"))
         )
-
-        return df.select("CloudPlatformEvent", "AnnotationStreamIds", "partitionKey")
+        if self.compress_payload:
+            compress_udf = udf(_compress_payload, StringType())
+            return df.select(
+                compress_udf(to_json("CloudPlatformEvent")).alias("CloudPlatformEvent"),
+                "AnnotationStreamIds",
+                "partitionKey",
+            )
+        else:
+            return df.select(
+                "CloudPlatformEvent", "AnnotationStreamIds", "partitionKey"
+            )
