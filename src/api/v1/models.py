@@ -23,6 +23,17 @@ from datetime import date
 from src.api.auth.azuread import oauth2_scheme
 
 
+class DuplicatedQueryParameters:
+    time_interval_rate = Query(
+        ..., description="Time Interval Rate as a numeric input", examples=[5]
+    )
+    time_interval_unit = Query(
+        ...,
+        description="Time Interval Unit can be one of the options: [second, minute, day, hour]",
+        examples=["second", "minute", "hour", "day"],
+    )
+
+
 class Fields(BaseModel):
     name: str
     type: str
@@ -236,14 +247,8 @@ class ResampleQueryParams:
             examples=["second", "minute", "hour", "day"],
             deprecated=True,
         ),
-        time_interval_rate: str = Query(
-            ..., description="Time Interval Rate as a numeric input", examples=[5]
-        ),
-        time_interval_unit: str = Query(
-            ...,
-            description="Time Interval Unit can be one of the options: [second, minute, day, hour]",
-            examples=["second", "minute", "hour", "day"],
-        ),
+        time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
+        time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         agg_method: str = Query(
             ...,
             description="Aggregation Method can be one of the following [first, last, avg, min, max]",
@@ -330,14 +335,8 @@ class TimeWeightedAverageQueryParams:
             examples=[20],
             deprecated=True,
         ),
-        time_interval_rate: str = Query(
-            ..., description="Time Interval Rate as a numeric input", examples=[5]
-        ),
-        time_interval_unit: str = Query(
-            ...,
-            description="Time Interval Unit can be one of the options: [second, minute, day, hour]",
-            examples=["second", "minute", "hour", "day"],
-        ),
+        time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
+        time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         window_length: int = Query(
             ..., description="Window Length in days", examples=[1]
         ),
@@ -357,14 +356,8 @@ class TimeWeightedAverageQueryParams:
 class CircularAverageQueryParams:
     def __init__(
         self,
-        time_interval_rate: str = Query(
-            ..., description="Time Interval Rate as a numeric input", examples=[5]
-        ),
-        time_interval_unit: str = Query(
-            ...,
-            description="Time Interval Unit can be one of the options: [second, minute, day, hour]",
-            examples=["second", "minute", "hour", "day"],
-        ),
+        time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
+        time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         lower_bound: int = Query(
             ..., description="Lower boundary for the sample range", examples=[5]
         ),
