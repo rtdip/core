@@ -25,6 +25,8 @@ from src.api.v1 import (
     circular_average,
     circular_standard_deviation,
     time_weighted_average,
+    circular_average,
+    circular_standard_deviation,
     graphql,
 )
 from src.api.auth.azuread import oauth2_scheme

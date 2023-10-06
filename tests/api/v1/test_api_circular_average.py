@@ -40,7 +40,7 @@ pytestmark = pytest.mark.anyio
 
 async def test_api_circular_average_get_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.5]}
     )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
@@ -100,7 +100,7 @@ async def test_api_circular_average_get_error(mocker: MockerFixture):
 
 async def test_api_circular_average_post_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.5]}
     )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
