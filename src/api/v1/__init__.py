@@ -23,6 +23,8 @@ from src.api.v1 import (
     interpolate,
     interpolation_at_time,
     time_weighted_average,
+    circular_average,
+    circular_standard_deviation,
     graphql,
 )
 from src.api.auth.azuread import oauth2_scheme
