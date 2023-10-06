@@ -65,21 +65,21 @@ def test_pcdm_to_honeywell_apm(spark_session: SparkSession):
     pcdm_df: DataFrame = spark_session.createDataFrame(
         schema=pcdm_schema, data=pcdm_data
     )
-    PCDM_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
+    pcdm_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
         data=pcdm_df, history_samples_per_message=3, compress_payload=False
     )
 
-    actual_df = PCDM_to_honeywell_eventhub_json_transformer.transform()
+    actual_df = pcdm_to_honeywell_eventhub_json_transformer.transform()
     df_row = actual_df.collect()[0]
     assert (
         df_row["CloudPlatformEvent"]["CreatorId"]
         == "51bc4f9dda971d1b5417161bb98e5d8f77bea2587d9de783b54be25e22b56496"
     )
     assert (
-        PCDM_to_honeywell_eventhub_json_transformer.system_type() == SystemType.PYSPARK
+        pcdm_to_honeywell_eventhub_json_transformer.system_type() == SystemType.PYSPARK
     )
     assert isinstance(
-        PCDM_to_honeywell_eventhub_json_transformer.libraries(), Libraries
+        pcdm_to_honeywell_eventhub_json_transformer.libraries(), Libraries
     )
     assert len(df_row) == 3
     assert len(df_row["CloudPlatformEvent"]) == 12
@@ -93,9 +93,9 @@ def test_pcdm_to_honeywell_apm_gzip_compressed(spark_session: SparkSession):
     pcdm_df: DataFrame = spark_session.createDataFrame(
         schema=pcdm_schema, data=pcdm_data
     )
-    PCDM_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
+    pcdm_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
         data=pcdm_df, history_samples_per_message=3
     )
-    actual_df = PCDM_to_honeywell_eventhub_json_transformer.transform()
+    actual_df = pcdm_to_honeywell_eventhub_json_transformer.transform()
     df_row = actual_df.collect()[0]
     assert isinstance(df_row["CloudPlatformEvent"], str)
