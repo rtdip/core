@@ -37,12 +37,6 @@ from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
 
-def _compress_payload(data):
-    compressed_data = gzip.compress(data.encode("utf-8"))
-    encoded_data = base64.b64encode(compressed_data).decode("utf-8")
-    return encoded_data
-
-
 class PCDMToHoneywellAPMTransformer(TransformerInterface):
     """
     Converts a Spark Dataframe in PCDM format to Honeywell APM format.
@@ -60,14 +54,12 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
 
     def __init__(
         self,
-        spark: SparkSession,
         data: DataFrame,
         quality: str = "Good",
         history_samples_per_message: int = 1,
         compress_payload: bool = True,
     ) -> None:
         self.data = data
-        self.spark = spark
         self.quality = quality
         self.history_samples_per_message = history_samples_per_message
         self.compress_payload = compress_payload
@@ -100,6 +92,13 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         Returns:
             DataFrame: A dataframe with with rows in Honeywell APM format
         """
+
+        @udf("string")
+        def _compress_payload(data):
+            compressed_data = gzip.compress(data.encode("utf-8"))
+            encoded_data = base64.b64encode(compressed_data).decode("utf-8")
+            return encoded_data
+
         if self.data.isStreaming == False and self.history_samples_per_message > 1:
             w = Window.partitionBy("TagName").orderBy("TagName")
             cleaned_pcdm_df = (
@@ -180,9 +179,10 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
             .withColumn("partitionKey", col("guid"))
         )
         if self.compress_payload:
-            compress_udf = udf(_compress_payload, StringType())
             return df.select(
-                compress_udf(to_json("CloudPlatformEvent")).alias("CloudPlatformEvent"),
+                _compress_payload(to_json("CloudPlatformEvent")).alias(
+                    "CloudPlatformEvent"
+                ),
                 "AnnotationStreamIds",
                 "partitionKey",
             )
