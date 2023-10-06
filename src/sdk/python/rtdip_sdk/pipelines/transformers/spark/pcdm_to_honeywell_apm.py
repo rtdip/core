@@ -44,7 +44,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
         data (Dataframe): Spark Dataframe in PCDM format
         quality (str): Value for quality inside HistorySamples
         history_samples_per_message (int): The number of HistorySamples for each row in the DataFrame (Batch Only)
-        compress_payload (bool): If True compresses body.value with gzip compression
+        compress_payload (bool): If True compresses CloudPlatformEvent with gzip compression
     """
 
     data: DataFrame
