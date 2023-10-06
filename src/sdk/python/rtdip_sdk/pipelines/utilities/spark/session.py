@@ -43,7 +43,7 @@ class SparkSessionUtility(UtilitiesInterface):
     def __init__(
         self, config: dict = None, module: str = None, remote: str = None
     ) -> None:
-        self.config = {} if config is None else config
+        self.config = config
         if module == None:
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
