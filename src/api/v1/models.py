@@ -68,11 +68,11 @@ class LatestRow(BaseModel):
     TagName: str
     EventTime: datetime
     Status: str
-    Value: str
-    ValueType: str
-    GoodEventTime: datetime
-    GoodValue: str
-    GoodValueType: str
+    Value: Union[str, None]
+    ValueType: Union[str, None]
+    GoodEventTime: Union[datetime, None]
+    GoodValue: Union[str, None]
+    GoodValueType: Union[str, None]
 
 
 class RawRow(BaseModel):

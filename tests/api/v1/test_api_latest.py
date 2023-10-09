@@ -61,6 +61,35 @@ async def test_api_latest_get_tags_provided_success(mocker: MockerFixture):
     assert actual == expected
 
 
+async def test_api_latest_get_no_good_values_tags_provided_success(
+    mocker: MockerFixture,
+):
+    test_data = pd.DataFrame(
+        {
+            "TagName": ["TestTag"],
+            "EventTime": [datetime.utcnow()],
+            "Status": ["Good"],
+            "Value": ["1.01"],
+            "ValueType": ["string"],
+            "GoodEventTime": None,
+            "GoodValue": None,
+            "GoodValueType": None,
+        }
+    )
+
+    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        response = await ac.get(
+            MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
+        )
+    actual = response.text
+    expected = test_data.to_json(orient="table", index=False, date_unit="us")
+
+    assert response.status_code == 200
+    assert actual == expected
+
+
 async def test_api_latest_get_no_tags_provided_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
