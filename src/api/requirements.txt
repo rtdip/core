@@ -2,7 +2,7 @@
 azure-functions==1.15.0
 fastapi==0.103.1
 nest_asyncio==1.5.6
-strawberry-graphql[fastapi,pydantic]==0.194.4
+pydantic==2.4.2
 turbodbc==4.5.10
 pyodbc==4.0.39
 importlib_metadata>=1.0.0

@@ -15,8 +15,7 @@
 import os
 from datetime import datetime
 from tracemalloc import start
-from pydantic import BaseModel, Field, Extra, ConfigDict
-import strawberry
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from typing import List, Union, Dict, Any
 from fastapi import Query, Header, Depends
 from datetime import date
@@ -39,19 +38,8 @@ class Fields(BaseModel):
     type: str
 
 
-@strawberry.experimental.pydantic.type(model=Fields, all_fields=True)
-class FieldsQL:
-    pass
-
-
 class FieldSchema(BaseModel):
     fields: List[Fields]
-    pandas_version: str
-
-
-@strawberry.type
-class FieldSchemaQL:
-    fields: List[FieldsQL]
     pandas_version: str
 
 
@@ -61,7 +49,7 @@ class MetadataRow(BaseModel):
     Description: str
 
     class Config:
-        extra = Extra.allow
+        extra = "allow"
 
 
 class LatestRow(BaseModel):
@@ -82,33 +70,25 @@ class RawRow(BaseModel):
     Value: Union[float, int, str, None]
 
 
-@strawberry.type
-class RawRowQL:
-    EventTime: datetime
-    TagName: str
-    Status: str
-    Value: float
-
-
 class MetadataResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[MetadataRow]
 
 
 class LatestResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[LatestRow]
 
 
 class RawResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[RawRow]
-
-
-@strawberry.type
-class RawResponseQL:
-    schema: FieldSchemaQL
-    data: List[RawRowQL]
 
 
 class ResampleInterpolateRow(BaseModel):
@@ -124,12 +104,16 @@ class PivotRow(BaseModel):
 
 
 class ResampleInterpolateResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[ResampleInterpolateRow]
 
 
 class PivotResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[PivotRow]
 
 
@@ -137,9 +121,11 @@ class HTTPError(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {
-            "example": {"detail": "HTTPException raised."},
-        }
+        schema_extra = (
+            {
+                "example": {"detail": "HTTPException raised."},
+            },
+        )
 
 
 class BaseHeaders:

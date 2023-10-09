@@ -148,7 +148,7 @@ async def test_api_latest_get_validation_error(mocker: MockerFixture):
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"loc":["query","business_unit"],"msg":"field required","type":"value_error.missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["query","business_unit"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.4/v/missing"}]}'
     )
 
 
@@ -239,7 +239,7 @@ async def test_api_latest_post_no_tags_provided_error(mocker: MockerFixture):
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"loc":["body"],"msg":"field required","type":"value_error.missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["body"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.4/v/missing"}]}'
     )
 
 
@@ -271,7 +271,7 @@ async def test_api_latest_post_validation_error(mocker: MockerFixture):
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"loc":["query","business_unit"],"msg":"field required","type":"value_error.missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["query","business_unit"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.4/v/missing"}]}'
     )
 
 
