@@ -25,17 +25,10 @@ from src.api.v1 import (
     time_weighted_average,
     circular_average,
     circular_standard_deviation,
-    graphql,
 )
 from src.api.auth.azuread import oauth2_scheme
 
 app.include_router(api_v1_router)
-app.include_router(
-    graphql.graphql_router,
-    prefix="/graphql",
-    include_in_schema=False,
-    dependencies=[Depends(oauth2_scheme)],
-)
 
 
 async def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
