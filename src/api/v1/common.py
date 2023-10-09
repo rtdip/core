@@ -32,6 +32,8 @@ def common_api_setup_tasks(
     interpolate_query_parameters=None,
     interpolation_at_time_query_parameters=None,
     time_weighted_average_query_parameters=None,
+    circular_average_query_parameters=None,
+    circular_standard_deviation_query_parameters=None,
     pivot_query_parameters=None,
     limit_offset_query_parameters=None,
 ):
@@ -95,6 +97,14 @@ def common_api_setup_tasks(
 
     if time_weighted_average_query_parameters != None:
         parameters = dict(parameters, **time_weighted_average_query_parameters.__dict__)
+
+    if circular_average_query_parameters != None:
+        parameters = dict(parameters, **circular_average_query_parameters.__dict__)
+
+    if circular_standard_deviation_query_parameters != None:
+        parameters = dict(
+            parameters, **circular_standard_deviation_query_parameters.__dict__
+        )
 
     if pivot_query_parameters != None:
         parameters = dict(parameters, **pivot_query_parameters.__dict__)

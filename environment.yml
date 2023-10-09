@@ -37,9 +37,8 @@ dependencies:
     - azure-keyvault-secrets==4.7.0
     - boto3==1.28.2
     - pyodbc==4.0.39
-    - fastapi==0.100.1
+    - fastapi==0.103.2
     - httpx==0.24.1
-    - trio==0.22.1
     - pyspark>=3.3.0,<3.5.0
     - delta-spark>=2.2.0,<3.1.0
     - grpcio>=1.48.1
@@ -58,7 +57,7 @@ dependencies:
     - semver==3.0.0
     - xlrd==2.0.1
     - pygithub==1.59.0
-    - strawberry-graphql[fastapi,pydantic]==0.194.4
+    - pydantic==2.4.2
     - web3==6.5.0
     - twine==4.0.2
     - delta-sharing-python==1.0.0
@@ -76,4 +75,5 @@ dependencies:
         - langchain==0.0.291
         - build==0.10.0
         - deltalake==0.10.1
+        - trio==0.22.1
         

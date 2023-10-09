@@ -15,12 +15,22 @@
 import os
 from datetime import datetime
 from tracemalloc import start
-from pydantic import BaseModel, Field, Extra, ConfigDict
-import strawberry
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from typing import List, Union, Dict, Any
 from fastapi import Query, Header, Depends
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
+
+
+class DuplicatedQueryParameters:
+    time_interval_rate = Query(
+        ..., description="Time Interval Rate as a numeric input", examples=[5]
+    )
+    time_interval_unit = Query(
+        ...,
+        description="Time Interval Unit can be one of the options: [second, minute, day, hour]",
+        examples=["second", "minute", "hour", "day"],
+    )
 
 
 class Fields(BaseModel):
@@ -28,19 +38,8 @@ class Fields(BaseModel):
     type: str
 
 
-@strawberry.experimental.pydantic.type(model=Fields, all_fields=True)
-class FieldsQL:
-    pass
-
-
 class FieldSchema(BaseModel):
     fields: List[Fields]
-    pandas_version: str
-
-
-@strawberry.type
-class FieldSchemaQL:
-    fields: List[FieldsQL]
     pandas_version: str
 
 
@@ -50,18 +49,18 @@ class MetadataRow(BaseModel):
     Description: str
 
     class Config:
-        extra = Extra.allow
+        extra = "allow"
 
 
 class LatestRow(BaseModel):
     TagName: str
     EventTime: datetime
     Status: str
-    Value: str
-    ValueType: str
-    GoodEventTime: datetime
-    GoodValue: str
-    GoodValueType: str
+    Value: Union[str, None]
+    ValueType: Union[str, None]
+    GoodEventTime: Union[datetime, None]
+    GoodValue: Union[str, None]
+    GoodValueType: Union[str, None]
 
 
 class RawRow(BaseModel):
@@ -71,33 +70,25 @@ class RawRow(BaseModel):
     Value: Union[float, int, str, None]
 
 
-@strawberry.type
-class RawRowQL:
-    EventTime: datetime
-    TagName: str
-    Status: str
-    Value: float
-
-
 class MetadataResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[MetadataRow]
 
 
 class LatestResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[LatestRow]
 
 
 class RawResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[RawRow]
-
-
-@strawberry.type
-class RawResponseQL:
-    schema: FieldSchemaQL
-    data: List[RawRowQL]
 
 
 class ResampleInterpolateRow(BaseModel):
@@ -113,12 +104,16 @@ class PivotRow(BaseModel):
 
 
 class ResampleInterpolateResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[ResampleInterpolateRow]
 
 
 class PivotResponse(BaseModel):
-    field_schema: FieldSchema = Field(None, alias="schema")
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
     data: List[PivotRow]
 
 
@@ -126,9 +121,11 @@ class HTTPError(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {
-            "example": {"detail": "HTTPException raised."},
-        }
+        schema_extra = (
+            {
+                "example": {"detail": "HTTPException raised."},
+            },
+        )
 
 
 class BaseHeaders:
@@ -236,14 +233,8 @@ class ResampleQueryParams:
             examples=["second", "minute", "hour", "day"],
             deprecated=True,
         ),
-        time_interval_rate: str = Query(
-            ..., description="Time Interval Rate as a numeric input", examples=[5]
-        ),
-        time_interval_unit: str = Query(
-            ...,
-            description="Time Interval Unit can be one of the options: [second, minute, day, hour]",
-            examples=["second", "minute", "hour", "day"],
-        ),
+        time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
+        time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         agg_method: str = Query(
             ...,
             description="Aggregation Method can be one of the following [first, last, avg, min, max]",
@@ -330,14 +321,8 @@ class TimeWeightedAverageQueryParams:
             examples=[20],
             deprecated=True,
         ),
-        time_interval_rate: str = Query(
-            ..., description="Time Interval Rate as a numeric input", examples=[5]
-        ),
-        time_interval_unit: str = Query(
-            ...,
-            description="Time Interval Unit can be one of the options: [second, minute, day, hour]",
-            examples=["second", "minute", "hour", "day"],
-        ),
+        time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
+        time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         window_length: int = Query(
             ..., description="Window Length in days", examples=[1]
         ),
@@ -352,3 +337,21 @@ class TimeWeightedAverageQueryParams:
         self.time_interval_unit = time_interval_unit
         self.window_length = window_length
         self.step = step
+
+
+class CircularAverageQueryParams:
+    def __init__(
+        self,
+        time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
+        time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
+        lower_bound: int = Query(
+            ..., description="Lower boundary for the sample range", examples=[5]
+        ),
+        upper_bound: int = Query(
+            ..., description="Upper boundary for the sample range", examples=[20]
+        ),
+    ):
+        self.time_interval_rate = time_interval_rate
+        self.time_interval_unit = time_interval_unit
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
