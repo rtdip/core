@@ -15,7 +15,7 @@
 import logging
 import time
 from typing import List, Optional, Union
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from pyspark.sql.functions import broadcast
 from pyspark.sql import DataFrame, SparkSession
 from py4j.protocol import Py4JJavaError

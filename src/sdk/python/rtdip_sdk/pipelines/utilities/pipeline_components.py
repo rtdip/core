@@ -29,15 +29,17 @@ class PipelineComponentsGetUtility(UtilitiesInterface):
 
     Args:
         module (optional str): Provide the module to use for imports of rtdip-sdk components. If not populated, it will use the calling module to check for imports
+        spark_config (optional dict): Additional spark configuration to be applied to the spark session
     """
 
-    def __init__(self, module: str = None) -> None:
+    def __init__(self, module: str = None, spark_config: dict = None) -> None:
         if module == None:
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
             self.module = mod.__name__
         else:
             self.module = module
+        self.spark_config = {} if spark_config is None else spark_config
 
     @staticmethod
     def system_type():
@@ -100,7 +102,7 @@ class PipelineComponentsGetUtility(UtilitiesInterface):
 
             task_libraries = Libraries()
             task_libraries.get_libraries_from_components(component_list)
-            spark_configuration = {}
+            spark_configuration = self.spark_config
             for component in component_list:
                 spark_configuration = {**spark_configuration, **component.settings()}
             return (task_libraries, spark_configuration)
