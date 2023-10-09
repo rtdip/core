@@ -26,63 +26,76 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
-
 from pyspark.sql import SparkSession, DataFrame
-from pytest_mock import MockerFixture
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from datetime import datetime
-import uuid
 
-
-def test_pcdm_to_honeywell_apm(spark_session: SparkSession, mocker: MockerFixture):
-    pcdm_schema = StructType(
-        [
-            StructField("TagName", StringType(), True),
-            StructField("EventTime", TimestampType(), True),
-            StructField("Status", StringType(), False),
-            StructField("Value", StringType(), True),
-            StructField("ValueType", StringType(), False),
-            StructField("ChangeType", StringType(), False),
-        ]
-    )
-
-    pcdm_data = [
-        {
-            "TagName": "test.item1",
-            "EventTime": datetime.fromisoformat("2023-07-31T06:53:00+00:00"),
-            "Status": "Good",
-            "Value": 5.0,
-            "ValueType": "float",
-            "ChangeType": "insert",
-        },
-        {
-            "TagName": "Test_item2",
-            "EventTime": datetime.fromisoformat("2023-07-31T06:54:00+00:00"),
-            "Status": "Good",
-            "Value": 1,
-            "ValueType": "float",
-            "ChangeType": "insert",
-        },
+pcdm_schema = StructType(
+    [
+        StructField("TagName", StringType(), True),
+        StructField("EventTime", TimestampType(), True),
+        StructField("Status", StringType(), False),
+        StructField("Value", StringType(), True),
+        StructField("ValueType", StringType(), False),
+        StructField("ChangeType", StringType(), False),
     ]
+)
+
+pcdm_data = [
+    {
+        "TagName": "test.item1",
+        "EventTime": datetime.fromisoformat("2023-07-31T06:53:00+00:00"),
+        "Status": "Good",
+        "Value": 5.0,
+        "ValueType": "float",
+        "ChangeType": "insert",
+    },
+    {
+        "TagName": "Test_item2",
+        "EventTime": datetime.fromisoformat("2023-07-31T06:54:00+00:00"),
+        "Status": "Good",
+        "Value": 1,
+        "ValueType": "float",
+        "ChangeType": "insert",
+    },
+]
+
+
+def test_pcdm_to_honeywell_apm(spark_session: SparkSession):
     pcdm_df: DataFrame = spark_session.createDataFrame(
         schema=pcdm_schema, data=pcdm_data
     )
-    PCDM_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
-        data=pcdm_df, history_samples_per_message=3
+    pcdm_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
+        data=pcdm_df, history_samples_per_message=3, compress_payload=False
     )
 
-    actual_df = PCDM_to_honeywell_eventhub_json_transformer.transform()
+    actual_df = pcdm_to_honeywell_eventhub_json_transformer.transform()
     df_row = actual_df.collect()[0]
-    assert isinstance(uuid.UUID(df_row["CloudPlatformEvent"]["CreatorId"]), uuid.UUID)
     assert (
-        PCDM_to_honeywell_eventhub_json_transformer.system_type() == SystemType.PYSPARK
+        df_row["CloudPlatformEvent"]["CreatorId"]
+        == "51bc4f9dda971d1b5417161bb98e5d8f77bea2587d9de783b54be25e22b56496"
+    )
+    assert (
+        pcdm_to_honeywell_eventhub_json_transformer.system_type() == SystemType.PYSPARK
     )
     assert isinstance(
-        PCDM_to_honeywell_eventhub_json_transformer.libraries(), Libraries
+        pcdm_to_honeywell_eventhub_json_transformer.libraries(), Libraries
     )
-    assert len(df_row) == 2
+    assert len(df_row) == 3
     assert len(df_row["CloudPlatformEvent"]) == 12
     assert len(df_row["CloudPlatformEvent"]["Body"]) == 3
     assert len(df_row["CloudPlatformEvent"]["BodyProperties"]) == 2
     assert len(df_row["CloudPlatformEvent"]["BodyProperties"][0]) == 2
     assert len(df_row["CloudPlatformEvent"]["BodyProperties"][1]) == 2
+
+
+def test_pcdm_to_honeywell_apm_gzip_compressed(spark_session: SparkSession):
+    pcdm_df: DataFrame = spark_session.createDataFrame(
+        schema=pcdm_schema, data=pcdm_data
+    )
+    pcdm_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
+        data=pcdm_df, history_samples_per_message=3
+    )
+    actual_df = pcdm_to_honeywell_eventhub_json_transformer.transform()
+    df_row = actual_df.collect()[0]
+    assert isinstance(df_row["CloudPlatformEvent"], str)
