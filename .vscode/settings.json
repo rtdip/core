@@ -24,6 +24,7 @@
         "PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"        
     },    				
     "git.alwaysSignOff": true,
+    "git.pruneOnFetch": true,
     "githubPullRequests.ignoredPullRequestBranches": [
         "develop"
     ],
