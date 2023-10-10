@@ -63,5 +63,9 @@
         "TURBODBCSQL",
         "ZORDER"
     ],
-    "licenser.projectName": "RTDIP"
+    "licenser.projectName": "RTDIP",
+    "sonarlint.connectedMode.project": {
+        "connectionId": "rtdip",
+        "projectKey": "rtdip_core"
+    }
 }
