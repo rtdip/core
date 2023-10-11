@@ -51,11 +51,8 @@ button {
     flex-direction: column;
     margin: 0px;
     padding: 0px;
-    /* height: 100vh; */
-    /* min-height: 100vh; */
     width: 100vw;
     scroll-behavior: smooth;
-    /* overflow-y: auto; */
     overflow-x: hidden;
     scroll-snap-type: y mandatory;
 }
@@ -67,7 +64,7 @@ button {
     position: relative;
     margin: 0;
     padding: 0;
-    background-image: linear-gradient(180deg, rgba(78,8,199,1) 0%, rgba(78,8,199,1) 30%, rgba(167,26,170,1) 70%, rgba(212,69,163,1) 100%);
+    background-image: linear-gradient(180deg, rgba(78,8,199,1) 0%, rgba(78,8,199,1) 30%, rgba(167,26,170,1) 90%, rgba(212,69,163,1) 100%);
     height: 90vh;
     width: 100%;
     display: flex;
@@ -81,26 +78,25 @@ button {
 .intro-section::before {
     content: "";
     position: absolute;
-    top: 0;
+    top: 50px;
     right: 0;
     bottom: 0;
     left: 0;
     background-image: url('./images/terrain.png');
-    opacity: 0.5;
     background-size: 100% auto;
     background-repeat: no-repeat; 
-    background-position: center 80%;
+    background-position: center 90%;
     z-index: 1;
 }
 
 .intro-section::after {
     content: "";
     position: absolute;
-    top: 70%;
+    top: 75%;
     right: 0;
     bottom: 0;
     left: 0;
-    background: linear-gradient(rgba(78,8,199,0) 0%, rgba(212,69,163,1) 50%, rgba(212,69,163,1) 100%);
+    background: linear-gradient(rgba(78,8,199,0) 0%, rgba(212,69,163,1) 80%, rgba(212,69,163,1) 100%);
     z-index: 2;
 }
 
@@ -135,8 +131,6 @@ button {
 
 .intro-right img {
     width: 90%;
-    margin-top: 400px;
-    opacity: 0.9;
 }
 
 .down-icon-button {
@@ -147,7 +141,6 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* background: linear-gradient(0deg, rgba(212,69,163,1) 0%, rgba(167,26,170,0.2) 100%); */
 }
 
 .down-icon-button img {
@@ -230,14 +223,12 @@ button {
         height: 300px;
         width: 100%;
         max-width: 500px;
-        margin-top: 50px;
     }
     
     
     .intro-right img {
         max-width: 80%;
         height: auto;
-        margin-top: 100px;
         display: block;
     }    
 
@@ -525,7 +516,7 @@ button {
 }
 
 .querybuilder-left img {
-    width: 60%;
+    width: 80%;
 }
 
 .querybuilder-right {
