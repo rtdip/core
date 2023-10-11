@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from typing import Type
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from abc import ABCMeta
 
 from .interfaces import SecretsInterface

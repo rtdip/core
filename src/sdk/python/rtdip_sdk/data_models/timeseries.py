@@ -14,15 +14,11 @@
 
 
 from enum import IntFlag, auto
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from enum import Enum
 
 
-class ModelType(IntFlag):
-    Default = auto()
-
-
-class UomUsage(Enum):
+class Uom(Enum):
     """
     Units of measurement
     """
@@ -39,6 +35,23 @@ class UomUsage(Enum):
     """Megawatts"""
     MWH = 5
     """Megawatts/Hour"""
+    WEATHER = 6
+    """Weather related"""
+
+
+class ModelType(IntFlag):
+    """
+    Specifies the type of model that will be represneted
+    """
+
+    Default = auto()
+    """Default value"""
+    AMI_USAGE = auto()
+    """Advanced Meter Infrastructure usage"""
+    WEATHER_AG2 = auto()
+    """Atmospheric G2 Format"""
+    WEATHER_ECMWF = auto()
+    """European Centre for Medium-Range Weather Forecasts Format"""
 
 
 class SeriesType(IntFlag):
@@ -139,33 +152,6 @@ class SeriesType(IntFlag):
     Test = auto()
 
 
-class Usage(BaseModel):
-    """
-    Usage. a usage measurement from an AMI meter
-    """
-
-    Uid: str
-    """
-    A unique identifier associated to the source of the measurement (e.g. sensor, meter, etc.)
-    """
-    SeriesId: str
-    """
-    Identifier for a particular timeseries set
-    """
-    Timestamp: int
-    """
-    Creation time. Always UTC. Seconds since EPOCH
-    """
-    IntervalTimestamp: int
-    """
-    The timestamp for the interval. Always UTC. Seconds since EPOCH
-    """
-    Value: float
-    """
-    The actual value of the measurement
-    """
-
-
 class ValueType(IntFlag):
     """
     Defines the type of value
@@ -245,7 +231,7 @@ class MetaData(BaseModel):
     """
     Name of the sensor
     """
-    Uom: UomUsage
+    Uom: Uom
     """
     Unit of measure for this sensor
     """

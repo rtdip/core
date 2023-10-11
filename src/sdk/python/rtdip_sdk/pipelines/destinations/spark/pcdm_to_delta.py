@@ -46,8 +46,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         destination_string (Optional str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store string values.
         destination_integer (Optional str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store integer values
         mode (str): Method of writing to Delta Table - append/overwrite (batch), append/complete (stream)
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (str): Unique name for the query in associated SparkSession
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
         merge (bool): Use Delta Merge to perform inserts, updates and deletes
         try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
         remove_nanoseconds (bool): Removes nanoseconds from the EventTime column and replaces with zeros
@@ -66,6 +67,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
     mode: str
     trigger: str
     query_name: str
+    query_wait_interval: int
     merge: bool
     try_broadcast_join: bool
     remove_nanoseconds: bool
@@ -82,6 +84,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         mode: str = None,
         trigger="10 seconds",
         query_name: str = "PCDMToDeltaDestination",
+        query_wait_interval: int = None,
         merge: bool = True,
         try_broadcast_join=False,
         remove_nanoseconds: bool = False,
@@ -96,6 +99,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         self.mode = mode
         self.trigger = trigger
         self.query_name = query_name
+        self.query_wait_interval = query_wait_interval
         self.merge = merge
         self.try_broadcast_join = try_broadcast_join
         self.remove_nanoseconds = remove_nanoseconds
@@ -297,12 +301,31 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     .start()
                 )
             else:
+                default_checkpoint_location = None
+                float_checkpoint_location = None
+                string_checkpoint_location = None
+                integer_checkpoint_location = None
+
+                append_options = self.options.copy()
+                if "checkpointLocation" in self.options:
+                    default_checkpoint_location = self.options["checkpointLocation"]
+                    if default_checkpoint_location[-1] != "/":
+                        default_checkpoint_location += "/"
+                    float_checkpoint_location = default_checkpoint_location + "float"
+                    string_checkpoint_location = default_checkpoint_location + "string"
+                    integer_checkpoint_location = (
+                        default_checkpoint_location + "integer"
+                    )
+
+                if float_checkpoint_location is not None:
+                    append_options["checkpointLocation"] = float_checkpoint_location
+
                 delta_float = SparkDeltaDestination(
                     data=self.data.select("TagName", "EventTime", "Status", "Value")
                     .filter(ValueTypeConstants.FLOAT_VALUE)
                     .withColumn("Value", col("Value").cast("float")),
                     destination=self.destination_float,
-                    options=self.options,
+                    options=append_options,
                     mode=self.mode,
                     trigger=self.trigger,
                     query_name=self.query_name + "_float",
@@ -311,12 +334,17 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 delta_float.write_stream()
 
                 if self.destination_string != None:
+                    if string_checkpoint_location is not None:
+                        append_options[
+                            "checkpointLocation"
+                        ] = string_checkpoint_location
+
                     delta_string = SparkDeltaDestination(
                         data=self.data.select(
                             "TagName", "EventTime", "Status", "Value"
                         ).filter(ValueTypeConstants.STRING_VALUE),
                         destination=self.destination_string,
-                        options=self.options,
+                        options=append_options,
                         mode=self.mode,
                         trigger=self.trigger,
                         query_name=self.query_name + "_string",
@@ -325,12 +353,17 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     delta_string.write_stream()
 
                 if self.destination_integer != None:
+                    if integer_checkpoint_location is not None:
+                        append_options[
+                            "checkpointLocation"
+                        ] = integer_checkpoint_location
+
                     delta_integer = SparkDeltaDestination(
-                        data=self.data.select(
-                            "TagName", "EventTime", "Status", "Value"
-                        ).filter(ValueTypeConstants.INTEGER_VALUE),
+                        data=self.data.select("TagName", "EventTime", "Status", "Value")
+                        .filter(ValueTypeConstants.INTEGER_VALUE)
+                        .withColumn("Value", col("Value").cast("integer")),
                         destination=self.destination_integer,
-                        options=self.options,
+                        options=append_options,
                         mode=self.mode,
                         trigger=self.trigger,
                         query_name=self.query_name + "_integer",
@@ -338,13 +371,14 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
                     delta_integer.write_stream()
 
-                while self.spark.streams.active != []:
-                    for query in self.spark.streams.active:
-                        if query.lastProgress:
-                            logging.info(
-                                "{}: {}".format(query.name, query.lastProgress)
-                            )
-                    time.sleep(10)
+                if self.query_wait_interval:
+                    while self.spark.streams.active != []:
+                        for query in self.spark.streams.active:
+                            if query.lastProgress:
+                                logging.info(
+                                    "{}: {}".format(query.name, query.lastProgress)
+                                )
+                        time.sleep(self.query_wait_interval)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)

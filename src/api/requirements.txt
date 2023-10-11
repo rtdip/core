@@ -1,12 +1,12 @@
 # Do not include azure-functions-worker as it may conflict with the Azure Functions platform
 azure-functions==1.15.0
-fastapi==0.100.1
+fastapi==0.103.2
 nest_asyncio==1.5.6
-strawberry-graphql[fastapi,pydantic]==0.194.4
+pydantic==2.4.2
 turbodbc==4.5.10
 pyodbc==4.0.39
 importlib_metadata>=1.0.0
-databricks-sql-connector==2.9.2
+databricks-sql-connector==2.9.3
 azure-identity==1.12.0
 oauthlib>=3.2.2
 pandas>=2.0.1,<3.0.0
@@ -19,5 +19,5 @@ packaging==23.1
 grpcio>=1.48.1
 grpcio-status>=1.48.1
 googleapis-common-protos>=1.56.4
-langchain>=0.0.239,<=0.0.247
+langchain==0.0.291
 openai==0.27.8

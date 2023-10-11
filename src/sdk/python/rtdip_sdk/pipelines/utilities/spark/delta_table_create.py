@@ -14,7 +14,7 @@
 
 import logging
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField
 from py4j.protocol import Py4JJavaError

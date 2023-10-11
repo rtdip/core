@@ -22,6 +22,7 @@ from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.queries import time_weighted_average
 from src.api.v1.models import (
     BaseQueryParams,
+    BaseHeaders,
     ResampleInterpolateResponse,
     PivotResponse,
     HTTPError,
@@ -30,6 +31,7 @@ from src.api.v1.models import (
     TagsBodyParams,
     TimeWeightedAverageQueryParams,
     PivotQueryParams,
+    LimitOffsetQueryParams,
 )
 import src.api.v1.common
 
@@ -42,6 +44,8 @@ def time_weighted_average_events_get(
     tag_query_parameters,
     time_weighted_average_parameters,
     pivot_parameters,
+    limit_offset_parameters,
+    base_headers,
 ):
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
@@ -50,6 +54,8 @@ def time_weighted_average_events_get(
             tag_query_parameters=tag_query_parameters,
             time_weighted_average_query_parameters=time_weighted_average_parameters,
             pivot_query_parameters=pivot_parameters,
+            limit_offset_query_parameters=limit_offset_parameters,
+            base_headers=base_headers,
         )
 
         data = time_weighted_average.get(connection, parameters)
@@ -98,6 +104,8 @@ async def time_weighted_average_get(
     tag_query_parameters: TagsQueryParams = Depends(),
     time_weighted_average_parameters: TimeWeightedAverageQueryParams = Depends(),
     pivot_parameters: PivotQueryParams = Depends(),
+    limit_offset_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return time_weighted_average_events_get(
         base_query_parameters,
@@ -105,6 +113,8 @@ async def time_weighted_average_get(
         tag_query_parameters,
         time_weighted_average_parameters,
         pivot_parameters,
+        limit_offset_parameters,
+        base_headers,
     )
 
 
@@ -137,6 +147,8 @@ async def time_weighted_average_post(
     tag_query_parameters: TagsBodyParams = Body(default=...),
     time_weighted_average_parameters: TimeWeightedAverageQueryParams = Depends(),
     pivot_parameters: PivotQueryParams = Depends(),
+    limit_offset_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
     return time_weighted_average_events_get(
         base_query_parameters,
@@ -144,4 +156,6 @@ async def time_weighted_average_post(
         tag_query_parameters,
         time_weighted_average_parameters,
         pivot_parameters,
+        limit_offset_parameters,
+        base_headers,
     )

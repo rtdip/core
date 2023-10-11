@@ -21,9 +21,11 @@ import nest_asyncio
 from src.sdk.python.rtdip_sdk.queries import metadata
 from src.api.v1.models import (
     BaseQueryParams,
+    BaseHeaders,
     MetadataQueryParams,
     TagsBodyParams,
     MetadataResponse,
+    LimitOffsetQueryParams,
     HTTPError,
 )
 from src.api.auth.azuread import oauth2_scheme
@@ -33,10 +35,15 @@ from src.api.v1 import common
 nest_asyncio.apply()
 
 
-def metadata_retrieval_get(query_parameters, metadata_query_parameters):
+def metadata_retrieval_get(
+    query_parameters, metadata_query_parameters, limit_offset_parameters, base_headers
+):
     try:
         (connection, parameters) = common.common_api_setup_tasks(
-            query_parameters, metadata_query_parameters=metadata_query_parameters
+            query_parameters,
+            metadata_query_parameters=metadata_query_parameters,
+            limit_offset_query_parameters=limit_offset_parameters,
+            base_headers=base_headers,
         )
 
         data = metadata.get(connection, parameters)
@@ -73,8 +80,15 @@ Retrieval of metadata, including UoM, Description and any other possible fields,
 async def metadata_get(
     query_parameters: BaseQueryParams = Depends(),
     metadata_query_parameters: MetadataQueryParams = Depends(),
+    limit_offset_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
-    return metadata_retrieval_get(query_parameters, metadata_query_parameters)
+    return metadata_retrieval_get(
+        query_parameters,
+        metadata_query_parameters,
+        limit_offset_parameters,
+        base_headers,
+    )
 
 
 post_description = """
@@ -101,5 +115,12 @@ Retrieval of metadata, including UoM, Description and any other possible fields,
 async def metadata_post(
     query_parameters: BaseQueryParams = Depends(),
     metadata_query_parameters: TagsBodyParams = Body(default=...),
+    limit_offset_parameters: LimitOffsetQueryParams = Depends(),
+    base_headers: BaseHeaders = Depends(),
 ):
-    return metadata_retrieval_get(query_parameters, metadata_query_parameters)
+    return metadata_retrieval_get(
+        query_parameters,
+        metadata_query_parameters,
+        limit_offset_parameters,
+        base_headers,
+    )

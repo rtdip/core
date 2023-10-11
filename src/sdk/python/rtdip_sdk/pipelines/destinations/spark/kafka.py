@@ -34,8 +34,9 @@ class SparkKafkaDestination(DestinationInterface):
     Args:
         data (DataFrame): Dataframe to be written to Kafka
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (str): Unique name for the query in associated SparkSession
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
 
     The following options must be set for the Kafka destination for both batch and streaming queries.
 
@@ -50,17 +51,25 @@ class SparkKafkaDestination(DestinationInterface):
 
     """
 
+    data: DataFrame
+    options: dict
+    trigger: str
+    query_name: str
+    query_wait_interval: int
+
     def __init__(
         self,
         data: DataFrame,
         options: dict,
         trigger="10 seconds",
         query_name="KafkaDestination",
+        query_wait_interval: int = None,
     ) -> None:
         self.data = data
         self.options = options
         self.trigger = trigger
         self.query_name = query_name
+        self.query_wait_interval = query_wait_interval
 
     @staticmethod
     def system_type():
@@ -123,10 +132,12 @@ class SparkKafkaDestination(DestinationInterface):
                 .queryName(self.query_name)
                 .start()
             )
-            while query.isActive:
-                if query.lastProgress:
-                    logging.info(query.lastProgress)
-                time.sleep(10)
+
+            if self.query_wait_interval:
+                while query.isActive:
+                    if query.lastProgress:
+                        logging.info(query.lastProgress)
+                    time.sleep(self.query_wait_interval)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)

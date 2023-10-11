@@ -228,7 +228,7 @@ def _interpolation_query(
         "last_value(b.`{{ timestamp_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Last_{{ timestamp_column }}`, last_value(b.`{{ value_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Last_{{ value_column }}`, "
         "first_value(b.`{{ timestamp_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS `Next_{{ timestamp_column }}`, first_value(b.`{{ value_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS `Next_{{ value_column }}`, "
         "CASE WHEN b.`{{ value_column }}` is NULL THEN `Last_{{ value_column }}` + (unix_timestamp(a.`{{ timestamp_column }}`) - unix_timestamp(`Last_{{ timestamp_column }}`)) * ((`Next_{{ value_column }}` - `Last_{{ value_column }}`)) / ((unix_timestamp(`Next_{{ timestamp_column }}`) - unix_timestamp(`Last_{{ timestamp_column }}`))) ELSE b.`{{ value_column }}` END AS `linear_interpolated_{{ value_column }}` FROM date_array a FULL OUTER JOIN resample b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
-        ",project AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, `linear_interpolated_{{ value_column }}` AS `{{ value_column }}` FROM linear_interpolation_calculations "
+        ",project AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, `linear_interpolated_{{ value_column }}` AS `{{ value_column }}` FROM linear_interpolation_calculations) "
         "{% else %}"
         ",project AS (SELECT * FROM resample) "
         "{% endif %}"
@@ -377,6 +377,42 @@ def _metadata_query(parameters_dict: dict) -> str:
 
     sql_template = Template(metadata_query)
     return sql_template.render(metadata_parameters)
+
+
+def _latest_query(parameters_dict: dict) -> str:
+    latest_query = (
+        "SELECT * FROM "
+        "{% if source is defined and source is not none %}"
+        "`{{ source|lower }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_latest` "
+        "{% endif %}"
+        "{% if tag_names is defined and tag_names|length > 0 %} "
+        "WHERE `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %}"
+        "ORDER BY `{{ tagname_column }}` "
+        "{% if limit is defined and limit is not none %}"
+        "LIMIT {{ limit }} "
+        "{% endif %}"
+        "{% if offset is defined and offset is not none %}"
+        "OFFSET {{ offset }} "
+        "{% endif %}"
+    )
+
+    latest_parameters = {
+        "source": parameters_dict.get("source", None),
+        "business_unit": parameters_dict.get("business_unit"),
+        "region": parameters_dict.get("region"),
+        "asset": parameters_dict.get("asset"),
+        "data_security_level": parameters_dict.get("data_security_level"),
+        "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
+        "limit": parameters_dict.get("limit", None),
+        "offset": parameters_dict.get("offset", None),
+        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+    }
+
+    sql_template = Template(latest_query)
+    return sql_template.render(latest_parameters)
 
 
 def _time_weighted_average_query(parameters_dict: dict) -> str:
@@ -576,6 +612,9 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
 
     if query_type == "metadata":
         return _metadata_query(parameters_dict)
+
+    if query_type == "latest":
+        return _latest_query(parameters_dict)
 
     parameters_dict = _parse_dates(parameters_dict)
 

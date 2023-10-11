@@ -20,7 +20,7 @@ from botocore.config import Config
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package
-from ....data_models.storage_objects import utils
+from ....data_models.storage_objects import storage_objects_utils
 
 
 class S3CopyUtility(UtilitiesInterface):
@@ -85,12 +85,16 @@ class S3CopyUtility(UtilitiesInterface):
     def execute(self) -> bool:
         # S3 to S3 Copy
         if self.source_uri.startswith(
-            utils.S3_SCHEME
-        ) and self.destination_uri.startswith(utils.S3_SCHEME):
-            schema, source_domain, source_key = utils.validate_uri(self.source_uri)
-            schema, destination_domain, destination_key = utils.validate_uri(
-                self.destination_uri
+            storage_objects_utils.S3_SCHEME
+        ) and self.destination_uri.startswith(storage_objects_utils.S3_SCHEME):
+            schema, source_domain, source_key = storage_objects_utils.validate_uri(
+                self.source_uri
             )
+            (
+                schema,
+                destination_domain,
+                destination_key,
+            ) = storage_objects_utils.validate_uri(self.destination_uri)
 
             s3 = boto3.resource(schema)
             copy_source = {"Bucket": source_domain, "Key": source_key}
@@ -113,11 +117,13 @@ class S3CopyUtility(UtilitiesInterface):
                 return False
         # Local File to S3 Copy (Upload)
         elif (os.path.isfile(self.source_uri)) and self.destination_uri.startswith(
-            utils.S3_SCHEME
+            storage_objects_utils.S3_SCHEME
         ):
-            schema, destination_domain, destination_key = utils.validate_uri(
-                self.destination_uri
-            )
+            (
+                schema,
+                destination_domain,
+                destination_key,
+            ) = storage_objects_utils.validate_uri(self.destination_uri)
 
             s3_client = boto3.client(schema)
 
@@ -130,10 +136,12 @@ class S3CopyUtility(UtilitiesInterface):
                 return False
         # S3 to Local File Copy (Download)
         elif self.source_uri.startswith(
-            utils.S3_SCHEME
-        ) and not self.destination_uri.startswith(utils.S3_SCHEME):
+            storage_objects_utils.S3_SCHEME
+        ) and not self.destination_uri.startswith(storage_objects_utils.S3_SCHEME):
             try:
-                schema, source_domain, source_key = utils.validate_uri(self.source_uri)
+                schema, source_domain, source_key = storage_objects_utils.validate_uri(
+                    self.source_uri
+                )
                 s3 = boto3.client(schema)
                 s3.download_file(source_domain, source_key, self.destination_uri)
             except Exception as ex:

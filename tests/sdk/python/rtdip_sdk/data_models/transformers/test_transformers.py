@@ -19,7 +19,7 @@ sys.path.insert(0, ".")
 
 
 from src.sdk.python.rtdip_sdk.data_models.meters.utils import transformers
-from src.sdk.python.rtdip_sdk.data_models.meters.utils import utils
+from src.sdk.python.rtdip_sdk.data_models.utils import timeseries_utils
 from datetime import date
 import datetime
 
@@ -31,11 +31,11 @@ def test_LAMBDA_TRANSFORM_TYPE_CHECK():
     # Transformation. Type Check
     # 0 if value matches expected type
     transformer_option_expected_types = lambda input_list: [
-        0 if utils.infer_type(input_list[0]) is str else 1,
-        0 if utils.infer_type(input_list[1]) is int else 1,
-        0 if utils.infer_type(input_list[2]) is float else 1,
-        0 if utils.infer_type(input_list[3]) is date else 1,
-        0 if utils.infer_type(input_list[4]) is datetime.datetime else 1,
+        0 if timeseries_utils.infer_type(input_list[0]) is str else 1,
+        0 if timeseries_utils.infer_type(input_list[1]) is int else 1,
+        0 if timeseries_utils.infer_type(input_list[2]) is float else 1,
+        0 if timeseries_utils.infer_type(input_list[3]) is date else 1,
+        0 if timeseries_utils.infer_type(input_list[4]) is datetime.datetime else 1,
     ]
 
     ###
@@ -47,9 +47,9 @@ def test_LAMBDA_TRANSFORM_TYPE_CHECK():
     # String, Integer, Float, Date, DateTime. Sample record
     test_input_record_sample_date_str: str = (
         "this is a string,"
-        + str(utils.generate_random_int_number(10, 100))
+        + str(timeseries_utils.generate_random_int_number(10, 100))
         + ","
-        + str(utils.generate_random_int_number(10, 100) * 0.1)
+        + str(timeseries_utils.generate_random_int_number(10, 100) * 0.1)
         + ","
         + str(date.today())
         + ","
@@ -83,11 +83,11 @@ def test_LAMBDA_TRANSFORM_TYPES_AND_RANGE_CHECK():
     # Transformation. Type Check
     # 0 if value matches expected type
     transformer_configuration = lambda input_list: [
-        0 if utils.infer_type(input_list[0]) is str else 1,
+        0 if timeseries_utils.infer_type(input_list[0]) is str else 1,
         0 if (0 < int(input_list[1]) < 10) else 1,
-        0 if utils.infer_type(input_list[2]) is float else 1,
-        0 if utils.infer_type(input_list[3]) is date else 1,
-        0 if utils.infer_type(input_list[4]) is datetime.datetime else 1,
+        0 if timeseries_utils.infer_type(input_list[2]) is float else 1,
+        0 if timeseries_utils.infer_type(input_list[3]) is date else 1,
+        0 if timeseries_utils.infer_type(input_list[4]) is datetime.datetime else 1,
     ]
 
     dt_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
@@ -98,7 +98,7 @@ def test_LAMBDA_TRANSFORM_TYPES_AND_RANGE_CHECK():
         "this is a string,"
         + "9"
         + ","
-        + str(utils.generate_random_int_number(10, 100) * 0.1)
+        + str(timeseries_utils.generate_random_int_number(10, 100) * 0.1)
         + ","
         + str(date.today())
         + ","
@@ -133,20 +133,20 @@ def test_LAMBDA_TRANSFORM_TYPE_CHECK_one_wrong_type():
     # Transformation. Type Check
     # 0 if value matches expected type
     transformer_option_expected_types = lambda input_list: [
-        0 if utils.infer_type(input_list[0]) is str else 1,
-        0 if utils.infer_type(input_list[1]) is int else 1,
-        0 if utils.infer_type(input_list[2]) is float else 1,
-        0 if utils.infer_type(input_list[3]) is date else 1,
-        0 if utils.infer_type(input_list[4]) is datetime else 1,
+        0 if timeseries_utils.infer_type(input_list[0]) is str else 1,
+        0 if timeseries_utils.infer_type(input_list[1]) is int else 1,
+        0 if timeseries_utils.infer_type(input_list[2]) is float else 1,
+        0 if timeseries_utils.infer_type(input_list[3]) is date else 1,
+        0 if timeseries_utils.infer_type(input_list[4]) is datetime else 1,
     ]
 
     dt_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
     # String, Integer, Float, Date, DateTime. Sample record
     test_input_record_sample_date_str: str = (
         "this is a string,"
-        + str(utils.generate_random_int_number(10, 100))
+        + str(timeseries_utils.generate_random_int_number(10, 100))
         + ","
-        + str(utils.generate_random_int_number(10, 100) * 0.1)
+        + str(timeseries_utils.generate_random_int_number(10, 100) * 0.1)
         + ","
         + str(date.today())
         + ","
@@ -156,11 +156,11 @@ def test_LAMBDA_TRANSFORM_TYPE_CHECK_one_wrong_type():
 
     # Integer, Integer, Float, Date, DateTime
     test_input_record_str: str = (
-        str(utils.generate_random_int_number(10, 100))
+        str(timeseries_utils.generate_random_int_number(10, 100))
         + ","
-        + str(utils.generate_random_int_number(10, 100))
+        + str(timeseries_utils.generate_random_int_number(10, 100))
         + ","
-        + str(utils.generate_random_int_number(10, 100) * 0.1)
+        + str(timeseries_utils.generate_random_int_number(10, 100) * 0.1)
         + ","
         + str(date.today())
         + ","
@@ -188,18 +188,18 @@ def test_LAMBDA_TRANSFORM_TYPE_CHECK_NULL():
     # Transformation. Type Check
     # 0 if value matches expected type
     transformer_option_expected_types = lambda input_list: [
-        0 if utils.infer_type(input_list[0]) is str else 1,
-        0 if utils.infer_type(input_list[1]) is int else 1,
-        0 if utils.infer_type(input_list[2]) is float else 1,
-        0 if utils.infer_type(input_list[3]) is date else 1,
-        0 if utils.infer_type(input_list[4]) is datetime else 1,
+        0 if timeseries_utils.infer_type(input_list[0]) is str else 1,
+        0 if timeseries_utils.infer_type(input_list[1]) is int else 1,
+        0 if timeseries_utils.infer_type(input_list[2]) is float else 1,
+        0 if timeseries_utils.infer_type(input_list[3]) is date else 1,
+        0 if timeseries_utils.infer_type(input_list[4]) is datetime else 1,
     ]
 
     dt_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
     # String, Integer, Float, Date, DateTime. Sample record
     test_input_record_sample_date_str: str = (
         "this is a string,"
-        + str(utils.generate_random_int_number(10, 100))
+        + str(timeseries_utils.generate_random_int_number(10, 100))
         + ","
         + ","
         + str(date.today())
@@ -239,11 +239,11 @@ def test_LAMBDA_TRANSFORM_METHOD_REPLACE():
     )
     test_input_record_str: str = (
         "start_record,"
-        + str("A" + utils.generate_random_alpha_num_string())
+        + str("A" + timeseries_utils.generate_random_alpha_num_string())
         + ","
-        + str("A" + utils.generate_random_alpha_num_string())
+        + str("A" + timeseries_utils.generate_random_alpha_num_string())
         + ","
-        + str("A" + utils.generate_random_alpha_num_string())
+        + str("A" + timeseries_utils.generate_random_alpha_num_string())
         + ",end_record"
     )
     try:
@@ -287,11 +287,11 @@ def test_LAMBDA_TRANSFORM_METHOD_MATH_FORMULA():
     )
     test_input_record_str: str = (
         "start_record,"
-        + str(utils.generate_random_int_number(10, 100))
+        + str(timeseries_utils.generate_random_int_number(10, 100))
         + ","
-        + str(utils.generate_random_int_number(10, 100))
+        + str(timeseries_utils.generate_random_int_number(10, 100))
         + ","
-        + str(utils.generate_random_int_number(10, 100))
+        + str(timeseries_utils.generate_random_int_number(10, 100))
         + ",end_record"
     )
     try:

@@ -15,7 +15,7 @@
 import logging
 import time
 from typing import List, Optional, Union
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 from pyspark.sql.functions import broadcast
 from pyspark.sql import DataFrame, SparkSession
 from py4j.protocol import Py4JJavaError
@@ -45,14 +45,15 @@ class SparkDeltaMergeDestination(DestinationInterface):
         destination (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         merge_condition (str): Condition for matching records between dataframe and delta table. Reference Dataframe columns as `source` and Delta Table columns as `target`. For example `source.id = target.id`.
-        when_matched_update_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
-        when_matched_delete_list (list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that match the `merge_condition`.
-        when_not_matched_insert_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when inserting rows that do not match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
-        when_not_matched_by_source_update_list (list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that do not match the `merge_condition`.
-        when_not_matched_by_source_delete_list (list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that do not match the `merge_condition`.
-        try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
-        trigger (str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes"
-        query_name (str): Unique name for the query in associated SparkSession
+        when_matched_update_list (optional list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
+        when_matched_delete_list (optional list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that match the `merge_condition`.
+        when_not_matched_insert_list (optional list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when inserting rows that do not match the `merge_condition`. Specify `*` for Values if all columns from Dataframe should be inserted.
+        when_not_matched_by_source_update_list (optional list[DeltaMergeConditionValues]): Conditions(optional) and values to be used when updating rows that do not match the `merge_condition`.
+        when_not_matched_by_source_delete_list (optional list[DeltaMergeCondition]): Conditions(optional) to be used when deleting rows that do not match the `merge_condition`.
+        try_broadcast_join (optional bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
+        trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
+        query_name (optional str): Unique name for the query in associated SparkSession
+        query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -71,6 +72,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
     try_broadcast_join: bool
     trigger: str
     query_name: str
+    query_wait_interval: int
 
     def __init__(
         self,
@@ -87,6 +89,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
         try_broadcast_join: bool = False,
         trigger="10 seconds",
         query_name: str = "DeltaMergeDestination",
+        query_wait_interval: int = None,
     ) -> None:
         self.spark = spark
         self.data = data
@@ -125,6 +128,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
         self.try_broadcast_join = try_broadcast_join
         self.trigger = trigger
         self.query_name = query_name
+        self.query_wait_interval = query_wait_interval
 
     @staticmethod
     def system_type():
@@ -275,10 +279,11 @@ class SparkDeltaMergeDestination(DestinationInterface):
                 .start()
             )
 
-            while query.isActive:
-                if query.lastProgress:
-                    logging.info(query.lastProgress)
-                time.sleep(10)
+            if self.query_wait_interval:
+                while query.isActive:
+                    if query.lastProgress:
+                        logging.info(query.lastProgress)
+                    time.sleep(self.query_wait_interval)
 
         except Py4JJavaError as e:
             logging.exception(e.errmsg)

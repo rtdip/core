@@ -15,8 +15,6 @@
 import logging
 from typing import Dict, List
 
-from pydantic import BaseModel
-
 from ..interfaces import UtilitiesInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.constants import get_default_package

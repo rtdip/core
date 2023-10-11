@@ -138,6 +138,21 @@ def test_query_builder_metadata(mocker: MockerFixture):
     assert data == {"test": "data"}
 
 
+def test_query_builder_latest(mocker: MockerFixture):
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.queries.query_builder.latest.get",
+        return_value={"test": "data"},
+    )
+
+    data = (
+        QueryBuilder()
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE)
+        .latest(tagname_filter=["mock_tag"])
+    )
+    assert data == {"test": "data"}
+
+
 def test_query_builder_circular_average(mocker: MockerFixture):
     mocker.patch(
         "src.sdk.python.rtdip_sdk.queries.query_builder.circular_average.get",
