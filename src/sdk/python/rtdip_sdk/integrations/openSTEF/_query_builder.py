@@ -49,7 +49,6 @@ def _build_parameters(query):
     filter_sections = re.findall(r"\|> filter\(fn: \(r\) => (.*?)(?=\s*\||$)", query, re.DOTALL)
     filter = " AND ".join(["(" + i.strip() for i in filter_sections])
 
-
     where = re.sub(r"r\.", "", filter)
     if where.count("(") != where.count(")"):
         where = "(" + where
@@ -66,7 +65,6 @@ def _build_parameters(query):
         parameters["createEmpty"] = createEmpty.group(1)
 
     return parameters
-
 
 def _raw_query(query: str) -> list:
     parameters = _build_parameters(query)
@@ -179,8 +177,8 @@ def _resample_query(query: str) -> str:
             ", date_intervals_2 AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), \"yyyy-MM-dd HH:mm:ss\") AS timestamp_array FROM date_array_2) "
             ", window_buckets_2 AS (SELECT TagName, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals_2) "
             ", project_resample_results AS (SELECT a.TagName, window_end AS _time, _value, Status, _field, system FROM window_buckets_2 a FULL OUTER JOIN resample_results b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName) "
-            ", resample_sum AS (SELECT \"load\" AS result, _time, sum(_value) AS _value, \"Good\" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time, Status ORDER BY _time)"
-            ", resample_count AS (SELECT \"nEntries\" AS result, _time, count(_value) AS _value, \"Good\" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time, Status ORDER BY _time)"
+            ", resample_sum AS (SELECT \"load\" AS result, _time, sum(_value) AS _value, \"Good\" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time ORDER BY _time)"
+            ", resample_count AS (SELECT \"nEntries\" AS result, _time, count(_value) AS _value, \"Good\" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time ORDER BY _time)"
         )
 
         sum_query = (

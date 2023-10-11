@@ -14,12 +14,18 @@
 
 import geopy
 import pandas as pd
+import numpy as np
 import sqlalchemy
+import re
+import sqlparams
+from datetime import datetime
+from sqlalchemy import text
 
 from openstef_dbc.data_interface import _DataInterface
 from openstef_dbc import Singleton
 from openstef_dbc.ktp_api import KtpApi
 from openstef_dbc.log import logging
+from openstef_dbc.services.weather import Weather
 from ._query_builder import _query_builder
 from importlib_metadata import version
 
@@ -74,7 +80,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             schema=config.pcdm_schema,
         )
 
-        self.db_engine = self._create_mysql_engine(
+        self.mysql_engine = self._create_mysql_engine(
             hostname=config.db_host,
             token=config.db_token,
             port=config.db_port,
@@ -173,8 +179,154 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         field_columns: list = None,
         time_precision: str = "s",
     ) -> bool:
-        try:
-            df.to_sql(measurement, self.pcdm_engine, index=False)
+
+        if type(tag_columns) is not list:
+            raise ValueError("'tag_columns' should be a list")
+
+        if len(tag_columns) == 0:
+            raise ValueError("At least one tag column should be given in 'tag_columns'")
+
+        # Check if a value is nan
+        if True in df.isna().values:
+            nan_columns = df.columns[df.isna().any()].tolist()
+            raise ValueError(
+                f"Dataframe contains NaN's. Found NaN's in columns: {nan_columns}"
+            )
+        # Check if a value is inf
+        if df.isin([np.inf, -np.inf]).any().any():
+            inf_columns = df.columns[df.isinf().any()].tolist()
+            raise ValueError(
+                f"Dataframe contains Inf's. Found Inf's in columns: {inf_columns}"
+            )
+
+        if True in df.isnull().values:
+            nan_columns = df.columns[df.isnull().any()].tolist()
+            raise ValueError(
+                f"Dataframe contains missing values. Found missing values in columns: {nan_columns}"
+            )
+    
+        if set(tag_columns).issubset(set(list(df.columns))) is False:
+            tag_cols = [x for x in tag_columns if x not in list(df.columns)]
+            raise ValueError(
+                f"Dataframe missing tag columns. Missing tag columns: {tag_cols}"
+            )
+        
+        if field_columns is None:
+            field_columns = [
+                x
+                for x in list(df.columns)
+                if x not in tag_columns
+            ]
+
+        tag_columns = sorted(tag_columns)
+
+        id_vars = ['EventTime'] + tag_columns
+
+        casting_dict = {}
+        casting_dict.update(dict.fromkeys(tag_columns, str))
+
+        df = df.astype(casting_dict)
+        df.index = pd.to_datetime(df.index, unit=time_precision)
+        df = df.reset_index(names=['EventTime'])
+        df = pd.melt(df, id_vars=id_vars, value_vars=field_columns, var_name='_field', value_name='Value')
+
+        if measurement == 'weather':
+            list_of_cities = df['input_city'].unique()
+            coordinates = {}
+
+            for city in list_of_cities:
+                location = geopy.geocoders.Nominatim().geocode(city)
+                location = (location.latitude, location.longitude)
+                coordinates.update({city: location})
+                
+            df['Latitude'] = df['input_city'].map(lambda x: coordinates[x][0])
+            df['Longitude'] = df['input_city'].map(lambda x: coordinates[x][1])
+            df['EnqueuedTime'] = datetime.now()
+            df['Latest'] = True
+            df['EventDate'] = df['EventTime'].dt.date
+            df['TagName'] = df[['_field'] + tag_columns].apply(":".join, axis=1)
+            tag_columns.remove("source")
+            df.rename(columns={"source": "Source"})
+        else:
+            df['TagName'] = df[['_field'] + tag_columns].apply(":".join, axis=1)
+
+        df['Status'] = 'Good'
+        df.drop(columns=tag_columns+['_field'], inplace=True)
+
+        # Write to different tables
+        casting_dict = {
+            "prediction": 'float',
+            "stdev": 'float',
+            "pid": 'int',
+            "type": 'str',
+            "customer": 'str',
+            "output": 'float',
+            "output": 'int',
+            "algtype": 'str',
+            "description": 'str',
+            "forecast_solar": 'float',
+            "forecast_wind_on_shore": 'float',
+            "forecast_other": 'float',
+            "forecast": 'float',
+            "quality": 'str',
+            "tAhead": 'float',
+            "source_run": 'int',
+            "input_city": 'str',
+            "temp": 'float',
+            "windspeed_100m": 'float',
+            "windspeed": 'float',
+            "winddeg": 'float',
+            "clouds": 'float',
+            "mxlD": 'float',
+            "snowDepth": 'float',
+            "pressure": 'float',
+            "humidity": 'float',
+            "clearSky_ulf": 'float',
+            "clearSky_dlf": 'float',
+            "radiation": 'float',
+            "windspeed_100m_ensemble": 'float',
+            "windspeed_ensemble": 'float',
+            "winddeg_ensemble": 'float',
+            "clouds_ensemble": 'float',
+            "radiation_ensemble": 'float',
+            "ensemble_run": 'str',
+            "source": 'str',
+            "created": 'int',
+            "system": 'str',
+            "window_days": 'float',
+        }
+
+        p = re.compile(r"quantile_")
+        quantile_columns = [s for s in field_columns if p.match(s)]
+        casting_dict.update(dict.fromkeys(quantile_columns, 'float'))
+
+        if measurement == "prediction_kpi":
+            intcols = ["pid"]
+            floatcols = [x for x in df.columns if x not in intcols]
+            casting_dict.update(dict.fromkeys(floatcols, 'float'))
+
+        df_cast = df.copy()
+        df_cast["ChangeType"] =  df_cast["TagName"].str.split(':').str[0]
+        df_cast["ChangeType"] = df_cast["ChangeType"].map(casting_dict)
+
+        int_df = df_cast.loc[df_cast['ChangeType'] == 'int']
+        int_df.drop(columns=['ChangeType'], inplace=True)
+        int_df = int_df.astype({'Value': np.int64})
+
+        float_df = df_cast.loc[df_cast['ChangeType'] == 'float']
+        float_df.drop(columns=['ChangeType'], inplace=True)
+        float_df = float_df.astype({'Value': np.float64})
+
+        str_df = df_cast.loc[df_cast['ChangeType'] == 'str']
+        str_df.drop(columns=['ChangeType'], inplace=True)
+        str_df = str_df.astype({'Value': str})
+
+        dataframes = [(df, measurement), (int_df, measurement+'_restricted_events_integer'), (float_df, measurement+'_restricted_events_float'), (str_df, measurement+'_restricted_events_string')]
+
+        try:         
+            for df, measurement in dataframes:
+                if not df.empty:
+                    df.to_sql(measurement, self.pcdm_engine, if_exists='append', index=False)
             return True
         except Exception as e:
             self.logger.error(
@@ -196,8 +348,22 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
     def exec_sql_query(self, query: str, params: dict = None, **kwargs):
         if params is None:
             params = {}
+
+        pattern = r"select(.*)from"
+        matches = re.findall(pattern, query.lower(), re.DOTALL)
+        columns = [i.strip().split(' ', 1)[0] for i in matches[0].split(",")]
+
+        cols = []
+        for word in columns:
+            if word.startswith("min(") is False:
+                cols.append(word)
+
+        cols = ', '.join(cols)
+
+        query = query.replace("GROUP BY", "GROUP BY" + " " + cols + ",")
+
         try:
-            return pd.read_sql(query, self.db_engine, params=params, **kwargs)
+            return pd.read_sql(query, self.mysql_engine, params=params, **kwargs)
         except sqlalchemy.exc.OperationalError as e:
             self.logger.error("Lost connection to Databricks database", exc_info=e)
             raise
@@ -213,9 +379,17 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
     def exec_sql_write(self, statement: str, params: dict = None) -> None:
         if params is None:
             params = {}
+
+        for key in params.keys():
+            if 'table' in key.lower():
+                statement = statement.replace(f"%({key})s", params[f"{key}"])
+
+        query = sqlparams.SQLParams('pyformat', 'named')
+        statement, params = query.format(statement, params)
+
         try:
-            with self.db_engine.connect() as connection:
-                connection.execute(statement, params=params)
+            with self.mysql_engine.connect() as connection:
+                connection.execute(text(statement), params)
         except Exception as e:
             self.logger.error(
                 "Error occured during executing query", query=statement, exc_info=e
@@ -225,7 +399,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
     def exec_sql_dataframe_write(
         self, dataframe: pd.DataFrame, table: str, **kwargs
     ) -> None:
-        dataframe.to_sql(table, self.db_engine, index=False, **kwargs)
+        dataframe.to_sql(table, self.mysql_engine, **kwargs)
 
     def check_mysql_available(self):
         """Check if a basic Databricks SQL query gives a valid response"""
