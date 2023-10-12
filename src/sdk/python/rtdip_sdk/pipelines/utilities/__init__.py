@@ -18,4 +18,5 @@ from .spark.delta_table_vacuum import *
 from .spark.configuration import *
 from .spark.adls_gen2_spn_connect import *
 from .azure.adls_gen2_acl import *
+from .azure.autoloader_resources import *
 from .spark.session import *
