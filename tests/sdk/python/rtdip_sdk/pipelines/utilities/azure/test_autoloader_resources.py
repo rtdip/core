@@ -29,15 +29,15 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.constants import (
 
 
 class MockResult:
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # NOSONAR
         pass
 
-    def result(self, **kwargs):
+    def result(self, **kwargs):  # NOSONAR
         pass
 
 
 class MockEventSubscription:
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # NOSONAR
         pass
 
     def list_by_system_topic(self, **kwargs):
@@ -48,7 +48,7 @@ class MockEventSubscription:
 
 
 class MockSystemTopics:
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # NOSONAR
         pass
 
     def list_by_resource_group(self, **kwargs):
@@ -59,10 +59,10 @@ class MockSystemTopics:
 
 
 class MockQueue:
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # NOSONAR
         pass
 
-    def create(self, **kwargs):
+    def create(self, **kwargs):  # NOSONAR
         pass
 
     def list(self, **kwargs):
@@ -80,7 +80,7 @@ class MockStorageManagementClient:
     storage_accounts = MockStorageAccounts()
     queue = MockQueue()
 
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # NOSONAR
         pass
 
 
@@ -88,7 +88,7 @@ class MockEventGridClient:
     system_topics = MockSystemTopics()
     system_topic_event_subscriptions = MockEventSubscription()
 
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # NOSONAR
         pass
 
 
