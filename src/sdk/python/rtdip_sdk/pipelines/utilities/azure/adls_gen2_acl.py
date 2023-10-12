@@ -35,7 +35,7 @@ class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
         storage_account (str): ADLS Gen 2 Storage Account Name
         container (str): ADLS Gen 2 Container Name
         credential (TokenCredential): Credentials to authenticate with ADLS Gen 2 Storage Account
-        directory (str): Directory to be assign ACLS to in an ADLSS Gen 2
+        directory (str): Directory to be assign ACLS to in an ADLS Gen 2
         group_object_id (str): Azure AD Group Object ID to be assigned to Directory
         folder_permissions (optional, str): Folder Permissions to Assign to directory
         parent_folder_permissions (optional, str): Folder Permissions to Assign to parent directories. Parent Folder ACLs not set if None
