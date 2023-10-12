@@ -43,6 +43,7 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
         credential (TokenCredential): Credentials to authenticate with Storage Account
         event_subscription_name (str): Name of the Event Subscription
         queue_name (str): Name of the queue that will be used for the Endpoint of the Messages
+        system_topic_name (optional, str): The system topic name. Defaults to the storage account name if not provided.
     """
 
     subscription_id: str
@@ -53,6 +54,7 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
     credential: TokenCredential
     event_subscription_name: str
     queue_name: str
+    system_topic_name: str
 
     def __init__(
         self,
@@ -64,6 +66,7 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
         credential: TokenCredential,
         event_subscription_name: str,
         queue_name: str,
+        system_topic_name: str = None,
     ) -> None:
         self.subscription_id = subscription_id
         self.resource_group_name = resource_group_name
@@ -73,6 +76,9 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
         self.credential = credential
         self.event_subscription_name = event_subscription_name
         self.queue_name = queue_name
+        self.system_topic_name = (
+            storage_account if system_topic_name is None else system_topic_name
+        )
 
     @staticmethod
     def system_type():
@@ -126,7 +132,7 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
 
         system_topic_response = eventgrid_client.system_topics.list_by_resource_group(
             resource_group_name=self.resource_group_name,
-            filter="contains(name, '{}')".format(self.storage_account),
+            filter="name eq '{}'".format(self.system_topic_name),
         )
 
         source = "/subscriptions/{}/resourceGroups/{}/providers/Microsoft.Storage/StorageAccounts/{}".format(
@@ -140,26 +146,21 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
         ]
 
         if system_topic_list == []:
-            system_topic_name = self.storage_account
-            resource_id = source
             eventgrid_client.system_topics.begin_create_or_update(
                 resource_group_name=self.resource_group_name,
-                system_topic_name=system_topic_name,
+                system_topic_name=self.system_topic_name,
                 system_topic_info=SystemTopic(
                     location=account_properties.location,
-                    source=resource_id,
+                    source=source,
                     topic_type="Microsoft.Storage.StorageAccounts",
                 ),
             ).result()
-        else:
-            system_topic_name = system_topic_list[0].name
-            resource_id = system_topic_list[0].source
 
         system_topic_event_subscription_response = (
             eventgrid_client.system_topic_event_subscriptions.list_by_system_topic(
                 resource_group_name=self.resource_group_name,
-                system_topic_name=system_topic_name,
-                filter="contains(name, '{}')".format(self.event_subscription_name),
+                system_topic_name=self.system_topic_name,
+                filter="name eq '{}'".format(self.event_subscription_name),
             )
         )
 
@@ -171,7 +172,7 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
 
         if system_topic_event_subscription_list == []:
             event_subscription_destination = StorageQueueEventSubscriptionDestination(
-                resource_id=resource_id,
+                resource_id=source,
                 queue_name=self.queue_name,
                 queue_message_time_to_live_in_seconds=None,
             )
@@ -211,7 +212,7 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
 
             eventgrid_client.system_topic_event_subscriptions.begin_create_or_update(
                 resource_group_name=self.resource_group_name,
-                system_topic_name=system_topic_name,
+                system_topic_name=self.system_topic_name,
                 event_subscription_name=self.event_subscription_name,
                 event_subscription_info=event_subscription_info,
             ).result()
