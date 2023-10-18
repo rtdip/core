@@ -18,14 +18,14 @@ on:
   # Trigger the workflow on push to develop
   push:
     branches:
-      - feature/spark_3_5_delta_3_0
+      - develop
 
 jobs:
   job_run_unit_tests_previous_versions:
-    uses: rtdip/core/.github/workflows/test.yml@feature/spark_3_5_delta_3_0
+    uses: rtdip/core/.github/workflows/test.yml@develop
 
   job_run_unit_tests_and_sonarqube:
-    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@feature/spark_3_5_delta_3_0
+    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
     with:
       REPO_NAME: ""
       HEAD_BRANCH: ""
