@@ -209,7 +209,8 @@ nav:
                       - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
                       - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Rest API: sdk/code-reference/pipelines/destinations/spark/rest_api.md
-                      - Process Control Data Model To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_to_delta.md
+                      - PCDM To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_to_delta.md
+                      - PCDM Latest To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_latest_to_delta.md                      
                   - Python:
                       - Delta: sdk/code-reference/pipelines/destinations/python/delta.md
                   - Blockchain:
@@ -227,6 +228,7 @@ nav:
                       - S3 Bucket Policy: sdk/code-reference/pipelines/utilities/aws/s3_bucket_policy.md
                   - Azure:
                       - ADLS Gen 2 ACLs: sdk/code-reference/pipelines/utilities/azure/adls_gen2_acl.md
+                      - Autoloader Resources: sdk/code-reference/pipelines/utilities/azure/autoloader_resources.md
               - Converters:
                   - Json: sdk/code-reference/pipelines/converters/pipeline_job_json.md
               - Secrets:
@@ -238,10 +240,11 @@ nav:
           - Queries:
               - Query Builder: sdk/code-reference/query/query_builder.md
               - Functions:
+                  - Raw: sdk/code-reference/query/raw.md
+                  - Latest: sdk/code-reference/query/latest.md                                
                   - Resample: sdk/code-reference/query/resample.md
                   - Interpolate: sdk/code-reference/query/interpolate.md
                   - Interpolation at Time: sdk/code-reference/query/interpolation-at-time.md
-                  - Raw: sdk/code-reference/query/raw.md
                   - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
                   - Circular Average: sdk/code-reference/query/circular-average.md
                   - Circular Standard Deviation: sdk/code-reference/query/circular-standard-deviation.md

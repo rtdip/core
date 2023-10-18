@@ -58,6 +58,10 @@ def get_default_package(package_name):
         "azure_key_vault_secret": PyPiLibrary(
             name="azure-keyvault-secrets", version="4.7.0"
         ),
+        "azure_storage_mgmt": PyPiLibrary(name="azure-mgmt-storage", version="21.0.0"),
+        "azure_eventgrid_mgmt": PyPiLibrary(
+            name="azure-mgmt-eventgrid", version="10.2.0"
+        ),
         "aws_boto3": PyPiLibrary(name="boto3", version="1.28.2"),
         "hashicorp_vault": PyPiLibrary(name="hvac", version="1.1.0"),
         "api_requests": PyPiLibrary(name="requests", version="2.30.0"),

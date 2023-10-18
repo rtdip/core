@@ -12,14 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .spark.delta import *
-from .spark.delta_merge import *
-from .spark.eventhub import *
-from .spark.kafka import *
-from .spark.kinesis import *
-from .spark.rest_api import *
-from .spark.pcdm_to_delta import *
-from .spark.pcdm_latest_to_delta import *
-from .spark.kafka_eventhub import *
-from .blockchain.evm import *
-from .python.delta import *
+import logging
+
+logging.warning(
+    "Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead."
+)
+
+from ..queries.metadata import *  # NOSONAR

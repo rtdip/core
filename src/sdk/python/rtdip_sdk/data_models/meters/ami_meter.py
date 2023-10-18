@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel
 
 
 class Usage(BaseModel):

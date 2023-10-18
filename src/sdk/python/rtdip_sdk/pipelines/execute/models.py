@@ -14,7 +14,7 @@
 
 from typing import List, Optional, Type, Union, Dict
 import re
-from pydantic import BaseConfig, BaseModel, validator
+from pydantic.v1 import BaseConfig, BaseModel, validator
 from abc import ABCMeta
 from ..sources.interfaces import SourceInterface
 from ..transformers.interfaces import TransformerInterface

@@ -301,12 +301,31 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     .start()
                 )
             else:
+                default_checkpoint_location = None
+                float_checkpoint_location = None
+                string_checkpoint_location = None
+                integer_checkpoint_location = None
+
+                append_options = self.options.copy()
+                if "checkpointLocation" in self.options:
+                    default_checkpoint_location = self.options["checkpointLocation"]
+                    if default_checkpoint_location[-1] != "/":
+                        default_checkpoint_location += "/"
+                    float_checkpoint_location = default_checkpoint_location + "float"
+                    string_checkpoint_location = default_checkpoint_location + "string"
+                    integer_checkpoint_location = (
+                        default_checkpoint_location + "integer"
+                    )
+
+                if float_checkpoint_location is not None:
+                    append_options["checkpointLocation"] = float_checkpoint_location
+
                 delta_float = SparkDeltaDestination(
                     data=self.data.select("TagName", "EventTime", "Status", "Value")
                     .filter(ValueTypeConstants.FLOAT_VALUE)
                     .withColumn("Value", col("Value").cast("float")),
                     destination=self.destination_float,
-                    options=self.options,
+                    options=append_options,
                     mode=self.mode,
                     trigger=self.trigger,
                     query_name=self.query_name + "_float",
@@ -315,12 +334,17 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                 delta_float.write_stream()
 
                 if self.destination_string != None:
+                    if string_checkpoint_location is not None:
+                        append_options[
+                            "checkpointLocation"
+                        ] = string_checkpoint_location
+
                     delta_string = SparkDeltaDestination(
                         data=self.data.select(
                             "TagName", "EventTime", "Status", "Value"
                         ).filter(ValueTypeConstants.STRING_VALUE),
                         destination=self.destination_string,
-                        options=self.options,
+                        options=append_options,
                         mode=self.mode,
                         trigger=self.trigger,
                         query_name=self.query_name + "_string",
@@ -329,12 +353,17 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
                     delta_string.write_stream()
 
                 if self.destination_integer != None:
+                    if integer_checkpoint_location is not None:
+                        append_options[
+                            "checkpointLocation"
+                        ] = integer_checkpoint_location
+
                     delta_integer = SparkDeltaDestination(
-                        data=self.data.select(
-                            "TagName", "EventTime", "Status", "Value"
-                        ).filter(ValueTypeConstants.INTEGER_VALUE),
+                        data=self.data.select("TagName", "EventTime", "Status", "Value")
+                        .filter(ValueTypeConstants.INTEGER_VALUE)
+                        .withColumn("Value", col("Value").cast("integer")),
                         destination=self.destination_integer,
-                        options=self.options,
+                        options=append_options,
                         mode=self.mode,
                         trigger=self.trigger,
                         query_name=self.query_name + "_integer",

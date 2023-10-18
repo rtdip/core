@@ -12,7 +12,8 @@
 				"GitHub.copilot",
 				"GitHub.codespaces",
 				"ryanluker.vscode-coverage-gutters",
-				"ms-python.black-formatter"
+				"ms-python.black-formatter",
+				"SonarSource.sonarlint-vscode"
 			],
 			"settings": {
 				"azureFunctions.scmDoBuildDuringDeployment": true,
@@ -32,12 +33,17 @@
 					"PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"        
 				},				
 				"git.alwaysSignOff": true,
+				"git.pruneOnFetch": true,
 				"githubPullRequests.ignoredPullRequestBranches": [
 					"develop"
 				],
 				"[python]": {
 					"editor.defaultFormatter": "ms-python.black-formatter",
 					"editor.formatOnSave": true
+				},
+				"sonarlint.connectedMode.project": {
+					"connectionId": "rtdip",
+					"projectKey": "rtdip_core"
 				}
 			}			
 		}

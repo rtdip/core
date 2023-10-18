@@ -22,6 +22,7 @@ from .time_series import (
     time_weighted_average,
     circular_average,
     circular_standard_deviation,
+    latest,
 )
 from . import metadata
 from pandas import DataFrame
@@ -327,7 +328,7 @@ class QueryBuilder:
 
     def metadata(
         self,
-        tagname_filter: [str],
+        tagname_filter: [str] = None,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -344,13 +345,40 @@ class QueryBuilder:
         """
         metadata_parameters = {
             "source": self.data_source,
-            "tag_names": tagname_filter,
+            "tag_names": [] if tagname_filter is None else tagname_filter,
             "tagname_column": self.tagname_column,
             "limit": limit,
             "offset": offset,
         }
 
         return metadata.get(self.connection, metadata_parameters)
+
+    def latest(
+        self,
+        tagname_filter: [str] = None,
+        limit: int = None,
+        offset: int = None,
+    ) -> DataFrame:
+        """
+        A query to retrieve latest event_values
+
+        Args:
+            tagname_filter (list str): List of tagnames to filter on the source
+            limit (optional int): The number of rows to be returned
+            offset (optional int): The number of rows to skip before returning rows
+
+        Returns:
+            DataFrame: A dataframe of events latest_values
+        """
+        latest_parameters = {
+            "source": self.data_source,
+            "tag_names": [] if tagname_filter is None else tagname_filter,
+            "tagname_column": self.tagname_column,
+            "limit": limit,
+            "offset": offset,
+        }
+
+        return latest.get(self.connection, latest_parameters)
 
     def circular_average(
         self,

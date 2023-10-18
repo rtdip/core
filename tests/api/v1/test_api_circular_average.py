@@ -16,11 +16,15 @@ import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
 from datetime import datetime
+from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
+    MockedDBConnection,
+)
+from tests.sdk.python.rtdip_sdk.queries.test_raw import DATABRICKS_SQL_CONNECT
 from tests.api.v1.api_test_objects import (
-    TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_DICT,
-    TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_ERROR_DICT,
-    TIME_WEIGHTED_AVERAGE_POST_MOCKED_PARAMETER_DICT,
-    TIME_WEIGHTED_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
+    CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
+    CIRCULAR_AVERAGE_MOCKED_PARAMETER_ERROR_DICT,
+    CIRCULAR_AVERAGE_POST_MOCKED_PARAMETER_DICT,
+    CIRCULAR_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
     mocker_setup,
     TEST_HEADERS,
     BASE_URL,
@@ -28,34 +32,32 @@ from tests.api.v1.api_test_objects import (
 from httpx import AsyncClient
 from src.api.v1 import app
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average.get"
-MOCK_API_NAME = "/api/v1/events/timeweightedaverage"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.circular_average.get"
+MOCK_API_NAME = "/api/v1/events/circularaverage"
 
 pytestmark = pytest.mark.anyio
 
 
-async def test_api_time_weighted_average_get_success(mocker: MockerFixture):
+async def test_api_circular_average_get_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.5]}
     )
-    test_data = test_data.set_index("EventTime")
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_DICT,
+            params=CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    test_data = test_data.reset_index()
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
 
     assert response.status_code == 200
     assert actual == expected
 
 
-async def test_api_time_weighted_average_get_validation_error(mocker: MockerFixture):
+async def test_api_circular_average_get_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
     )
@@ -65,7 +67,7 @@ async def test_api_time_weighted_average_get_validation_error(mocker: MockerFixt
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_ERROR_DICT,
+            params=CIRCULAR_AVERAGE_MOCKED_PARAMETER_ERROR_DICT,
         )
     actual = response.text
 
@@ -76,7 +78,7 @@ async def test_api_time_weighted_average_get_validation_error(mocker: MockerFixt
     )
 
 
-async def test_api_time_weighted_average_get_error(mocker: MockerFixture):
+async def test_api_circular_average_get_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
     )
@@ -88,7 +90,7 @@ async def test_api_time_weighted_average_get_error(mocker: MockerFixture):
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_DICT,
+            params=CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
 
@@ -96,29 +98,27 @@ async def test_api_time_weighted_average_get_error(mocker: MockerFixture):
     assert actual == '{"detail":"Error Connecting to Database"}'
 
 
-async def test_api_time_weighted_average_post_success(mocker: MockerFixture):
+async def test_api_circular_average_post_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.5]}
     )
-    test_data = test_data.set_index("EventTime")
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=TIME_WEIGHTED_AVERAGE_POST_MOCKED_PARAMETER_DICT,
-            json=TIME_WEIGHTED_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
+            params=CIRCULAR_AVERAGE_POST_MOCKED_PARAMETER_DICT,
+            json=CIRCULAR_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    test_data = test_data.reset_index()
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
 
     assert response.status_code == 200
     assert actual == expected
 
 
-async def test_api_time_weighted_average_post_validation_error(mocker: MockerFixture):
+async def test_api_circular_average_post_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
     )
@@ -128,8 +128,8 @@ async def test_api_time_weighted_average_post_validation_error(mocker: MockerFix
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_ERROR_DICT,
-            json=TIME_WEIGHTED_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
+            params=CIRCULAR_AVERAGE_MOCKED_PARAMETER_ERROR_DICT,
+            json=CIRCULAR_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
 
@@ -140,7 +140,7 @@ async def test_api_time_weighted_average_post_validation_error(mocker: MockerFix
     )
 
 
-async def test_api_time_weighted_average_post_error(mocker: MockerFixture):
+async def test_api_circular_average_post_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
     )
@@ -152,8 +152,8 @@ async def test_api_time_weighted_average_post_error(mocker: MockerFixture):
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_DICT,
-            json=TIME_WEIGHTED_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
+            params=CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
+            json=CIRCULAR_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
 
