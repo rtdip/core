@@ -2,11 +2,10 @@
 
 /* Reset default margins and padding to eliminate unexpected spacing */
 
-body, h1, h2, h3, p {
+body, h1, h2, h3, p{
     margin: 0;
     padding: 0;
 }
-
 
 body {
     padding: 0px;
@@ -78,32 +77,34 @@ button {
 .intro-section::before {
     content: "";
     position: absolute;
-    top: 50px;
+    top: 45%;
     right: 0;
     bottom: 0;
     left: 0;
     background-image: url('./images/terrain.png');
     background-size: 100% auto;
     background-repeat: no-repeat; 
-    background-position: center 90%;
+    /* background-position: center 90%; */
     z-index: 1;
 }
 
 .intro-section::after {
     content: "";
     position: absolute;
-    top: 75%;
+    top: 80%;
     right: 0;
     bottom: 0;
     left: 0;
-    background: linear-gradient(rgba(78,8,199,0) 0%, rgba(212,69,163,1) 80%, rgba(212,69,163,1) 100%);
+    background: linear-gradient(rgba(78,8,199,0) 0%, rgba(212,69,163,0.9) 80%, rgba(212,69,163,1) 100%);
     z-index: 2;
 }
 
 .intro-section-content {
     color: white;
     height: 80%;
-    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 61rem;
     z-index: 1;
     display: flex;
     flex-direction: row;
@@ -113,7 +114,6 @@ button {
 .intro-left {
     height: 100%;
     width: 50%;
-    margin-left: 100px;
     z-index: 1;
     display: flex;
     flex-direction: column;
@@ -130,7 +130,8 @@ button {
 }
 
 .intro-right img {
-    width: 90%;
+    width: 80%;
+    max-width: 700px;
 }
 
 .down-icon-button {
@@ -153,6 +154,8 @@ button {
 
 .intro-section-content h1 {
     font-size: 2rem;
+    width: 100%;
+    padding-left: 0.8rem;
 }
 
 .intro-section-content p {
@@ -160,10 +163,13 @@ button {
     font-size: 0.75rem;
     line-height: 1.5rem;
     margin: 1rem 0;
+    width: 100%;
+    padding-left: 0.8rem;
 }
 
 .intro-section-content-action {
     margin: 1.5rem 0;
+    padding-left: 0.8rem;
 }
 
 .intro-section-content-action .a-button {
@@ -203,13 +209,9 @@ button {
         overflow: hidden;
     }
 
-    .intro-section-content h1 {
+    /* .intro-section-content h1 {
         width: 90%;
-    }
-
-    .intro-section-content p {
-        width: 90%;
-    }
+    } */
 
     .intro-left {
         height: 50%;
@@ -283,7 +285,7 @@ button {
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 }
 
