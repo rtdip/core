@@ -17,7 +17,10 @@ import sys
 sys.path.insert(0, ".")
 from semver.version import Version
 import pytest
-from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import _get_package_version, _get_python_package_version
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
+    _get_package_version,
+    _get_python_package_version,
+)
 from src.sdk.python.rtdip_sdk.pipelines.destinations import (
     SparkPCDMLatestToDeltaDestination,
 )
@@ -81,7 +84,7 @@ def test_spark_pcdm_latest_to_delta_write_setup(spark_session: SparkSession):
         )
         >= 0
     ):
-        delta_spark_artifact_id = "delta-spark_2.12"            
+        delta_spark_artifact_id = "delta-spark_2.12"
     assert pcdm_latest_o_delta_destination.libraries() == Libraries(
         maven_libraries=[
             MavenLibrary(

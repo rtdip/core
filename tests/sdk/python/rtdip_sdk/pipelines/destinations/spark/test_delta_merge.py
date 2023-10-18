@@ -60,7 +60,7 @@ def test_spark_delta_merge_write_setup(spark_session: SparkSession):
         )
         >= 0
     ):
-        delta_spark_artifact_id = "delta-spark_2.12"    
+        delta_spark_artifact_id = "delta-spark_2.12"
     assert delta_merge_destination.libraries() == Libraries(
         maven_libraries=[
             MavenLibrary(
