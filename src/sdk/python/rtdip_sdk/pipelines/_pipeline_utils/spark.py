@@ -74,9 +74,6 @@ class SparkClient:
                     maven_package.to_string()
                     for maven_package in self.spark_libraries.maven_libraries
                 )
-                temp_spark_configuration[
-                    "spark.jars.repositories"
-                ] = "https://oss.sonatype.org/content/repositories/iodelta-1080"
 
             for configuration in temp_spark_configuration.items():
                 spark = spark.config(configuration[0], configuration[1])
