@@ -27,11 +27,44 @@ class SparkEventhubSource(SourceInterface):
     This Spark source class is used to read batch or streaming data from Eventhubs. Eventhub configurations need to be specified as options in a dictionary.
     Additionally, there are more optional configurations which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
     If using startingPosition or endingPosition make sure to check out the **Event Position** section for more details and examples.
-    Args:
-        spark (SparkSession): Spark Session
-        options (dict): A dictionary of Eventhub configurations (See Attributes table below)
+
+    Examples
+    --------
+    ```python
+        from rtdip_sdk.pipelines.sources import SparkEventhubSource
+        import json
+
+        startingEventPosition = {
+        "offset": -1,
+        "seqNo": -1,
+        "enqueuedTime": None,
+        "isInclusive": True
+        }
+
+        options = {
+            "eventhubs.connectionString": "YOUR-CONNECTION-STRING",
+            "eventhubs.consumerGroup": YOUR-CONSUMER-GROUP",
+            "eventhubs.startingPosition": json.dumps(startingEventPosition)
+        }
+
+        SparkEventhubSource(spark, options).read_stream()
+
+        OR
+
+        SparkEventhubSource(spark, options).read_batch()
+    ```
+
+    !!! note "Creating a Spark Session"
+        You can also create a Spark Session using RTDIP's [SparkSessionUtility](../../../../../../../docs/sdk/code-reference/pipelines/utilities/spark/session.md).
+        ```python
+            spark = SparkSessionUtility(config={}).execute()
+        ```
 
     Attributes:
+        spark (SparkSession): Spark Session
+        options (dict): A dictionary of Eventhub configurations (See Parameters table below)
+
+    Parameters:
         eventhubs.connectionString (str):  Eventhubs connection string is required to connect to the Eventhubs service. (Streaming and Batch)
         eventhubs.consumerGroup (str): A consumer group is a view of an entire eventhub. Consumer groups enable multiple consuming applications to each have a separate view of the event stream, and to read the stream independently at their own pace and with their own offsets. (Streaming and Batch)
         eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition. (Streaming and Batch)

@@ -70,6 +70,7 @@ class SparkSessionUtility(UtilitiesInterface):
         return {}
 
     def execute(self) -> SparkSession:
+        """To execute"""
         try:
             (task_libraries, spark_configuration) = PipelineComponentsGetUtility(
                 self.module, self.config

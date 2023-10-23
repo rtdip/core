@@ -25,12 +25,29 @@ class SparkDeltaSource(SourceInterface):
     """
     The Spark Delta Source is used to read data from a Delta table.
 
-    Args:
-        spark (SparkSession): Spark Session required to read data from a Delta table
-        options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source){ target="_blank" }.
-        table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table
+    Examples
+    --------
+    ```python
+        from rtdip_sdk.pipelines.sources import SparkDeltaSource
+        import json
+
+        spark = SparkSessionUtility(config={}).execute()
+
+        options = {}
+
+        SparkDeltaSource(spark, options, table_name).read_stream()
+
+        OR
+
+        SparkDeltaSource(spark, options, table_name).read_batch()
+    ```
 
     Attributes:
+        spark (SparkSession): Spark Session required to read data from a Delta table.
+        options (dict): Options that can be specified for a Delta Table read operation (See Parameters table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source){ target="_blank" }.
+        table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table
+
+    Parameters:
         maxFilesPerTrigger (int): How many new files to be considered in every micro-batch. The default is 1000. (Streaming)
         maxBytesPerTrigger (int): How much data gets processed in each micro-batch. (Streaming)
         ignoreDeletes (bool str): Ignore transactions that delete data at partition boundaries. (Streaming)

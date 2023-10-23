@@ -63,30 +63,63 @@ class SparkKafkaEventhubSource(SourceInterface):
     - `kafka.request.timeout.ms` will be set to `60000`
     - `kafka.session.timeout.ms` will be set to `60000`
 
-    Required and optional configurations can be found in the Attributes tables below.
+    Examples
+    --------
+    ```python
+        from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
+        import json
+
+        eventhubConnectionString = "YOUR-CONNECTION-STRING"
+        eventhubConsumerGroup = "YOUR-CONSUMER-GROUP"
+
+         options={
+            "startingOffsets": "earliest",
+            "maxOffsetsPerTrigger": 10000,
+            "failOnDataLoss": "false",
+        }
+
+        SparkKafkaEventhubSource(
+            spark=spark,
+            options=options,
+            connection_string=eventhubConnectionString,
+            consumer_group="eventhubConsumerGroup",
+        ).read_stream()
+
+        OR
+
+        SparkKafkaEventhubSource(
+            spark=spark,
+            options=options,
+            connection_string=eventhubConnectionString,
+            consumer_group="eventhubConsumerGroup",
+        ).read_batch()
+
+    ```
+
+    Required and optional configurations can be found in the Attributes and Parameter tables below.
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
-    Args:
+    Attributes:
         spark (SparkSession): Spark Session
-        options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
+        options (dict): A dictionary of Kafka configurations (See Parameters tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
         connection_string (str): Eventhubs connection string is required to connect to the Eventhubs service. This must include the Eventhub name as the `EntityPath` parameter. Example `"Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"`
         consumer_group (str): The Eventhub consumer group to use for the connection
 
     The only configuration that must be set for the Kafka source for both batch and streaming queries is listed below.
 
-    Attributes:
+    Parameters:
         kafka.bootstrap.servers (A comma-separated list of host︰port):  The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
 
     There are multiple ways of specifying which topics to subscribe to. You should provide only one of these parameters:
 
-    Attributes:
+    Parameters:
         assign (json string {"topicA"︰[0,1],"topicB"︰[2,4]}):  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
         subscribe (A comma-separated list of topics): The topic list to subscribe. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
         subscribePattern (Java regex string): The pattern used to subscribe to topic(s). Only one of "assign, "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
 
     The following configurations are optional:
 
-    Attributes:
+    Parameters:
         startingTimestamp (timestamp str): The start point of timestamp when a query is started, a string specifying a starting timestamp for all partitions in topics being subscribed. Please refer the note on starting timestamp offset options below. (Streaming and Batch)
         startingOffsetsByTimestamp (JSON str): The start point of timestamp when a query is started, a json string specifying a starting timestamp for each TopicPartition. Please refer the note on starting timestamp offset options below. (Streaming and Batch)
         startingOffsets ("earliest", "latest" (streaming only), or JSON string): The start point when a query is started, either "earliest" which is from the earliest offsets, "latest" which is just from the latest offsets, or a json string specifying a starting offset for each TopicPartition. In the json, -2 as an offset can be used to refer to earliest, -1 to latest.
