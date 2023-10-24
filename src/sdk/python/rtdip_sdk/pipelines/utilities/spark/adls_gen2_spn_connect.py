@@ -23,9 +23,27 @@ from ..._pipeline_utils.models import Libraries, SystemType
 
 class SparkADLSGen2SPNConnectUtility(UtilitiesInterface):
     """
-    Configures Spark to Connect to an ADLS Gen 2 Storage Account using a Service Principal
+    Configures Spark to Connect to an ADLS Gen 2 Storage Account using a Service Principal.
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.sources import SparkADLSGen2SPNConnectUtility
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    SparkADLSGen2SPNConnectUtility(
+        spark=spark,
+        storage_account="YOUR-STORAGAE-ACCOUNT-NAME",
+        tenant_id="YOUR-TENANT-ID",
+        client_id="YOUR-CLIENT-ID",
+        client_secret="YOUR-CLIENT-SECRET"
+    ).execute()
+    ```
+
+    Parameters:
         spark (SparkSession): Spark Session required to read data from cloud storage
         storage_account (str): Name of the ADLS Gen 2 Storage Account
         tenant_id (str): Tenant ID of the Service Principal
@@ -71,6 +89,7 @@ class SparkADLSGen2SPNConnectUtility(UtilitiesInterface):
         return {}
 
     def execute(self) -> bool:
+        """Executes spark configuration to connect to an ADLS Gen 2 Storage Account using a service principal"""
         try:
             adls_gen2_config = SparkConfigurationUtility(
                 spark=self.spark,
