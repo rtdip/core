@@ -29,7 +29,6 @@ class SparkDeltaSource(SourceInterface):
     --------
     ```python
         from rtdip_sdk.pipelines.sources import SparkDeltaSource
-        import json
 
         # Not required if using Databricks
         spark = SparkSessionUtility(config={}).execute()
@@ -44,12 +43,12 @@ class SparkDeltaSource(SourceInterface):
         SparkDeltaSource(spark, options, table_name).read_batch()
     ```
 
-    Attributes:
+    Parameters:
         spark (SparkSession): Spark Session required to read data from a Delta table.
-        options (dict): Options that can be specified for a Delta Table read operation (See Parameters table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source){ target="_blank" }.
+        options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source){ target="_blank" }.
         table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table
 
-    Parameters:
+    Attributes:
         maxFilesPerTrigger (int): How many new files to be considered in every micro-batch. The default is 1000. (Streaming)
         maxBytesPerTrigger (int): How much data gets processed in each micro-batch. (Streaming)
         ignoreDeletes (bool str): Ignore transactions that delete data at partition boundaries. (Streaming)

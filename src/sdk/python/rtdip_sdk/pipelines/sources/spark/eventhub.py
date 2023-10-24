@@ -59,11 +59,11 @@ class SparkEventhubSource(SourceInterface):
         SparkEventhubSource(spark, options).read_batch()
     ```
 
-    Attributes:
-        spark (SparkSession): Spark Session
-        options (dict): A dictionary of Eventhub configurations (See Parameters table below)
-
     Parameters:
+        spark (SparkSession): Spark Session
+        options (dict): A dictionary of Eventhub configurations (See Attributes table below)
+
+    Attributes:
         eventhubs.connectionString (str):  Eventhubs connection string is required to connect to the Eventhubs service. (Streaming and Batch)
         eventhubs.consumerGroup (str): A consumer group is a view of an entire eventhub. Consumer groups enable multiple consuming applications to each have a separate view of the event stream, and to read the stream independently at their own pace and with their own offsets. (Streaming and Batch)
         eventhubs.startingPosition (JSON str): The starting position for your Structured Streaming job. If a specific EventPosition is not set for a partition using startingPositions, then we use the EventPosition set in startingPosition. If nothing is set in either option, we will begin consuming from the end of the partition. (Streaming and Batch)
