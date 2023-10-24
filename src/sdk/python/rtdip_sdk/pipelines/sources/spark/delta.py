@@ -31,9 +31,11 @@ class SparkDeltaSource(SourceInterface):
         from rtdip_sdk.pipelines.sources import SparkDeltaSource
         import json
 
+        # Not required if using Databricks
         spark = SparkSessionUtility(config={}).execute()
 
         options = {}
+        table_name = "YOUR-TABLE-NAME"
 
         SparkDeltaSource(spark, options, table_name).read_stream()
 

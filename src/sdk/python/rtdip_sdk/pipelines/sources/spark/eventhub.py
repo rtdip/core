@@ -34,6 +34,11 @@ class SparkEventhubSource(SourceInterface):
         from rtdip_sdk.pipelines.sources import SparkEventhubSource
         import json
 
+        # Not required if using Databricks
+        spark = SparkSessionUtility(config={}).execute()
+
+        connectionString = "Endpoint={YOUR.EVENTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.EVENTHUB.COMPATIBLE.NAME}"
+
         startingEventPosition = {
         "offset": -1,
         "seqNo": -1,
@@ -42,7 +47,7 @@ class SparkEventhubSource(SourceInterface):
         }
 
         options = {
-            "eventhubs.connectionString": "YOUR-CONNECTION-STRING",
+            "eventhubs.connectionString": connectionString,
             "eventhubs.consumerGroup": YOUR-CONSUMER-GROUP",
             "eventhubs.startingPosition": json.dumps(startingEventPosition)
         }
@@ -53,12 +58,6 @@ class SparkEventhubSource(SourceInterface):
 
         SparkEventhubSource(spark, options).read_batch()
     ```
-
-    !!! note "Creating a Spark Session"
-        You can also create a Spark Session using RTDIP's [SparkSessionUtility](../../../../../../../docs/sdk/code-reference/pipelines/utilities/spark/session.md).
-        ```python
-            spark = SparkSessionUtility(config={}).execute()
-        ```
 
     Attributes:
         spark (SparkSession): Spark Session

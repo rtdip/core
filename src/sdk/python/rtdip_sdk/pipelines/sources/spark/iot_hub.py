@@ -34,7 +34,10 @@ class SparkIoThubSource(SourceInterface):
         from rtdip_sdk.pipelines.sources import SparkIoThubSource
         import json
 
-        eventhubConnectionString = "YOUR-CONNECTION-STRING"
+        # Not required if using Databricks
+        spark = SparkSessionUtility(config={}).execute()
+
+        iotHubConnectionString = "Endpoint={YOUR.IOTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.IOTHUB.COMPATIBLE.NAME}"
 
         options = {}
 
@@ -45,7 +48,7 @@ class SparkIoThubSource(SourceInterface):
         "isInclusive": True
         }
 
-        options['eventhubs.connectionString'] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(eventhubConnectionString)
+        options['eventhubs.connectionString'] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(iotHubConnectionString)
         options['eventhubs.consumerGroup'] = "YOUR-CONSUMER-GROUP"
         options["eventhubs.startingPosition"] = json.dumps(startingEventPosition)
 

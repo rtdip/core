@@ -69,7 +69,10 @@ class SparkKafkaEventhubSource(SourceInterface):
         from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
         import json
 
-        eventhubConnectionString = "YOUR-CONNECTION-STRING"
+        # Not required if using Databricks
+        spark = SparkSessionUtility(config={}).execute()
+
+        eventhubConnectionString = "Endpoint={YOUR.EVENTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.EVENTHUB.COMPATIBLE.NAME}"
         eventhubConsumerGroup = "YOUR-CONSUMER-GROUP"
 
          options={
