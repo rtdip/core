@@ -35,7 +35,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
 
     Forecast doc:  <a href="https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition">https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition</a>
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 

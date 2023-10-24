@@ -33,7 +33,7 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
     """
     Converts a Spark Dataframe column containing a json string created by OPC Publisher to the Process Control Data Model.
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.transformers import OPCPublisherOPCUAJsonToPCDMTransformer

@@ -25,7 +25,7 @@ class PandasToPySparkTransformer(TransformerInterface):
     """
     Converts a Pandas DataFrame to a PySpark DataFrame.
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.transformers import PandasToPySparkTransformer

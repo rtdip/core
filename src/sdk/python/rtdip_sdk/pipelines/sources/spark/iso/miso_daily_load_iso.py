@@ -30,7 +30,7 @@ class MISODailyLoadISOSource(BaseISOSource):
 
     Forecast data is available for next 6 day (inclusive of given date).
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 

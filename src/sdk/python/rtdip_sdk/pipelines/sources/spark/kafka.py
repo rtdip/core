@@ -28,7 +28,7 @@ class SparkKafkaSource(SourceInterface):
 
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.sources import SparkKafkaSource

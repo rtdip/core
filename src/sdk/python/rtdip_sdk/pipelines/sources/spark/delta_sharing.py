@@ -25,7 +25,7 @@ class SparkDeltaSharingSource(SourceInterface):
     """
     The Spark Delta Sharing Source is used to read data from a Delta table where Delta sharing is configured
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.sources import SparkDeltaSharingSource

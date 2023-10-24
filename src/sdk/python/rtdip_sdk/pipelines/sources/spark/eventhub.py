@@ -28,7 +28,7 @@ class SparkEventhubSource(SourceInterface):
     Additionally, there are more optional configurations which can be found [here.](https://github.com/Azure/azure-event-hubs-spark/blob/master/docs/PySpark/structured-streaming-pyspark.md#event-hubs-configuration){ target="_blank" }
     If using startingPosition or endingPosition make sure to check out the **Event Position** section for more details and examples.
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.sources import SparkEventhubSource

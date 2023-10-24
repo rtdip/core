@@ -22,7 +22,7 @@ class BinaryToStringTransformer(TransformerInterface):
     """
     Converts a dataframe body column from a binary to a string.
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.transformers import BinaryToStringTransformer

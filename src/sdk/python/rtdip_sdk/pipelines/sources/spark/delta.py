@@ -25,7 +25,7 @@ class SparkDeltaSource(SourceInterface):
     """
     The Spark Delta Source is used to read data from a Delta table.
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.sources import SparkDeltaSource

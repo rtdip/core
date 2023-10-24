@@ -32,7 +32,7 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
 
     Historical is the same PJM endpoint as Actual, but is called repeatedly within a range established by the start_date & end_date attributes
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 

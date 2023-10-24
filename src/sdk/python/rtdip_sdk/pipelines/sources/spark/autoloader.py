@@ -24,7 +24,7 @@ class DataBricksAutoLoaderSource(SourceInterface):
     """
     The Spark Auto Loader is used to read new data files as they arrive in cloud storage. Further information on Auto Loader is available [here](https://docs.databricks.com/ingestion/auto-loader/index.html)
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.sources import DataBricksAutoLoaderSource

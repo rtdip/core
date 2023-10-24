@@ -25,7 +25,7 @@ class SparkKinesisSource(SourceInterface):
     The Spark Kinesis Source is used to read data from Kinesis in a Databricks environment.
     Structured streaming from Kinesis is **not** supported in open source Spark.
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.sources import SparkKinesisSource

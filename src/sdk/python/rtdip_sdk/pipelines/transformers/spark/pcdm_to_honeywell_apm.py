@@ -41,7 +41,7 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
     """
     Converts a Spark Dataframe in PCDM format to Honeywell APM format.
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.transformers import PCDMToHoneywellAPMTransformer

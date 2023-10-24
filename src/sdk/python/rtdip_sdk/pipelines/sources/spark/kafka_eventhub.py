@@ -63,7 +63,7 @@ class SparkKafkaEventhubSource(SourceInterface):
     - `kafka.request.timeout.ms` will be set to `60000`
     - `kafka.session.timeout.ms` will be set to `60000`
 
-    Examples
+    Example
     --------
     ```python
     from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource

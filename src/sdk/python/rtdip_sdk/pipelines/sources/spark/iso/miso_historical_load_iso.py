@@ -25,7 +25,7 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
 
     API: <a href="https://docs.misoenergy.org/marketreports/">https://docs.misoenergy.org/marketreports/</a>
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
