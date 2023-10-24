@@ -56,7 +56,6 @@ button {
     scroll-snap-type: y mandatory;
 }
 
-
 /* === INTO SECTION STYLES === */
 
 .intro-section {
@@ -77,14 +76,14 @@ button {
 .intro-section::before {
     content: "";
     position: absolute;
-    top: 45%;
+    top: 0;
     right: 0;
     bottom: 0;
     left: 0;
     background-image: url('./images/terrain.png');
     background-size: 100% auto;
     background-repeat: no-repeat; 
-    /* background-position: center 90%; */
+    background-position: 50% 120%;
     z-index: 1;
 }
 
@@ -104,7 +103,7 @@ button {
     height: 80%;
     margin-left: auto;
     margin-right: auto;
-    width: 61rem;
+    width: 70rem;
     z-index: 1;
     display: flex;
     flex-direction: row;
@@ -130,8 +129,8 @@ button {
 }
 
 .intro-right img {
-    width: 80%;
-    max-width: 700px;
+    width: 100%;
+    max-width: 800px;
 }
 
 .down-icon-button {
@@ -199,7 +198,7 @@ button {
 @media (max-width: 992px) {
     .intro-section {
         scroll-snap-align: none;
-        min-height: 100vh;
+        height: auto;
     }
 
     .intro-section-content {
@@ -209,14 +208,11 @@ button {
         overflow: hidden;
     }
 
-    /* .intro-section-content h1 {
-        width: 90%;
-    } */
-
     .intro-left {
         height: 50%;
         width: 100%;
         margin-left: 50px;
+        margin-right: 50px;
         margin-top: 100px;
         padding: 20px;
     }
@@ -245,6 +241,20 @@ button {
         height: 40px;
         width: 150px;
         font-size: 1rem;
+    }
+
+    .intro-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-image: url('./images/terrain.png');
+        background-size: 200% auto;
+        background-repeat: no-repeat;
+        z-index: 1;
+        background-position: bottom right;
     }
 
  }
@@ -520,6 +530,7 @@ button {
     font-weight: 300;
     font-size: 0.75rem;
     line-height: 1.5rem;
+    align-self: flex-start;
 }
 
 .querybuilder-left img {
