@@ -31,18 +31,19 @@ class SparkKafkaSource(SourceInterface):
     Examples
     --------
     ```python
-        from rtdip_sdk.pipelines.sources import SparkKafkaSource
+    from rtdip_sdk.pipelines.sources import SparkKafkaSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
-        # Not required if using Databricks
-        spark = SparkSessionUtility(config={}).execute()
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
 
-        options = {}
+    options = {}
 
-        SparkKafkaSource(spark, options).read_stream()
+    SparkKafkaSource(spark, options).read_stream()
 
-        OR
+    OR
 
-        SparkKafkaSource(spark, options).read_batch()
+    SparkKafkaSource(spark, options).read_batch()
     ```
 
     Parameters:

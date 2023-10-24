@@ -21,9 +21,19 @@ from ..._pipeline_utils.models import Libraries, SystemType
 
 class PySparkToPandasTransformer(TransformerInterface):
     """
-    Converts a PySpark DataFrame to a Pandas DataFrame
+    Converts a PySpark DataFrame to a Pandas DataFrame.
 
-    Args:
+    Examples
+    --------
+    ```python
+    from rtdip_sdk.pipelines.transformers import PySparkToPandasTransformer
+
+    PySparkToPandasTransformer(
+        df=df
+    ).transform()
+    ```
+
+    Parameters:
         df (DataFrame): PySpark DataFrame to be converted
     """
 

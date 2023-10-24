@@ -28,19 +28,20 @@ class SparkDeltaSharingSource(SourceInterface):
     Examples
     --------
     ```python
-        from rtdip_sdk.pipelines.sources import SparkDeltaSharingSource
+    from rtdip_sdk.pipelines.sources import SparkDeltaSharingSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
-        # Not required if using Databricks
-        spark = SparkSessionUtility(config={}).execute()
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
 
-        options = {}
-        table_path = "YOUR-TABLE-PATH"
+    options = {}
+    table_path = "YOUR-TABLE-PATH"
 
-        SparkDeltaSharingSource(spark, options, table_name).read_stream()
+    SparkDeltaSharingSource(spark, options, table_name).read_stream()
 
-        OR
+    OR
 
-        SparkDeltaSharingSource(spark, options, table_name).read_batch()
+    SparkDeltaSharingSource(spark, options, table_name).read_batch()
     ```
 
     Parameters:

@@ -22,9 +22,22 @@ from ..._pipeline_utils.spark import APM_SCHEMA
 
 class HoneywellAPMJsonToPCDMTransformer(TransformerInterface):
     """
-    Converts a Spark Dataframe column containing a json string created by Honeywell APM to the Process Control Data Model
+    Converts a Spark Dataframe column containing a json string created by Honeywell APM to the Process Control Data Model.
 
-    Args:
+    Examples
+    --------
+    ```python
+    from rtdip_sdk.pipelines.transformers import HoneywellAPMJsonToPCDMTransformer
+
+    HoneywellAPMJsonToPCDMTransformer(
+        data=df,
+        souce_column_name="body",
+        status_null_value="Good",
+        change_type_value="insert"
+    ).transform()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe containing the column with EdgeX data
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         status_null_value (optional str): If populated, will replace 'Good' in the Status column with the specified value.

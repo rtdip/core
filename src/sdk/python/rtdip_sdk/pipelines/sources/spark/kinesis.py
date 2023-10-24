@@ -28,18 +28,19 @@ class SparkKinesisSource(SourceInterface):
     Examples
     --------
     ```python
-        from rtdip_sdk.pipelines.sources import SparkKinesisSource
+    from rtdip_sdk.pipelines.sources import SparkKinesisSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
-        # Not required if using Databricks
-        spark = SparkSessionUtility(config={}).execute()
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
 
-        options = {}
+    options = {}
 
-        SparkKinesisSource(spark, options).read_stream()
+    SparkKinesisSource(spark, options).read_stream()
 
-        OR
+    OR
 
-        SparkKinesisSource(spark, options).read_batch()
+    SparkKinesisSource(spark, options).read_batch()
     ```
 
     Parameters:

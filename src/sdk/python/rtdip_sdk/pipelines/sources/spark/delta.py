@@ -28,19 +28,20 @@ class SparkDeltaSource(SourceInterface):
     Examples
     --------
     ```python
-        from rtdip_sdk.pipelines.sources import SparkDeltaSource
+    from rtdip_sdk.pipelines.sources import SparkDeltaSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
-        # Not required if using Databricks
-        spark = SparkSessionUtility(config={}).execute()
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
 
-        options = {}
-        table_name = "YOUR-TABLE-NAME"
+    options = {}
+    table_name = "YOUR-TABLE-NAME"
 
-        SparkDeltaSource(spark, options, table_name).read_stream()
+    SparkDeltaSource(spark, options, table_name).read_stream()
 
-        OR
+    OR
 
-        SparkDeltaSource(spark, options, table_name).read_batch()
+    SparkDeltaSource(spark, options, table_name).read_batch()
     ```
 
     Parameters:

@@ -31,32 +31,33 @@ class SparkIoThubSource(SourceInterface):
     Examples
     --------
     ```python
-        from rtdip_sdk.pipelines.sources import SparkIoThubSource
-        import json
+    from rtdip_sdk.pipelines.sources import SparkIoThubSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+    import json
 
-        # Not required if using Databricks
-        spark = SparkSessionUtility(config={}).execute()
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
 
-        iotHubConnectionString = "Endpoint={YOUR.IOTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.IOTHUB.COMPATIBLE.NAME}"
+    iotHubConnectionString = "Endpoint={YOUR.IOTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.IOTHUB.COMPATIBLE.NAME}"
 
-        options = {}
+    options = {}
 
-        startingEventPosition = {
-        "offset": -1,
-        "seqNo": -1,
-        "enqueuedTime": None,
-        "isInclusive": True
-        }
+    startingEventPosition = {
+    "offset": -1,
+    "seqNo": -1,
+    "enqueuedTime": None,
+    "isInclusive": True
+    }
 
-        options['eventhubs.connectionString'] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(iotHubConnectionString)
-        options['eventhubs.consumerGroup'] = "YOUR-CONSUMER-GROUP"
-        options["eventhubs.startingPosition"] = json.dumps(startingEventPosition)
+    options['eventhubs.connectionString'] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(iotHubConnectionString)
+    options['eventhubs.consumerGroup'] = "YOUR-CONSUMER-GROUP"
+    options["eventhubs.startingPosition"] = json.dumps(startingEventPosition)
 
-        SparkIoThubSource(spark, options).read_stream()
+    SparkIoThubSource(spark, options).read_stream()
 
-        OR
+    OR
 
-        SparkIoThubSource(spark, options).read_batch()
+    SparkIoThubSource(spark, options).read_batch()
     ```
 
     Parameters:

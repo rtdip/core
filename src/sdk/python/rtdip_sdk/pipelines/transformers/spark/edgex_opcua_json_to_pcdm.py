@@ -22,9 +22,22 @@ from ..._pipeline_utils.spark import EDGEX_SCHEMA
 
 class EdgeXOPCUAJsonToPCDMTransformer(TransformerInterface):
     """
-    Converts a Spark Dataframe column containing a json string created by EdgeX to the Process Control Data Model
+    Converts a Spark Dataframe column containing a json string created by EdgeX to the Process Control Data Model.
 
-    Args:
+    Examples
+    --------
+    ```python
+    from rtdip_sdk.pipelines.transformers import EdgeXOPCUAJsonToPCDMTransformer
+
+    EdgeXOPCUAJsonToPCDMTransformer(
+        data=df,
+        souce_column_name="body",
+        status_null_value="Good",
+        change_type_value="insert"
+    ).transform()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe containing the column with EdgeX data
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         status_null_value (optional str): If populated, will replace 'Good' in the Status column with the specified value.

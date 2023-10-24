@@ -66,36 +66,36 @@ class SparkKafkaEventhubSource(SourceInterface):
     Examples
     --------
     ```python
-        from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
+    from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
-        # Not required if using Databricks
-        spark = SparkSessionUtility(config={}).execute()
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
 
-        eventhubConnectionString = "Endpoint={YOUR.EVENTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.EVENTHUB.COMPATIBLE.NAME}"
-        eventhubConsumerGroup = "YOUR-CONSUMER-GROUP"
+    eventhubConnectionString = "Endpoint={YOUR.EVENTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.EVENTHUB.COMPATIBLE.NAME}"
+    eventhubConsumerGroup = "YOUR-CONSUMER-GROUP"
 
-         options={
-            "startingOffsets": "earliest",
-            "maxOffsetsPerTrigger": 10000,
-            "failOnDataLoss": "false",
-        }
+        options={
+        "startingOffsets": "earliest",
+        "maxOffsetsPerTrigger": 10000,
+        "failOnDataLoss": "false",
+    }
 
-        SparkKafkaEventhubSource(
-            spark=spark,
-            options=options,
-            connection_string=eventhubConnectionString,
-            consumer_group="eventhubConsumerGroup",
-        ).read_stream()
+    SparkKafkaEventhubSource(
+        spark=spark,
+        options=options,
+        connection_string=eventhubConnectionString,
+        consumer_group="eventhubConsumerGroup",
+    ).read_stream()
 
-        OR
+    OR
 
-        SparkKafkaEventhubSource(
-            spark=spark,
-            options=options,
-            connection_string=eventhubConnectionString,
-            consumer_group="eventhubConsumerGroup",
-        ).read_batch()
-
+    SparkKafkaEventhubSource(
+        spark=spark,
+        options=options,
+        connection_string=eventhubConnectionString,
+        consumer_group="eventhubConsumerGroup",
+    ).read_batch()
     ```
 
     Required and optional configurations can be found in the Attributes and Parameter tables below.

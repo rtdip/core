@@ -31,32 +31,33 @@ class SparkEventhubSource(SourceInterface):
     Examples
     --------
     ```python
-        from rtdip_sdk.pipelines.sources import SparkEventhubSource
-        import json
+    from rtdip_sdk.pipelines.sources import SparkEventhubSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+    import json
 
-        # Not required if using Databricks
-        spark = SparkSessionUtility(config={}).execute()
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
 
-        connectionString = "Endpoint={YOUR.EVENTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.EVENTHUB.COMPATIBLE.NAME}"
+    connectionString = "Endpoint={YOUR.EVENTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.EVENTHUB.COMPATIBLE.NAME}"
 
-        startingEventPosition = {
-        "offset": -1,
-        "seqNo": -1,
-        "enqueuedTime": None,
-        "isInclusive": True
-        }
+    startingEventPosition = {
+    "offset": -1,
+    "seqNo": -1,
+    "enqueuedTime": None,
+    "isInclusive": True
+    }
 
-        options = {
-            "eventhubs.connectionString": connectionString,
-            "eventhubs.consumerGroup": YOUR-CONSUMER-GROUP",
-            "eventhubs.startingPosition": json.dumps(startingEventPosition)
-        }
+    options = {
+        "eventhubs.connectionString": connectionString,
+        "eventhubs.consumerGroup": YOUR-CONSUMER-GROUP",
+        "eventhubs.startingPosition": json.dumps(startingEventPosition)
+    }
 
-        SparkEventhubSource(spark, options).read_stream()
+    SparkEventhubSource(spark, options).read_stream()
 
-        OR
+    OR
 
-        SparkEventhubSource(spark, options).read_batch()
+    SparkEventhubSource(spark, options).read_batch()
     ```
 
     Parameters:
