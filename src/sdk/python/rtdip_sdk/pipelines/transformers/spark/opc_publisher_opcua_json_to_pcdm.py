@@ -38,7 +38,7 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
     ```python
     from rtdip_sdk.pipelines.transformers import OPCPublisherOPCUAJsonToPCDMTransformer
 
-    OPCPublisherOPCUAJsonToPCDMTransformer(
+    opc_publisher_opcua_json_to_pcdm_transformer = OPCPublisherOPCUAJsonToPCDMTransformer(
         data=df,
         souce_column_name="body",
         multiple_rows_per_message=True
@@ -49,7 +49,9 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
             "yyyy-MM-dd'T'HH:mm:ssX"
         ],
         filter=None
-    ).transform()
+    )
+
+    result = opc_publisher_opcua_json_to_pcdm_transformer.transform()
     ```
 
     Parameters:

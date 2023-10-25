@@ -42,7 +42,7 @@ class BaseRawToMDMTransformer(TransformerInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    BaseRawToMDMTransformer(
+    base_raw_to_mdm_transformer = BaseRawToMDMTransformer(
         spark=spark,
         data=df,
         output_type="usage",
@@ -52,7 +52,9 @@ class BaseRawToMDMTransformer(TransformerInterface):
         version=None,
         series_id=None,
         series_parent_id=None
-    ).transform()
+    )
+
+    result = base_raw_to_mdm_transformer.transform()
     ```
 
     Parameters:

@@ -37,7 +37,7 @@ class FledgeOPCUAJsonToPCDMTransformer(TransformerInterface):
     ```python
     from rtdip_sdk.pipelines.transformers import FledgeOPCUAJsonToPCDMTransformer
 
-    FledgeOPCUAJsonToPCDMTransformer(
+    fledge_opcua_json_to_pcdm_transfromer = FledgeOPCUAJsonToPCDMTransformer(
         data=df,
         souce_column_name="body",
         status_null_value="Good",
@@ -46,7 +46,9 @@ class FledgeOPCUAJsonToPCDMTransformer(TransformerInterface):
             "yyyy-MM-dd'T'HH:mm:ss.SSSX",
             "yyyy-MM-dd'T'HH:mm:ssX",
         ]
-    ).transform()
+    )
+
+    result = fledge_opcua_json_to_pcdm_transfromer.transform()
     ```
 
     Parameters:

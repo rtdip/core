@@ -34,10 +34,12 @@ class PandasToPySparkTransformer(TransformerInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    PandasToPySparkTransformer(
+    pandas_to_pyspark = PandasToPySparkTransformer(
         spark=spark
         df=df,
-    ).transform()
+    )
+
+    result = pandas_to_pyspark.transform()
     ```
 
     Parameters:

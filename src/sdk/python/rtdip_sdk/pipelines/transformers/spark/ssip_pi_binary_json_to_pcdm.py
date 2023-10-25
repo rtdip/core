@@ -35,13 +35,15 @@ class SSIPPIJsonStreamToPCDMTransformer(TransformerInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    SSIPPIJsonStreamToPCDMTransformer(
+    ssip_pi_json_stream_to_pcdm_transformer = SSIPPIJsonStreamToPCDMTransformer(
         spark=spark,
         data=df,
         source_column_name="body",
         properties_column_name="",
         metadata_delta_table=None
-    ).transform()
+    )
+
+    result = ssip_pi_json_stream_to_pcdm_transformer.transform()
     ```
 
     Parameters:

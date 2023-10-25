@@ -29,12 +29,14 @@ class HoneywellAPMJsonToPCDMTransformer(TransformerInterface):
     ```python
     from rtdip_sdk.pipelines.transformers import HoneywellAPMJsonToPCDMTransformer
 
-    HoneywellAPMJsonToPCDMTransformer(
+    honeywell_apm_json_to_pcdm_transformer = HoneywellAPMJsonToPCDMTransformer(
         data=df,
         souce_column_name="body",
         status_null_value="Good",
         change_type_value="insert"
-    ).transform()
+    )
+
+    result = honeywell_apm_json_to_pcdm_transformer.transform()
     ```
 
     Parameters:

@@ -28,9 +28,11 @@ class PySparkToPandasTransformer(TransformerInterface):
     ```python
     from rtdip_sdk.pipelines.transformers import PySparkToPandasTransformer
 
-    PySparkToPandasTransformer(
+    pyspark_to_pandas = PySparkToPandasTransformer(
         df=df
-    ).transform()
+    )
+
+    result = pyspark_to_pandas.transform()
     ```
 
     Parameters:

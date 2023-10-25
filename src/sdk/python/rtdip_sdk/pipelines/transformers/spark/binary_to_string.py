@@ -27,11 +27,13 @@ class BinaryToStringTransformer(TransformerInterface):
     ```python
     from rtdip_sdk.pipelines.transformers import BinaryToStringTransformer
 
-    BinaryToStringTransformer(
+    binary_to_string_transformer = BinaryToStringTransformer(
         data=df,
         souce_column_name="body",
         target_column_name="body"
-    ).transform()
+    )
+
+    result = binary_to_string_transformer.transform()
     ```
 
     Parameters:
