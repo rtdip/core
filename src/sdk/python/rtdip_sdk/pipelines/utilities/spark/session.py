@@ -35,11 +35,13 @@ class SparkSessionUtility(UtilitiesInterface):
     ```python
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
-    SparkConfigurationUtility(
+    spark_session_utility = SparkConfigurationUtility(
         config={},
         module=None,
         remote=None
-    ).execute()
+    )
+
+    result = spark_session_utility.execute()
     ```
 
     Parameters:

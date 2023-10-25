@@ -34,13 +34,15 @@ class SparkADLSGen2SPNConnectUtility(UtilitiesInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    SparkADLSGen2SPNConnectUtility(
+    adls_gen2_connect_utility = SparkADLSGen2SPNConnectUtility(
         spark=spark,
         storage_account="YOUR-STORAGAE-ACCOUNT-NAME",
         tenant_id="YOUR-TENANT-ID",
         client_id="YOUR-CLIENT-ID",
         client_secret="YOUR-CLIENT-SECRET"
-    ).execute()
+    )
+
+    result = adls_gen2_connect_utility.execute()
     ```
 
     Parameters:

@@ -35,10 +35,12 @@ class SparkConfigurationUtility(UtilitiesInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    SparkConfigurationUtility(
+    configuration_utility = SparkConfigurationUtility(
         spark=spark,
         config={}
-    ).execute()
+    )
+
+    result = configuration_utility.execute()
     ```
 
     Parameters:
