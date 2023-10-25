@@ -32,9 +32,29 @@ from azure.mgmt.storage.models import StorageQueue
 
 class AzureAutoloaderResourcesUtility(UtilitiesInterface):
     """
-    Creates the required Azure Resources for the Databricks Autoloader Notification Mode
+    Creates the required Azure Resources for the Databricks Autoloader Notification Mode.
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.utilities import AzureAutoloaderResourcesUtility
+
+    azure_autoloader_resources_utility = AzureAutoloaderResourcesUtility(
+        subscription_id="YOUR-SUBSCRIPTION-ID",
+        resource_group_name="YOUR-RESOURCE-GROUP",
+        storage_account="YOUR-STORAGE-ACCOUNT-NAME",
+        container="YOUR-CONTAINER-NAME"
+        directory="DIRECTORY",
+        credential="YOUR-CLIENT-ID",
+        event_subscription_name="YOUR-EVENT-SUBSCRIPTION"
+        queue_name="YOUR-QUEUE-NAME",
+        system_topic_name=None
+    )
+
+    result = azure_autoloader_resources_utility.execute()
+    ```
+
+    Parameters:
         subscription_id (str): Azure Subscription ID
         resource_group_name (str): Resource Group Name of Subscription
         storage_account (str): Storage Account Name

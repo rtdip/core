@@ -28,7 +28,7 @@ class SparkADLSGen2SPNConnectUtility(UtilitiesInterface):
     Example
     --------
     ```python
-    from rtdip_sdk.pipelines.sources import SparkADLSGen2SPNConnectUtility
+    from rtdip_sdk.pipelines.utilities import SparkADLSGen2SPNConnectUtility
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
     # Not required if using Databricks
