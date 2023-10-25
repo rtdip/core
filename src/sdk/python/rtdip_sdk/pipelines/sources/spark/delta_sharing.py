@@ -35,7 +35,7 @@ class SparkDeltaSharingSource(SourceInterface):
     spark = SparkSessionUtility(config={}).execute()
 
     options = {}
-    table_path = "YOUR-TABLE-PATH"
+    table_path = "YOUR-DELTA-TABLE-PATH"
 
     SparkDeltaSharingSource(spark, options, table_name).read_stream()
 

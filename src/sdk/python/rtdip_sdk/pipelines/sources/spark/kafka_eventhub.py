@@ -72,10 +72,10 @@ class SparkKafkaEventhubSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    eventhubConnectionString = "Endpoint={YOUR.EVENTHUB.COMPATIBLE.ENDPOINT};EntityPath={YOUR.EVENTHUB.COMPATIBLE.NAME}"
-    eventhubConsumerGroup = "YOUR-CONSUMER-GROUP"
+    connectionString = Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}
+    consumerGroup = "YOUR-CONSUMER-GROUP"
 
-        options={
+    options={
         "startingOffsets": "earliest",
         "maxOffsetsPerTrigger": 10000,
         "failOnDataLoss": "false",
@@ -84,8 +84,8 @@ class SparkKafkaEventhubSource(SourceInterface):
     SparkKafkaEventhubSource(
         spark=spark,
         options=options,
-        connection_string=eventhubConnectionString,
-        consumer_group="eventhubConsumerGroup",
+        connection_string=connectionString,
+        consumer_group="consumerGroup",
     ).read_stream()
 
     OR
@@ -93,8 +93,8 @@ class SparkKafkaEventhubSource(SourceInterface):
     SparkKafkaEventhubSource(
         spark=spark,
         options=options,
-        connection_string=eventhubConnectionString,
-        consumer_group="eventhubConsumerGroup",
+        connection_string=connectionString,
+        consumer_group="consumerGroup",
     ).read_batch()
     ```
 

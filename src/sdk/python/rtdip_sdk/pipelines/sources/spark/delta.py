@@ -35,7 +35,7 @@ class SparkDeltaSource(SourceInterface):
     spark = SparkSessionUtility(config={}).execute()
 
     options = {}
-    table_name = "YOUR-TABLE-NAME"
+    table_name = "DELTA-TABLE-NAME"
 
     SparkDeltaSource(spark, options, table_name).read_stream()
 
