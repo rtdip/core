@@ -45,7 +45,37 @@ class SparkKafkaEventhubDestination(DestinationInterface):
     - `kafka.request.timeout.ms` will be set to `60000`
     - `kafka.session.timeout.ms` will be set to `60000`
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.sources import SparkKafkaEventhubDestination
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    connectionString = Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}
+
+    eventhub_destination = SparkKafkaEventhubDestination(
+        spark=spark,
+        data=df,
+        options={
+            "kafka.bootstrap.servers": "host1:port1,host2:port2"
+        },
+        consumer_group="{YOUR-EVENTHUB-CONSUMER-GROUP}"
+        trigger="10 seconds",
+        query_name="KafkaEventhubDestination"
+        query_wait_interval=None
+    )
+
+    eventhub_destination.write_stream()
+
+    OR
+
+    eventhub_destination.write_batch()
+    ```
+
+    Parameters:
         spark (SparkSession): Spark Session
         data (DataFrame): Any columns not listed in the required schema [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#writing-data-to-kafka){ target="_blank" } will be merged into a single column named "value", or ignored if "value" is an existing column
         connection_string (str): Eventhubs connection string is required to connect to the Eventhubs service. This must include the Eventhub name as the `EntityPath` parameter. Example `"Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"`

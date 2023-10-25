@@ -63,39 +63,57 @@ class SparkKafkaEventhubSource(SourceInterface):
     - `kafka.request.timeout.ms` will be set to `60000`
     - `kafka.session.timeout.ms` will be set to `60000`
 
-    Example
+    Examples
     --------
     ```python
+    #Kafka Source for Streaming Queries
+
     from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    connectionString = Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}
-    consumerGroup = "YOUR-CONSUMER-GROUP"
+    connectionString = "Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}"
+    consumerGroup = "{YOUR-CONSUMER-GROUP}"
 
-    options={
-        "startingOffsets": "earliest",
-        "maxOffsetsPerTrigger": 10000,
-        "failOnDataLoss": "false",
-    }
-
-    SparkKafkaEventhubSource(
+    kafka_eventhub_source = SparkKafkaEventhubSource(
         spark=spark,
-        options=options,
+        options={
+            "startingOffsets": "earliest",
+            "maxOffsetsPerTrigger": 10000,
+            "failOnDataLoss": "false",
+        },
         connection_string=connectionString,
         consumer_group="consumerGroup",
-    ).read_stream()
+    )
 
-    OR
+    kafka_eventhub_source.read_stream()
+    ```
+    ```python
+    #Kafka Source for Batch Queries
 
-    SparkKafkaEventhubSource(
+    from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    connectionString = "Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}"
+    consumerGroup = "{YOUR-CONSUMER-GROUP}"
+
+    kafka_eventhub_source = SparkKafkaEventhubSource(
         spark=spark,
-        options=options,
+        options={
+            "startingOffsets": "earliest",
+            "endingOffsets": "latest",
+            "failOnDataLoss": "false"
+        },
         connection_string=connectionString,
         consumer_group="consumerGroup",
-    ).read_batch()
+    )
+
+    kafka_eventhub_source.read_batch()
     ```
 
     Required and optional configurations can be found in the Attributes and Parameter tables below.

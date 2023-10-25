@@ -38,7 +38,7 @@ class SparkEventhubSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    connectionString = Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}
+    connectionString = "Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}"
 
     startingEventPosition = {
     "offset": -1,
@@ -49,7 +49,7 @@ class SparkEventhubSource(SourceInterface):
 
     options = {
         "eventhubs.connectionString": connectionString,
-        "eventhubs.consumerGroup": YOUR-CONSUMER-GROUP",
+        "eventhubs.consumerGroup": "{YOUR-CONSUMER-GROUP}",
         "eventhubs.startingPosition": json.dumps(startingEventPosition)
     }
 

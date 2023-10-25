@@ -37,7 +37,7 @@ class DataBricksAutoLoaderSource(SourceInterface):
 
         options = {}
         path = "abfss://{FILE-SYSTEM}@{ACCOUNT-NAME}.dfs.core.windows.net/{PATH}/{FILE-NAME}
-        format = 'DESIRED-FILE-FORMAT"
+        format = "{DESIRED-FILE-FORMAT}"
 
         DataBricksAutoLoaderSource(spark, options, path, format).read_stream()
 
@@ -56,7 +56,7 @@ class DataBricksAutoLoaderSource(SourceInterface):
 
         options = {}
         path = "s3://{BUCKET-NAME}/{KEY-NAME}"
-        format = 'DESIRED-FILE-FORMAT"
+        format = "{DESIRED-FILE-FORMAT}"
 
         DataBricksAutoLoaderSource(spark, options, path, format).read_stream()
 
@@ -75,7 +75,7 @@ class DataBricksAutoLoaderSource(SourceInterface):
 
         options = {}
         path = "gs://{BUCKET-NAME}/{FILE-PATH}"
-        format = 'DESIRED-FILE-FORMAT"
+        format = "{DESIRED-FILE-FORMAT}"
 
         DataBricksAutoLoaderSource(spark, options, path, format).read_stream()
 

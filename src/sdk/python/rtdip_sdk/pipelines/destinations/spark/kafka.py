@@ -31,7 +31,29 @@ class SparkKafkaDestination(DestinationInterface):
 
     For compatibility between Spark and Kafka, the columns in the input dataframe are concatenated into one 'value' column of JSON string.
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.sources import SparkKafkaDestination
+
+    kafka_destination = SparkKafkaDestination(
+        data=df,
+        options={
+            "kafka.bootstrap.servers": "host1:port1,host2:port2"
+        },
+        trigger="10 seconds",
+        query_name="KafkaDestination"
+        query_wait_interval=None
+    )
+
+    kafka_destination.write_stream()
+
+    OR
+
+    kafka_destination.write_batch()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe to be written to Kafka
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
         trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
