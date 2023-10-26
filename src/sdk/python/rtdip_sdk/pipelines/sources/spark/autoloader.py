@@ -55,7 +55,7 @@ class DataBricksAutoLoaderSource(SourceInterface):
         spark = SparkSessionUtility(config={}).execute()
 
         options = {}
-        path = "s3://{BUCKET-NAME}/{KEY-NAME}"
+        path = "https://s3.{REGION-CODE}.amazonaws.com/{BUCKET-NAME}/{KEY-NAME}"
         format = "{DESIRED-FILE-FORMAT}"
 
         DataBricksAutoLoaderSource(spark, options, path, format).read_stream()

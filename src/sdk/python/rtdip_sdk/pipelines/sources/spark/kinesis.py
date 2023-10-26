@@ -34,13 +34,23 @@ class SparkKinesisSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    options = {}
+    kinesis_source = SparkKinesisSource(
+        spark=spark,
+        options={
+            "awsAccessKey": "{AWS-ACCESS-KEY}",
+            "awsSecretKey": "{AWS-SECRET-KEY}",
+            "streamName": "{STREAM-NAME}",
+            "region": "{REGION}",
+            "endpoint": "https://kinesis.{REGION}.amazonaws.com",
+            "initialPosition": "earliest"
+        },
+    )
 
-    SparkKinesisSource(spark, options).read_stream()
+    kinesis_source.read_stream()
 
     OR
 
-    SparkKinesisSource(spark, options).read_batch()
+    kinesis_source.read_batch()
     ```
 
     Parameters:

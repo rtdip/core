@@ -28,20 +28,45 @@ class SparkDeltaSource(SourceInterface):
     Example
     --------
     ```python
+    #Delta Source for Streaming Queries
+
     from rtdip_sdk.pipelines.sources import SparkDeltaSource
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    options = {}
-    table_name = "DELTA-TABLE-NAME"
+    stream_delta_source = SparkDeltaSource(
+        spark=spark,
+        options={
+            "maxFilesPerTrigger": 1000,
+            "ignoreChanges: True,
+            "startingVersion": 0
+        },
+        table_name="{YOUR-DELTA-TABLE-PATH}"
+    )
 
-    SparkDeltaSource(spark, options, table_name).read_stream()
+    stream_delta_source.read_stream()
+    ```
+    ```python
+    #Delta Source for Batch Queries
 
-    OR
+    from rtdip_sdk.pipelines.sources import SparkDeltaSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
-    SparkDeltaSource(spark, options, table_name).read_batch()
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    batch_delta_source = SparkDeltaSource(
+        spark=spark,
+        options={
+            "versionAsOf": 0,
+            "timestampAsOf": "yyyy-mm-dd hh:mm:ss[.fffffffff]"
+        },
+        table_name="{YOUR-DELTA-TABLE-PATH}"
+    )
+
+    batch_delta_source.read_batch()
     ```
 
     Parameters:
