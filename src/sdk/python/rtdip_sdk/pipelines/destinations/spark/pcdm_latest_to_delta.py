@@ -47,7 +47,7 @@ class SparkPCDMLatestToDeltaDestination(DestinationInterface):
 
     from rtdip_sdk.pipelines.destinations import SparkPCDMLatestToDeltaDestination
 
-    stream_pcdm_latest_to_delta_destination = SparkPCDMLatestToDeltaDestination(
+    pcdm_latest_to_delta_destination = SparkPCDMLatestToDeltaDestination(
         data=df,
         options={
             "checkpointLocation": "{/CHECKPOINT-LOCATION/}"
@@ -59,14 +59,14 @@ class SparkPCDMLatestToDeltaDestination(DestinationInterface):
         query_wait_interval=None
     )
 
-    stream_pcdm_latest_to_delta_destination.write_stream()
+    pcdm_latest_to_delta_destination.write_stream()
     ```
     ```python
     #PCDM Latest To Delta Destination for Batch Queries
 
     from rtdip_sdk.pipelines.destinations import SparkPCDMLatestToDeltaDestination
 
-    batch_pcdm_latest_to_delta_destination = SparkPCDMLatestToDeltaDestination(
+    pcdm_latest_to_delta_destination = SparkPCDMLatestToDeltaDestination(
         data=df,
         options={
             "maxRecordsPerFile", "10000"
@@ -78,7 +78,7 @@ class SparkPCDMLatestToDeltaDestination(DestinationInterface):
         query_wait_interval=None
     )
 
-    batch_pcdm_latest_to_delta_destination.write_batch()
+    pcdm_latest_to_delta_destination.write_batch()
     ```
 
     Parameters:

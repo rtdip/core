@@ -39,7 +39,7 @@ class SparkKafkaSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    stream_kafka_source = SparkKafkaSource(
+    kafka_source = SparkKafkaSource(
         spark=spark,
         options={
             "kafka.bootstrap.servers": "{HOST_1}:{PORT_1},{HOST_2}:{PORT_2}",
@@ -48,7 +48,7 @@ class SparkKafkaSource(SourceInterface):
         }
     )
 
-    stream_kafka_source.read_stream()
+    kafka_source.read_stream()
     ```
     ```python
      #Kafka Source for Batch Queries
@@ -59,7 +59,7 @@ class SparkKafkaSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    batch_kafka_source = SparkKafkaSource(
+    kafka_source = SparkKafkaSource(
         spark=spark,
         options={
             "kafka.bootstrap.servers": "{HOST_1}:{PORT_1},{HOST_2}:{PORT_2}",
@@ -69,7 +69,7 @@ class SparkKafkaSource(SourceInterface):
         }
     )
 
-    batch_kafka_source.read_batch()
+    kafka_source.read_batch()
     ```
 
     Parameters:

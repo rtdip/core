@@ -47,7 +47,7 @@ class SparkDeltaMergeDestination(DestinationInterface):
 
     from rtdip_sdk.pipelines.destinations import SparkDeltaMergeDestination
 
-    stream_delta_merge_destination = SparkDeltaMergeDestination(
+    delta_merge_destination = SparkDeltaMergeDestination(
         data=df,
         destination="DELTA-TABLE-PATH",
         options={
@@ -65,14 +65,14 @@ class SparkDeltaMergeDestination(DestinationInterface):
         query_wait_interval=None
     )
 
-    stream_delta_merge_destination.write_stream()
+    delta_merge_destination.write_stream()
     ```
     ```python
     #Delta Merge Destination for Batch Queries
 
     from rtdip_sdk.pipelines.destinations import SparkDeltaMergeDestination
 
-    batch_delta_merge_destination = SparkDeltaMergeDestination(
+    delta_merge_destination = SparkDeltaMergeDestination(
         data=df,
         destination="DELTA-TABLE-PATH",
         options={},
@@ -87,7 +87,8 @@ class SparkDeltaMergeDestination(DestinationInterface):
         query_name="DeltaDestination"
         query_wait_interval=None
     )
-    batch_delta_merge_destination.write_batch()
+
+    delta_merge_destination.write_batch()
     ```
 
     Parameters:

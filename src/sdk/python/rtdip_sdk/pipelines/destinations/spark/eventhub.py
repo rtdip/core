@@ -45,7 +45,7 @@ class SparkEventhubDestination(DestinationInterface):
 
     connectionString = Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}
 
-    stream_eventhub_destination = SparkEventhubDestination(
+    eventhub_destination = SparkEventhubDestination(
         spark=spark,
         data=df,
         options={
@@ -58,7 +58,7 @@ class SparkEventhubDestination(DestinationInterface):
         query_wait_interval=None
     )
 
-    stream_eventhub_destination.write_stream()
+    eventhub_destination.write_stream()
     ```
     ```python
     #Eventhub Destination for Batch Queries
@@ -72,7 +72,7 @@ class SparkEventhubDestination(DestinationInterface):
     connectionString = Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}
 
 
-    batch_eventhub_destination = SparkEventhubDestination(
+    eventhub_destination = SparkEventhubDestination(
         spark=spark,
         data=df,
         options={
@@ -84,7 +84,7 @@ class SparkEventhubDestination(DestinationInterface):
         query_wait_interval=None
     )
 
-    batch_eventhub_destination.write_batch()
+    eventhub_destination.write_batch()
     ```
 
     Parameters:

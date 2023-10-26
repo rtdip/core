@@ -53,7 +53,7 @@ class SparkRestAPIDestination(DestinationInterface):
 
     from rtdip_sdk.pipelines.destinations import SparkRestAPIDestination
 
-    stream_rest_api_destination = SparkRestAPIDestination(
+    rest_api_destination = SparkRestAPIDestination(
         data=df,
         options={
             "checkpointLocation": "{/CHECKPOINT-LOCATION/}"
@@ -70,14 +70,14 @@ class SparkRestAPIDestination(DestinationInterface):
         query_wait_interval=None,
     )
 
-    stream_rest_api_destination.write_stream()
+    rest_api_destination.write_stream()
     ```
     ```python
     #Rest API Destination for Batch Queries
 
     from rtdip_sdk.pipelines.destinations import SparkRestAPIDestination
 
-    batch_rest_api_destination = SparkRestAPIDestination(
+    rest_api_destination = SparkRestAPIDestination(
         data=df,
         options={},
         url="{REST-API-URL}",
@@ -92,7 +92,7 @@ class SparkRestAPIDestination(DestinationInterface):
         query_wait_interval=None,
     )
 
-    batch_rest_api_destination.write_stream()
+    rest_api_destination.write_stream()
     ```
 
     Parameters:

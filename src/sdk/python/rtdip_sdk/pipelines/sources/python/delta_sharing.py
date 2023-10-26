@@ -30,10 +30,10 @@ class PythonDeltaSharingSource(SourceInterface):
     from rtdip_sdk.pipelines.sources import PythonDeltaSharingSource
 
     python_delta_sharing_source = PythonDeltaSharingSource(
-        profile_path=,
-        share_name=,
-        schema_name=,
-        table_name=
+        profile_path="{CREDENTIAL-FILE-LOCATION}",
+        share_name="{SHARE-NAME}",
+        schema_name="{SCHEMA-NAME}",
+        table_name="{TABLE-NAME}"
     )
 
     python_delta_sharing_source.read_batch()

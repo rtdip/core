@@ -36,7 +36,7 @@ class SparkDeltaSharingSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    stream_delta_sharing_source = SparkDeltaSharingSource(
+    delta_sharing_source = SparkDeltaSharingSource(
         spark=spark,
         options={
             "maxFilesPerTrigger": 1000,
@@ -46,7 +46,7 @@ class SparkDeltaSharingSource(SourceInterface):
         table_name="{YOUR-DELTA-TABLE-PATH}"
     )
 
-    stream_delta_sharing_source.read_stream()
+    delta_sharing_source.read_stream()
     ```
     ```python
     #Delta Sharing Source for Batch Queries
@@ -57,7 +57,7 @@ class SparkDeltaSharingSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    batch_delta_sharing_source = SparkDeltaSharingSource(
+    delta_sharing_source = SparkDeltaSharingSource(
         spark=spark,
         options={
             "versionAsOf": 0,
@@ -66,7 +66,7 @@ class SparkDeltaSharingSource(SourceInterface):
         table_name="{YOUR-DELTA-TABLE-PATH}"
     )
 
-    batch_delta_sharing_source.read_batch()
+    delta_sharing_source.read_batch()
     ```
 
     Parameters:

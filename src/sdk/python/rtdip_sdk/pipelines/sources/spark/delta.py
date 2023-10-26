@@ -36,7 +36,7 @@ class SparkDeltaSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    stream_delta_source = SparkDeltaSource(
+    delta_source = SparkDeltaSource(
         spark=spark,
         options={
             "maxFilesPerTrigger": 1000,
@@ -46,7 +46,7 @@ class SparkDeltaSource(SourceInterface):
         table_name="{YOUR-DELTA-TABLE-PATH}"
     )
 
-    stream_delta_source.read_stream()
+    delta_source.read_stream()
     ```
     ```python
     #Delta Source for Batch Queries
@@ -57,7 +57,7 @@ class SparkDeltaSource(SourceInterface):
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
-    batch_delta_source = SparkDeltaSource(
+    delta_source = SparkDeltaSource(
         spark=spark,
         options={
             "versionAsOf": 0,
@@ -66,7 +66,7 @@ class SparkDeltaSource(SourceInterface):
         table_name="{YOUR-DELTA-TABLE-PATH}"
     )
 
-    batch_delta_source.read_batch()
+    delta_source.read_batch()
     ```
 
     Parameters:

@@ -33,7 +33,7 @@ class SparkDeltaDestination(DestinationInterface):
 
     from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
 
-    stream_delta_destination = SparkDeltaDestination(
+    delta_destination = SparkDeltaDestination(
         data=df,
         options={
             "checkpointLocation": "/{CHECKPOINT-LOCATION}/"
@@ -45,14 +45,14 @@ class SparkDeltaDestination(DestinationInterface):
         query_wait_interval=None
     )
 
-    stream_delta_destination.write_stream()
+    delta_destination.write_stream()
     ```
     ```python
     #Delta Destination for Batch Queries
 
     from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
 
-    batch_delta_destination = SparkDeltaDestination(
+    delta_destination = SparkDeltaDestination(
         data=df,
         options={
             "overwriteSchema": True
@@ -64,7 +64,7 @@ class SparkDeltaDestination(DestinationInterface):
         query_wait_interval=None
     )
 
-    batch_delta_destination.write_batch()
+    delta_destination.write_batch()
     ```
 
     Parameters:
