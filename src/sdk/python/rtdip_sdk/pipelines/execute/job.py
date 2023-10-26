@@ -28,7 +28,7 @@ class PipelineJobExecute:
     """
     Executes Pipeline components in their intended order as a complete data pipeline. It ensures that components dependencies are injected as needed.
 
-    Args:
+    Parameters:
         job (PipelineJob): Contains the steps and tasks of a PipelineJob to be executed
         batch_job (bool): Specifies if the job is to be executed as a batch job
     """

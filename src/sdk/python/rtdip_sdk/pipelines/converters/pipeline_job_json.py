@@ -101,7 +101,7 @@ class PipelineJobToJsonConverter(ConverterInterface):
     convert_pipeline_job_to_json_string.convert()
     ```
 
-    Args:
+    Parameters:
         pipeline_job (PipelineJob): A Pipeline Job consisting of tasks and steps
     """
 

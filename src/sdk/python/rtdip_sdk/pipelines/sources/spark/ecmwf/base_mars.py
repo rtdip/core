@@ -25,7 +25,7 @@ class SparkECMWFBaseMarsSource:
     Download nc files from ECMWF MARS server using the ECMWF python API.
     Data is downloaded in parallel using joblib from ECMWF MARS server using the ECMWF python API.
 
-    Args:
+    Parameters:
         save_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
         date_start (str): Start date of extraction in "YYYY-MM-DD HH:MM:SS" format
         date_end (str): End date of extraction in "YYYY-MM-DD HH:MM:SS" format
@@ -79,7 +79,7 @@ class SparkECMWFBaseMarsSource:
         Data is downloaded in parallel using joblib from ECMWF MARS server using the ECMWF python API.
 
 
-        Args:
+        Parameters:
             mars_dict (dict): Dictionary of mars parameters.
             n_jobs (int, optional): Download in parallel? by default None, i.e. no parallelization
             backend (str, optional) : Specify the parallelization backend implementation in joblib, by default "loky"

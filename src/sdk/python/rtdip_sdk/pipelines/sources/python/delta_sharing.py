@@ -44,7 +44,6 @@ class PythonDeltaSharingSource(SourceInterface):
         share_name (str): The value of 'share=' for the table
         schema_name (str): The value of 'schema=' for the table
         table_name (str): The value of 'name=' for the table
-
     """
 
     profile_path: str

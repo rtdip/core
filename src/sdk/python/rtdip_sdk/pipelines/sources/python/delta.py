@@ -44,7 +44,6 @@ class PythonDeltaSource(SourceInterface):
         )
 
         python_delta_source.read_batch()
-
         ```
     === "AWS"
 
