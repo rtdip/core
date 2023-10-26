@@ -32,7 +32,7 @@ class PythonDeltaSource(SourceInterface):
 
         path = "abfss://{FILE-SYSTEM}@{ACCOUNT-NAME}.dfs.core.windows.net/{PATH}/{FILE-NAME}
 
-        batch_python_delta_source = PythonDeltaSource(
+        python_delta_source = PythonDeltaSource(
             path=path,
             version=None,
             storage_options={
@@ -43,7 +43,7 @@ class PythonDeltaSource(SourceInterface):
             without_files=False
         )
 
-        batch_python_delta_source.read_batch()
+        python_delta_source.read_batch()
 
         ```
     === "AWS"
@@ -53,7 +53,7 @@ class PythonDeltaSource(SourceInterface):
 
         path = "https://s3.{REGION-CODE}.amazonaws.com/{BUCKET-NAME}/{KEY-NAME}"
 
-        batch_python_delta_source = PythonDeltaSource(
+        python_delta_source = PythonDeltaSource(
             path=path,
             version=None,
             storage_options={
@@ -64,7 +64,7 @@ class PythonDeltaSource(SourceInterface):
             without_files=False
         )
 
-        batch_python_delta_source.read_batch()
+        python_delta_source.read_batch()
         ```
 
     Parameters:
