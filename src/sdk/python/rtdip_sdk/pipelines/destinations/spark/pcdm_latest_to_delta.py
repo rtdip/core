@@ -38,9 +38,50 @@ class ValueTypeConstants:
 
 class SparkPCDMLatestToDeltaDestination(DestinationInterface):
     """
-    The Process Control Data Model Latest Values written to Delta
+    The Process Control Data Model Latest Values written to Delta.
 
-    Args:
+    Example
+    --------
+    ```python
+    #PCDM Latest To Delta Destination for Streaming Queries
+
+    from rtdip_sdk.pipelines.destinations import SparkPCDMLatestToDeltaDestination
+
+    stream_pcdm_latest_to_delta_destination = SparkPCDMLatestToDeltaDestination(
+        data=df,
+        options={
+            "checkpointLocation": "{/CHECKPOINT-LOCATION/}"
+        },
+        destination="{DELTA_TABLE_PATH}"
+        mode="append",
+        trigger="10 seconds",
+        query_name="PCDMLatestToDeltaDestination"
+        query_wait_interval=None
+    )
+
+    stream_pcdm_latest_to_delta_destination.write_stream()
+    ```
+    ```python
+    #PCDM Latest To Delta Destination for Batch Queries
+
+    from rtdip_sdk.pipelines.destinations import SparkPCDMLatestToDeltaDestination
+
+    batch_pcdm_latest_to_delta_destination = SparkPCDMLatestToDeltaDestination(
+        data=df,
+        options={
+            "maxRecordsPerFile", "10000"
+        },
+        destination="{DELTA_TABLE_PATH}"
+        mode="overwrite",
+        trigger="10 seconds",
+        query_name="PCDMLatestToDeltaDestination"
+        query_wait_interval=None
+    )
+
+    batch_pcdm_latest_to_delta_destination.write_batch()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe to be merged into a Delta Table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         destination (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store the latest values

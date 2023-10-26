@@ -48,7 +48,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
     Example
     --------
     ```python
-    from rtdip_sdk.pipelines.sources import SparkKafkaEventhubDestination
+    from rtdip_sdk.pipelines.destinations import SparkKafkaEventhubDestination
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
     # Not required if using Databricks

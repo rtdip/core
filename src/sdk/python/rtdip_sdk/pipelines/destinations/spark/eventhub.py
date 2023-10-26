@@ -37,7 +37,7 @@ class SparkEventhubDestination(DestinationInterface):
     ```python
     #Eventhub Destination for Streaming Queries
 
-    from rtdip_sdk.pipelines.sources import SparkEventhubDestination
+    from rtdip_sdk.pipelines.destinations import SparkEventhubDestination
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
     # Not required if using Databricks
@@ -63,7 +63,7 @@ class SparkEventhubDestination(DestinationInterface):
     ```python
     #Eventhub Destination for Batch Queries
 
-    from rtdip_sdk.pipelines.sources import SparkEventhubDestination
+    from rtdip_sdk.pipelines.destinations import SparkEventhubDestination
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
 
     # Not required if using Databricks

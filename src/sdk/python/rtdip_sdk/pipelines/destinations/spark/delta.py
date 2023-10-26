@@ -31,7 +31,7 @@ class SparkDeltaDestination(DestinationInterface):
     ```python
     #Delta Destination for Streaming Queries
 
-    from rtdip_sdk.pipelines.sources import SparkDeltaDestination
+    from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
 
     stream_delta_destination = SparkDeltaDestination(
         data=df,
@@ -47,11 +47,10 @@ class SparkDeltaDestination(DestinationInterface):
 
     stream_delta_destination.write_stream()
     ```
-
     ```python
     #Delta Destination for Batch Queries
 
-    from rtdip_sdk.pipelines.sources import SparkDeltaDestination
+    from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
 
     batch_delta_destination = SparkDeltaDestination(
         data=df,

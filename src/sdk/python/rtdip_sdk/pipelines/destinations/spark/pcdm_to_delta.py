@@ -37,9 +37,62 @@ class ValueTypeConstants:
 
 class SparkPCDMToDeltaDestination(DestinationInterface):
     """
-    The Process Control Data Model written to Delta
+    The Process Control Data Model written to Delta.
 
-    Args:
+    Example
+    --------
+    ```python
+    #PCDM Latest To Delta Destination for Streaming Queries
+
+    from rtdip_sdk.pipelines.destinations import SparkPCDMToDeltaDestination
+
+    stream_pcdm_to_delta_destination = SparkPCDMToDeltaDestination(
+        data=df,
+        options={
+            "checkpointLocation": "{/CHECKPOINT-LOCATION/}"
+        },
+        destination_float="{DELTA_TABLE_PATH_FLOAT}",
+        destination_string="{DELTA_TABLE_PATH_STRING}",
+        destination_integer="{DELTA_TABLE_PATH_INTEGER}",
+        mode="append",
+        trigger="10 seconds",
+        query_name="PCDMToDeltaDestination"
+        query_wait_interval=None,
+        merge=True,
+        try_broadcast_join=False,
+        remove_nanoseconds=False,
+        remove_duplicates-True
+    )
+
+    stream_pcdm_to_delta_destination.write_stream()
+    ```
+    ```python
+    #PCDM Latest To Delta Destination for Batch Queries
+
+    from rtdip_sdk.pipelines.destinations import SparkPCDMToDeltaDestination
+
+    batch_pcdm_to_delta_destination = SparkPCDMToDeltaDestination(
+        data=df,
+        options={
+            "maxRecordsPerFile", "10000"
+        },
+        destination_float="{DELTA_TABLE_PATH_FLOAT}",
+        destination_string="{DELTA_TABLE_PATH_STRING}",
+        destination_integer="{DELTA_TABLE_PATH_INTEGER}",
+        mode="overwrite",
+        trigger="10 seconds",
+        query_name="PCDMToDeltaDestination"
+        query_wait_interval=None,
+        merge=True,
+        try_broadcast_join=False,
+        remove_nanoseconds=False,
+        remove_duplicates-True
+    )
+
+    batch_pcdm_to_delta_destination.write_batch()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe to be merged into a Delta Table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         destination_float (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table to store float values.

@@ -34,7 +34,7 @@ class SparkKafkaDestination(DestinationInterface):
     Example
     --------
     ```python
-    from rtdip_sdk.pipelines.sources import SparkKafkaDestination
+    from rtdip_sdk.pipelines.destinations import SparkKafkaDestination
 
     kafka_destination = SparkKafkaDestination(
         data=df,
