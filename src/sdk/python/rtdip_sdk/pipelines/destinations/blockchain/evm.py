@@ -50,6 +50,7 @@ class EVMContractDestination(DestinationInterface):
         function_name (str): Smart contract method to call on.
         function_params (tuple): Parameters of given function.
         transaction (dict): A dictionary containing a set of instructions to interact with a smart contract deployed on the blockchain (See common parameters in Attributes table below).
+
     Attributes:
         data (hexadecimal str): Additional information store in the transaction.
         from (hexadecimal str): Address of sender for a transaction.
