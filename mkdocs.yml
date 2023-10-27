@@ -209,8 +209,9 @@ nav:
                       - Kafka: sdk/code-reference/pipelines/destinations/spark/kafka.md
                       - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Rest API: sdk/code-reference/pipelines/destinations/spark/rest_api.md
+                      - PI OMF: sdk/code-reference/pipelines/destinations/spark/pi_omf.md
                       - PCDM To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_to_delta.md
-                      - PCDM Latest To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_latest_to_delta.md                      
+                      - PCDM Latest To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_latest_to_delta.md                     
                   - Python:
                       - Delta: sdk/code-reference/pipelines/destinations/python/delta.md
                   - Blockchain:
