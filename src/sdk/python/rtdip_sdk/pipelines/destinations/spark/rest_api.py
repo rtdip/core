@@ -16,7 +16,11 @@ import logging
 import time
 import math
 import requests
+import gzip
+import json
 from requests.adapters import HTTPAdapter
+from requests.exceptions import HTTPError
+from requests.auth import AuthBase
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import (
     to_json,
@@ -43,12 +47,12 @@ class SparkRestAPIDestination(DestinationInterface):
     The payload sent to the API is constructed by converting each row in the DataFrame to Json.
 
     !!! Note
-        While it is possible to use the `write_batch` method, it is easy to overwhlem a Rest API with large volumes of data.
+        While it is possible to use the `write_batch` method, it is easy to overwhelm a Rest API with large volumes of data.
         Consider reducing data volumes when writing to a Rest API in Batch mode to prevent API errors including throtting.
 
     Args:
         data (DataFrame): Dataframe to be merged into a Delta Table
-        options (dict): A dictionary of options for streaming writes
+        options (dict): A dictionary of options for streaming writes, leave empty for batch
         url (str): The Rest API Url
         headers (dict): A dictionary of headers to be provided to the Rest API
         batch_size (int): The number of DataFrame rows to be used in each Rest API call
@@ -57,6 +61,9 @@ class SparkRestAPIDestination(DestinationInterface):
         trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
         query_name (str): Unique name for the query in associated SparkSession
         query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
+        auth (optional AuthBase): Used when authentication is required, such as BasicAuth ('username', 'password'). See the [Requests authentication documentation](https://requests.readthedocs.io/en/latest/user/authentication/#authentication){ target="_blank" }
+        compression (optional bool): If set to True, will send the data with Gzip compression
+        batch_as_array (optional bool): Set to True if the payload message must be a json array instead of a json object
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -72,6 +79,9 @@ class SparkRestAPIDestination(DestinationInterface):
     trigger: str
     query_name: str
     query_wait_interval: int
+    auth: AuthBase
+    compression: bool
+    batch_as_array: bool
 
     def __init__(
         self,
@@ -85,6 +95,9 @@ class SparkRestAPIDestination(DestinationInterface):
         trigger="1 minutes",
         query_name: str = "DeltaRestAPIDestination",
         query_wait_interval: int = None,
+        auth: AuthBase = None,
+        compression: bool = False,
+        batch_as_array: bool = False,
     ) -> None:
         self.data = data
         self.options = options
@@ -96,6 +109,9 @@ class SparkRestAPIDestination(DestinationInterface):
         self.trigger = trigger
         self.query_name = query_name
         self.query_wait_interval = query_wait_interval
+        self.auth = auth
+        self.compression = compression
+        self.batch_as_array = batch_as_array
 
     @staticmethod
     def system_type():
@@ -128,14 +144,25 @@ class SparkRestAPIDestination(DestinationInterface):
             .withColumn("row_number", row_number().over(Window().orderBy(lit("A"))))
             .withColumn("batch_id", col("row_number") % batch_count)
         )
-        return micro_batch_df.groupBy("batch_id").agg(
-            concat_ws(",|", collect_list("content")).alias("payload")
-        )
+        if self.batch_as_array:
+            return micro_batch_df.groupBy("batch_id").agg(
+                collect_list("content").cast("string").alias("payload")
+            )
+        else:
+            return micro_batch_df.groupBy("batch_id").agg(
+                concat_ws(",", collect_list("content")).alias("payload")
+            )
 
-    def _api_micro_batch(self, micro_batch_df: DataFrame, epoch_id=None):  # NOSONAR
+    def _api_micro_batch(
+        self, micro_batch_df: DataFrame, epoch_id=None, _execute_transformation=True
+    ):  # NOSONAR
         url = self.url
         method = self.method
         headers = self.headers
+        auth = self.auth
+        compression = self.compression
+        if compression:
+            headers["compression"] = "gzip"
 
         @udf("string")
         def _rest_api_execute(data):
@@ -143,9 +170,17 @@ class SparkRestAPIDestination(DestinationInterface):
             adapter = HTTPAdapter(max_retries=3)
             session.mount("http://", adapter)  # NOSONAR
             session.mount("https://", adapter)
-
+            if compression:
+                data = gzip.compress(bytes(data, "utf-8"))
             if method == "POST":
-                response = session.post(url, headers=headers, data=data, verify=False)
+                response = session.post(
+                    url,
+                    headers=headers,
+                    data=data,
+                    verify=False,
+                    timeout=30,
+                    auth=auth,
+                )
             elif method == "PATCH":
                 response = session.patch(url, headers=headers, data=data, verify=False)
             elif method == "PUT":
@@ -153,8 +188,8 @@ class SparkRestAPIDestination(DestinationInterface):
             else:
                 raise Exception("Method {} is not supported".format(method))  # NOSONAR
 
-            if not (response.status_code == 200 or response.status_code == 201):
-                raise Exception(
+            if response.status_code not in [200, 201, 202]:
+                raise HTTPError(
                     "Response status : {} .Response message : {}".format(
                         str(response.status_code), response.text
                     )
@@ -163,10 +198,10 @@ class SparkRestAPIDestination(DestinationInterface):
             return str(response.status_code)
 
         micro_batch_df.persist()
-        micro_batch_df = self._pre_batch_records_for_api_call(micro_batch_df)
-
+        if _execute_transformation:
+            micro_batch_df = self._pre_batch_records_for_api_call(micro_batch_df)
         micro_batch_df = micro_batch_df.repartition(self.parallelism)
-
+        micro_batch_df.show(truncate=False)
         (
             micro_batch_df.withColumn(
                 "rest_api_response_code", _rest_api_execute(micro_batch_df["payload"])
