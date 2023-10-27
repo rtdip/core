@@ -15,17 +15,22 @@
 import re
 from jinja2 import Template
 
+aggregate_window = r"\|> aggregateWindow"
+
 def _build_parameters(query):
-    columns = {
-        "weather": ['input_city', 'source'],
-        "power": ['system'],
-        "prediction_taheads": ['customer', 'pid', 'tAhead', 'type']
+    columns = {  # list of tag columns
+        "weather": ["input_city", "source"],
+        "power": ["system"],
+        "prediction_taheads": ["customer", "pid", "tAhead", "type"],
+        "prediction": ["pid", "type", "customer"],
+        "marketprices": ["Name"],
+        "sjv": ["year_created"]
     }
 
     parameters = {}
 
-    measurement_pattern = r'r\._measurement == "([^"]+)"'
-    table = re.search(measurement_pattern, query).group(1)
+    measurement_pattern = r'r(?:\._measurement|(\["_measurement"\]))\s*==\s*"([^"]+)"'
+    table = re.search(measurement_pattern, query).group(2)
     parameters["table"] = table
     parameters["columns"] = columns[parameters["table"].lower()]
 
@@ -46,74 +51,78 @@ def _build_parameters(query):
         parameters["time_interval_unit"] = "minute"
         parameters["range_join_seconds"] = int(parameters["time_interval_rate"][0]) * 60
 
-    filter_sections = re.findall(r"\|> filter\(fn: \(r\) => (.*?)(?=\s*\||$)", query, re.DOTALL)
-    filter = " AND ".join(["(" + i.strip() for i in filter_sections])
+    filter_sections = re.findall(
+        r"\|> filter\(fn: \(r\) => (.*?)(?=\s*\||$)", query, re.DOTALL
+    )
+    _filter = " AND ".join(["(" + i.strip() for i in filter_sections])
 
-    where = re.sub(r"r\.", "", filter)
+    where = re.sub(r'r\.([\w]+)|r\["([^"]+)"\]', r"\1\2", _filter)
     if where.count("(") != where.count(")"):
         where = "(" + where
-        
+
     parameters["where"] = where
 
     yields = re.findall(r"\|> yield\(name: \"(.*?)\"\)", query)
     if yields:
         parameters["yield"] = yields
 
-    createEmpty = re.search(r"createEmpty: (.*?)\)", query)
-    parameters["createEmpty"] = 'true'
-    if createEmpty:
-        parameters["createEmpty"] = createEmpty.group(1)
+    create_empty = re.search(r"createEmpty: (.*?)\)", query)
+    parameters["createEmpty"] = "true"
+    if create_empty:
+        parameters["createEmpty"] = create_empty.group(1)
 
     return parameters
 
+
 def _raw_query(query: str) -> list:
     parameters = _build_parameters(query)
-    
+
     flux_query = (
         "{% if table == 'weather'%}"
-        "WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, \":\") AS tags_array, tags_array[0] AS _field, tags_array[1] AS input_city, tags_array[2] AS source, \"weather\" AS _measurement FROM `weather`) "
+        'WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, ":") AS tags_array, tags_array[0] AS _field, tags_array[1] AS input_city, tags_array[2] AS source, "weather" AS _measurement FROM `weather`) '
         "{% else %}"
-        "WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, \":\") AS tags_array, "
+        'WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, ":") AS tags_array, '
         "tags_array[0] AS _field, "
         "{% for col in columns %}"
         "tags_array[{{ columns.index(col) + 1 }}] AS {{ col }}, "
         "{% endfor %}"
-        "\"{{ table }}\" AS _measurement FROM `{{ table }}`)"
+        '"{{ table }}" AS _measurement FROM `{{ table }}`)'
         "{% endif %}"
-        "SELECT * FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\")"
+        'SELECT * FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}")'
     )
-    
+
     sql_template = Template(flux_query)
     sql_query = sql_template.render(parameters)
     return [sql_query]
 
-def _resample_query(query: str) -> str:
+
+def _resample_query(query: str) -> list:
     parameters = _build_parameters(query)
     parameters["filters"] = re.findall(r'r\.system == "([^"]+)"', query)
 
     resample_base_query = (
         "{% if table == 'weather'%}"
-        "WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, \":\") AS tags_array, tags_array[0] AS _field, tags_array[1] AS input_city, tags_array[2] AS source, \"weather\" AS _measurement FROM `weather`) "
+        'WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, ":") AS tags_array, tags_array[0] AS _field, tags_array[1] AS input_city, tags_array[2] AS source, "weather" AS _measurement FROM `weather`) '
         "{% else %}"
-        "WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, \":\") AS tags_array, "
+        'WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, ":") AS tags_array, '
         "tags_array[0] AS _field, "
         "{% for col in columns %}"
         "tags_array[{{ columns.index(col) + 1 }}] AS {{ col }}, "
         "{% endfor %}"
-        "\"{{ table }}\" AS _measurement FROM `{{ table }}`)"
+        '"{{ table }}" AS _measurement FROM `{{ table }}`)'
         "{% endif %}"
-        ", raw_events_filtered AS (SELECT * FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\"))"
-        ", date_array AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp(\"{{ start }}\"), to_timestamp(\"{{ stop }}\"), INTERVAL \"{{ time_interval_rate[0] + \" \" + time_interval_unit }}\")) AS timestamp_array FROM raw_events_filtered) "
-        ", date_intervals AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), \"yyyy-MM-dd HH:mm:ss\") AS timestamp_array FROM date_array) "
+        ', raw_events_filtered AS (SELECT * FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}"))'
+        ', date_array AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp("{{ start }}"), to_timestamp("{{ stop }}"), INTERVAL "{{ time_interval_rate[0] + " " + time_interval_unit }}")) AS timestamp_array FROM raw_events_filtered) '
+        ', date_intervals AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), "yyyy-MM-dd HH:mm:ss") AS timestamp_array FROM date_array) '
         ", window_buckets AS (SELECT TagName, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals) "
         ", resample AS (SELECT a.TagName, window_end AS _time, _value, Status, _field"
         "{% for col in columns if columns is defined and columns|length > 0 %}"
         ", b.{{ col }}"
         "{% endfor %}"
-        " FROM window_buckets a FULL OUTER JOIN raw_events b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName) "   
-        )
+        " FROM window_buckets a FULL OUTER JOIN raw_events b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName) "
+    )
 
-    if len(re.findall(r'\|> aggregateWindow', query)) == 1:
+    if len(re.findall(aggregate_window, query)) == 1:
         flux_query = (
             f"{resample_base_query}"
             "{% if createEmpty == 'true' %}"
@@ -123,31 +132,30 @@ def _resample_query(query: str) -> str:
             "{% endfor %}"
             " FROM resample"
             "{% if yield is defined and yield|length > 0 %}"
-            " ), resample_results AS (SELECT \"{{ yield[0] }}\" AS result, " 
+            ' ), resample_results AS (SELECT "{{ yield[0] }}" AS result, '
             "{% else %}"
-            " ), resample_results AS (SELECT \"_result\" AS result, "
+            ' ), resample_results AS (SELECT "_result" AS result, '
             "{% endif %}"
-            "_time, {{ agg_method[0] }}(_value) AS _value, \"Good\" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field "
+            '_time, {{ agg_method[0] }}(_value) AS _value, "Good" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field '
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", CAST(coalesce({{ col }}_forward, {{ col }}_backward) AS STRING) AS {{ col }} "
             "{% endfor %}"
-            "FROM fill_nulls WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time, Status, TagName, coalesce(_field_forward, _field_backward) "
+            'FROM fill_nulls WHERE _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}") GROUP BY result, _time, Status, TagName, coalesce(_field_forward, _field_backward) '
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", coalesce({{ col }}_forward, {{ col }}_backward) "
             "{% endfor %}"
             "ORDER BY TagName, _time) "
-
             "{% else %}"
             "{% if yield is defined and yield|length > 0 %}"
-            ", resample_results AS (SELECT \"{{ yield[0] }}\" AS result, " 
+            ', resample_results AS (SELECT "{{ yield[0] }}" AS result, '
             "{% else %}"
-            ", resample_results AS (SELECT \"_result\" AS result, "
+            ', resample_results AS (SELECT "_result" AS result, '
             "{% endif %}"
-            "_time, {{ agg_method[0] }}(_value) AS _value, \"Good\" AS Status, TagName, _field "
+            '_time, {{ agg_method[0] }}(_value) AS _value, "Good" AS Status, TagName, _field '
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", CAST({{ col }} AS STRING) "
             "{% endfor %}"
-            "FROM resample WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") AND _field IS NOT NULL GROUP BY result, Status, TagName, _time, _field "
+            'FROM resample WHERE _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}") AND _field IS NOT NULL GROUP BY result, Status, TagName, _time, _field '
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", {{ col }} "
             "{% endfor %}"
@@ -155,41 +163,32 @@ def _resample_query(query: str) -> str:
             "{% endif %}"
         )
 
-        flux_query = (
-            f"{flux_query}"
-            "SELECT * FROM resample_results "
-        )
+        flux_query = f"{flux_query}" "SELECT * FROM resample_results "
 
         sql_template = Template(flux_query)
         sql_query = sql_template.render(parameters)
         return [sql_query]
 
-    elif len(re.findall(r'\|> aggregateWindow', query)) > 1:
+    elif len(re.findall(aggregate_window, query)) > 1:
         sql_query = (
             f"{resample_base_query}"
             ", fill_nulls AS (SELECT *, last_value(_field, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS _field_forward, first_value(_field, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS _field_backward "
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", last_value({{ col }}, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS {{ col }}_forward, first_value({{ col }}, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING ) AS {{ col }}_backward "
             "{% endfor %}"
-            " FROM resample) " 
-            ", resample_results AS (SELECT _time, {{ agg_method[0] }}(_value) AS _value, \"Good\" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field, CAST(coalesce(system_forward, system_backward) AS STRING) AS system FROM fill_nulls GROUP BY _time, Status, TagName, coalesce(_field_forward, _field_backward), coalesce(system_forward, system_backward) ORDER BY TagName, _time) "
-            ", date_array_2 AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp(\"{{ start }}\"), timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, to_timestamp(\"{{ stop }}\")), INTERVAL \"{{ time_interval_rate[0] + \" \" + time_interval_unit }}\")) AS timestamp_array FROM resample_results) "
-            ", date_intervals_2 AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), \"yyyy-MM-dd HH:mm:ss\") AS timestamp_array FROM date_array_2) "
+            " FROM resample) "
+            ', resample_results AS (SELECT _time, {{ agg_method[0] }}(_value) AS _value, "Good" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field, CAST(coalesce(system_forward, system_backward) AS STRING) AS system FROM fill_nulls GROUP BY _time, Status, TagName, coalesce(_field_forward, _field_backward), coalesce(system_forward, system_backward) ORDER BY TagName, _time) '
+            ', date_array_2 AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp("{{ start }}"), timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, to_timestamp("{{ stop }}")), INTERVAL "{{ time_interval_rate[0] + " " + time_interval_unit }}")) AS timestamp_array FROM resample_results) '
+            ', date_intervals_2 AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), "yyyy-MM-dd HH:mm:ss") AS timestamp_array FROM date_array_2) '
             ", window_buckets_2 AS (SELECT TagName, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals_2) "
             ", project_resample_results AS (SELECT a.TagName, window_end AS _time, _value, Status, _field, system FROM window_buckets_2 a FULL OUTER JOIN resample_results b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName) "
-            ", resample_sum AS (SELECT \"load\" AS result, _time, sum(_value) AS _value, \"Good\" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time ORDER BY _time)"
-            ", resample_count AS (SELECT \"nEntries\" AS result, _time, count(_value) AS _value, \"Good\" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\") GROUP BY result, _time ORDER BY _time)"
+            ', resample_sum AS (SELECT "load" AS result, _time, sum(_value) AS _value, "Good" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}") GROUP BY result, _time ORDER BY _time)'
+            ', resample_count AS (SELECT "nEntries" AS result, _time, count(_value) AS _value, "Good" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}") GROUP BY result, _time ORDER BY _time)'
         )
 
-        sum_query = (
-            f"{sql_query}"
-            " SELECT * FROM resample_sum "
-        )
+        sum_query = f"{sql_query}" " SELECT * FROM resample_sum "
 
-        count_query = (
-            f"{sql_query}"
-            " SELECT * FROM resample_count "
-        )
+        count_query = f"{sql_query}" " SELECT * FROM resample_count "
 
         sum_template = Template(sum_query)
         sum_query = sum_template.render(parameters)
@@ -198,13 +197,14 @@ def _resample_query(query: str) -> str:
         count_query = count_template.render(parameters)
         return [sum_query, count_query]
 
-def _pivot_query(query: str) -> str:
+
+def _pivot_query(query: str) -> list:
     parameters = _build_parameters(query)
     parameters["filters"] = re.findall(r'r\.system == "([^"]+)"', query)
 
     flux_query = (
-        "WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, \":\") AS tags_array, tags_array [0] AS _field, tags_array [1] AS system, \"power\" AS _measurement FROM `power`)"
-        ", raw_events_filtered AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY system ORDER BY _time) AS ordered FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp(\"{{ start }}\") AND to_timestamp(\"{{ stop }}\"))"
+        'WITH raw_events AS (SELECT EventTime AS _time, Value AS _value, Status, TagName, split(TagName, ":") AS tags_array, tags_array [0] AS _field, tags_array [1] AS system, "power" AS _measurement FROM `power`)'
+        ', raw_events_filtered AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY system ORDER BY _time) AS ordered FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}"))'
         ", pivot_table AS (SELECT _time, Status, TagName, _field, _measurement, "
         "{% for filter in filters %}"
         " first_value({{ filter }}, true) OVER (PARTITION BY _time ORDER BY _time, TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS {{ filter }} "
@@ -214,13 +214,13 @@ def _pivot_query(query: str) -> str:
         "{% endfor %}"
         " FROM raw_events_filtered PIVOT (MAX(_value) FOR system IN ("
         "{% for filter in filters %}"
-        " \"{{ filter }}\" "
+        ' "{{ filter }}" '
         "{% if not loop.last %}"
         ", "
         "{% endif %}"
         "{% endfor %}"
         " )) ORDER BY TagName, _time) "
-        " SELECT _time, Status" 
+        " SELECT _time, Status"
         "{% for filter in filters %}"
         ", {{ filter }}"
         "{% endfor %}"
@@ -238,25 +238,27 @@ def _pivot_query(query: str) -> str:
     sql_query = sql_template.render(parameters)
     return [sql_query]
 
-def _max_query() -> str:
+
+def _max_query() -> list:
     sql_query = (
-        "WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, \":\") AS tags_array, tags_array [0] AS _field, tags_array [1] AS input_city, tags_array [2] AS source, \"weather\" AS _measurement FROM `weather`)"
-        ", raw_events_filtered AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY TagName ORDER BY _time) AS ordered FROM raw_events WHERE (_measurement == \"weather\" and source == \"harm_arome\" and _field == \"source_run\") AND _time >= to_timestamp(timestampadd(day, -2, current_timestamp())))"
+        'WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, ":") AS tags_array, tags_array [0] AS _field, tags_array [1] AS input_city, tags_array [2] AS source, "weather" AS _measurement FROM `weather`)'
+        ', raw_events_filtered AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY TagName ORDER BY _time) AS ordered FROM raw_events WHERE (_measurement == "weather" and source == "harm_arome" and _field == "source_run") AND _time >= to_timestamp(timestampadd(day, -2, current_timestamp())))'
         ", max_events AS (SELECT _time, MAX(_value) OVER (PARTITION BY TagName) AS _value, Status, TagName, _field, _measurement, input_city, source FROM raw_events_filtered WHERE ordered <= 10)"
         ", results AS (SELECT a._time, a._value, a.Status, a.TagName, a._field, a._measurement, a.input_city, a.source, ROW_NUMBER() OVER (PARTITION BY a.TagName ORDER BY a._time) AS ordered FROM max_events a INNER JOIN raw_events_filtered b ON a._time = b._time AND a._value = b._value)"
-        "SELECT _time, _value, Status, TagName, _field, input_city, source FROM results WHERE ordered = 1"    
+        "SELECT _time, _value, Status, TagName, _field, input_city, source FROM results WHERE ordered = 1"
     )
-    
+
     return [sql_query]
 
+
 def _query_builder(query: str) -> str:
-    if re.search(r'\|> aggregateWindow', query):
+    if re.search(aggregate_window, query):
         return _resample_query(query)
 
-    elif re.search(r'\|> pivot', query):
+    elif re.search(r"\|> pivot", query):
         return _pivot_query(query)
 
-    elif re.search(r'\|> max\(\)', query):
+    elif re.search(r"\|> max\(\)", query):
         return _max_query()
 
     else:

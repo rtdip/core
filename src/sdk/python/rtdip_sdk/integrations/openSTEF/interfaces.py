@@ -25,9 +25,9 @@ from openstef_dbc.data_interface import _DataInterface
 from openstef_dbc import Singleton
 from openstef_dbc.ktp_api import KtpApi
 from openstef_dbc.log import logging
-from openstef_dbc.services.weather import Weather
-from ._query_builder import _query_builder
+from src.sdk.python.rtdip_sdk.integrations.openSTEF._query_builder import _query_builder
 from importlib_metadata import version
+
 
 class _DataInterface(_DataInterface, metaclass=Singleton):
     def __init__(self, config):
@@ -99,7 +99,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         # The proxies value for using system proxies is None.
         geopy.geocoders.options.default_proxies = config.proxies
         geopy.geocoders.options.default_user_agent = "rtdip-sdk/0.7.8"
-        # geopy.geocoders.options.default_user_agent = f"rtdip-sdk/{version('rtdip-sdk')}" 
+        # geopy.geocoders.options.default_user_agent = f"rtdip-sdk/{version('rtdip-sdk')}"
 
         _DataInterface._instance = self
 
@@ -122,7 +122,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         catalog: str,
         schema: str,
         http_path: str,
-    ):  
+    ):
         """
         Create Databricks engine.
         """
@@ -158,7 +158,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             query_list = _query_builder(query)
 
             if len(query_list) == 1:
-                return pd.read_sql(query_list[0], self.pcdm_engine) # params = bind_params?
+                return pd.read_sql(query_list[0], self.pcdm_engine)
             elif len(query_list) > 1:
                 df = [pd.read_sql(query, self.pcdm_engine) for query in query_list]
                 return df
@@ -179,7 +179,6 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         field_columns: list = None,
         time_precision: str = "s",
     ) -> bool:
-
         if type(tag_columns) is not list:
             raise ValueError("'tag_columns' should be a list")
 
@@ -204,129 +203,153 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             raise ValueError(
                 f"Dataframe contains missing values. Found missing values in columns: {nan_columns}"
             )
-    
+
         if set(tag_columns).issubset(set(list(df.columns))) is False:
             tag_cols = [x for x in tag_columns if x not in list(df.columns)]
             raise ValueError(
                 f"Dataframe missing tag columns. Missing tag columns: {tag_cols}"
             )
-        
+
         if field_columns is None:
-            field_columns = [
-                x
-                for x in list(df.columns)
-                if x not in tag_columns
-            ]
+            field_columns = [x for x in list(df.columns) if x not in tag_columns]
 
         tag_columns = sorted(tag_columns)
 
-        id_vars = ['EventTime'] + tag_columns
+        id_vars = ["EventTime"] + tag_columns
 
-        casting_dict = {}
-        casting_dict.update(dict.fromkeys(tag_columns, str))
+        casting_tags = {}
+        casting_tags.update(dict.fromkeys(tag_columns, str))
 
-        df = df.astype(casting_dict)
-        df.index = pd.to_datetime(df.index, unit=time_precision)
-        df = df.reset_index(names=['EventTime'])
-        df = pd.melt(df, id_vars=id_vars, value_vars=field_columns, var_name='_field', value_name='Value')
+        df = df.astype(casting_tags)
 
-        if measurement == 'weather':
-            list_of_cities = df['input_city'].unique()
+        casting_fields = {
+            "algtype": "str",
+            "clearSky_dlf": "float",
+            "clearSky_ulf": "float",
+            "clouds": "float",
+            "clouds_ensemble": "float",
+            "created": "int",
+            "customer": "str",
+            "description": "str",
+            "ensemble_run": "str",
+            "forecast": "float",
+            "forecast_other": "float",
+            "forecast_solar": "float",
+            "forecast_wind_on_shore": "float",
+            "grnd_level": "float",
+            "humidity": "float",
+            "input_city": "str",
+            "mxlD": "float",
+            "output": "float",
+            "pid": "int",
+            "prediction": "float",
+            "pressure": "float",
+            "quality": "str",
+            "radiation": "float",
+            "radiation_ensemble": "float",
+            "rain": "float",
+            "sea_level": "float",
+            "snowDepth": "float",
+            "source": "str",
+            "source_run": "int",
+            "stdev": "float",
+            "system": "str",
+            "tAhead": "float",
+            "temp": "float",
+            "temp_kf": "float",
+            "temp_min": "float",
+            "temp_max": "float",
+            "type": "str",
+            "winddeg": "float",
+            "winddeg_ensemble": "float",
+            "window_days": "float",
+            "windspeed": "float",
+            "windspeed_100m": "float",
+            "windspeed_100m_ensemble": "float",
+            "windspeed_ensemble": "float",
+        }
+
+        p = re.compile(r"quantile_")
+        quantile_columns = [s for s in field_columns if p.match(s)]
+        casting_fields.update(dict.fromkeys(quantile_columns, "float"))
+
+        if measurement == "prediction_kpi":
+            intcols = ["pid"]
+            floatcols = [x for x in df.columns if x not in intcols]
+            casting_fields.update(dict.fromkeys(floatcols, "float"))
+
+        if measurement == "sjv":
+            casting_fields.update(dict.fromkeys(list(df.columns)[:-1], "float"))
+
+        df.index = df.index.strftime("%Y-%m-%dT%H:%M:%S")
+        df = df.reset_index(names=["EventTime"])
+        df = pd.melt(
+            df,
+            id_vars=id_vars,
+            value_vars=field_columns,
+            var_name="_field",
+            value_name="Value",
+        )
+
+        if measurement == "weather":
+            list_of_cities = df["input_city"].unique()
             coordinates = {}
 
             for city in list_of_cities:
                 location = geopy.geocoders.Nominatim().geocode(city)
                 location = (location.latitude, location.longitude)
                 coordinates.update({city: location})
-                
-            df['Latitude'] = df['input_city'].map(lambda x: coordinates[x][0])
-            df['Longitude'] = df['input_city'].map(lambda x: coordinates[x][1])
-            df['EnqueuedTime'] = datetime.now()
-            df['Latest'] = True
-            df['EventDate'] = df['EventTime'].dt.date
-            df['TagName'] = df[['_field'] + tag_columns].apply(":".join, axis=1)
+
+            df["Latitude"] = df["input_city"].map(lambda x: coordinates[x][0])
+            df["Longitude"] = df["input_city"].map(lambda x: coordinates[x][1])
+            df["EnqueuedTime"] = datetime.now()
+            df["Latest"] = True
+            df["EventDate"] = df["EventTime"].dt.date
+            df["TagName"] = df[["_field"] + tag_columns].apply(":".join, axis=1)
             tag_columns.remove("source")
             df.rename(columns={"source": "Source"})
         else:
-            df['TagName'] = df[['_field'] + tag_columns].apply(":".join, axis=1)
+            df["TagName"] = df[["_field"] + tag_columns].apply(":".join, axis=1)
 
-        df['Status'] = 'Good'
-        df.drop(columns=tag_columns+['_field'], inplace=True)
+        df["Status"] = "Good"
+        df = df.astype({"Value": str})
+        df.drop(columns=tag_columns + ["_field"], inplace=True)
 
         # Write to different tables
-        casting_dict = {
-            "prediction": 'float',
-            "stdev": 'float',
-            "pid": 'int',
-            "type": 'str',
-            "customer": 'str',
-            "output": 'float',
-            "output": 'int',
-            "algtype": 'str',
-            "description": 'str',
-            "forecast_solar": 'float',
-            "forecast_wind_on_shore": 'float',
-            "forecast_other": 'float',
-            "forecast": 'float',
-            "quality": 'str',
-            "tAhead": 'float',
-            "source_run": 'int',
-            "input_city": 'str',
-            "temp": 'float',
-            "windspeed_100m": 'float',
-            "windspeed": 'float',
-            "winddeg": 'float',
-            "clouds": 'float',
-            "mxlD": 'float',
-            "snowDepth": 'float',
-            "pressure": 'float',
-            "humidity": 'float',
-            "clearSky_ulf": 'float',
-            "clearSky_dlf": 'float',
-            "radiation": 'float',
-            "windspeed_100m_ensemble": 'float',
-            "windspeed_ensemble": 'float',
-            "winddeg_ensemble": 'float',
-            "clouds_ensemble": 'float',
-            "radiation_ensemble": 'float',
-            "ensemble_run": 'str',
-            "source": 'str',
-            "created": 'int',
-            "system": 'str',
-            "window_days": 'float',
-        }
-
-        p = re.compile(r"quantile_")
-        quantile_columns = [s for s in field_columns if p.match(s)]
-        casting_dict.update(dict.fromkeys(quantile_columns, 'float'))
-
-        if measurement == "prediction_kpi":
-            intcols = ["pid"]
-            floatcols = [x for x in df.columns if x not in intcols]
-            casting_dict.update(dict.fromkeys(floatcols, 'float'))
-
         df_cast = df.copy()
-        df_cast["ChangeType"] =  df_cast["TagName"].str.split(':').str[0]
-        df_cast["ChangeType"] = df_cast["ChangeType"].map(casting_dict)
+        df_cast["ChangeType"] = df_cast["TagName"].str.split(":").str[0]
+        df_cast["ChangeType"] = df_cast["ChangeType"].map(casting_fields)
 
-        int_df = df_cast.loc[df_cast['ChangeType'] == 'int']
-        int_df.drop(columns=['ChangeType'], inplace=True)
-        int_df = int_df.astype({'Value': np.int64})
+        int_df = df_cast.loc[df_cast["ChangeType"] == "int"]
+        int_df.drop(columns=["ChangeType"], inplace=True)
+        int_df = int_df.astype({"Value": np.int64})
 
-        float_df = df_cast.loc[df_cast['ChangeType'] == 'float']
-        float_df.drop(columns=['ChangeType'], inplace=True)
-        float_df = float_df.astype({'Value': np.float64})
+        float_df = df_cast.loc[df_cast["ChangeType"] == "float"]
+        float_df.drop(columns=["ChangeType"], inplace=True)
+        float_df = float_df.astype({"Value": np.float64})
 
-        str_df = df_cast.loc[df_cast['ChangeType'] == 'str']
-        str_df.drop(columns=['ChangeType'], inplace=True)
-        str_df = str_df.astype({'Value': str})
+        str_df = df_cast.loc[df_cast["ChangeType"] == "str"]
+        str_df.drop(columns=["ChangeType"], inplace=True)
+        str_df = str_df.astype({"Value": str})
 
-        dataframes = [(df, measurement), (int_df, measurement+'_restricted_events_integer'), (float_df, measurement+'_restricted_events_float'), (str_df, measurement+'_restricted_events_string')]
+        dataframes = [
+            (df, measurement),
+            (int_df, measurement + "_restricted_events_integer"),
+            (float_df, measurement + "_restricted_events_float"),
+            (str_df, measurement + "_restricted_events_string"),
+        ]
 
-        try:         
+        try:
             for df, measurement in dataframes:
                 if not df.empty:
-                    df.to_sql(measurement, self.pcdm_engine, if_exists='append', index=False)
+                    df.to_sql(
+                        measurement,
+                        self.pcdm_engine,
+                        if_exists="append",
+                        index=False,
+                        # chunksize=5000,
+                        method="multi",
+                    )
             return True
         except Exception as e:
             self.logger.error(
@@ -335,32 +358,28 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             raise
 
     def check_influx_available(self):
-        return self.check_mysql_available(self)
-    
-        # """Check if a basic Databricks SQL query gives a valid response"""
-        # query = "SHOW DATABASES"
-        # response = self.exec_sql_query(query)
-
-        # available = len(list(response["Database"])) > 0
-
-        # return available
+        return self.check_mysql_available()
 
     def exec_sql_query(self, query: str, params: dict = None, **kwargs):
         if params is None:
             params = {}
 
-        pattern = r"select(.*)from"
-        matches = re.findall(pattern, query.lower(), re.DOTALL)
-        columns = [i.strip().split(' ', 1)[0] for i in matches[0].split(",")]
+        pattern = r"(group\s+by).*?(?=(order|having|limit|offset))"
 
-        cols = []
-        for word in columns:
-            if word.startswith("min(") is False:
-                cols.append(word)
+        query = re.sub(pattern, r"\1 all ", query.lower(), flags=re.DOTALL).replace(
+            "having", "group by all having"
+        )
 
-        cols = ', '.join(cols)
+        new_query = []
+        words = query.split()
+        for i in range(0, len(words)):
+            if "%" in words[i] and words[i - 1].lower() == "like":
+                new_query.append("%(" + words[i][1:-1] + ")s")
+                params[words[i][1:-1]] = words[i][1:-1]
+            else:
+                new_query.append(words[i])
 
-        query = query.replace("GROUP BY", "GROUP BY" + " " + cols + ",")
+        query = " ".join(new_query)
 
         try:
             return pd.read_sql(query, self.mysql_engine, params=params, **kwargs)
@@ -380,12 +399,37 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         if params is None:
             params = {}
 
+        statement = statement.lower()
+
         for key in params.keys():
-            if 'table' in key.lower():
+            if "table" in key.lower():
                 statement = statement.replace(f"%({key})s", params[f"{key}"])
 
-        query = sqlparams.SQLParams('pyformat', 'named')
-        statement, params = query.format(statement, params)
+        if re.search(r"insert\signore", statement):
+            values = re.search(r"values\s(.*?)\)", statement).group(0)
+            table = re.search(r"into\s(.*?)\s\(", statement).group(1)
+            columns = re.search(r"\((.*?)\)", statement).group(0)
+            columns_list = re.search(r"\((.*?)\)", statement).group(1).split(",")
+
+            source_cols = ""
+            for i in range(len(columns_list)):
+                source_cols += f"source.col{i+1}, "
+
+            source_cols = source_cols[:-2]
+
+            merge = f"""
+            USING ({values}) AS source
+                ON {table}.{columns_list[0].strip()} = source.col1
+                WHEN NOT MATCHED THEN
+            INSERT {columns}
+                VALUES ({source_cols});
+                """
+
+            statement = re.sub(r"insert\signore", "MERGE", statement)
+            statement = re.sub(r"values\s(.*)$", merge, statement)
+
+        query_format = sqlparams.SQLParams("pyformat", "named")
+        statement, params = query_format.format(statement, params)
 
         try:
             with self.mysql_engine.connect() as connection:
