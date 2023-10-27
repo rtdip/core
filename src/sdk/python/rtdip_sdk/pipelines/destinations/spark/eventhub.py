@@ -54,7 +54,7 @@ class SparkEventhubDestination(DestinationInterface):
             "checkpointLocation": "/{CHECKPOINT-LOCATION}/"
         },
         trigger="10 seconds",
-        query_name="EventhubDestination"
+        query_name="EventhubDestination",
         query_wait_interval=None
     )
 
@@ -80,7 +80,7 @@ class SparkEventhubDestination(DestinationInterface):
             "eventhubs.consumerGroup": "{YOUR-EVENTHUB-CONSUMER-GROUP}"
         },
         trigger="10 seconds",
-        query_name="EventhubDestination"
+        query_name="EventhubDestination",
         query_wait_interval=None
     )
 

@@ -43,10 +43,10 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
         subscription_id="YOUR-SUBSCRIPTION-ID",
         resource_group_name="YOUR-RESOURCE-GROUP",
         storage_account="YOUR-STORAGE-ACCOUNT-NAME",
-        container="YOUR-CONTAINER-NAME"
+        container="YOUR-CONTAINER-NAME",
         directory="DIRECTORY",
         credential="YOUR-CLIENT-ID",
-        event_subscription_name="YOUR-EVENT-SUBSCRIPTION"
+        event_subscription_name="YOUR-EVENT-SUBSCRIPTION",
         queue_name="YOUR-QUEUE-NAME",
         system_topic_name=None
     )

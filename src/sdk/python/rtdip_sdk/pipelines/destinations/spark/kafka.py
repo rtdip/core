@@ -42,7 +42,7 @@ class SparkKafkaDestination(DestinationInterface):
             "kafka.bootstrap.servers": "host1:port1,host2:port2"
         },
         trigger="10 seconds",
-        query_name="KafkaDestination"
+        query_name="KafkaDestination",
         query_wait_interval=None
     )
 

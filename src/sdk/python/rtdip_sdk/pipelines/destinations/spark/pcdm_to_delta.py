@@ -56,7 +56,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         destination_integer="{DELTA_TABLE_PATH_INTEGER}",
         mode="append",
         trigger="10 seconds",
-        query_name="PCDMToDeltaDestination"
+        query_name="PCDMToDeltaDestination",
         query_wait_interval=None,
         merge=True,
         try_broadcast_join=False,
@@ -81,7 +81,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         destination_integer="{DELTA_TABLE_PATH_INTEGER}",
         mode="overwrite",
         trigger="10 seconds",
-        query_name="PCDMToDeltaDestination"
+        query_name="PCDMToDeltaDestination",
         query_wait_interval=None,
         merge=True,
         try_broadcast_join=False,

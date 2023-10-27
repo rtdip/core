@@ -35,7 +35,7 @@ class PandasToPySparkTransformer(TransformerInterface):
     spark = SparkSessionUtility(config={}).execute()
 
     pandas_to_pyspark = PandasToPySparkTransformer(
-        spark=spark
+        spark=spark,
         df=df,
     )
 

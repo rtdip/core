@@ -54,7 +54,7 @@ class SparkIoThubSource(SourceInterface):
         options = {
             "eventhubs.connectionString": connectionString,
             "eventhubs.consumerGroup": "{YOUR-CONSUMER-GROUP}",
-            "eventhubs.startingPosition": json.dumps(startingEventPosition)
+            "eventhubs.startingPosition": json.dumps(startingEventPosition),
             "maxEventsPerTrigger" : 1000
         }
     )
@@ -92,7 +92,7 @@ class SparkIoThubSource(SourceInterface):
         options = {
             "eventhubs.connectionString": connectionString,
             "eventhubs.consumerGroup": "{YOUR-CONSUMER-GROUP}",
-            "eventhubs.startingPosition": json.dumps(startingEventPosition)
+            "eventhubs.startingPosition": json.dumps(startingEventPosition),
             "eventhubs.endingPosition": json.dumps(endingEventPosition)
         }
     )

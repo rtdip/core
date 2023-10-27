@@ -43,7 +43,7 @@ class SparkKinesisSource(SourceInterface):
             "region": "{REGION}",
             "endpoint": "https://kinesis.{REGION}.amazonaws.com",
             "initialPosition": "earliest"
-        },
+        }
     )
 
     kinesis_source.read_stream()

@@ -39,7 +39,7 @@ class SparkKinesisDestination(DestinationInterface):
         },
         mode="update",
         trigger="10 seconds",
-        query_name="KinesisDestination"
+        query_name="KinesisDestination",
         query_wait_interval=None
     )
 

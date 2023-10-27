@@ -40,7 +40,7 @@ class PythonDeltaDestination(DestinationInterface):
                 "azure_storage_account_name": "{AZURE-STORAGE-ACCOUNT-NAME}",
                 "azure_storage_account_key": "{AZURE-STORAGE-ACCOUNT-KEY}"
             },
-            mode=:error"
+            mode=:error",
             overwrite_schema=False,
             delta_write_options=None
         )
@@ -62,7 +62,7 @@ class PythonDeltaDestination(DestinationInterface):
                 "aws_access_key_id": "{AWS-ACCESS-KEY-ID}",
                 "aws_secret_access_key": "{AWS-SECRET-ACCESS-KEY}"
             },
-            mode=:error"
+            mode=:error",
             overwrite_schema=False,
             delta_write_options=None
         )

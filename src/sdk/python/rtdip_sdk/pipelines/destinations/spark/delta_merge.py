@@ -76,13 +76,13 @@ class SparkDeltaMergeDestination(DestinationInterface):
         data=df,
         destination="DELTA-TABLE-PATH",
         options={},
-        merge_condition="`source.id = target.id`"
-        when_matched_update_list=None
-        when_matched_delete_list=None
-        when_not_matched_insert_list=None
-        when_not_matched_by_source_update_list=None
-        when_not_matched_by_source_delete_list=None
-        try_broadcast_join=False
+        merge_condition="`source.id = target.id`",
+        when_matched_update_list=None,
+        when_matched_delete_list=None,
+        when_not_matched_insert_list=None,
+        when_not_matched_by_source_update_list=None,
+        when_not_matched_by_source_delete_list=None,
+        try_broadcast_join=False,
         trigger="10 seconds",
         query_name="DeltaDestination"
         query_wait_interval=None

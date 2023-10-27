@@ -32,6 +32,27 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
 
     Historical is the same PJM endpoint as Actual, but is called repeatedly within a range established by the start_date & end_date attributes
 
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.sources import PJMHistoricalLoadISOSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    pjm_source = PJMHistoricalLoadISOSource(
+        spark=spark,
+        options={
+            "api_key": "{api_key}",
+            "start_date": "20230510",
+            "end_date": "20230520",
+        }
+    )
+
+    pjm_source.read_batch()
+    ```
+
     Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)

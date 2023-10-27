@@ -52,10 +52,10 @@ class SparkPCDMLatestToDeltaDestination(DestinationInterface):
         options={
             "checkpointLocation": "{/CHECKPOINT-LOCATION/}"
         },
-        destination="{DELTA_TABLE_PATH}"
+        destination="{DELTA_TABLE_PATH}",
         mode="append",
         trigger="10 seconds",
-        query_name="PCDMLatestToDeltaDestination"
+        query_name="PCDMLatestToDeltaDestination",
         query_wait_interval=None
     )
 
@@ -71,10 +71,10 @@ class SparkPCDMLatestToDeltaDestination(DestinationInterface):
         options={
             "maxRecordsPerFile", "10000"
         },
-        destination="{DELTA_TABLE_PATH}"
+        destination="{DELTA_TABLE_PATH}",
         mode="overwrite",
         trigger="10 seconds",
-        query_name="PCDMLatestToDeltaDestination"
+        query_name="PCDMLatestToDeltaDestination",
         query_wait_interval=None
     )
 

@@ -41,7 +41,7 @@ class SparkDeltaDestination(DestinationInterface):
         destination="DELTA-TABLE-PATH",
         mode="append",
         trigger="10 seconds",
-        query_name="DeltaDestination"
+        query_name="DeltaDestination",
         query_wait_interval=None
     )
 
@@ -60,7 +60,7 @@ class SparkDeltaDestination(DestinationInterface):
         destination="DELTA-TABLE-PATH",
         mode="append",
         trigger="10 seconds",
-        query_name="DeltaDestination"
+        query_name="DeltaDestination",
         query_wait_interval=None
     )
 

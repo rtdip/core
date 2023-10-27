@@ -36,11 +36,11 @@ class S3BucketPolicyUtility(UtilitiesInterface):
         bucket_name="YOUR-BUCKET-NAME",
         aws_access_key_id="YOUR-AWS-ACCESS-KEY",
         aws_secret_access_key="YOUR-AWS-SECRET-ACCESS-KEY",
-        aws_session_token="YOUR-AWS-SESSION-TOKEN"
+        aws_session_token="YOUR-AWS-SESSION-TOKEN",
         sid="YOUD-SID",
         effect="EFFECT",
         principal="PRINCIPAL",
-        action=["ACTIONS"]
+        action=["ACTIONS"],
         resource=["RESOURCES"]
     )
 

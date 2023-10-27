@@ -85,7 +85,7 @@ class SparkKafkaEventhubSource(SourceInterface):
             "failOnDataLoss": "false",
         },
         connection_string=connectionString,
-        consumer_group="consumerGroup",
+        consumer_group="consumerGroup"
     )
 
     kafka_eventhub_source.read_stream()
@@ -110,7 +110,7 @@ class SparkKafkaEventhubSource(SourceInterface):
             "failOnDataLoss": "false"
         },
         connection_string=connectionString,
-        consumer_group="consumerGroup",
+        consumer_group="consumerGroup"
     )
 
     kafka_eventhub_source.read_batch()
