@@ -43,8 +43,7 @@ from ..._pipeline_utils.constants import get_default_package
 
 class SparkPIOMFDestination(DestinationInterface):
     """
-    The Spark Rest API Destination is used to write data to a Rest API.
-    The payload sent to the API is constructed by converting each row in the DataFrame to Json.
+    The Spark PI OMF Destination is used to write data to a Rest API PI endpoint.
     !!! Note
         While it is possible to use the `write_batch` method, it is easy to overwhlem a Rest API with large volumes of data.
         Consider reducing data volumes when writing to a Rest API in Batch mode to prevent API errors including throtting.
@@ -335,7 +334,7 @@ class SparkPIOMFDestination(DestinationInterface):
 
     def write_batch(self):
         """
-        Writes batch data to a Rest API
+        Writes batch data to a PI Rest API
         """
         try:
             self._api_micro_batch()
@@ -348,7 +347,7 @@ class SparkPIOMFDestination(DestinationInterface):
 
     def write_stream(self):
         """
-        Writes streaming data to a Rest API
+        Writes streaming data to a PI Rest API
         """
         try:
             TRIGGER_OPTION = (
