@@ -37,8 +37,25 @@ from ..._pipeline_utils import obc_field_mappings
 
 class SEMJsonToPCDMTransformer(TransformerInterface):
     """
-    Converts a Spark Dataframe column containing a json string created by SEM to the Process Control Data Model
-    Args:
+    Converts a Spark Dataframe column containing a json string created by SEM to the Process Control Data Model.
+
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.transformers import SEMJsonToPCDMTransformer
+
+    sem_json_to_pcdm_transformer = SEMJsonToPCDMTransformer(
+        data=df
+        source_column_name="body",
+        version=10,
+        status_null_value="Good",
+        change_type_value="insert"
+    )
+
+    result = sem_json_to_pcdm_transformer.transform()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe containing the column with SEM data
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         version (int): The version for the OBC field mappings. The latest version is 10.

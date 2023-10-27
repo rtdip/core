@@ -30,7 +30,19 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
 
     For more information about the SSIP PI Batch Connector, please see [here.](https://bakerhughesc3.ai/oai-solution/shell-sensor-intelligence-platform/)
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.transformers import SSIPPIBinaryFileToPCDMTransformer
+
+    ssip_pi_binary_file_to_pcdm_transformer = SSIPPIBinaryFileToPCDMTransformer(
+        data=df
+    )
+
+    result = ssip_pi_binary_file_to_pcdm_transformer.transform()
+    ```
+
+    Parameters:
         data (DataFrame): DataFrame containing the path and binaryFile data
     """
 

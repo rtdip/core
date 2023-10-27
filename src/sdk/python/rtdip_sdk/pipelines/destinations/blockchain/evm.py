@@ -21,7 +21,27 @@ from ...destinations.interfaces import DestinationInterface
 class EVMContractDestination(DestinationInterface):
     """
     The EVM Contract Destination is used to write to a smart contract blockchain.
-    Args:
+
+    Examples
+    --------
+    ```python
+    from rtdip_sdk.pipelines.destinations import EVMContractDestination
+
+    evm_contract_destination = EVMContractDestination(
+        url="https://polygon-mumbai.g.alchemy.com/v2/⟨API_KEY⟩",
+        account="{ACCOUNT-ADDRESS}",
+        private_key="{PRIVATE-KEY}",
+        abi="{SMART-CONTRACT'S-ABI}",
+        contract="{SMART-CONTRACT-ADDRESS}",
+        function_name="{SMART-CONTRACT-FUNCTION}",
+        function_params=({PARAMETER_1}, {PARAMETER_2}, {PARAMETER_3}),
+        transaction={'gas': {GAS}, 'gasPrice': {GAS-PRICE}},
+    )
+
+    evm_contract_destination.write_batch()
+    ```
+
+    Parameters:
         url (str): Blockchain network URL e.g. 'https://polygon-mumbai.g.alchemy.com/v2/⟨API_KEY⟩'
         account (str): Address of the sender that will be signing the transaction.
         private_key (str): Private key for your blockchain account.
@@ -30,6 +50,7 @@ class EVMContractDestination(DestinationInterface):
         function_name (str): Smart contract method to call on.
         function_params (tuple): Parameters of given function.
         transaction (dict): A dictionary containing a set of instructions to interact with a smart contract deployed on the blockchain (See common parameters in Attributes table below).
+
     Attributes:
         data (hexadecimal str): Additional information store in the transaction.
         from (hexadecimal str): Address of sender for a transaction.

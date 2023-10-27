@@ -63,10 +63,63 @@ class SparkKafkaEventhubSource(SourceInterface):
     - `kafka.request.timeout.ms` will be set to `60000`
     - `kafka.session.timeout.ms` will be set to `60000`
 
-    Required and optional configurations can be found in the Attributes tables below.
+    Examples
+    --------
+    ```python
+    #Kafka Source for Streaming Queries
+
+    from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    connectionString = "Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}"
+    consumerGroup = "{YOUR-CONSUMER-GROUP}"
+
+    kafka_eventhub_source = SparkKafkaEventhubSource(
+        spark=spark,
+        options={
+            "startingOffsets": "earliest",
+            "maxOffsetsPerTrigger": 10000,
+            "failOnDataLoss": "false",
+        },
+        connection_string=connectionString,
+        consumer_group="consumerGroup"
+    )
+
+    kafka_eventhub_source.read_stream()
+    ```
+    ```python
+    #Kafka Source for Batch Queries
+
+    from rtdip_sdk.pipelines.sources import SparkKafkaEventhubSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    connectionString = "Endpoint=sb://{NAMESPACE}.servicebus.windows.net/;SharedAccessKeyName={ACCESS_KEY_NAME};SharedAccessKey={ACCESS_KEY}=;EntityPath={EVENT_HUB_NAME}"
+    consumerGroup = "{YOUR-CONSUMER-GROUP}"
+
+    kafka_eventhub_source = SparkKafkaEventhubSource(
+        spark=spark,
+        options={
+            "startingOffsets": "earliest",
+            "endingOffsets": "latest",
+            "failOnDataLoss": "false"
+        },
+        connection_string=connectionString,
+        consumer_group="consumerGroup"
+    )
+
+    kafka_eventhub_source.read_batch()
+    ```
+
+    Required and optional configurations can be found in the Attributes and Parameter tables below.
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
         connection_string (str): Eventhubs connection string is required to connect to the Eventhubs service. This must include the Eventhub name as the `EntityPath` parameter. Example `"Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"`

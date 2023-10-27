@@ -27,7 +27,7 @@ class SparkECMWFWeatherForecastSource(SourceInterface):
     """
     The Weather Forecast API V1 Source class to doownload nc files from ECMWF MARS server using the ECMWF python API.
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session instance
         save_path (str): Path to local directory where the nc files will be stored, in format "yyyy-mm-dd_HH.nc"
         date_start (str): Start date of extraction in "YYYY-MM-DD HH:MM:SS" format    date_end:str,

@@ -24,9 +24,9 @@ from ...._pipeline_utils.weather import WEATHER_DATA_MODEL
 
 class RawForecastToWeatherDataModel(TransformerInterface):
     """
-    Converts a raw forecast into weather data model
+    Converts a raw forecast into weather data model.
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session instance.
         data (DataFrame): Dataframe to be transformed
     """
