@@ -17,7 +17,6 @@ import time
 import math
 import requests
 import gzip
-import json
 from requests.adapters import HTTPAdapter
 from requests.exceptions import HTTPError
 from requests.auth import AuthBase

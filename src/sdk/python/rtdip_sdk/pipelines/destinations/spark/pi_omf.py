@@ -17,7 +17,6 @@ import time
 import requests
 import math
 from requests.exceptions import HTTPError
-from requests.adapters import HTTPAdapter
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import (
     to_json,
@@ -25,15 +24,11 @@ from pyspark.sql.functions import (
     col,
     row_number,
     collect_list,
-    udf,
     floor,
-    array,
     when,
     coalesce,
-    expr,
     lit,
     size,
-    concat,
 )
 from pyspark.sql.window import Window
 from py4j.protocol import Py4JJavaError

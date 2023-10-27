@@ -27,12 +27,9 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     PyPiLibrary,
 )
 from pyspark.sql import SparkSession
-
-# from pyspark_test import
 from pytest_mock import MockerFixture
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType
 from pyspark.sql.functions import to_json, col
-import requests
 import pytest
 import os
 
