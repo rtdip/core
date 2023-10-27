@@ -30,7 +30,21 @@ class SparkSessionUtility(UtilitiesInterface):
 
     Call this component after all imports of the RTDIP components to ensure that the spark session is configured correctly.
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    spark_session_utility = SparkConfigurationUtility(
+        config={},
+        module=None,
+        remote=None
+    )
+
+    result = spark_session_utility.execute()
+    ```
+
+    Parameters:
         config (optional dict): Dictionary of spark configuration to be applied to the spark session
         module (optional str): Provide the module to use for imports of rtdip-sdk components. If not populated, it will use the calling module to check for imports
         remote (optional str): Specify the remote parameters if intending to use Spark Connect
@@ -70,6 +84,7 @@ class SparkSessionUtility(UtilitiesInterface):
         return {}
 
     def execute(self) -> SparkSession:
+        """To execute"""
         try:
             (task_libraries, spark_configuration) = PipelineComponentsGetUtility(
                 self.module, self.config

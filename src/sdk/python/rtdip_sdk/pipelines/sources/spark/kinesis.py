@@ -24,9 +24,39 @@ class SparkKinesisSource(SourceInterface):
     """
     The Spark Kinesis Source is used to read data from Kinesis in a Databricks environment.
     Structured streaming from Kinesis is **not** supported in open source Spark.
-    Args:
+
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.sources import SparkKinesisSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    kinesis_source = SparkKinesisSource(
+        spark=spark,
+        options={
+            "awsAccessKey": "{AWS-ACCESS-KEY}",
+            "awsSecretKey": "{AWS-SECRET-KEY}",
+            "streamName": "{STREAM-NAME}",
+            "region": "{REGION}",
+            "endpoint": "https://kinesis.{REGION}.amazonaws.com",
+            "initialPosition": "earliest"
+        }
+    )
+
+    kinesis_source.read_stream()
+
+    OR
+
+    kinesis_source.read_batch()
+    ```
+
+    Parameters:
         spark (SparkSession): Spark Session required to read data from Kinesis
         options (dict): Options that can be specified for a Kinesis read operation (See Attributes table below). Further information on the options is available [here](https://docs.databricks.com/structured-streaming/kinesis.html#configuration){ target="_blank" }
+
     Attributes:
         awsAccessKey (str): AWS access key.
         awsSecretKey (str): AWS secret access key corresponding to the access key.

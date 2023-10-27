@@ -30,21 +30,20 @@ class SparkWeatherCompanyForecastAPIV1MultiSource(
     https://api.weather.com/v1/geocode/32.3667/-95.4/forecast/hourly/360hour.json</a>
 
     It takes a list of Weather Stations. Each station item must contain comma separated Latitude & Longitude.
-    Examples -
 
+    Examples
+    --------
     `["32.3667,-95.4", "51.52,-0.11"]`
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session instance
-        options (dict): A dictionary of ISO Source specific configurations
+        options (dict): A dictionary of ISO Source specific configurations (See Attributes table below).
 
     Attributes:
         stations (list[str]): List of Weather Stations.
         api_key (str): Weather API key.
         language (str): API response language. Defaults to `en-US`.
         units (str): Unit of measurements. Defaults to `e`.
-
-
     """
 
     spark: SparkSession

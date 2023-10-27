@@ -23,7 +23,34 @@ from ..._pipeline_utils.models import Libraries, SystemType
 class SparkKinesisDestination(DestinationInterface):
     """
     This Kinesis destination class is used to write batch or streaming data to Kinesis. Kinesis configurations need to be specified as options in a dictionary.
-    Args:
+
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.destinations import SparkKinesisDestination
+
+    kinesis_destination = SparkKinesisDestination(
+        data=df,
+        options={
+            "endpointUrl": "https://kinesis.{REGION}.amazonaws.com",
+            "awsAccessKey": "{YOUR-AWS-ACCESS-KEY}",
+            "awsSecretKey": "{YOUR-AWS-SECRET-KEY}",
+            "streamName": "{YOUR-STREAM-NAME}"
+        },
+        mode="update",
+        trigger="10 seconds",
+        query_name="KinesisDestination",
+        query_wait_interval=None
+    )
+
+    kinesis_destination.write_stream()
+
+    OR
+
+    kinesis_destination.write_batch()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe to be written to Delta
         options (dict): A dictionary of Kinesis configurations (See Attributes table below). All Configuration options for Kinesis can be found [here.](https://github.com/qubole/kinesis-sql#kinesis-sink-configuration){ target="_blank" }
         mode (str): Method of writing to Kinesis - append, complete, update
