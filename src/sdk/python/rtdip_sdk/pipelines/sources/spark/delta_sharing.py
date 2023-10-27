@@ -25,7 +25,51 @@ class SparkDeltaSharingSource(SourceInterface):
     """
     The Spark Delta Sharing Source is used to read data from a Delta table where Delta sharing is configured
 
-    Args:
+    Example
+    --------
+    ```python
+    #Delta Sharing Source for Streaming Queries
+
+    from rtdip_sdk.pipelines.sources import SparkDeltaSharingSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    delta_sharing_source = SparkDeltaSharingSource(
+        spark=spark,
+        options={
+            "maxFilesPerTrigger": 1000,
+            "ignoreChanges: True,
+            "startingVersion": 0
+        },
+        table_name="{YOUR-DELTA-TABLE-PATH}"
+    )
+
+    delta_sharing_source.read_stream()
+    ```
+    ```python
+    #Delta Sharing Source for Batch Queries
+
+    from rtdip_sdk.pipelines.sources import SparkDeltaSharingSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    delta_sharing_source = SparkDeltaSharingSource(
+        spark=spark,
+        options={
+            "versionAsOf": 0,
+            "timestampAsOf": "yyyy-mm-dd hh:mm:ss[.fffffffff]"
+        },
+        table_name="{YOUR-DELTA-TABLE-PATH}"
+    )
+
+    delta_sharing_source.read_batch()
+    ```
+
+    Parameters:
         spark (SparkSession): Spark Session required to read data from a Delta table
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available [here](https://docs.databricks.com/data-sharing/read-data-open.html#apache-spark-read-shared-data){ target="_blank" }
         table_path (str): Path to credentials file and Delta table to query

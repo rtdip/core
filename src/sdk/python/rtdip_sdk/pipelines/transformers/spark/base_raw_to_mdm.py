@@ -33,7 +33,7 @@ class BaseRawToMDMTransformer(TransformerInterface):
 
     It supports the generation of both the outputs as they share some common properties.
 
-    Args:
+    Parameters:
         spark (SparkSession): Spark Session instance.
         data (DataFrame): Dataframe containing the raw MISO data.
         output_type (str): Must be one of `usage` or `meta`.

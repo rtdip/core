@@ -25,8 +25,52 @@ class SparkDeltaSource(SourceInterface):
     """
     The Spark Delta Source is used to read data from a Delta table.
 
-    Args:
-        spark (SparkSession): Spark Session required to read data from a Delta table
+    Example
+    --------
+    ```python
+    #Delta Source for Streaming Queries
+
+    from rtdip_sdk.pipelines.sources import SparkDeltaSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    delta_source = SparkDeltaSource(
+        spark=spark,
+        options={
+            "maxFilesPerTrigger": 1000,
+            "ignoreChanges: True,
+            "startingVersion": 0
+        },
+        table_name="{YOUR-DELTA-TABLE-PATH}"
+    )
+
+    delta_source.read_stream()
+    ```
+    ```python
+    #Delta Source for Batch Queries
+
+    from rtdip_sdk.pipelines.sources import SparkDeltaSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    delta_source = SparkDeltaSource(
+        spark=spark,
+        options={
+            "versionAsOf": 0,
+            "timestampAsOf": "yyyy-mm-dd hh:mm:ss[.fffffffff]"
+        },
+        table_name="{YOUR-DELTA-TABLE-PATH}"
+    )
+
+    delta_source.read_batch()
+    ```
+
+    Parameters:
+        spark (SparkSession): Spark Session required to read data from a Delta table.
         options (dict): Options that can be specified for a Delta Table read operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#read-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-source){ target="_blank" }.
         table_name (str): Name of the Hive Metastore or Unity Catalog Delta Table
 

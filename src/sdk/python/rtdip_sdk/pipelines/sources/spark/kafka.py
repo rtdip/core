@@ -28,18 +28,62 @@ class SparkKafkaSource(SourceInterface):
 
     Additionally, there are more optional configurations which can be found [here.](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
-    Args:
+    Example
+    --------
+    ```python
+     #Kafka Source for Streaming Queries
+
+    from rtdip_sdk.pipelines.sources import SparkKafkaSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    kafka_source = SparkKafkaSource(
+        spark=spark,
+        options={
+            "kafka.bootstrap.servers": "{HOST_1}:{PORT_1},{HOST_2}:{PORT_2}",
+            "subscribe": "{TOPIC_1},{TOPIC_2}",
+            "includeHeaders", "true"
+        }
+    )
+
+    kafka_source.read_stream()
+    ```
+    ```python
+     #Kafka Source for Batch Queries
+
+    from rtdip_sdk.pipelines.sources import SparkKafkaSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    kafka_source = SparkKafkaSource(
+        spark=spark,
+        options={
+            "kafka.bootstrap.servers": "{HOST_1}:{PORT_1},{HOST_2}:{PORT_2}",
+            "subscribe": "{TOPIC_1},{TOPIC_2}",
+            "startingOffsets": "earliest",
+            "endingOffsets": "latest"
+        }
+    )
+
+    kafka_source.read_batch()
+    ```
+
+    Parameters:
         spark (SparkSession): Spark Session
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
 
-    The following options are the most common configurations for Kafka.
+    The following attributes are the most common configurations for Kafka.
 
     The only configuration that must be set for the Kafka source for both batch and streaming queries is listed below.
 
     Attributes:
         kafka.bootstrap.servers (A comma-separated list of host︰port):  The Kafka "bootstrap.servers" configuration. (Streaming and Batch)
 
-    There are multiple ways of specifying which topics to subscribe to. You should provide only one of these parameters:
+    There are multiple ways of specifying which topics to subscribe to. You should provide only one of these attributes:
 
     Attributes:
         assign (json string {"topicA"︰[0,1],"topicB"︰[2,4]}):  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source. (Streaming and Batch)
