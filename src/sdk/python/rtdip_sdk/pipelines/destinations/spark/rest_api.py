@@ -50,7 +50,56 @@ class SparkRestAPIDestination(DestinationInterface):
         While it is possible to use the `write_batch` method, it is easy to overwhelm a Rest API with large volumes of data.
         Consider reducing data volumes when writing to a Rest API in Batch mode to prevent API errors including throtting.
 
-    Args:
+    Example
+    --------
+    ```python
+    #Rest API Destination for Streaming Queries
+
+    from rtdip_sdk.pipelines.destinations import SparkRestAPIDestination
+
+    rest_api_destination = SparkRestAPIDestination(
+        data=df,
+        options={
+            "checkpointLocation": "{/CHECKPOINT-LOCATION/}"
+        },
+        url="{REST-API-URL}",
+        headers = {
+            'Authorization': 'Bearer {}'.format("{TOKEN}")
+        },
+        batch_size=100,
+        method="POST",
+        parallelism=8,
+        trigger="1 minute",
+        query_name="DeltaRestAPIDestination",
+        query_wait_interval=None
+    )
+
+    rest_api_destination.write_stream()
+    ```
+    ```python
+    #Rest API Destination for Batch Queries
+
+    from rtdip_sdk.pipelines.destinations import SparkRestAPIDestination
+
+    rest_api_destination = SparkRestAPIDestination(
+        data=df,
+        options={},
+        url="{REST-API-URL}",
+        headers = {
+            'Authorization': 'Bearer {}'.format("{TOKEN}")
+        },
+        batch_size=10,
+        method="POST",
+        parallelism=4,
+        trigger="1 minute",
+        query_name="DeltaRestAPIDestination",
+        query_wait_interval=None
+    )
+
+    rest_api_destination.write_stream()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe to be merged into a Delta Table
         options (dict): A dictionary of options for streaming writes, leave empty for batch
         url (str): The Rest API Url

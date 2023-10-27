@@ -28,13 +28,34 @@ from azure.mgmt.eventgrid.models import (
 )
 from azure.mgmt.storage import StorageManagementClient
 from azure.mgmt.storage.models import StorageQueue
+from azure.core.exceptions import ResourceNotFoundError
 
 
 class AzureAutoloaderResourcesUtility(UtilitiesInterface):
     """
-    Creates the required Azure Resources for the Databricks Autoloader Notification Mode
+    Creates the required Azure Resources for the Databricks Autoloader Notification Mode.
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.utilities import AzureAutoloaderResourcesUtility
+
+    azure_autoloader_resources_utility = AzureAutoloaderResourcesUtility(
+        subscription_id="YOUR-SUBSCRIPTION-ID",
+        resource_group_name="YOUR-RESOURCE-GROUP",
+        storage_account="YOUR-STORAGE-ACCOUNT-NAME",
+        container="YOUR-CONTAINER-NAME",
+        directory="DIRECTORY",
+        credential="YOUR-CLIENT-ID",
+        event_subscription_name="YOUR-EVENT-SUBSCRIPTION",
+        queue_name="YOUR-QUEUE-NAME",
+        system_topic_name=None
+    )
+
+    result = azure_autoloader_resources_utility.execute()
+    ```
+
+    Parameters:
         subscription_id (str): Azure Subscription ID
         resource_group_name (str): Resource Group Name of Subscription
         storage_account (str): Storage Account Name
@@ -43,7 +64,6 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
         credential (TokenCredential): Credentials to authenticate with Storage Account
         event_subscription_name (str): Name of the Event Subscription
         queue_name (str): Name of the queue that will be used for the Endpoint of the Messages
-        system_topic_name (optional, str): The system topic name. Defaults to the storage account name if not provided.
     """
 
     subscription_id: str
@@ -54,7 +74,6 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
     credential: TokenCredential
     event_subscription_name: str
     queue_name: str
-    system_topic_name: str
 
     def __init__(
         self,
@@ -66,7 +85,6 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
         credential: TokenCredential,
         event_subscription_name: str,
         queue_name: str,
-        system_topic_name: str = None,
     ) -> None:
         self.subscription_id = subscription_id
         self.resource_group_name = resource_group_name
@@ -76,9 +94,6 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
         self.credential = credential
         self.event_subscription_name = event_subscription_name
         self.queue_name = queue_name
-        self.system_topic_name = (
-            storage_account if system_topic_name is None else system_topic_name
-        )
 
     @staticmethod
     def system_type():
@@ -104,21 +119,16 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
             credential=self.credential, subscription_id=self.subscription_id
         )
 
-        account_properties = storage_mgmt_client.storage_accounts.get_properties(
-            resource_group_name=self.resource_group_name,
-            account_name=self.storage_account,
-        )
+        try:
+            queue_response = storage_mgmt_client.queue.get(
+                resource_group_name=self.resource_group_name,
+                account_name=self.storage_account,
+                queue_name=self.queue_name,
+            )
+        except ResourceNotFoundError:
+            queue_response = None
 
-        queue_response = storage_mgmt_client.queue.list(
-            resource_group_name=self.resource_group_name,
-            account_name=self.storage_account,
-        )
-
-        queue_list = [
-            queue for queue in queue_response if queue.name == self.queue_name
-        ]
-
-        if queue_list == []:
+        if queue_response == None:
             storage_mgmt_client.queue.create(
                 resource_group_name=self.resource_group_name,
                 account_name=self.storage_account,
@@ -130,47 +140,18 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
             credential=self.credential, subscription_id=self.subscription_id
         )
 
-        system_topic_response = eventgrid_client.system_topics.list_by_resource_group(
-            resource_group_name=self.resource_group_name,
-            filter="name eq '{}'".format(self.system_topic_name),
-        )
-
         source = "/subscriptions/{}/resourceGroups/{}/providers/Microsoft.Storage/StorageAccounts/{}".format(
             self.subscription_id, self.resource_group_name, self.storage_account
         )
 
-        system_topic_list = [
-            system_topic
-            for system_topic in system_topic_response
-            if system_topic.source == source
-        ]
-
-        if system_topic_list == []:
-            eventgrid_client.system_topics.begin_create_or_update(
-                resource_group_name=self.resource_group_name,
-                system_topic_name=self.system_topic_name,
-                system_topic_info=SystemTopic(
-                    location=account_properties.location,
-                    source=source,
-                    topic_type="Microsoft.Storage.StorageAccounts",
-                ),
-            ).result()
-
-        system_topic_event_subscription_response = (
-            eventgrid_client.system_topic_event_subscriptions.list_by_system_topic(
-                resource_group_name=self.resource_group_name,
-                system_topic_name=self.system_topic_name,
-                filter="name eq '{}'".format(self.event_subscription_name),
+        try:
+            event_subscription_response = eventgrid_client.event_subscriptions.get(
+                scope=source, event_subscription_name=self.event_subscription_name
             )
-        )
+        except ResourceNotFoundError:
+            event_subscription_response = None
 
-        system_topic_event_subscription_list = [
-            system_topic_event_subscription
-            for system_topic_event_subscription in system_topic_event_subscription_response
-            if system_topic_event_subscription.source == source
-        ]
-
-        if system_topic_event_subscription_list == []:
+        if event_subscription_response == None:
             event_subscription_destination = StorageQueueEventSubscriptionDestination(
                 resource_id=source,
                 queue_name=self.queue_name,
@@ -210,10 +191,10 @@ class AzureAutoloaderResourcesUtility(UtilitiesInterface):
                 retry_policy=retry_policy,
             )
 
-            eventgrid_client.system_topic_event_subscriptions.begin_create_or_update(
-                resource_group_name=self.resource_group_name,
-                system_topic_name=self.system_topic_name,
+            eventgrid_client.event_subscriptions.begin_create_or_update(
+                scope=source,
                 event_subscription_name=self.event_subscription_name,
                 event_subscription_info=event_subscription_info,
             ).result()
+
             return True

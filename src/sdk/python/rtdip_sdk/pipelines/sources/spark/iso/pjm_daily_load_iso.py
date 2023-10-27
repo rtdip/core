@@ -35,7 +35,27 @@ class PJMDailyLoadISOSource(BaseISOSource):
 
     Forecast doc:  <a href="https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition">https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition</a>
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.sources import PJMDailyLoadISOSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    pjm_source = PJMDailyLoadISOSource(
+        spark=spark,
+        options={
+            "api_key": "{api_key}",
+            "load_type": "actual"
+        }
+    )
+
+    pjm_source.read_batch()
+    ```
+
+    Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
