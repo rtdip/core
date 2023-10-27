@@ -33,30 +33,6 @@ class BaseRawToMDMTransformer(TransformerInterface):
 
     It supports the generation of both the outputs as they share some common properties.
 
-    Example
-    --------
-    ```python
-    from rtdip_sdk.pipelines.transformers import BaseRawToMDMTransformer
-    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
-
-    # Not required if using Databricks
-    spark = SparkSessionUtility(config={}).execute()
-
-    base_raw_to_mdm_transformer = BaseRawToMDMTransformer(
-        spark=spark,
-        data=df,
-        output_type="usage",
-        name=None,
-        description=None,
-        value_type=None,
-        version=None,
-        series_id=None,
-        series_parent_id=None
-    )
-
-    result = base_raw_to_mdm_transformer.transform()
-    ```
-
     Parameters:
         spark (SparkSession): Spark Session instance.
         data (DataFrame): Dataframe containing the raw MISO data.
