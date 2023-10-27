@@ -40,6 +40,9 @@ class MockEventSubscription:
     def __init__(self) -> None:  # NOSONAR
         pass
 
+    def get(self, **kwargs):
+        return None
+
     def list_by_system_topic(self, **kwargs):
         return []
 
@@ -65,6 +68,9 @@ class MockQueue:
     def create(self, **kwargs):  # NOSONAR
         pass
 
+    def get(self, **kwargs):
+        return None
+
     def list(self, **kwargs):
         return []
 
@@ -87,6 +93,7 @@ class MockStorageManagementClient:
 class MockEventGridClient:
     system_topics = MockSystemTopics()
     system_topic_event_subscriptions = MockEventSubscription()
+    event_subscriptions = MockEventSubscription()
 
     def __init__(self) -> None:  # NOSONAR
         pass
