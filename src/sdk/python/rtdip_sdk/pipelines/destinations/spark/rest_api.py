@@ -249,7 +249,6 @@ class SparkRestAPIDestination(DestinationInterface):
         if _execute_transformation:
             micro_batch_df = self._pre_batch_records_for_api_call(micro_batch_df)
         micro_batch_df = micro_batch_df.repartition(self.parallelism)
-        micro_batch_df.show(truncate=False)
         (
             micro_batch_df.withColumn(
                 "rest_api_response_code", _rest_api_execute(micro_batch_df["payload"])

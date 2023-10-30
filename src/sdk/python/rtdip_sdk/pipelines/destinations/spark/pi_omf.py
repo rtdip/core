@@ -323,7 +323,6 @@ class SparkPIOMFDestination(DestinationInterface):
         self._send_container_message(self.data)
         pi_omf_df = self._pre_batch_records_for_api_call(self.data)
         pi_omf_df = self._group_rows(pi_omf_df)
-        pi_omf_df.show(truncate=False)
         return SparkRestAPIDestination(
             data=pi_omf_df,
             options=self.options,
