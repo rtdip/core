@@ -16,6 +16,7 @@ import logging
 import time
 import requests
 import math
+from typing import Literal
 from requests.exceptions import HTTPError
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import (
@@ -176,7 +177,7 @@ class SparkPIOMFDestination(DestinationInterface):
         ]
         self._setup_omf_execute(json.dumps(json_message), "type")
 
-    def _send_container_message(self, micro_batch_df):
+    def _send_container_message(self, micro_batch_df: DataFrame):
         distinct_values_df = micro_batch_df.select("TagName", "ValueType").distinct()
         json_message = []
         for row in distinct_values_df.collect():
@@ -193,7 +194,9 @@ class SparkPIOMFDestination(DestinationInterface):
         if len(json_message) > 0:
             self._setup_omf_execute(json.dumps(json_message), "container")
 
-    def _setup_omf_execute(self, data, message_type):
+    def _setup_omf_execute(
+        self, data: str, message_type: Literal["type", "container", "data"]
+    ):
         headers = {
             "messagetype": message_type,
             "action": "create",

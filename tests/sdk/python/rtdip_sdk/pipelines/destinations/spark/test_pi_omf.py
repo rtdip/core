@@ -30,6 +30,7 @@ from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType
 from pyspark.sql.functions import to_json, col
+from requests.exceptions import HTTPError
 import pytest
 import os
 
@@ -41,10 +42,7 @@ class TestStreamingQueryClass:
     isActive: bool = False  # NOSONAR
 
 
-class MockResponse:
-    status_code: str
-
-
+tag_name = "Sample.Script.RTDIP7"
 test_url = "https://test.com/api"
 source_schema = StructType(
     [
@@ -59,7 +57,7 @@ source_schema = StructType(
 
 source_data = [
     {
-        "TagName": "Sample.Script.RTDIP7",
+        "TagName": tag_name,
         "EventTime": "2023-10-01T15:44:56Z",
         "Status": "Good",
         "Value": 7.3,
@@ -67,7 +65,7 @@ source_data = [
         "ChangeType": "insert",
     },
     {
-        "TagName": "Sample.Script.RTDIP7",
+        "TagName": tag_name,
         "EventTime": "2023-09-30T06:56:00+00:00",
         "Status": "Good",
         "Value": 6.2,
@@ -154,7 +152,7 @@ def test_spark_pi_omf_write_batch(spark_session: SparkSession, mocker: MockerFix
         {
             "payload": [
                 {
-                    "containerid": "Sample.Script.RTDIP7",
+                    "containerid": tag_name,
                     "values": [
                         {"time": "2023-10-01T15:44:56Z", "Value": 7.3},
                         {"time": "2023-09-30T06:56:00+00:00", "Value": 6.2},
@@ -295,3 +293,25 @@ def test_spark_rest_api_write_stream_fails(
     )
     with pytest.raises(Exception):
         restapi_destination.write_stream()
+
+
+def test_send_type_message_fails(spark_session: SparkSession, mocker: MockerFixture):
+    mocked_response = mocker.Mock()
+    mocked_response.status_code = 404
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pi_omf.requests.post",
+        return_value=mocked_response,
+    )
+    sample_df = spark_session.createDataFrame([{"id": "1"}])
+    with pytest.raises(HTTPError):
+        SparkPIOMFDestination(
+            sample_df,
+            {},
+            test_url,
+            "username",
+            "password",
+            2,
+            2,
+            compression=True,
+            create_type_message=True,
+        )
