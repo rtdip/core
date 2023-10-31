@@ -161,9 +161,9 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                 ),
             )
 
-        df = (
-            cleaned_pcdm_df.withColumn(
-                "CloudPlatformEvent",
+        df = cleaned_pcdm_df.withColumn(
+            "body",
+            struct(
                 struct(
                     lit(datetime.now(tz=pytz.UTC)).alias("CreatedTime"),
                     lit(expr("uuid()")).alias("Id"),
@@ -189,20 +189,14 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
                         ),
                     ).alias("BodyProperties"),
                     lit("DataChange.Update").alias("EventType"),
-                ),
-            )
-            .withColumn("AnnotationStreamIds", lit(","))
-            .withColumn("partitionKey", col("guid"))
-        )
+                ).alias("CloudPlatformEvent"),
+                lit(",").alias("AnnotationStreamIds"),
+            ),
+        ).withColumn("partitionKey", col("guid"))
         if self.compress_payload:
             return df.select(
-                _compress_payload(to_json("CloudPlatformEvent")).alias(
-                    "CloudPlatformEvent"
-                ),
-                "AnnotationStreamIds",
+                _compress_payload(to_json("body")).alias("body"),
                 "partitionKey",
             )
         else:
-            return df.select(
-                "CloudPlatformEvent", "AnnotationStreamIds", "partitionKey"
-            )
+            return df.select(to_json("body").alias("body"), "partitionKey")

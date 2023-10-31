@@ -186,7 +186,7 @@ class SparkPIOMFDestination(DestinationInterface):
                     {
                         "id": row["TagName"],
                         "typeid": "RTDIPnumber"
-                        if row["ValueType"].lower() in ["integer", "float"]
+                        if row["ValueType"].lower() in ["int", "integer", "float"]
                         else "RTDIPstring",
                     }
                 )
@@ -215,6 +215,7 @@ class SparkPIOMFDestination(DestinationInterface):
             timeout=self.timeout,
             auth=(self.username, self.password),
         )  # NOSONAR
+        time.sleep(0.5)
         if response.status_code not in [200, 201, 202]:
             raise HTTPError(
                 "Response status : {} .Response message : {}".format(
