@@ -1,3 +1,5 @@
+# Copyright 2022 RTDIP
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -39,17 +41,13 @@ def test_python_entsoe_setup():
     assert entsoe_source.post_read_validation()
 
 
-def test_python_delta_read_batch(mocker: MockerFixture):
+def test_python_entsoe_read_batch(mocker: MockerFixture):
     entsoe_source = PythonEntsoeSource(api_key, start, end, country_code, resolution)
     mocker.patch.object(
         EntsoePandasClient,
         "query_day_ahead_prices",
         return_value=pd.Series(
-            {
-                pd.to_datetime("2023-01-01 00:00:00").tz_localize(
-                    tz
-                ): 123.4
-            }
+            {pd.to_datetime("2023-01-01 00:00:00").tz_localize(tz): 123.4}
         ),
     )
     df = entsoe_source.read_batch()
@@ -66,7 +64,8 @@ def test_entsoe_read_batch_fails(mocker: MockerFixture):
         entsoe_source.read_batch()
 
 
-def test_python_delta_read_stream():
+def test_python_entsoe_read_stream():
     entsoe_source = PythonEntsoeSource(api_key, start, end, country_code, resolution)
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(NotImplementedError) as e:
         entsoe_source.read_stream()
+    assert str(e.value) == "ENTSO-E connector does not support the stream operation."

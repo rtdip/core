@@ -86,7 +86,7 @@ class PythonEntsoeSource(SourceInterface):
         return True
 
     def read_batch(self) -> DataFrame:
-        """ 
+        """
         Reads batch from ENTSO-E API.
         """
         client = EntsoePandasClient(api_key=self.key)

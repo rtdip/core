@@ -79,4 +79,5 @@ dependencies:
         - trio==0.22.1
         - openstef-dbc==3.6.15
         - sqlparams==5.1.0
+        - entsoe-py==0.5.10
         
