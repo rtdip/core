@@ -27,7 +27,7 @@ def _is_date_format(dt, format):
         return False
 
 
-def _parse_date(dt, is_end_date=False, exclude_date_format=False):
+def _parse_date(dt, is_end_date=False, exclude_date_format=False):  # NOSONAR
     if isinstance(dt, datetime):
         if dt.time() == time.min:
             if dt.tzinfo is not None:
@@ -94,7 +94,7 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "AND `{{ latitude_column }}` < '{{max_lat}}' "
         "AND `{{ longitude_column }}` > '{{min_lon}}' "
         "AND`{{ longitude_column }}` < '{{max_lon}}' "
-         "{% if source is defined and source is not none %}"
+        "{% if source is defined and source is not none %}"
         "AND SOURCE = '{{ source }}' "
         "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
@@ -105,7 +105,6 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "LIMIT {{ limit }} "
         "{% endif %}"
     )
-
 
     raw_parameters = {
         "forecast": parameters_dict.get("forecast", None),
