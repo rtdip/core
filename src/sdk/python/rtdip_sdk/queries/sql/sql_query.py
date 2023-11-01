@@ -25,7 +25,7 @@ class SQLQueryBuilder:
     sql_query: dict
     connection: ConnectionInterface
 
-    def get(self, connection, sql_query) -> pd.DataFrame:
+    def get(self, connection=object, sql_query=str) -> pd.DataFrame:
         """
         A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
 
@@ -36,8 +36,8 @@ class SQLQueryBuilder:
         This function requires the user to input a dictionary of parameters. (See Attributes table below)
 
         Args:
-            connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
-            sql_query: A string of the SQL query to be executed.
+            connection (obj): Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
+            sql_query (str): A string of the SQL query to be executed.
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
