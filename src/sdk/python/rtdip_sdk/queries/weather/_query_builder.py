@@ -82,7 +82,7 @@ def _convert_to_seconds(s):
 
 
 def _raw_query_grid(parameters_dict: dict) -> str:
-    raw_query = (
+    raw_query_grid = (
         "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
@@ -106,7 +106,7 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    raw_parameters = {
+    raw_parameters_grid = {
         "forecast": parameters_dict.get("forecast", None),
         "region": parameters_dict.get("region"),
         "data_security_level": parameters_dict.get("data_security_level"),
@@ -136,12 +136,12 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "value_column": parameters_dict.get("value_column", "Value"),
     }
 
-    sql_template = Template(raw_query)
-    return sql_template.render(raw_parameters)
+    sql_template = Template(raw_query_grid)
+    return sql_template.render(raw_parameters_grid)
 
 
 def _raw_query_point(parameters_dict: dict) -> str:
-    raw_query = (
+    raw_query_point = (
         "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
@@ -163,7 +163,7 @@ def _raw_query_point(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    raw_parameters = {
+    raw_parameters_point = {
         "forecast": parameters_dict.get("forecast", None),
         "region": parameters_dict.get("region"),
         "data_security_level": parameters_dict.get("data_security_level"),
@@ -191,12 +191,12 @@ def _raw_query_point(parameters_dict: dict) -> str:
         "value_column": parameters_dict.get("value_column", "Value"),
     }
 
-    sql_template = Template(raw_query)
-    return sql_template.render(raw_parameters)
+    sql_template = Template(raw_query_point)
+    return sql_template.render(raw_parameters_point)
 
 
 def _latest_query_grid(parameters_dict: dict) -> str:
-    latest_query = (
+    latest_query_grid = (
         "SELECT * FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
@@ -216,7 +216,7 @@ def _latest_query_grid(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    latest_parameters = {
+    latest_parameters_grid = {
         "forecast": parameters_dict.get("forecast", None),
         "region": parameters_dict.get("region"),
         "data_security_level": parameters_dict.get("data_security_level"),
@@ -234,12 +234,12 @@ def _latest_query_grid(parameters_dict: dict) -> str:
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
     }
 
-    sql_template = Template(latest_query)
-    return sql_template.render(latest_parameters)
+    sql_template = Template(latest_query_grid)
+    return sql_template.render(latest_parameters_grid)
 
 
 def _latest_query_point(parameters_dict: dict) -> str:
-    latest_query = (
+    latest_query_point = (
         "SELECT * FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
@@ -257,7 +257,7 @@ def _latest_query_point(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    latest_parameters = {
+    latest_parameters_point = {
         "forecast": parameters_dict.get("forecast", None),
         "region": parameters_dict.get("region"),
         "data_security_level": parameters_dict.get("data_security_level"),
@@ -273,8 +273,8 @@ def _latest_query_point(parameters_dict: dict) -> str:
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
     }
 
-    sql_template = Template(latest_query)
-    return sql_template.render(latest_parameters)
+    sql_template = Template(latest_query_point)
+    return sql_template.render(latest_parameters_point)
 
 
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
