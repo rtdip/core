@@ -84,7 +84,7 @@ class QueryBuilder:
         source: str = None,
         time_zone: str = None,
         include_bad_data: bool = False,
-        limit: int = None
+        limit: int = None,
     ) -> DataFrame:
         """
         A function to return back raw data for a point.
@@ -107,22 +107,21 @@ class QueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-        "forecast": forecast,
-        "region": region,
-        "data_security_level": data_security_level,
-        "data_type": data_type,
-        "start_date": start_date,
-        "end_date": end_date,
-        "lat": lat,
-        "lon": lon,
-        "source": source,
-        "time_zone": time_zone,
-        "include_bad_data": include_bad_data,
-        "limit": limit
+            "forecast": forecast,
+            "region": region,
+            "data_security_level": data_security_level,
+            "data_type": data_type,
+            "start_date": start_date,
+            "end_date": end_date,
+            "lat": lat,
+            "lon": lon,
+            "source": source,
+            "time_zone": time_zone,
+            "include_bad_data": include_bad_data,
+            "limit": limit,
         }
 
         return raw.get_point(self.connection, raw_parameters)
-    
 
     def latest_point(
         self,
@@ -133,7 +132,7 @@ class QueryBuilder:
         lat: float,
         lon: float,
         source: str = None,
-        limit: int = None
+        limit: int = None,
     ) -> DataFrame:
         """
         A function to return back the latest data for a point.
@@ -152,18 +151,17 @@ class QueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-        "forecast": forecast,
-        "region": region,
-        "data_security_level": data_security_level,
-        "data_type": data_type,
-        "lat": lat,
-        "lon": lon,
-        "source": source,
-        "limit": limit
+            "forecast": forecast,
+            "region": region,
+            "data_security_level": data_security_level,
+            "data_type": data_type,
+            "lat": lat,
+            "lon": lon,
+            "source": source,
+            "limit": limit,
         }
 
         return latest.get_point(self.connection, raw_parameters)
-    
 
     def raw_grid(
         self,
@@ -180,7 +178,7 @@ class QueryBuilder:
         source: str = None,
         time_zone: str = None,
         include_bad_data: bool = False,
-        limit: int = None,          #NOSONAR
+        limit: int = None,  # NOSONAR
     ) -> DataFrame:
         """
         A function to return back raw data for a point.
@@ -205,26 +203,25 @@ class QueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-        "forecast": forecast,
-        "region": region,
-        "data_security_level": data_security_level,
-        "data_type": data_type,
-        "start_date": start_date,
-        "end_date": end_date,
-        "min_lat": min_lat,
-        "min_lon": min_lon,
-        "max_lat": max_lat,
-        "max_lon": max_lon,
-        "source": source,
-        "time_zone": time_zone,
-        "include_bad_data": include_bad_data,
-        "limit": limit
+            "forecast": forecast,
+            "region": region,
+            "data_security_level": data_security_level,
+            "data_type": data_type,
+            "start_date": start_date,
+            "end_date": end_date,
+            "min_lat": min_lat,
+            "min_lon": min_lon,
+            "max_lat": max_lat,
+            "max_lon": max_lon,
+            "source": source,
+            "time_zone": time_zone,
+            "include_bad_data": include_bad_data,
+            "limit": limit,
         }
 
         return raw.get_grid(self.connection, raw_parameters)
-    
 
-    def latest_grid(        
+    def latest_grid(
         self,
         forecast: str,
         region: str,
@@ -256,18 +253,16 @@ class QueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-        "forecast": forecast,
-        "region": region,
-        "data_security_level": data_security_level,
-        "data_type": data_type,
-        "min_lat": min_lat,
-        "min_lon": min_lon,
-        "max_lat": max_lat,
-        "max_lon": max_lon,
-        "source": source,
-        "limit": limit
+            "forecast": forecast,
+            "region": region,
+            "data_security_level": data_security_level,
+            "data_type": data_type,
+            "min_lat": min_lat,
+            "min_lon": min_lon,
+            "max_lat": max_lat,
+            "max_lon": max_lon,
+            "source": source,
+            "limit": limit,
         }
 
         return latest.get_grid(self.connection, raw_parameters)
-    
-   
