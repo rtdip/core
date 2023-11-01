@@ -90,11 +90,11 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
         'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}") '
-        "AND `{{ latitude_column }}` > '{{ min_lat}}' "
-        "AND `{{ latitude_column }}` < '{{ max_lat}}' "
-        "AND `{{ longitude_column }}` > '{{ min_lon}}' "
-        "AND`{{ longitude_column }}` < '{{ max_lon}}' "
-        "{% if source is defined and source is not none %}"
+        "AND `{{ latitude_column }}` > '{{min_lat}}' "
+        "AND `{{ latitude_column }}` < '{{max_lat}}' "
+        "AND `{{ longitude_column }}` > '{{min_lon}}' "
+        "AND`{{ longitude_column }}` < '{{max_lon}}' "
+         "{% if source is defined and source is not none %}"
         "AND SOURCE = '{{ source }}' "
         "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
@@ -105,6 +105,7 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "LIMIT {{ limit }} "
         "{% endif %}"
     )
+
 
     raw_parameters = {
         "forecast": parameters_dict.get("forecast", None),
@@ -296,5 +297,5 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if query_type == "raw_point":
         return _raw_query_point(parameters_dict)
 
-    if query_type == "raw_grif":
+    if query_type == "raw_grid":
         return _raw_query_grid(parameters_dict)
