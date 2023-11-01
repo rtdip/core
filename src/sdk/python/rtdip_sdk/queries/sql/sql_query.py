@@ -25,7 +25,7 @@ class SQLQueryBuilder:
     sql_query: dict
     connection: ConnectionInterface
 
-    def get(connection, sql_query) -> pd.DataFrame:
+    def get(self, connection, sql_query) -> pd.DataFrame:
         """
         A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
 

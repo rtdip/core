@@ -38,7 +38,7 @@ def test_sql_query(mocker: MockerFixture):
         SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN
     )
 
-    actual = SQLQueryBuilder.get(
+    actual = SQLQueryBuilder().get(
         connection=mocked_connection, sql_query=MOCKED_SQL_QUERY
     )
 
@@ -63,4 +63,4 @@ def test_sql_query_fail(mocker: MockerFixture):
     )
 
     with pytest.raises(Exception):
-        SQLQueryBuilder.get(mocked_connection, MOCKED_SQL_QUERY)
+        SQLQueryBuilder().get(mocked_connection, MOCKED_SQL_QUERY)
