@@ -125,7 +125,6 @@ class QueryBuilder:
     
 
     def latest_point(
-            
         self,
         forecast: str,
         region: str,
@@ -167,7 +166,6 @@ class QueryBuilder:
     
 
     def raw_grid(
-            
         self,
         forecast: str,
         region: str,
@@ -182,7 +180,7 @@ class QueryBuilder:
         source: str = None,
         time_zone: str = None,
         include_bad_data: bool = False,
-        limit: int = None
+        limit: int = None,          #NOSONAR
     ) -> DataFrame:
         """
         A function to return back raw data for a point.
@@ -226,8 +224,7 @@ class QueryBuilder:
         return raw.get_grid(self.connection, raw_parameters)
     
 
-    def latest_grid(
-            
+    def latest_grid(        
         self,
         forecast: str,
         region: str,
