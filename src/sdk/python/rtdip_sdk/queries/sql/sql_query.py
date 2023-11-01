@@ -17,7 +17,6 @@ import pandas as pd
 from ...connectors.connection_interface import ConnectionInterface
 
 
-
 class SQLQueryBuilder:
     """
     A builder for developing RTDIP queries using any delta table
@@ -26,8 +25,7 @@ class SQLQueryBuilder:
     sql_query: dict
     connection: ConnectionInterface
 
-
-    def get(self, connection, sql_query ) -> pd.DataFrame:
+    def get(connection, sql_query) -> pd.DataFrame:
         """
         A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
 
@@ -45,7 +43,6 @@ class SQLQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         try:
-
             try:
                 cursor = connection.cursor()
                 cursor.execute(sql_query)

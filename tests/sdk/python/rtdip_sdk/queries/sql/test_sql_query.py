@@ -10,7 +10,7 @@ from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
     MockedCursor,
 )
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
-from src.sdk.python.rtdip_sdk.queries.sql.sql_query import get as sql_get
+from src.sdk.python.rtdip_sdk.queries.sql.sql_query import SQLQueryBuilder
 
 SERVER_HOSTNAME = "mock.cloud.databricks.com"
 HTTP_PATH = "sql/mock/mock-test"
@@ -18,6 +18,7 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 MOCKED_SQL_QUERY = "SELECT * FROM MOCKEDTABLE"
+
 
 def test_sql_query(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
@@ -37,7 +38,9 @@ def test_sql_query(mocker: MockerFixture):
         SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN
     )
 
-    actual = sql_get(mocked_connection, MOCKED_SQL_QUERY)
+    actual = SQLQueryBuilder.get(
+        connection=mocked_connection, sql_query=MOCKED_SQL_QUERY
+    )
 
     mocked_cursor.assert_called_once()
     mocked_connection_close.assert_called_once()
@@ -60,7 +63,4 @@ def test_sql_query_fail(mocker: MockerFixture):
     )
 
     with pytest.raises(Exception):
-        sql_get(mocked_connection, MOCKED_SQL_QUERY)
-
-
-
+        SQLQueryBuilder.get(mocked_connection, MOCKED_SQL_QUERY)
