@@ -48,7 +48,6 @@ MOCKED_PARAMETER_DICT_GRID = {
     "max_lon": 0.1,
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
-
 }
 
 MOCKED_PARAMETER_DICT_POINT = {

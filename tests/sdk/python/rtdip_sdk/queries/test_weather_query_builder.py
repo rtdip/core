@@ -30,12 +30,9 @@ def test_query_builder_raw(mocker: MockerFixture):
         QueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
-        .raw(
-            ["max"], start_date="2021-01-01", end_date="2021-01-02"
-        )
+        .raw(["max"], start_date="2021-01-01", end_date="2021-01-02")
     )
     assert data == {"test": "data"}
-
 
 
 def test_query_builder_latest(mocker: MockerFixture):
@@ -51,5 +48,3 @@ def test_query_builder_latest(mocker: MockerFixture):
         .latest(tagname_filter=["0"])
     )
     assert data == {"test": "data"}
-
-

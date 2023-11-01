@@ -82,7 +82,7 @@ class QueryBuilder:
         lat: float,
         lon: float,
         source: str = None,
-        time_zone: str,
+        time_zone: str = None,
         include_bad_data: bool = False,
         limit: int = None
     ) -> DataFrame:
@@ -167,6 +167,7 @@ class QueryBuilder:
     
 
     def raw_grid(
+            
         self,
         forecast: str,
         region: str,
@@ -179,7 +180,7 @@ class QueryBuilder:
         max_lat: float,
         max_lon: float,
         source: str = None,
-        time_zone: str,
+        time_zone: str = None,
         include_bad_data: bool = False,
         limit: int = None
     ) -> DataFrame:
@@ -237,7 +238,7 @@ class QueryBuilder:
         max_lat: float,
         max_lon: float,
         source: str = None,
-        limit: int = None
+        limit: int = None,
     ) -> DataFrame:
         """
         A function to return back the latest data for a point.
