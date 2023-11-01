@@ -27,3 +27,5 @@ from .python.delta_sharing import *
 from .spark.the_weather_company.weather_forecast_api_v1 import *
 from .spark.the_weather_company.weather_forecast_api_v1_multi import *
 from .spark.ecmwf.weather_forecast import *
+from .python.entsoe import *
+from .python.mffbas import *

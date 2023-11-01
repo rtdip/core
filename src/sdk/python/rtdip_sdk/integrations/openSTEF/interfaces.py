@@ -143,22 +143,21 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             raise
 
     def exec_influx_query(self, query: str, bind_params: dict = {}):
-        """Execute an InfluxDB query.
-
-        When there is data it returns a DataFrame or list of DataFrames. When there is NO data it returns an empty dictionary.
-
+        """
         Args:
             query (str): Influx query string.
             bind_params (dict): Binding parameter for parameterized queries
 
         Returns:
-            defaultdict: Query result.
+            Pandas Dataframe for single queries or list of Pandas Dataframes for multiple queries.
         """
         try:
             query_list = _query_builder(query)
 
             if len(query_list) == 1:
-                return pd.read_sql(query_list[0], self.pcdm_engine)
+                df = pd.read_sql(query_list[0], self.pcdm_engine)
+                df["_time"] = pd.to_datetime(df["_time"], utc=True)
+                return df
             elif len(query_list) > 1:
                 df = [pd.read_sql(query, self.pcdm_engine) for query in query_list]
                 return df
@@ -278,7 +277,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             floatcols = [x for x in df.columns if x not in intcols]
             casting_fields.update(dict.fromkeys(floatcols, "float"))
 
-        if measurement == "sjv":
+        if measurement == "sjv" or measurement == "marketprices":
             casting_fields.update(dict.fromkeys(list(df.columns)[:-1], "float"))
 
         df.index = df.index.strftime("%Y-%m-%dT%H:%M:%S")
@@ -312,7 +311,6 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             df["TagName"] = df[["_field"] + tag_columns].apply(":".join, axis=1)
 
         df["Status"] = "Good"
-        df = df.astype({"Value": str})
         df.drop(columns=tag_columns + ["_field"], inplace=True)
 
         # Write to different tables
@@ -364,11 +362,11 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         if params is None:
             params = {}
 
-        pattern = r"(group\s+by).*?(?=(order|having|limit|offset))"
-
-        query = re.sub(pattern, r"\1 all ", query.lower(), flags=re.DOTALL).replace(
-            "having", "group by all having"
+        pattern = re.compile(
+            r"(GROUP\s+BY).*?(?=(ORDER|HAVING|LIMIT|OFFSET))", re.IGNORECASE | re.DOTALL
         )
+
+        query = pattern.sub(r"\1 ALL ", query).replace("HAVING", "GROUP BY ALL HAVING")
 
         new_query = []
         words = query.split()
@@ -399,15 +397,17 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         if params is None:
             params = {}
 
-        statement = statement.lower()
-
         for key in params.keys():
             if "table" in key.lower():
                 statement = statement.replace(f"%({key})s", params[f"{key}"])
 
-        if re.search(r"insert\signore", statement):
-            values = re.search(r"values\s(.*?)\)", statement).group(0)
-            table = re.search(r"into\s(.*?)\s\(", statement).group(1)
+        if re.search(re.compile(r"INSERT\sIGNORE", re.IGNORECASE), statement):
+            values = re.search(
+                re.compile(r"VALUES\s(.*?)\)", re.IGNORECASE), statement
+            ).group(0)
+            table = re.search(
+                re.compile(r"INTO\s(.*?)\s\(", re.IGNORECASE), statement
+            ).group(1)
             columns = re.search(r"\((.*?)\)", statement).group(0)
             columns_list = re.search(r"\((.*?)\)", statement).group(1).split(",")
 
@@ -417,16 +417,14 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
 
             source_cols = source_cols[:-2]
 
-            merge = f"""
+            statement = f"""
+            MERGE INTO {table}
             USING ({values}) AS source
-                ON {table}.{columns_list[0].strip()} = source.col1
-                WHEN NOT MATCHED THEN
+                    ON {table}.{columns_list[0].strip()} = source.col1
+                    WHEN NOT MATCHED THEN
             INSERT {columns}
-                VALUES ({source_cols});
-                """
-
-            statement = re.sub(r"insert\signore", "MERGE", statement)
-            statement = re.sub(r"values\s(.*)$", merge, statement)
+                    VALUES ({source_cols});
+                    """
 
         query_format = sqlparams.SQLParams("pyformat", "named")
         statement, params = query_format.format(statement, params)

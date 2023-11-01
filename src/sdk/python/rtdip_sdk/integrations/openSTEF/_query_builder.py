@@ -17,14 +17,15 @@ from jinja2 import Template
 
 aggregate_window = r"\|> aggregateWindow"
 
+
 def _build_parameters(query):
-    columns = {  # list of tag columns
+    columns = {
         "weather": ["input_city", "source"],
         "power": ["system"],
         "prediction_taheads": ["customer", "pid", "tAhead", "type"],
         "prediction": ["pid", "type", "customer"],
         "marketprices": ["Name"],
-        "sjv": ["year_created"]
+        "sjv": ["year_created"],
     }
 
     parameters = {}
@@ -242,10 +243,10 @@ def _pivot_query(query: str) -> list:
 def _max_query() -> list:
     sql_query = (
         'WITH raw_events AS (SELECT Latitude, Longitude, EnqueuedTime, EventTime AS _time, Value AS _value, Status, Latest, EventDate, TagName, split(TagName, ":") AS tags_array, tags_array [0] AS _field, tags_array [1] AS input_city, tags_array [2] AS source, "weather" AS _measurement FROM `weather`)'
-        ', raw_events_filtered AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY TagName ORDER BY _time) AS ordered FROM raw_events WHERE (_measurement == "weather" and source == "harm_arome" and _field == "source_run") AND _time >= to_timestamp(timestampadd(day, -2, current_timestamp())))'
-        ", max_events AS (SELECT _time, MAX(_value) OVER (PARTITION BY TagName) AS _value, Status, TagName, _field, _measurement, input_city, source FROM raw_events_filtered WHERE ordered <= 10)"
+        ', raw_events_filtered AS (SELECT * FROM raw_events WHERE (_measurement == "weather" and source == "harm_arome" and _field == "source_run") AND _time >= to_timestamp(timestampadd(day, -2, current_timestamp())))'
+        ", max_events AS (SELECT _time, MAX(_value) OVER (PARTITION BY TagName) AS _value, Status, TagName, _field, _measurement, input_city, source FROM raw_events_filtered)"
         ", results AS (SELECT a._time, a._value, a.Status, a.TagName, a._field, a._measurement, a.input_city, a.source, ROW_NUMBER() OVER (PARTITION BY a.TagName ORDER BY a._time) AS ordered FROM max_events a INNER JOIN raw_events_filtered b ON a._time = b._time AND a._value = b._value)"
-        "SELECT _time, _value, Status, TagName, _field, input_city, source FROM results WHERE ordered = 1"
+        "SELECT _time, _value, Status, TagName, _field, input_city, source FROM results WHERE ordered = 1 ORDER BY input_city, _field, _time"
     )
 
     return [sql_query]
