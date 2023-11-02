@@ -1,25 +1,3 @@
-<!--
-  Copyright (c) 2016-2023 Martin Donath <martin.donath@squidfunk.com>
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to
-  deal in the Software without restriction, including without limitation the
-  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-  sell copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-  IN THE SOFTWARE.
--->
-
 <!-- {% extends "main.html" %} -->
 
 <!-- Render hero under tabs -->
@@ -34,7 +12,7 @@
         <div class="intro-section-content">
             <div class="intro-left">
                 <h1>Real Time Data Ingestion Platform</h1>
-                <p>RTDIP (Real Time Data Ingestion Platform) is a scalable, industry-standard solution for the intake and processing of data from a vast array of sources. These include time series, alarms, video, photos, audio, and input from hardware including IoT Sensors, Robots, and Drones. Fully open-source, it’s capable of taking in data from over 3 million sensors across the globe.</p>
+                <p>Easy access to high volume, historical and real time process data for analytics applications, engineers, and data scientists wherever they are.</p>
                 <div class="intro-section-content-action">
                     <a class="a-button" href="/rtdip/core/getting-started/installation/">Get Started</a>
                 </div>
@@ -58,7 +36,7 @@
                     <img src="./images/pipeline-icon.png" alt="Pipeline icon">
                 </div>
                 <h2>Pipelines</h2>
-                <p>RTDIP has been built to simplify ingesting and querying time series data; it has batch ingestion pipelines to match the requirements of the data source and needs of the data consumer.</p>
+                <p>Create streaming and batch ingestion pipelines according to requirements of the source and needs of the data consumer.</p>
             </div>
 
             <div class="icon-with-text">
@@ -66,7 +44,7 @@
                     <img src="./images/query-icon.png" alt="Query icon">
                 </div>
                 <h2>Queries</h2>
-                <p>Execute both macro and micro level queries on any dataset, enabling as granular and holistic view as required.</p>
+                <p>Enables users to perform complex queries on datasets within the platform.</p>
             </div>
 
             <div class="icon-with-text">
@@ -74,7 +52,7 @@
                     <img src="./images/deployment-icon.png" alt="Deployment icon">
                 </div>
                 <h2>Deployment</h2>
-                <p>A full SDK, written in Python, is provided, enabling ease of build and deployment of your implementation.</p>
+                <p>Deploy pipelines to popular orchestration engines to schedule and execute jobs according to your preferance. </p>
             </div>
 
             <div class="icon-with-text">
@@ -82,7 +60,7 @@
                     <img src="./images/multicloud-icon.png" alt="Multicloud icon">
                 </div>
                 <h2>MultiCloud</h2>
-                <p>Storing your data in multiple clouds? RTDIP works seamlessly across these resources.</p>
+                <p>RTDIP works seamlessly across multicloud platforms.</p>
             </div>
 
             <div class="icon-with-text">
@@ -98,7 +76,7 @@
                     <img src="./images/ai-icon.png" alt="AI icon">
                 </div>
                 <h2>Artificial Intelligence</h2>
-                <p>Tested with ChatGPT, RTDIP can provided datasets for intelligent curation and query by AI agents.</p>
+                <p>RTDIP can provide datasets for intelligent curation and query by AI agents.</p>
             </div>
         </div>
 
@@ -122,15 +100,16 @@
 
     <section class="pipeline-section">
         <h1>Powerful ingestion <span class="pink-span">pipelines</span></h1>
-        <p>RTDIP is an industrial strength solution, presently in use by a global firm; it takes in data from over 3 million sensors.</p>
+        <p>RTDIP Ingestion Pipeline framework has been built to simplify ingesting time series data with the ability to create streaming and batch ingestion pipelines according to the requirements of the source of the data and the needs of the consumer.</p>
 
         <div class="pipeline-section-grid">
             <div class="pipeline-section-item">
                 <div class="pipeline-item-img">
                     <img src="./images/sources-image.png" alt="Sources image">
                 </div>
-                <h4>Sources</h4>
-                <p>RTDIP data intake can include time series, alarms, video, photos, audio, and input from hardware including IoT Sensors, Robots, and Drones.</p>
+                <h4 >Sources</h4>
+                <p>RTDIP data intake can include time series, alarms, video, photos, audio, and input from hardware including IoT Sensors, Robots, and Drones. 
+                    Sources are components that connect to source systems and extract data from them.</p>
             </div>
 
             <div class="pipeline-section-item">
@@ -138,7 +117,9 @@
                     <img src="./images/transformers-image.png" alt="Transformers image">
                 </div>
                 <h4>Transformers</h4>
-                <p>RTDIP has the components to transform your data so that it can be ingested or consumed.</p>
+                <p>RTDIP has the components to perform transformations on your data. These will target certain data models and common transformations that sources or destination components require to be performed on data before it can be ingested or consumed.
+
+                </p>
             </div>
 
             <div class="pipeline-section-item">
@@ -146,7 +127,7 @@
                     <img src="./images/destinations-image.png" alt="Destinations image">
                 </div>
                 <h4>Destinations</h4>
-                <p>RTDIP features allow for writing data to destination systems including Delta Append and Kafka.</p>
+                <p>RTDIP destination components allow for connecting and writing data to destination systems including Delta, Delta Merge, Eventhub, Kafka, Kinesis and Rest API. </p>
             </div>
         </div>
         <a class="a-button" href="/rtdip/core/sdk/pipelines/components">Learn More</a>
@@ -177,31 +158,31 @@
 
         <div class="querybuilder-content-container">
             <div class="querybuilder-left">
-                <p>Use RTDIP’s Query Builder feature to interrogate data in any delta table.</p>
+                <p>Use RTDIP’s Query Builder feature to perform complex queries, including aggregation on datasets within the platform.</p>
                 <img src="./images/querybuilder-image.png" alt="Query builder image">
             </div>
-
             <div class="querybuilder-right">
                 <div class="clickable-list-item" onclick="toggleDetails(this)">
                     <div class="clickable-list-item-title">
                         <span class="clickable-title">
-                            RAW
+                            Raw
                         </span>
                         <span class="clickable-list-toggle-indicator">+</span>
                     </div>
                     <p class="clickable-list-details">
-                        A function which returns raw data by querying Databricks SQL Warehouse using a user-specified connection.
+                        Raw facilitates performing raw extracts of time series data.
                     </p>
                     <hr>
                 </div>
-
                 <div class="clickable-list-item" onclick="toggleDetails(this)">
                     <div class="clickable-list-item-title">
-                        Interpolate
+                        <span class="clickable-title">
+                            Latest
+                        </span>
                         <span class="clickable-list-toggle-indicator">+</span>
                     </div>
                     <p class="clickable-list-details">
-                        This function forward fills, backward fills or linearly interpolates the resampled data depending upon the user’s specified method.
+                        Latest queries provides the latest event values.
                     </p>
                     <hr>
                 </div>
@@ -211,17 +192,28 @@
                         <span class="clickable-list-toggle-indicator">+</span>
                     </div>
                     <p class="clickable-list-details">
-                        A function in Spark which resamples data by querying Databricks SQL warehouses using a user-specified connection and authentication method.
+                        Resample enables changing the frequence of time series observations.
                     </p>
                     <hr>
                 </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        Interpolate
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Interpolate takes Resample one step further to estimate the values of unknown data points that fall between existing, known data points. The available interpolation methods are forward fill, backward fill and linear interpolaton.
+                    </p>
+                    <hr>
+                </div>
+                
                 <div class="clickable-list-item" onclick="toggleDetails(this)">
                     <div class="clickable-list-item-title">
                         Time Weighted Average
                         <span class="clickable-list-toggle-indicator">+</span>
                     </div>
                     <p class="clickable-list-details">
-                        This function receives a dataframe of raw tag data and creates a time weighted average.
+                        Time Weighted Averages provide an unbiased average when working with irregularly sampled data.
                     </p>
                     <hr>
                 </div>
@@ -231,7 +223,7 @@
                         <span class="clickable-list-toggle-indicator">+</span>
                     </div>
                     <p class="clickable-list-details">
-                        A function which computes the linear interpolation at a specific time based on the points before and after.
+                        Interpolation at Time works out the linear interpolation at a specific time based on the points before and after.
                     </p>
                     <hr>
                 </div>
@@ -241,7 +233,7 @@
                         <span class="clickable-list-toggle-indicator">+</span>
                     </div>
                     <p class="clickable-list-details">
-                        A function that receives a dataframe of raw tag data and computes the circular mean for samples in a range.
+                        Circular Averages computes the circular average for samples in a range.
                     </p>
                     <hr>
                 </div>
@@ -251,7 +243,7 @@
                         <span class="clickable-list-toggle-indicator">+</span>
                     </div>
                     <p class="clickable-list-details">
-                        This function receives a dataframe of raw tag data and computes the circular standard deviation for samples assumed to be in the range.
+                        Circular Standard Deviations computes the circular standard deviations for samples assumed to be in the range.
                     </p>
                     <hr>
                 </div>
@@ -281,6 +273,7 @@
             <p>
                 Use RTDIP data to drive intelligent decision making: understand what needs to be maintained and when, activity on industrial sites, optimal times for power generation, and much more.
             </p>
+            <a class="a-button" href="/rtdip/core/integration/power-bi">Learn More</a>
         </div>
 
         <div class="bi-right">
@@ -294,7 +287,7 @@
     <section class="industry-section">
         <h1>Trusted industry section</span></h1>
         <p>
-            RTDIP is being used by a global industrial firm right now to keep track of its entire estate. It is backed by trusted partners including Databricks, Google, and Microsoft. Leverage the benefits of a world class solution.
+            RTDIP is being used by a global industrial firm right now to keep track of its entire estate. It is backed by trusted partners including Databricks, Innowatts, LF Energy and Microsoft. Leverage the benefits of a world class solution.
         </p>
         <a class="a-button" href="">Get Started</a>
     </section>
@@ -336,8 +329,6 @@
     <section class="footer">
         <p>Copyright © 2016 - 2023 RTDIP</p>
         <div class="footer-icon-row">
-            <img src="./images/Fosstodon-icon-white.png" alt="Fosstodon">
-            <img src="./images/gitter-icon-white.png" alt="Gitter">
             <img src="./images/github-icon-white.png" alt="GitHub">
             <img src="./images/docker-icon-white.png" alt="Docker">
             <img src="./images/pypi-icon-white.png" alt="PyPI">
