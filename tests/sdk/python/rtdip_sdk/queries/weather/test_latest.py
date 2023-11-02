@@ -24,8 +24,12 @@ from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
     MockedCursor,
 )
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
-from src.sdk.python.rtdip_sdk.queries.weather.latest import get_grid as latest_grid
-from src.sdk.python.rtdip_sdk.queries.weather.latest import get_point as latest_point
+from src.sdk.python.rtdip_sdk.queries.time_series.weather.latest import (
+    get_grid as latest_grid,
+)
+from src.sdk.python.rtdip_sdk.queries.time_series.weather.latest import (
+    get_point as latest_point,
+)
 
 SERVER_HOSTNAME = "mock.cloud.databricks.com"
 HTTP_PATH = "sql/mock/mock-test"
