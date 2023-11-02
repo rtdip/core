@@ -42,7 +42,6 @@ button {
     color: #D445A3;
 }
 
-
 /* === CONTAINER STYLES === */
 
 .container {
@@ -194,7 +193,6 @@ button {
     opacity: 0.9;
 }
 
-
 @media (max-width: 992px) {
     .intro-section {
         scroll-snap-align: none;
@@ -223,7 +221,6 @@ button {
         max-width: 500px;
     }
     
-    
     .intro-right img {
         max-width: 80%;
         height: auto;
@@ -235,7 +232,6 @@ button {
         width: 150px;
         font-size: 1rem;
     }
-
     
     .intro-section-content-action .a-tag{
         height: 40px;
@@ -256,7 +252,6 @@ button {
         z-index: 1;
         background-position: bottom right;
     }
-
  }
 
 /* === EXPECT SECTION STYLES === */
@@ -340,8 +335,7 @@ button {
     .icon-with-text p {
         width: 70%;
         min-width: 350px;
-    }
-    
+    } 
  }
 
 /* === PIPELINE SECTION STYLES === */
@@ -382,24 +376,26 @@ button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     border: 1px solid #4E08C7;
     border-radius: 22px;
     padding: 15px;
+    height: 100%;
 }
 
 .pipeline-section-item p {
     width: 90%;
 }
 
-
 .pipeline-item-img {
     width: 80%;
     margin-top: 1rem;
+    height: 50%;
 }
 
 .pipeline-item-img img {
     width: 100%;
+    height: 100%;
 }
 
 .pipeline-section .a-button {
@@ -422,7 +418,6 @@ button {
         width: 100%;
     }
     
-
     .pipeline-section-grid {
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(2, auto);
@@ -497,6 +492,7 @@ button {
     background-color: white;
     color: #D445A3;
     margin-bottom: 60px;
+    margin-top:50px;
 }
 
 .querybuilder-section .a-button:hover {
@@ -582,7 +578,6 @@ button {
     max-height: 200px;
 }
 
-
 .clickable-list-item hr {
     border: 0.3px solid white;
     background-color: white;
@@ -626,12 +621,8 @@ button {
 
     .querybuilder-left {
         width: 100%;
-        height: auto;
+        height: 100%;
         padding: 0 30px;
-    }
-
-    .querybuilder-left {
-        width: 90%;
     }
 
     .querybuilder-right {
@@ -679,6 +670,7 @@ button {
     font-weight: 300;
     font-size: 0.75rem;
     line-height: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .bi-image {
@@ -689,6 +681,12 @@ button {
 
 .bi-image img {
     width: 80%;
+}
+
+.bi-left .a-button {
+    color: white;
+    background-color: #D445A3;
+    align-items: center;
 }
 
 
@@ -726,7 +724,6 @@ button {
     }
     
 }
-
 
 /* === TRUSTED INDUSTRY SECTION STYLES === */
 
