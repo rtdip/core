@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pyspark.sql import DataFrame, Window, SparkSession
-from pyspark.sql.types import StringType
+from pyspark.sql.types import BinaryType
 from pyspark.sql.functions import (
     to_json,
     col,
@@ -109,11 +109,10 @@ class PCDMToHoneywellAPMTransformer(TransformerInterface):
             DataFrame: A dataframe with with rows in Honeywell APM format
         """
 
-        @udf("string")
+        @udf(BinaryType())
         def _compress_payload(data):
             compressed_data = gzip.compress(data.encode("utf-8"))
-            encoded_data = base64.b64encode(compressed_data).decode("utf-8")
-            return encoded_data
+            return compressed_data
 
         if self.data.isStreaming == False and self.history_samples_per_message > 1:
             w = Window.partitionBy("TagName").orderBy("TagName")
