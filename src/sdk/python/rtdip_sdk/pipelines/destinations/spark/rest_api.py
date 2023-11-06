@@ -17,9 +17,11 @@ import time
 import math
 import requests
 import gzip
+import numpy as np
 from requests.adapters import HTTPAdapter
 from requests.exceptions import HTTPError
 from requests.auth import AuthBase
+import ast
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import (
     to_json,
@@ -112,6 +114,7 @@ class SparkRestAPIDestination(DestinationInterface):
         auth (optional AuthBase): Used when authentication is required, such as BasicAuth ('username', 'password'). See the [Requests authentication documentation](https://requests.readthedocs.io/en/latest/user/authentication/#authentication){ target="_blank" }
         compression (optional bool): If set to True, will send the data with Gzip compression
         batch_as_array (optional bool): Set to True if the payload message must be a json array instead of a json object
+        retries (optional int): If the data exceeds the requests size limit, retry with progressively smaller batches
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -130,6 +133,7 @@ class SparkRestAPIDestination(DestinationInterface):
     auth: AuthBase
     compression: bool
     batch_as_array: bool
+    retries: int
 
     def __init__(
         self,
@@ -146,7 +150,8 @@ class SparkRestAPIDestination(DestinationInterface):
         auth: AuthBase = None,
         compression: bool = False,
         batch_as_array: bool = False,
-    ) -> None:
+        retries: int = 5,
+    ) -> None:  # NOSONAR
         self.data = data
         self.options = options
         self.url = url
@@ -160,6 +165,7 @@ class SparkRestAPIDestination(DestinationInterface):
         self.auth = auth
         self.compression = compression
         self.batch_as_array = batch_as_array
+        self.retries = retries
 
     @staticmethod
     def system_type():
@@ -209,6 +215,7 @@ class SparkRestAPIDestination(DestinationInterface):
         headers = self.headers
         auth = self.auth
         compression = self.compression
+        retries = self.retries
         if compression:
             headers["compression"] = "gzip"
 
@@ -236,12 +243,54 @@ class SparkRestAPIDestination(DestinationInterface):
             else:
                 raise Exception("Method {} is not supported".format(method))  # NOSONAR
 
+            def _split_data(data):
+                if compression:
+                    decompressed_data = gzip.decompress(data)
+                    data = decompressed_data.decode("utf-8")
+                data_array = np.array(ast.literal_eval(data))
+                for i in range(retries):
+                    payload = np.array_split(data_array, i + 2)
+                    for item in payload:
+                        data = str(item.tolist())
+                        if method == "POST":
+                            response = session.post(
+                                url,
+                                headers=headers,
+                                data=data,
+                                verify=False,
+                                timeout=30,
+                                auth=auth,
+                            )
+                        elif method == "PATCH":
+                            response = session.patch(
+                                url, headers=headers, data=data, verify=False
+                            )
+                        elif method == "PUT":
+                            response = session.put(
+                                url, headers=headers, data=data, verify=False
+                            )
+                        if response.status_code not in [200, 201, 202]:
+                            print("Message too large; retrying with a smaller batch")
+                            break
+                    if response.status_code in [200, 201, 202]:
+                        break
+                else:
+                    raise HTTPError(
+                        "Response status : {} .Response message : {}".format(
+                            str(response.status_code), response.text
+                        )
+                    )  # NOSONAR
+
             if response.status_code not in [200, 201, 202]:
-                raise HTTPError(
-                    "Response status : {} .Response message : {}".format(
-                        str(response.status_code), response.text
-                    )
-                )  # NOSONAR
+                if response.status_code == 413 and retries > 0:
+                    print("Message too large; retrying with a smaller batch")
+                    _split_data(data)
+                else:
+                    raise HTTPError(
+                        "Response status : {} .Response message : {}".format(
+                            str(response.status_code), response.text
+                        )
+                    )  # NOSONAR
 
             return str(response.status_code)
 
