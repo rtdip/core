@@ -23,7 +23,7 @@ def _build_parameters(query):
         "weather": ["input_city", "source"],
         "power": ["system"],
         "prediction_taheads": ["customer", "pid", "tAhead", "type"],
-        "prediction": ["pid", "type", "customer"],
+        "prediction": ["customer", "pid", "type"],
         "marketprices": ["Name"],
         "sjv": ["year_created"],
     }

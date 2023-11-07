@@ -362,8 +362,15 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         if params is None:
             params = {}
 
+        if " join " in query.lower() and " on " not in query.lower():
+            join_pattern = re.compile(r"JOIN\s+\((.*?)\)", re.IGNORECASE | re.DOTALL)
+            matches = re.search(join_pattern, query).group(1)
+            joins = [f"CROSS JOIN {x.strip()}" for x in matches.split(",")]
+            query = re.sub(join_pattern, " ".join(joins), query)
+
         pattern = re.compile(
-            r"(GROUP\s+BY).*?(?=(ORDER|HAVING|LIMIT|OFFSET))", re.IGNORECASE | re.DOTALL
+            r"(GROUP\s+BY).*?(?=(ORDER|HAVING|LIMIT|OFFSET|\n))",
+            re.IGNORECASE | re.DOTALL,
         )
 
         query = pattern.sub(r"\1 ALL ", query).replace("HAVING", "GROUP BY ALL HAVING")

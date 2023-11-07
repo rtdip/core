@@ -27,15 +27,13 @@ class PythonEntsoeSource(SourceInterface):
     Example
     --------
     ```python
-    import pandas as pd
     from rtdip_sdk.pipelines.sources import PythonEntsoeSource
 
     entsoe_source = PythonEntsoeSource(
         api_key={API_KEY},
-        start=pd.Timestamp('20230101', tz='Europe/Amsterdam'),
-        end=pd.Timestamp('20231001', tz='Europe/Amsterdam'),
-        country_code='NL',
-        resolution='60T'
+        start='20230101',
+        end='20231001',
+        country_code='NL'
     )
 
     entsoe_source.read_batch()
@@ -43,22 +41,24 @@ class PythonEntsoeSource(SourceInterface):
 
     Args:
         api_key (str): API token for ENTSO-E, to request access see documentation [here](https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_authentication_and_authorisation)
-        start (pd.Timestamp): Start time
-        end (pd.Timestamp): End time
+        start (str): Start time in the format YYYYMMDD
+        end (str): End time in the format YYYYMMDD
         country_code (str): Country code to query from. A full list of country codes can be found [here](https://github.com/EnergieID/entsoe-py/blob/master/entsoe/mappings.py#L48)
-        resolution (str): Frequency of values; '60T' for hourly values, '30T' for half-hourly values or '15T' for quarterly values
+        resolution (optional str): Frequency of values; '60T' for hourly values, '30T' for half-hourly values or '15T' for quarterly values
     """
 
     api_key: str
-    start: pd.Timestamp
-    end: pd.Timestamp
+    start: str
+    end: str
     country_code: str
     resolution: str
 
-    def __init__(self, api_key, start, end, country_code, resolution) -> None:
+    def __init__(
+        self, api_key, start, end, country_code, resolution: str = "60T"
+    ) -> None:
         self.key = api_key
-        self.start = start
-        self.end = end
+        self.start = pd.Timestamp(start, tz="UTC")
+        self.end = pd.Timestamp(end, tz="UTC")
         self.country = country_code
         self.resolution = resolution
 

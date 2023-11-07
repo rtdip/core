@@ -22,16 +22,15 @@ from entsoe import EntsoePandasClient
 import pandas as pd
 import pytest
 
-tz = "Europe/Amsterdam"
+tz = "UTC"
 api_key = "api-key"
-start = pd.Timestamp("20230101", tz=tz)
-end = pd.Timestamp("20231001", tz=tz)
+start = "20230101"
+end = "20231001"
 country_code = "NL"
-resolution = "60T"
 
 
 def test_python_entsoe_setup():
-    entsoe_source = PythonEntsoeSource(api_key, start, end, country_code, resolution)
+    entsoe_source = PythonEntsoeSource(api_key, start, end, country_code)
     assert entsoe_source.system_type().value == 1
     assert entsoe_source.libraries() == Libraries(
         maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[]
@@ -42,7 +41,7 @@ def test_python_entsoe_setup():
 
 
 def test_python_entsoe_read_batch(mocker: MockerFixture):
-    entsoe_source = PythonEntsoeSource(api_key, start, end, country_code, resolution)
+    entsoe_source = PythonEntsoeSource(api_key, start, end, country_code)
     mocker.patch.object(
         EntsoePandasClient,
         "query_day_ahead_prices",
@@ -55,7 +54,7 @@ def test_python_entsoe_read_batch(mocker: MockerFixture):
 
 
 def test_entsoe_read_batch_fails(mocker: MockerFixture):
-    entsoe_source = PythonEntsoeSource(api_key, start, end, country_code, resolution)
+    entsoe_source = PythonEntsoeSource(api_key, start, end, country_code)
     mocker.patch.object(
         EntsoePandasClient, "query_day_ahead_prices", side_effect=Exception
     )
@@ -65,7 +64,7 @@ def test_entsoe_read_batch_fails(mocker: MockerFixture):
 
 
 def test_python_entsoe_read_stream():
-    entsoe_source = PythonEntsoeSource(api_key, start, end, country_code, resolution)
+    entsoe_source = PythonEntsoeSource(api_key, start, end, country_code)
     with pytest.raises(NotImplementedError) as e:
         entsoe_source.read_stream()
     assert str(e.value) == "ENTSO-E connector does not support the stream operation."
