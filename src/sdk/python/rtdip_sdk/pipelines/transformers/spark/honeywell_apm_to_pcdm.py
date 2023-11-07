@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import from_json, col, explode, when, lit, regexp_replace
+from pyspark.sql.functions import from_json, col, explode, when, lit, udf
+import gzip
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -44,12 +45,14 @@ class HoneywellAPMJsonToPCDMTransformer(TransformerInterface):
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         status_null_value (optional str): If populated, will replace 'Good' in the Status column with the specified value.
         change_type_value (optional str): If populated, will replace 'insert' in the ChangeType column with the specified value.
+        gzip_compressed (optional bool): Converts a GZIP-compressed source column into plain text.
     """
 
     data: DataFrame
     source_column_name: str
     status_null_value: str
     change_type_value: str
+    gzip_compressed: bool
 
     def __init__(
         self,
@@ -57,11 +60,13 @@ class HoneywellAPMJsonToPCDMTransformer(TransformerInterface):
         source_column_name: str,
         status_null_value: str = "Good",
         change_type_value: str = "insert",
+        gzip_compressed: bool = True,
     ) -> None:
         self.data = data
         self.source_column_name = source_column_name
         self.status_null_value = status_null_value
         self.change_type_value = change_type_value
+        self.gzip_compressed = gzip_compressed
 
     @staticmethod
     def system_type():
@@ -91,6 +96,21 @@ class HoneywellAPMJsonToPCDMTransformer(TransformerInterface):
         Returns:
             DataFrame: A dataframe with the specified column converted to PCDM
         """
+
+        @udf("string")
+        def decompress_gzip(data):
+            try:
+                decompressed_data = gzip.decompress(data)
+                return decompressed_data.decode("utf-8")
+            except Exception as e:
+                return str(e)
+
+        if self.gzip_compressed:
+            self.data = self.data.withColumn(
+                self.source_column_name,
+                decompress_gzip(self.data[self.source_column_name]),
+            )
+
         df = (
             self.data.withColumn("body", from_json(self.source_column_name, APM_SCHEMA))
             .select(explode("body.SystemTimeSeries.Samples"))

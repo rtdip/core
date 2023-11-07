@@ -26,12 +26,14 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from datetime import datetime, timezone
+import gzip
 
 
 def test_honeywell_apm_to_pcdm(spark_session: SparkSession):
     honeywell_json_data = '{"SystemTimeSeries": {"Id": "testId","TenantId": "testTenantId","IdType": "calculatedpoint","Samples": [{"ItemName": "test.item1", "Time": "2023-07-31T06:53:00+00:00","Value": "5.0","Unit": null,"NormalizedQuality": "good", "HighValue": null,"LowValue": null,"TargetValue": null},{"ItemName": "test_item2","Time": "2023-07-31T06:53:00+00:00","Value": 0.0,"Unit": null,"NormalizedQuality": "good","HighValue": null,"LowValue": null,"TargetValue": null},{"ItemName": "testItem3","Time": "2023-07-31T06:53:00.205+00:00","Value": "test_string","Unit": null,"NormalizedQuality": "good","HighValue": null,"LowValue": null,"TargetValue": null}]}}'
+    compressed_honeywell_json_data = gzip.compress(honeywell_json_data.encode("utf-8"))
     honeywell_df: DataFrame = spark_session.createDataFrame(
-        [{"body": honeywell_json_data}]
+        [{"body": compressed_honeywell_json_data}]
     )
 
     expected_schema = StructType(
@@ -76,16 +78,16 @@ def test_honeywell_apm_to_pcdm(spark_session: SparkSession):
         schema=expected_schema, data=expected_data
     )
 
-    honeywell_eventhub_json_to_PCDM_transformer = HoneywellAPMJsonToPCDMTransformer(
+    honeywell_eventhub_json_to_pcdm_transformer = HoneywellAPMJsonToPCDMTransformer(
         data=honeywell_df, source_column_name="body"
     )
-    actual_df = honeywell_eventhub_json_to_PCDM_transformer.transform()
+    actual_df = honeywell_eventhub_json_to_pcdm_transformer.transform()
 
     assert (
-        honeywell_eventhub_json_to_PCDM_transformer.system_type() == SystemType.PYSPARK
+        honeywell_eventhub_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
     )
     assert isinstance(
-        honeywell_eventhub_json_to_PCDM_transformer.libraries(), Libraries
+        honeywell_eventhub_json_to_pcdm_transformer.libraries(), Libraries
     )
     assert expected_schema == actual_df.schema
     assert expected_df.collect() == actual_df.collect()
