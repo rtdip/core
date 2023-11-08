@@ -641,7 +641,6 @@ button {
 /* === BUSINESS INTELLIGENCE SECTION STYLES === */
 
 .bi-section {
-    color: black;
     min-height: 50vh;
     display: flex;
     flex-direction: row;
@@ -788,7 +787,6 @@ button {
 /* === CONTRIBUTOR SECTION STYLES === */
 
 .contributor-section {
-    color: black;
     min-height: 30vh;
     display: flex;
     flex-direction: row;
