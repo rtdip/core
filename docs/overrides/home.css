@@ -19,7 +19,7 @@ button {
     border-radius: 0.25rem;
     font-size: 0.8rem;
     font-weight: 700;
-    font-family: 'Roboto';
+    font-family: 'Roboto', 'Arial', 'sans-serif';
     cursor: pointer;
 }
 
@@ -29,7 +29,7 @@ button {
     border-radius: 0.25rem;
     font-size: 0.8rem;
     font-weight: 700;
-    font-family: 'Roboto';
+    font-family: 'Roboto', 'Arial', 'sans-serif';
     cursor: pointer;
     text-decoration: none;
 }
@@ -549,15 +549,6 @@ button {
     padding-right: 7rem;
 }
 
-.clickable-list-item-title {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.4rem 0;
-    width: 100%; 
-}
-
 .clickable-list-details {
     opacity: 0;
     max-height: 0;
@@ -584,6 +575,10 @@ button {
 .clickable-list-item-title {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem 0;
+    width: 100%; 
     font-weight: 500;
     font-size: 0.8rem;
 }
