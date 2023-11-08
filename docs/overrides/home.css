@@ -107,6 +107,7 @@ button {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    max-width: 61rem;
 }
 
 .intro-left {
@@ -282,7 +283,7 @@ button {
     gap: 10%;
     padding: 0 150px;
     margin-top: 60px;
-    margin-bottom: 100px;/
+    margin-bottom: 100px;
 }
 
 
@@ -346,20 +347,20 @@ button {
     align-items: center;
     justify-content: center;
     scroll-snap-align: start;
-    height: 100vh;
+    height: 120vh;
     flex-shrink: 0;
 }
 
 .pipeline-section h1 {
     font-size: 2.2rem;
-    margin-top: 60px;
+    margin-top: 80px;
     margin-bottom: 30px;
     text-align: center;
 }
 
 .pipeline-section p {
     font-weight: 300;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-align: center;
     line-height: 1.5rem;
     width: 50%;
@@ -390,7 +391,6 @@ button {
 .pipeline-item-img {
     width: 80%;
     margin-top: 1rem;
-    height: 50%;
 }
 
 .pipeline-item-img img {
@@ -942,7 +942,7 @@ button {
 .footer p {
     color: white;
     font-weight: 300;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     line-height: 1.5rem;
 }
 
