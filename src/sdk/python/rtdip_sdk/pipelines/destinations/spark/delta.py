@@ -26,7 +26,48 @@ class SparkDeltaDestination(DestinationInterface):
     """
     The Spark Delta Destination is used to write data to a Delta table.
 
-    Args:
+    Examples
+    --------
+    ```python
+    #Delta Destination for Streaming Queries
+
+    from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
+
+    delta_destination = SparkDeltaDestination(
+        data=df,
+        options={
+            "checkpointLocation": "/{CHECKPOINT-LOCATION}/"
+        },
+        destination="DELTA-TABLE-PATH",
+        mode="append",
+        trigger="10 seconds",
+        query_name="DeltaDestination",
+        query_wait_interval=None
+    )
+
+    delta_destination.write_stream()
+    ```
+    ```python
+    #Delta Destination for Batch Queries
+
+    from rtdip_sdk.pipelines.destinations import SparkDeltaDestination
+
+    delta_destination = SparkDeltaDestination(
+        data=df,
+        options={
+            "overwriteSchema": True
+        },
+        destination="DELTA-TABLE-PATH",
+        mode="append",
+        trigger="10 seconds",
+        query_name="DeltaDestination",
+        query_wait_interval=None
+    )
+
+    delta_destination.write_batch()
+    ```
+
+    Parameters:
         data (DataFrame): Dataframe to be written to Delta
         options (dict): Options that can be specified for a Delta Table write operation (See Attributes table below). Further information on the options is available for [batch](https://docs.delta.io/latest/delta-batch.html#write-to-a-table){ target="_blank" } and [streaming](https://docs.delta.io/latest/delta-streaming.html#delta-table-as-a-sink){ target="_blank" }.
         destination (str): Either the name of the Hive Metastore or Unity Catalog Delta Table **or** the path to the Delta table

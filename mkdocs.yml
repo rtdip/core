@@ -34,6 +34,7 @@ extra_css:
 # Configuration
 theme:
   name: material
+  custom_dir: docs/overrides
   # Default values, taken from mkdocs_theme.yml
   language: en
   features:

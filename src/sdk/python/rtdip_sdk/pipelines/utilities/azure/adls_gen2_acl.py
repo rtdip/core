@@ -29,9 +29,30 @@ from azure.core.credentials import (
 
 class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
     """
-    Assigns Azure AD Groups to ACLs on directories in an Azure Data Lake Store Gen 2 storage account
+    Assigns Azure AD Groups to ACLs on directories in an Azure Data Lake Store Gen 2 storage account.
 
-    Args:
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.utilities import ADLSGen2DirectoryACLUtility
+
+    adls_gen2_directory_acl_utility = ADLSGen2DirectoryACLUtility(
+        storage_account="YOUR-STORAGAE-ACCOUNT-NAME",
+        container="YOUR-ADLS_CONTAINER_NAME",
+        credential="YOUR-TOKEN-CREDENTIAL",
+        directory="DIRECTORY",
+        group_object_id="GROUP-OBJECT",
+        folder_permissions="r-x",
+        parent_folder_permissions="r-x",
+        root_folder_permissions="r-x",
+        set_as_default_acl=True,
+        create_directory_if_not_exists=True
+    )
+
+    result = adls_gen2_directory_acl_utility.execute()
+    ```
+
+    Parameters:
         storage_account (str): ADLS Gen 2 Storage Account Name
         container (str): ADLS Gen 2 Container Name
         credential (TokenCredential): Credentials to authenticate with ADLS Gen 2 Storage Account

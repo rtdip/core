@@ -20,9 +20,43 @@ from .._pipeline_utils.constants import get_default_package
 
 class AzureKeyVaultSecrets(SecretsInterface):
     """
-    Reads secrets from Azure Key Vault. For more information about Azure Key Vaults, see [here.](https://learn.microsoft.com/en-gb/azure/key-vault/general/overview)
+    Retrieves and creates/updates secrets in Azure Key Vault. For more information about Azure Key Vaults, see [here.](https://learn.microsoft.com/en-gb/azure/key-vault/general/overview)
 
-    Args:
+    Example
+    -------
+    ```python
+    # Retrieves Secrets from Azure Key Vault
+
+    from rtdip_sdk.pipelines.secrets import AzureKeyVaultSecrets
+
+    get_key_vault_secret = AzureKeyVaultSecrets(
+        vault="https://{YOUR-KEY-VAULT}.azure.net/",
+        key="{KEY}",
+        secret=None,
+        credential="{CREDENTIAL}",
+        kwargs=None
+    )
+
+    get_key_vault_secret.get()
+
+    ```
+    ```python
+    # Creates or Updates Secrets in Azure Key Vault
+
+    from rtdip_sdk.pipelines.secrets import AzureKeyVaultSecrets
+
+    set_key_vault_secret = AzureKeyVaultSecrets(
+        vault="https://{YOUR-KEY-VAULT}.azure.net/",
+        key="{KEY}",
+        secret="{SECRET-TO-BE-SET}",
+        credential="{CREDENTIAL}",
+        kwargs=None
+    )
+
+    set_key_vault_secret.set()
+    ```
+
+    Parameters:
         vault (str): Azure Key Vault URL
         key (str): Key for the secret
         secret (str): Secret or Password to be set in the Azure Key Vault

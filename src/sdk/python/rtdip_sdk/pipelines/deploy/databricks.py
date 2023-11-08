@@ -87,7 +87,7 @@ class DatabricksSDKDeploy(DeployInterface):
         launch_result = databricks_job.launch()
         ```
 
-    Args:
+    Parameters:
         databricks_job (DatabricksJob): Contains Databricks specific information required for deploying the RTDIP Pipeline Job to Databricks, such as cluster and workflow scheduling information. This can be any field in the [Databricks Jobs REST API v2.1](https://docs.databricks.com/dev-tools/api/latest/jobs.html)
         host (str): Databricks URL
         token (str): Token for authenticating with Databricks such as a Databricks PAT Token or Azure AD Token
