@@ -10,7 +10,7 @@ body, h1, h2, h3, p{
 body {
     padding: 0px;
     margin: 0px;
-    font-family: 'Roboto', 'Arial', sans-serif;
+    font-family: 'Roboto', 'Arial', 'sans-serif';
 }
 
 button {
@@ -531,10 +531,6 @@ button {
 
 .querybuilder-left img {
     margin-top: 3rem;
-    width: 60%;
-}
-
-.querybuilder-left img {
     width: 80%;
 }
 
