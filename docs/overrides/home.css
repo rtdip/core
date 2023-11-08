@@ -10,7 +10,7 @@ body, h1, h2, h3, p{
 body {
     padding: 0px;
     margin: 0px;
-    font-family: 'Roboto', 'Arial', 'sans-serif';
+    font-family: 'Roboto', 'Arial', sans-serif;
 }
 
 button {
@@ -19,7 +19,7 @@ button {
     border-radius: 0.25rem;
     font-size: 0.8rem;
     font-weight: 700;
-    font-family: 'Roboto', 'Arial', 'sans-serif';
+    font-family: 'Roboto', 'Arial', sans-serif;
     cursor: pointer;
 }
 
@@ -29,7 +29,7 @@ button {
     border-radius: 0.25rem;
     font-size: 0.8rem;
     font-weight: 700;
-    font-family: 'Roboto', 'Arial', 'sans-serif';
+    font-family: 'Roboto', 'Arial', sans-serif;
     cursor: pointer;
     text-decoration: none;
 }
