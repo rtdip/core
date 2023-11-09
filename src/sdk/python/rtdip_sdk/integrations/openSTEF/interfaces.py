@@ -317,19 +317,19 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
 
         # Write to different tables
         df_cast = df.copy()
-        df_cast["ChangeType"] = df_cast["TagName"].str.split(":").str[0]
-        df_cast["ChangeType"] = df_cast["ChangeType"].map(casting_fields)
+        df_cast["ValueType"] = df_cast["TagName"].str.split(":").str[0]
+        df_cast["ValueType"] = df_cast["ValueType"].map(casting_fields)
 
-        int_df = df_cast.loc[df_cast["ChangeType"] == "int"]
-        int_df.drop(columns=["ChangeType"], inplace=True)
+        int_df = df_cast.loc[df_cast["ValueType"] == "int"]
+        int_df.drop(columns=["ValueType"], inplace=True)
         int_df = int_df.astype({"Value": np.int64})
 
-        float_df = df_cast.loc[df_cast["ChangeType"] == "float"]
-        float_df.drop(columns=["ChangeType"], inplace=True)
+        float_df = df_cast.loc[df_cast["ValueType"] == "float"]
+        float_df.drop(columns=["ValueType"], inplace=True)
         float_df = float_df.astype({"Value": np.float64})
 
-        str_df = df_cast.loc[df_cast["ChangeType"] == "str"]
-        str_df.drop(columns=["ChangeType"], inplace=True)
+        str_df = df_cast.loc[df_cast["ValueType"] == "str"]
+        str_df.drop(columns=["ValueType"], inplace=True)
         str_df = str_df.astype({"Value": str})
 
         dataframes = [
