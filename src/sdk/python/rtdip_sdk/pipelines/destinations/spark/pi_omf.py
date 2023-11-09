@@ -48,7 +48,8 @@ class SparkPIOMFDestination(DestinationInterface):
     !!! Note
         While it is possible to use the `write_batch` method, it is easy to overwhlem a Rest API with large volumes of data.
         Consider reducing data volumes when writing to a Rest API in Batch mode to prevent API errors including throtting.
-    Args:
+
+    Parameters:
         data (DataFrame): Dataframe to be merged into a Delta Table
         options (dict): A dictionary of options for streaming writes
         url (str): The Rest API Url
@@ -65,6 +66,7 @@ class SparkPIOMFDestination(DestinationInterface):
         timeout: (optional int): Time in seconds to wait for the type and container messages to be sent
         create_type_message (opitional bool): Can set to False if the type messages have already been created
         max_payload_length (optional int): Maximum allowed length of request content
+
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
     """

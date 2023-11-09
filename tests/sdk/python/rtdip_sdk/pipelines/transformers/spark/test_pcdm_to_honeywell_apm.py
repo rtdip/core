@@ -102,4 +102,4 @@ def test_pcdm_to_honeywell_apm_gzip_compressed(spark_session: SparkSession):
     )
     actual_df = pcdm_to_honeywell_eventhub_json_transformer.transform()
     df_row = actual_df.collect()[0]
-    assert isinstance(df_row["body"], str)
+    assert isinstance(df_row["body"], bytearray)
