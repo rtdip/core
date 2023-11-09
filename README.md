@@ -112,7 +112,7 @@ Distributed under the Apache License Version 2.0. See [LICENSE.md](https://githu
 # Need help?
 * For reference documentation, pre-requisites, getting started, tutorials and examples visit [RTDIP Documentation](https://www.rtdip.io/). 
 * File an issue via [Github Issues](https://github.com/rtdip/core/issues).
-* Check previous questions and answers or ask new ones on our slack channel [**#real-time-data-ingestion-platform**](https://join.slack.com/t/lfenergy/shared_invite/zt-1ilkyecnq-8TDP6pzZXnmx1o0Lc~kMcA)
+* Check previous questions and answers or ask new ones on our slack channel [**#rtdip**](https://lfenergy.slack.com/archives/C0484R9Q6A0)
 
 ### Community
-* Chat with other community members by joining the **#real-time-data-ingestion-platform** Slack channel. [Click here to join our slack community](https://join.slack.com/t/lfenergy/shared_invite/zt-1ilkyecnq-8TDP6pzZXnmx1o0Lc~kMcA)
+* Chat with other community members by joining the **#rtdip** Slack channel. [Click here to join our slack community](https://lfenergy.slack.com/archives/C0484R9Q6A0)
