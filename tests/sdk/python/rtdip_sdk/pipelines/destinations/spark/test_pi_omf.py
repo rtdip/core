@@ -98,6 +98,32 @@ def test_spark_pi_omf_write_setup():
     assert delta_merge_destination.post_write_validation()
 
 
+def test_spark_pi_omf_api_micro_batch(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    mocked_response = mocker.Mock()
+    mocked_response.status_code = 200
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pi_omf.requests.post",
+        return_value=mocked_response,
+    )
+    mocker.patch.object(SparkRestAPIDestination, "_api_micro_batch", return_value=True)
+    source_df = spark_session.createDataFrame(schema=source_schema, data=source_data)
+    pi_omf = SparkPIOMFDestination(
+        source_df,
+        {},
+        test_url,
+        "username",
+        "password",
+        1,
+        3,
+        create_type_message=False,
+        max_payload_length=130,
+    )
+    pi_omf.write_batch()
+    assert pi_omf.batch_size == 1
+
+
 def test_spark_pi_omf_write_batch(spark_session: SparkSession, mocker: MockerFixture):
     mocked_response = mocker.Mock()
     mocked_response.status_code = 200

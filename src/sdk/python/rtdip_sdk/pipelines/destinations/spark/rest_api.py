@@ -114,7 +114,7 @@ class SparkRestAPIDestination(DestinationInterface):
         auth (optional AuthBase): Used when authentication is required, such as BasicAuth ('username', 'password'). See the [Requests authentication documentation](https://requests.readthedocs.io/en/latest/user/authentication/#authentication){ target="_blank" }
         compression (optional bool): If set to True, will send the data with Gzip compression
         batch_as_array (optional bool): Set to True if the payload message must be a json array instead of a json object
-        retries (optional int): If the data exceeds the requests size limit, retry with progressively smaller batches
+        max_payload_length (optional int): Maximum allowed length of request content
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -133,7 +133,7 @@ class SparkRestAPIDestination(DestinationInterface):
     auth: AuthBase
     compression: bool
     batch_as_array: bool
-    retries: int
+    max_payload_length: int
 
     def __init__(
         self,
@@ -150,7 +150,7 @@ class SparkRestAPIDestination(DestinationInterface):
         auth: AuthBase = None,
         compression: bool = False,
         batch_as_array: bool = False,
-        retries: int = 5,
+        max_payload_length: int = 4194304,
     ) -> None:  # NOSONAR
         self.data = data
         self.options = options
@@ -165,7 +165,7 @@ class SparkRestAPIDestination(DestinationInterface):
         self.auth = auth
         self.compression = compression
         self.batch_as_array = batch_as_array
-        self.retries = retries
+        self.max_payload_length = max_payload_length
 
     @staticmethod
     def system_type():
@@ -192,6 +192,15 @@ class SparkRestAPIDestination(DestinationInterface):
         return True
 
     def _pre_batch_records_for_api_call(self, micro_batch_df: DataFrame):
+        longest_payload = micro_batch_df.selectExpr(
+            "max(length(payload)) as max_length"
+        ).collect()[0][0]
+        if longest_payload * self.batch_size * 1.1 > self.max_payload_length:
+            original_batch_size = self.batch_size
+            self.batch_size = int(self.max_payload_length // (longest_payload * 1.1))
+            print(
+                f"Request content exceeds maximum allowed length; reducing batch size from {original_batch_size} to {self.batch_size}"
+            )
         batch_count = math.ceil(micro_batch_df.count() / self.batch_size)
         micro_batch_df = (
             micro_batch_df.withColumn("content", to_json(struct(col("*"))))
@@ -215,7 +224,6 @@ class SparkRestAPIDestination(DestinationInterface):
         headers = self.headers
         auth = self.auth
         compression = self.compression
-        retries = self.retries
         if compression:
             headers["compression"] = "gzip"
 
@@ -242,55 +250,12 @@ class SparkRestAPIDestination(DestinationInterface):
                 response = session.put(url, headers=headers, data=data, verify=False)
             else:
                 raise Exception("Method {} is not supported".format(method))  # NOSONAR
-
-            def _split_data(data):
-                if compression:
-                    decompressed_data = gzip.decompress(data)
-                    data = decompressed_data.decode("utf-8")
-                data_array = np.array(ast.literal_eval(data))
-                for i in range(retries):
-                    payload = np.array_split(data_array, i + 2)
-                    for item in payload:
-                        data = str(item.tolist())
-                        if method == "POST":
-                            response = session.post(
-                                url,
-                                headers=headers,
-                                data=data,
-                                verify=False,
-                                timeout=30,
-                                auth=auth,
-                            )
-                        elif method == "PATCH":
-                            response = session.patch(
-                                url, headers=headers, data=data, verify=False
-                            )
-                        elif method == "PUT":
-                            response = session.put(
-                                url, headers=headers, data=data, verify=False
-                            )
-                        if response.status_code not in [200, 201, 202]:
-                            print("Message too large; retrying with a smaller batch")
-                            break
-                    if response.status_code in [200, 201, 202]:
-                        break
-                else:
-                    raise HTTPError(
-                        "Response status : {} .Response message : {}".format(
-                            str(response.status_code), response.text
-                        )
-                    )  # NOSONAR
-
             if response.status_code not in [200, 201, 202]:
-                if response.status_code == 413 and retries > 0:
-                    print("Message too large; retrying with a smaller batch")
-                    _split_data(data)
-                else:
-                    raise HTTPError(
-                        "Response status : {} .Response message : {}".format(
-                            str(response.status_code), response.text
-                        )
-                    )  # NOSONAR
+                raise HTTPError(
+                    "Response status : {} .Response message : {}".format(
+                        str(response.status_code), response.text
+                    )
+                )  # NOSONAR
 
             return str(response.status_code)
 

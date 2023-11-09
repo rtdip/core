@@ -54,16 +54,17 @@ class SparkPIOMFDestination(DestinationInterface):
         url (str): The Rest API Url
         username (str): Username for your PI destination
         password (str): Password for your PI destination
-        message_length (int): The number of {time,value} messages to be packed into each row
+        message_length (int): The number of {time,value} messages to be packed into each row. Cannot exceed 70,000
         batch_size (int): The number of DataFrame rows to be used in each Rest API call
-        method (str): The method to be used when calling the Rest API. Allowed values are POST, PATCH and PUT
-        parallelism (int): The number of concurrent calls to be made to the Rest API
-        omf_version (str): The OMF version to use
+        parallelism (optional int): The number of concurrent calls to be made to the Rest API
+        omf_version (optional str): The OMF version to use
         trigger (optional str): Frequency of the write operation. Specify "availableNow" to execute a trigger once, otherwise specify a time period such as "30 seconds", "5 minutes". Set to "0 seconds" if you do not want to use a trigger. (stream) Default is 10 seconds
-        query_name (str): Unique name for the query in associated SparkSession
+        query_name (optional str): Unique name for the query in associated SparkSession
         query_wait_interval (optional int): If set, waits for the streaming query to complete before returning. (stream) Default is None
         compression (optional bool): If True, sends gzip compressed data in the API call
-        timeout: (optional int): Time in seconds to wait for the type and container messages to be sent.
+        timeout: (optional int): Time in seconds to wait for the type and container messages to be sent
+        create_type_message (opitional bool): Can set to False if the type messages have already been created
+        max_payload_length (optional int): Maximum allowed length of request content
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
     """
@@ -75,7 +76,6 @@ class SparkPIOMFDestination(DestinationInterface):
     password: str
     message_length: int
     batch_size: int
-    method: str
     parallelism: int
     omf_version: str
     trigger: str
@@ -83,6 +83,8 @@ class SparkPIOMFDestination(DestinationInterface):
     query_wait_interval: int
     compression: bool
     timeout: int
+    create_type_message: bool
+    max_payload_length: int
 
     def __init__(
         self,
@@ -101,13 +103,14 @@ class SparkPIOMFDestination(DestinationInterface):
         compression: bool = False,
         timeout: int = 30,
         create_type_message: bool = True,
+        max_payload_length: int = 4194304,
     ) -> None:  # NOSONAR
         self.data = data
         self.options = options
         self.url = f"{url}/omf"
         self.username = username
         self.password = password
-        self.message_length = message_length
+        self.message_length = message_length if message_length <= 70000 else 70000
         self.batch_size = batch_size
         self.parallelism = parallelism
         self.omf_version = omf_version
@@ -119,6 +122,7 @@ class SparkPIOMFDestination(DestinationInterface):
         self.create_type_message = (
             self._send_type_message() if create_type_message == True else None
         )
+        self.max_payload_length = max_payload_length
         self.container_ids = []
         self.data_headers = {
             "messagetype": "data",
@@ -323,6 +327,16 @@ class SparkPIOMFDestination(DestinationInterface):
     def _api_micro_batch(self):
         self._send_container_message(self.data)
         pi_omf_df = self._pre_batch_records_for_api_call(self.data)
+        longest_payload = pi_omf_df.selectExpr(
+            "max(length(payload)) as max_length"
+        ).collect()[0][0]
+
+        if longest_payload * self.batch_size * 1.1 > self.max_payload_length:
+            original_batch_size = self.batch_size
+            self.batch_size = int(self.max_payload_length // (longest_payload * 1.1))
+            print(
+                f"Request content exceeds maximum allowed length; reducing batch size from {original_batch_size} to {self.batch_size}"
+            )
         pi_omf_df = self._group_rows(pi_omf_df)
         return SparkRestAPIDestination(
             data=pi_omf_df,
@@ -333,6 +347,7 @@ class SparkPIOMFDestination(DestinationInterface):
             method="POST",
             auth=(self.username, self.password),
             compression=self.compression,
+            max_payload_length=4194304,
         )._api_micro_batch(micro_batch_df=pi_omf_df, _execute_transformation=False)
 
     def write_batch(self):
