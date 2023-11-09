@@ -44,6 +44,9 @@ class TestStreamingQueryClass:
 
 tag_name = "Sample.Script.RTDIP7"
 test_url = "https://test.com/api"
+mocked_requests = (
+    "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pi_omf.requests.post"
+)
 source_schema = StructType(
     [
         StructField("TagName", StringType(), True),
@@ -104,7 +107,7 @@ def test_spark_pi_omf_api_micro_batch(
     mocked_response = mocker.Mock()
     mocked_response.status_code = 200
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pi_omf.requests.post",
+        mocked_requests,
         return_value=mocked_response,
     )
     mocker.patch.object(SparkRestAPIDestination, "_api_micro_batch", return_value=True)
@@ -128,7 +131,7 @@ def test_spark_pi_omf_write_batch(spark_session: SparkSession, mocker: MockerFix
     mocked_response = mocker.Mock()
     mocked_response.status_code = 200
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pi_omf.requests.post",
+        mocked_requests,
         return_value=mocked_response,
     )
     mocker.patch.object(SparkRestAPIDestination, "_api_micro_batch", return_value=True)
@@ -325,7 +328,7 @@ def test_send_type_message_fails(spark_session: SparkSession, mocker: MockerFixt
     mocked_response = mocker.Mock()
     mocked_response.status_code = 404
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.pipelines.destinations.spark.pi_omf.requests.post",
+        mocked_requests,
         return_value=mocked_response,
     )
     sample_df = spark_session.createDataFrame([{"id": "1"}])
