@@ -159,8 +159,10 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
                 df["_time"] = pd.to_datetime(df["_time"], utc=True)
                 return df
             elif len(query_list) > 1:
-                df = [pd.read_sql(query, self.pcdm_engine) for query in query_list]
-                return df
+                df_list = [pd.read_sql(query, self.pcdm_engine) for query in query_list]
+                for df in df_list:
+                    df["_time"] = pd.to_datetime(df["_time"], utc=True)
+                return df_list
 
         except Exception as e:
             self.logger.error(

@@ -7,6 +7,7 @@ from pytest_mock import MockerFixture
 from datetime import datetime
 from src.sdk.python.rtdip_sdk.integrations.openSTEF.interfaces import _DataInterface
 from src.sdk.python.rtdip_sdk.integrations.openSTEF.database import DataBase
+from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
 from openstef.data_classes.prediction_job import PredictionJobDataClass
 from openstef.enums import PipelineType
 from src.sdk.python.rtdip_sdk.pipelines.sources import (
@@ -16,6 +17,9 @@ from src.sdk.python.rtdip_sdk.pipelines.sources import (
 
 import pandas as pd
 
+auth = DefaultAuth().authenticate()
+token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+
 
 class ConfigSettigns(BaseSettings):
     api_username: str = "None"
@@ -23,16 +27,16 @@ class ConfigSettigns(BaseSettings):
     api_admin_username: str = "None"
     api_admin_password: str = "None"
     api_url: str = "None"
-    pcdm_host: str = "None"
-    pcdm_token: str = "None"
+    pcdm_host: str = "uat_hostname"
+    pcdm_token: str = token
     pcdm_port: int = 443
-    pcdm_http_path: str = "None"
+    pcdm_http_path: str = "uat_http_path"
     pcdm_catalog: str = "rtdip"
     pcdm_schema: str = "openstef"
-    db_host: str = "None"
-    db_token: str = "None"
+    db_host: str = "uat_hostname"
+    db_token: str = token
     db_port: int = 443
-    db_http_path: str = "None"
+    db_http_path: str = "uat_http_path"
     db_catalog: str = "rtdip"
     db_schema: str = "sensors"
     proxies: Union[dict[str, str], None] = None
@@ -229,7 +233,7 @@ def test_methods(mocker: MockerFixture):
     #     datetime_start=datetime(2023, 8, 29),
     #     datetime_end=datetime(2023, 8, 30),
     #     forecast_resolution="15T",
-    #     aggregated=False,
+    #     aggregated=True,
     #     average_output=True,
     #     include_n_entries_column=False,
     # )
@@ -245,7 +249,8 @@ def test_methods(mocker: MockerFixture):
     # x = db.get_wind_ref("Deelen", datetime(2023, 8, 29), datetime(2023, 8, 30))
     # x = db.get_energy_split_coefs({"id": "317"})
     # x = db.get_input_energy_splitting(
-    #     pj=pj, datetime_start=datetime(2024, 8, 29), datetime_end=datetime(2024, 8, 30)
+    #     pj=pj, datetime_start=datetime(2024, 8, 29), datetime_end=datetime(2024, 8, 30),
+    #     forecast_resolution="15T"
     # )
 
     ##### PREDICTIONS METHODS
