@@ -15,6 +15,11 @@
 import sys
 
 sys.path.insert(0, ".")
+import os
+
+
+os.environ["PYSPARK_PYTHON"] = sys.executable
+os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 import pytest
 from unittest.mock import patch
 from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.rest_api import (
@@ -23,6 +28,13 @@ from src.sdk.python.rtdip_sdk.pipelines.destinations.spark.rest_api import (
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     PyPiLibrary,
+)
+from pyspark.sql.types import (
+    StringType,
+    StructField,
+    TimestampType,
+    StructType,
+    IntegerType,
 )
 from pyspark.sql import SparkSession
 from pytest_mock import MockerFixture
@@ -52,6 +64,30 @@ def test_spark_rest_api_write_setup():
     assert isinstance(delta_merge_destination.settings(), dict)
     assert delta_merge_destination.pre_write_validation()
     assert delta_merge_destination.post_write_validation()
+
+
+def test_spark_rest_api_pre_batch_records_for_api_call(spark_session: SparkSession):
+    data = [
+        ("Tag1", "2023-11-08 12:00:00", 10),
+        ("Tag2", "2023-11-08 12:15:00", 20),
+        ("Tag3", "2023-11-08 12:30:00", 30),
+        ("Tag4", "2023-11-08 12:45:00", 40),
+    ]
+
+    schema = StructType(
+        [
+            StructField("tag", StringType(), True),
+            StructField("time", StringType(), True),
+            StructField("value", IntegerType(), True),
+        ]
+    )
+    df = spark_session.createDataFrame(data, schema=schema)
+
+    restapi_destination = SparkRestAPIDestination(
+        df, {}, test_url, {}, 4, parallelism=1, compression=True, max_payload_length=130
+    )
+    restapi_destination._pre_batch_records_for_api_call(df)
+    assert restapi_destination.batch_size == 2
 
 
 def test_spark_rest_api_write_stream(

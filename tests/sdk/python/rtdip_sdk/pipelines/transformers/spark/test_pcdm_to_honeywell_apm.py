@@ -98,7 +98,7 @@ def test_pcdm_to_honeywell_apm_gzip_compressed(spark_session: SparkSession):
         schema=pcdm_schema, data=pcdm_data
     )
     pcdm_to_honeywell_eventhub_json_transformer = PCDMToHoneywellAPMTransformer(
-        data=pcdm_df, history_samples_per_message=3
+        data=pcdm_df, history_samples_per_message=1
     )
     actual_df = pcdm_to_honeywell_eventhub_json_transformer.transform()
     df_row = actual_df.collect()[0]
