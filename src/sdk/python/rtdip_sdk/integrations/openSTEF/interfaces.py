@@ -60,6 +60,9 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
                 proxies Union[dict[str, str], None]: Proxies.
         """
 
+        import openstef_dbc.data_interface
+        openstef_dbc.data_interface._DataInterface = _DataInterface
+
         self.logger = logging.get_logger(self.__class__.__name__)
 
         self.ktp_api = KtpApi(

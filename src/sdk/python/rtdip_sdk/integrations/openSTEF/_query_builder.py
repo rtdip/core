@@ -252,7 +252,7 @@ def _max_query() -> list:
     return [sql_query]
 
 
-def _query_builder(query: str) -> str:
+def _query_builder(query: str) -> list:
     if re.search(aggregate_window, query):
         return _resample_query(query)
 
