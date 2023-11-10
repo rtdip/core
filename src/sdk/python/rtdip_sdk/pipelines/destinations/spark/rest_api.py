@@ -192,15 +192,7 @@ class SparkRestAPIDestination(DestinationInterface):
         return True
 
     def _pre_batch_records_for_api_call(self, micro_batch_df: DataFrame):
-        longest_payload = micro_batch_df.selectExpr(
-            "max(length(payload)) as max_length"
-        ).collect()[0][0]
-        if longest_payload * self.batch_size * 1.1 > self.max_payload_length:
-            original_batch_size = self.batch_size
-            self.batch_size = int(self.max_payload_length // (longest_payload * 1.1))
-            print(
-                f"Request content exceeds maximum allowed length; reducing batch size from {original_batch_size} to {self.batch_size}"
-            )
+        original_df = micro_batch_df
         batch_count = math.ceil(micro_batch_df.count() / self.batch_size)
         micro_batch_df = (
             micro_batch_df.withColumn("content", to_json(struct(col("*"))))
@@ -208,13 +200,28 @@ class SparkRestAPIDestination(DestinationInterface):
             .withColumn("batch_id", col("row_number") % batch_count)
         )
         if self.batch_as_array:
-            return micro_batch_df.groupBy("batch_id").agg(
+            micro_batch_df = micro_batch_df.groupBy("batch_id").agg(
                 collect_list("content").cast("string").alias("payload")
             )
         else:
-            return micro_batch_df.groupBy("batch_id").agg(
+            micro_batch_df = micro_batch_df.groupBy("batch_id").agg(
                 concat_ws(",", collect_list("content")).alias("payload")
             )
+        longest_payload = micro_batch_df.selectExpr(
+            "max(length(payload)) as max_length"
+        ).collect()[0][0]
+        if longest_payload * 1.1 > self.max_payload_length:
+            original_batch_size = self.batch_size
+            new_batch_size = int(
+                self.batch_size * (self.max_payload_length / (longest_payload * 1.1))
+            )
+            self.batch_size = max(new_batch_size, 1)
+            print(
+                f"Request content exceeds maximum allowed length; reducing batch size from {original_batch_size} to {self.batch_size}"
+            )
+            return self._pre_batch_records_for_api_call(original_df)
+        else:
+            return micro_batch_df
 
     def _api_micro_batch(
         self, micro_batch_df: DataFrame, epoch_id=None, _execute_transformation=True
