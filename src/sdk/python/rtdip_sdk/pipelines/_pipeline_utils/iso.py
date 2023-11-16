@@ -21,6 +21,7 @@ from pyspark.sql.types import (
     TimestampType,
     DoubleType,
     StringType,
+    LongType,
 )
 
 MISO_SCHEMA = StructType(
@@ -43,6 +44,24 @@ PJM_SCHEMA = StructType(
         StructField("Zone", StringType(), True),
         StructField("Load", DoubleType(), True),
     ]
+)
+
+CAISO_SCHEMA = StructType(
+    [
+        StructField('StartTime', TimestampType(), True),
+        StructField('EndTime', TimestampType(), True),
+        StructField('LoadType', LongType(), True),
+        StructField('OprDt', StringType(), True),
+        StructField('OprHr', LongType(), True),
+        StructField('OprInterval', LongType(), True),
+        StructField('MarketRunId', StringType(), True),
+        StructField('TacAreaName', StringType(), True),
+        StructField('Label', StringType(), True),
+        StructField('XmlDataItem', StringType(), True),
+        StructField('Pos', DoubleType(), True),
+        StructField('Load', DoubleType(), True),
+        StructField('ExecutionType', StringType(), True),
+        StructField('Group', LongType(), True)]
 )
 
 
