@@ -19,7 +19,7 @@ button {
     border-radius: 0.25rem;
     font-size: 0.8rem;
     font-weight: 700;
-    font-family: 'Roboto';
+    font-family: 'Roboto', 'Arial', sans-serif;
     cursor: pointer;
 }
 
@@ -29,7 +29,7 @@ button {
     border-radius: 0.25rem;
     font-size: 0.8rem;
     font-weight: 700;
-    font-family: 'Roboto';
+    font-family: 'Roboto', 'Arial', sans-serif;
     cursor: pointer;
     text-decoration: none;
 }
@@ -41,7 +41,6 @@ button {
 .pink-span {
     color: #D445A3;
 }
-
 
 /* === CONTAINER STYLES === */
 
@@ -108,6 +107,7 @@ button {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    max-width: 61rem;
 }
 
 .intro-left {
@@ -159,7 +159,7 @@ button {
 
 .intro-section-content p {
     font-weight: 300;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     line-height: 1.5rem;
     margin: 1rem 0;
     width: 100%;
@@ -194,7 +194,6 @@ button {
     opacity: 0.9;
 }
 
-
 @media (max-width: 992px) {
     .intro-section {
         scroll-snap-align: none;
@@ -223,7 +222,6 @@ button {
         max-width: 500px;
     }
     
-    
     .intro-right img {
         max-width: 80%;
         height: auto;
@@ -235,7 +233,6 @@ button {
         width: 150px;
         font-size: 1rem;
     }
-
     
     .intro-section-content-action .a-tag{
         height: 40px;
@@ -256,7 +253,6 @@ button {
         z-index: 1;
         background-position: bottom right;
     }
-
  }
 
 /* === EXPECT SECTION STYLES === */
@@ -287,7 +283,7 @@ button {
     gap: 10%;
     padding: 0 150px;
     margin-top: 60px;
-    margin-bottom: 100px;/
+    margin-bottom: 100px;
 }
 
 
@@ -306,7 +302,7 @@ button {
 
 .icon-with-text p {
     font-weight: 300;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     text-align: center;
     line-height: 1.5rem;
 }
@@ -340,8 +336,7 @@ button {
     .icon-with-text p {
         width: 70%;
         min-width: 350px;
-    }
-    
+    } 
  }
 
 /* === PIPELINE SECTION STYLES === */
@@ -352,13 +347,13 @@ button {
     align-items: center;
     justify-content: center;
     scroll-snap-align: start;
-    height: 100vh;
+    height: 120vh;
     flex-shrink: 0;
 }
 
 .pipeline-section h1 {
     font-size: 2.2rem;
-    margin-top: 60px;
+    margin-top: 80px;
     margin-bottom: 30px;
     text-align: center;
 }
@@ -382,16 +377,16 @@ button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     border: 1px solid #4E08C7;
     border-radius: 22px;
     padding: 15px;
+    height: 100%;
 }
 
 .pipeline-section-item p {
     width: 90%;
 }
-
 
 .pipeline-item-img {
     width: 80%;
@@ -400,6 +395,7 @@ button {
 
 .pipeline-item-img img {
     width: 100%;
+    height: 100%;
 }
 
 .pipeline-section .a-button {
@@ -422,7 +418,6 @@ button {
         width: 100%;
     }
     
-
     .pipeline-section-grid {
         grid-template-columns: repeat(4, 1fr);
         grid-template-rows: repeat(2, auto);
@@ -497,6 +492,7 @@ button {
     background-color: white;
     color: #D445A3;
     margin-bottom: 60px;
+    margin-top:50px;
 }
 
 .querybuilder-section .a-button:hover {
@@ -528,17 +524,13 @@ button {
 
 .querybuilder-left p {
     font-weight: 300;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     line-height: 1.5rem;
     align-self: flex-start;
 }
 
 .querybuilder-left img {
     margin-top: 3rem;
-    width: 60%;
-}
-
-.querybuilder-left img {
     width: 80%;
 }
 
@@ -557,22 +549,13 @@ button {
     padding-right: 7rem;
 }
 
-.clickable-list-item-title {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.4rem 0;
-    width: 100%; 
-}
-
 .clickable-list-details {
     opacity: 0;
     max-height: 0;
     overflow: hidden;
     transition: opacity 0.1s ease-out, max-height 0.3s ease-in-out;
     font-weight: 300;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     line-height: 1.5rem;
     width: 85%;
 }
@@ -581,7 +564,6 @@ button {
     opacity: 1;
     max-height: 200px;
 }
-
 
 .clickable-list-item hr {
     border: 0.3px solid white;
@@ -593,6 +575,10 @@ button {
 .clickable-list-item-title {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem 0;
+    width: 100%; 
     font-weight: 500;
     font-size: 0.8rem;
 }
@@ -626,12 +612,8 @@ button {
 
     .querybuilder-left {
         width: 100%;
-        height: auto;
+        height: 100%;
         padding: 0 30px;
-    }
-
-    .querybuilder-left {
-        width: 90%;
     }
 
     .querybuilder-right {
@@ -650,7 +632,6 @@ button {
 /* === BUSINESS INTELLIGENCE SECTION STYLES === */
 
 .bi-section {
-    color: black;
     min-height: 50vh;
     display: flex;
     flex-direction: row;
@@ -677,8 +658,9 @@ button {
 .bi-left p {
     width: 85%;
     font-weight: 300;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     line-height: 1.5rem;
+    margin-bottom: 3rem;
 }
 
 .bi-image {
@@ -689,6 +671,12 @@ button {
 
 .bi-image img {
     width: 80%;
+}
+
+.bi-left .a-button {
+    color: white;
+    background-color: #D445A3;
+    align-items: center;
 }
 
 
@@ -727,18 +715,17 @@ button {
     
 }
 
-
 /* === TRUSTED INDUSTRY SECTION STYLES === */
 
 .industry-section {
     color: white;
-    min-height: 40vh;
+    min-height: 62vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 7rem;
-    background-image: linear-gradient(rgba(70, 8, 199, 0.1), rgba(70, 8, 199, 0.1)), url('./images/trusted-industry-image.png');
+    background-image: linear-gradient(rgba(22, 2, 66, 0.1), rgba(22, 2, 66, 0.1)), url('./images/trusted-industry-image.png');
     background-size: cover; 
     background-repeat: no-repeat; 
     background-position: center center;
@@ -754,10 +741,10 @@ button {
 
 .industry-section p {
     width: 60%;
-    font-weight: 300;
-    font-size: 0.75rem;
+    font-weight: 500;
+    font-size: 0.8rem;
     line-height: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
     text-align: center;
 }
 
@@ -791,7 +778,6 @@ button {
 /* === CONTRIBUTOR SECTION STYLES === */
 
 .contributor-section {
-    color: black;
     min-height: 30vh;
     display: flex;
     flex-direction: row;
@@ -810,7 +796,7 @@ button {
 .contributor-section p {
     width: 60%;
     font-weight: 300;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     line-height: 1.5rem;
     margin-bottom: 2rem;
     text-align: left;
@@ -854,7 +840,7 @@ button {
 .contributor-left p {
     width: 100%;
     font-weight: 300;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     line-height: 1.5rem;
 }
 
@@ -880,7 +866,7 @@ button {
 
 .social-line p {
     margin-bottom: 1rem;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     min-width: 250px;
 }
 
@@ -945,7 +931,7 @@ button {
 .footer p {
     color: white;
     font-weight: 300;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     line-height: 1.5rem;
 }
 
