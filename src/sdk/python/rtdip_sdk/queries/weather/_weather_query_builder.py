@@ -15,10 +15,16 @@
 from jinja2 import Template
 import datetime
 from datetime import datetime, time
-from .._utilities_query_builder import _is_date_format, _parse_date, _parse_dates, _convert_to_seconds
+from .._utilities_query_builder import (
+    _is_date_format,
+    _parse_date,
+    _parse_dates,
+    _convert_to_seconds,
+)
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+
 
 def _raw_query_grid(parameters_dict: dict) -> str:
     raw_query_grid = (
@@ -217,7 +223,6 @@ def _latest_query_point(parameters_dict: dict) -> str:
 
 
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
-    
     if query_type == "latest_point":
         return _latest_query_point(parameters_dict)
 

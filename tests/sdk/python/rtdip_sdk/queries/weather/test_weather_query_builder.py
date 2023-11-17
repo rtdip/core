@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from src.sdk.python.rtdip_sdk.queries.weather.weather_query_builder import WeatherQueryBuilder
+from src.sdk.python.rtdip_sdk.queries.weather.weather_query_builder import (
+    WeatherQueryBuilder,
+)
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
 from pytest_mock import MockerFixture

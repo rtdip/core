@@ -15,7 +15,12 @@
 from jinja2 import Template
 import datetime
 from datetime import datetime, time
-from .._utilities_query_builder import _is_date_format, _parse_date, _parse_dates, _convert_to_seconds
+from .._utilities_query_builder import (
+    _is_date_format,
+    _parse_date,
+    _parse_dates,
+    _convert_to_seconds,
+)
 
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
@@ -23,7 +28,6 @@ seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
 
 def _raw_query(parameters_dict: dict) -> str:
-    
     raw_query = (
         "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
         "{% if source is defined and source is not none %}"
