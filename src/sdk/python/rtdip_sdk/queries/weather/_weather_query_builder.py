@@ -50,29 +50,10 @@ def _build_parameters(
             "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         }
         if table_type == "raw":
-            raw_parameters = {
-                "forecast": parameters_dict.get("forecast", None),
-                "region": parameters_dict.get("region"),
-                "data_security_level": parameters_dict.get("data_security_level"),
-                "data_type": parameters_dict.get("data_type"),
-                "start_date": parameters_dict["start_date"],
-                "end_date": parameters_dict["end_date"],
-                "max_lat": parameters_dict["max_lat"],
-                "max_lon": parameters_dict["max_lon"],
-                "min_lat": parameters_dict["min_lat"],
-                "min_lon": parameters_dict["min_lon"],
-                "source": parameters_dict.get("source", None),
-                "limit": parameters_dict.get("limit", None),
-                "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
-                "longitude_column": parameters_dict.get(
-                    "longitude_column", "Longitude"
-                ),
-                "tagname_column": parameters_dict.get("tagname_column", "TagName"),
-                "timestamp_column": parameters_dict.get(
-                    "timestamp_column", "EventTime"
-                ),
-                "include_status": False,
-            }
+            raw_parameters["timestamp_column"] = parameters_dict.get(
+                "timestamp_column", "EventTime"
+            )
+            raw_parameters["include_status"] = False
 
     if area_type == "point":
         raw_parameters = {
@@ -91,27 +72,10 @@ def _build_parameters(
             "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         }
         if table_type == "raw":
-            raw_parameters = {
-                "forecast": parameters_dict.get("forecast", None),
-                "region": parameters_dict.get("region"),
-                "data_security_level": parameters_dict.get("data_security_level"),
-                "data_type": parameters_dict.get("data_type"),
-                "start_date": parameters_dict["start_date"],
-                "end_date": parameters_dict["end_date"],
-                "lat": parameters_dict["lat"],
-                "lon": parameters_dict["lon"],
-                "source": parameters_dict.get("source", None),
-                "limit": parameters_dict.get("limit", None),
-                "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
-                "longitude_column": parameters_dict.get(
-                    "longitude_column", "Longitude"
-                ),
-                "tagname_column": parameters_dict.get("tagname_column", "TagName"),
-                "timestamp_column": parameters_dict.get(
-                    "timestamp_column", "EventTime"
-                ),
-                "include_status": False,
-            }
+            raw_parameters["timestamp_column"] = parameters_dict.get(
+                "timestamp_column", "EventTime"
+            )
+            raw_parameters["include_status"] = False
 
     return raw_parameters
 
