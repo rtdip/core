@@ -83,7 +83,7 @@ def test_raw_grid(mocker: MockerFixture):
         MockedCursor,
         "fetchall_arrow",
         return_value=pa.Table.from_pandas(
-            pd.DataFrame(data={"e": [1], "f": [2], "g": [3], "h": [4]})
+            pd.DataFrame(data={"m": [1], "n": [2], "o": [3], "p": [4]})
         ),
     )
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -127,7 +127,7 @@ def test_raw_point(mocker: MockerFixture):
         MockedCursor,
         "fetchall_arrow",
         return_value=pa.Table.from_pandas(
-            pd.DataFrame(data={"i": [1], "j": [2], "k": [3], "l": [4]})
+            pd.DataFrame(data={"q": [1], "r": [2], "s": [3], "t": [4]})
         ),
     )
     mocked_close = mocker.spy(MockedCursor, "close")
