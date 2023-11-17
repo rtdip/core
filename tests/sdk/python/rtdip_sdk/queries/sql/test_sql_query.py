@@ -28,7 +28,7 @@ def test_sql_query(mocker: MockerFixture):
         MockedCursor,
         "fetchall_arrow",
         return_value=pa.Table.from_pandas(
-            pd.DataFrame(data={"q": [1], "r": [2], "s": [3], "t": [4]})
+            pd.DataFrame(data={"x": [1], "y": [2], "z": [3], "w": [4]})
         ),
     )
     mocked_close = mocker.spy(MockedCursor, "close")
