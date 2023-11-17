@@ -25,10 +25,22 @@ from .._utilities_query_builder import (
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
+def _build_parameters(parameters_dict: dict, query_type: str) -> dict:
+        
+    parameters_raw = {
+    "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
+    "include_status": False
+    if "status_column" in parameters_dict
+    and parameters_dict.get("status_column") is None
+    else True,
+    "status_column": "Status"
+    if "status_column" in parameters_dict
+    and parameters_dict.get("status_column") is None
+    else parameters_dict.get("status_column", "Status"),
+    "value_column": parameters_dict.get("value_column", "Value"),
+    }
 
-
-
-parameters_grid = {
+    parameters_grid = {
         "forecast": parameters_dict.get("forecast", None),
         "region": parameters_dict.get("region"),
         "data_security_level": parameters_dict.get("data_security_level"),
@@ -46,7 +58,7 @@ parameters_grid = {
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
     }
 
-parameters_point = {
+    parameters_point = {
         "forecast": parameters_dict.get("forecast", None),
         "region": parameters_dict.get("region"),
         "data_security_level": parameters_dict.get("data_security_level"),
@@ -62,21 +74,23 @@ parameters_point = {
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
     }
 
-raw_extra_parameters= {
-        "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": False
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else True,
-        "status_column": "Status"
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else parameters_dict.get("status_column", "Status"),
-        "value_column": parameters_dict.get("value_column", "Value"),
-    }
+    if query_type == "latest_point":
+        raw_parameters = parameters_point
+
+    if query_type == "latest_grid":
+        raw_parameters = parameters_grid
+
+    if query_type == "raw_point":
+        raw_parameters= parameters_point.update(parameters_raw)
+
+    if query_type == "raw_grid":
+        raw_parameters = parameters_grid.update(parameters_raw)
+
+    return raw_parameters
 
 
 def _raw_query_grid(parameters_dict: dict) -> str:
+
     raw_query_grid = (
         "SELECT * FROM "
         "{% if source is defined and source is not none %}"
@@ -98,7 +112,7 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    raw_parameters_grid =  parameters_grid.update(raw_extra_parameters)
+    raw_parameters_grid =_build_parameters(parameters_dict, "raw_grid")
 
     sql_template = Template(raw_query_grid)
     return sql_template.render(raw_parameters_grid)
@@ -123,7 +137,8 @@ def _raw_query_point(parameters_dict: dict) -> str:
         "LIMIT {{ limit }} "
         "{% endif %}"
     )
-    raw_parameters_point = parameters_point.update(raw_extra_parameters)
+    
+    raw_parameters_point=_build_parameters(parameters_dict, "raw_point")
 
     sql_template = Template(raw_query_point)
     return sql_template.render(raw_parameters_point)
@@ -150,7 +165,7 @@ def _latest_query_grid(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    latest_parameters_grid = parameters_grid
+    latest_parameters_grid =_build_parameters(parameters_dict, "latest_grid")
 
     sql_template = Template(latest_query_grid)
     return sql_template.render(latest_parameters_grid)
@@ -174,8 +189,8 @@ def _latest_query_point(parameters_dict: dict) -> str:
         "LIMIT {{ limit }} "
         "{% endif %}"
     )
-
-    latest_parameters_point = parameters_point
+    
+    latest_parameters_point =_build_parameters(parameters_dict, "latest_point")
 
     sql_template = Template(latest_query_point)
     return sql_template.render(latest_parameters_point)
