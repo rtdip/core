@@ -36,7 +36,7 @@ MOCKED_PARAMETER_DICT_GRID = {
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
     "timestamp_column": "EventTime",
-    }
+}
 
 MOCKED_PARAMETER_DICT_POINT = {
     "forecast": "mocked-forecast",
@@ -48,12 +48,8 @@ MOCKED_PARAMETER_DICT_POINT = {
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
     "timestamp_column": "EventTime",
-
 }
-    
+
 query = _query_builder(MOCKED_PARAMETER_DICT_POINT, "raw_point")
 
 print(query)
-
-
-

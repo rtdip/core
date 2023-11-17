@@ -27,7 +27,6 @@ seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
 
 def _raw_query_grid(parameters_dict: dict) -> str:
-
     raw_query_grid = (
         "SELECT * FROM "
         "{% if source is defined and source is not none %}"
@@ -35,7 +34,7 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\")"
+        'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}")'
         "AND `{{ latitude_column }}` > '{{ min_lat}}' "
         "AND `{{ latitude_column }}` < '{{ max_lat}}' "
         "AND `{{ longitude_column }}` > '{{ min_lon}}' "
@@ -89,7 +88,7 @@ def _raw_query_point(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\")"
+        'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}")'
         "AND `{{ latitude_column }}` > '{{lat}}' "
         "AND `{{ longitude_column }}` > '{{lon}}' "
         "{% if source is defined and source is not none %}"

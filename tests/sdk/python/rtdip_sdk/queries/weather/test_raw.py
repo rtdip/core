@@ -37,8 +37,8 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY_GRID = 'SELECT * FROM `mocked-forecast`.`weather`.`mocked-region_weather_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp("2020-01-01") AND to_timestamp("2020-01-02")AND `Latitude` > \'1.1\' AND `Latitude` < \'1.1\' AND `Longitude` > \'1.1\' AND`Longitude` < \'1.1\' ORDER BY `TagName` '
-MOCKED_QUERY_POINT = 'SELECT * FROM `mocked-forecast`.`weather`.`mocked-region_weather_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp("2020-01-01") AND to_timestamp("2020-01-02")AND `Latitude` > \'1.1\' AND `Longitude` > \'1.1\' ORDER BY `TagName` '
+MOCKED_QUERY_GRID = "SELECT * FROM `mocked-forecast`.`weather`.`mocked-region_weather_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp(\"2020-01-01\") AND to_timestamp(\"2020-01-02\")AND `Latitude` > '1.1' AND `Latitude` < '1.1' AND `Longitude` > '1.1' AND`Longitude` < '1.1' ORDER BY `TagName` "
+MOCKED_QUERY_POINT = "SELECT * FROM `mocked-forecast`.`weather`.`mocked-region_weather_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp(\"2020-01-01\") AND to_timestamp(\"2020-01-02\")AND `Latitude` > '1.1' AND `Longitude` > '1.1' ORDER BY `TagName` "
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 
 MOCKED_PARAMETER_DICT_GRID = {
@@ -53,7 +53,7 @@ MOCKED_PARAMETER_DICT_GRID = {
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
     "timestamp_column": "EventTime",
-    }
+}
 
 MOCKED_PARAMETER_DICT_POINT = {
     "forecast": "mocked-forecast",
@@ -65,7 +65,6 @@ MOCKED_PARAMETER_DICT_POINT = {
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
     "timestamp_column": "EventTime",
-
 }
 
 MOCKED_NO_TAG_QUERY = "SELECT * FROM `mocked-business-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_raw` ORDER BY `TagName` "
