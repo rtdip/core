@@ -51,7 +51,7 @@ class SQLQueryBuilder:
                 connection.close()
                 return df
             except Exception as e:
-                logging.exception("rrror returning dataframe")
+                logging.exception("Error returning dataframe")
                 raise e
 
         except Exception as e:

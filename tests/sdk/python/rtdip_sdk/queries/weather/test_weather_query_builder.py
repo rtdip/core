@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from src.sdk.python.rtdip_sdk.queries import QueryBuilder
+from src.sdk.python.rtdip_sdk.queries.weather.weather_query_builder import WeatherQueryBuilder
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
 from pytest_mock import MockerFixture
@@ -27,7 +27,7 @@ def test_query_builder_raw(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        WeatherQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .raw(["max"], start_date="2021-01-01", end_date="2021-01-02")
@@ -42,7 +42,7 @@ def test_query_builder_latest(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        WeatherQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE)
         .latest(tagname_filter=["0"])

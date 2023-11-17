@@ -13,16 +13,15 @@
 # limitations under the License.
 
 from typing import Union
-from ..connectors.connection_interface import ConnectionInterface
-from .time_series.weather import (
+from ...connectors.connection_interface import ConnectionInterface
+from . import (
     raw,
     latest,
 )
-from . import metadata
 from pandas import DataFrame
 
 
-class QueryBuilder:
+class WeatherQueryBuilder:
     """
     A builder for developing RTDIP queries using any delta table
     """

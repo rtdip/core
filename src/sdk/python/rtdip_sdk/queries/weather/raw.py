@@ -14,20 +14,20 @@
 
 import logging
 import pandas as pd
-from .._query_builder import _query_builder
+from ._weather_query_builder import _query_builder
 
 
 def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
-    A function to return the latest event values by querying databricks SQL Warehouse using a connection specified by the user.
+    A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
 
     This will return the raw weather forecast data for a grid.
 
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
 
-    The available authentcation methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
+    The available authentication methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
 
-    This function requires the user to input a dictionary of parameters. (See Attributes table below)
+    This function requires the user to input a dictionary of parameters which are focused on Weather Data. (See Attributes table below)
 
     Args:
         connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
@@ -38,18 +38,23 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
         region (str): Region
         data_security_level (str): Level of data security
         data_type (str): Type of the data (float, integer, double, string)
+        start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+        end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         max_lat (float): Maximum latitude
         max_lon (float): Maximum longitude
         min_lat (float): Minimum latitude
         min_lon (float): Minimum longitude
         source (optional str): Source of the data ie ECMWF
+        time_zone (str): Timezone of the data
+        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         limit (optional int): The number of rows to be returned
+    }
 
     Returns:
-        DataFrame: A dataframe of event latest values.
+        DataFrame: A dataframe of raw weather forecast data.
     """
     try:
-        query = _query_builder(parameters_dict, "latest_grid")
+        query = _query_builder(parameters_dict, "raw_grid")
 
         try:
             cursor = connection.cursor()
@@ -63,21 +68,21 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
             raise e
 
     except Exception as e:
-        logging.exception("error returning latest function")
+        logging.exception("error with raw function")
         raise e
 
 
 def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
-    A function to return the latest event values by querying databricks SQL Warehouse using a connection specified by the user.
+    A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
 
     This will return the raw weather forecast data for a single point.
 
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
 
-    The available authentcation methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
+    The available authentication methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
 
-    This function requires the user to input a dictionary of parameters. (See Attributes table below)
+    This function requires the user to input a dictionary of parameters which are focused on Weather Data. (See Attributes table below)
 
     Args:
         connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
@@ -88,16 +93,21 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
         region (str): Region
         data_security_level (str): Level of data security
         data_type (str): Type of the data (float, integer, double, string)
+        start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+        end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         lat (float): latitude
         lon (float): longitude
         source (optional str): Source of the data ie ECMWF
+        time_zone (str): Timezone of the data
+        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         limit (optional int): The number of rows to be returned
+    }
 
     Returns:
-        DataFrame: A dataframe of event latest values.
+        DataFrame: A dataframe of raw weather forecast data.
     """
     try:
-        query = _query_builder(parameters_dict, "latest_point")
+        query = _query_builder(parameters_dict, "raw_point")
 
         try:
             cursor = connection.cursor()
@@ -111,5 +121,5 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
             raise e
 
     except Exception as e:
-        logging.exception("error returning latest function")
+        logging.exception("error with raw function")
         raise e

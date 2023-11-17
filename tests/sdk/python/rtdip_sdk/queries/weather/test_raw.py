@@ -24,10 +24,10 @@ from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
     MockedCursor,
 )
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
-from src.sdk.python.rtdip_sdk.queries.time_series.weather.raw import (
+from src.sdk.python.rtdip_sdk.queries.weather.raw import (
     get_grid as raw_grid,
 )
-from src.sdk.python.rtdip_sdk.queries.time_series.weather.raw import (
+from src.sdk.python.rtdip_sdk.queries.weather.raw import (
     get_point as raw_point,
 )
 
