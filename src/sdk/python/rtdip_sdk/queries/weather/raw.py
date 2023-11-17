@@ -45,8 +45,6 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
         min_lat (float): Minimum latitude
         min_lon (float): Minimum longitude
         source (optional str): Source of the data ie ECMWF
-        time_zone (str): Timezone of the data
-        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         limit (optional int): The number of rows to be returned
     }
 
@@ -55,6 +53,8 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
     try:
         query = _query_builder(parameters_dict, "raw_grid")
+
+        print(query)
 
         try:
             cursor = connection.cursor()
@@ -98,8 +98,6 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
         lat (float): latitude
         lon (float): longitude
         source (optional str): Source of the data ie ECMWF
-        time_zone (str): Timezone of the data
-        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         limit (optional int): The number of rows to be returned
     }
 
@@ -108,6 +106,8 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
     try:
         query = _query_builder(parameters_dict, "raw_point")
+
+        print(query)
 
         try:
             cursor = connection.cursor()

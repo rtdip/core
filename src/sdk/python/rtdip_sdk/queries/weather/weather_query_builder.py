@@ -38,7 +38,7 @@ class WeatherQueryBuilder:
         """
         self.connection = connection
         return self
-    
+
     def source(
         self,
         source: str,

@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from src.sdk.python.rtdip_sdk.queries.weather.weather_query_builder import WeatherQueryBuilder
+from src.sdk.python.rtdip_sdk.queries.weather.weather_query_builder import (
+    WeatherQueryBuilder,
+)
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
 from pytest_mock import MockerFixture
@@ -35,7 +37,7 @@ def test_weather_query_builder_raw_point(mocker: MockerFixture):
             region="mock_region",
             data_security_level="mock_data_security_level",
             data_type="mock_data_type",
-            start_date="2021-01-01", 
+            start_date="2021-01-01",
             end_date="2021-01-02",
             lat=0.1,
             lon=0.1,
@@ -81,7 +83,7 @@ def test_weather_query_builder_raw_grid(mocker: MockerFixture):
             region="mock_region",
             data_security_level="mock_data_security_level",
             data_type="mock_data_type",
-            start_date="2021-01-01", 
+            start_date="2021-01-01",
             end_date="2021-01-02",
             min_lat=0.1,
             max_lat=0.1,
@@ -114,4 +116,3 @@ def test_query_builder_latest_grid(mocker: MockerFixture):
         )
     )
     assert data == {"test": "data"}
-

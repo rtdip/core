@@ -27,25 +27,23 @@ seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
 
 def _raw_query_grid(parameters_dict: dict) -> str:
+
     raw_query_grid = (
-        "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
+        "SELECT * FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
         "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}") '
-        "AND `{{ latitude_column }}` > '{{min_lat}}' "
-        "AND `{{ latitude_column }}` < '{{max_lat}}' "
-        "AND `{{ longitude_column }}` > '{{min_lon}}' "
-        "AND`{{ longitude_column }}` < '{{max_lon}}' "
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\")"
+        "AND `{{ latitude_column }}` > '{{ min_lat}}' "
+        "AND `{{ latitude_column }}` < '{{ max_lat}}' "
+        "AND `{{ longitude_column }}` > '{{ min_lon}}' "
+        "AND`{{ longitude_column }}` < '{{ max_lon}}' "
         "{% if source is defined and source is not none %}"
         "AND SOURCE = '{{ source }}' "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
-        "AND `{{ status_column }}` = 'Good'"
-        "{% endif %}"
-        "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
@@ -63,11 +61,9 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "min_lat": parameters_dict["min_lat"],
         "min_lon": parameters_dict["min_lon"],
         "source": parameters_dict.get("source", None),
-        "include_bad_data": parameters_dict["include_bad_data"],
         "limit": parameters_dict.get("limit", None),
         "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
         "longitude_column": parameters_dict.get("longitude_column", "Longitude"),
-        "time_zone": parameters_dict["time_zone"],
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
         "include_status": False
@@ -87,27 +83,23 @@ def _raw_query_grid(parameters_dict: dict) -> str:
 
 def _raw_query_point(parameters_dict: dict) -> str:
     raw_query_point = (
-        "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
+        "SELECT * FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
         "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}") '
-        "AND `{{ latitude_column }}` == '{{lat}}' "
-        "AND `{{ longitude_column }}` == '{{lon}}' "
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\")"
+        "AND `{{ latitude_column }}` > '{{lat}}' "
+        "AND `{{ longitude_column }}` > '{{lon}}' "
         "{% if source is defined and source is not none %}"
         "AND SOURCE = '{{ source }}' "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
-        "AND `{{ status_column }}` = 'Good'"
-        "{% endif %}"
-        "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
     )
-
     raw_parameters_point = {
         "forecast": parameters_dict.get("forecast", None),
         "region": parameters_dict.get("region"),
@@ -118,11 +110,9 @@ def _raw_query_point(parameters_dict: dict) -> str:
         "lat": parameters_dict["lat"],
         "lon": parameters_dict["lon"],
         "source": parameters_dict.get("source", None),
-        "include_bad_data": parameters_dict["include_bad_data"],
         "limit": parameters_dict.get("limit", None),
         "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
         "longitude_column": parameters_dict.get("longitude_column", "Longitude"),
-        "time_zone": parameters_dict["time_zone"],
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
         "include_status": False
