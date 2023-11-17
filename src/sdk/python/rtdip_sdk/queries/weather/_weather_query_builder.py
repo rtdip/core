@@ -26,65 +26,92 @@ TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
 
-def _build_parameters(parameters_dict: dict, query_type: str) -> dict:
-    parameters_raw = {
-        "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": False
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else True,
-        "status_column": "Status"
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else parameters_dict.get("status_column", "Status"),
-        "value_column": parameters_dict.get("value_column", "Value"),
-    }
+def _build_parameters(
+    parameters_dict: dict,
+    area_type: str,
+    table_type: str,
+) -> dict:
+    if area_type == "grid":
+        raw_parameters = {
+            "forecast": parameters_dict.get("forecast", None),
+            "region": parameters_dict.get("region"),
+            "data_security_level": parameters_dict.get("data_security_level"),
+            "data_type": parameters_dict.get("data_type"),
+            "start_date": parameters_dict["start_date"],
+            "end_date": parameters_dict["end_date"],
+            "max_lat": parameters_dict["max_lat"],
+            "max_lon": parameters_dict["max_lon"],
+            "min_lat": parameters_dict["min_lat"],
+            "min_lon": parameters_dict["min_lon"],
+            "source": parameters_dict.get("source", None),
+            "limit": parameters_dict.get("limit", None),
+            "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
+            "longitude_column": parameters_dict.get("longitude_column", "Longitude"),
+            "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        }
+        if table_type == "raw":
+            raw_parameters = {
+                "forecast": parameters_dict.get("forecast", None),
+                "region": parameters_dict.get("region"),
+                "data_security_level": parameters_dict.get("data_security_level"),
+                "data_type": parameters_dict.get("data_type"),
+                "start_date": parameters_dict["start_date"],
+                "end_date": parameters_dict["end_date"],
+                "max_lat": parameters_dict["max_lat"],
+                "max_lon": parameters_dict["max_lon"],
+                "min_lat": parameters_dict["min_lat"],
+                "min_lon": parameters_dict["min_lon"],
+                "source": parameters_dict.get("source", None),
+                "limit": parameters_dict.get("limit", None),
+                "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
+                "longitude_column": parameters_dict.get(
+                    "longitude_column", "Longitude"
+                ),
+                "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+                "timestamp_column": parameters_dict.get(
+                    "timestamp_column", "EventTime"
+                ),
+                "include_status": False,
+            }
 
-    parameters_grid = {
-        "forecast": parameters_dict.get("forecast", None),
-        "region": parameters_dict.get("region"),
-        "data_security_level": parameters_dict.get("data_security_level"),
-        "data_type": parameters_dict.get("data_type"),
-        "start_date": parameters_dict["start_date"],
-        "end_date": parameters_dict["end_date"],
-        "max_lat": parameters_dict["max_lat"],
-        "max_lon": parameters_dict["max_lon"],
-        "min_lat": parameters_dict["min_lat"],
-        "min_lon": parameters_dict["min_lon"],
-        "source": parameters_dict.get("source", None),
-        "limit": parameters_dict.get("limit", None),
-        "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
-        "longitude_column": parameters_dict.get("longitude_column", "Longitude"),
-        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
-    }
-
-    parameters_point = {
-        "forecast": parameters_dict.get("forecast", None),
-        "region": parameters_dict.get("region"),
-        "data_security_level": parameters_dict.get("data_security_level"),
-        "data_type": parameters_dict.get("data_type"),
-        "start_date": parameters_dict["start_date"],
-        "end_date": parameters_dict["end_date"],
-        "lat": parameters_dict["lat"],
-        "lon": parameters_dict["lon"],
-        "source": parameters_dict.get("source", None),
-        "limit": parameters_dict.get("limit", None),
-        "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
-        "longitude_column": parameters_dict.get("longitude_column", "Longitude"),
-        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
-    }
-
-    if query_type == "latest_point":
-        raw_parameters = parameters_point
-
-    if query_type == "latest_grid":
-        raw_parameters = parameters_grid
-
-    if query_type == "raw_point":
-        raw_parameters = parameters_point.update(parameters_raw)
-
-    if query_type == "raw_grid":
-        raw_parameters = parameters_grid.update(parameters_raw)
+    if area_type == "point":
+        raw_parameters = {
+            "forecast": parameters_dict.get("forecast", None),
+            "region": parameters_dict.get("region"),
+            "data_security_level": parameters_dict.get("data_security_level"),
+            "data_type": parameters_dict.get("data_type"),
+            "start_date": parameters_dict["start_date"],
+            "end_date": parameters_dict["end_date"],
+            "lat": parameters_dict["lat"],
+            "lon": parameters_dict["lon"],
+            "source": parameters_dict.get("source", None),
+            "limit": parameters_dict.get("limit", None),
+            "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
+            "longitude_column": parameters_dict.get("longitude_column", "Longitude"),
+            "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        }
+        if table_type == "raw":
+            raw_parameters = {
+                "forecast": parameters_dict.get("forecast", None),
+                "region": parameters_dict.get("region"),
+                "data_security_level": parameters_dict.get("data_security_level"),
+                "data_type": parameters_dict.get("data_type"),
+                "start_date": parameters_dict["start_date"],
+                "end_date": parameters_dict["end_date"],
+                "lat": parameters_dict["lat"],
+                "lon": parameters_dict["lon"],
+                "source": parameters_dict.get("source", None),
+                "limit": parameters_dict.get("limit", None),
+                "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
+                "longitude_column": parameters_dict.get(
+                    "longitude_column", "Longitude"
+                ),
+                "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+                "timestamp_column": parameters_dict.get(
+                    "timestamp_column", "EventTime"
+                ),
+                "include_status": False,
+            }
 
     return raw_parameters
 
@@ -111,7 +138,7 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    raw_parameters_grid = _build_parameters(parameters_dict, "raw_grid")
+    raw_parameters_grid = _build_parameters(parameters_dict, "grid", "raw")
 
     sql_template = Template(raw_query_grid)
     return sql_template.render(raw_parameters_grid)
@@ -137,7 +164,7 @@ def _raw_query_point(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    raw_parameters_point = _build_parameters(parameters_dict, "raw_point")
+    raw_parameters_point = _build_parameters(parameters_dict, "point", "raw")
 
     sql_template = Template(raw_query_point)
     return sql_template.render(raw_parameters_point)
@@ -164,7 +191,7 @@ def _latest_query_grid(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    latest_parameters_grid = _build_parameters(parameters_dict, "latest_grid")
+    latest_parameters_grid = _build_parameters(parameters_dict, "grid", "latest")
 
     sql_template = Template(latest_query_grid)
     return sql_template.render(latest_parameters_grid)
@@ -189,7 +216,7 @@ def _latest_query_point(parameters_dict: dict) -> str:
         "{% endif %}"
     )
 
-    latest_parameters_point = _build_parameters(parameters_dict, "latest_point")
+    latest_parameters_point = _build_parameters(parameters_dict, "point", "latest")
 
     sql_template = Template(latest_query_point)
     return sql_template.render(latest_parameters_point)
