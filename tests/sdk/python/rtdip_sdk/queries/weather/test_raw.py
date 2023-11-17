@@ -36,7 +36,7 @@ HTTP_PATH = "sql/mock/mock-test"
 ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
-MOCKED_QUERY_POINT = "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`EventTime`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"+0000\") AS `EventTime`, `TagName`,  `Status`,  `Value` FROM `mocked-forecast`.`weather`.`mocked-region_weather_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp(\"2011-01-01T00:00:00+00:00\") AND to_timestamp(\"2011-01-02T23:59:59+00:00\") AND `Latitude` == '0' AND `Longitude` == '0' ORDER BY `TagName`, `EventTime` "
+MOCKED_QUERY_POINT = "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`EventTime`, \'yyyy-MM-dd HH:mm:ss.SSS\')), "UTC") AS `EventTime`, `TagName`,  `Status`,  `Value` FROM `mocked-forecast`.`weather`.`mocked-region_weather_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp("2011-01-01") AND to_timestamp("2011-01-02") AND `Latitude` == \'0\' AND `Longitude` == \'0\' ORDER BY `TagName`, `EventTime` "
 MOCKED_QUERY_GRID = "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`EventTime`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"+0000\") AS `EventTime`, `TagName`,  `Status`,  `Value` FROM `mocked-forecast`.`weather`.`mocked-region_weather_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp(\"2011-01-01T00:00:00+00:00\") AND to_timestamp(\"2011-01-02T23:59:59+00:00\") AND `Latitude` > '0' AND `Latitude` < '0.1' AND `Longitude` > '0' AND`Longitude` < '0.1' ORDER BY `TagName`, `EventTime` "
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 MOCKED_PARAMETER_DICT_GRID = {
@@ -51,6 +51,7 @@ MOCKED_PARAMETER_DICT_GRID = {
     "max_lat": 0.1,
     "min_lon": 0,
     "max_lon": 0.1,
+    "time_zone": "UTC",
 }
 
 MOCKED_PARAMETER_DICT_POINT = {
@@ -63,6 +64,7 @@ MOCKED_PARAMETER_DICT_POINT = {
     "include_bad_data": True,
     "lat": 0,
     "lon": 0,
+    "time_zone": "UTC",
 }
 
 

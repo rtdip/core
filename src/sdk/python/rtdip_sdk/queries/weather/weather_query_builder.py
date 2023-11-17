@@ -38,6 +38,31 @@ class WeatherQueryBuilder:
         """
         self.connection = connection
         return self
+    
+    def source(
+        self,
+        source: str,
+        tagname_column: str = "TagName",
+        timestamp_column: str = "EventTime",
+        status_column: Union[str, None] = "Status",
+        value_column: str = "Value",
+    ):
+        """
+        Specifies the source of the query
+
+        Args:
+            source (str): Source of the query can be a Unity Catalog table, Hive metastore table or path
+            tagname_column (optional str): The column name in the source that contains the tagnames or series
+            timestamp_column (optional str): The timestamp column name in the source
+            status_column (optional str): The status column name in the source indicating `Good` or `Bad`. If this is not available, specify `None`
+            value_column (optional str): The value column name in the source which is normally a float or string value for the time series event
+        """
+        self.data_source = "`.`".join(source.split("."))
+        self.tagname_column = tagname_column
+        self.timestamp_column = timestamp_column
+        self.status_column = status_column
+        self.value_column = value_column
+        return self
 
     def raw_point(
         self,
