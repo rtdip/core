@@ -25,9 +25,9 @@ from . import BaseISOSource
 
 class CAISODailyLoadISOSource(BaseISOSource):
     """
-    The CAISO Daily Load ISO Source is used to read daily load data from CAISO API. It supports both Actual and Forecast data.
-
-    API: <a href="http://oasis.caiso.com/oasisapi">http://oasis.caiso.com/oasisapi</a>
+    The CAISO Daily Load ISO Source is used to read daily load data from CAISO API.
+    It supports multiple types of data. Check the `load_types` attribute.
+    <br>API: <a href="http://oasis.caiso.com/oasisapi">http://oasis.caiso.com/oasisapi</a>
 
 
     Parameters:
@@ -35,9 +35,7 @@ class CAISODailyLoadISOSource(BaseISOSource):
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
     Attributes:
-        load_types (list): Must be a subset of ['Demand Forecast 7-Day Ahead', 'Demand Forecast 2-Day Ahead',
-         'Demand Forecast Day Ahead', 'RTM 15Min Load Forecast', 'RTM 5Min Load Forecast',
-          'Total Actual Hourly Integrated Load']. Default to - ["Total Actual Hourly Integrated Load"]
+        load_types (list): Must be a subset of [`Demand Forecast 7-Day Ahead`, `Demand Forecast 2-Day Ahead`, `Demand Forecast Day Ahead`, `RTM 15Min Load Forecast`, `RTM 5Min Load Forecast`, `Total Actual Hourly Integrated Load`]. <br> Default Value - `[Total Actual Hourly Integrated Load]`.
         date (str): Must be in `YYYY-MM-DD` format.
 
     Please check the BaseISOSource for available methods.
@@ -88,7 +86,8 @@ class CAISODailyLoadISOSource(BaseISOSource):
         if not content:
             raise Exception(f"Empty Response was returned")
         logging.info(f"Unzipping the file")
-
+        with open("csdffs.zip", "wb") as f:
+            f.write(content)
         zf = ZipFile(BytesIO(content))
 
         csvs = list(filter(lambda name: ".csv" in name, zf.namelist()))
@@ -128,3 +127,12 @@ class CAISODailyLoadISOSource(BaseISOSource):
     def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df[df['Label'].isin(self.load_types)]
         return df
+
+    def _validate_options(self) -> bool:
+        try:
+            datetime.strptime(self.date, self.user_datetime_format)
+        except ValueError:
+            raise ValueError(
+                f"Unable to parse date. Please specify in {self.user_datetime_format} format."
+            )
+        return True

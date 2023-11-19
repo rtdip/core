@@ -24,19 +24,18 @@ from ...._pipeline_utils.iso import CAISO_SCHEMA
 
 class CAISOHistoricalLoadISOSource(CAISODailyLoadISOSource):
     """
-    The CAISO Daily Load ISO Source is used to read daily load data from CAISO API. It supports both Actual and Forecast data.
-
-    API: <a href="http://oasis.caiso.com/oasisapi">http://oasis.caiso.com/oasisapi</a>
-
+    The CAISO Historical Load ISO Source is used to read load data for an interval of dates
+     between start_date and end_date inclusive from CAISO API.
+    It supports multiple types of data. Check the `load_types` attribute.
+    <br>API: <a href="http://oasis.caiso.com/oasisapi">http://oasis.caiso.com/oasisapi</a>
+    <br> It creates batches of interval of 30 days and queries the CAISO API sequentially.
 
     Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
     Attributes:
-        load_types (list): Must be a subset of ['Demand Forecast 7-Day Ahead', 'Demand Forecast 2-Day Ahead',
-         'Demand Forecast Day Ahead', 'RTM 15Min Load Forecast', 'RTM 5Min Load Forecast',
-          'Total Actual Hourly Integrated Load']. Default to - ["Total Actual Hourly Integrated Load"]
+        load_types (list): Must be a subset of [`Demand Forecast 7-Day Ahead`, `Demand Forecast 2-Day Ahead`, `Demand Forecast Day Ahead`, `RTM 15Min Load Forecast`, `RTM 5Min Load Forecast`, `Total Actual Hourly Integrated Load`]. <br> Default Value - `[Total Actual Hourly Integrated Load]`.
         start_date (str): Must be in `YYYY-MM-DD` format.
         end_date (str): Must be in `YYYY-MM-DD` format.
 
@@ -67,8 +66,47 @@ class CAISOHistoricalLoadISOSource(CAISODailyLoadISOSource):
             Raw form of data.
         """
 
-        logging.info(f"Getting {self.load_types} data for date {self.date}")
+        logging.info(f"Getting {self.load_types} data from {self.start_date} to {self.end_date}")
         start_date = datetime.strptime(self.start_date, self.user_datetime_format)
         end_date = datetime.strptime(self.end_date, self.user_datetime_format)
         end_date = end_date + timedelta(days=1)
-        return self._fetch_and_parse_zip(start_date, end_date)
+        generated_days_ranges = []
+        dates = pd.date_range(
+            start_date, end_date, freq="30D", inclusive="left"
+        )
+
+        for date in dates:
+            py_date = date.to_pydatetime()
+            date_last = (py_date + timedelta(days=30))
+            date_last = min(date_last, end_date)
+            generated_days_ranges.append((py_date, date_last))
+
+        logging.info(
+            f"Generated date ranges are {generated_days_ranges}"
+        )
+
+        dfs = []
+        for idx, date_range in enumerate(generated_days_ranges):
+            start_date_str, end_date_str = date_range
+            df = self._fetch_and_parse_zip(start_date_str, end_date_str)
+
+            dfs.append(df)
+
+        return pd.concat(dfs)
+
+    def _validate_options(self) -> bool:
+        try:
+            datetime.strptime(self.start_date, self.user_datetime_format)
+        except ValueError:
+            raise ValueError(
+                f"Unable to parse start_date. Please specify in {self.user_datetime_format} format."
+            )
+
+        try:
+            datetime.strptime(self.end_date, self.user_datetime_format)
+        except ValueError:
+            raise ValueError(
+                f"Unable to parse end_date. Please specify in {self.user_datetime_format} format."
+            )
+
+        return True
