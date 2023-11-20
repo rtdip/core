@@ -76,7 +76,7 @@ class CAISODailyLoadISOSource(BaseISOSource):
         return self._fetch_and_parse_zip(start_date, end_date)
 
     def _fetch_and_parse_zip(
-            self, start_date: datetime, end_date: datetime
+        self, start_date: datetime, end_date: datetime
     ) -> pd.DataFrame:
         suffix = (
             f"?resultformat=6&"
