@@ -53,7 +53,9 @@ class CAISOHistoricalLoadISOSource(CAISODailyLoadISOSource):
         super().__init__(spark, options)
         self.spark = spark
         self.options = options
-        self.load_types = self.options.get("load_types", ["Total Actual Hourly Integrated Load"])
+        self.load_types = self.options.get(
+            "load_types", ["Total Actual Hourly Integrated Load"]
+        )
         self.start_date = self.options.get("start_date", "").strip()
         self.end_date = self.options.get("end_date", "").strip()
         self.user_datetime_format = "%Y-%m-%d"
@@ -66,24 +68,22 @@ class CAISOHistoricalLoadISOSource(CAISODailyLoadISOSource):
             Raw form of data.
         """
 
-        logging.info(f"Getting {self.load_types} data from {self.start_date} to {self.end_date}")
+        logging.info(
+            f"Getting {self.load_types} data from {self.start_date} to {self.end_date}"
+        )
         start_date = datetime.strptime(self.start_date, self.user_datetime_format)
         end_date = datetime.strptime(self.end_date, self.user_datetime_format)
         end_date = end_date + timedelta(days=1)
         generated_days_ranges = []
-        dates = pd.date_range(
-            start_date, end_date, freq="30D", inclusive="left"
-        )
+        dates = pd.date_range(start_date, end_date, freq="30D", inclusive="left")
 
         for date in dates:
             py_date = date.to_pydatetime()
-            date_last = (py_date + timedelta(days=30))
+            date_last = py_date + timedelta(days=30)
             date_last = min(date_last, end_date)
             generated_days_ranges.append((py_date, date_last))
 
-        logging.info(
-            f"Generated date ranges are {generated_days_ranges}"
-        )
+        logging.info(f"Generated date ranges are {generated_days_ranges}")
 
         dfs = []
         for idx, date_range in enumerate(generated_days_ranges):

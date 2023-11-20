@@ -31,11 +31,10 @@ area_filter = "TacAreaName = 'AVA'"
 
 iso_configuration = {
     "load_types": ["Total Actual Hourly Integrated Load"],
-    "date": "2023-08-13"
+    "date": "2023-08-13",
 }
 
-expected_forecast_data = (
-    """StartTime,EndTime,LoadType,OprDt,OprHr,OprInterval,MarketRunId,TacAreaName,Label,XmlDataItem,Pos,Load,ExecutionType,Group
+expected_forecast_data = """StartTime,EndTime,LoadType,OprDt,OprHr,OprInterval,MarketRunId,TacAreaName,Label,XmlDataItem,Pos,Load,ExecutionType,Group
     2023-08-13T01:00:00,2023-08-13T02:00:00,2,2023-08-12,19,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1501.95,2DA,1
     2023-08-13T06:00:00,2023-08-13T07:00:00,2,2023-08-12,24,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1064.66,2DA,1
     2023-08-13T03:00:00,2023-08-13T04:00:00,2,2023-08-12,21,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1366.63,2DA,1
@@ -61,10 +60,8 @@ expected_forecast_data = (
     2023-08-13T18:00:00,2023-08-13T19:00:00,2,2023-08-13,12,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1323.88,2DA,208
     2023-08-13T23:00:00,2023-08-14T00:00:00,2,2023-08-13,17,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1665.44,2DA,208
     """
-)
 
-expected_actual_data = (
-    """StartTime,EndTime,LoadType,OprDt,OprHr,OprInterval,MarketRunId,TacAreaName,Label,XmlDataItem,Pos,Load,ExecutionType,Group
+expected_actual_data = """StartTime,EndTime,LoadType,OprDt,OprHr,OprInterval,MarketRunId,TacAreaName,Label,XmlDataItem,Pos,Load,ExecutionType,Group
     2023-08-13T02:00:00,2023-08-13T03:00:00,0,2023-08-12,20,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1465.0,ACTUAL,69
     2023-08-13T00:00:00,2023-08-13T01:00:00,0,2023-08-12,18,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1564.0,ACTUAL,69
     2023-08-13T03:00:00,2023-08-13T04:00:00,0,2023-08-12,21,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1382.0,ACTUAL,69
@@ -90,7 +87,6 @@ expected_actual_data = (
     2023-08-13T15:00:00,2023-08-13T16:00:00,0,2023-08-13,9,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1099.0,ACTUAL,276
     2023-08-13T22:00:00,2023-08-13T23:00:00,0,2023-08-13,16,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1680.0,ACTUAL,276
     """
-)
 
 patch_module_name = "requests.get"
 
@@ -109,9 +105,13 @@ def test_caiso_daily_load_iso_read_setup(spark_session: SparkSession):
     assert iso_source.pre_read_validation()
 
 
-def test_caiso_daily_load_iso_read_batch_actual(spark_session: SparkSession, mocker: MockerFixture):
-    iso_source = CAISODailyLoadISOSource(spark_session, {**iso_configuration,
-                                                         "load_types": ["Total Actual Hourly Integrated Load"]})
+def test_caiso_daily_load_iso_read_batch_actual(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    iso_source = CAISODailyLoadISOSource(
+        spark_session,
+        {**iso_configuration, "load_types": ["Total Actual Hourly Integrated Load"]},
+    )
 
     with open(f"{dir_path}/data/caiso_daily_load_sample1.zip", "rb") as file:
         sample_bytes = file.read()
@@ -134,16 +134,23 @@ def test_caiso_daily_load_iso_read_batch_actual(spark_session: SparkSession, moc
     assert str(df.schema) == str(CAISO_SCHEMA)
 
     expected_df_spark = spark_session.createDataFrame(
-        pd.read_csv(StringIO(expected_actual_data), parse_dates=["StartTime", "EndTime"]),
-        schema=CAISO_SCHEMA)
+        pd.read_csv(
+            StringIO(expected_actual_data), parse_dates=["StartTime", "EndTime"]
+        ),
+        schema=CAISO_SCHEMA,
+    )
 
     cols = df.columns
     assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
 
 
-def test_caiso_daily_load_iso_read_batch_forecast(spark_session: SparkSession, mocker: MockerFixture):
-    iso_source = CAISODailyLoadISOSource(spark_session, {**iso_configuration,
-                                                         "load_types": ["Demand Forecast 2-Day Ahead"]})
+def test_caiso_daily_load_iso_read_batch_forecast(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    iso_source = CAISODailyLoadISOSource(
+        spark_session,
+        {**iso_configuration, "load_types": ["Demand Forecast 2-Day Ahead"]},
+    )
 
     with open(f"{dir_path}/data/caiso_daily_load_sample1.zip", "rb") as file:
         sample_bytes = file.read()
@@ -166,15 +173,18 @@ def test_caiso_daily_load_iso_read_batch_forecast(spark_session: SparkSession, m
     assert str(df.schema) == str(CAISO_SCHEMA)
 
     expected_df_spark = spark_session.createDataFrame(
-        pd.read_csv(StringIO(expected_forecast_data), parse_dates=["StartTime", "EndTime"]),
-        schema=CAISO_SCHEMA)
+        pd.read_csv(
+            StringIO(expected_forecast_data), parse_dates=["StartTime", "EndTime"]
+        ),
+        schema=CAISO_SCHEMA,
+    )
 
     cols = df.columns
     assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
 
 
 def test_caiso_daily_load_iso_iso_fetch_url_fails(
-        spark_session: SparkSession, mocker: MockerFixture
+    spark_session: SparkSession, mocker: MockerFixture
 ):
     base_iso_source = CAISODailyLoadISOSource(spark_session, iso_configuration)
     sample_bytes = bytes("Unknown Error".encode("utf-8"))
@@ -188,14 +198,16 @@ def test_caiso_daily_load_iso_iso_fetch_url_fails(
 
     with pytest.raises(HTTPError) as exc_info:
         base_iso_source.read_batch()
-    expected = ("Unable to access URL `http://oasis.caiso.com/oasisapi/SingleZip?resultformat=6&queryname=SLD_FCST"
-                "&version=1&startdatetime=20230813T00:00-0000&enddatetime=20230814T00:00-0000`. Received status code "
-                "401 with message b'Unknown Error'")
+    expected = (
+        "Unable to access URL `http://oasis.caiso.com/oasisapi/SingleZip?resultformat=6&queryname=SLD_FCST"
+        "&version=1&startdatetime=20230813T00:00-0000&enddatetime=20230814T00:00-0000`. Received status code "
+        "401 with message b'Unknown Error'"
+    )
     assert str(exc_info.value) == expected
 
 
 def test_caiso_daily_load_iso_iso_empty_content(
-        spark_session: SparkSession, mocker: MockerFixture
+    spark_session: SparkSession, mocker: MockerFixture
 ):
     base_iso_source = CAISODailyLoadISOSource(spark_session, iso_configuration)
     sample_bytes = b""
@@ -214,7 +226,7 @@ def test_caiso_daily_load_iso_iso_empty_content(
 
 
 def test_caiso_daily_load_iso_iso_no_data_in_zip(
-        spark_session: SparkSession, mocker: MockerFixture
+    spark_session: SparkSession, mocker: MockerFixture
 ):
     base_iso_source = CAISODailyLoadISOSource(spark_session, iso_configuration)
 

@@ -20,7 +20,9 @@ from requests import HTTPError
 
 sys.path.insert(0, ".")
 import pytest
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import CAISOHistoricalLoadISOSource
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import (
+    CAISOHistoricalLoadISOSource,
+)
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import CAISO_SCHEMA
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import DataFrame, SparkSession
@@ -35,8 +37,7 @@ iso_configuration = {
     "end_date": "2023-11-09",
 }
 
-expected_forecast_data = (
-    """StartTime,EndTime,LoadType,OprDt,OprHr,OprInterval,MarketRunId,TacAreaName,Label,XmlDataItem,Pos,Load,ExecutionType,Group
+expected_forecast_data = """StartTime,EndTime,LoadType,OprDt,OprHr,OprInterval,MarketRunId,TacAreaName,Label,XmlDataItem,Pos,Load,ExecutionType,Group
     2023-11-08T05:00:00,2023-11-08T06:00:00,2,2023-11-07,22,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1204.52,2DA,1
     2023-11-08T00:00:00,2023-11-08T01:00:00,2,2023-11-07,17,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1362.97,2DA,1
     2023-11-08T07:00:00,2023-11-08T08:00:00,2,2023-11-07,24,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1043.01,2DA,1
@@ -86,10 +87,8 @@ expected_forecast_data = (
     2023-11-09T22:00:00,2023-11-09T23:00:00,2,2023-11-09,15,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1311.1,2DA,415
     2023-11-09T18:00:00,2023-11-09T19:00:00,2,2023-11-09,11,0,2DA,AVA,Demand Forecast 2-Day Ahead,SYS_FCST_2DA_MW,1.8,1395.33,2DA,415
     """
-)
 
-expected_actual_data = (
-    """StartTime,EndTime,LoadType,OprDt,OprHr,OprInterval,MarketRunId,TacAreaName,Label,XmlDataItem,Pos,Load,ExecutionType,Group
+expected_actual_data = """StartTime,EndTime,LoadType,OprDt,OprHr,OprInterval,MarketRunId,TacAreaName,Label,XmlDataItem,Pos,Load,ExecutionType,Group
     2023-11-08T04:00:00,2023-11-08T05:00:00,0,2023-11-07,21,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1300.0,ACTUAL,69
     2023-11-08T01:00:00,2023-11-08T02:00:00,0,2023-11-07,18,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1399.0,ACTUAL,69
     2023-11-08T06:00:00,2023-11-08T07:00:00,0,2023-11-07,23,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1142.0,ACTUAL,69
@@ -139,7 +138,6 @@ expected_actual_data = (
     2023-11-09T19:00:00,2023-11-09T20:00:00,0,2023-11-09,12,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1413.0,ACTUAL,483
     2023-11-09T22:00:00,2023-11-09T23:00:00,0,2023-11-09,15,0,ACTUAL,AVA,Total Actual Hourly Integrated Load,SYS_FCST_ACT_MW,3.8,1358.0,ACTUAL,483
     """
-)
 
 patch_module_name = "requests.get"
 
@@ -154,13 +152,21 @@ def test_caiso_historical_load_iso_read_setup(spark_session: SparkSession):
 
     assert isinstance(iso_source.settings(), dict)
 
-    assert sorted(iso_source.required_options) == ["end_date", "load_types", "start_date"]
+    assert sorted(iso_source.required_options) == [
+        "end_date",
+        "load_types",
+        "start_date",
+    ]
     assert iso_source.pre_read_validation()
 
 
-def test_caiso_historical_load_iso_read_batch_actual(spark_session: SparkSession, mocker: MockerFixture):
-    iso_source = CAISOHistoricalLoadISOSource(spark_session, {**iso_configuration,
-                                                              "load_types": ["Total Actual Hourly Integrated Load"]})
+def test_caiso_historical_load_iso_read_batch_actual(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    iso_source = CAISOHistoricalLoadISOSource(
+        spark_session,
+        {**iso_configuration, "load_types": ["Total Actual Hourly Integrated Load"]},
+    )
 
     with open(f"{dir_path}/data/caiso_historical_load_sample1.zip", "rb") as file:
         sample_bytes = file.read()
@@ -183,16 +189,23 @@ def test_caiso_historical_load_iso_read_batch_actual(spark_session: SparkSession
     assert str(df.schema) == str(CAISO_SCHEMA)
 
     expected_df_spark = spark_session.createDataFrame(
-        pd.read_csv(StringIO(expected_actual_data), parse_dates=["StartTime", "EndTime"]),
-        schema=CAISO_SCHEMA)
+        pd.read_csv(
+            StringIO(expected_actual_data), parse_dates=["StartTime", "EndTime"]
+        ),
+        schema=CAISO_SCHEMA,
+    )
 
     cols = df.columns
     assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
 
 
-def test_caiso_historical_load_iso_read_batch_forecast(spark_session: SparkSession, mocker: MockerFixture):
-    iso_source = CAISOHistoricalLoadISOSource(spark_session, {**iso_configuration,
-                                                              "load_types": ["Demand Forecast 2-Day Ahead"]})
+def test_caiso_historical_load_iso_read_batch_forecast(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    iso_source = CAISOHistoricalLoadISOSource(
+        spark_session,
+        {**iso_configuration, "load_types": ["Demand Forecast 2-Day Ahead"]},
+    )
 
     with open(f"{dir_path}/data/caiso_historical_load_sample1.zip", "rb") as file:
         sample_bytes = file.read()
@@ -215,8 +228,11 @@ def test_caiso_historical_load_iso_read_batch_forecast(spark_session: SparkSessi
     assert str(df.schema) == str(CAISO_SCHEMA)
 
     expected_df_spark = spark_session.createDataFrame(
-        pd.read_csv(StringIO(expected_forecast_data), parse_dates=["StartTime", "EndTime"]),
-        schema=CAISO_SCHEMA)
+        pd.read_csv(
+            StringIO(expected_forecast_data), parse_dates=["StartTime", "EndTime"]
+        ),
+        schema=CAISO_SCHEMA,
+    )
 
     cols = df.columns
     assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()

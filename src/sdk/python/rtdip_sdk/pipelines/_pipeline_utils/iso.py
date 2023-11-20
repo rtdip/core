@@ -48,20 +48,21 @@ PJM_SCHEMA = StructType(
 
 CAISO_SCHEMA = StructType(
     [
-        StructField('StartTime', TimestampType(), True),
-        StructField('EndTime', TimestampType(), True),
-        StructField('LoadType', LongType(), True),
-        StructField('OprDt', StringType(), True),
-        StructField('OprHr', LongType(), True),
-        StructField('OprInterval', LongType(), True),
-        StructField('MarketRunId', StringType(), True),
-        StructField('TacAreaName', StringType(), True),
-        StructField('Label', StringType(), True),
-        StructField('XmlDataItem', StringType(), True),
-        StructField('Pos', DoubleType(), True),
-        StructField('Load', DoubleType(), True),
-        StructField('ExecutionType', StringType(), True),
-        StructField('Group', LongType(), True)]
+        StructField("StartTime", TimestampType(), True),
+        StructField("EndTime", TimestampType(), True),
+        StructField("LoadType", LongType(), True),
+        StructField("OprDt", StringType(), True),
+        StructField("OprHr", LongType(), True),
+        StructField("OprInterval", LongType(), True),
+        StructField("MarketRunId", StringType(), True),
+        StructField("TacAreaName", StringType(), True),
+        StructField("Label", StringType(), True),
+        StructField("XmlDataItem", StringType(), True),
+        StructField("Pos", DoubleType(), True),
+        StructField("Load", DoubleType(), True),
+        StructField("ExecutionType", StringType(), True),
+        StructField("Group", LongType(), True),
+    ]
 )
 
 

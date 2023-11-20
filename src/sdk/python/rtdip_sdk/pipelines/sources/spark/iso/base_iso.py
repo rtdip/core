@@ -205,7 +205,9 @@ class BaseISOSource(SourceInterface):
             try:
                 df = self.spark.createDataFrame(data=pdf, schema=self.spark_schema)
             except AttributeError as err:
-                logging.warning(f"Pandas to PySpark direct conversion failed, trying a different way. Error - {err}")
+                logging.warning(
+                    f"Pandas to PySpark direct conversion failed, trying a different way. Error - {err}"
+                )
 
                 # The below is to fix the compatibility issues between Pandas 2.0 and PySpark.
                 pd.DataFrame.iteritems = pd.DataFrame.items

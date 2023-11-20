@@ -56,7 +56,9 @@ class CAISODailyLoadISOSource(BaseISOSource):
         super().__init__(spark, options)
         self.spark = spark
         self.options = options
-        self.load_types = self.options.get("load_types", ["Total Actual Hourly Integrated Load"])
+        self.load_types = self.options.get(
+            "load_types", ["Total Actual Hourly Integrated Load"]
+        )
         self.date = self.options.get("date", "").strip()
         self.user_datetime_format = "%Y-%m-%d"
 
@@ -73,7 +75,9 @@ class CAISODailyLoadISOSource(BaseISOSource):
         end_date = start_date + timedelta(days=1)
         return self._fetch_and_parse_zip(start_date, end_date)
 
-    def _fetch_and_parse_zip(self, start_date: datetime, end_date: datetime) -> pd.DataFrame:
+    def _fetch_and_parse_zip(
+            self, start_date: datetime, end_date: datetime
+    ) -> pd.DataFrame:
         suffix = (
             f"?resultformat=6&"
             f"queryname=SLD_FCST&"
@@ -97,10 +101,11 @@ class CAISODailyLoadISOSource(BaseISOSource):
         return df
 
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
-
-        date_cols = ['INTERVALSTARTTIME_GMT', 'INTERVALENDTIME_GMT']
+        date_cols = ["INTERVALSTARTTIME_GMT", "INTERVALENDTIME_GMT"]
         for date_col in date_cols:
-            df[date_col] = df[date_col].apply(lambda data: datetime.strptime(str(data)[:19], "%Y-%m-%dT%H:%M:%S"))
+            df[date_col] = df[date_col].apply(
+                lambda data: datetime.strptime(str(data)[:19], "%Y-%m-%dT%H:%M:%S")
+            )
 
         df = df.rename(
             columns={
@@ -124,7 +129,7 @@ class CAISODailyLoadISOSource(BaseISOSource):
         return df
 
     def _sanitize_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        df = df[df['Label'].isin(self.load_types)]
+        df = df[df["Label"].isin(self.load_types)]
         return df
 
     def _validate_options(self) -> bool:
