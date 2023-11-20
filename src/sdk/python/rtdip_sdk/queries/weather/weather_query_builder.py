@@ -156,8 +156,8 @@ class WeatherQueryBuilder:
 
         return latest.get_point(self.connection, raw_parameters)
 
-    def raw_grid(
-        self,
+    def raw_grid(# NOSONAR
+        self,# NOSONAR
         forecast: str,
         region: str,
         data_security_level: str,

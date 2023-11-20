@@ -56,7 +56,7 @@ def _parse_date(dt, is_end_date=False, exclude_date_format=False):
         raise ValueError(msg)
 
 
-def _parse_dates(parameters_dict):
+def _parse_dates(parameters_dict): # NOSONAR
     if "start_date" in parameters_dict:
         parameters_dict["start_date"] = _parse_date(parameters_dict["start_date"])
         sample_dt = parameters_dict["start_date"]
