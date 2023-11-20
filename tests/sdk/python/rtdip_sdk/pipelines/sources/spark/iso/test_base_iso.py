@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import pandas as pd
 from pyspark.sql.types import StructType, StructField, IntegerType
 import pytest
 from requests import HTTPError
@@ -59,6 +59,30 @@ def test_base_iso_read_batch(spark_session: SparkSession, mocker: MockerFixture)
 
     mock_res = MyResponse()
 
+    mocker.patch("requests.get", side_effect=lambda url: mock_res)
+
+    df = base_iso_source.read_batch()
+    assert df.count() == 1
+    assert isinstance(df, DataFrame)
+    assert str(df.schema) == str(StructType([StructField("id", IntegerType(), True)]))
+
+
+def test_base_iso_read_batch_pandas_to_pyspark_conversion(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    base_iso_source = BaseISOSource(spark_session, iso_configuration)
+    sample_bytes = bytes("id\n1".encode("utf-8"))
+
+    class MyResponse:
+        content = sample_bytes
+        status_code = 200
+
+    def fake_attribute_error(*args, **kwargs):
+        raise AttributeError(f"Fake exception {args} {kwargs}")
+
+    pd.DataFrame.iteritems = fake_attribute_error
+
+    mock_res = MyResponse()
     mocker.patch("requests.get", side_effect=lambda url: mock_res)
 
     df = base_iso_source.read_batch()

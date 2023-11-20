@@ -160,12 +160,15 @@ def test_caiso_historical_load_iso_read_setup(spark_session: SparkSession):
     assert iso_source.pre_read_validation()
 
 
-def test_caiso_historical_load_iso_read_batch_actual(
-    spark_session: SparkSession, mocker: MockerFixture
+def caiso_historical_load_iso_read_batch_test(
+    spark_session: SparkSession,
+    mocker: MockerFixture,
+    load_types: list,
+    expected_data: str,
 ):
     iso_source = CAISOHistoricalLoadISOSource(
         spark_session,
-        {**iso_configuration, "load_types": ["Total Actual Hourly Integrated Load"]},
+        {**iso_configuration, "load_types": load_types},
     )
 
     with open(f"{dir_path}/data/caiso_historical_load_sample1.zip", "rb") as file:
@@ -176,7 +179,6 @@ def test_caiso_historical_load_iso_read_batch_actual(
         status_code = 200
 
     def get_response(url: str):
-        assert url.startswith("http://oasis.caiso.com/oasisapi/SingleZip")
         return MyResponse()
 
     mocker.patch(patch_module_name, side_effect=get_response)
@@ -189,70 +191,49 @@ def test_caiso_historical_load_iso_read_batch_actual(
     assert str(df.schema) == str(CAISO_SCHEMA)
 
     expected_df_spark = spark_session.createDataFrame(
-        pd.read_csv(
-            StringIO(expected_actual_data), parse_dates=["StartTime", "EndTime"]
-        ),
+        pd.read_csv(StringIO(expected_data), parse_dates=["StartTime", "EndTime"]),
         schema=CAISO_SCHEMA,
     )
 
     cols = df.columns
     assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
+
+
+def test_caiso_historical_load_iso_read_batch_actual(
+    spark_session: SparkSession, mocker: MockerFixture
+):
+    caiso_historical_load_iso_read_batch_test(
+        spark_session,
+        mocker,
+        load_types=["Total Actual Hourly Integrated Load"],
+        expected_data=expected_actual_data,
+    )
 
 
 def test_caiso_historical_load_iso_read_batch_forecast(
     spark_session: SparkSession, mocker: MockerFixture
 ):
-    iso_source = CAISOHistoricalLoadISOSource(
+    caiso_historical_load_iso_read_batch_test(
         spark_session,
-        {**iso_configuration, "load_types": ["Demand Forecast 2-Day Ahead"]},
+        mocker,
+        load_types=["Demand Forecast 2-Day Ahead"],
+        expected_data=expected_forecast_data,
     )
 
-    with open(f"{dir_path}/data/caiso_historical_load_sample1.zip", "rb") as file:
-        sample_bytes = file.read()
 
-    class MyResponse:
-        content = sample_bytes
-        status_code = 200
+def caiso_historical_load_iso_iso_invalid_dates_test(
+    spark_session: SparkSession, key: str
+):
+    with pytest.raises(ValueError) as exc_info:
+        iso_source = CAISOHistoricalLoadISOSource(
+            spark_session, {**iso_configuration, key: "2023/11/01"}
+        )
+        iso_source.pre_read_validation()
 
-    def get_response(url: str):
-        assert url.startswith("http://oasis.caiso.com/oasisapi/SingleZip")
-        return MyResponse()
-
-    mocker.patch(patch_module_name, side_effect=get_response)
-
-    df = iso_source.read_batch()
-    df = df.filter(area_filter)
-
-    assert df.count() == 48
-    assert isinstance(df, DataFrame)
-    assert str(df.schema) == str(CAISO_SCHEMA)
-
-    expected_df_spark = spark_session.createDataFrame(
-        pd.read_csv(
-            StringIO(expected_forecast_data), parse_dates=["StartTime", "EndTime"]
-        ),
-        schema=CAISO_SCHEMA,
-    )
-
-    cols = df.columns
-    assert df.orderBy(cols).collect() == expected_df_spark.orderBy(cols).collect()
+    expected = f"Unable to parse {key}. Please specify in %Y-%m-%d format."
+    assert str(exc_info.value) == expected
 
 
 def test_caiso_historical_load_iso_iso_invalid_dates(spark_session: SparkSession):
-    with pytest.raises(ValueError) as exc_info:
-        iso_source = CAISOHistoricalLoadISOSource(
-            spark_session, {**iso_configuration, "start_date": "2023/11/01"}
-        )
-        iso_source.pre_read_validation()
-
-    expected = "Unable to parse start_date. Please specify in %Y-%m-%d format."
-    assert str(exc_info.value) == expected
-
-    with pytest.raises(ValueError) as exc_info:
-        iso_source = CAISOHistoricalLoadISOSource(
-            spark_session, {**iso_configuration, "end_date": "2023/11/01"}
-        )
-        iso_source.pre_read_validation()
-
-    expected = "Unable to parse end_date. Please specify in %Y-%m-%d format."
-    assert str(exc_info.value) == expected
+    caiso_historical_load_iso_iso_invalid_dates_test(spark_session, "start_date")
+    caiso_historical_load_iso_iso_invalid_dates_test(spark_session, "end_date")

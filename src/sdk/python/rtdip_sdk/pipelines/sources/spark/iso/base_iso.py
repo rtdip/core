@@ -202,16 +202,9 @@ class BaseISOSource(SourceInterface):
             pdf = self._get_data()
             pdf = _prepare_pandas_to_convert_to_spark(pdf)
 
-            try:
-                df = self.spark.createDataFrame(data=pdf, schema=self.spark_schema)
-            except AttributeError as err:
-                logging.warning(
-                    f"Pandas to PySpark direct conversion failed, trying a different way. Error - {err}"
-                )
-
-                # The below is to fix the compatibility issues between Pandas 2.0 and PySpark.
-                pd.DataFrame.iteritems = pd.DataFrame.items
-                df = self.spark.createDataFrame(data=pdf, schema=self.spark_schema)
+            # The below is to fix the compatibility issues between Pandas 2.0 and PySpark.
+            pd.DataFrame.iteritems = pd.DataFrame.items
+            df = self.spark.createDataFrame(data=pdf, schema=self.spark_schema)
             return df
 
         except Exception as e:

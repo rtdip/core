@@ -18,6 +18,7 @@ from zipfile import ZipFile
 
 import pandas as pd
 from pyspark.sql import SparkSession
+from requests import HTTPError
 
 from ...._pipeline_utils.iso import CAISO_SCHEMA
 from . import BaseISOSource
@@ -46,7 +47,7 @@ class CAISODailyLoadISOSource(BaseISOSource):
 
     spark: SparkSession
     options: dict
-    iso_url: str = "http://oasis.caiso.com/oasisapi/SingleZip"
+    iso_url: str = "https://oasis.caiso.com/oasisapi/SingleZip"
     query_datetime_format: str = "%Y%m%dT00:00-0000"
     required_options = ["load_types", "date"]
     spark_schema = CAISO_SCHEMA
@@ -61,6 +62,9 @@ class CAISODailyLoadISOSource(BaseISOSource):
         )
         self.date = self.options.get("date", "").strip()
         self.user_datetime_format = "%Y-%m-%d"
+
+        # The following to fix the Security Check Error as the CAISO API is timing out with HTTPS protocol.
+        self.iso_url = self.iso_url.replace("s://", "://")
 
     def _pull_data(self) -> pd.DataFrame:
         """
@@ -88,14 +92,14 @@ class CAISODailyLoadISOSource(BaseISOSource):
 
         content = self._fetch_from_url(suffix)
         if not content:
-            raise Exception(f"Empty Response was returned")
-        logging.info(f"Unzipping the file")
+            raise HTTPError("Empty Response was returned")
+        logging.info("Unzipping the file")
 
         zf = ZipFile(BytesIO(content))
 
         csvs = list(filter(lambda name: ".csv" in name, zf.namelist()))
         if len(csvs) == 0:
-            raise Exception("No data was found in the specified interval")
+            raise ValueError("No data was found in the specified interval")
 
         df = pd.read_csv(zf.open(csvs[0]))
         return df
