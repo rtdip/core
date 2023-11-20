@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from typing import Union
-from ..connectors.connection_interface import ConnectionInterface
-from .time_series import (
+from ...connectors.connection_interface import ConnectionInterface
+from . import (
     raw,
     resample,
     interpolate,
@@ -24,7 +24,7 @@ from .time_series import (
     circular_standard_deviation,
     latest,
 )
-from . import metadata
+from .. import metadata
 from pandas import DataFrame
 
 
