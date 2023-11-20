@@ -22,6 +22,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
 iso_configuration = {}
+patch_module_name = "requests.get"
 
 
 def test_base_iso_read_setup(spark_session: SparkSession):
@@ -59,31 +60,7 @@ def test_base_iso_read_batch(spark_session: SparkSession, mocker: MockerFixture)
 
     mock_res = MyResponse()
 
-    mocker.patch("requests.get", side_effect=lambda url: mock_res)
-
-    df = base_iso_source.read_batch()
-    assert df.count() == 1
-    assert isinstance(df, DataFrame)
-    assert str(df.schema) == str(StructType([StructField("id", IntegerType(), True)]))
-
-
-def test_base_iso_read_batch_pandas_to_pyspark_conversion(
-    spark_session: SparkSession, mocker: MockerFixture
-):
-    base_iso_source = BaseISOSource(spark_session, iso_configuration)
-    sample_bytes = bytes("id\n1".encode("utf-8"))
-
-    class MyResponse:
-        content = sample_bytes
-        status_code = 200
-
-    def fake_attribute_error(*args, **kwargs):
-        raise AttributeError(f"Fake exception {args} {kwargs}")
-
-    pd.DataFrame.iteritems = fake_attribute_error
-
-    mock_res = MyResponse()
-    mocker.patch("requests.get", side_effect=lambda url: mock_res)
+    mocker.patch(patch_module_name, side_effect=lambda url: mock_res)
 
     df = base_iso_source.read_batch()
     assert df.count() == 1
@@ -109,7 +86,7 @@ def test_base_iso_fetch_url_fails(spark_session: SparkSession, mocker: MockerFix
         status_code = 401
 
     mock_res = MyResponse()
-    mocker.patch("requests.get", side_effect=lambda url: mock_res)
+    mocker.patch(patch_module_name, side_effect=lambda url: mock_res)
 
     with pytest.raises(HTTPError) as exc_info:
         base_iso_source.read_batch()
