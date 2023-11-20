@@ -1,1 +1,1 @@
-# ECMWF Sample Documentation
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/pipelines/deploy/ECMWF-to-Delta/README.md"
