@@ -27,7 +27,7 @@ def _is_date_format(dt, format):
         return False
 
 
-def _parse_date(dt, is_end_date=False, exclude_date_format=False):
+def _parse_date(dt, is_end_date=False, exclude_date_format=False):  # NOSONAR
     if isinstance(dt, datetime):
         if dt.time() == time.min:
             if dt.tzinfo is not None:
