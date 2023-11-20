@@ -333,7 +333,10 @@ class SparkPIOMFDestination(DestinationInterface):
             "max(length(payload)) as max_length"
         ).collect()[0][0]
 
-        if longest_payload * self.batch_size * 1.1 > self.max_payload_length:
+        if (
+            longest_payload * self.batch_size * 1.1 > self.max_payload_length
+            and self.data.count() > longest_payload * self.batch_size
+        ):
             original_batch_size = self.batch_size
             self.batch_size = int(self.max_payload_length // (longest_payload * 1.1))
             print(

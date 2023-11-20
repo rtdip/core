@@ -115,6 +115,7 @@ class SparkRestAPIDestination(DestinationInterface):
         compression (optional bool): If set to True, will send the data with Gzip compression
         batch_as_array (optional bool): Set to True if the payload message must be a json array instead of a json object
         max_payload_length (optional int): Maximum allowed length of request content
+        retries (optional int): Set the number of retry attempts for write failures (Streaming only)
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)
@@ -134,6 +135,7 @@ class SparkRestAPIDestination(DestinationInterface):
     compression: bool
     batch_as_array: bool
     max_payload_length: int
+    retires: int
 
     def __init__(
         self,
@@ -151,6 +153,7 @@ class SparkRestAPIDestination(DestinationInterface):
         compression: bool = False,
         batch_as_array: bool = False,
         max_payload_length: int = 4194304,
+        retries: int = 5,
     ) -> None:  # NOSONAR
         self.data = data
         self.options = options
@@ -166,6 +169,7 @@ class SparkRestAPIDestination(DestinationInterface):
         self.compression = compression
         self.batch_as_array = batch_as_array
         self.max_payload_length = max_payload_length
+        self.retries = retries
 
     @staticmethod
     def system_type():
@@ -295,30 +299,39 @@ class SparkRestAPIDestination(DestinationInterface):
         """
         Writes streaming data to a Rest API
         """
-        try:
-            TRIGGER_OPTION = (
-                {"availableNow": True}
-                if self.trigger == "availableNow"
-                else {"processingTime": self.trigger}
-            )
-            query = (
-                self.data.writeStream.trigger(**TRIGGER_OPTION)
-                .foreachBatch(self._api_micro_batch)
-                .queryName(self.query_name)
-                .outputMode("update")
-                .options(**self.options)
-                .start()
-            )
+        retry_count = 0
+        while True:
+            try:
+                TRIGGER_OPTION = (
+                    {"availableNow": True}
+                    if self.trigger == "availableNow"
+                    else {"processingTime": self.trigger}
+                )
+                query = (
+                    self.data.writeStream.trigger(**TRIGGER_OPTION)
+                    .foreachBatch(self._api_micro_batch)
+                    .queryName(self.query_name)
+                    .outputMode("update")
+                    .options(**self.options)
+                    .start()
+                )
 
-            if self.query_wait_interval:
-                while query.isActive:
-                    if query.lastProgress:
-                        logging.info(query.lastProgress)
-                    time.sleep(self.query_wait_interval)
+                if self.query_wait_interval:
+                    while query.isActive:
+                        if query.lastProgress:
+                            logging.info(query.lastProgress)
+                        time.sleep(self.query_wait_interval)
+                retry_count = 0
 
-        except Py4JJavaError as e:
-            logging.exception(e.errmsg)
-            raise e
-        except Exception as e:
-            logging.exception(str(e))
-            raise e
+            except Py4JJavaError as e:
+                logging.exception(e.errmsg)
+                if retry_count <= self.retries:
+                    retry_count += 1
+                else:
+                    raise e
+            except Exception as e:
+                logging.exception(str(e))
+                if retry_count <= self.retries:
+                    retry_count += 1
+                else:
+                    raise e
