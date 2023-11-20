@@ -15,70 +15,16 @@
 from jinja2 import Template
 import datetime
 from datetime import datetime, time
+from .._utilities_query_builder import (
+    _is_date_format,
+    _parse_date,
+    _parse_dates,
+    _convert_to_seconds,
+)
+
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
-
-
-def _is_date_format(dt, format):
-    try:
-        return datetime.strptime(dt, format)
-    except Exception:
-        return False
-
-
-def _parse_date(dt, is_end_date=False, exclude_date_format=False):
-    if isinstance(dt, datetime):
-        if dt.time() == time.min:
-            if dt.tzinfo is not None:
-                dt = datetime.strftime(dt, "%Y-%m-%d%z")
-            else:
-                dt = dt.date()
-        else:
-            dt = datetime.strftime(dt, TIMESTAMP_FORMAT)
-    dt = str(dt)
-
-    if _is_date_format(dt, "%Y-%m-%d") and exclude_date_format == False:
-        _time = "T23:59:59" if is_end_date == True else "T00:00:00"
-        return dt + _time + "+00:00"
-    elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
-        return dt + "+00:00"
-    elif _is_date_format(dt, TIMESTAMP_FORMAT):
-        return dt
-    elif _is_date_format(dt, "%Y-%m-%d%z"):
-        _time = "T23:59:59" if is_end_date == True else "T00:00:00"
-        dt = dt[0:10] + _time + dt[10:]
-        return dt
-    else:
-        msg = f"Inputted timestamp: '{dt}', is not in the correct format."
-        if exclude_date_format == True:
-            msg += " List of timestamps must be in datetime format."
-        raise ValueError(msg)
-
-
-def _parse_dates(parameters_dict):
-    if "start_date" in parameters_dict:
-        parameters_dict["start_date"] = _parse_date(parameters_dict["start_date"])
-        sample_dt = parameters_dict["start_date"]
-    if "end_date" in parameters_dict:
-        parameters_dict["end_date"] = _parse_date(parameters_dict["end_date"], True)
-    if "timestamps" in parameters_dict:
-        parsed_timestamp = [
-            _parse_date(dt, is_end_date=False, exclude_date_format=True)
-            for dt in parameters_dict["timestamps"]
-        ]
-        parameters_dict["timestamps"] = parsed_timestamp
-        sample_dt = parsed_timestamp[0]
-
-    parameters_dict["time_zone"] = datetime.strptime(
-        sample_dt, TIMESTAMP_FORMAT
-    ).strftime("%z")
-
-    return parameters_dict
-
-
-def _convert_to_seconds(s):
-    return int(s[:-1]) * seconds_per_unit[s[-1]]
 
 
 def _raw_query(parameters_dict: dict) -> str:
@@ -602,6 +548,65 @@ def _circular_stats_query(parameters_dict: dict) -> str:
     return sql_template.render(circular_stats_parameters)
 
 
+def _summary_query(parameters_dict: dict) -> str:
+    summary_query = (
+        "SELECT `{{ tagname_column }}`, "
+        "count(Value) as Count, "
+        "CAST(Avg(Value) as decimal(10, 2)) as Avg, "
+        "CAST(Min(Value) as decimal(10, 2)) as Min, "
+        "CAST(Max(Value) as decimal(10, 2)) as Max, "
+        "CAST(stddev(Value) as decimal(10, 2)) as StdDev, "
+        "CAST(sum(Value) as decimal(10, 2)) as Sum, "
+        "CAST(variance(Value) as decimal(10, 2)) as Var FROM "
+        "{% if source is defined and source is not none %}"
+        "`{{ source|lower }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
+        "{% endif %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
+        "AND `{{ status_column }}` = 'Good'"
+        "{% endif %}"
+        "GROUP BY `{{ tagname_column }}` "
+        "{% if limit is defined and limit is not none %}"
+        "LIMIT {{ limit }} "
+        "{% endif %}"
+        "{% if offset is defined and offset is not none %}"
+        "OFFSET {{ offset }} "
+        "{% endif %}"
+    )
+
+    summary_parameters = {
+        "source": parameters_dict.get("source", None),
+        "business_unit": parameters_dict.get("business_unit"),
+        "region": parameters_dict.get("region"),
+        "asset": parameters_dict.get("asset"),
+        "data_security_level": parameters_dict.get("data_security_level"),
+        "data_type": parameters_dict.get("data_type"),
+        "start_date": parameters_dict["start_date"],
+        "end_date": parameters_dict["end_date"],
+        "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
+        "include_bad_data": parameters_dict["include_bad_data"],
+        "limit": parameters_dict.get("limit", None),
+        "offset": parameters_dict.get("offset", None),
+        "time_zone": parameters_dict["time_zone"],
+        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
+        "include_status": False
+        if "status_column" in parameters_dict
+        and parameters_dict.get("status_column") is None
+        else True,
+        "status_column": "Status"
+        if "status_column" in parameters_dict
+        and parameters_dict.get("status_column") is None
+        else parameters_dict.get("status_column", "Status"),
+        "value_column": parameters_dict.get("value_column", "Value"),
+    }
+
+    sql_template = Template(summary_query)
+    return sql_template.render(summary_parameters)
+
+
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
@@ -662,3 +667,6 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if query_type == "circular_standard_deviation":
         parameters_dict["circular_function"] = "standard_deviation"
         return _circular_stats_query(parameters_dict)
+
+    if query_type == "summary":
+        return _summary_query(parameters_dict)
