@@ -86,8 +86,7 @@ class CAISODailyLoadISOSource(BaseISOSource):
         if not content:
             raise Exception(f"Empty Response was returned")
         logging.info(f"Unzipping the file")
-        with open("csdffs.zip", "wb") as f:
-            f.write(content)
+
         zf = ZipFile(BytesIO(content))
 
         csvs = list(filter(lambda name: ".csv" in name, zf.namelist()))
