@@ -13,16 +13,15 @@
 # limitations under the License.
 
 import logging
-import pandas as pd
-from py4j.protocol import Py4JJavaError
-from pyspark.sql import DataFrame, SparkSession
-import requests
 from datetime import datetime, timezone
-import pytz
+from io import BytesIO
 
+import pandas as pd
+import pytz
+import requests
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StructType, StructField, IntegerType
 from requests import HTTPError
-from io import BytesIO
 
 from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
@@ -201,8 +200,10 @@ class BaseISOSource(SourceInterface):
             self.pre_read_validation()
             pdf = self._get_data()
             pdf = _prepare_pandas_to_convert_to_spark(pdf)
-            df = self.spark.createDataFrame(data=pdf, schema=self.spark_schema)
 
+            # The below is to fix the compatibility issues between Pandas 2.0 and PySpark.
+            pd.DataFrame.iteritems = pd.DataFrame.items
+            df = self.spark.createDataFrame(data=pdf, schema=self.spark_schema)
             return df
 
         except Exception as e:
