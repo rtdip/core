@@ -130,9 +130,9 @@ class ERCOTDailyLoadISOSource(BaseISOSource):
             response = requests.get(url, cert=cert)
 
         if not response.content:
-            raise HTTPError(f"Empty Response was returned")
+            raise HTTPError("Empty Response was returned")
 
-        logging.info(f"Unzipping the file")
+        logging.info("Unzipping the file")
         zf = ZipFile(BytesIO(response.content))
         csvs = [s for s in zf.namelist() if ".csv" in s]
 
