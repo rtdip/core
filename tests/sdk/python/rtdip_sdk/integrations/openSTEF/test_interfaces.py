@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+
+sys.path.insert(0, ".")
 import pandas as pd
 import pytest
 import sqlalchemy
-from src.sdk.python.rtdip_sdk.integrations.openSTEF.interfaces import _DataInterface
+from src.sdk.python.rtdip_sdk.integrations.openstef.interfaces import _DataInterface
 from pytest_mock import MockerFixture
 from pydantic.v1 import BaseSettings
 from typing import Union
@@ -23,6 +26,11 @@ from typing import Union
 
 query_error = "Error occured during executing query"
 test_query = "SELECT * FROM test_table"
+
+
+class MockedResult:
+    def __init__(self, rowcount):
+        self.rowcount = rowcount
 
 
 class MockedConnection:
@@ -33,7 +41,7 @@ class MockedConnection:
         pass  # do nothing
 
     def execute(self, *args, **kwargs):
-        pass  # do nothing
+        return MockedResult(rowcount=3)
 
 
 class MockedEngine:

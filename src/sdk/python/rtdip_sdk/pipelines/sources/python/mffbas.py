@@ -44,7 +44,7 @@ class PythonMFFBASSource(SourceInterface):
        end (str): End date in the format YYYY-MM-DD
 
     !!! note "Note"
-        It is not possible to collect fractions over a period before 2023-04-01 with this API.
+        It is not possible to collect fractions over a period before 2023-04-01 with this API. Requests are limited to a maximum of 31 days at a time.
 
     """
 

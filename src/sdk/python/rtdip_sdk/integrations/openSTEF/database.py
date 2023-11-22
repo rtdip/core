@@ -22,14 +22,92 @@ from openstef_dbc.services.splitting import Splitting
 from openstef_dbc.services.systems import Systems
 from openstef_dbc.services.weather import Weather
 from openstef_dbc.services.write import Write
+from pydantic.v1 import BaseSettings
 from .interfaces import _DataInterface
 
 
 class DataBase(metaclass=Singleton):
-    """Provides a high-level interface to various data sources.
+    """
+    Provides a high-level interface to various data sources.
 
     All user/client code should use this class to get or write data. Under the hood
     this class uses various services to interfact with its datasource.
+
+    Construct the DataBase singleton.
+
+    Initialize the datainterface and api. WARNING: this is a singleton class when
+    calling multiple times with a config argument no new configuration will be
+    applied.
+
+     Example
+    --------
+    ```python
+    from typing import Union
+    from pydantic.v1 import BaseSettings
+    from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
+    from src.sdk.python.rtdip_sdk.integrations.openstef.database import DataBase
+
+    auth = DefaultAuth().authenticate()
+    token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+
+    class ConfigSettings(BaseSettings):
+        api_username: str = "None"
+        api_password: str = "None"
+        api_admin_username: str = "None"
+        api_admin_password: str = "None"
+        api_url: str = "None"
+        pcdm_host: str = "{DATABRICKS-SERVER-HOSTNAME}"
+        pcdm_token: str = token
+        pcdm_port: int = 443
+        pcdm_http_path: str = "{SQL-WAREHOUSE-HTTP-PATH}"
+        pcdm_catalog: str = "{YOUR-CATALOG-NAME}"
+        pcdm_schema: str = "{YOUR-SCHEMA-NAME}"
+        db_host: str = "{DATABRICKS-SERVER-HOSTNAME}"
+        db_token: str = token
+        db_port: int = 443
+        db_http_path: str = "{SQL-WAREHOUSE-HTTP-PATH}"
+        db_catalog: str = "{YOUR-CATALOG-NAME}"
+        db_schema: str = "{YOUR-SCHEMA-NAME}"
+        proxies: Union[dict[str, str], None] = None
+
+
+    config = ConfigSettings()
+
+    db = DataBase(config)
+
+    weather_data = db.get_weather_data(
+                    location="Deelen",
+                    weatherparams=["pressure", "temp"],
+                    datetime_start=datetime(2023, 8, 29),
+                    datetime_end=datetime(2023, 8, 30),
+                    source="harm_arome",
+                    )
+
+    print(weather_data)
+    ```
+
+    Args:
+        config: Configuration object. See Attributes table below.
+
+    Attributes:
+        api_username (str): API username
+        api_password (str): API password
+        api_admin_username (str): API admin username
+        api_admin_password (str): API admin password
+        api_url (str): API url
+        pcdm_host (str): Databricks hostname
+        pcdm_token (str): Databricks token
+        pcdm_port (int): Databricks port
+        pcdm_catalog (str): Databricks catalog
+        pcdm_schema (str): Databricks schema
+        pcdm_http_path (str): SQL warehouse http path
+        db_host (str): Databricks hostname
+        db_token (str): Databricks token
+        db_port (int): Databricks port
+        db_catalog (str): Databricks catalog
+        db_schema (str): Databricks schema
+        db_http_path (str): SQL warehouse http path
+        proxies Union[dict[str, str], None]: Proxies
     """
 
     _instance = None
@@ -106,30 +184,7 @@ class DataBase(metaclass=Singleton):
     get_api_key_for_system = _systems.get_api_key_for_system
     get_api_keys_for_systems = _systems.get_api_keys_for_systems
 
-    def __init__(self, config):
-        """Construct the DataBase singleton.
-
-        Initialize the datainterface and api. WARNING: this is a singleton class when
-        calling multiple times with a config argument no new configuration will be
-        applied.
-
-        Args:
-            config: Configuration object. with the following attributes:
-                api_username (str): API username.
-                api_password (str): API password.
-                api_admin_username (str): API admin username.
-                api_admin_password (str): API admin password.
-                api_url (str): API url.
-                db_host (str): Databricks hostname.
-                db_token (str): Databricks token.
-                db_port (int): Databricks port.
-                db_catalog (str): Databricks catalog.
-                db_schema (str): Databricks schema.
-                db_http_path (str): SQL warehouse http path.
-                proxies Union[dict[str, str], None]: Proxies.
-
-        """
-
+    def __init__(self, config: BaseSettings):
         self._datainterface = _DataInterface(config)
         # Ktp api
         self.ktp_api = self._datainterface.ktp_api

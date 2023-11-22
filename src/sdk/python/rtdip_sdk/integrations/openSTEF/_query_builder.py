@@ -113,14 +113,14 @@ def _resample_query(query: str) -> list:
         '"{{ table }}" AS _measurement FROM `{{ table }}`)'
         "{% endif %}"
         ', raw_events_filtered AS (SELECT * FROM raw_events WHERE {{ where }} AND _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}"))'
-        ', date_array AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp("{{ start }}"), to_timestamp("{{ stop }}"), INTERVAL "{{ time_interval_rate[0] + " " + time_interval_unit }}")) AS timestamp_array FROM raw_events_filtered) '
-        ', date_intervals AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), "yyyy-MM-dd HH:mm:ss") AS timestamp_array FROM date_array) '
+        ', date_array AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp("{{ start }}") - INTERVAL "{{ time_interval_rate[0] + " " + time_interval_unit }}", to_timestamp("{{ stop }}"), INTERVAL "{{ time_interval_rate[0] + " " + time_interval_unit }}")) AS timestamp_array FROM raw_events_filtered) '
+        ', date_intervals AS (SELECT TagName, date_trunc("{{time_interval_unit}}", timestamp_array) - {{time_interval_unit}}(timestamp_array) %% {{ time_interval_rate[0] }} * INTERVAL 1 {{time_interval_unit}} AS timestamp_array FROM date_array) '
         ", window_buckets AS (SELECT TagName, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals) "
-        ", resample AS (SELECT a.TagName, window_end AS _time, _value, Status, _field"
+        ", resample AS (SELECT /*+ RANGE_JOIN(a, {{ range_join_seconds }}) */ a.TagName, window_end AS _time, {{ agg_method[0] }}(_value) AS _value, Status, _field"
         "{% for col in columns if columns is defined and columns|length > 0 %}"
         ", b.{{ col }}"
         "{% endfor %}"
-        " FROM window_buckets a FULL OUTER JOIN raw_events b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName) "
+        " FROM window_buckets a LEFT JOIN raw_events_filtered b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName GROUP BY ALL) "
     )
 
     if len(re.findall(aggregate_window, query)) == 1:
@@ -133,18 +133,15 @@ def _resample_query(query: str) -> list:
             "{% endfor %}"
             " FROM resample"
             "{% if yield is defined and yield|length > 0 %}"
-            ' ), resample_results AS (SELECT "{{ yield[0] }}" AS result, '
+            ' ), resample_results ASA (SELECT "{{ yield[0] }}" AS result, '
             "{% else %}"
             ' ), resample_results AS (SELECT "_result" AS result, '
             "{% endif %}"
-            '_time, {{ agg_method[0] }}(_value) AS _value, "Good" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field '
+            '_time, _value, "Good" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field '
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", CAST(coalesce({{ col }}_forward, {{ col }}_backward) AS STRING) AS {{ col }} "
             "{% endfor %}"
-            'FROM fill_nulls WHERE _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}") GROUP BY result, _time, Status, TagName, coalesce(_field_forward, _field_backward) '
-            "{% for col in columns if columns is defined and columns|length > 0 %}"
-            ", coalesce({{ col }}_forward, {{ col }}_backward) "
-            "{% endfor %}"
+            'FROM fill_nulls WHERE _time > to_timestamp("{{ start }}") GROUP BY ALL '
             "ORDER BY TagName, _time) "
             "{% else %}"
             "{% if yield is defined and yield|length > 0 %}"
@@ -152,14 +149,11 @@ def _resample_query(query: str) -> list:
             "{% else %}"
             ', resample_results AS (SELECT "_result" AS result, '
             "{% endif %}"
-            '_time, {{ agg_method[0] }}(_value) AS _value, "Good" AS Status, TagName, _field '
+            '_time, _value, "Good" AS Status, TagName, _field '
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", CAST({{ col }} AS STRING) "
             "{% endfor %}"
-            'FROM resample WHERE _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}") AND _field IS NOT NULL GROUP BY result, Status, TagName, _time, _field '
-            "{% for col in columns if columns is defined and columns|length > 0 %}"
-            ", {{ col }} "
-            "{% endfor %}"
+            'FROM resample WHERE _time > to_timestamp("{{ start }}") AND _field IS NOT NULL GROUP BY ALL '
             "ORDER BY TagName, _time) "
             "{% endif %}"
         )
@@ -173,23 +167,13 @@ def _resample_query(query: str) -> list:
     elif len(re.findall(aggregate_window, query)) > 1:
         sql_query = (
             f"{resample_base_query}"
-            ", fill_nulls AS (SELECT *, last_value(_field, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS _field_forward, first_value(_field, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS _field_backward "
-            "{% for col in columns if columns is defined and columns|length > 0 %}"
-            ", last_value({{ col }}, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS {{ col }}_forward, first_value({{ col }}, true) OVER (PARTITION BY TagName ORDER BY TagName ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING ) AS {{ col }}_backward "
-            "{% endfor %}"
-            " FROM resample) "
-            ', resample_results AS (SELECT _time, {{ agg_method[0] }}(_value) AS _value, "Good" AS Status, TagName, coalesce(_field_forward, _field_backward) AS _field, CAST(coalesce(system_forward, system_backward) AS STRING) AS system FROM fill_nulls GROUP BY _time, Status, TagName, coalesce(_field_forward, _field_backward), coalesce(system_forward, system_backward) ORDER BY TagName, _time) '
-            ', date_array_2 AS (SELECT DISTINCT TagName, explode(sequence(to_timestamp("{{ start }}"), timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, to_timestamp("{{ stop }}")), INTERVAL "{{ time_interval_rate[0] + " " + time_interval_unit }}")) AS timestamp_array FROM resample_results) '
-            ', date_intervals_2 AS (SELECT TagName, from_unixtime(floor(unix_timestamp(timestamp_array) / ({{ time_interval_rate[0] }} * 60)) * ({{ time_interval_rate[0] }} * 60), "yyyy-MM-dd HH:mm:ss") AS timestamp_array FROM date_array_2) '
-            ", window_buckets_2 AS (SELECT TagName, timestamp_array AS window_start, timestampadd({{ time_interval_unit }}, {{ time_interval_rate[0] }}, timestamp_array) as window_end FROM date_intervals_2) "
-            ", project_resample_results AS (SELECT a.TagName, window_end AS _time, _value, Status, _field, system FROM window_buckets_2 a FULL OUTER JOIN resample_results b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName) "
-            ', resample_sum AS (SELECT "load" AS result, _time, sum(_value) AS _value, "Good" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}") GROUP BY result, _time ORDER BY _time)'
-            ', resample_count AS (SELECT "nEntries" AS result, _time, count(_value) AS _value, "Good" AS Status FROM project_resample_results WHERE _time BETWEEN to_timestamp("{{ start }}") AND to_timestamp("{{ stop }}") GROUP BY result, _time ORDER BY _time)'
+            ', resample_sum AS (SELECT /*+ RANGE_JOIN(a, {{ range_join_seconds }}) */ "load" AS result, _time, sum(_value) AS _value, "Good" AS Status FROM window_buckets a LEFT JOIN resample b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName WHERE  _time < to_timestamp("{{ stop }}") GROUP BY ALL)'
+            ', resample_count AS (SELECT /*+ RANGE_JOIN(a, {{ range_join_seconds }}) */ "nEntries" AS result, _time, count(_value) AS _value, "Good" AS Status FROM window_buckets a LEFT JOIN resample b ON a.window_start <= b._time AND a.window_end > b._time AND a.TagName = b.TagName WHERE  _time < to_timestamp("{{ stop }}") GROUP BY ALL)'
         )
 
-        sum_query = f"{sql_query}" " SELECT * FROM resample_sum "
+        sum_query = f"{sql_query}" " SELECT * FROM resample_sum ORDER BY _time"
 
-        count_query = f"{sql_query}" " SELECT * FROM resample_count "
+        count_query = f"{sql_query}" " SELECT * FROM resample_count ORDER BY _time"
 
         sum_template = Template(sum_query)
         sum_query = sum_template.render(parameters)

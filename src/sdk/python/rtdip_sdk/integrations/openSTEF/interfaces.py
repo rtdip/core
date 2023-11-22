@@ -25,7 +25,7 @@ from openstef_dbc.data_interface import _DataInterface
 from openstef_dbc import Singleton
 from openstef_dbc.ktp_api import KtpApi
 from openstef_dbc.log import logging
-from src.sdk.python.rtdip_sdk.integrations.openSTEF._query_builder import _query_builder
+from src.sdk.python.rtdip_sdk.integrations.openstef._query_builder import _query_builder
 from importlib_metadata import version
 
 
@@ -61,6 +61,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         """
 
         import openstef_dbc.data_interface
+
         openstef_dbc.data_interface._DataInterface = _DataInterface
 
         self.logger = logging.get_logger(self.__class__.__name__)
@@ -323,17 +324,19 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         df_cast["ValueType"] = df_cast["TagName"].str.split(":").str[0]
         df_cast["ValueType"] = df_cast["ValueType"].map(casting_fields)
 
-        int_df = df_cast.loc[df_cast["ValueType"] == "int"]
+        int_df = df_cast.loc[df_cast["ValueType"] == "int"].copy()
         int_df.drop(columns=["ValueType"], inplace=True)
         int_df = int_df.astype({"Value": np.int64})
 
-        float_df = df_cast.loc[df_cast["ValueType"] == "float"]
+        float_df = df_cast.loc[df_cast["ValueType"] == "float"].copy()
         float_df.drop(columns=["ValueType"], inplace=True)
         float_df = float_df.astype({"Value": np.float64})
 
-        str_df = df_cast.loc[df_cast["ValueType"] == "str"]
+        str_df = df_cast.loc[df_cast["ValueType"] == "str"].copy()
         str_df.drop(columns=["ValueType"], inplace=True)
         str_df = str_df.astype({"Value": str})
+
+        df = df.astype({"Value": str})
 
         dataframes = [
             (df, measurement),
@@ -443,7 +446,14 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
 
         try:
             with self.mysql_engine.connect() as connection:
-                connection.execute(text(statement), params)
+                response = connection.execute(statement, params=params)
+
+                self.logger.info(
+                    "Added {} new systems to the systems table in the MySQL database".format(
+                        response.rowcount
+                    )
+                )
+
         except Exception as e:
             self.logger.error(
                 "Error occured during executing query", query=statement, exc_info=e
