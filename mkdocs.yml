@@ -74,7 +74,7 @@ theme:
   logo: assets/logo_lfe.png
   icon:
     tag:
-        pipelines: fontawesome/solid/timeline
+      pipelines: fontawesome/solid/timeline
 
 extra:
   generator: false
@@ -119,13 +119,13 @@ nav:
       - Installation: getting-started/installation.md
       - About RTDIP: getting-started/about-rtdip.md
   - Domains:
-      - Process Control: 
+      - Process Control:
           - Overview: domains/process_control/overview.md
           - Data Model: domains/process_control/data_model.md
-      - Smart Meter Data: 
+      - Smart Meter Data:
           - Overview: domains/smart_meter/overview.md
           - Data Model: domains/smart_meter/data_model.md
-      - Weather Data: 
+      - Weather Data:
           - Overview: domains/weather/overview.md
           - Data Model: domains/weather/data_model.md
   - Integration:
@@ -169,6 +169,7 @@ nav:
                           - MISO Historical Load: sdk/code-reference/pipelines/sources/spark/iso/miso_historical_load_iso.md
                           - PJM Daily Load: sdk/code-reference/pipelines/sources/spark/iso/pjm_daily_load_iso.md
                           - PJM Historical Load: sdk/code-reference/pipelines/sources/spark/iso/pjm_historical_load_iso.md
+                          - ERCOT Daily Load: sdk/code-reference/pipelines/sources/spark/iso/ercot_daily_load_iso.md
                       - Weather:
                           - Base Weather: sdk/code-reference/pipelines/sources/spark/the_weather_company/base_weather.md
                           - Weather Forecast API V1: sdk/code-reference/pipelines/sources/spark/the_weather_company/weather_forecast_api_v1.md
@@ -211,7 +212,7 @@ nav:
                       - Kinesis: sdk/code-reference/pipelines/destinations/spark/kinesis.md
                       - Rest API: sdk/code-reference/pipelines/destinations/spark/rest_api.md
                       - PCDM To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_to_delta.md
-                      - PCDM Latest To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_latest_to_delta.md                      
+                      - PCDM Latest To Delta: sdk/code-reference/pipelines/destinations/spark/pcdm_latest_to_delta.md
                   - Python:
                       - Delta: sdk/code-reference/pipelines/destinations/python/delta.md
                   - Blockchain:
@@ -242,7 +243,7 @@ nav:
               - Query Builder: sdk/code-reference/query/query_builder.md
               - Functions:
                   - Raw: sdk/code-reference/query/raw.md
-                  - Latest: sdk/code-reference/query/latest.md                                
+                  - Latest: sdk/code-reference/query/latest.md
                   - Resample: sdk/code-reference/query/resample.md
                   - Interpolate: sdk/code-reference/query/interpolate.md
                   - Interpolation at Time: sdk/code-reference/query/interpolation-at-time.md

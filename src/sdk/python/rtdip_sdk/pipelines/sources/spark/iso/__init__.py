@@ -1,4 +1,5 @@
 from .base_iso import BaseISOSource
+from .ercot_daily_load_iso import ERCOTDailyLoadISOSource
 from .miso_daily_load_iso import MISODailyLoadISOSource
 from .miso_historical_load_iso import MISOHistoricalLoadISOSource
 from .pjm_daily_load_iso import PJMDailyLoadISOSource
