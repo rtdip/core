@@ -133,7 +133,7 @@ def _resample_query(query: str) -> list:
             "{% endfor %}"
             " FROM resample"
             "{% if yield is defined and yield|length > 0 %}"
-            ' ), resample_results ASA (SELECT "{{ yield[0] }}" AS result, '
+            ' ), resample_results AS (SELECT "{{ yield[0] }}" AS result, '
             "{% else %}"
             ' ), resample_results AS (SELECT "_result" AS result, '
             "{% endif %}"
@@ -153,7 +153,7 @@ def _resample_query(query: str) -> list:
             "{% for col in columns if columns is defined and columns|length > 0 %}"
             ", CAST({{ col }} AS STRING) "
             "{% endfor %}"
-            'FROM resample WHERE _time > to_timestamp("{{ start }}") AND _field IS NOT NULL GROUP BY ALL '
+            'FROM resample WHERE _time > to_timestamp("{{ start }}") AND _field IS NOT NULL '
             "ORDER BY TagName, _time) "
             "{% endif %}"
         )
