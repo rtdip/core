@@ -40,42 +40,6 @@ patch_module_name = "requests.get"
 url_actual = "https://mis.ercot.com/misapp/GetReports.do?reportTypeId=13101"
 
 
-def test_ercot_daily_load_iso_read_setup(spark_session: SparkSession):
-    iso_source = ERCOTDailyLoadISOSource(spark_session, iso_configuration)
-
-    assert iso_source.system_type().value == 2
-    assert iso_source.libraries() == Libraries(
-        maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[]
-    )
-
-    assert isinstance(iso_source.settings(), dict)
-    expected_values = [
-        "certificate_pfx_key",
-        "certificate_pfx_key_contents",
-        "date",
-        "load_type",
-    ]
-    assert sorted(iso_source.required_options) == expected_values
-    assert iso_source.pre_read_validation()
-
-
-def mock_certificates(mocker):
-    class Key:
-        @staticmethod
-        def private_bytes(*args, **kwargs) -> bytes:
-            return b""
-
-    class Cert:
-        @staticmethod
-        def public_bytes(*args, **kwargs) -> bytes:
-            return b""
-
-    mocker.patch(
-        "cryptography.hazmat.primitives.serialization.pkcs12.load_key_and_certificates",
-        side_effect=lambda *args, **kwargs: (Key(), Cert(), ""),
-    )
-
-
 # Had to put HTML Content in the Python code as Sonar was raising Bugs/Code-Smells while putting it in an HTML file.
 
 urls_content_actual = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 
@@ -1043,6 +1007,42 @@ href='/misdownload/servlets/mirDownload?mimic_duns=1118490502000&doclookupId=959
 ></table></td></tr></table>"""
 
 
+def test_ercot_daily_load_iso_read_setup(spark_session: SparkSession):
+    iso_source = ERCOTDailyLoadISOSource(spark_session, iso_configuration)
+
+    assert iso_source.system_type().value == 2
+    assert iso_source.libraries() == Libraries(
+        maven_libraries=[], pypi_libraries=[], pythonwheel_libraries=[]
+    )
+
+    assert isinstance(iso_source.settings(), dict)
+    expected_values = [
+        "certificate_pfx_key",
+        "certificate_pfx_key_contents",
+        "date",
+        "load_type",
+    ]
+    assert sorted(iso_source.required_options) == expected_values
+    assert iso_source.pre_read_validation()
+
+
+def mock_certificates(mocker):
+    class Key:
+        @staticmethod
+        def private_bytes(*args, **kwargs) -> bytes:
+            return b""
+
+    class Cert:
+        @staticmethod
+        def public_bytes(*args, **kwargs) -> bytes:
+            return b""
+
+    mocker.patch(
+        "cryptography.hazmat.primitives.serialization.pkcs12.load_key_and_certificates",
+        side_effect=lambda *args, **kwargs: (Key(), Cert(), ""),
+    )
+
+
 def ercot_daily_load_iso_read_batch_test(
     spark_session: SparkSession,
     mocker: MockerFixture,
@@ -1172,21 +1172,13 @@ def test_ercot_daily_load_iso_no_file(
         {**iso_configuration, "date": "2023-09-16"},
     )
 
-    with open(f"{dir_path}/ercot_daily_load_actual_sample1.zip", "rb") as file:
-        no_file_zip_download_bytes = file.read()
-
     class NoFileURLsResponse:
         content = urls_content_actual
         status_code = 200
 
-    class NoFileZipDownloadResponse(NoFileURLsResponse):
-        content = no_file_zip_download_bytes
-
     def get_response(url: str, *args, **kwargs):
         if url == url_actual:
             return NoFileURLsResponse()
-        else:
-            return NoFileZipDownloadResponse()
 
     mocker.patch(patch_module_name, side_effect=get_response)
     mock_certificates(mocker)
