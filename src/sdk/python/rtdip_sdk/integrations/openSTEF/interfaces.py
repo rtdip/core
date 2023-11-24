@@ -25,7 +25,7 @@ from openstef_dbc.data_interface import _DataInterface
 from openstef_dbc import Singleton
 from openstef_dbc.ktp_api import KtpApi
 from openstef_dbc.log import logging
-from src.sdk.python.rtdip_sdk.integrations.openstef._query_builder import _query_builder
+from ._query_builder import _query_builder
 from importlib_metadata import version
 
 
