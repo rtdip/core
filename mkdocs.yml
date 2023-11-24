@@ -153,6 +153,8 @@ nav:
           - Azure Active Directory: sdk/authentication/azure.md
           - Databricks: sdk/authentication/databricks.md
       - Code Reference:
+          - Integrations:
+              - OpenSTEF:  sdk/code-reference/integrations/openstef/database.md
           - Pipelines:
               - Sources:
                   - Spark:

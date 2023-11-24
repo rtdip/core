@@ -353,7 +353,6 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
                         self.pcdm_engine,
                         if_exists="append",
                         index=False,
-                        # chunksize=5000,
                         method="multi",
                     )
             return True

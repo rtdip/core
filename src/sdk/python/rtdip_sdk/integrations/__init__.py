@@ -14,3 +14,4 @@
 
 from .openstef.database import *
 from .openstef.interfaces import *
+from .openstef.serializer import *
