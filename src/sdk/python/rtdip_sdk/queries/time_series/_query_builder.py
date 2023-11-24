@@ -15,70 +15,16 @@
 from jinja2 import Template
 import datetime
 from datetime import datetime, time
+from .._utilities_query_builder import (
+    _is_date_format,
+    _parse_date,
+    _parse_dates,
+    _convert_to_seconds,
+)
+
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
-
-
-def _is_date_format(dt, format):
-    try:
-        return datetime.strptime(dt, format)
-    except Exception:
-        return False
-
-
-def _parse_date(dt, is_end_date=False, exclude_date_format=False):
-    if isinstance(dt, datetime):
-        if dt.time() == time.min:
-            if dt.tzinfo is not None:
-                dt = datetime.strftime(dt, "%Y-%m-%d%z")
-            else:
-                dt = dt.date()
-        else:
-            dt = datetime.strftime(dt, TIMESTAMP_FORMAT)
-    dt = str(dt)
-
-    if _is_date_format(dt, "%Y-%m-%d") and exclude_date_format == False:
-        _time = "T23:59:59" if is_end_date == True else "T00:00:00"
-        return dt + _time + "+00:00"
-    elif _is_date_format(dt, "%Y-%m-%dT%H:%M:%S"):
-        return dt + "+00:00"
-    elif _is_date_format(dt, TIMESTAMP_FORMAT):
-        return dt
-    elif _is_date_format(dt, "%Y-%m-%d%z"):
-        _time = "T23:59:59" if is_end_date == True else "T00:00:00"
-        dt = dt[0:10] + _time + dt[10:]
-        return dt
-    else:
-        msg = f"Inputted timestamp: '{dt}', is not in the correct format."
-        if exclude_date_format == True:
-            msg += " List of timestamps must be in datetime format."
-        raise ValueError(msg)
-
-
-def _parse_dates(parameters_dict):
-    if "start_date" in parameters_dict:
-        parameters_dict["start_date"] = _parse_date(parameters_dict["start_date"])
-        sample_dt = parameters_dict["start_date"]
-    if "end_date" in parameters_dict:
-        parameters_dict["end_date"] = _parse_date(parameters_dict["end_date"], True)
-    if "timestamps" in parameters_dict:
-        parsed_timestamp = [
-            _parse_date(dt, is_end_date=False, exclude_date_format=True)
-            for dt in parameters_dict["timestamps"]
-        ]
-        parameters_dict["timestamps"] = parsed_timestamp
-        sample_dt = parsed_timestamp[0]
-
-    parameters_dict["time_zone"] = datetime.strptime(
-        sample_dt, TIMESTAMP_FORMAT
-    ).strftime("%z")
-
-    return parameters_dict
-
-
-def _convert_to_seconds(s):
-    return int(s[:-1]) * seconds_per_unit[s[-1]]
 
 
 def _raw_query(parameters_dict: dict) -> str:
