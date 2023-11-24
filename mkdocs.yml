@@ -240,7 +240,7 @@ nav:
                   - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
           - Queries:
               - Functions:
-                  - Metadata: sdk/code-reference/query/metadata.md
+                  - Metadata: sdk/code-reference/query/functions/metadata.md
                   - Time Series: 
                       - Time Series Query Builder: sdk/code-reference/query/functions/time_series/time_series_query_builder.md
                       - Raw: sdk/code-reference/query/functions/time_series/raw.md
