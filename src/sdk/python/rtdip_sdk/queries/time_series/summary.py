@@ -19,7 +19,7 @@ from ._time_series_query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
-    A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
+    A function to return back a summary of statistics (Avg, Min, Max, Count, StdDev, Sum, Variance) by querying databricks SQL Warehouse using a connection specified by the user.
 
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
 
@@ -45,10 +45,10 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         offset (optional int): The number of rows to skip before returning rows
 
     Returns:
-        DataFrame: A dataframe of raw timeseries data.
+        DataFrame: A dataframe of summary statistics.
     """
     try:
-        query = _query_builder(parameters_dict, "raw")
+        query = _query_builder(parameters_dict, "summary")
 
         try:
             cursor = connection.cursor()
@@ -58,9 +58,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             connection.close()
             return df
         except Exception as e:
-            logging.exception("error returning dataframe")
+            logging.exception("error returning summary dataframe")
             raise e
 
     except Exception as e:
-        logging.exception("error with raw function")
+        logging.exception("error with summary function")
         raise e
