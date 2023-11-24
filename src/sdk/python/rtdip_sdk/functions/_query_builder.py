@@ -18,4 +18,4 @@ logging.warning(
     "Module rtdip_sdk.functions is deprecated and will be removed in v1.0.0. Please import rtdip_sdk.queries instead."
 )
 
-from ..queries.time_series._query_builder import *  # NOSONAR
+from ..queries.time_series._time_series_query_builder import *  # NOSONAR

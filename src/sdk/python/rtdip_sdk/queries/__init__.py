@@ -22,4 +22,4 @@ from .time_series import (
     circular_standard_deviation,
     circular_average,
 )
-from .query_builder import *
+from .time_series.time_series_query_builder import *

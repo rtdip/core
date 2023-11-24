@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from src.sdk.python.rtdip_sdk.queries import QueryBuilder
+from src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder import (
+    QueryBuilder,
+)
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
 from pytest_mock import MockerFixture
@@ -22,7 +24,7 @@ MOCK_CONNECTION = "mock_connection"
 
 def test_query_builder_raw(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.raw.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.raw.get",
         return_value={"test": "data"},
     )
 
@@ -39,7 +41,7 @@ def test_query_builder_raw(mocker: MockerFixture):
 
 def test_query_builder_resample(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.resample.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.resample.get",
         return_value={"test": "data"},
     )
 
@@ -61,7 +63,7 @@ def test_query_builder_resample(mocker: MockerFixture):
 
 def test_query_builder_interpolate(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.interpolate.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.interpolate.get",
         return_value={"test": "data"},
     )
 
@@ -84,7 +86,7 @@ def test_query_builder_interpolate(mocker: MockerFixture):
 
 def test_query_builder_interpolation_at_time(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.interpolation_at_time.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.interpolation_at_time.get",
         return_value={"test": "data"},
     )
 
@@ -102,7 +104,7 @@ def test_query_builder_interpolation_at_time(mocker: MockerFixture):
 
 def test_query_builder_twa(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.time_weighted_average.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.time_weighted_average.get",
         return_value={"test": "data"},
     )
 
@@ -125,7 +127,7 @@ def test_query_builder_twa(mocker: MockerFixture):
 
 def test_query_builder_metadata(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.metadata.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.metadata.get",
         return_value={"test": "data"},
     )
 
@@ -140,7 +142,7 @@ def test_query_builder_metadata(mocker: MockerFixture):
 
 def test_query_builder_latest(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.latest.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.latest.get",
         return_value={"test": "data"},
     )
 
@@ -155,7 +157,7 @@ def test_query_builder_latest(mocker: MockerFixture):
 
 def test_query_builder_circular_average(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.circular_average.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.circular_average.get",
         return_value={"test": "data"},
     )
 
@@ -178,7 +180,7 @@ def test_query_builder_circular_average(mocker: MockerFixture):
 
 def test_query_builder_circular_standard_deviation(mocker: MockerFixture):
     mocker.patch(
-        "src.sdk.python.rtdip_sdk.queries.query_builder.circular_standard_deviation.get",
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.circular_standard_deviation.get",
         return_value={"test": "data"},
     )
 
@@ -194,6 +196,23 @@ def test_query_builder_circular_standard_deviation(mocker: MockerFixture):
             time_interval_unit="hour",
             lower_bound=1,
             upper_bound=2,
+        )
+    )
+    assert data == {"test": "data"}
+
+
+def test_query_builder_summary(mocker: MockerFixture):
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.summary.get",
+        return_value={"test": "data"},
+    )
+
+    data = (
+        QueryBuilder()
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE, status_column=None)
+        .summary(
+            tagname_filter=["mock_tag"], start_date="2021-01-01", end_date="2021-01-02"
         )
     )
     assert data == {"test": "data"}

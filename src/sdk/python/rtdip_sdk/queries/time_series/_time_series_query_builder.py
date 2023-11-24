@@ -548,6 +548,65 @@ def _circular_stats_query(parameters_dict: dict) -> str:
     return sql_template.render(circular_stats_parameters)
 
 
+def _summary_query(parameters_dict: dict) -> str:
+    summary_query = (
+        "SELECT `{{ tagname_column }}`, "
+        "count(`{{ value_column }}`) as Count, "
+        "CAST(Avg(`{{ value_column }}`) as decimal(10, 2)) as Avg, "
+        "CAST(Min(`{{ value_column }}`) as decimal(10, 2)) as Min, "
+        "CAST(Max(`{{ value_column }}`) as decimal(10, 2)) as Max, "
+        "CAST(stddev(`{{ value_column }}`) as decimal(10, 2)) as StdDev, "
+        "CAST(sum(`{{ value_column }}`) as decimal(10, 2)) as Sum, "
+        "CAST(variance(`{{ value_column }}`) as decimal(10, 2)) as Var FROM "
+        "{% if source is defined and source is not none %}"
+        "`{{ source|lower }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
+        "{% endif %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
+        "AND `{{ status_column }}` = 'Good'"
+        "{% endif %}"
+        "GROUP BY `{{ tagname_column }}` "
+        "{% if limit is defined and limit is not none %}"
+        "LIMIT {{ limit }} "
+        "{% endif %}"
+        "{% if offset is defined and offset is not none %}"
+        "OFFSET {{ offset }} "
+        "{% endif %}"
+    )
+
+    summary_parameters = {
+        "source": parameters_dict.get("source", None),
+        "business_unit": parameters_dict.get("business_unit"),
+        "region": parameters_dict.get("region"),
+        "asset": parameters_dict.get("asset"),
+        "data_security_level": parameters_dict.get("data_security_level"),
+        "data_type": parameters_dict.get("data_type"),
+        "start_date": parameters_dict["start_date"],
+        "end_date": parameters_dict["end_date"],
+        "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
+        "include_bad_data": parameters_dict["include_bad_data"],
+        "limit": parameters_dict.get("limit", None),
+        "offset": parameters_dict.get("offset", None),
+        "time_zone": parameters_dict["time_zone"],
+        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
+        "include_status": False
+        if "status_column" in parameters_dict
+        and parameters_dict.get("status_column") is None
+        else True,
+        "status_column": "Status"
+        if "status_column" in parameters_dict
+        and parameters_dict.get("status_column") is None
+        else parameters_dict.get("status_column", "Status"),
+        "value_column": parameters_dict.get("value_column", "Value"),
+    }
+
+    sql_template = Template(summary_query)
+    return sql_template.render(summary_parameters)
+
+
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
@@ -608,3 +667,6 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if query_type == "circular_standard_deviation":
         parameters_dict["circular_function"] = "standard_deviation"
         return _circular_stats_query(parameters_dict)
+
+    if query_type == "summary":
+        return _summary_query(parameters_dict)
