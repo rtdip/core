@@ -96,7 +96,7 @@ class DataBase(metaclass=Singleton):
         api_admin_password (str): API admin password
         api_url (str): API url
         pcdm_host (str): Databricks hostname for Time Series data
-        pcdm_token (str): Databricks token 
+        pcdm_token (str): Databricks token
         pcdm_port (int): Databricks port
         pcdm_catalog (str): Databricks catalog
         pcdm_schema (str): Databricks schema

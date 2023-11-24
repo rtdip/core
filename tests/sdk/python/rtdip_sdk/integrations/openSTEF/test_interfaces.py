@@ -20,6 +20,7 @@ import pytest
 import sqlalchemy
 from src.sdk.python.rtdip_sdk.integrations.openstef.interfaces import _DataInterface
 from pytest_mock import MockerFixture
+from unittest.mock import MagicMock
 from pydantic.v1 import BaseSettings
 from typing import Union
 
@@ -268,14 +269,11 @@ def test_exec_sql_query_database_fails(mocker: MockerFixture, caplog):
 
 
 def test_exec_sql_write(mocker: MockerFixture):
-    mocked_engine = mocker.patch.object(
-        _DataInterface, "_create_mysql_engine", return_value=MockedEngine()
-    )
-
     interface = _DataInterface(config)
+    mocker.patch.object(interface, "mysql_engine", new_callable=MockedEngine)
+
     sql_write = interface.exec_sql_write("INSERT INTO test_table VALUES (1, 'test')")
 
-    mocked_engine.assert_called()
     assert sql_write is None
 
 

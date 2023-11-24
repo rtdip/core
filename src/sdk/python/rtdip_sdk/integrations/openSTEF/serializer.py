@@ -144,7 +144,9 @@ class MLflowSerializer:
 
         """
         try:
-            experiment_name = os.environ["DATABRICKS_WORKSPACE_USERNAME"] + experiment_name
+            experiment_name = (
+                os.environ["DATABRICKS_WORKSPACE_USERNAME"] + experiment_name
+            )
             models_df = self._find_models(
                 experiment_name, max_results=1
             )  # return the latest finished run of the model
