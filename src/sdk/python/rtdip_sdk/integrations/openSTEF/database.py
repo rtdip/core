@@ -95,13 +95,13 @@ class DataBase(metaclass=Singleton):
         api_admin_username (str): API admin username
         api_admin_password (str): API admin password
         api_url (str): API url
-        pcdm_host (str): Databricks hostname
-        pcdm_token (str): Databricks token
+        pcdm_host (str): Databricks hostname for Time Series data
+        pcdm_token (str): Databricks token 
         pcdm_port (int): Databricks port
         pcdm_catalog (str): Databricks catalog
         pcdm_schema (str): Databricks schema
         pcdm_http_path (str): SQL warehouse http path
-        db_host (str): Databricks hostname
+        db_host (str): Databricks hostname for Prediction Job information and measurements data
         db_token (str): Databricks token
         db_port (int): Databricks port
         db_catalog (str): Databricks catalog
