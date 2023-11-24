@@ -239,31 +239,29 @@ nav:
               - Deploy:
                   - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
           - Queries:
-              - Query Builder: sdk/code-reference/query/query_builder.md
               - Functions:
-                  - Raw: sdk/code-reference/query/raw.md
-                  - Latest: sdk/code-reference/query/latest.md                                
-                  - Resample: sdk/code-reference/query/resample.md
-                  - Interpolate: sdk/code-reference/query/interpolate.md
-                  - Interpolation at Time: sdk/code-reference/query/interpolation-at-time.md
-                  - Time Weighted Average: sdk/code-reference/query/time-weighted-average.md
-                  - Circular Average: sdk/code-reference/query/circular-average.md
-                  - Circular Standard Deviation: sdk/code-reference/query/circular-standard-deviation.md
-                  - Metadata: sdk/code-reference/query/metadata.md
+                  - Metadata: sdk/code-reference/query/functions/metadata.md
+                  - Time Series: 
+                      - Time Series Query Builder: sdk/code-reference/query/functions/time_series/time_series_query_builder.md
+                      - Raw: sdk/code-reference/query/functions/time_series/raw.md
+                      - Latest: sdk/code-reference/query/functions/time_series/latest.md                                
+                      - Resample: sdk/code-reference/query/functions/time_series/resample.md
+                      - Interpolate: sdk/code-reference/query/functions/time_series/interpolate.md
+                      - Interpolation at Time: sdk/code-reference/query/functions/time_series/interpolation-at-time.md
+                      - Time Weighted Average: sdk/code-reference/query/functions/time_series/time-weighted-average.md
+                      - Circular Average: sdk/code-reference/query/functions/time_series/circular-average.md
+                      - Circular Standard Deviation: sdk/code-reference/query/functions/time_series/circular-standard-deviation.md
+                      - Summary: sdk/code-reference/query/functions/time_series/summary.md
                   - Weather:
-                      - Weather Data Query Builder: sdk/code-reference/query/weather/weather_query_builder.md
-                      - Weather Raw: sdk/code-reference/query/weather/raw.md
-                      - Weather Latest: sdk/code-reference/query/weather/latest.md
+                      - Weather Data Query Builder: sdk/code-reference/query/functions/weather/weather_query_builder.md
+                      - Weather Raw: sdk/code-reference/query/functions/weather/raw.md
+                      - Weather Latest: sdk/code-reference/query/functions/weather/latest.md
               - Connectors:
-                  - Databricks SQL Connector: sdk/code-reference/query/db-sql-connector.md
-                  - PYODBC SQL Connector: sdk/code-reference/query/pyodbc-sql-connector.md
-                  - TURBODBC SQL Connector: sdk/code-reference/query/turbodbc-sql-connector.md
-                  - Spark Connector: sdk/code-reference/query/spark-connector.md
-                  - Chat Open AI Databricks Connector: sdk/code-reference/query/chatopenai_databricks_connector.md
-              - Weather:
-                  - Weather Data Query Builder: sdk/code-reference/query/weather/weather_query_builder.md
-                  - Weather Raw: sdk/code-reference/query/weather/raw.md
-                  - Weather Latest: sdk/code-reference/query/weather/latest.md
+                  - Databricks SQL Connector: sdk/code-reference/query/connectors/db-sql-connector.md
+                  - PYODBC SQL Connector: sdk/code-reference/query/connectors/pyodbc-sql-connector.md
+                  - TURBODBC SQL Connector: sdk/code-reference/query/connectors/turbodbc-sql-connector.md
+                  - Spark Connector: sdk/code-reference/query/connectors/spark-connector.md
+                  - Chat Open AI Databricks Connector: sdk/code-reference/query/connectors/chatopenai_databricks_connector.md
               - SQL Query:
                   - SQL Query Builder: sdk/code-reference/query/sql/sql_query.md
 
@@ -291,6 +289,7 @@ nav:
               - Time Weighted Average: sdk/examples/query/Time-Weighted-Average.md
               - Circular Average: sdk/examples/query/Circular-Average.md
               - Circular Standard Deviation: sdk/examples/query/Circular-Standard-Deviation.md
+              - Summary: sdk/examples/query/Summary.md
   - API:
       - Overview: api/overview.md
       - Authentication: api/authentication.md

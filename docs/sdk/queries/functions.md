@@ -6,16 +6,16 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 ### Raw
 
-[Raw](../code-reference/query/raw.md) facilitates performing raw extracts of time series data, typically filtered by a Tag Name or Device Name and an event time.
+[Raw](../code-reference/query/functions/time_series/raw.md) facilitates performing raw extracts of time series data, typically filtered by a Tag Name or Device Name and an event time.
 
 ### Latest
 
-[Latest](../code-reference/query/latest.md) queries provides the latest event values. The RTDIP SDK requires the following parameters to retrieve the latest event values:
+[Latest](../code-reference/query/functions/time_series/latest.md) queries provides the latest event values. The RTDIP SDK requires the following parameters to retrieve the latest event values:
 - TagNames - A list of tag names
 
 ### Resample
 
-[Resample](../code-reference/query/resample.md) enables changing the frequency of time series observations. This is achieved by providing the following parameters:
+[Resample](../code-reference/query/functions/time_series/resample.md) enables changing the frequency of time series observations. This is achieved by providing the following parameters:
 
 - Sample Rate - (<em>deprecated</em>)
 - Sample Unit - (<em>deprecated</em>)
@@ -28,19 +28,19 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 ### Interpolate
 
-[Interpolate](../code-reference/query/interpolate.md) - takes [resampling](#resample) one step further to estimate the values of unknown data points that fall between existing, known data points. In addition to the resampling parameters, interpolation also requires:
+[Interpolate](../code-reference/query/functions/time_series/interpolate.md) - takes [resampling](#resample) one step further to estimate the values of unknown data points that fall between existing, known data points. In addition to the resampling parameters, interpolation also requires:
 
 - Interpolation Method - Forward Fill, Backward Fill or Linear
 
 ### Interpolation at Time
 
-[Interpolation at Time](../code-reference/query/interpolation-at-time.md) - works out the linear interpolation at a specific time based on the points before and after. This is achieved by providing the following parameter:
+[Interpolation at Time](../code-reference/query/functions/time_series/interpolation-at-time.md) - works out the linear interpolation at a specific time based on the points before and after. This is achieved by providing the following parameter:
 
 - Timestamps - A list of timestamp or timestamps
 
 ### Time Weighted Averages
 
-[Time Weighted Averages](../code-reference/query/time-weighted-average.md) provide an unbiased average when working with irregularly sampled data. The RTDIP SDK requires the following parameters to perform time weighted average queries:
+[Time Weighted Averages](../code-reference/query/functions/time_series/time-weighted-average.md) provide an unbiased average when working with irregularly sampled data. The RTDIP SDK requires the following parameters to perform time weighted average queries:
 
 - Window Size Mins - (<em>deprecated</em>)
 - Time Interval Rate - The time interval rate
@@ -53,7 +53,7 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 ### Circular Averages
 
-[Circular Averages](../code-reference/query/circular-average.md) computes the circular average for samples in a range. The RTDIP SDK requires the following parameters to perform circular average queries:
+[Circular Averages](../code-reference/query/functions/time_series/circular-average.md) computes the circular average for samples in a range. The RTDIP SDK requires the following parameters to perform circular average queries:
 
 - Time Interval Rate - The time interval rate
 - Time Interval Unit - The time interval unit (second, minute, day, hour)
@@ -62,7 +62,7 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 
 ### Circular Standard Deviations
 
-[Circular Standard Deviations](../code-reference/query/circular-standard-deviation.md) computes the circular standard deviations for samples assumed to be in the range. The RTDIP SDK requires the following parameters to perform circular average queries:
+[Circular Standard Deviations](..//code-reference/query/functions/time_series/circular-standard-deviation.md) computes the circular standard deviations for samples assumed to be in the range. The RTDIP SDK requires the following parameters to perform circular average queries:
 
 - Time Interval Rate - The time interval rate
 - Time Interval Unit - The time interval unit (second, minute, day, hour)
@@ -72,7 +72,7 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 ## Time Series Metadata
 
 ### Metadata
-[Metadata](../code-reference/query/metadata.md) queries provide contextual information for time series measurements and include information such as names, descriptions and units of measure.
+[Metadata](../code-reference/query/functions/metadata.md) queries provide contextual information for time series measurements and include information such as names, descriptions and units of measure.
 
 
 !!! note "Note"

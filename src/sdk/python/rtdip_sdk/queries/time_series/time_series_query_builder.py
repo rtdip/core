@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from typing import Union
-from ..connectors.connection_interface import ConnectionInterface
-from .time_series import (
+from ...connectors.connection_interface import ConnectionInterface
+from . import (
     raw,
     resample,
     interpolate,
@@ -23,14 +23,15 @@ from .time_series import (
     circular_average,
     circular_standard_deviation,
     latest,
+    summary,
 )
-from . import metadata
+from .. import metadata
 from pandas import DataFrame
 
 
 class QueryBuilder:
     """
-    A builder for developing RTDIP queries using any delta table
+    A builder for developing RTDIP queries using any delta table.
     """
 
     parameters: dict
@@ -44,7 +45,7 @@ class QueryBuilder:
 
     def connect(self, connection: ConnectionInterface):
         """
-        Specifies the connection to be used for the query
+        Specifies the connection to be used for the query.
 
         Args:
             connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
@@ -61,7 +62,7 @@ class QueryBuilder:
         value_column: str = "Value",
     ):
         """
-        Specifies the source of the query
+        Specifies the source of the query.
 
         Args:
             source (str): Source of the query can be a Unity Catalog table, Hive metastore table or path
@@ -87,7 +88,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A function to return back raw data
+        A function to return back raw data.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -129,7 +130,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A query to resample the source data
+        A query to resample the source data.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -182,7 +183,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        The Interpolate function will forward fill, backward fill or linearly interpolate the resampled data depending on the parameters specified
+        The Interpolate function will forward fill, backward fill or linearly interpolate the resampled data depending on the parameters specified.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -232,7 +233,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A interpolation at time function which works out the linear interpolation at a specific time based on the points before and after
+        A interpolation at time function which works out the linear interpolation at a specific time based on the points before and after.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -281,7 +282,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A function that receives a dataframe of raw tag data and performs a time weighted averages
+        A function that receives a dataframe of raw tag data and performs a time weighted averages.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -333,7 +334,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A query to retrieve metadata
+        A query to retrieve metadata.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -360,7 +361,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A query to retrieve latest event_values
+        A query to retrieve latest event_values.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -395,7 +396,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A function that receives a dataframe of raw tag data and computes the circular mean for samples in a range
+        A function that receives a dataframe of raw tag data and computes the circular mean for samples in a range.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -449,7 +450,7 @@ class QueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A function that receives a dataframe of raw tag data and computes the circular standard deviation for samples assumed to be in the range
+        A function that receives a dataframe of raw tag data and computes the circular standard deviation for samples assumed to be in the range.
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -489,3 +490,41 @@ class QueryBuilder:
         return circular_standard_deviation.get(
             self.connection, circular_stddev_parameters
         )
+
+    def summary(
+        self,
+        tagname_filter: [str],
+        start_date: str,
+        end_date: str,
+        include_bad_data: bool = False,
+        limit: int = None,
+        offset: int = None,
+    ) -> DataFrame:
+        """
+        A function to return back a summary of statistics.
+
+        Args:
+            tagname_filter (list str): List of tagnames to filter on the source
+            start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            limit (optional int): The number of rows to be returned
+            offset (optional int): The number of rows to skip before returning rows
+
+        Returns:
+            DataFrame: A dataframe of raw timeseries data.
+        """
+        summary_parameters = {
+            "source": self.data_source,
+            "tag_names": tagname_filter,
+            "start_date": start_date,
+            "end_date": end_date,
+            "include_bad_data": include_bad_data,
+            "limit": limit,
+            "offset": offset,
+            "tagname_column": self.tagname_column,
+            "timestamp_column": self.timestamp_column,
+            "status_column": self.status_column,
+            "value_column": self.value_column,
+        }
+        return summary.get(self.connection, summary_parameters)
