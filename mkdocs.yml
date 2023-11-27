@@ -181,6 +181,8 @@ nav:
                   - Python:
                       - Delta: sdk/code-reference/pipelines/sources/python/delta.md
                       - Delta Sharing: sdk/code-reference/pipelines/sources/python/delta_sharing.md
+                      - ENTSO-E: sdk/code-reference/pipelines/sources/python/entsoe.md
+                      - MFFBAS: sdk/code-reference/pipelines/sources/python/mffbas.md
               - Transformers:
                   - Spark:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
