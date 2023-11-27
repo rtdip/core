@@ -81,7 +81,8 @@ def test_load_model(mocker: MockerFixture):
         return_value="file://test_uri",
     )
     mock_load_model = mocker.patch(
-        "mlflow.sklearn.load_model", return_value=models_df.iloc[0]
+        'mlflow.sklearn.load_model',
+        return_value=mocker.MagicMock(),
     )
     mock_determine_model_age_from_mlflow_run = mocker.patch(
         "src.sdk.python.rtdip_sdk.integrations.openstef.serializer.MLflowSerializer._determine_model_age_from_mlflow_run",
