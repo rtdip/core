@@ -73,7 +73,7 @@ Retrieval of latest event values for a given tag name or list of tag names.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Latest Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/latest/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/latest/",
         }
     },
 )
@@ -108,7 +108,7 @@ Retrieval of latest event values for a given tag name or list of tag names via a
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Latest Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/latest/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/latest/",
         }
     },
 )

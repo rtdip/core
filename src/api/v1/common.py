@@ -22,9 +22,9 @@ from src.api.auth import azuread
 from src.api.v1.models import BaseHeaders
 
 
-def common_api_setup_tasks(
-    base_query_parameters,
-    base_headers: BaseHeaders,
+def common_api_setup_tasks(  # NOSONAR
+    base_query_parameters,  # NOSONAR
+    base_headers: BaseHeaders,  # NOSONAR
     metadata_query_parameters=None,
     raw_query_parameters=None,
     tag_query_parameters=None,
@@ -34,6 +34,7 @@ def common_api_setup_tasks(
     time_weighted_average_query_parameters=None,
     circular_average_query_parameters=None,
     circular_standard_deviation_query_parameters=None,
+    summary_query_parameters=None,
     pivot_query_parameters=None,
     limit_offset_query_parameters=None,
 ):
@@ -105,6 +106,9 @@ def common_api_setup_tasks(
         parameters = dict(
             parameters, **circular_standard_deviation_query_parameters.__dict__
         )
+
+    if summary_query_parameters != None:
+        parameters = dict(parameters, **summary_query_parameters.__dict__)
 
     if pivot_query_parameters != None:
         parameters = dict(parameters, **pivot_query_parameters.__dict__)
