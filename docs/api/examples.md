@@ -107,7 +107,7 @@ Authentication using Service Principals is similar to end user authentication. A
 
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
 
-    access_token  = response.json()["access_token"])
+    access_token  = response.json()["access_token"]
 
     params = {
         "business_unit": "Business Unit",

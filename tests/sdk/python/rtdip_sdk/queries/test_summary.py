@@ -45,28 +45,28 @@ MOCKED_PARAMETER_DICT = {
     "include_bad_data": True,
 }
 
+test_data = pa.Table.from_pandas(
+    pd.DataFrame(
+        data={
+            "TagName": ["MOCKED-TAGNAME"],
+            "Count": [10.0],
+            "Avg": [5.5],
+            "Min": [1.0],
+            "Max": [10.0],
+            "Std": [3.2],
+            "Sum": [25.0],
+            "var": [0.0],
+        }
+    )
+)
+
 
 def test_summary_get(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
     mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(
-        MockedCursor,
-        "fetchall_arrow",
-        return_value=pa.Table.from_pandas(
-            pd.DataFrame(
-                data={
-                    "TagName": ["MOCKED-TAGNAME"],
-                    "Count": [10],
-                    "Avg": [5.5],
-                    "Min": [1],
-                    "Max": [10],
-                    "Std": [3.2],
-                    "Sum": [25],
-                    "var": [0],
-                }
-            )
-        ),
+        MockedCursor, "fetchall_arrow", return_value=test_data
     )
     mocked_close = mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value=MockedDBConnection())
@@ -90,22 +90,7 @@ def test_raw_offset_limit(mocker: MockerFixture):
     mocked_connection_close = mocker.spy(MockedDBConnection, "close")
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(
-        MockedCursor,
-        "fetchall_arrow",
-        return_value=pa.Table.from_pandas(
-            pd.DataFrame(
-                data={
-                    "TagName": ["MOCKED-TAGNAME"],
-                    "Count": [10],
-                    "Avg": [5.5],
-                    "Min": [1],
-                    "Max": [10],
-                    "Std": [3.2],
-                    "Sum": [25],
-                    "var": [0],
-                }
-            )
-        ),
+        MockedCursor, "fetchall_arrow", return_value=test_data
     )
     mocked_close = mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value=MockedDBConnection())
