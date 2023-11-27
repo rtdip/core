@@ -103,7 +103,6 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         # The proxies value for using system proxies is None.
         geopy.geocoders.options.default_proxies = config.proxies
         geopy.geocoders.options.default_user_agent = "rtdip-sdk/0.7.8"
-        # geopy.geocoders.options.default_user_agent = f"rtdip-sdk/{version('rtdip_sdk')}"
 
         _DataInterface._instance = self
 
