@@ -20,9 +20,10 @@ from xgboost import XGBModel  # Temporary for backward compatibility
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from openstef.metrics.reporter import Report
 from openstef.model.regressors.regressor import OpenstfRegressor
+from openstef.model.serializer import MLflowSerializer
 
 
-class MLflowSerializer:
+class MLflowSerializer(MLflowSerializer):
     def __init__(self, mlflow_tracking_uri: str):
         self.logger = structlog.get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
@@ -318,6 +319,7 @@ class MLflowSerializer:
                     self.logger.debug("Removed artifacts")
                 except Exception as e:
                     self.logger.info(f"Failed removing artifacts: {e}")
+                    raise
 
     def _get_feature_names(
         self,
