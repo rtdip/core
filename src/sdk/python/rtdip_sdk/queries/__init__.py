@@ -21,6 +21,6 @@ from .time_series import (
     time_weighted_average,
     circular_standard_deviation,
     circular_average,
-    summary
+    summary,
 )
 from .time_series.time_series_query_builder import *
