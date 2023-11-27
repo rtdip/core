@@ -34,21 +34,21 @@ MOCK_API_NAME = "/api/v1/events/summary"
 
 pytestmark = pytest.mark.anyio
 
+test_data = pd.DataFrame(
+    {
+        "TagName": ["TestTag"],
+        "Count": [10.0],
+        "Avg": [5.05],
+        "Min": [1.0],
+        "Max": [10.0],
+        "Std": [3.02],
+        "Sum": [25.0],
+        "Var": [0.0],
+    }
+)
+
 
 async def test_api_summary_get_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "Count": [10.0],
-            "Avg": [5.05],
-            "Min": [1.0],
-            "Max": [10.0],
-            "Std": [3.02],
-            "Sum": [25.0],
-            "Var": [0.0],
-        }
-    )
-
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
@@ -63,18 +63,6 @@ async def test_api_summary_get_success(mocker: MockerFixture):
 
 
 async def test_api_summary_get_validation_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "Count": [10.0],
-            "Avg": [5.05],
-            "Min": [1.0],
-            "Max": [10.0],
-            "Std": [3.02],
-            "Sum": [25.0],
-            "Var": [0.0],
-        }
-    )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
@@ -93,18 +81,6 @@ async def test_api_summary_get_validation_error(mocker: MockerFixture):
 
 
 async def test_api_summary_get_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "Count": [10.0],
-            "Avg": [5.05],
-            "Min": [1.0],
-            "Max": [10.0],
-            "Std": [3.02],
-            "Sum": [25.0],
-            "Var": [0.0],
-        }
-    )
     mocker = mocker_setup(
         mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
     )
@@ -120,18 +96,6 @@ async def test_api_summary_get_error(mocker: MockerFixture):
 
 
 async def test_api_summary_post_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "Count": [10.0],
-            "Avg": [5.05],
-            "Min": [1.0],
-            "Max": [10.0],
-            "Std": [3.02],
-            "Sum": [25.0],
-            "Var": [0.0],
-        }
-    )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
@@ -149,18 +113,6 @@ async def test_api_summary_post_success(mocker: MockerFixture):
 
 
 async def test_api_summary_post_validation_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "Count": [10.0],
-            "Avg": [5.05],
-            "Min": [1.0],
-            "Max": [10.0],
-            "Std": [3.02],
-            "Sum": [25.0],
-            "Var": [0.0],
-        }
-    )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
@@ -180,18 +132,6 @@ async def test_api_summary_post_validation_error(mocker: MockerFixture):
 
 
 async def test_api_summary_post_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "Count": [10.0],
-            "Avg": [5.05],
-            "Min": [1.0],
-            "Max": [10.0],
-            "Std": [3.02],
-            "Sum": [25.0],
-            "Var": [0.0],
-        }
-    )
     mocker = mocker_setup(
         mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
     )
