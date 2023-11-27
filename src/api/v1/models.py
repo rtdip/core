@@ -21,6 +21,10 @@ from fastapi import Query, Header, Depends
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
 
+EXAMPLE_DATE = "2022-01-01"
+EXAMPLE_DATETIME = "2022-01-01T15:00:00"
+EXAMPLE_DATETIME_TIMEZOME = "2022-01-01T15:00:00+00:00"
+
 
 class DuplicatedQueryParameters:
     time_interval_rate = Query(
@@ -192,12 +196,12 @@ class RawQueryParams:
         start_date: Union[date, datetime] = Query(
             ...,
             description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
-            examples=["2022-01-01", "2022-01-01T15:00:00", "2022-01-01T15:00:00+00:00"],
+            examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
         end_date: Union[date, datetime] = Query(
             ...,
             description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
-            examples=["2022-01-02", "2022-01-01T16:00:00", "2022-01-01T15:00:00+00:00"],
+            examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
     ):
         self.data_type = data_type
@@ -297,7 +301,7 @@ class InterpolationAtTimeQueryParams:
         timestamps: List[Union[date, datetime]] = Query(
             ...,
             description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
-            examples=["2022-01-01", "2022-01-01T15:00:00", "2022-01-01T15:00:00+00:00"],
+            examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
         window_length: int = Query(
             ..., description="Window Length in days", examples=[1]

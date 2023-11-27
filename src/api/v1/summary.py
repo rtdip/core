@@ -18,7 +18,7 @@ import numpy as np
 from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
-from src.sdk.python.rtdip_sdk.queries import raw
+from src.sdk.python.rtdip_sdk.queries import summary
 from src.api.v1.models import (
     BaseHeaders,
     BaseQueryParams,
@@ -36,9 +36,9 @@ import src.api.v1.common
 nest_asyncio.apply()
 
 
-def raw_events_get(
+def summary_events_get(
     base_query_parameters,
-    raw_query_parameters,
+    summary_query_parameters,
     tag_query_parameters,
     limit_offset_parameters,
     base_headers,
@@ -46,13 +46,13 @@ def raw_events_get(
     try:
         (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
             base_query_parameters,
-            raw_query_parameters=raw_query_parameters,
+            summary_query_parameters=summary_query_parameters,
             tag_query_parameters=tag_query_parameters,
             limit_offset_query_parameters=limit_offset_parameters,
             base_headers=base_headers,
         )
 
-        data = raw.get(connection, parameters)
+        data = summary.get(connection, parameters)
         return RawResponse(
             schema=build_table_schema(data, index=False, primary_key=False),
             data=data.replace({np.nan: None}).to_dict(orient="records"),
@@ -63,36 +63,36 @@ def raw_events_get(
 
 
 get_description = """
-## Raw 
+## Summary Statistics
 
-Retrieval of raw timeseries data.
+Retrieval of summary statistics of timeseries data.
 """
 
 
 @api_v1_router.get(
-    path="/events/raw",
-    name="Raw GET",
+    path="/events/summary",
+    name="Summary GET",
     description=get_description,
     tags=["Events"],
     dependencies=[Depends(oauth2_scheme)],
     responses={200: {"model": RawResponse}, 400: {"model": HTTPError}},
     openapi_extra={
         "externalDocs": {
-            "description": "RTDIP Raw Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/raw/",
+            "description": "RTDIP Summary Query Documentation",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/summary/",
         }
     },
 )
-async def raw_get(
+async def summary_get(
     base_query_parameters: BaseQueryParams = Depends(),
-    raw_query_parameters: RawQueryParams = Depends(),
+    summary_query_parameters: RawQueryParams = Depends(),
     tag_query_parameters: TagsQueryParams = Depends(),
     limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
     base_headers: BaseHeaders = Depends(),
 ):
-    return raw_events_get(
+    return summary_events_get(
         base_query_parameters,
-        raw_query_parameters,
+        summary_query_parameters,
         tag_query_parameters,
         limit_offset_query_parameters,
         base_headers,
@@ -100,36 +100,36 @@ async def raw_get(
 
 
 post_description = """
-## Raw 
+## Summary Statistics
 
-Retrieval of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
+Retrieval of summary statistics of timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
 """
 
 
 @api_v1_router.post(
-    path="/events/raw",
-    name="Raw POST",
+    path="/events/summary",
+    name="Summary POST",
     description=post_description,
     tags=["Events"],
     dependencies=[Depends(oauth2_scheme)],
     responses={200: {"model": RawResponse}, 400: {"model": HTTPError}},
     openapi_extra={
         "externalDocs": {
-            "description": "RTDIP Raw Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/raw/",
+            "description": "RTDIP Summary Query Documentation",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/summary/",
         }
     },
 )
-async def raw_post(
+async def summary_post(
     base_query_parameters: BaseQueryParams = Depends(),
-    raw_query_parameters: RawQueryParams = Depends(),
+    summary_query_parameters: RawQueryParams = Depends(),
     tag_query_parameters: TagsBodyParams = Body(default=...),
     limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
     base_headers: BaseHeaders = Depends(),
 ):
-    return raw_events_get(
+    return summary_events_get(
         base_query_parameters,
-        raw_query_parameters,
+        summary_query_parameters,
         tag_query_parameters,
         limit_offset_query_parameters,
         base_headers,
