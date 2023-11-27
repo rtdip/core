@@ -31,7 +31,7 @@ class DataBase(metaclass=Singleton):
     Provides a high-level interface to various data sources.
 
     All user/client code should use this class to get or write data. Under the hood this class uses various services to interfact with its datasource.
-    
+
     !!! note "Warning"
         This is a singleton class. When calling multiple times with a config argument no new configuration will be applied.
 
