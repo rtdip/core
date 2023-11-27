@@ -22,7 +22,7 @@ from src.sdk.python.rtdip_sdk.queries import summary
 from src.api.v1.models import (
     BaseHeaders,
     BaseQueryParams,
-    RawResponse,
+    SummaryResponse,
     RawQueryParams,
     TagsQueryParams,
     TagsBodyParams,
@@ -53,7 +53,7 @@ def summary_events_get(
         )
 
         data = summary.get(connection, parameters)
-        return RawResponse(
+        return SummaryResponse(
             schema=build_table_schema(data, index=False, primary_key=False),
             data=data.replace({np.nan: None}).to_dict(orient="records"),
         )
@@ -75,7 +75,7 @@ Retrieval of summary statistics of timeseries data.
     description=get_description,
     tags=["Events"],
     dependencies=[Depends(oauth2_scheme)],
-    responses={200: {"model": RawResponse}, 400: {"model": HTTPError}},
+    responses={200: {"model": SummaryResponse}, 400: {"model": HTTPError}},
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Summary Query Documentation",
@@ -112,7 +112,7 @@ Retrieval of summary statistics of timeseries data via a POST method to enable p
     description=post_description,
     tags=["Events"],
     dependencies=[Depends(oauth2_scheme)],
-    responses={200: {"model": RawResponse}, 400: {"model": HTTPError}},
+    responses={200: {"model": SummaryResponse}, 400: {"model": HTTPError}},
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Summary Query Documentation",

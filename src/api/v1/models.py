@@ -74,6 +74,17 @@ class RawRow(BaseModel):
     Value: Union[float, int, str, None]
 
 
+class SummaryRow(BaseModel):
+    TagName: str
+    Count: Union[float, int, None]
+    Avg: Union[float, int, None]
+    Min: Union[float, int, None]
+    Max: Union[float, int, None]
+    Std: Union[float, int, None]
+    Sum: Union[float, int, None]
+    Var: Union[float, int, None]
+
+
 class MetadataResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
@@ -112,6 +123,13 @@ class ResampleInterpolateResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[ResampleInterpolateRow]
+
+
+class SummaryResponse(BaseModel):
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
+    data: List[SummaryRow]
 
 
 class PivotResponse(BaseModel):
