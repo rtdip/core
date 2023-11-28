@@ -19,7 +19,7 @@ from ._time_series_query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
-    A function to return back a summary of statistics (Avg, Min, Max, Count, StdDev, Sum, Variance) by querying databricks SQL Warehouse using a connection specified by the user.
+    A function to return back a summary of statistics (Avg, Min, Max, Count, StDev, Sum, Variance) by querying databricks SQL Warehouse using a connection specified by the user.
 
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
 

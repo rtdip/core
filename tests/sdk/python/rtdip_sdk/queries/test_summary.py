@@ -31,7 +31,7 @@ HTTP_PATH = "sql/mock/mock-test"
 ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
-MOCKED_QUERY = 'SELECT `TagName`, count(`Value`) as Count, CAST(Avg(`Value`) as decimal(10, 2)) as Avg, CAST(Min(`Value`) as decimal(10, 2)) as Min, CAST(Max(`Value`) as decimal(10, 2)) as Max, CAST(stddev(`Value`) as decimal(10, 2)) as StdDev, CAST(sum(`Value`) as decimal(10, 2)) as Sum, CAST(variance(`Value`) as decimal(10, 2)) as Var FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp("2011-01-01T00:00:00+00:00") AND to_timestamp("2011-01-02T23:59:59+00:00") AND `TagName` IN (\'MOCKED-TAGNAME\') GROUP BY `TagName` '
+MOCKED_QUERY = 'SELECT `TagName`, count(`Value`) as Count, CAST(Avg(`Value`) as decimal(10, 2)) as Avg, CAST(Min(`Value`) as decimal(10, 2)) as Min, CAST(Max(`Value`) as decimal(10, 2)) as Max, CAST(stddev(`Value`) as decimal(10, 2)) as StDev, CAST(sum(`Value`) as decimal(10, 2)) as Sum, CAST(variance(`Value`) as decimal(10, 2)) as Var FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_mocked-data-type` WHERE `EventTime` BETWEEN to_timestamp("2011-01-01T00:00:00+00:00") AND to_timestamp("2011-01-02T23:59:59+00:00") AND `TagName` IN (\'MOCKED-TAGNAME\') GROUP BY `TagName` '
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 MOCKED_PARAMETER_DICT = {
     "business_unit": "mocked-buiness-unit",
@@ -53,7 +53,7 @@ test_data = pa.Table.from_pandas(
             "Avg": [5.5],
             "Min": [1.0],
             "Max": [10.0],
-            "Std": [3.2],
+            "StDev": [3.2],
             "Sum": [25.0],
             "var": [0.0],
         }
