@@ -18,7 +18,7 @@ import numpy as np
 from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
-from src.sdk.python.rtdip_sdk.queries import summary
+from src.sdk.python.rtdip_sdk.queries.time_series import summary
 from src.api.v1.models import (
     BaseHeaders,
     BaseQueryParams,
@@ -79,7 +79,7 @@ Retrieval of summary statistics of timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Summary Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/summary/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/summary/",
         }
     },
 )
@@ -116,7 +116,7 @@ Retrieval of summary statistics of timeseries data via a POST method to enable p
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Summary Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/summary/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/summary/",
         }
     },
 )
