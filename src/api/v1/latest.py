@@ -18,7 +18,7 @@ import numpy as np
 from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
-from src.sdk.python.rtdip_sdk.queries import latest
+from src.sdk.python.rtdip_sdk.queries.time_series import latest
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
@@ -73,7 +73,7 @@ Retrieval of latest event values for a given tag name or list of tag names.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Latest Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/latest/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/latest/",
         }
     },
 )
@@ -108,7 +108,7 @@ Retrieval of latest event values for a given tag name or list of tag names via a
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Latest Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/latest/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/latest/",
         }
     },
 )
