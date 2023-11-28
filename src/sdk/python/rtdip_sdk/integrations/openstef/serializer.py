@@ -1,6 +1,17 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# Copyright 2023 RTDIP
 #
-# SPDX-License-Identifier: MPL-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 import os
 import shutil
@@ -15,6 +26,7 @@ import pandas as pd
 import structlog
 from mlflow.exceptions import MlflowException
 from mlflow.store.artifact.artifact_repository_registry import get_artifact_repository
+from mlflow.sklearn import load_model as mlflow_load_model
 from xgboost import XGBModel  # Temporary for backward compatibility
 
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
@@ -156,7 +168,7 @@ class MLflowSerializer(MLflowSerializer):
             else:
                 raise LookupError("Model not found. First train a model!")
             model_uri = self._get_model_uri(latest_run.artifact_uri)
-            loaded_model = mlflow.sklearn.load_model(model_uri)
+            loaded_model = mlflow_load_model(model_uri)
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             model_specs = self._get_model_specs(
                 experiment_name, loaded_model, latest_run
