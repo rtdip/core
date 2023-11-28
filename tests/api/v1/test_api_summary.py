@@ -41,7 +41,7 @@ test_data = pd.DataFrame(
         "Avg": [5.05],
         "Min": [1.0],
         "Max": [10.0],
-        "Std": [3.02],
+        "StDev": [3.02],
         "Sum": [25.0],
         "Var": [0.0],
     }
