@@ -96,7 +96,7 @@ Interpolation of raw timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/interpolate/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/interpolate/",
         }
     },
 )
@@ -141,7 +141,7 @@ Interpolation of raw timeseries data via a POST method to enable providing a lis
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/interpolate/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/interpolate/",
         }
     },
 )

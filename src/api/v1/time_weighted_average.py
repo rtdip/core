@@ -94,7 +94,7 @@ Time weighted average of raw timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Time Weighted Averages Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/time-weighted-average/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/time-weighted-average/",
         }
     },
 )
@@ -137,7 +137,7 @@ Time weighted average of raw timeseries data via a POST method to enable providi
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Time Weighted Averages Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/time-weighted-average/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/time-weighted-average/",
         }
     },
 )

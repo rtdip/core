@@ -95,7 +95,7 @@ Circular Average of timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Circular Average Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/circular-average/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/circular-average/",
         }
     },
 )
@@ -138,7 +138,7 @@ Circular Average of timeseries data via a POST method to enable providing a list
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Circular Average Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/circular-average/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/circular-average/",
         }
     },
 )
