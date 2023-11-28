@@ -19,7 +19,7 @@ from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
 from pandas.io.json import build_table_schema
-from src.sdk.python.rtdip_sdk.queries import interpolation_at_time
+from src.sdk.python.rtdip_sdk.queries.time_series import interpolation_at_time
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
@@ -90,7 +90,7 @@ Interpolation at Time of raw timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation At Time Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/interpolate_at_time/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/interpolate_at_time/",
         }
     },
 )
@@ -131,7 +131,7 @@ Interpolation at time of raw timeseries data via a POST method to enable providi
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation At Time Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/interpolate_at_time/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/interpolate_at_time/",
         }
     },
 )

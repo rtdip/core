@@ -108,7 +108,7 @@ Retrieval of metadata, including UoM, Description and any other possible fields,
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Metadata Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/metadata/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/metadata/",
         }
     },
 )
