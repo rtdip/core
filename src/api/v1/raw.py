@@ -79,7 +79,7 @@ Retrieval of raw timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Raw Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/raw/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/raw/",
         }
     },
 )
@@ -116,7 +116,7 @@ Retrieval of raw timeseries data via a POST method to enable providing a list of
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Raw Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/raw/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/raw/",
         }
     },
 )
