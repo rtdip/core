@@ -468,7 +468,7 @@ class QueryBuilder:
         Returns:
             DataFrame: A dataframe containing the circular standard deviations
         """
-        circular_stddev_parameters = {
+        circular_stdev_parameters = {
             "source": self.data_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
@@ -488,7 +488,7 @@ class QueryBuilder:
         }
 
         return circular_standard_deviation.get(
-            self.connection, circular_stddev_parameters
+            self.connection, circular_stdev_parameters
         )
 
     def summary(

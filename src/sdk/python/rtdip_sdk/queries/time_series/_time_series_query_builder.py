@@ -555,7 +555,7 @@ def _summary_query(parameters_dict: dict) -> str:
         "CAST(Avg(`{{ value_column }}`) as decimal(10, 2)) as Avg, "
         "CAST(Min(`{{ value_column }}`) as decimal(10, 2)) as Min, "
         "CAST(Max(`{{ value_column }}`) as decimal(10, 2)) as Max, "
-        "CAST(stddev(`{{ value_column }}`) as decimal(10, 2)) as StdDev, "
+        "CAST(stddev(`{{ value_column }}`) as decimal(10, 2)) as StDev, "
         "CAST(sum(`{{ value_column }}`) as decimal(10, 2)) as Sum, "
         "CAST(variance(`{{ value_column }}`) as decimal(10, 2)) as Var FROM "
         "{% if source is defined and source is not none %}"

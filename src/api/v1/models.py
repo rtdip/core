@@ -80,7 +80,7 @@ class SummaryRow(BaseModel):
     Avg: Union[float, int, None]
     Min: Union[float, int, None]
     Max: Union[float, int, None]
-    Std: Union[float, int, None]
+    StDev: Union[float, int, None]
     Sum: Union[float, int, None]
     Var: Union[float, int, None]
 
