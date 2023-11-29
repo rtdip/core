@@ -19,7 +19,9 @@ from datetime import datetime
 from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
     MockedDBConnection,
 )
-from tests.sdk.python.rtdip_sdk.queries.test_raw import DATABRICKS_SQL_CONNECT
+from tests.sdk.python.rtdip_sdk.queries.time_series.test_raw import (
+    DATABRICKS_SQL_CONNECT,
+)
 from tests.api.v1.api_test_objects import (
     CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
     CIRCULAR_AVERAGE_MOCKED_PARAMETER_ERROR_DICT,
