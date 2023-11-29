@@ -25,6 +25,7 @@ from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
 )
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.queries.time_series.raw import get as raw_get
+from src.sdk.python.rtdip_sdk.queries
 
 SERVER_HOSTNAME = "mock.cloud.databricks.com"
 HTTP_PATH = "sql/mock/mock-test"
