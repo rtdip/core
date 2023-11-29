@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import pandas as pd
 from pyspark.sql.types import StructType, StructField, IntegerType
 import pytest
 from requests import HTTPError
@@ -22,6 +22,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pytest_mock import MockerFixture
 
 iso_configuration = {}
+patch_module_name = "requests.get"
 
 
 def test_base_iso_read_setup(spark_session: SparkSession):
@@ -59,7 +60,7 @@ def test_base_iso_read_batch(spark_session: SparkSession, mocker: MockerFixture)
 
     mock_res = MyResponse()
 
-    mocker.patch("requests.get", side_effect=lambda url: mock_res)
+    mocker.patch(patch_module_name, side_effect=lambda url: mock_res)
 
     df = base_iso_source.read_batch()
     assert df.count() == 1
@@ -85,7 +86,7 @@ def test_base_iso_fetch_url_fails(spark_session: SparkSession, mocker: MockerFix
         status_code = 401
 
     mock_res = MyResponse()
-    mocker.patch("requests.get", side_effect=lambda url: mock_res)
+    mocker.patch(patch_module_name, side_effect=lambda url: mock_res)
 
     with pytest.raises(HTTPError) as exc_info:
         base_iso_source.read_batch()
