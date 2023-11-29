@@ -15,15 +15,7 @@
 import sys
 
 sys.path.insert(0, ".")
-import pandas as pd
-import pyarrow as pa
-import pytest
 from pytest_mock import MockerFixture
-from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
-    MockedDBConnection,
-    MockedCursor,
-)
-from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.queries.metadata import get as metadata_raw
 from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
     _test_base_succeed,
@@ -33,7 +25,6 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     MOCKED_QUERY_OFFSET_LIMIT,
     METADATA_MOCKED_QUERY,
-    METADATA_MOCKED_QUERY_PIVOT,
     METADATA_MOCKED_QUERY_NO_TAGS,
 )
 

@@ -15,14 +15,7 @@
 import sys
 
 sys.path.insert(0, ".")
-import pandas as pd
-import pyarrow as pa
-import pytest
 from pytest_mock import MockerFixture
-from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
-    MockedDBConnection,
-    MockedCursor,
-)
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.queries.time_series.resample import get as resample_get
 from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
@@ -33,7 +26,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_QUERY_OFFSET_LIMIT,
     MOCKED_PARAMETER_DICT,
     RESAMPLE_MOCKED_QUERY,
-    MOCKED_QUERY_PIVOT,
+    RESAMPLE_MOCKED_QUERY_PIVOT,
 )
 
 MOCKED_RESAMPLED_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -79,7 +72,7 @@ def test_resample_pivot(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_RESAMPLED_PARAMETER_DICT,
-        MOCKED_QUERY_PIVOT,
+        RESAMPLE_MOCKED_QUERY_PIVOT,
         resample_get,
     )
 
