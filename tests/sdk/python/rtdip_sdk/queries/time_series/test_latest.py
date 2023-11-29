@@ -21,7 +21,7 @@ from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
     _test_base_succeed,
     _test_base_fails,
 )
-from tests.sdk.python.rtdip_sdk._sdk_utils.sdk_test_objects import (
+from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     MOCKED_QUERY_OFFSET_LIMIT,
     LATEST_MOCKED_QUERY,

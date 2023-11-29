@@ -22,7 +22,7 @@ from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
     MockedCursor,
 )
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
-from tests.sdk.python.rtdip_sdk._sdk_utils.sdk_test_objects import (
+from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     SERVER_HOSTNAME,
     HTTP_PATH,
     ACCESS_TOKEN,
