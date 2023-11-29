@@ -25,7 +25,6 @@ from tests.sdk.python.rtdip_sdk._sdk_utils.sdk_test_objects import (
     RAW_MOCKED_QUERY,
     MOCKED_QUERY_OFFSET_LIMIT,
     MOCKED_PARAMETER_DICT,
-    DATABRICKS_SQL_CONNECT,
 )
 
 
