@@ -48,17 +48,6 @@ def test_interpolate(mocker: MockerFixture):
     )
 
 
-def test_interpolate_offset_limit(mocker: MockerFixture):
-    MOCKED_INTERPOLATE_PARAMETER_DICT["offset"] = 10
-    MOCKED_INTERPOLATE_PARAMETER_DICT["limit"] = 10
-    _test_base_succeed(
-        mocker,
-        MOCKED_INTERPOLATE_PARAMETER_DICT,
-        INTERPOLATE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
-        interpolate_get,
-    )
-
-
 def test_interpolate_sample_rate_unit(mocker: MockerFixture):
     MOCKED_INTERPOLATE_PARAMETER_DICT["sample_rate"] = "15"
     MOCKED_INTERPOLATE_PARAMETER_DICT["sample_unit"] = "minute"
@@ -76,6 +65,19 @@ def test_interpolate_pivot(mocker: MockerFixture):
         mocker,
         MOCKED_INTERPOLATE_PARAMETER_DICT,
         INTERPOLATE_MOCKED_QUERY_PIVOT,
+        interpolate_get,
+    )
+
+
+def test_interpolate_offset_limit(mocker: MockerFixture):
+    MOCKED_INTERPOLATE_PARAMETER_DICT["offset"] = 10
+    MOCKED_INTERPOLATE_PARAMETER_DICT["limit"] = 10
+    MOCKED_INTERPOLATE_PARAMETER_DICT["pivot"] = False
+
+    _test_base_succeed(
+        mocker,
+        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        INTERPOLATE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
         interpolate_get,
     )
 

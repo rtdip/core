@@ -29,6 +29,8 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
 )
 
 MOCKED_METADATA_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
+MOCKED_METADATA_PARAMETER_DICT.pop("start_date")
+MOCKED_METADATA_PARAMETER_DICT.pop("end_date")
 
 
 def test_metadata(mocker: MockerFixture):
@@ -37,23 +39,24 @@ def test_metadata(mocker: MockerFixture):
     )
 
 
-def test_metadata_offset_limit(mocker: MockerFixture):
-    MOCKED_METADATA_PARAMETER_DICT["offset"] = 10
-    MOCKED_METADATA_PARAMETER_DICT["limit"] = 10
-    _test_base_succeed(
-        mocker,
-        MOCKED_METADATA_PARAMETER_DICT,
-        METADATA_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
-        metadata_raw,
-    )
-
-
-def test_no_tag_metadata(mocker: MockerFixture):
+def test_metadata_with_no_tag(mocker: MockerFixture):
     MOCKED_METADATA_PARAMETER_DICT.pop("tag_names")
     _test_base_succeed(
         mocker,
         MOCKED_METADATA_PARAMETER_DICT,
         METADATA_MOCKED_QUERY_NO_TAGS,
+        metadata_raw,
+    )
+
+
+def test_metadata_offset_limit(mocker: MockerFixture):
+    MOCKED_METADATA_PARAMETER_DICT["offset"] = 10
+    MOCKED_METADATA_PARAMETER_DICT["limit"] = 10
+    MOCKED_METADATA_PARAMETER_DICT["tag_names"] = ["MOCKED-TAGNAME"]
+    _test_base_succeed(
+        mocker,
+        MOCKED_METADATA_PARAMETER_DICT,
+        "SELECT * FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE `TagName` IN ('MOCKED-TAGNAME') ORDER BY `TagName` LIMIT 10 OFFSET 10 ",
         metadata_raw,
     )
 

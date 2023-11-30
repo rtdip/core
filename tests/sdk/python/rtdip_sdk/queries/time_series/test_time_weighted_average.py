@@ -49,17 +49,6 @@ def test_time_weighted_average(mocker: MockerFixture):
     )
 
 
-def test_time_weighted_average_offset_limit(mocker: MockerFixture):
-    MOCKED_TWA_PARAMETER_DICT["offset"] = 10
-    MOCKED_TWA_PARAMETER_DICT["limit"] = 10
-    _test_base_succeed(
-        mocker,
-        MOCKED_TWA_PARAMETER_DICT,
-        TWA_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
-        time_weighted_average_get,
-    )
-
-
 def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["window_size_mins"] = 15
     _test_base_succeed(
@@ -82,11 +71,23 @@ def test_time_weighted_average_metadata_step(mocker: MockerFixture):
 
 def test_time_weighted_average_pivot(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["pivot"] = True
-    MOCKED_TWA_PARAMETER_DICT["step"] = "metadata"
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
         TWA_MOCKED_QUERY_PIVOT,
+        time_weighted_average_get,
+    )
+
+
+def test_time_weighted_average_offset_limit(mocker: MockerFixture):
+    MOCKED_TWA_PARAMETER_DICT["offset"] = 10
+    MOCKED_TWA_PARAMETER_DICT["limit"] = 10
+    MOCKED_TWA_PARAMETER_DICT["pivot"] = False
+    MOCKED_TWA_PARAMETER_DICT["step"] = "false"
+    _test_base_succeed(
+        mocker,
+        MOCKED_TWA_PARAMETER_DICT,
+        TWA_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
         time_weighted_average_get,
     )
 

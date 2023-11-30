@@ -46,23 +46,24 @@ def test_interpolation_at_time(mocker: MockerFixture):
     )
 
 
-def test_interpolation_at_time_offset_limit(mocker: MockerFixture):
-    MOCKED_IAT_PARAMETER_DICT["offset"] = 10
-    MOCKED_IAT_PARAMETER_DICT["limit"] = 10
-    _test_base_succeed(
-        mocker,
-        MOCKED_IAT_PARAMETER_DICT,
-        IAT_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
-        interpolation_at_time_get,
-    )
-
-
 def test_interpolation_at_time_pivot(mocker: MockerFixture):
     MOCKED_IAT_PARAMETER_DICT["pivot"] = True
     _test_base_succeed(
         mocker,
         MOCKED_IAT_PARAMETER_DICT,
         IAT_MOCKED_QUERY_PIVOT,
+        interpolation_at_time_get,
+    )
+
+
+def test_interpolation_at_time_offset_limit(mocker: MockerFixture):
+    MOCKED_IAT_PARAMETER_DICT["offset"] = 10
+    MOCKED_IAT_PARAMETER_DICT["limit"] = 10
+    MOCKED_IAT_PARAMETER_DICT["pivot"] = False
+    _test_base_succeed(
+        mocker,
+        MOCKED_IAT_PARAMETER_DICT,
+        IAT_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
         interpolation_at_time_get,
     )
 

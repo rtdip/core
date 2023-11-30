@@ -47,23 +47,25 @@ def test_circular_standard_deviation(mocker: MockerFixture):
     )
 
 
-def test_circular_standard_deviation_offset_limit(mocker: MockerFixture):
-    MOCKED_CIRCULAR_SD_PARAMETER_DICT["limit"] = 10
-    MOCKED_CIRCULAR_SD_PARAMETER_DICT["offset"] = 10
-    _test_base_succeed(
-        mocker,
-        MOCKED_CIRCULAR_SD_PARAMETER_DICT,
-        CIRCULAR_SD_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
-        circular_standard_deviation_get,
-    )
-
-
 def test_circular_standard_deviation_pivot(mocker: MockerFixture):
     MOCKED_CIRCULAR_SD_PARAMETER_DICT["pivot"] = True
     _test_base_succeed(
         mocker,
         MOCKED_CIRCULAR_SD_PARAMETER_DICT,
         CIRCULAR_SD_MOCKED_QUERY_PIVOT,
+        circular_standard_deviation_get,
+    )
+
+
+def test_circular_standard_deviation_offset_limit(mocker: MockerFixture):
+    MOCKED_CIRCULAR_SD_PARAMETER_DICT["limit"] = 10
+    MOCKED_CIRCULAR_SD_PARAMETER_DICT["offset"] = 10
+    MOCKED_CIRCULAR_SD_PARAMETER_DICT["pivot"] = False
+
+    _test_base_succeed(
+        mocker,
+        MOCKED_CIRCULAR_SD_PARAMETER_DICT,
+        CIRCULAR_SD_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
         circular_standard_deviation_get,
     )
 

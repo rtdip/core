@@ -45,26 +45,15 @@ def test_resample(mocker: MockerFixture):
     )
 
 
-def test_resample_offset_limit(mocker: MockerFixture):
-    MOCKED_RESAMPLED_PARAMETER_DICT["offset"] = 10
-    MOCKED_RESAMPLED_PARAMETER_DICT["limit"] = 10
+def test_resample_sample_rate_unit(mocker: MockerFixture):
+    MOCKED_RESAMPLED_PARAMETER_DICT["sample_rate"] = "15"
+    MOCKED_RESAMPLED_PARAMETER_DICT["sample_unit"] = "minute"
     _test_base_succeed(
         mocker,
         MOCKED_RESAMPLED_PARAMETER_DICT,
-        RESAMPLE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
+        RESAMPLE_MOCKED_QUERY,
         resample_get,
     )
-
-
-# def test_resample_sample_rate_unit(mocker: MockerFixture):
-#     MOCKED_RESAMPLED_PARAMETER_DICT["sample_rate"] = "15"
-#     MOCKED_RESAMPLED_PARAMETER_DICT["sample_unit"] = "minute"
-#     _test_base_succeed(
-#         mocker,
-#         MOCKED_RESAMPLED_PARAMETER_DICT,
-#         RESAMPLE_MOCKED_QUERY,
-#         resample_get,
-#     )
 
 
 def test_resample_pivot(mocker: MockerFixture):
@@ -73,6 +62,18 @@ def test_resample_pivot(mocker: MockerFixture):
         mocker,
         MOCKED_RESAMPLED_PARAMETER_DICT,
         RESAMPLE_MOCKED_QUERY_PIVOT,
+        resample_get,
+    )
+
+
+def test_resample_offset_limit(mocker: MockerFixture):
+    MOCKED_RESAMPLED_PARAMETER_DICT["offset"] = 10
+    MOCKED_RESAMPLED_PARAMETER_DICT["limit"] = 10
+    MOCKED_RESAMPLED_PARAMETER_DICT["pivot"] = False
+    _test_base_succeed(
+        mocker,
+        MOCKED_RESAMPLED_PARAMETER_DICT,
+        (RESAMPLE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT),
         resample_get,
     )
 

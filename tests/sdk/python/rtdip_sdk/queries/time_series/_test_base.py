@@ -62,7 +62,10 @@ def _test_base_succeed(
 
     mocked_cursor.assert_called_once()
     mocked_connection_close.assert_called_once()
-    mocked_execute.assert_called_once_with(mocker.ANY, query)
+    mocked_execute.assert_called_with(
+        mocker.ANY,
+        query,
+    )
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)

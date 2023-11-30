@@ -48,23 +48,24 @@ def test_circular_average(mocker: MockerFixture):
     )
 
 
-def test_circular_average_offset_limit(mocker: MockerFixture):
-    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["limit"] = 10
-    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["offset"] = 10
-    _test_base_succeed(
-        mocker,
-        MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT,
-        CIRCULAR_AVERAGE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
-        circular_average_get,
-    )
-
-
 def test_circular_average_pivot(mocker: MockerFixture):
     MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["pivot"] = True
     _test_base_succeed(
         mocker,
         MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT,
         CIRCULAR_AVERAGE_MOCKED_QUERY_PIVOT,
+        circular_average_get,
+    )
+
+
+def test_circular_average_offset_limit(mocker: MockerFixture):
+    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["limit"] = 10
+    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["offset"] = 10
+    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["pivot"] = False
+    _test_base_succeed(
+        mocker,
+        MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT,
+        CIRCULAR_AVERAGE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
         circular_average_get,
     )
 

@@ -50,6 +50,8 @@ def test_latest_offset_limit(mocker: MockerFixture):
 
 def test_no_tag_latest(mocker: MockerFixture):
     MOCKED_LATEST_PARAMETER_DICT.pop("tag_names")
+    MOCKED_LATEST_PARAMETER_DICT.pop("offset")
+    MOCKED_LATEST_PARAMETER_DICT.pop("limit")
     _test_base_succeed(
         mocker, MOCKED_LATEST_PARAMETER_DICT, LATEST_MOCKED_QUERY_NO_TAGS, latest_raw
     )
