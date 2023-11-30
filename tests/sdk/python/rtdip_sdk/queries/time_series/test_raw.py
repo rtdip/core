@@ -27,18 +27,19 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
 )
 
+MOCKED_RAW_DICT = MOCKED_PARAMETER_DICT.copy()
+
 
 def test_raw(mocker: MockerFixture):
-    _test_base_succeed(mocker, MOCKED_PARAMETER_DICT, RAW_MOCKED_QUERY, raw_get)
+    _test_base_succeed(mocker, MOCKED_RAW_DICT, RAW_MOCKED_QUERY, raw_get)
 
 
 def test_raw_offset_limit(mocker: MockerFixture):
-    MOCKED_PARAMETER_OFFSET_LIMIT_DICT = MOCKED_PARAMETER_DICT.copy()
-    MOCKED_PARAMETER_OFFSET_LIMIT_DICT["offset"] = 10
-    MOCKED_PARAMETER_OFFSET_LIMIT_DICT["limit"] = 10
+    MOCKED_RAW_DICT["offset"] = 10
+    MOCKED_RAW_DICT["limit"] = 10
     _test_base_succeed(
         mocker,
-        MOCKED_PARAMETER_OFFSET_LIMIT_DICT,
+        MOCKED_RAW_DICT,
         RAW_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
         raw_get,
     )
