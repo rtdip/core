@@ -5,10 +5,11 @@
     "azureFunctions.projectRuntime": "~4",		
 
     "python.testing.pytestArgs": [
+        "--cache-clear",
         "--cov=.",
         "--cov-report=xml:cov.xml",
         "tests",
-        "-vv"
+        "-vv",
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,

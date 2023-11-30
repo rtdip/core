@@ -15,7 +15,6 @@
 import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
-from datetime import datetime
 from tests.api.v1.api_test_objects import (
     SUMMARY_MOCKED_PARAMETER_DICT,
     SUMMARY_MOCKED_PARAMETER_ERROR_DICT,
