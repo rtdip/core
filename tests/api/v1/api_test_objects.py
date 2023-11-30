@@ -16,7 +16,9 @@ from pytest_mock import MockerFixture
 from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
     MockedDBConnection,
 )
-from tests.sdk.python.rtdip_sdk.queries.test_raw import DATABRICKS_SQL_CONNECT
+from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
+    DATABRICKS_SQL_CONNECT,
+)
 
 START_DATE = "2011-01-01T00:00:00+00:00"
 END_DATE = "2011-01-02T00:00:00+00:00"
