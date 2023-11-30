@@ -118,7 +118,7 @@ class PythonMFFBASSource(SourceInterface):
         df["Versienr"] = pd.to_datetime(df["Versienr"]) + pd.to_timedelta(
             df["pos"] * 15, unit="min"
         )
-        df = df[df['pos'] < 96]
+        df = df[df["pos"] < 96]
         drop = [
             "direction",
             "pFdate_version",
