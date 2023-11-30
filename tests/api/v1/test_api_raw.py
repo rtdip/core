@@ -27,7 +27,6 @@ from tests.api.v1.api_test_objects import (
 )
 from httpx import AsyncClient
 from src.api.v1 import app
-import json
 
 MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.raw.get"
 MOCK_API_NAME = "/api/v1/events/raw"
