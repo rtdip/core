@@ -18,7 +18,7 @@ import numpy as np
 from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
-from src.sdk.python.rtdip_sdk.queries import raw
+from src.sdk.python.rtdip_sdk.queries.time_series import raw
 from src.api.v1.models import (
     BaseHeaders,
     BaseQueryParams,

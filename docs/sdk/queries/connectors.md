@@ -8,7 +8,7 @@ RTDIP SDK provides functionality to connect to and query its data using connecto
 
 Enables connectivity to Databricks using the [Databricks SQL Connector](https://pypi.org/project/databricks-sql-connector/) which does not require any ODBC installation. 
 
-For more information refer to this [documentation](https://docs.databricks.com/dev-tools/python-sql-connector.html) and for the specific implementation within the RTDIP SDK, refer to this [link](../code-reference/query/db-sql-connector.md)
+For more information refer to this [documentation](https://docs.databricks.com/dev-tools/python-sql-connector.html) and for the specific implementation within the RTDIP SDK, refer to this [link](../code-reference/query/connectors//db-sql-connector.md)
 
 ```python
 from rtdip_sdk.connectors import DatabricksSQLConnection
@@ -29,7 +29,7 @@ Replace **server_hostname**, **http_path** and **access_token** with your own in
 !!! Warning
     The RTDIP SDK does not specify `pyodbc` as one of its package dependencies. It will need to be installed into your environment separately.
 
-View information about how pyodbc is implemented in the RTDIP SDK [here.](../code-reference/query/pyodbc-sql-connector.md)
+View information about how pyodbc is implemented in the RTDIP SDK [here.](../code-reference/query/connectors/pyodbc-sql-connector.md)
 
 ```python
 from rtdip_sdk.connectors import PYODBCSQLConnection
@@ -46,7 +46,7 @@ Replace **server_hostname**, **http_path** and **access_token** with your own in
 
 ### TURBODBC SQL Connector 
 
-Turbodbc is a powerful python ODBC package that has advanced options for querying performance. Find out more about installing it on your operation system and what Turbodbc can do [here](https://turbodbc.readthedocs.io/en/latest/) and refer to this [documentation](../code-reference/query/turbodbc-sql-connector.md) for more information about how it is implemented in the RTDIP SDK.
+Turbodbc is a powerful python ODBC package that has advanced options for querying performance. Find out more about installing it on your operation system and what Turbodbc can do [here](https://turbodbc.readthedocs.io/en/latest/) and refer to this [documentation](../code-reference/query/connectors/turbodbc-sql-connector.md) for more information about how it is implemented in the RTDIP SDK.
 
 !!! Warning
     The RTDIP SDK does not specify `turbodbc` as one of its package dependencies. It will need to be installed into your environment separately.
@@ -111,7 +111,7 @@ print(response)
 
 Some notes on the above:
 
-- `server_hostname` and `http_path` can be obtained from your [Databricks SQL Warehouse](../../sdk/queries/databricks/sql-warehouses.md) or Databricks Cluster.
-- `access_token` can be either a Databricks PAT Token or Azure AD Token. To obtain an Azure AD token, please refer to this [documentation](../../sdk/authentication/azure.md)
+- `server_hostname` and `http_path` can be obtained from your [Databricks SQL Warehouse](../queries/databricks/sql-warehouses.md) or Databricks Cluster.
+- `access_token` can be either a Databricks PAT Token or Azure AD Token. To obtain an Azure AD token, please refer to this [documentation](../authentication/azure.md)
 - `open_ai_model` defaults to `gpt-4` but is not easily available at the time of writing. Alternatively, the `gpt-3.5-turbo-16k-0613` has worked well in our tests
 - `sample_rows_in_table_info` limits the number of rows queried in a table when the SQL Database Agent is looking context in the data. Be careful to not increase this too much as its then possible to exceed token limits on the gpt models

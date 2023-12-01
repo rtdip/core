@@ -21,7 +21,7 @@ from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
 from pandas.io.json import build_table_schema
-from src.sdk.python.rtdip_sdk.queries import circular_standard_deviation
+from src.sdk.python.rtdip_sdk.queries.time_series import circular_standard_deviation
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,

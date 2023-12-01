@@ -19,7 +19,7 @@ from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
 from pandas.io.json import build_table_schema
-from src.sdk.python.rtdip_sdk.queries import interpolation_at_time
+from src.sdk.python.rtdip_sdk.queries.time_series import interpolation_at_time
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
