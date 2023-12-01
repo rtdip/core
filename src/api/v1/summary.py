@@ -79,7 +79,7 @@ Retrieval of summary statistics of timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Summary Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/summary/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/summary/",
         }
     },
 )
@@ -116,7 +116,7 @@ Retrieval of summary statistics of timeseries data via a POST method to enable p
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Summary Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/summary/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/summary/",
         }
     },
 )
