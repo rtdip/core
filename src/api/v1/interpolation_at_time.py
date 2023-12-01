@@ -90,7 +90,7 @@ Interpolation at Time of raw timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation At Time Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/interpolate_at_time/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/interpolation-at-time/",
         }
     },
 )
@@ -131,7 +131,7 @@ Interpolation at time of raw timeseries data via a POST method to enable providi
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Interpolation At Time Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/interpolate_at_time/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/interpolation-at-time/",
         }
     },
 )
