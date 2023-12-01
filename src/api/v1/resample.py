@@ -95,7 +95,7 @@ Resampling of raw timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Resample Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/resample/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/resample/",
         }
     },
 )
@@ -138,7 +138,7 @@ Resampling of raw timeseries data via a POST method to enable providing a list o
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Resample Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/resample/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/resample/",
         }
     },
 )
