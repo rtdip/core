@@ -21,7 +21,7 @@ from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
 from pandas.io.json import build_table_schema
-from src.sdk.python.rtdip_sdk.queries import circular_standard_deviation
+from src.sdk.python.rtdip_sdk.queries.time_series import circular_standard_deviation
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
@@ -95,7 +95,7 @@ Circular Standard Deviation of timeseries data.
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Circular Standard Deviation Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/circular-standard-deviation/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/circular-standard-deviation/",
         }
     },
 )
@@ -138,7 +138,7 @@ Circular Standard Deviation of timeseries data via a POST method to enable provi
     openapi_extra={
         "externalDocs": {
             "description": "RTDIP Circular Standard Deviation Query Documentation",
-            "url": "https://www.rtdip.io/sdk/code-reference/query/circular-standard-deviation/",
+            "url": "https://www.rtdip.io/sdk/code-reference/query/functions/time_series/circular-standard-deviation/",
         }
     },
 )

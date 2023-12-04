@@ -201,8 +201,10 @@ class BaseISOSource(SourceInterface):
             self.pre_read_validation()
             pdf = self._get_data()
             pdf = _prepare_pandas_to_convert_to_spark(pdf)
-            df = self.spark.createDataFrame(data=pdf, schema=self.spark_schema)
 
+            # The below is to fix the compatibility issues between Pandas 2.0 and PySpark.
+            pd.DataFrame.iteritems = pd.DataFrame.items
+            df = self.spark.createDataFrame(data=pdf, schema=self.spark_schema)
             return df
 
         except Exception as e:

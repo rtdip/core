@@ -15,36 +15,44 @@
 import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
-from datetime import datetime
 from tests.api.v1.api_test_objects import (
-    INTERPOLATE_MOCKED_PARAMETER_DICT,
-    INTERPOLATE_MOCKED_PARAMETER_ERROR_DICT,
-    INTERPOLATE_POST_MOCKED_PARAMETER_DICT,
-    INTERPOLATE_POST_BODY_MOCKED_PARAMETER_DICT,
+    SUMMARY_MOCKED_PARAMETER_DICT,
+    SUMMARY_MOCKED_PARAMETER_ERROR_DICT,
+    SUMMARY_POST_MOCKED_PARAMETER_DICT,
+    SUMMARY_POST_BODY_MOCKED_PARAMETER_DICT,
     mocker_setup,
     TEST_HEADERS,
     BASE_URL,
 )
 from httpx import AsyncClient
 from src.api.v1 import app
+import json
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.interpolate.get"
-MOCK_API_NAME = "/api/v1/events/interpolate"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.summary.get"
+MOCK_API_NAME = "/api/v1/events/summary"
 
 pytestmark = pytest.mark.anyio
 
+test_data = pd.DataFrame(
+    {
+        "TagName": ["TestTag"],
+        "Count": [10.0],
+        "Avg": [5.05],
+        "Min": [1.0],
+        "Max": [10.0],
+        "StDev": [3.02],
+        "Sum": [25.0],
+        "Var": [0.0],
+    }
+)
 
-async def test_api_interpolate_get_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
-    )
+
+async def test_api_summary_get_success(mocker: MockerFixture):
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
-            MOCK_API_NAME,
-            headers=TEST_HEADERS,
-            params=INTERPOLATE_MOCKED_PARAMETER_DICT,
+            MOCK_API_NAME, headers=TEST_HEADERS, params=SUMMARY_MOCKED_PARAMETER_DICT
         )
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
@@ -53,17 +61,14 @@ async def test_api_interpolate_get_success(mocker: MockerFixture):
     assert actual == expected
 
 
-async def test_api_interpolate_get_validation_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
-    )
+async def test_api_summary_get_validation_error(mocker: MockerFixture):
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=INTERPOLATE_MOCKED_PARAMETER_ERROR_DICT,
+            params=SUMMARY_MOCKED_PARAMETER_ERROR_DICT,
         )
     actual = response.text
 
@@ -74,19 +79,14 @@ async def test_api_interpolate_get_validation_error(mocker: MockerFixture):
     )
 
 
-async def test_api_interpolate_get_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
-    )
+async def test_api_summary_get_error(mocker: MockerFixture):
     mocker = mocker_setup(
         mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
     )
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
-            MOCK_API_NAME,
-            headers=TEST_HEADERS,
-            params=INTERPOLATE_MOCKED_PARAMETER_DICT,
+            MOCK_API_NAME, headers=TEST_HEADERS, params=SUMMARY_MOCKED_PARAMETER_DICT
         )
     actual = response.text
 
@@ -94,18 +94,15 @@ async def test_api_interpolate_get_error(mocker: MockerFixture):
     assert actual == '{"detail":"Error Connecting to Database"}'
 
 
-async def test_api_interpolate_post_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
-    )
+async def test_api_summary_post_success(mocker: MockerFixture):
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=INTERPOLATE_POST_MOCKED_PARAMETER_DICT,
-            json=INTERPOLATE_POST_BODY_MOCKED_PARAMETER_DICT,
+            params=SUMMARY_POST_MOCKED_PARAMETER_DICT,
+            json=SUMMARY_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
@@ -114,18 +111,15 @@ async def test_api_interpolate_post_success(mocker: MockerFixture):
     assert actual == expected
 
 
-async def test_api_interpolate_post_validation_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
-    )
+async def test_api_summary_post_validation_error(mocker: MockerFixture):
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=INTERPOLATE_MOCKED_PARAMETER_ERROR_DICT,
-            json=INTERPOLATE_POST_BODY_MOCKED_PARAMETER_DICT,
+            params=SUMMARY_MOCKED_PARAMETER_ERROR_DICT,
+            json=SUMMARY_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
 
@@ -136,10 +130,7 @@ async def test_api_interpolate_post_validation_error(mocker: MockerFixture):
     )
 
 
-async def test_api_interpolate_post_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
-    )
+async def test_api_summary_post_error(mocker: MockerFixture):
     mocker = mocker_setup(
         mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
     )
@@ -148,8 +139,8 @@ async def test_api_interpolate_post_error(mocker: MockerFixture):
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
-            params=INTERPOLATE_MOCKED_PARAMETER_DICT,
-            json=INTERPOLATE_POST_BODY_MOCKED_PARAMETER_DICT,
+            params=SUMMARY_MOCKED_PARAMETER_DICT,
+            json=SUMMARY_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
 
