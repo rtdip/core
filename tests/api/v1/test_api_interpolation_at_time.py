@@ -18,7 +18,6 @@ import pandas as pd
 from datetime import datetime
 from tests.api.v1.api_test_objects import (
     INTERPOLATION_AT_TIME_MOCKED_PARAMETER_DICT,
-    INTERPOLATION_AT_TIME_MOCKED_PARAMETER_ERROR_DICT,
     INTERPOLATION_AT_TIME_POST_MOCKED_PARAMETER_DICT,
     INTERPOLATION_AT_TIME_POST_BODY_MOCKED_PARAMETER_DICT,
     mocker_setup,

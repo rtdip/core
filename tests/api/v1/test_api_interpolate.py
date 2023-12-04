@@ -16,10 +16,6 @@ import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
 from datetime import datetime
-from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
-    MockedDBConnection,
-)
-from tests.sdk.python.rtdip_sdk.queries.test_raw import DATABRICKS_SQL_CONNECT
 from tests.api.v1.api_test_objects import (
     INTERPOLATE_MOCKED_PARAMETER_DICT,
     INTERPOLATE_MOCKED_PARAMETER_ERROR_DICT,
