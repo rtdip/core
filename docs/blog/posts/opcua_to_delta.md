@@ -17,8 +17,7 @@ This Historian system was developed as an ecosystem that provided a comprehensiv
 
 ## What Are the Alternatives?
 
-Hyperscalers have become a central part of global IT infrastructure and essential to operations and they also started providing industrial connectivity options out of many in this article I am going to focus on Azure , OPC UA & Open source stack which provides you all the options of data ingestion from OPC UA source to your cloud data base.
-
+Hyperscalers have become a central part of global IT infrastructure and essential to operations and they also started providing industrial connectivity options out of many in this article I am going to focus on Azure , OPC UA & Open source stack which provides you all the options of data ingestion from OPC UA source to your cloud database.
 
 ![blog](../images/opcua-to-deltalake.png){width=100%}
 </center>
@@ -31,27 +30,27 @@ OPC Publisher is a Microsoft-endorsed solution that acts as a vital link between
 
 OPC Publisher is versatile in its deployment options, running either as an Azure IoT Edge Module or a Docker container on various platforms, thanks to its compatibility with the .NET cross-platform runtime. Notably, it can seamlessly operate on both Linux and Windows 10 systems.
 
-Refer :- [Microsoft OPC Publisher documentation](https://learn.microsoft.com/en-us/azure/industrial-iot/tutorial-publisher-deploy-opc-publisher-standalone) for more information
+Refer to [Microsoft OPC Publisher documentation](https://learn.microsoft.com/en-us/azure/industrial-iot/tutorial-publisher-deploy-opc-publisher-standalone) for more information.
 
 ## RTDIP for Data Engineering
 
 The Real-Time Data Ingestion Platform (RTDIP) is designed to offer convenient access to large volumes of historical and live operational data for analytical purposes, serving engineers and data scientists no matter where they are located.
 
-Key Components of RTDIP:
+### Key Components of RTDIP:
 
-### Delta Ingestion Engine:
+#### Delta Ingestion Engine:
 This component operates in the cloud and is responsible for processing time series data sourced from various streaming endpoints such as Eventhub, Kafka, and others, as well as data from files. It ingests and organizes this data into a Delta Lakehouse.
 
 To simplify the data ingestion from IoT hub RTDIP has Transformer components and for the above architecture [OPCPublisherOPCUAJsonToPCDMTransformer](https://www.rtdip.io/sdk/pipelines/components/#:~:text=OPC%20Publisher%20OPCUA%20Json%20To%20Process%20Control%20Data%20Model) is being used which is built to cater the defaultmessage encoding which is json.
 
-### Query Engine
+#### Query Engine
 Python SDK: The Python Software Development Kit (SDK) empowers users to interact with the data stored within the Delta Lakehouse. It provides a programmatic interface for working with the data.
 
-### REST APIs
-In addition to the Python SDK, RTDIP offers RESTful Application Programming Interfaces (APIs) that deliver the same capabilities as the Python SDK. These APIs enable users to interact with 
+#### REST APIs
+In addition to the Python SDK, RTDIP offers RESTful Application Programming Interfaces (APIs) that deliver the same capabilities as the Python SDK. These APIs enable users to interact 
 and manipulate the data stored in the Delta Lakehouse through HTTP requests, making it accessible for a wide range of applications and services.
 
-Link to RTDIP : [Real Time Data Ingestion Platform](https://www.rtdip.io/)
+See [Real Time Data Ingestion Platform](https://www.rtdip.io/) for more information.
 
 ## Visualization
 
