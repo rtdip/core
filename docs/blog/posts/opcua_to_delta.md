@@ -41,7 +41,7 @@ The Real-Time Data Ingestion Platform (RTDIP) is designed to offer convenient ac
 #### Delta Ingestion Engine:
 This component operates in the cloud and is responsible for processing time series data sourced from various streaming endpoints such as Eventhub, Kafka, and others, as well as data from files. It ingests and organizes this data into a Delta Lakehouse.
 
-To simplify the data ingestion from IoT hub RTDIP has Transformer components and for the above architecture [OPCPublisherOPCUAJsonToPCDMTransformer](https://www.rtdip.io/sdk/pipelines/components/#:~:text=OPC%20Publisher%20OPCUA%20Json%20To%20Process%20Control%20Data%20Model) is being used which is built to cater the defaultmessage encoding which is json.
+To simplify the data ingestion from IoT hub, RTDIP has built Transformer components to convert the payload's defaultmessage encoding to json. The architecture above is using the transformer  [OPCPublisherOPCUAJsonToPCDMTransformer](https://www.rtdip.io/sdk/pipelines/components/#:~:text=OPC%20Publisher%20OPCUA%20Json%20To%20Process%20Control%20Data%20Model) to handle that scenario.
 
 #### Query Engine
 Python SDK: The Python Software Development Kit (SDK) empowers users to interact with the data stored within the Delta Lakehouse. It provides a programmatic interface for working with the data.
