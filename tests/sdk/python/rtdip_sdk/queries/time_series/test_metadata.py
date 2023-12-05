@@ -56,7 +56,7 @@ def test_metadata_offset_limit(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_METADATA_PARAMETER_DICT,
-        "SELECT * FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE `TagName` IN ('MOCKED-TAGNAME') ORDER BY `TagName` LIMIT 10 OFFSET 10 ",
+        "SELECT * FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE `TagName` ILIKE ANY ('MOCKED-TAGNAME') ORDER BY `TagName` LIMIT 10 OFFSET 10 ",
         metadata_raw,
     )
 
