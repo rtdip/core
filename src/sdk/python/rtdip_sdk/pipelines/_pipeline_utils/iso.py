@@ -65,6 +65,23 @@ CAISO_SCHEMA = StructType(
     ]
 )
 
+ERCOT_SCHEMA = StructType(
+    [
+        StructField("Date", TimestampType(), True),
+        StructField("HourEnding", StringType(), True),
+        StructField("Coast", DoubleType(), True),
+        StructField("East", DoubleType(), True),
+        StructField("FarWest", DoubleType(), True),
+        StructField("North", DoubleType(), True),
+        StructField("NorthCentral", DoubleType(), True),
+        StructField("SouthCentral", DoubleType(), True),
+        StructField("Southern", DoubleType(), True),
+        StructField("West", DoubleType(), True),
+        StructField("SystemTotal", DoubleType(), True),
+        StructField("DstFlag", StringType(), True),
+    ]
+)
+
 
 def melt(
     df: DataFrame,
