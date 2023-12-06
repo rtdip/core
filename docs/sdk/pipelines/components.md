@@ -45,6 +45,7 @@ Sources are components that connect to source systems and extract data from them
 |[PJM Historical Load ISO](../code-reference/pipelines/sources/spark/iso/pjm_historical_load_iso.md) ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[CAISO Daily Load ISO](../code-reference/pipelines/sources/spark/iso/caiso_daily_load_iso.md)  ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[CAISO Historical Load ISO](../code-reference/pipelines/sources/spark/iso/caiso_historical_load_iso.md) ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|[ERCOT Daily Load ISO](../code-reference/pipelines/sources/spark/iso/ercot_daily_load_iso.md)  ||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Weather Forecast API V1](../code-reference/pipelines/sources/spark/the_weather_company/weather_forecast_api_v1.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |[Weather Forecast API V1 Multi](../code-reference/pipelines/sources/spark/the_weather_company/weather_forecast_api_v1_multi.md)||:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 !!! note "Note"

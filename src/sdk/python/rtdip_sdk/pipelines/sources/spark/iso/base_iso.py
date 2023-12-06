@@ -13,16 +13,15 @@
 # limitations under the License.
 
 import logging
-import pandas as pd
-from py4j.protocol import Py4JJavaError
-from pyspark.sql import DataFrame, SparkSession
-import requests
 from datetime import datetime, timezone
-import pytz
+from io import BytesIO
 
+import pandas as pd
+import pytz
+import requests
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StructType, StructField, IntegerType
 from requests import HTTPError
-from io import BytesIO
 
 from ...interfaces import SourceInterface
 from ...._pipeline_utils.models import Libraries, SystemType
