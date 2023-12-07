@@ -171,6 +171,7 @@ nav:
                           - PJM Historical Load: sdk/code-reference/pipelines/sources/spark/iso/pjm_historical_load_iso.md
                           - CAISO Daily Load: sdk/code-reference/pipelines/sources/spark/iso/caiso_daily_load_iso.md
                           - CAISO Historical Load: sdk/code-reference/pipelines/sources/spark/iso/caiso_historical_load_iso.md
+                          - ERCOT Daily Load: sdk/code-reference/pipelines/sources/spark/iso/ercot_daily_load_iso.md
                       - Weather:
                           - Base Weather: sdk/code-reference/pipelines/sources/spark/the_weather_company/base_weather.md
                           - Weather Forecast API V1: sdk/code-reference/pipelines/sources/spark/the_weather_company/weather_forecast_api_v1.md
@@ -243,10 +244,10 @@ nav:
           - Queries:
               - Functions:
                   - Metadata: sdk/code-reference/query/functions/metadata.md
-                  - Time Series: 
+                  - Time Series:
                       - Time Series Query Builder: sdk/code-reference/query/functions/time_series/time_series_query_builder.md
                       - Raw: sdk/code-reference/query/functions/time_series/raw.md
-                      - Latest: sdk/code-reference/query/functions/time_series/latest.md                                
+                      - Latest: sdk/code-reference/query/functions/time_series/latest.md
                       - Resample: sdk/code-reference/query/functions/time_series/resample.md
                       - Interpolate: sdk/code-reference/query/functions/time_series/interpolate.md
                       - Interpolation at Time: sdk/code-reference/query/functions/time_series/interpolation-at-time.md
