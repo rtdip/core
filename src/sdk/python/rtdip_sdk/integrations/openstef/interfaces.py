@@ -62,7 +62,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
                 db_http_path (str): SQL warehouse http path.
                 proxies Union[dict[str, str], None]: Proxies.
         """
-        _package_version_meets_minimum("openstef", "3.3.6")
+        _package_version_meets_minimum("python", "3.9")
 
         import openstef_dbc.data_interface
 
