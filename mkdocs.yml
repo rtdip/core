@@ -199,6 +199,7 @@ nav:
                       - PySpark to Pandas DataFrame Conversion: sdk/code-reference/pipelines/transformers/spark/pyspark_to_pandas.md
                       - Honeywell APM To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/honeywell_apm_to_pcdm.md
                       - Process Control Data Model To Honeywell APM: sdk/code-reference/pipelines/transformers/spark/pcdm_to_honeywell_apm.md
+                      - Mirico data To Process Control Data Model: sdk/code-reference/pipelines/transformers/spark/mirico_json_to_pcdm.md
                       - ISO:
                           - MISO To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md
                           - PJM To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/pjm_to_mdm.md
