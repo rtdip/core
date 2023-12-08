@@ -73,7 +73,7 @@ def test_save_model(mocker: MockerFixture, caplog):
     )
 
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
             serializer.save_model(
                 model=model,
@@ -132,7 +132,7 @@ def test_load_model(mocker: MockerFixture):  # write a fail test for empty model
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
             serializer.load_model(experiment_name=experiment_name)
 
@@ -158,7 +158,7 @@ def test_load_model_fails(mocker: MockerFixture):
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
 
             with pytest.raises(LookupError) as e:
@@ -187,7 +187,7 @@ def test_get_model_age(mocker: MockerFixture, caplog):
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
             serializer.get_model_age(experiment_name=experiment_name)
 
@@ -208,7 +208,7 @@ def test_get_model_age_empty(mocker: MockerFixture, caplog):
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
             age = serializer.get_model_age(experiment_name=experiment_name)
 
@@ -240,7 +240,7 @@ def test_remove_old_models(mocker: MockerFixture):
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
             serializer.remove_old_models(
                 experiment_name=experiment_name, max_n_models=2
@@ -275,7 +275,7 @@ def test_remove_old_models_fails(mocker: MockerFixture, caplog):
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
 
             with pytest.raises(Exception):

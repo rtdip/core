@@ -90,7 +90,7 @@ def test_exec_influx_one_query(mocker: MockerFixture):
     mocked_read_sql = mocker.patch.object(pd, "read_sql", return_value=df)
 
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
 
             flux_query = """
@@ -121,7 +121,7 @@ def test_exec_influx_multi_query(mocker: MockerFixture):
     mocked_read_sql = mocker.patch.object(pd, "read_sql", return_value=df)
 
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
 
             flux_query = """
@@ -157,7 +157,7 @@ def test_exec_influx_query_fails(mocker: MockerFixture, caplog):
     """
 
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
             with pytest.raises(Exception):
                 interface.exec_influx_query(flux_query, {})
@@ -186,7 +186,7 @@ def test_exec_influx_write(mocker: MockerFixture):
     )
 
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
             sql_query = interface.exec_influx_write(
                 df=expected_data,
@@ -216,7 +216,7 @@ def test_exec_influx_write_fails(mocker: MockerFixture, caplog):
         {"test": ["1", "2", "data"], "test2": ["1", "2", "data"]}, index=date_idx
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
 
             with pytest.raises(Exception):
@@ -239,7 +239,7 @@ def test_exec_sql_query(mocker: MockerFixture):
     mocked_read_sql = mocker.patch.object(pd, "read_sql", return_value=None)
 
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
             sql_query = interface.exec_sql_query("SELECT * FROM test_table", {})
 
@@ -259,7 +259,7 @@ def test_exec_sql_query_operational_fails(mocker: MockerFixture, caplog):
         ),
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
             with pytest.raises(sqlalchemy.exc.OperationalError):
                 interface.exec_sql_query(test_query, {})
@@ -278,7 +278,7 @@ def test_exec_sql_query_programming_fails(mocker: MockerFixture, caplog):
         side_effect=sqlalchemy.exc.ProgrammingError(None, None, query_error),
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
             with pytest.raises(sqlalchemy.exc.ProgrammingError):
                 interface.exec_sql_query(test_query, {})
@@ -299,7 +299,7 @@ def test_exec_sql_query_database_fails(mocker: MockerFixture, caplog):
         ),
     )
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
             with pytest.raises(sqlalchemy.exc.DatabaseError):
                 interface.exec_sql_query(test_query, {})
@@ -312,10 +312,10 @@ def test_exec_sql_query_database_fails(mocker: MockerFixture, caplog):
 
 
 def test_exec_sql_write(mocker: MockerFixture):
-    interface = _DataInterface(config)
-    mocker.patch.object(interface, "mysql_engine", new_callable=MockedEngine)
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
+            interface = _DataInterface(config)
+            mocker.patch.object(interface, "mysql_engine", new_callable=MockedEngine)
             sql_write = interface.exec_sql_write(
                 "INSERT INTO test_table VALUES (1, 'test')"
             )
@@ -331,7 +331,7 @@ def test_exec_sql_write_fails(mocker: MockerFixture, caplog):
 
     query = "INSERT INTO test_table VALUES (1, 'test')"
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
             with pytest.raises(Exception):
                 interface.exec_sql_write(query)
@@ -348,7 +348,7 @@ def test_exec_sql_dataframe_write(mocker: MockerFixture):
 
     expected_data = pd.DataFrame({"test": ["1", "2", "data"]})
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
             sql_write = interface.exec_sql_dataframe_write(expected_data, "test_table")
 
@@ -363,7 +363,7 @@ def test_exec_sql_dataframe_write_fails(mocker: MockerFixture):
     mocker.patch.object(pd.DataFrame, "to_sql", side_effect=Exception)
     expected_data = pd.DataFrame({"test": ["1", "2", "data"]})
     try:
-        if _package_version_meets_minimum("openstef", "3.3.6"):
+        if _package_version_meets_minimum("python", "3.9"):
             interface = _DataInterface(config)
 
             with pytest.raises(Exception):

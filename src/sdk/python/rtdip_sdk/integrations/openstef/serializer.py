@@ -43,7 +43,7 @@ class MLflowSerializer(MLflowSerializer):
         self.logger = structlog.get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
         self.logger.debug(f"MLflow tracking uri at init= {mlflow_tracking_uri}")
-        _package_version_meets_minimum("openstef", "3.3.6")
+        _package_version_meets_minimum("python", "3.9")
 
     def save_model(
         self,
