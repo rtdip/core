@@ -84,7 +84,9 @@ def test_save_model(mocker: MockerFixture, caplog):
                 phase=phase,
             )
 
-            mocked_set_experiment.assert_called_once_with(experiment_name="mock_username"+experiment_name)
+            mocked_set_experiment.assert_called_once_with(
+                experiment_name="mock_username" + experiment_name
+            )
             mocked_start_run.assert_called_once()
             mocked_search_runs.assert_called_once()
             mocked_active_run.assert_called_once()
@@ -139,7 +141,9 @@ def test_load_model(mocker: MockerFixture):  # write a fail test for empty model
             model_uri_spy.assert_called_with(mocker.ANY, "test_uri")
             determine_model_age_spy.assert_called_with(mocker.ANY, mock_iloc)
             mocked_get_model_specs.assert_called_once()
-            assert isinstance(mocked_get_model_specs.return_value, ModelSpecificationDataClass)
+            assert isinstance(
+                mocked_get_model_specs.return_value, ModelSpecificationDataClass
+            )
     except:
         with pytest.raises(Exception):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
@@ -238,7 +242,9 @@ def test_remove_old_models(mocker: MockerFixture):
     try:
         if _package_version_meets_minimum("openstef", "3.3.6"):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
-            serializer.remove_old_models(experiment_name=experiment_name, max_n_models=2)
+            serializer.remove_old_models(
+                experiment_name=experiment_name, max_n_models=2
+            )
 
             mocked_find_models.assert_called_once()
             mocked_delete_run.assert_called()
@@ -273,7 +279,9 @@ def test_remove_old_models_fails(mocker: MockerFixture, caplog):
             serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
 
             with pytest.raises(Exception):
-                serializer.remove_old_models(experiment_name=experiment_name, max_n_models=2)
+                serializer.remove_old_models(
+                    experiment_name=experiment_name, max_n_models=2
+                )
 
             assert "Removed artifacts" not in caplog.text
     except:
