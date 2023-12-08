@@ -79,9 +79,7 @@ def test_save_model(mocker: MockerFixture, caplog):
         phase=phase,
     )
 
-    mocked_set_experiment.assert_called_once_with(
-        experiment_name=experiment_name
-    )
+    mocked_set_experiment.assert_called_once_with(experiment_name=experiment_name)
     mocked_start_run.assert_called_once()
     mocked_search_runs.assert_called_once()
     mocked_active_run.assert_called_once()
