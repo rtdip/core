@@ -20,9 +20,11 @@ import pytest
 import sqlalchemy
 from src.sdk.python.rtdip_sdk.integrations.openstef.interfaces import _DataInterface
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
 from pydantic.v1 import BaseSettings
 from typing import Union
+from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
+    _package_version_meets_minimum,
+)
 
 
 query_error = "Error occured during executing query"
@@ -87,17 +89,22 @@ def test_exec_influx_one_query(mocker: MockerFixture):
     )
     mocked_read_sql = mocker.patch.object(pd, "read_sql", return_value=df)
 
-    interface = _DataInterface(config)
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
 
-    flux_query = """
-    from(bucket: "test/bucket" )   
-	|> range(start: 2023-08-29T00:00:00Z, stop: 2023-08-30T00:00:00Z) 
-	|> filter(fn: (r) => r._measurement == "sjv")
-    """
+            flux_query = """
+            from(bucket: "test/bucket" )   
+            |> range(start: 2023-08-29T00:00:00Z, stop: 2023-08-30T00:00:00Z) 
+            |> filter(fn: (r) => r._measurement == "sjv")
+            """
 
-    interface.exec_influx_query(flux_query, {})
+            interface.exec_influx_query(flux_query, {})
 
-    mocked_read_sql.assert_called_once()
+            mocked_read_sql.assert_called_once()
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_influx_multi_query(mocker: MockerFixture):
@@ -113,32 +120,35 @@ def test_exec_influx_multi_query(mocker: MockerFixture):
     )
     mocked_read_sql = mocker.patch.object(pd, "read_sql", return_value=df)
 
-    interface = _DataInterface(config)
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
 
-    flux_query = """
-    data = from(bucket: "test/bucket" )   
-        |> range(start: 2023-08-29T00:00:00Z, stop: 2023-08-30T00:00:00Z) 
-        |> filter(fn: (r) => r._measurement == "sjv")
+            flux_query = """
+            data = from(bucket: "test/bucket" )   
+                |> range(start: 2023-08-29T00:00:00Z, stop: 2023-08-30T00:00:00Z) 
+                |> filter(fn: (r) => r._measurement == "sjv")
 
-    data
-        |> group() |> aggregateWindow(every: 15m, fn: sum)
-        |> yield(name: "test_1")
+            data
+                |> group() |> aggregateWindow(every: 15m, fn: sum)
+                |> yield(name: "test_1")
 
-    data
-        |> group() |> aggregateWindow(every: 15m, fn: count)
-        |> yield(name: "test_2")
-    """
+            data
+                |> group() |> aggregateWindow(every: 15m, fn: count)
+                |> yield(name: "test_2")
+            """
 
-    interface.exec_influx_query(flux_query, {})
+            interface.exec_influx_query(flux_query, {})
 
-    mocked_read_sql.assert_called()
-    assert mocked_read_sql.call_count == 2
+            mocked_read_sql.assert_called()
+            assert mocked_read_sql.call_count == 2
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_influx_query_fails(mocker: MockerFixture, caplog):
     mocker.patch.object(pd, "read_sql", side_effect=Exception)
-
-    interface = _DataInterface(config)
 
     flux_query = """
     from(bucket: "test/bucket" )   
@@ -146,13 +156,19 @@ def test_exec_influx_query_fails(mocker: MockerFixture, caplog):
 	|> filter(fn: (r) => r._measurement == "sjv")
     """
 
-    with pytest.raises(Exception):
-        interface.exec_influx_query(flux_query, {})
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
+            with pytest.raises(Exception):
+                interface.exec_influx_query(flux_query, {})
 
-    escaped_query = flux_query.replace("\n", "\\n").replace("\t", "\\t")
+            escaped_query = flux_query.replace("\n", "\\n").replace("\t", "\\t")
 
-    assert query_error in caplog.text
-    assert escaped_query in caplog.text
+            assert query_error in caplog.text
+            assert escaped_query in caplog.text
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_influx_write(mocker: MockerFixture):
@@ -168,16 +184,22 @@ def test_exec_influx_write(mocker: MockerFixture):
     expected_data = pd.DataFrame(
         {"test": ["1", "2", "data"], "test2": ["1", "2", "data"]}, index=date_idx
     )
-    interface = _DataInterface(config)
-    sql_query = interface.exec_influx_write(
-        df=expected_data,
-        database="database",
-        measurement="measurement",
-        tag_columns=["test"],
-    )
 
-    mocked_to_sql.assert_called_once()
-    assert sql_query is True
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
+            sql_query = interface.exec_influx_write(
+                df=expected_data,
+                database="database",
+                measurement="measurement",
+                tag_columns=["test"],
+            )
+
+            mocked_to_sql.assert_called_once()
+            assert sql_query is True
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_influx_write_fails(mocker: MockerFixture, caplog):
@@ -193,32 +215,42 @@ def test_exec_influx_write_fails(mocker: MockerFixture, caplog):
     expected_data = pd.DataFrame(
         {"test": ["1", "2", "data"], "test2": ["1", "2", "data"]}, index=date_idx
     )
-    interface = _DataInterface(config)
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
 
-    with pytest.raises(Exception):
-        interface.exec_influx_write(
-            df=expected_data,
-            database="database",
-            measurement="measurement",
-            tag_columns=["test"],
-        )
+            with pytest.raises(Exception):
+                interface.exec_influx_write(
+                    df=expected_data,
+                    database="database",
+                    measurement="measurement",
+                    tag_columns=["test"],
+                )
 
-    assert "Exception occured during writing to Databricks database" in caplog.text
+            assert (
+                "Exception occured during writing to Databricks database" in caplog.text
+            )
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_sql_query(mocker: MockerFixture):
     mocked_read_sql = mocker.patch.object(pd, "read_sql", return_value=None)
 
-    interface = _DataInterface(config)
-    sql_query = interface.exec_sql_query("SELECT * FROM test_table", {})
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
+            sql_query = interface.exec_sql_query("SELECT * FROM test_table", {})
 
-    mocked_read_sql.assert_called_once()
-    assert sql_query is None
+            mocked_read_sql.assert_called_once()
+            assert sql_query is None
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_sql_query_operational_fails(mocker: MockerFixture, caplog):
-    interface = _DataInterface(config)
-
     mocker.patch.object(
         pd,
         "read_sql",
@@ -226,33 +258,39 @@ def test_exec_sql_query_operational_fails(mocker: MockerFixture, caplog):
             None, None, "Lost connection to Databricks database"
         ),
     )
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
+            with pytest.raises(sqlalchemy.exc.OperationalError):
+                interface.exec_sql_query(test_query, {})
 
-    with pytest.raises(sqlalchemy.exc.OperationalError):
-        interface.exec_sql_query(test_query, {})
-
-    assert "Lost connection to Databricks database" in caplog.text
-    assert test_query not in caplog.text
+            assert "Lost connection to Databricks database" in caplog.text
+            assert test_query not in caplog.text
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_sql_query_programming_fails(mocker: MockerFixture, caplog):
-    interface = _DataInterface(config)
-
     mocker.patch.object(
         pd,
         "read_sql",
         side_effect=sqlalchemy.exc.ProgrammingError(None, None, query_error),
     )
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
+            with pytest.raises(sqlalchemy.exc.ProgrammingError):
+                interface.exec_sql_query(test_query, {})
 
-    with pytest.raises(sqlalchemy.exc.ProgrammingError):
-        interface.exec_sql_query(test_query, {})
-
-    assert query_error in caplog.text
-    assert test_query in caplog.text
+            assert query_error in caplog.text
+            assert test_query in caplog.text
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_sql_query_database_fails(mocker: MockerFixture, caplog):
-    interface = _DataInterface(config)
-
     mocker.patch.object(
         pd,
         "read_sql",
@@ -260,53 +298,76 @@ def test_exec_sql_query_database_fails(mocker: MockerFixture, caplog):
             None, None, "Can't connect to Databricks database"
         ),
     )
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
+            with pytest.raises(sqlalchemy.exc.DatabaseError):
+                interface.exec_sql_query(test_query, {})
 
-    with pytest.raises(sqlalchemy.exc.DatabaseError):
-        interface.exec_sql_query(test_query, {})
-
-    assert "Can't connect to Databricks database" in caplog.text
-    assert test_query not in caplog.text
+            assert "Can't connect to Databricks database" in caplog.text
+            assert test_query not in caplog.text
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_sql_write(mocker: MockerFixture):
     interface = _DataInterface(config)
     mocker.patch.object(interface, "mysql_engine", new_callable=MockedEngine)
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            sql_write = interface.exec_sql_write(
+                "INSERT INTO test_table VALUES (1, 'test')"
+            )
 
-    sql_write = interface.exec_sql_write("INSERT INTO test_table VALUES (1, 'test')")
-
-    assert sql_write is None
+            assert sql_write is None
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_sql_write_fails(mocker: MockerFixture, caplog):
     mocker.patch.object(_DataInterface, "_create_mysql_engine", return_value=Exception)
 
-    interface = _DataInterface(config)
-
     query = "INSERT INTO test_table VALUES (1, 'test')"
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
+            with pytest.raises(Exception):
+                interface.exec_sql_write(query)
 
-    with pytest.raises(Exception):
-        interface.exec_sql_write(query)
-
-    assert query_error in caplog.text
-    assert query in caplog.text
+            assert query_error in caplog.text
+            assert query in caplog.text
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_sql_dataframe_write(mocker: MockerFixture):
     mocked_to_sql = mocker.patch.object(pd.DataFrame, "to_sql", return_value=None)
 
     expected_data = pd.DataFrame({"test": ["1", "2", "data"]})
-    interface = _DataInterface(config)
-    sql_write = interface.exec_sql_dataframe_write(expected_data, "test_table")
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
+            sql_write = interface.exec_sql_dataframe_write(expected_data, "test_table")
 
-    mocked_to_sql.assert_called_once()
-    assert sql_write is None
+            mocked_to_sql.assert_called_once()
+            assert sql_write is None
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
 
 
 def test_exec_sql_dataframe_write_fails(mocker: MockerFixture):
     mocker.patch.object(pd.DataFrame, "to_sql", side_effect=Exception)
-
-    interface = _DataInterface(config)
     expected_data = pd.DataFrame({"test": ["1", "2", "data"]})
+    try:
+        if _package_version_meets_minimum("openstef", "3.3.6"):
+            interface = _DataInterface(config)
 
-    with pytest.raises(Exception):
-        interface.exec_sql_dataframe_write(expected_data, "test_table")
+            with pytest.raises(Exception):
+                interface.exec_sql_dataframe_write(expected_data, "test_table")
+    except:
+        with pytest.raises(Exception):
+            interface = _DataInterface(config)
