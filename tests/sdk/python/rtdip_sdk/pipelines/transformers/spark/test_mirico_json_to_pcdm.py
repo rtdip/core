@@ -31,6 +31,8 @@ from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
     _package_version_meets_minimum,
 )
 
+EVENTTIME = "2023-11-03T16:21:16"
+
 
 def test_mirico_json_to_pcdm(spark_session: SparkSession):
     mirico_json_data = '{"timeStamp": "2023-11-03T16:21:16", "siteName": "20231016AMEPReleaseTesting1"}'
@@ -49,7 +51,7 @@ def test_mirico_json_to_pcdm(spark_session: SparkSession):
 
     expected_data = [
         {
-            "EventTime": "2023-11-03T16:21:16",
+            "EventTime": EVENTTIME,
             "TagName": "20231016AMEPReleaseTesting1:timeStamp",
             "Status": "Good",
             "Value": "2023-11-03T16:21:16",
@@ -57,7 +59,7 @@ def test_mirico_json_to_pcdm(spark_session: SparkSession):
             "ChangeType": "insert",
         },
         {
-            "EventTime": "2023-11-03T16:21:16",
+            "EventTime": EVENTTIME,
             "TagName": "20231016AMEPReleaseTesting1:siteName",
             "Status": "Good",
             "Value": "20231016AMEPReleaseTesting1",
@@ -81,8 +83,8 @@ def test_mirico_json_to_pcdm(spark_session: SparkSession):
             assert isinstance(mirico_json_to_pcdm_transformer.libraries(), Libraries)
             assert expected_schema == actual_df.schema
             assert expected_df.collect() == actual_df.collect()
-    except:
-        with pytest.raises(Exception):
+    except Exception as e:
+        with pytest.raises(e):
             mirico_json_to_pcdm_transformer = MiricoJsonToPCDMTransformer(
                 data=mirico_df, source_column_name="body"
             )
