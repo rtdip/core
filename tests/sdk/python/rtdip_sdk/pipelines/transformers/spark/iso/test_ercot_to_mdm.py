@@ -46,23 +46,39 @@ def compare_dataframes(transformer, actual_df, expected_df, order_cols):
     assert str(actual_df.collect()) == str(expected_df.collect())
 
 
+def ercot_to_mdm_test(
+    spark_session: SparkSession,
+    output_type: str,
+    order_cols: list,
+    expected_df: DataFrame,
+    base_path: str,
+):
+    input_df: DataFrame = spark_session.read.csv(
+        f"{base_path}/input.csv", header=True, schema=ERCOT_SCHEMA
+    )
+
+    transformer: BaseRawToMDMTransformer = ERCOTToMDMTransformer(
+        spark_session, input_df, output_type=output_type
+    )
+    actual_df = transformer.transform()
+
+    compare_dataframes(transformer, actual_df, expected_df, order_cols)
+
+
 def test_ercot_to_mdm_usage(spark_session: SparkSession):
     base_path: str = os.path.join(parent_base_path, "ercot_usage")
 
     expected_df: DataFrame = spark_session.read.csv(
         f"{base_path}/output.csv", header=True, schema=MDM_USAGE_SCHEMA
     )
-    input_df: DataFrame = spark_session.read.csv(
-        f"{base_path}/input.csv", header=True, schema=ERCOT_SCHEMA
-    )
 
-    transformer: BaseRawToMDMTransformer = ERCOTToMDMTransformer(
-        spark_session, input_df, output_type="usage"
+    ercot_to_mdm_test(
+        spark_session=spark_session,
+        output_type="usage",
+        order_cols=["Uid", "Timestamp"],
+        expected_df=expected_df,
+        base_path=base_path,
     )
-    actual_df = transformer.transform()
-
-    order_cols = ["Uid", "Timestamp"]
-    compare_dataframes(transformer, actual_df, expected_df, order_cols)
 
 
 def test_ercot_to_mdm_meta(spark_session: SparkSession):
@@ -71,15 +87,11 @@ def test_ercot_to_mdm_meta(spark_session: SparkSession):
     expected_df: DataFrame = spark_session.read.json(
         f"{base_path}/output.json", schema=MDM_META_SCHEMA
     )
-    input_df: DataFrame = spark_session.read.csv(
-        f"{base_path}/input.csv", header=True, schema=ERCOT_SCHEMA
+
+    ercot_to_mdm_test(
+        spark_session=spark_session,
+        output_type="meta",
+        order_cols=["Uid", "TimestampStart"],
+        expected_df=expected_df,
+        base_path=base_path,
     )
-
-    transformer: BaseRawToMDMTransformer = ERCOTToMDMTransformer(
-        spark_session, input_df, output_type="meta"
-    )
-
-    actual_df = transformer.transform()
-
-    order_cols = ["Uid", "TimestampStart"]
-    compare_dataframes(transformer, actual_df, expected_df, order_cols)
