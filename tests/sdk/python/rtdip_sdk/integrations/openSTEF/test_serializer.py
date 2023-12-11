@@ -25,9 +25,6 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.metrics.reporter import Report, Figure, ModelSignature
 from openstef.data_classes.model_specifications import ModelSpecificationDataClass
 from src.sdk.python.rtdip_sdk.integrations.openstef.serializer import MLflowSerializer
-from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
-    _package_version_meets_minimum,
-)
 
 experiment_name = "test_experiment"
 search_runs_path = "mlflow.search_runs"
@@ -72,35 +69,30 @@ def test_save_model(mocker: MockerFixture, caplog):
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
 
-    try:
-        if _package_version_meets_minimum("python", "3.9"):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
-            serializer.save_model(
-                model=model,
-                experiment_name=experiment_name,
-                model_type=model_type,
-                model_specs=model_specs,
-                report=report,
-                phase=phase,
-            )
+    serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    serializer.save_model(
+        model=model,
+        experiment_name=experiment_name,
+        model_type=model_type,
+        model_specs=model_specs,
+        report=report,
+        phase=phase,
+    )
 
-            mocked_set_experiment.assert_called_once_with(
-                experiment_name="mock_username" + experiment_name
-            )
-            mocked_start_run.assert_called_once()
-            mocked_search_runs.assert_called_once()
-            mocked_active_run.assert_called_once()
-            mocked_log_metrics.assert_called_once()
-            mocked_log_params.assert_called_once()
-            mocked_log_model.assert_called_once()
-            assert mocked_set_tag.call_count == 8
-            assert mocked_log_figure.call_count == 2
-            assert "No previous model found in MLflow" not in caplog.text
-            assert "Model saved with MLflow" in caplog.text
-            assert "Logged figures to MLflow." in caplog.text
-    except:
-        with pytest.raises(Exception):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    mocked_set_experiment.assert_called_once_with(
+        experiment_name="mock_username" + experiment_name
+    )
+    mocked_start_run.assert_called_once()
+    mocked_search_runs.assert_called_once()
+    mocked_active_run.assert_called_once()
+    mocked_log_metrics.assert_called_once()
+    mocked_log_params.assert_called_once()
+    mocked_log_model.assert_called_once()
+    assert mocked_set_tag.call_count == 8
+    assert mocked_log_figure.call_count == 2
+    assert "No previous model found in MLflow" not in caplog.text
+    assert "Model saved with MLflow" in caplog.text
+    assert "Logged figures to MLflow." in caplog.text
 
 
 def test_load_model(mocker: MockerFixture):  # write a fail test for empty model
@@ -131,22 +123,16 @@ def test_load_model(mocker: MockerFixture):  # write a fail test for empty model
     mocker.patch.dict(
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
-    try:
-        if _package_version_meets_minimum("python", "3.9"):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
-            serializer.load_model(experiment_name=experiment_name)
 
-            mocked_load_model.assert_called_once()
-            mocked_find_models.assert_called_once()
-            model_uri_spy.assert_called_with(mocker.ANY, "test_uri")
-            determine_model_age_spy.assert_called_with(mocker.ANY, mock_iloc)
-            mocked_get_model_specs.assert_called_once()
-            assert isinstance(
-                mocked_get_model_specs.return_value, ModelSpecificationDataClass
-            )
-    except:
-        with pytest.raises(Exception):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    serializer.load_model(experiment_name=experiment_name)
+
+    mocked_load_model.assert_called_once()
+    mocked_find_models.assert_called_once()
+    model_uri_spy.assert_called_with(mocker.ANY, "test_uri")  # DO THIS
+    determine_model_age_spy.assert_called_with(mocker.ANY, mock_iloc)
+    mocked_get_model_specs.assert_called_once()
+    assert isinstance(mocked_get_model_specs.return_value, ModelSpecificationDataClass)
 
 
 def test_load_model_fails(mocker: MockerFixture):
@@ -157,17 +143,13 @@ def test_load_model_fails(mocker: MockerFixture):
     mocker.patch.dict(
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
-    try:
-        if _package_version_meets_minimum("python", "3.9"):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
 
-            with pytest.raises(LookupError) as e:
-                serializer.load_model(experiment_name=experiment_name)
+    serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
 
-            assert str(e.value) == "Model not found. First train a model!"
-    except:
-        with pytest.raises(Exception):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    with pytest.raises(LookupError) as e:
+        serializer.load_model(experiment_name=experiment_name)
+
+    assert str(e.value) == "Model not found. First train a model!"
 
 
 def test_get_model_age(mocker: MockerFixture, caplog):
@@ -186,17 +168,13 @@ def test_get_model_age(mocker: MockerFixture, caplog):
     mocker.patch.dict(
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
-    try:
-        if _package_version_meets_minimum("python", "3.9"):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
-            serializer.get_model_age(experiment_name=experiment_name)
 
-            mocked_find_models.assert_called_once()
-            determine_model_age_spy.assert_called_with(mocker.ANY, mock_iloc)
-            assert "No model found returning infinite model age!" not in caplog.text
-    except:
-        with pytest.raises(Exception):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    serializer.get_model_age(experiment_name=experiment_name)
+
+    mocked_find_models.assert_called_once()
+    determine_model_age_spy.assert_called_with(mocker.ANY, mock_iloc)
+    assert "No model found returning infinite model age!" not in caplog.text
 
 
 def test_get_model_age_empty(mocker: MockerFixture, caplog):
@@ -207,17 +185,13 @@ def test_get_model_age_empty(mocker: MockerFixture, caplog):
     mocker.patch.dict(
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
-    try:
-        if _package_version_meets_minimum("python", "3.9"):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
-            age = serializer.get_model_age(experiment_name=experiment_name)
 
-            mocked_find_models.assert_called_once()
-            assert age == np.inf
-            assert "No model found returning infinite model age!" in caplog.text
-    except:
-        with pytest.raises(Exception):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    age = serializer.get_model_age(experiment_name=experiment_name)
+
+    mocked_find_models.assert_called_once()
+    assert age == np.inf
+    assert "No model found returning infinite model age!" in caplog.text
 
 
 def test_remove_old_models(mocker: MockerFixture):
@@ -239,20 +213,14 @@ def test_remove_old_models(mocker: MockerFixture):
     mocker.patch.dict(
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
-    try:
-        if _package_version_meets_minimum("python", "3.9"):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
-            serializer.remove_old_models(
-                experiment_name=experiment_name, max_n_models=2
-            )
 
-            mocked_find_models.assert_called_once()
-            mocked_delete_run.assert_called()
-            mocked_get_run.assert_called()
-            mocked_get_artifact_repository.assert_called()
-    except:
-        with pytest.raises(Exception):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    serializer.remove_old_models(experiment_name=experiment_name, max_n_models=2)
+
+    mocked_find_models.assert_called_once()
+    mocked_delete_run.assert_called()
+    mocked_get_run.assert_called()
+    mocked_get_artifact_repository.assert_called()
 
 
 def test_remove_old_models_fails(mocker: MockerFixture, caplog):
@@ -274,16 +242,10 @@ def test_remove_old_models_fails(mocker: MockerFixture, caplog):
     mocker.patch.dict(
         os_path, {"DATABRICKS_WORKSPACE_PATH": "mock_username"}, clear=True
     )
-    try:
-        if _package_version_meets_minimum("python", "3.9"):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
 
-            with pytest.raises(Exception):
-                serializer.remove_old_models(
-                    experiment_name=experiment_name, max_n_models=2
-                )
+    serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
 
-            assert "Removed artifacts" not in caplog.text
-    except:
-        with pytest.raises(Exception):
-            serializer = MLflowSerializer(mlflow_tracking_uri="test_uri")
+    with pytest.raises(Exception):
+        serializer.remove_old_models(experiment_name=experiment_name, max_n_models=2)
+
+    assert "Removed artifacts" not in caplog.text

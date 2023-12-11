@@ -33,9 +33,6 @@ from openstef.data_classes.model_specifications import ModelSpecificationDataCla
 from openstef.metrics.reporter import Report
 from openstef.model.regressors.regressor import OpenstfRegressor
 from openstef.model.serializer import MLflowSerializer
-from ..._sdk_utils.compare_versions import (
-    _package_version_meets_minimum,
-)
 
 
 class MLflowSerializer(MLflowSerializer):
@@ -43,7 +40,6 @@ class MLflowSerializer(MLflowSerializer):
         self.logger = structlog.get_logger(self.__class__.__name__)
         mlflow.set_tracking_uri(mlflow_tracking_uri)
         self.logger.debug(f"MLflow tracking uri at init= {mlflow_tracking_uri}")
-        _package_version_meets_minimum("python", "3.9")
 
     def save_model(
         self,
