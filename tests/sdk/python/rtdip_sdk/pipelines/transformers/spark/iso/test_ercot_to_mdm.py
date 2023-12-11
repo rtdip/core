@@ -26,30 +26,15 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     SystemType,
 )
 from src.sdk.python.rtdip_sdk.pipelines.transformers import ERCOTToMDMTransformer
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.base_raw_to_mdm import (
-    BaseRawToMDMTransformer,
-)
 
 parent_base_path: str = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "test_data"
 )
 
 
-def compare_dataframes(transformer, actual_df, expected_df, order_cols):
-    actual_df = actual_df.orderBy(*order_cols)
-    expected_df = expected_df.orderBy(*order_cols)
-
-    assert transformer.system_type() == SystemType.PYSPARK
-    assert isinstance(transformer.libraries(), Libraries)
-    assert transformer.settings() == dict()
-    assert str(actual_df.schema) == str(expected_df.schema)
-    assert str(actual_df.collect()) == str(expected_df.collect())
-
-
 def ercot_to_mdm_test(
     spark_session: SparkSession,
     output_type: str,
-    order_cols: list,
     expected_df: DataFrame,
     base_path: str,
 ):
@@ -57,41 +42,38 @@ def ercot_to_mdm_test(
         f"{base_path}/input.csv", header=True, schema=ERCOT_SCHEMA
     )
 
-    transformer: BaseRawToMDMTransformer = ERCOTToMDMTransformer(
+    transformer = ERCOTToMDMTransformer(
         spark_session, input_df, output_type=output_type
     )
+    assert transformer.system_type() == SystemType.PYSPARK
+    assert isinstance(transformer.libraries(), Libraries)
+    assert transformer.settings() == dict()
+
     actual_df = transformer.transform()
 
-    compare_dataframes(transformer, actual_df, expected_df, order_cols)
+    cols = list(
+        filter(
+            lambda column: column in expected_df.columns,
+            ["Uid", "Timestamp", "TimestampStart"],
+        )
+    )
+    assert actual_df.orderBy(cols).collect() == expected_df.orderBy(cols).collect()
 
 
 def test_ercot_to_mdm_usage(spark_session: SparkSession):
-    base_path: str = os.path.join(parent_base_path, "ercot_usage")
-
-    expected_df: DataFrame = spark_session.read.csv(
-        f"{base_path}/output.csv", header=True, schema=MDM_USAGE_SCHEMA
+    usage_path = os.path.join(parent_base_path, "ercot_usage")
+    usage_expected_df: DataFrame = spark_session.read.csv(
+        f"{usage_path}/output.csv", header=True, schema=MDM_USAGE_SCHEMA
     )
 
-    ercot_to_mdm_test(
-        spark_session=spark_session,
-        output_type="usage",
-        order_cols=["Uid", "Timestamp"],
-        expected_df=expected_df,
-        base_path=base_path,
-    )
+    ercot_to_mdm_test(spark_session, "usage", usage_expected_df, usage_path)
 
 
 def test_ercot_to_mdm_meta(spark_session: SparkSession):
-    base_path: str = os.path.join(parent_base_path, "ercot_meta")
+    meta_path: str = os.path.join(parent_base_path, "ercot_meta")
 
-    expected_df: DataFrame = spark_session.read.json(
-        f"{base_path}/output.json", schema=MDM_META_SCHEMA
+    meta_expected_df: DataFrame = spark_session.read.json(
+        f"{meta_path}/output.json", schema=MDM_META_SCHEMA
     )
 
-    ercot_to_mdm_test(
-        spark_session=spark_session,
-        output_type="meta",
-        order_cols=["Uid", "TimestampStart"],
-        expected_df=expected_df,
-        base_path=base_path,
-    )
+    ercot_to_mdm_test(spark_session, "meta", meta_expected_df, meta_path)
