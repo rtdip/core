@@ -80,7 +80,6 @@ setup(
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -94,7 +93,7 @@ setup(
     package_dir={"": "src/sdk/python"},
     include_package_data=True,
     packages=find_packages(where="src/sdk/python"),
-    python_requires=">=3.8, <3.12",
+    python_requires=">=3.9, <3.12",
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_DEPENDENCIES,
     setup_requires=["pytest-runner", "setuptools_scm"],

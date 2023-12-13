@@ -73,7 +73,6 @@ class Settings(BaseSettings):
 config = Settings()
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_influx_one_query(mocker: MockerFixture):
     df = pd.DataFrame(
         {
@@ -100,7 +99,6 @@ def test_exec_influx_one_query(mocker: MockerFixture):
     mocked_read_sql.assert_called_once()
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_influx_multi_query(mocker: MockerFixture):
     df = pd.DataFrame(
         {
@@ -136,7 +134,6 @@ def test_exec_influx_multi_query(mocker: MockerFixture):
     assert mocked_read_sql.call_count == 2
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_influx_query_fails(mocker: MockerFixture, caplog):
     mocker.patch.object(pd, "read_sql", side_effect=Exception)
 
@@ -157,7 +154,6 @@ def test_exec_influx_query_fails(mocker: MockerFixture, caplog):
     assert escaped_query in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_influx_write(mocker: MockerFixture):
     mocked_to_sql = mocker.patch.object(pd.DataFrame, "to_sql", return_value=None)
 
@@ -183,7 +179,6 @@ def test_exec_influx_write(mocker: MockerFixture):
     assert sql_query is True
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_influx_write_fails(mocker: MockerFixture, caplog):
     mocker.patch.object(pd.DataFrame, "to_sql", side_effect=Exception)
 
@@ -210,7 +205,6 @@ def test_exec_influx_write_fails(mocker: MockerFixture, caplog):
     assert "Exception occured during writing to Databricks database" in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_sql_query(mocker: MockerFixture):
     mocked_read_sql = mocker.patch.object(pd, "read_sql", return_value=None)
 
@@ -221,7 +215,6 @@ def test_exec_sql_query(mocker: MockerFixture):
     assert sql_query is None
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_sql_query_operational_fails(mocker: MockerFixture, caplog):
     interface = _DataInterface(config)
 
@@ -240,7 +233,6 @@ def test_exec_sql_query_operational_fails(mocker: MockerFixture, caplog):
     assert test_query not in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_sql_query_programming_fails(mocker: MockerFixture, caplog):
     interface = _DataInterface(config)
 
@@ -257,7 +249,6 @@ def test_exec_sql_query_programming_fails(mocker: MockerFixture, caplog):
     assert test_query in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_sql_query_database_fails(mocker: MockerFixture, caplog):
     interface = _DataInterface(config)
 
@@ -276,7 +267,6 @@ def test_exec_sql_query_database_fails(mocker: MockerFixture, caplog):
     assert test_query not in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_sql_write(mocker: MockerFixture):
     interface = _DataInterface(config)
     mocker.patch.object(interface, "mysql_engine", new_callable=MockedEngine)
@@ -286,7 +276,6 @@ def test_exec_sql_write(mocker: MockerFixture):
     assert sql_write is None
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_sql_write_fails(mocker: MockerFixture, caplog):
     mocker.patch.object(_DataInterface, "_create_mysql_engine", return_value=Exception)
 
@@ -301,7 +290,6 @@ def test_exec_sql_write_fails(mocker: MockerFixture, caplog):
     assert query in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_sql_dataframe_write(mocker: MockerFixture):
     mocked_to_sql = mocker.patch.object(pd.DataFrame, "to_sql", return_value=None)
 
@@ -313,7 +301,6 @@ def test_exec_sql_dataframe_write(mocker: MockerFixture):
     assert sql_write is None
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_exec_sql_dataframe_write_fails(mocker: MockerFixture):
     mocker.patch.object(pd.DataFrame, "to_sql", side_effect=Exception)
 
