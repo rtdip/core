@@ -33,7 +33,6 @@ os_path = "os.environ"
 phase = "test_phase"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_save_model(mocker: MockerFixture, caplog):
     model = mocker.MagicMock(spec=OpenstfRegressor)
     models_df = mocker.MagicMock(spec=pd.DataFrame)
@@ -96,7 +95,6 @@ def test_save_model(mocker: MockerFixture, caplog):
     assert "Logged figures to MLflow." in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_load_model(mocker: MockerFixture):  # write a fail test for empty model
     latest_run = mocker.MagicMock(spec=pd.DataFrame)
     latest_run.empty = False
@@ -137,7 +135,6 @@ def test_load_model(mocker: MockerFixture):  # write a fail test for empty model
     assert isinstance(mocked_get_model_specs.return_value, ModelSpecificationDataClass)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_load_model_fails(mocker: MockerFixture):
     latest_run = mocker.MagicMock(spec=pd.DataFrame)
     latest_run.empty = True
@@ -155,7 +152,6 @@ def test_load_model_fails(mocker: MockerFixture):
     assert str(e.value) == "Model not found. First train a model!"
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_get_model_age(mocker: MockerFixture, caplog):
     latest_run = mocker.MagicMock(spec=pd.DataFrame)
     latest_run.empty = False
@@ -181,7 +177,6 @@ def test_get_model_age(mocker: MockerFixture, caplog):
     assert "No model found returning infinite model age!" not in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_get_model_age_empty(mocker: MockerFixture, caplog):
     latest_run = mocker.MagicMock(spec=pd.DataFrame)
     latest_run.empty = True
@@ -199,7 +194,6 @@ def test_get_model_age_empty(mocker: MockerFixture, caplog):
     assert "No model found returning infinite model age!" in caplog.text
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_remove_old_models(mocker: MockerFixture):
     data = {
         "age": [1, 2, 3, 4],
@@ -229,7 +223,6 @@ def test_remove_old_models(mocker: MockerFixture):
     mocked_get_artifact_repository.assert_called()
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="requires python3.9")
 def test_remove_old_models_fails(mocker: MockerFixture, caplog):
     data = {
         "age": [1, 2, 3, 4],
