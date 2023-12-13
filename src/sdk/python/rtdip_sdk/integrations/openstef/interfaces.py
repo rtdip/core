@@ -169,9 +169,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
                 return df_list
 
         except Exception as e:
-            self.logger.error(
-                QUERY_ERROR_MESSAGE, query=query, exc_info=e
-            )
+            self.logger.error(QUERY_ERROR_MESSAGE, query=query, exc_info=e)
             raise
 
     def exec_influx_write(
@@ -369,7 +367,9 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         if params is None:
             params = {}
 
-        if " join " in query.lower().replace("\t", " ") and " on " not in query.lower().replace("\t", " "):
+        if " join " in query.lower().replace(
+            "\t", " "
+        ) and " on " not in query.lower().replace("\t", " "):
             join_pattern = re.compile(r"JOIN\s+\((.*?)\)", re.IGNORECASE | re.DOTALL)
             matches = re.search(join_pattern, query).group(1)
             joins = [f"CROSS JOIN {x.strip()}" for x in matches.split(",")]
@@ -399,9 +399,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             self.logger.error("Lost connection to Databricks database", exc_info=e)
             raise
         except sqlalchemy.exc.ProgrammingError as e:
-            self.logger.error(
-                QUERY_ERROR_MESSAGE, query=query, exc_info=e
-            )
+            self.logger.error(QUERY_ERROR_MESSAGE, query=query, exc_info=e)
             raise
         except sqlalchemy.exc.DatabaseError as e:
             self.logger.error("Can't connect to Databricks database", exc_info=e)
@@ -454,9 +452,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
                 )
 
         except Exception as e:
-            self.logger.error(
-                QUERY_ERROR_MESSAGE, query=statement, exc_info=e
-            )
+            self.logger.error(QUERY_ERROR_MESSAGE, query=statement, exc_info=e)
             raise
 
     def exec_sql_dataframe_write(
