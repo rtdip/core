@@ -203,6 +203,7 @@ nav:
                       - ISO:
                           - MISO To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm.md
                           - PJM To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/pjm_to_mdm.md
+                          - ERCOT To Meters Data Model: sdk/code-reference/pipelines/transformers/spark/iso/ercot_to_mdm.md
                       - The Weather Company:
                           - Raw Forecast To Weather Data Model: sdk/code-reference/pipelines/transformers/spark/the_weather_company/raw_forecast_to_weather_data_model.md
                       - ECMWF:
