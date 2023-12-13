@@ -172,16 +172,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             self.logger.error(QUERY_ERROR_MESSAGE, query=query, exc_info=e)
             raise
 
-    def exec_influx_write(
-        self,
-        df: pd.DataFrame,
-        database: str,
-        measurement: str,
-        tag_columns: list,
-        organization: str = None,
-        field_columns: list = None,
-        time_precision: str = "s",
-    ) -> bool:
+    def _check_inputs(self, df: pd.DataFrame, tag_columns: list):
         if type(tag_columns) is not list:
             raise ValueError("'tag_columns' should be a list")
 
@@ -212,6 +203,18 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             raise ValueError(
                 f"Dataframe missing tag columns. Missing tag columns: {tag_cols}"
             )
+
+    def exec_influx_write(
+        self,
+        df: pd.DataFrame,
+        database: str,
+        measurement: str,
+        tag_columns: list,
+        organization: str = None,
+        field_columns: list = None,
+        time_precision: str = "s",
+    ) -> bool:
+        self._check_inputs(df, tag_columns)
 
         if field_columns is None:
             field_columns = [x for x in list(df.columns) if x not in tag_columns]
@@ -249,7 +252,10 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             "pressure": "float",
             "quality": "str",
             "radiation": "float",
+            "radiation_direct": "float",
+            "radiation_diffuse": "float",
             "radiation_ensemble": "float",
+            "radiation_normal": "float",
             "rain": "float",
             "sea_level": "float",
             "snowDepth": "float",
@@ -376,7 +382,7 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             query = re.sub(join_pattern, " ".join(joins), query)
 
         pattern = re.compile(
-            r"(GROUP\s+BY).*?(?=(ORDER|HAVING|LIMIT|OFFSET|\n))",
+            r"(GROUP\s+BY\s+\w+)(?=(ORDER|HAVING|LIMIT|OFFSET|\n))",
             re.IGNORECASE | re.DOTALL,
         )
 
@@ -386,8 +392,8 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
         words = query.split()
         for i in range(0, len(words)):
             if "%" in words[i] and words[i - 1].lower() == "like":
-                new_query.append("%(" + words[i][1:-1] + ")s")
-                params[words[i][1:-1]] = words[i][1:-1]
+                new_query.append("%(" + words[i].replace("'", "") + ")s")
+                params[words[i].replace("'", "")] = words[i].replace("'", "")
             else:
                 new_query.append(words[i])
 
