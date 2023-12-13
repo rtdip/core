@@ -53,7 +53,7 @@ def _build_parameters(query):
         parameters["range_join_seconds"] = int(parameters["time_interval_rate"][0]) * 60
 
     filter_sections = re.findall(
-        r"\|> filter\(fn: \(r\) => (.*?)(?=\s*\||$)", query, re.DOTALL
+        r"\|> filter\(fn: \(r\) => ([^|]*)(?=\s*\||$)", query, re.DOTALL
     )
     _filter = " AND ".join(["(" + i.strip() for i in filter_sections])
 

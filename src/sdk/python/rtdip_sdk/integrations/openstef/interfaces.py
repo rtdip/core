@@ -381,12 +381,10 @@ class _DataInterface(_DataInterface, metaclass=Singleton):
             joins = [f"CROSS JOIN {x.strip()}" for x in matches.split(",")]
             query = re.sub(join_pattern, " ".join(joins), query)
 
-        pattern = re.compile(
-            r"(GROUP\s+BY\s+\w+)(?=(ORDER|HAVING|LIMIT|OFFSET|\n))",
-            re.IGNORECASE | re.DOTALL,
+        pattern = re.compile(r"GROUP BY \w+\.\w+", re.IGNORECASE | re.DOTALL)
+        query = pattern.sub("GROUP BY ALL", query).replace(
+            "HAVING", "GROUP BY ALL HAVING"
         )
-
-        query = pattern.sub(r"\1 ALL ", query).replace("HAVING", "GROUP BY ALL HAVING")
 
         new_query = []
         words = query.split()
