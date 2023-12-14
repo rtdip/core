@@ -18,15 +18,13 @@ from pyspark.sql.functions import (
     col,
     explode,
     to_timestamp,
-    when,
-    lit,
     coalesce,
 )
 from pyspark.sql.types import ArrayType, StringType
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.spark import OPC_PUBLISHER_SCHEMA
+from ..._pipeline_utils.spark import OPC_PUBLISHER_AE_SCHEMA
 
 
 class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
@@ -41,8 +39,6 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
     opc_publisher_opcua_json_to_pcdm_transformer = OPCPublisherOPCAEJsonToPCDMTransformer(
         data=df,
         souce_column_name="body",
-        status_null_value="Good",
-        change_type_value="insert",
         timestamp_formats=[
             "yyyy-MM-dd'T'HH:mm:ss.SSSX",
             "yyyy-MM-dd'T'HH:mm:ssX"
@@ -56,17 +52,12 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
     Parameters:
         data (DataFrame): Dataframe containing the column with Json OPC AE data
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC AE data
-        status_null_value (optional str): If populated, will replace null values in the Status column with the specified value.
-        change_type_value (optional str): If populated, will replace 'insert' in the ChangeType column with the specified value.
         timestamp_formats (optional list[str]): Specifies the timestamp formats to be used for converting the timestamp string to a Timestamp Type. For more information on formats, refer to this [documentation.](https://spark.apache.org/docs/latest/sql-ref-datetime-pattern.html)
         filter (optional str): Enables providing a filter to the data which can be required in certain scenarios. For example, it would be possible to filter on IoT Hub Device Id and Module by providing a filter in SQL format such as `systemProperties.iothub-connection-device-id = "<Device Id>" AND systemProperties.iothub-connection-module-id = "<Module>"`
     """
 
     data: DataFrame
     source_column_name: str
-    tagname_field: str
-    status_null_value: str
-    change_type_value: str
     timestamp_formats: list
     filter: str
 
@@ -74,9 +65,6 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
         self,
         data: DataFrame,
         source_column_name: str,
-        tagname_field: str = "DisplayName",
-        status_null_value: str = None,
-        change_type_value: str = "insert",
         timestamp_formats: list = [
             "yyyy-MM-dd'T'HH:mm:ss.SSSX",
             "yyyy-MM-dd'T'HH:mm:ssX",
@@ -85,9 +73,6 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
     ) -> None:  # NOSONAR
         self.data = data
         self.source_column_name = source_column_name
-        self.tagname_field = tagname_field
-        self.status_null_value = status_null_value
-        self.change_type_value = change_type_value
         self.timestamp_formats = timestamp_formats
         self.filter = filter
 
@@ -128,49 +113,50 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
         if self.filter != None:
             df = df.where(self.filter)
 
-        df = df.withColumn('OPCAE', from_json(col('body'), json_schema))
+        df = df.withColumn('OPCAE', from_json(col(self.source_column_name), OPC_PUBLISHER_AE_SCHEMA))
 
-        df_data = df_data.select(col("enqueuedTime"),col("OPCAE.NodeId"),col("OPCAE.DisplayName"), col("OPCAE.Value.*"))
-        df_data = df_data.select(col("enqueuedTime"),col("OPCAE.NodeId"),col("OPCAE.DisplayName"), col("OPCAE.Value.ConditionId.SourceTimestamp"), col("OPCAE.Value.*.Value"))
-
-
-        df = 
+        df = df.select(col("enqueuedTime").alias("EnqueuedTime"),col("OPCAE.NodeId"),col("OPCAE.DisplayName"), 
+            col("OPCAE.Value.ConditionId.Value").alias("ConditionId"),
+            col("OPCAE.Value.AckedState.Value").alias("AckedState"),
+            col("OPCAE.Value.AckedState/FalseState.Value").alias("AckedState/FalseState"),
+            col("OPCAE.Value.AckedState/Id.Value").alias("AckedState/Id"),
+            col("OPCAE.Value.AckedState/TrueState.Value").alias("AckedState/TrueState"),
+            col("OPCAE.Value.ActiveState.Value").alias("ActiveState"),
+            col("OPCAE.Value.ActiveState/FalseState.Value").alias("ActiveState/FalseState"),
+            col("OPCAE.Value.ActiveState/Id.Value").alias("ActiveState/Id"),
+            col("OPCAE.Value.ActiveState/TrueState.Value").alias("ActiveState/TrueState"),
+            col("OPCAE.Value.EnabledState.Value").alias("EnabledState"),
+            col("OPCAE.Value.EnabledState/FalseState.Value").alias("EnabledState/FalseState"),
+            col("OPCAE.Value.EnabledState/Id.Value").alias("EnabledState/Id"),
+            col("OPCAE.Value.EnabledState/TrueState.Value").alias("EnabledState/TrueState"),
+            col("OPCAE.Value.EventId.Value").alias("EventId"),
+            col("OPCAE.Value.EventType.Value").alias("EventType"),
+            col("OPCAE.Value.HighHighLimit.Value").alias("HighHighLimit"),
+            col("OPCAE.Value.HighLimit.Value").alias("HighLimit"),
+            col("OPCAE.Value.InputNode.Value").alias("InputNode"),
+            col("OPCAE.Value.LowLimit.Value").alias("LowLimit"),
+            col("OPCAE.Value.LowLowLimit.Value").alias("LowLowLimit"),
+            col("OPCAE.Value.Message.Value").alias("Message"),
+            col("OPCAE.Value.Quality.Value").alias("Quality"),
+            col("OPCAE.Value.ReceiveTime.Value").alias("ReceiveTime"),
+            col("OPCAE.Value.Retain.Value").alias("Retain"),
+            col("OPCAE.Value.Severity.Value").alias("Severity"),
+            col("OPCAE.Value.SourceName.Value").alias("SourceName"),
+            col("OPCAE.Value.SourceNode.Value").alias("SourceNode"),
+            col("OPCAE.Value.Time.Value").alias("EventTime")
+            )
 
         df = (
             df.withColumn(
-                "OPCUA", from_json(col(self.source_column_name), OPC_PUBLISHER_SCHEMA)
-            )
-            .withColumn("TagName", (col("OPCUA.{}".format(self.tagname_field))))
-            .withColumn(
                 "EventTime",
                 coalesce(
                     *[
-                        to_timestamp(col("OPCUA.Value.SourceTimestamp"), f)
+                        to_timestamp(col("EventTime"), f)
                         for f in self.timestamp_formats
                     ]
                 ),
             )
-            .withColumn("Value", col("OPCUA.Value.Value"))
-            .withColumn(
-                "ValueType",
-                when(col("Value").cast("float").isNotNull(), "float")
-                .when(col("Value").cast("float").isNull(), "string")
-                .otherwise("unknown"),
-            )
-            .withColumn("ChangeType", lit(self.change_type_value))
+     
         )
 
-        status_col_name = "OPCUA.Value.StatusCode.Symbol"
-        if self.status_null_value != None:
-            df = df.withColumn(
-                "Status",
-                when(col(status_col_name).isNotNull(), col(status_col_name)).otherwise(
-                    lit(self.status_null_value)
-                ),
-            )
-        else:
-            df = df.withColumn("Status", col(status_col_name))
-
-        return df.select(
-            "TagName", "EventTime", "Status", "Value", "ValueType", "ChangeType"
-        )
+        return df
