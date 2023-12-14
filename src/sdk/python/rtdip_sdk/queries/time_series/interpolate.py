@@ -17,6 +17,8 @@ import pandas as pd
 import sys
 from ._time_series_query_builder import _query_builder
 
+logging.warning("Please use TimeSeriesQueryBuilder to query interpolated data.")
+
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """

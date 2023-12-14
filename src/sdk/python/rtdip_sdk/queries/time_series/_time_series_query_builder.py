@@ -14,6 +14,7 @@
 
 from jinja2 import Template
 import datetime
+import logging
 from datetime import datetime, time
 from .._utilities_query_builder import (
     _is_date_format,
@@ -22,6 +23,9 @@ from .._utilities_query_builder import (
     _convert_to_seconds,
 )
 
+logging.warning(
+    "Please use TimeSeriesQueryBuilder to query time weighted average data."
+)
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}

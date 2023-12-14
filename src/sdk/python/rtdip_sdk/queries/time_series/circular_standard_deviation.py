@@ -15,6 +15,10 @@ import logging
 import pandas as pd
 from ._time_series_query_builder import _query_builder
 
+logging.warning(
+    "Please use TimeSeriesQueryBuilder to query circular standard deviation data."
+)
+
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """

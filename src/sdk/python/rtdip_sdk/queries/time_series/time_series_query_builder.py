@@ -29,7 +29,7 @@ from .. import metadata
 from pandas import DataFrame
 
 
-class QueryBuilder:
+class TimeSeriesQueryBuilder:
     """
     A builder for developing RTDIP queries using any delta table.
     """
