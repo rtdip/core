@@ -16,7 +16,7 @@ import sys
 
 sys.path.insert(0, ".")
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.opc_publisher_opcae_json_to_pcdm import (
-    OPCPublisherOPCUAJsonToPCDMTransformer,
+    OPCPublisherOPCAEJsonToPCDMTransformer,
 )
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
@@ -44,7 +44,6 @@ def test_opc_publisher_json_to_pcdm(spark_session: SparkSession):
 
     expected_schema = StructType(
         [
-            StructField("EnqueuedTime", TimestampType(), True),
             StructField("NodeId", StringType(), True),
             StructField("DisplayName", StringType(), True),
             StructField("ConditionId", StringType(), True),
@@ -80,7 +79,6 @@ def test_opc_publisher_json_to_pcdm(spark_session: SparkSession):
 
     expected_data = [
         {
-            "EnqueuedTime": datetime.fromisoformat("2023-10-19T13:08:09.049+00:00"),
             "NodeId": "ns=6;s=MyLevel.Alarm",
             "DisplayName": "MyLevelAlarm",
             "ConditionId": "http://www.prosysopc.com/OPCUA/SampleAddressSpace#s=MyLevel.Alarm",
@@ -117,12 +115,12 @@ def test_opc_publisher_json_to_pcdm(spark_session: SparkSession):
     expected_df: DataFrame = spark_session.createDataFrame(
         schema=expected_schema, data=expected_data
     )
-    eventhub_json_to_opcua_transformer = OPCPublisherOPCUAJsonToPCDMTransformer(
-        opcua_df, source_column_name="body", status_null_value="Good"
+    eventhub_json_to_opcae_transformer = OPCPublisherOPCAEJsonToPCDMTransformer(
+        opcua_df, source_column_name="body"
     )
-    actual_df = eventhub_json_to_opcua_transformer.transform()
+    actual_df = eventhub_json_to_opcae_transformer.transform()
 
-    assert eventhub_json_to_opcua_transformer.system_type() == SystemType.PYSPARK
-    assert isinstance(eventhub_json_to_opcua_transformer.libraries(), Libraries)
+    assert eventhub_json_to_opcae_transformer.system_type() == SystemType.PYSPARK
+    assert isinstance(eventhub_json_to_opcae_transformer.libraries(), Libraries)
     assert expected_schema == actual_df.schema
     assert expected_df.collect() == actual_df.collect()

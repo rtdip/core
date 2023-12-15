@@ -27,7 +27,7 @@ from ..._pipeline_utils.models import Libraries, SystemType
 from ..._pipeline_utils.spark import OPC_PUBLISHER_AE_SCHEMA
 
 
-class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
+class OPCPublisherOPCAEJsonToPCDMTransformer(TransformerInterface):
     """
     Converts a Spark Dataframe column containing a json string created by OPC Publisher for A&E(Alarm &Events) data to the Process Control Data Model.
 
@@ -46,7 +46,7 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
         filter=None
     )
 
-    result = opc_publisher_opcAE_json_to_pcdm_transformer.transform()
+    result = opc_publisher_opcae_json_to_pcdm_transformer.transform()
     ```
 
     Parameters:
@@ -65,15 +65,15 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
         self,
         data: DataFrame,
         source_column_name: str,
-        timestamp_formats: list = [
-            "yyyy-MM-dd'T'HH:mm:ss.SSSX",
-            "yyyy-MM-dd'T'HH:mm:ssX",
-        ],
+        timestamp_formats=None,
         filter: str = None,
     ) -> None:  # NOSONAR
         self.data = data
         self.source_column_name = source_column_name
-        self.timestamp_formats = timestamp_formats
+        self.timestamp_formats = timestamp_formats or [
+            "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+            "yyyy-MM-dd'T'HH:mm:ssX",
+        ]
         self.filter = filter
 
     @staticmethod
@@ -102,7 +102,7 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
     def transform(self) -> DataFrame:
         """
         Returns:
-            DataFrame: A dataframe with the specified column converted to PCDM
+            DataFrame: A dataframe with the OPC Publisher A&E data converted to the Process Control Data Model
         """
 
         df = self.data.withColumn(
@@ -118,7 +118,6 @@ class OPCPublisherOPCUAJsonToPCDMTransformer(TransformerInterface):
         )
 
         df = df.select(
-            col("enqueuedTime").alias("EnqueuedTime"),
             col("OPCAE.NodeId"),
             col("OPCAE.DisplayName"),
             col("OPCAE.Value.ConditionId.Value").alias("ConditionId"),
