@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder import (
-    QueryBuilder,
+    TimeSeriesQueryBuilder,
 )
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
@@ -29,7 +29,7 @@ def test_query_builder_raw(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .raw(
@@ -46,7 +46,7 @@ def test_query_builder_resample(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE)
         .resample(
@@ -68,7 +68,7 @@ def test_query_builder_interpolate(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source("mock_catalog.mock_scema.mock_table", status_column=None)
         .interpolate(
@@ -91,7 +91,7 @@ def test_query_builder_interpolation_at_time(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .interpolation_at_time(
@@ -109,7 +109,7 @@ def test_query_builder_twa(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .time_weighted_average(
@@ -132,7 +132,7 @@ def test_query_builder_metadata(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE)
         .metadata(tagname_filter=["mock_tag"])
@@ -162,7 +162,7 @@ def test_query_builder_circular_average(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .circular_average(
@@ -185,7 +185,7 @@ def test_query_builder_circular_standard_deviation(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .circular_standard_deviation(
@@ -208,7 +208,7 @@ def test_query_builder_summary(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .summary(

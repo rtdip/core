@@ -23,10 +23,6 @@ from .._utilities_query_builder import (
     _convert_to_seconds,
 )
 
-logging.warning(
-    "Please use TimeSeriesQueryBuilder to query time weighted average data."
-)
-
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
@@ -612,6 +608,9 @@ def _summary_query(parameters_dict: dict) -> str:
 
 
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
+    if "supress_warning" not in parameters_dict:
+        logging.warning("Please use the TimeSeriesQueryBuilder to build queries")
+
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
     tagnames_deduplicated = list(
