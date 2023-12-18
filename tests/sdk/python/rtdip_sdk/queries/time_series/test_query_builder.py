@@ -147,7 +147,7 @@ def test_query_builder_latest(mocker: MockerFixture):
     )
 
     data = (
-        QueryBuilder()
+        TimeSeriesQueryBuilder()
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE)
         .latest(tagname_filter=["mock_tag"])
