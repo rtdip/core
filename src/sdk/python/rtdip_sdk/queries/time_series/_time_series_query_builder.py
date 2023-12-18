@@ -609,7 +609,9 @@ def _summary_query(parameters_dict: dict) -> str:
 
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if "supress_warning" not in parameters_dict:
-        logging.warning("Please use the TimeSeriesQueryBuilder to build queries")
+        logging.warning(
+            "Please use the TimeSeriesQueryBuilder() to build time series queries."
+        )
 
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []

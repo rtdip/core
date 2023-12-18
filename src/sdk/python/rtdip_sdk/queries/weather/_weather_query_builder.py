@@ -189,7 +189,7 @@ def _latest_query_point(parameters_dict: dict) -> str:
 
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
     if "supress_warning" not in parameters_dict:
-        logging.warning("Please use the TimeSeriesQueryBuilder to build queries")
+        logging.warning("Please use the WeatherQueryBuilder() to build weather queries")
 
     if query_type == "latest_point":
         return _latest_query_point(parameters_dict)
