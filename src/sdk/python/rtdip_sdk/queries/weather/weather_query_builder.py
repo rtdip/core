@@ -112,6 +112,7 @@ class WeatherQueryBuilder:
             "time_zone": time_zone,
             "include_bad_data": include_bad_data,
             "limit": limit,
+            "supress_warning": True,
         }
 
         return raw.get_point(self.connection, raw_parameters)
@@ -152,6 +153,7 @@ class WeatherQueryBuilder:
             "lon": lon,
             "source": source,
             "limit": limit,
+            "supress_warning": True,
         }
 
         return latest.get_point(self.connection, raw_parameters)
@@ -210,6 +212,7 @@ class WeatherQueryBuilder:
             "time_zone": time_zone,
             "include_bad_data": include_bad_data,
             "limit": limit,
+            "supress_warning": True,
         }
 
         return raw.get_grid(self.connection, raw_parameters)
@@ -256,6 +259,7 @@ class WeatherQueryBuilder:
             "max_lon": max_lon,
             "source": source,
             "limit": limit,
+            "supress_warning": True,
         }
 
         return latest.get_grid(self.connection, raw_parameters)
