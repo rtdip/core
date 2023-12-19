@@ -48,6 +48,8 @@ MOCKED_PARAMETER_DICT_GRID = {
     "max_lon": 0.1,
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
+    "forecast_run_start_date": "2020-01-01",
+    "forecast_run_end_date": "2020-01-02",
 }
 
 MOCKED_PARAMETER_DICT_POINT = {
@@ -56,14 +58,10 @@ MOCKED_PARAMETER_DICT_POINT = {
     "lon": 0,
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
+    "forecast_run_start_date": "2020-01-01",
+    "forecast_run_end_date": "2020-01-02",
 }
 
-MOCKED_NO_TAG_QUERY = "SELECT * FROM `mocked-business-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_latest` ORDER BY `TagName` "
-MOCKED_PARAMETER_NO_TAGS_DICT = {
-    "forecast": "mocked-forecast",
-    "region": "mocked-region",
-    "data_security_level": "mocked-data-security-level",
-}
 
 
 def test_latest_grid(mocker: MockerFixture):
