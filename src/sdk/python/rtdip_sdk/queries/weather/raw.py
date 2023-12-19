@@ -34,10 +34,7 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        forecast (str): Business unit
-        region (str): Region
-        data_security_level (str): Level of data security
-        data_type (str): Type of the data (float, integer, double, string)
+        table_name (str): Name of the table
         start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         max_lat (float): Maximum latitude
@@ -89,10 +86,7 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        forecast (str): Business unit
-        region (str): Region
-        data_security_level (str): Level of data security
-        data_type (str): Type of the data (float, integer, double, string)
+        table_name (str): Name of the table
         start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         lat (float): latitude

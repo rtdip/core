@@ -34,10 +34,7 @@ def _build_parameters(
 ) -> dict:
     if area_type == "grid":
         raw_parameters = {
-            "forecast": parameters_dict.get("forecast", None),
-            "region": parameters_dict.get("region"),
-            "data_security_level": parameters_dict.get("data_security_level"),
-            "data_type": parameters_dict.get("data_type"),
+            "table_name": parameters_dict.get["table_name"],
             "start_date": parameters_dict["start_date"],
             "end_date": parameters_dict["end_date"],
             "max_lat": parameters_dict["max_lat"],
@@ -58,10 +55,7 @@ def _build_parameters(
 
     if area_type == "point":
         raw_parameters = {
-            "forecast": parameters_dict.get("forecast", None),
-            "region": parameters_dict.get("region"),
-            "data_security_level": parameters_dict.get("data_security_level"),
-            "data_type": parameters_dict.get("data_type"),
+            "table_name": parameters_dict.get["table_name"],
             "start_date": parameters_dict["start_date"],
             "end_date": parameters_dict["end_date"],
             "lat": parameters_dict["lat"],
@@ -84,11 +78,7 @@ def _build_parameters(
 def _raw_query_grid(parameters_dict: dict) -> str:
     raw_query_grid = (
         "SELECT * FROM "
-        "{% if source is defined and source is not none %}"
-        "`{{ source|lower }}` "
-        "{% else %}"
-        "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
-        "{% endif %}"
+        "`{{table_name|lower }}`"
         'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}")'
         "AND `{{ latitude_column }}` > '{{ min_lat}}' "
         "AND `{{ latitude_column }}` < '{{ max_lat}}' "
@@ -112,11 +102,7 @@ def _raw_query_grid(parameters_dict: dict) -> str:
 def _raw_query_point(parameters_dict: dict) -> str:
     raw_query_point = (
         "SELECT * FROM "
-        "{% if source is defined and source is not none %}"
-        "`{{ source|lower }}` "
-        "{% else %}"
-        "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
-        "{% endif %}"
+        "`{{table_name|lower }}`"
         'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}")'
         "AND `{{ latitude_column }}` > '{{lat}}' "
         "AND `{{ longitude_column }}` > '{{lon}}' "
@@ -138,11 +124,7 @@ def _raw_query_point(parameters_dict: dict) -> str:
 def _latest_query_grid(parameters_dict: dict) -> str:
     latest_query_grid = (
         "SELECT * FROM "
-        "{% if source is defined and source is not none %}"
-        "`{{ source|lower }}` "
-        "{% else %}"
-        "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
-        "{% endif %}"
+       "`{{table_name|lower }}`"
         "WHERE `{{ latitude_column }}` > '{{ min_lat}}' "
         "AND `{{ latitude_column }}` < '{{ max_lat}}' "
         "AND `{{ longitude_column }}` > '{{ min_lon}}' "
@@ -165,11 +147,7 @@ def _latest_query_grid(parameters_dict: dict) -> str:
 def _latest_query_point(parameters_dict: dict) -> str:
     latest_query_point = (
         "SELECT * FROM "
-        "{% if source is defined and source is not none %}"
-        "`{{ source|lower }}` "
-        "{% else %}"
-        "`{{ forecast|lower }}`.`weather`.`{{ region|lower }}_weather_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
-        "{% endif %}"
+        "`{{table_name|lower }}`"
         "WHERE `{{ latitude_column }}` == '{{lat}}' "
         "AND `{{ longitude_column }}` == '{{lon}}' "
         "{% if source is defined and source is not none %}"

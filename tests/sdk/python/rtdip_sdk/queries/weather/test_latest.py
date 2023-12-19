@@ -42,11 +42,7 @@ MOCKED_QUERY_POINT = "SELECT * FROM `mocked-forecast`.`weather`.`mocked-region_w
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 
 MOCKED_PARAMETER_DICT_GRID = {
-    "forecast": "mocked-forecast",
-    "region": "mocked-region",
-    "data_security_level": "mocked-data-security-level",
-    "data_type": "mocked-data-type",
-    "min_lat": 0,
+    "table_name": "mocked-asset",
     "max_lat": 0.1,
     "min_lon": 0,
     "max_lon": 0.1,
@@ -55,10 +51,7 @@ MOCKED_PARAMETER_DICT_GRID = {
 }
 
 MOCKED_PARAMETER_DICT_POINT = {
-    "forecast": "mocked-forecast",
-    "region": "mocked-region",
-    "data_security_level": "mocked-data-security-level",
-    "data_type": "mocked-data-type",
+    "table_name": "mocked-asset",
     "lat": 0,
     "lon": 0,
     "start_date": "2020-01-01",

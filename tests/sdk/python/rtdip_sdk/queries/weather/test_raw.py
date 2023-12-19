@@ -42,10 +42,7 @@ MOCKED_QUERY_POINT = "SELECT * FROM `mocked-forecast`.`weather`.`mocked-region_w
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 
 MOCKED_PARAMETER_DICT_GRID = {
-    "forecast": "mocked-forecast",
-    "region": "mocked-region",
-    "data_security_level": "mocked-data-security-level",
-    "data_type": "mocked-data-type",
+    "table_name": "mocked-asset",
     "min_lat": 1.1,
     "max_lat": 1.1,
     "min_lon": 1.1,
@@ -56,10 +53,7 @@ MOCKED_PARAMETER_DICT_GRID = {
 }
 
 MOCKED_PARAMETER_DICT_POINT = {
-    "forecast": "mocked-forecast",
-    "region": "mocked-region",
-    "data_security_level": "mocked-data-security-level",
-    "data_type": "mocked-data-type",
+    "table_name": "mocked-asset",
     "lat": 1.1,
     "lon": 1.1,
     "start_date": "2020-01-01",
@@ -67,12 +61,6 @@ MOCKED_PARAMETER_DICT_POINT = {
     "timestamp_column": "EventTime",
 }
 
-MOCKED_NO_TAG_QUERY = "SELECT * FROM `mocked-business-unit`.`sensors`.`mocked-asset_mocked-data-security-level_events_raw` ORDER BY `TagName` "
-MOCKED_PARAMETER_NO_TAGS_DICT = {
-    "forecast": "mocked-forecast",
-    "region": "mocked-region",
-    "data_security_level": "mocked-data-security-level",
-}
 
 
 def test_raw_grid(mocker: MockerFixture):
