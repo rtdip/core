@@ -29,7 +29,7 @@ from .. import metadata
 from pandas import DataFrame
 
 
-class QueryBuilder:
+class TimeSeriesQueryBuilder:
     """
     A builder for developing RTDIP queries using any delta table.
     """
@@ -113,6 +113,7 @@ class QueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "supress_warning": True,
         }
         return raw.get(self.connection, raw_parameters)
 
@@ -164,6 +165,7 @@ class QueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "supress_warning": True,
         }
 
         return resample.get(self.connection, resample_parameters)
@@ -218,6 +220,7 @@ class QueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "supress_warning": True,
         }
 
         return interpolate.get(self.connection, interpolation_parameters)
@@ -260,6 +263,7 @@ class QueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "supress_warning": True,
         }
 
         return interpolation_at_time.get(
@@ -321,6 +325,7 @@ class QueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "supress_warning": True,
         }
 
         return time_weighted_average.get(
@@ -350,6 +355,7 @@ class QueryBuilder:
             "tagname_column": self.tagname_column,
             "limit": limit,
             "offset": offset,
+            "supress_warning": True,
         }
 
         return metadata.get(self.connection, metadata_parameters)
@@ -377,6 +383,7 @@ class QueryBuilder:
             "tagname_column": self.tagname_column,
             "limit": limit,
             "offset": offset,
+            "supress_warning": True,
         }
 
         return latest.get(self.connection, latest_parameters)
@@ -431,6 +438,7 @@ class QueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "supress_warning": True,
         }
 
         return circular_average.get(self.connection, circular_average_parameters)
@@ -485,6 +493,7 @@ class QueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "supress_warning": True,
         }
 
         return circular_standard_deviation.get(
@@ -526,5 +535,6 @@ class QueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "supress_warning": True,
         }
         return summary.get(self.connection, summary_parameters)

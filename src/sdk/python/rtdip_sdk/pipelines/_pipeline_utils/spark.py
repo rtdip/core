@@ -20,11 +20,13 @@ from pyspark.sql.types import (
     TimestampType,
     StringType,
     BinaryType,
+    BooleanType,
     LongType,
     MapType,
     IntegerType,
     ArrayType,
     DoubleType,
+    FloatType,
 )
 
 from .models import Libraries
@@ -158,6 +160,303 @@ OPC_PUBLISHER_SCHEMA = StructType(
         ),
     ]
 )
+
+OPC_PUBLISHER_AE_SCHEMA = StructType(
+    [
+        StructField("NodeId", StringType(), True),
+        StructField("EndpointUrl", StringType(), True),
+        StructField("DisplayName", StringType(), True),
+        StructField(
+            "Value",
+            StructType(
+                [
+                    StructField(
+                        "ConditionId",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "AckedState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "AckedState/FalseState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "AckedState/Id",
+                        StructType(
+                            [
+                                StructField("Value", BooleanType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "AckedState/TrueState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "ActiveState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "ActiveState/FalseState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "ActiveState/Id",
+                        StructType(
+                            [
+                                StructField("Value", BooleanType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "ActiveState/TrueState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "EnabledState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "EnabledState/FalseState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "EnabledState/Id",
+                        StructType(
+                            [
+                                StructField("Value", BooleanType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "EnabledState/TrueState",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "EventId",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "EventType",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "HighHighLimit",
+                        StructType(
+                            [
+                                StructField("Value", DoubleType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "HighLimit",
+                        StructType(
+                            [
+                                StructField("Value", DoubleType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "InputNode",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "LowLimit",
+                        StructType(
+                            [
+                                StructField("Value", DoubleType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "LowLowLimit",
+                        StructType(
+                            [
+                                StructField("Value", DoubleType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "Message",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "Quality",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "ReceiveTime",
+                        StructType(
+                            [
+                                StructField("Value", TimestampType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "Retain",
+                        StructType(
+                            [
+                                StructField("Value", BooleanType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "Severity",
+                        StructType(
+                            [
+                                StructField("Value", DoubleType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "SourceName",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "SourceNode",
+                        StructType(
+                            [
+                                StructField("Value", StringType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "Time",
+                        StructType(
+                            [
+                                StructField("Value", TimestampType(), True),
+                                StructField("SourceTimestamp", TimestampType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                ]
+            ),
+            True,
+        ),
+    ]
+)
+
 
 PROCESS_DATA_MODEL_SCHEMA = StructType(
     [
@@ -309,5 +608,29 @@ SEM_SCHEMA = StructType(
             True,
         ),
         StructField("sourceName", StringType(), True),
+    ]
+)
+
+MIRICO_SCHEMA = StructType(
+    [
+        StructField("retroName", StringType(), True),
+        StructField("temperatureKelvin", FloatType(), True),
+        StructField("siteName", StringType(), True),
+        StructField("pressureMillibar", FloatType(), True),
+        StructField("windSpeedMetersPerSecond", FloatType(), True),
+        StructField("windBearingDegreesTo", FloatType(), True),
+        StructField("pathLengthMeters", FloatType(), True),
+        StructField("retroAltitude", FloatType(), True),
+        StructField("sensorAltitude", FloatType(), True),
+        StructField("quality", IntegerType(), True),
+        StructField("timeStamp", StringType(), True),
+        StructField("siteKey", StringType(), True),
+        StructField("gasTypeId", IntegerType(), True),
+        StructField("retroLongitude", FloatType(), True),
+        StructField("gasType", StringType(), True),
+        StructField("sensorLatitude", FloatType(), True),
+        StructField("gasPpm", FloatType(), True),
+        StructField("retroLatitude", FloatType(), True),
+        StructField("sensorLongitude", FloatType(), True),
     ]
 )

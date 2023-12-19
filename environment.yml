@@ -18,7 +18,7 @@ channels:
     - conda-forge
     - defaults
 dependencies:
-    - python>=3.8,<3.12
+    - python>=3.9,<3.12
     - mkdocs-material-extensions==1.1.1
     - jinja2==3.1.2
     - pytest==7.4.0
@@ -77,4 +77,6 @@ dependencies:
         - build==0.10.0
         - deltalake==0.10.1
         - trio==0.22.1
-        
+        - openstef-dbc==3.6.17
+        - sqlparams==5.1.0
+        - entsoe-py==0.5.10

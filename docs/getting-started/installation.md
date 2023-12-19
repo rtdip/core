@@ -16,7 +16,7 @@ This article provides a guide on how to install the RTDIP SDK. Get started by en
 
 There are a few things to note before using the RTDIP SDK. The following prerequisites will need to be installed on your local machine.
 
-Python version 3.8 >= and < 3.12 should be installed. Check which python version you have with the following command:
+Python version 3.9 >= and < 3.12 should be installed. Check which python version you have with the following command:
 
     python --version
 
