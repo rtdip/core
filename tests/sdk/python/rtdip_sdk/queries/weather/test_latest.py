@@ -37,8 +37,8 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY_GRID = "SELECT * FROM `mocked-asset` WHERE `Latitude` > '0' AND `Latitude` < '0.1' AND `Longitude` > '0' AND`Longitude` < '0.1' ORDER BY `TagName` "
-MOCKED_QUERY_POINT = "SELECT * FROM `mocked-asset` WHERE `Latitude` == '0' AND `Longitude` == '0' ORDER BY `TagName` "
+MOCKED_QUERY_GRID = "SELECT * FROM `mocked-asset` WHERE Latitude > 0 AND Latitude < 0.1 AND Longitude > 0 AND Longitude < 0.1 ORDER BY TagName"
+MOCKED_QUERY_POINT = "SELECT * FROM `mocked-asset` WHERE Latitude == 0 AND Longitude == 0 ORDER BY TagName"
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 
 MOCKED_PARAMETER_DICT_GRID = {
@@ -46,22 +46,13 @@ MOCKED_PARAMETER_DICT_GRID = {
     "max_lat": 0.1,
     "min_lon": 0,
     "max_lon": 0.1,
-    "start_date": "2020-01-01",
-    "end_date": "2020-01-02",
-    "forecast_run_start_date": "2020-01-01",
-    "forecast_run_end_date": "2020-01-02",
 }
 
 MOCKED_PARAMETER_DICT_POINT = {
     "table_name": "mocked-asset",
     "lat": 0,
     "lon": 0,
-    "start_date": "2020-01-01",
-    "end_date": "2020-01-02",
-    "forecast_run_start_date": "2020-01-01",
-    "forecast_run_end_date": "2020-01-02",
 }
-
 
 
 def test_latest_grid(mocker: MockerFixture):

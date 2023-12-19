@@ -37,8 +37,8 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY_GRID = "SELECT * FROM `mocked-asset` WHERE `EventTime` BETWEEN to_timestamp(\"2020-01-01\") AND to_timestamp(\"2020-01-02\")AND `Latitude` > '1.1' AND `Latitude` < '1.1' AND `Longitude` > '1.1' AND`Longitude` < '1.1' ORDER BY `TagName` "
-MOCKED_QUERY_POINT = "SELECT * FROM `mocked-asset` WHERE `EventTime` BETWEEN to_timestamp(\"2020-01-01\") AND to_timestamp(\"2020-01-02\")AND `Latitude` > '1.1' AND `Longitude` > '1.1' ORDER BY `TagName` "
+MOCKED_QUERY_GRID = "SELECT * FROM `mocked-asset` WHERE EventTime BETWEEN to_timestamp('2020-01-01') AND to_timestamp('2020-01-02')AND Latitude > 1.1 AND Latitude < 1.1 AND Longitude > 1.1 AND Longitude < 1.1 ORDER BY `TagName` "
+MOCKED_QUERY_POINT = "SELECT * FROM `mocked-asset` WHERE EventTime BETWEEN to_timestamp('2020-01-01') AND to_timestamp('2020-01-02')AND Latitude == 1.1 AND Longitude == 1.1 ORDER BY TagName "
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 
 MOCKED_PARAMETER_DICT_GRID = {
@@ -66,7 +66,6 @@ MOCKED_PARAMETER_DICT_POINT = {
     "timestamp_column": "EventTime",
     "forecast_run_timestamp_column": "EnqueuedTime",
 }
-
 
 
 def test_raw_grid(mocker: MockerFixture):
