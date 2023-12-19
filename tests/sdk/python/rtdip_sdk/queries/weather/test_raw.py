@@ -49,7 +49,10 @@ MOCKED_PARAMETER_DICT_GRID = {
     "max_lon": 1.1,
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
+    "forecast_run_start_date": "2020-01-01",
+    "forecast_run_end_date": "2020-01-02",
     "timestamp_column": "EventTime",
+    "forecast_run_timestamp_column": "EnqueuedTime",
 }
 
 MOCKED_PARAMETER_DICT_POINT = {
@@ -58,7 +61,10 @@ MOCKED_PARAMETER_DICT_POINT = {
     "lon": 1.1,
     "start_date": "2020-01-01",
     "end_date": "2020-01-02",
+    "forecast_run_start_date": "2020-01-01",
+    "forecast_run_end_date": "2020-01-02",
     "timestamp_column": "EventTime",
+    "forecast_run_timestamp_column": "EnqueuedTime",
 }
 
 

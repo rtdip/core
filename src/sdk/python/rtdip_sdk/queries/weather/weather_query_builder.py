@@ -44,6 +44,7 @@ class WeatherQueryBuilder:
         source: str,
         tagname_column: str = "TagName",
         timestamp_column: str = "EventTime",
+        forecast_run_timestamp_column: str = "EnqueuedTime",
         status_column: Union[str, None] = "Status",
         value_column: str = "Value",
     ):
@@ -54,12 +55,14 @@ class WeatherQueryBuilder:
             source (str): Source of the query can be a Unity Catalog table, Hive metastore table or path
             tagname_column (optional str): The column name in the source that contains the tagnames or series
             timestamp_column (optional str): The timestamp column name in the source
+            forecast_run_timestamp_column (optional str): The forecast run timestamp column name in the source
             status_column (optional str): The status column name in the source indicating `Good` or `Bad`. If this is not available, specify `None`
             value_column (optional str): The value column name in the source which is normally a float or string value for the time series event
         """
         self.data_source = "`.`".join(source.split("."))
         self.tagname_column = tagname_column
         self.timestamp_column = timestamp_column
+        self.forecast_run_timestamp_column = forecast_run_timestamp_column
         self.status_column = status_column
         self.value_column = value_column
         return self
@@ -69,6 +72,8 @@ class WeatherQueryBuilder:
         table_name: str,
         start_date: str,
         end_date: str,
+        forecast_run_start_date: str,
+        forecast_run_end_date: str,
         lat: float,
         lon: float,
         source: str = None,
@@ -83,6 +88,8 @@ class WeatherQueryBuilder:
             table_name (str): Table name
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            forecast_run_start_date (str): Start date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            forecast_run_end_date (str): End date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             lat (float): latitude
             lon (float): longitude
             source (optional str): Source of the data ie ECMWF
@@ -97,6 +104,8 @@ class WeatherQueryBuilder:
             "table_name": table_name,
             "start_date": start_date,
             "end_date": end_date,
+            "forecast_run_start_date": forecast_run_start_date,
+            "forecast_run_end_date": forecast_run_end_date,
             "lat": lat,
             "lon": lon,
             "source": source,
@@ -145,6 +154,8 @@ class WeatherQueryBuilder:
         table_name: str,
         start_date: str,
         end_date: str,
+        forecast_run_start_date: str,
+        forecast_run_end_date: str,
         min_lat: float,
         min_lon: float,
         max_lat: float,
@@ -161,6 +172,8 @@ class WeatherQueryBuilder:
             table_name (str): Table name
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            forecast_run_start_date (str): Start date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            forecast_run_end_date (str): End date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             min_lat (float): Min latitude
             min_lon (float): Min longitude
             max_lat (float): Max latitude
@@ -177,6 +190,8 @@ class WeatherQueryBuilder:
             "table_name": table_name,
             "start_date": start_date,
             "end_date": end_date,
+            "forecast_run_start_date": forecast_run_start_date,
+            "forecast_run_end_date": forecast_run_end_date,
             "min_lat": min_lat,
             "min_lon": min_lon,
             "max_lat": max_lat,

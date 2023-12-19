@@ -36,6 +36,8 @@ def test_weather_query_builder_raw_point(mocker: MockerFixture):
             table_name="mock_table",
             start_date="2021-01-01",
             end_date="2021-01-02",
+            forecast_run_start_date="2021-01-01",
+            forecast_run_end_date="2021-01-02",
             lat=0.1,
             lon=0.1,
         )
@@ -76,6 +78,8 @@ def test_weather_query_builder_raw_grid(mocker: MockerFixture):
             table_name="mock_table",
             start_date="2021-01-01",
             end_date="2021-01-02",
+            forecast_run_start_date="2021-01-01",
+            forecast_run_end_date="2021-01-02",
             min_lat=0.1,
             max_lat=0.1,
             min_lon=0.1,

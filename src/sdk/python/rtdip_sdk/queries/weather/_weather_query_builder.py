@@ -37,6 +37,8 @@ def _build_parameters(
             "table_name": parameters_dict.get["table_name"],
             "start_date": parameters_dict["start_date"],
             "end_date": parameters_dict["end_date"],
+            "forecast_run_start_date": parameters_dict["forecast_run_start_date"],
+            "forecast_run_end_date": parameters_dict["forecast_run_end_date"],
             "max_lat": parameters_dict["max_lat"],
             "max_lon": parameters_dict["max_lon"],
             "min_lat": parameters_dict["min_lat"],
@@ -51,6 +53,10 @@ def _build_parameters(
             raw_parameters["timestamp_column"] = parameters_dict.get(
                 "timestamp_column", "EventTime"
             )
+            raw_parameters["forecast_run_timestamp_column"] = parameters_dict.get(
+                "forecast_run_timestamp_column", "EnqueuedTime"
+            )
+
             raw_parameters["include_status"] = False
 
     if area_type == "point":
@@ -58,6 +64,8 @@ def _build_parameters(
             "table_name": parameters_dict.get["table_name"],
             "start_date": parameters_dict["start_date"],
             "end_date": parameters_dict["end_date"],
+            "forecast_run_start_date": parameters_dict["forecast_run_start_date"],
+            "forecast_run_end_date": parameters_dict["forecast_run_end_date"],
             "lat": parameters_dict["lat"],
             "lon": parameters_dict["lon"],
             "source": parameters_dict.get("source", None),
@@ -70,6 +78,9 @@ def _build_parameters(
             raw_parameters["timestamp_column"] = parameters_dict.get(
                 "timestamp_column", "EventTime"
             )
+            raw_parameters["forecast_run_timestamp_column"] = parameters_dict.get(
+                "forecast_run_timestamp_column", "EnqueuedTime"
+            )
             raw_parameters["include_status"] = False
 
     return raw_parameters
@@ -80,6 +91,7 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "SELECT * FROM "
         "`{{table_name|lower }}`"
         'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}")'
+        'AND `{{ forecast_run_timestamp_column }}` BETWEEN to_timestamp("{{ forecast_run_timestamp_start_date }}") AND to_timestamp("{{ forecast_run_timestamp_end_date }}")'
         "AND `{{ latitude_column }}` > '{{ min_lat}}' "
         "AND `{{ latitude_column }}` < '{{ max_lat}}' "
         "AND `{{ longitude_column }}` > '{{ min_lon}}' "
@@ -104,6 +116,7 @@ def _raw_query_point(parameters_dict: dict) -> str:
         "SELECT * FROM "
         "`{{table_name|lower }}`"
         'WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}")'
+        'AND `{{ forecast_run_timestamp_column }}` BETWEEN to_timestamp("{{ forecast_run_timestamp_start_date }}") AND to_timestamp("{{ forecast_run_timestamp_end_date }}")'
         "AND `{{ latitude_column }}` > '{{lat}}' "
         "AND `{{ longitude_column }}` > '{{lon}}' "
         "{% if source is defined and source is not none %}"
