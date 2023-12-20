@@ -59,7 +59,7 @@ class WeatherQueryBuilder:
             status_column (optional str): The status column name in the source indicating `Good` or `Bad`. If this is not available, specify `None`
             value_column (optional str): The value column name in the source which is normally a float or string value for the time series event
         """
-        self.data_source = "`.`".join(source.split("."))
+        self.data_source = source
         self.tagname_column = tagname_column
         self.timestamp_column = timestamp_column
         self.forecast_run_timestamp_column = forecast_run_timestamp_column

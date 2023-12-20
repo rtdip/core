@@ -98,9 +98,9 @@ def _build_parameters(
 def _raw_query_grid(parameters_dict: dict) -> str:
     raw_query_grid = (
         "SELECT * FROM "
-        "`{{table_name|lower }}`"
+        "{{table_name|lower }} "
         "WHERE {{ timestamp_column }} BETWEEN to_timestamp('{{ start_date }}') AND to_timestamp('{{ end_date }}') "
-        "AND {{ forecast_run_timestamp_column }}` BETWEEN to_timestamp('{{ forecast_run_timestamp_start_date }}') AND to_timestamp('{{ forecast_run_timestamp_end_date }}') "
+        "AND {{ forecast_run_timestamp_column }} BETWEEN to_timestamp('{{ forecast_run_start_date }}') AND to_timestamp('{{ forecast_run_end_date }}') "
         "AND {{ latitude_column }} > {{ min_lat}} "
         "AND {{ latitude_column }} < {{ max_lat}} "
         "AND {{ longitude_column }} > {{ min_lon}} "
@@ -123,11 +123,11 @@ def _raw_query_grid(parameters_dict: dict) -> str:
 def _raw_query_point(parameters_dict: dict) -> str:
     raw_query_point = (
         "SELECT * FROM "
-        "`{{table_name|lower }}`"
+        "{{table_name|lower }} "
         "WHERE {{ timestamp_column }} BETWEEN to_timestamp('{{ start_date }}') AND to_timestamp('{{ end_date }}') "
-        "AND {{ forecast_run_timestamp_column }}` BETWEEN to_timestamp('{{ forecast_run_timestamp_start_date }}') AND to_timestamp('{{ forecast_run_timestamp_end_date }}') "
-        "AND {{ latitude_column }} > {{lat}} "
-        "AND {{ longitude_column }} > {{lon}} "
+        "AND {{ forecast_run_timestamp_column }} BETWEEN to_timestamp('{{ forecast_run_start_date }}') AND to_timestamp('{{ forecast_run_end_date }}') "
+        "AND {{ latitude_column }} == {{lat}} "
+        "AND {{ longitude_column }} == {{lon}} "
         "{% if source is defined and source is not none %}"
         "AND SOURCE = '{{ source }}' "
         "{% endif %}"
@@ -146,7 +146,7 @@ def _raw_query_point(parameters_dict: dict) -> str:
 def _latest_query_grid(parameters_dict: dict) -> str:
     latest_query_grid = (
         "SELECT * FROM "
-        "`{{table_name|lower }}`"
+        "{{table_name|lower }} "
         "WHERE {{ latitude_column }} > {{ min_lat}} "
         "AND {{ latitude_column }} < {{ max_lat}} "
         "AND {{ longitude_column }} > {{ min_lon}} "
@@ -154,7 +154,7 @@ def _latest_query_grid(parameters_dict: dict) -> str:
         "{% if source is defined and source is not none %}"
         "AND SOURCE = '{{ source }}' "
         "{% endif %}"
-        "ORDER BY `{{ tagname_column }}` "
+        "ORDER BY {{ tagname_column }} "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
@@ -169,13 +169,13 @@ def _latest_query_grid(parameters_dict: dict) -> str:
 def _latest_query_point(parameters_dict: dict) -> str:
     latest_query_point = (
         "SELECT * FROM "
-        "`{{table_name|lower }}`"
-        "WHERE {{ latitude_column }} > {{lat}} "
-        "AND {{ longitude_column }} > {{lon}} "
+        "{{table_name|lower }} "
+        "WHERE {{ latitude_column }} == {{lat}} "
+        "AND {{ longitude_column }} == {{lon}} "
         "{% if source is defined and source is not none %}"
         "AND SOURCE = '{{ source }}' "
         "{% endif %}"
-        "ORDER BY `{{ tagname_column }}` "
+        "ORDER BY {{ tagname_column }} "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"

@@ -37,13 +37,14 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY_GRID = "SELECT * FROM `mocked-asset` WHERE Latitude > 0 AND Latitude < 0.1 AND Longitude > 0 AND Longitude < 0.1 ORDER BY TagName"
-MOCKED_QUERY_POINT = "SELECT * FROM `mocked-asset` WHERE Latitude == 0 AND Longitude == 0 ORDER BY TagName"
+MOCKED_QUERY_GRID = "SELECT * FROM mocked-asset WHERE Latitude > 0 AND Latitude < 0.1 AND Longitude > 0 AND Longitude < 0.1 ORDER BY TagName "
+MOCKED_QUERY_POINT = "SELECT * FROM mocked-asset WHERE Latitude == 0 AND Longitude == 0 ORDER BY TagName "
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 
 MOCKED_PARAMETER_DICT_GRID = {
     "table_name": "mocked-asset",
     "max_lat": 0.1,
+    "min_lat": 0,
     "min_lon": 0,
     "max_lon": 0.1,
 }
