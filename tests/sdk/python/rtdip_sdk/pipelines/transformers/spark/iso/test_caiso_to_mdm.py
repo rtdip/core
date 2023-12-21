@@ -57,7 +57,6 @@ def caiso_to_mdm_test(
             ["Uid", "Timestamp", "TimestampStart"],
         )
     )
-    # actual_df.write.json("ACTUAL_CSIVOAO.json")
     assert actual_df.orderBy(cols).collect() == expected_df.orderBy(cols).collect()
 
 
