@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from jinja2 import Template
+import logging
 import datetime
 from datetime import datetime, time
 from .._utilities_query_builder import (
@@ -187,6 +188,9 @@ def _latest_query_point(parameters_dict: dict) -> str:
 
 
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
+    if "supress_warning" not in parameters_dict:
+        logging.warning("Please use the WeatherQueryBuilder() to build weather queries")
+
     if query_type == "latest_point":
         return _latest_query_point(parameters_dict)
 

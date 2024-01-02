@@ -41,6 +41,9 @@ INSTALL_REQUIRES = [
     "googleapis-common-protos>=1.56.4",
     "langchain==0.0.291",
     "openai==0.27.8",
+    "openstef-dbc==3.6.17",
+    "sqlparams==5.1.0",
+    "entsoe-py==0.5.10",
 ]
 
 PYSPARK_PACKAGES = [
@@ -80,7 +83,6 @@ setup(
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -94,7 +96,7 @@ setup(
     package_dir={"": "src/sdk/python"},
     include_package_data=True,
     packages=find_packages(where="src/sdk/python"),
-    python_requires=">=3.8, <3.12",
+    python_requires=">=3.9, <3.12",
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_DEPENDENCIES,
     setup_requires=["pytest-runner", "setuptools_scm"],

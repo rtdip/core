@@ -14,6 +14,7 @@
 
 from jinja2 import Template
 import datetime
+import logging
 from datetime import datetime, time
 from .._utilities_query_builder import (
     _is_date_format,
@@ -21,7 +22,6 @@ from .._utilities_query_builder import (
     _parse_dates,
     _convert_to_seconds,
 )
-
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
@@ -35,7 +35,7 @@ def _raw_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
         "AND `{{ status_column }}` = 'Good'"
         "{% endif %}"
@@ -87,10 +87,10 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
         ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
-        ",window_buckets AS (SELECT timestamp_array AS window_start, LEAD(timestamp_array) OVER (ORDER BY timestamp_array) AS window_end FROM date_array) "
+        ",window_buckets AS (SELECT timestamp_array AS window_start, timestampadd({{time_interval_unit }}, {{ time_interval_rate }}, timestamp_array) AS window_end FROM date_array) "
         ",resample AS (SELECT /*+ RANGE_JOIN(d, {{ range_join_seconds }} ) */ d.window_start, d.window_end, e.`{{ tagname_column }}`, {{ agg_method }}(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `{{ value_column }}` FROM window_buckets d INNER JOIN raw_events e ON d.window_start <= e.`{{ timestamp_column }}` AND d.window_end > e.`{{ timestamp_column }}`) "
         ",project AS (SELECT window_start AS `{{ timestamp_column }}`, `{{ tagname_column }}`, `{{ value_column }}` FROM resample GROUP BY window_start, `{{ tagname_column }}`, `{{ value_column }}` "
         "{% if is_resample is defined and is_resample == true %}"
@@ -98,8 +98,11 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% endif %}"
         ") "
         "{% if is_resample is defined and is_resample == true and pivot is defined and pivot == true %}"
-        ",pivot AS (SELECT * FROM project PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}'))) "
-        "SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
         "SELECT * FROM project "
         "{% endif %}"
@@ -166,7 +169,7 @@ def _interpolation_query(
 
     interpolate_query = (
         f"WITH resample AS ({sample_query})"
-        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS `{{ timestamp_column }}`, explode(array('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`) "
+        ',date_array AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM resample) '
         '{% if (interpolation_method is defined) and (interpolation_method == "forward_fill" or interpolation_method == "backward_fill") %}'
         ",project AS (SELECT a.`{{ timestamp_column }}`, a.`{{ tagname_column }}`, {{ interpolation_options_0 }}(b.`{{ value_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS `{{ value_column }}` FROM date_array a LEFT OUTER JOIN resample b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
         '{% elif (interpolation_method is defined) and (interpolation_method == "linear") %}'
@@ -179,8 +182,11 @@ def _interpolation_query(
         ",project AS (SELECT * FROM resample) "
         "{% endif %}"
         "{% if pivot is defined and pivot == true %}"
-        ",pivot AS (SELECT * FROM project PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}'))) "
-        "SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
         "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% endif %}"
@@ -226,13 +232,13 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "WHERE to_date(`{{ timestamp_column }}`) BETWEEN "
         "{% if timestamps is defined %} "
         'date_sub(to_date(to_timestamp("{{ min_timestamp }}")), {{ window_length }}) AND date_add(to_date(to_timestamp("{{ max_timestamp }}")), {{ window_length}}) '
-        "{% endif %} AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %} AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
-        ", date_array AS (SELECT explode(array( "
+        ", date_array AS (SELECT DISTINCT explode(array( "
         "{% for timestamp in timestamps -%} "
         'from_utc_timestamp(to_timestamp("{{timestamp}}"), "{{time_zone}}") '
         "{% if not loop.last %} , {% endif %} {% endfor %} )) AS `{{ timestamp_column }}`, "
-        "explode(array('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`) "
+        "explode(array(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events) "
         ", interpolation_events AS (SELECT coalesce(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, coalesce(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, a.`{{ timestamp_column }}` AS `Requested_{{ timestamp_column }}`, b.`{{ timestamp_column }}` AS `Found_{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN  raw_events b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
         ", interpolation_calculations AS (SELECT *, lag(`{{ timestamp_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ timestamp_column }}`, lag(`{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ value_column }}`, lead(`{{ timestamp_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ timestamp_column }}`, lead(`{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ value_column }}`, "
         "CASE WHEN `Requested_{{ timestamp_column }}` = `Found_{{ timestamp_column }}` THEN `{{ value_column }}` WHEN `Next_{{ timestamp_column }}` IS NULL THEN `Previous_{{ value_column }}` WHEN `Previous_{{ timestamp_column }}` IS NULL AND `Next_{{ timestamp_column }}` IS NULL THEN NULL "
@@ -243,8 +249,11 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "{% if not loop.last %} , {% endif %} {% endfor %}) "
         ") "
         "{% if pivot is defined and pivot == true %}"
-        ",pivot AS (SELECT * FROM project PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}'))) "
-        "SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
         "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% endif %}"
@@ -298,7 +307,7 @@ def _metadata_query(parameters_dict: dict) -> str:
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` "
         "{% endif %}"
         "{% if tag_names is defined and tag_names|length > 0 %} "
-        "WHERE `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "WHERE UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
@@ -334,7 +343,7 @@ def _latest_query(parameters_dict: dict) -> str:
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_latest` "
         "{% endif %}"
         "{% if tag_names is defined and tag_names|length > 0 %} "
-        "WHERE `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "WHERE UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
@@ -376,9 +385,9 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}')  "
+        "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}')  "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
-        ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS `{{ timestamp_column }}`, explode(array('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`) "
+        ',date_array AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events) '
         ",boundary_events AS (SELECT coalesce(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, coalesce(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN raw_events b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
         ",window_buckets AS (SELECT `{{ timestamp_column }}` AS window_start, LEAD(`{{ timestamp_column }}`) OVER (ORDER BY `{{ timestamp_column }}`) AS window_end FROM (SELECT distinct `{{ timestamp_column }}` FROM date_array) ) "
         ",window_events AS (SELECT /*+ RANGE_JOIN(b, {{ range_join_seconds }} ) */ b.`{{ tagname_column }}`, b.`{{ timestamp_column }}`, a.window_start AS `WindowEventTime`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM boundary_events b LEFT OUTER JOIN window_buckets a ON a.window_start <= b.`{{ timestamp_column }}` AND a.window_end > b.`{{ timestamp_column }}`) "
@@ -405,8 +414,11 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",twa AS (SELECT `{{ tagname_column }}`, `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, sum(twa_value) / sum(good_minutes) AS `{{ value_column }}` from twa_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
         ',project AS (SELECT * FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) '
         "{% if pivot is defined and pivot == true %}"
-        ",pivot AS (SELECT * FROM project PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}'))) "
-        "SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
         "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% endif %}"
@@ -460,15 +472,15 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
 
 def _circular_stats_query(parameters_dict: dict) -> str:
     circular_base_query = (
-        "WITH raw_events AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
+        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "WHERE `{{ timestamp_column }}` BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
-        ",date_array AS (SELECT EXPLODE(SEQUENCE(FROM_UTC_TIMESTAMP(TO_TIMESTAMP(\"{{ start_date }}\"), \"{{ time_zone }}\"), FROM_UTC_TIMESTAMP(TO_TIMESTAMP(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS `{{ timestamp_column }}`, EXPLODE(ARRAY('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`)  "
+        ',date_array AS (SELECT DISTINCT EXPLODE(SEQUENCE(FROM_UTC_TIMESTAMP(TO_TIMESTAMP("{{ start_date }}"), "{{ time_zone }}"), FROM_UTC_TIMESTAMP(TO_TIMESTAMP("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, EXPLODE(ARRAY(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events)  '
         ",window_events AS (SELECT COALESCE(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, COALESCE(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, WINDOW(COALESCE(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`), '{{ time_interval_rate + ' ' + time_interval_unit }}').START `Window{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN raw_events b ON CAST(a.`{{ timestamp_column }}` AS LONG) = CAST(b.`{{ timestamp_column }}` AS LONG) AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
         ",calculation_set_up AS (SELECT `{{ timestamp_column }}`, `Window{{ timestamp_column }}`, `{{ tagname_column }}`, `{{ value_column }}`, MOD(`{{ value_column }}` - {{ lower_bound }}, ({{ upper_bound }} - {{ lower_bound }}))*(2*pi()/({{ upper_bound }} - {{ lower_bound }})) AS `{{ value_column }}_in_Radians`, LAG(`{{ timestamp_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ timestamp_column }}`, (unix_millis(`{{ timestamp_column }}`) - unix_millis(`Previous_{{ timestamp_column }}`)) / 86400000 AS Time_Difference, COS(`{{ value_column }}_in_Radians`) AS Cos_Value, SIN(`{{ value_column }}_in_Radians`) AS Sin_Value FROM window_events) "
         ",circular_average_calculations AS (SELECT `Window{{ timestamp_column }}`, `{{ tagname_column }}`, Time_Difference, AVG(Cos_Value) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS Average_Cos, AVG(Sin_Value) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS Average_Sin, SQRT(POW(Average_Cos, 2) + POW(Average_Sin, 2)) AS Vector_Length, Average_Cos/Vector_Length AS Rescaled_Average_Cos, Average_Sin/Vector_Length AS Rescaled_Average_Sin, Time_Difference * Rescaled_Average_Cos AS Diff_Average_Cos, Time_Difference * Rescaled_Average_Sin AS Diff_Average_Sin FROM calculation_set_up) "
@@ -480,8 +492,11 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             ",circular_average_results AS (SELECT `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, `{{ tagname_column }}`, sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages, sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages, array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R, mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians, (Circular_Average_Value_in_Radians * ({{ upper_bound }} - {{ lower_bound }})) / (2*pi())+ 0 AS Circular_Average_Value_in_Degrees FROM circular_average_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
             ",project AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, Circular_Average_Value_in_Degrees AS `{{ value_column }}` FROM circular_average_results) "
             "{% if pivot is defined and pivot == true %}"
-            ",pivot AS (SELECT * FROM project PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}'))) "
-            "SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+            ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+            "{% for i in range(tag_names | length) %}"
+            "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+            "{% endfor %}"
+            "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
             "{% else %}"
             "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% endif %}"
@@ -498,8 +513,11 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             ",circular_average_results AS (SELECT `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, `{{ tagname_column }}`, sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages, sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages, array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R, mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians, SQRT(-2*LN(R)) * ( {{ upper_bound }} - {{ lower_bound }}) / (2*PI()) AS Circular_Standard_Deviation FROM circular_average_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
             ",project AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, Circular_Standard_Deviation AS `Value` FROM circular_average_results) "
             "{% if pivot is defined and pivot == true %}"
-            ",pivot AS (SELECT * FROM project PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}'))) "
-            "SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+            ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+            "{% for i in range(tag_names | length) %}"
+            "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+            "{% endfor %}"
+            "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
             "{% else %}"
             "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% endif %}"
@@ -563,7 +581,7 @@ def _summary_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
         "AND `{{ status_column }}` = 'Good'"
         "{% endif %}"
@@ -608,6 +626,11 @@ def _summary_query(parameters_dict: dict) -> str:
 
 
 def _query_builder(parameters_dict: dict, query_type: str) -> str:
+    if "supress_warning" not in parameters_dict:
+        logging.warning(
+            "Please use the TimeSeriesQueryBuilder() to build time series queries."
+        )
+
     if "tag_names" not in parameters_dict:
         parameters_dict["tag_names"] = []
     tagnames_deduplicated = list(
