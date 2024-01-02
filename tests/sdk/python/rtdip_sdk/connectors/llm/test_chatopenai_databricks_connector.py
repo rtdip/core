@@ -213,7 +213,7 @@ def test_connection_cursor_fails(mocker: MockerFixture):
     )
 
     with pytest.raises(Exception):
-        assert mocked_connection.cursor()
+        mocked_connection.cursor()
 
 
 def test_cursor_execute_fails(mocker: MockerFixture):
@@ -237,7 +237,7 @@ def test_cursor_execute_fails(mocker: MockerFixture):
     )
 
     with pytest.raises(Exception):
-        assert mocked_cursor.execute("test")
+        mocked_cursor.execute("test")
 
 
 def test_cursor_fetch_all_fails(mocker: MockerFixture):
@@ -263,7 +263,7 @@ def test_cursor_fetch_all_fails(mocker: MockerFixture):
     )
 
     with pytest.raises(Exception):
-        assert mocked_cursor.fetch_all()
+        mocked_cursor.fetch_all()
 
 
 def test_cursor_close_fails(mocker: MockerFixture):
@@ -287,4 +287,4 @@ def test_cursor_close_fails(mocker: MockerFixture):
     )
 
     with pytest.raises(Exception):
-        assert mocked_cursor.close()
+        mocked_cursor.close()
