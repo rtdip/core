@@ -85,7 +85,7 @@ def test_connection_cursor_fails(spark_session: SparkSession, mocker: MockerFixt
     mocked_connection = SparkConnection(spark=spark_session)
 
     with pytest.raises(Exception):
-        assert mocked_connection.cursor()
+        mocked_connection.cursor()
 
 
 def test_cursor_execute_fails(spark_session: SparkSession, mocker: MockerFixture):
@@ -94,7 +94,7 @@ def test_cursor_execute_fails(spark_session: SparkSession, mocker: MockerFixture
     mocked_cursor = SparkCursor(SparkConnection(spark=spark_session).connection)
 
     with pytest.raises(Exception):
-        assert mocked_cursor.execute("test")
+        mocked_cursor.execute("test")
 
 
 def test_cursor_fetch_all_fails(spark_session: SparkSession, mocker: MockerFixture):
@@ -103,7 +103,7 @@ def test_cursor_fetch_all_fails(spark_session: SparkSession, mocker: MockerFixtu
     mocked_cursor = SparkCursor(SparkConnection(spark=spark_session).connection)
 
     with pytest.raises(Exception):
-        assert mocked_cursor.fetch_all()
+        mocked_cursor.fetch_all()
 
 
 def test_cursor_close_fails(spark_session: SparkSession, mocker: MockerFixture):
@@ -112,4 +112,4 @@ def test_cursor_close_fails(spark_session: SparkSession, mocker: MockerFixture):
     mocked_cursor = SparkCursor(SparkConnection(spark=spark_session).connection)
 
     with pytest.raises(Exception):
-        assert mocked_cursor.close()
+        mocked_cursor.close()
