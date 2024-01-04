@@ -33,7 +33,6 @@ def test_weather_query_builder_raw_point(mocker: MockerFixture):
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .raw_point(
-            table_name="mock_table",
             start_date="2021-01-01",
             end_date="2021-01-02",
             forecast_run_start_date="2021-01-01",
@@ -56,7 +55,6 @@ def test_query_builder_latest_point(mocker: MockerFixture):
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .latest_point(
-            table_name="mock_table",
             lat=0.1,
             lon=0.1,
         )
@@ -75,7 +73,6 @@ def test_weather_query_builder_raw_grid(mocker: MockerFixture):
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .raw_grid(
-            table_name="mock_table",
             start_date="2021-01-01",
             end_date="2021-01-02",
             forecast_run_start_date="2021-01-01",
@@ -100,7 +97,6 @@ def test_query_builder_latest_grid(mocker: MockerFixture):
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .latest_grid(
-            table_name="mock_table",
             min_lat=0.1,
             max_lat=0.1,
             min_lon=0.1,

@@ -69,7 +69,6 @@ class WeatherQueryBuilder:
 
     def raw_point(
         self,
-        table_name: str,
         start_date: str,
         end_date: str,
         forecast_run_start_date: str,
@@ -85,7 +84,6 @@ class WeatherQueryBuilder:
         A function to return back raw data for a point.
 
         Args:
-            table_name (str): Table name
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             forecast_run_start_date (str): Start date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
@@ -101,7 +99,7 @@ class WeatherQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "table_name": table_name,
+            "table_name": self.data_source,
             "start_date": start_date,
             "end_date": end_date,
             "forecast_run_start_date": forecast_run_start_date,
@@ -119,7 +117,6 @@ class WeatherQueryBuilder:
 
     def latest_point(
         self,
-        table_name: str,
         lat: float,
         lon: float,
         source: str = None,
@@ -129,7 +126,6 @@ class WeatherQueryBuilder:
         A function to return back the latest data for a point.
 
         Args:
-            table_name (str): Table name
             lat (float): latitude
             lon (float): longitude
             source (optional str): Source of the data ie ECMWF
@@ -139,7 +135,7 @@ class WeatherQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "table_name": table_name,
+            "table_name": self.data_source,
             "lat": lat,
             "lon": lon,
             "source": source,
@@ -151,7 +147,6 @@ class WeatherQueryBuilder:
 
     def raw_grid(  # NOSONAR
         self,  # NOSONAR
-        table_name: str,
         start_date: str,
         end_date: str,
         forecast_run_start_date: str,
@@ -169,7 +164,6 @@ class WeatherQueryBuilder:
         A function to return back raw data for a point.
 
         Args:
-            table_name (str): Table name
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             forecast_run_start_date (str): Start date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
@@ -187,7 +181,7 @@ class WeatherQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "table_name": table_name,
+            "table_name": self.data_source,
             "start_date": start_date,
             "end_date": end_date,
             "forecast_run_start_date": forecast_run_start_date,
@@ -207,7 +201,6 @@ class WeatherQueryBuilder:
 
     def latest_grid(
         self,
-        table_name: str,
         min_lat: float,
         min_lon: float,
         max_lat: float,
@@ -219,7 +212,6 @@ class WeatherQueryBuilder:
         A function to return back the latest data for a point.
 
         Args:
-            table_name (str): Table name
             min_lat (float): Min latitude
             min_lon (float): Min longitude
             max_lat (float): Max latitude
@@ -231,7 +223,7 @@ class WeatherQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "table_name": table_name,
+            "table_name": self.data_source,
             "min_lat": min_lat,
             "min_lon": min_lon,
             "max_lat": max_lat,
