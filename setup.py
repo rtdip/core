@@ -41,6 +41,8 @@ INSTALL_REQUIRES = [
     "googleapis-common-protos>=1.56.4",
     "langchain==0.0.291",
     "openai==0.27.8",
+    "sqlparams==5.1.0",
+    "entsoe-py==0.5.10",
 ]
 
 PYSPARK_PACKAGES = [
