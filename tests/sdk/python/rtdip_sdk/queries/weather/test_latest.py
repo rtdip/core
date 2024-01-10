@@ -37,23 +37,48 @@ ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
 INTERPOLATION_METHOD = "test/test/test"
-MOCKED_QUERY_GRID = "SELECT * FROM mocked-asset WHERE Latitude > 0 AND Latitude < 0.1 AND Longitude > 0 AND Longitude < 0.1 ORDER BY TagName "
-MOCKED_QUERY_POINT = "SELECT * FROM mocked-asset WHERE Latitude == 0 AND Longitude == 0 ORDER BY TagName "
+MOCKED_QUERY_GRID =  'SELECT * FROM `forecast`.`weather`.`mock_region_mock_security_events_mock_data_type_latest` WHERE `Latitude` > 36 AND `Latitude` < 38 AND `Longitude` > -109.1 AND `Longitude` < -107.1 ORDER BY `TagName` '
+MOCKED_QUERY_POINT =  'SELECT * FROM `forecast`.`weather`.`mock_region_mock_security_events_mock_data_type_latest` WHERE `Latitude` == 37 AND `Longitude` == -108.1 ORDER BY `TagName` '
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 
+
 MOCKED_PARAMETER_DICT_GRID = {
-    "table_name": "mocked-asset",
-    "max_lat": 0.1,
-    "min_lat": 0,
-    "min_lon": 0,
-    "max_lon": 0.1,
+    "forecast": "forecast",
+    "forecast_type" : "weather",
+    "region": "mock_region",
+    "data_security_level": "mock_security",
+    "data_type": "mock_data_type",
+    "min_lat": 36,
+    "max_lat": 38,
+    "min_lon": -109.1,
+    "max_lon": -107.1,
 }
 
 MOCKED_PARAMETER_DICT_POINT = {
-    "table_name": "mocked-asset",
-    "lat": 0,
-    "lon": 0,
+    "forecast": "forecast",
+    "forecast_type" : "weather",
+    "region": "mock_region",
+    "data_security_level": "mock_security",
+    "data_type": "mock_data_type",
+    "lat": 37,
+    "lon": -108.1,
 }
+
+MOCKED_PARAMETER_DICT_GRID_SOURCE = {
+    "source": "forecast`.`weather`.`mock_region_mock_security_events_mock_data_type_latest",
+    "min_lat": 36,
+    "max_lat": 38,
+    "min_lon": -109.1,
+    "max_lon": -107.1,
+
+}
+
+MOCKED_PARAMETER_DICT_POINT_SOURCE = {
+    "source": "forecast`.`weather`.`mock_region_mock_security_events_mock_data_type_latest",
+    "lat": 37,
+    "lon": -108.1,
+}
+
 
 
 def test_latest_grid(mocker: MockerFixture):
@@ -75,6 +100,33 @@ def test_latest_grid(mocker: MockerFixture):
     )
 
     actual = latest_grid(mocked_connection, MOCKED_PARAMETER_DICT_GRID)
+
+    mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
+    mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY_GRID)
+    mocked_fetch_all.assert_called_once()
+    mocked_close.assert_called_once()
+    assert isinstance(actual, pd.DataFrame)
+
+def test_latest_grid_source(mocker: MockerFixture):
+    mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
+    mocked_execute = mocker.spy(MockedCursor, "execute")
+    mocked_fetch_all = mocker.patch.object(
+        MockedCursor,
+        "fetchall_arrow",
+        return_value=pa.Table.from_pandas(
+            pd.DataFrame(data={"e": [1], "f": [2], "g": [3], "h": [4]})
+        ),
+    )
+    mocked_close = mocker.spy(MockedCursor, "close")
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value=MockedDBConnection())
+
+    mocked_connection = DatabricksSQLConnection(
+        SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN
+    )
+
+    actual = latest_grid(mocked_connection, MOCKED_PARAMETER_DICT_GRID_SOURCE)
 
     mocked_cursor.assert_called_once()
     mocked_connection_close.assert_called_once()
@@ -126,6 +178,34 @@ def test_latest_point(mocker: MockerFixture):
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
+
+def test_latest_point_source(mocker: MockerFixture):
+    mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
+    mocked_connection_close = mocker.spy(MockedDBConnection, "close")
+    mocked_execute = mocker.spy(MockedCursor, "execute")
+    mocked_fetch_all = mocker.patch.object(
+        MockedCursor,
+        "fetchall_arrow",
+        return_value=pa.Table.from_pandas(
+            pd.DataFrame(data={"i": [1], "j": [2], "k": [3], "l": [4]})
+        ),
+    )
+    mocked_close = mocker.spy(MockedCursor, "close")
+    mocker.patch(DATABRICKS_SQL_CONNECT, return_value=MockedDBConnection())
+
+    mocked_connection = DatabricksSQLConnection(
+        SERVER_HOSTNAME, HTTP_PATH, ACCESS_TOKEN
+    )
+
+    actual = latest_point(mocked_connection, MOCKED_PARAMETER_DICT_POINT_SOURCE)
+
+    mocked_cursor.assert_called_once()
+    mocked_connection_close.assert_called_once()
+    mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_QUERY_POINT)
+    mocked_fetch_all.assert_called_once()
+    mocked_close.assert_called_once()
+    assert isinstance(actual, pd.DataFrame)
+
 
 
 def test_latest_point_fails(mocker: MockerFixture):

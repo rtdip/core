@@ -59,7 +59,7 @@ class WeatherQueryBuilder:
             status_column (optional str): The status column name in the source indicating `Good` or `Bad`. If this is not available, specify `None`
             value_column (optional str): The value column name in the source which is normally a float or string value for the time series event
         """
-        self.data_source = source
+        self.data_source = "`.`".join(source.split("."))
         self.tagname_column = tagname_column
         self.timestamp_column = timestamp_column
         self.forecast_run_timestamp_column = forecast_run_timestamp_column
@@ -75,7 +75,6 @@ class WeatherQueryBuilder:
         forecast_run_end_date: str,
         lat: float,
         lon: float,
-        source: str = None,
         time_zone: str = None,
         include_bad_data: bool = False,
         limit: int = None,
@@ -99,14 +98,13 @@ class WeatherQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "table_name": self.data_source,
+            "source": self.data_source,
             "start_date": start_date,
             "end_date": end_date,
             "forecast_run_start_date": forecast_run_start_date,
             "forecast_run_end_date": forecast_run_end_date,
             "lat": lat,
             "lon": lon,
-            "source": source,
             "time_zone": time_zone,
             "include_bad_data": include_bad_data,
             "limit": limit,
@@ -119,7 +117,6 @@ class WeatherQueryBuilder:
         self,
         lat: float,
         lon: float,
-        source: str = None,
         limit: int = None,
     ) -> DataFrame:
         """
@@ -135,7 +132,7 @@ class WeatherQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "table_name": self.data_source,
+            "source": self.data_source,
             "lat": lat,
             "lon": lon,
             "source": source,
@@ -155,7 +152,6 @@ class WeatherQueryBuilder:
         min_lon: float,
         max_lat: float,
         max_lon: float,
-        source: str = None,
         time_zone: str = None,
         include_bad_data: bool = False,
         limit: int = None,  # NOSONAR
@@ -181,7 +177,7 @@ class WeatherQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "table_name": self.data_source,
+            "source": self.data_source,
             "start_date": start_date,
             "end_date": end_date,
             "forecast_run_start_date": forecast_run_start_date,
@@ -190,7 +186,6 @@ class WeatherQueryBuilder:
             "min_lon": min_lon,
             "max_lat": max_lat,
             "max_lon": max_lon,
-            "source": source,
             "time_zone": time_zone,
             "include_bad_data": include_bad_data,
             "limit": limit,
@@ -205,7 +200,6 @@ class WeatherQueryBuilder:
         min_lon: float,
         max_lat: float,
         max_lon: float,
-        source: str = None,
         limit: int = None,
     ) -> DataFrame:
         """
@@ -223,12 +217,11 @@ class WeatherQueryBuilder:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "table_name": self.data_source,
+            "source": self.data_source,
             "min_lat": min_lat,
             "min_lon": min_lon,
             "max_lat": max_lat,
             "max_lon": max_lon,
-            "source": source,
             "limit": limit,
             "supress_warning": True,
         }
