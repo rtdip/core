@@ -23,13 +23,13 @@ from pyspark.sql.functions import (
     map_keys,
     map_values,
     concat_ws,
+    to_timestamp,
 )
 from ...._sdk_utils.compare_versions import (
     _package_version_meets_minimum,
 )
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.spark import SEM_SCHEMA
 from ..._pipeline_utils import mirico_field_mappings
 
 
@@ -116,7 +116,7 @@ class MiricoJsonToPCDMTransformer(TransformerInterface):
             .withColumn("Value", map_values("body"))
             .select(
                 map_from_arrays("TagName", "Value").alias("x"),
-                col("x.timeStamp").alias("EventTime"),
+                to_timestamp(col("x.timeStamp")).alias("EventTime"),
                 col("x.siteName").alias("SiteName"),
             )
             .select("EventTime", "SiteName", posexplode("x"))
