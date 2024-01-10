@@ -83,8 +83,8 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ forecast|lower }}`.`{{ forecast_type|lower }}`.`{{ region|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE (`{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\")) "
-        "AND (`{{ forecast_run_timestamp_column }}` BETWEEN to_timestamp(\"{{ forecast_run_start_date }}\") AND to_timestamp(\"{{ forecast_run_end_date }}\")) "
+        'WHERE (`{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}")) '
+        'AND (`{{ forecast_run_timestamp_column }}` BETWEEN to_timestamp("{{ forecast_run_start_date }}") AND to_timestamp("{{ forecast_run_end_date }}")) '
         "AND `{{ latitude_column }}` > {{ min_lat}} "
         "AND `{{ latitude_column }}` < {{ max_lat}} "
         "AND `{{ longitude_column }}` > {{ min_lon}} "
@@ -102,15 +102,15 @@ def _raw_query_grid(parameters_dict: dict) -> str:
 
 
 def _raw_query_point(parameters_dict: dict) -> str:
-    raw_query_point =  (
+    raw_query_point = (
         "SELECT * FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
         "`{{ forecast|lower }}`.`{{ forecast_type|lower }}`.`{{ region|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
-        "WHERE (`{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\")) "
-        "AND (`{{ forecast_run_timestamp_column }}` BETWEEN to_timestamp(\"{{ forecast_run_start_date }}\") AND to_timestamp(\"{{ forecast_run_end_date }}\")) "
+        'WHERE (`{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_date }}") AND to_timestamp("{{ end_date }}")) '
+        'AND (`{{ forecast_run_timestamp_column }}` BETWEEN to_timestamp("{{ forecast_run_start_date }}") AND to_timestamp("{{ forecast_run_end_date }}")) '
         "AND `{{ latitude_column }}` == {{ lat }} "
         "AND `{{ longitude_column }}` == {{ lon }} "
         "ORDER BY `{{ tagname_column }}` "

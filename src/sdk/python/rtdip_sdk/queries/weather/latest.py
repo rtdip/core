@@ -34,8 +34,8 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        source (optional str): Source of the data the full table name 
-        forecast (str): Any specific identifier for forecast 
+        source (optional str): Source of the data the full table name
+        forecast (str): Any specific identifier for forecast
         forecast_type(str): Type of forecast ie weather, solar, power, etc
         region (str): Region
         data_security_level (str): Level of data security
@@ -85,8 +85,8 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        source (optional str): Source of the data the full table name 
-        forecast (str): Any specific identifier for forecast 
+        source (optional str): Source of the data the full table name
+        forecast (str): Any specific identifier for forecast
         forecast_type(str): Type of forecast ie weather, solar, power, etc
         region (str): Region
         data_security_level (str): Level of data security

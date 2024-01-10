@@ -44,7 +44,7 @@ MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
 
 MOCKED_PARAMETER_DICT_GRID = {
     "forecast": "forecast",
-    "forecast_type" : "weather",
+    "forecast_type": "weather",
     "region": "mock_region",
     "data_security_level": "mock_security",
     "data_type": "mock_data_type",
@@ -62,7 +62,7 @@ MOCKED_PARAMETER_DICT_GRID = {
 
 MOCKED_PARAMETER_DICT_POINT = {
     "forecast": "forecast",
-    "forecast_type" : "weather",
+    "forecast_type": "weather",
     "region": "mock_region",
     "data_security_level": "mock_security",
     "data_type": "mock_data_type",
@@ -102,6 +102,7 @@ MOCKED_PARAMETER_DICT_POINT_SOURCE = {
     "forecast_run_timestamp_column": "EnqueuedTime",
 }
 
+
 def test_raw_grid_(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
     mocked_connection_close = mocker.spy(MockedDBConnection, "close")
@@ -129,6 +130,7 @@ def test_raw_grid_(mocker: MockerFixture):
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
 
+
 def test_raw_grid_source(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
     mocked_connection_close = mocker.spy(MockedDBConnection, "close")
@@ -155,7 +157,6 @@ def test_raw_grid_source(mocker: MockerFixture):
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
-
 
 
 def test_raw_grid_fails(mocker: MockerFixture):
@@ -201,6 +202,7 @@ def test_raw_point(mocker: MockerFixture):
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
 
+
 def test_raw_point_source(mocker: MockerFixture):
     mocked_cursor = mocker.spy(MockedDBConnection, "cursor")
     mocked_connection_close = mocker.spy(MockedDBConnection, "close")
@@ -227,7 +229,6 @@ def test_raw_point_source(mocker: MockerFixture):
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
-
 
 
 def test_raw_point_fails(mocker: MockerFixture):
