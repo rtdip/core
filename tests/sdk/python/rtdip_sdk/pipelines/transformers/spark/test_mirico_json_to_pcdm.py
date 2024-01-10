@@ -31,7 +31,7 @@ from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
     _package_version_meets_minimum,
 )
 
-EVENTTIME = "2023-11-03T16:21:16"
+EVENTTIME = datetime.fromisoformat("2023-11-03T16:21:16")
 
 
 def test_mirico_json_to_pcdm(spark_session: SparkSession):
@@ -40,7 +40,7 @@ def test_mirico_json_to_pcdm(spark_session: SparkSession):
 
     expected_schema = StructType(
         [
-            StructField("EventTime", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
             StructField("TagName", StringType(), False),
             StructField("Status", StringType(), False),
             StructField("Value", StringType(), True),
