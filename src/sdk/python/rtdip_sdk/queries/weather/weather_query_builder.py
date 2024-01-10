@@ -24,10 +24,18 @@ from pandas import DataFrame
 class WeatherQueryBuilder:
     """
     A builder for developing RTDIP queries using any delta table
+
     """
 
     parameters: dict
     connection: ConnectionInterface
+    close_connection: bool
+    data_source: str
+    tagname_column: str
+    timestamp_column: str
+    status_column: str
+    value_column: str
+
 
     def connect(self, connection: ConnectionInterface):
         """
@@ -89,7 +97,6 @@ class WeatherQueryBuilder:
             forecast_run_end_date (str): End date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             lat (float): latitude
             lon (float): longitude
-            source (optional str): Source of the data ie ECMWF
             time_zone (str): Timezone of the data
             include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
             limit (optional int): The number of rows to be returned
@@ -125,7 +132,6 @@ class WeatherQueryBuilder:
         Args:
             lat (float): latitude
             lon (float): longitude
-            source (optional str): Source of the data ie ECMWF
             limit (optional int): The number of rows to be returned
 
         Returns:
@@ -135,7 +141,6 @@ class WeatherQueryBuilder:
             "source": self.data_source,
             "lat": lat,
             "lon": lon,
-            "source": source,
             "limit": limit,
             "supress_warning": True,
         }
@@ -168,7 +173,6 @@ class WeatherQueryBuilder:
             min_lon (float): Min longitude
             max_lat (float): Max latitude
             max_lon (float): Max longitude
-            source (optional str): Source of the data ie ECMWF
             time_zone (str): Timezone of the data
             include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
             limit (optional int): The number of rows to be returned
@@ -210,7 +214,6 @@ class WeatherQueryBuilder:
             min_lon (float): Min longitude
             max_lat (float): Max latitude
             max_lon (float): Max longitude
-            source (optional str): Source of the data ie ECMWF
             limit (optional int): The number of rows to be returned
 
         Returns:
