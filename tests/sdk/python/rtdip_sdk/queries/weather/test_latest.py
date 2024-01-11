@@ -115,7 +115,7 @@ def test_latest_grid_source(mocker: MockerFixture):
         MockedCursor,
         "fetchall_arrow",
         return_value=pa.Table.from_pandas(
-            pd.DataFrame(data={"e": [1], "f": [2], "g": [3], "h": [4]})
+            pd.DataFrame(data={"a": [1], "c": [2], "g": [3], "i": [4]})
         ),
     )
     mocked_close = mocker.spy(MockedCursor, "close")
@@ -187,7 +187,7 @@ def test_latest_point_source(mocker: MockerFixture):
         MockedCursor,
         "fetchall_arrow",
         return_value=pa.Table.from_pandas(
-            pd.DataFrame(data={"i": [1], "j": [2], "k": [3], "l": [4]})
+            pd.DataFrame(data={"h": [1], "o": [2], "u": [3], "w": [4]})
         ),
     )
     mocked_close = mocker.spy(MockedCursor, "close")
