@@ -610,27 +610,3 @@ SEM_SCHEMA = StructType(
         StructField("sourceName", StringType(), True),
     ]
 )
-
-MIRICO_SCHEMA = StructType(
-    [
-        StructField("retroName", StringType(), True),
-        StructField("temperatureKelvin", FloatType(), True),
-        StructField("siteName", StringType(), True),
-        StructField("pressureMillibar", FloatType(), True),
-        StructField("windSpeedMetersPerSecond", FloatType(), True),
-        StructField("windBearingDegreesTo", FloatType(), True),
-        StructField("pathLengthMeters", FloatType(), True),
-        StructField("retroAltitude", FloatType(), True),
-        StructField("sensorAltitude", FloatType(), True),
-        StructField("quality", IntegerType(), True),
-        StructField("timeStamp", StringType(), True),
-        StructField("siteKey", StringType(), True),
-        StructField("gasTypeId", IntegerType(), True),
-        StructField("retroLongitude", FloatType(), True),
-        StructField("gasType", StringType(), True),
-        StructField("sensorLatitude", FloatType(), True),
-        StructField("gasPpm", FloatType(), True),
-        StructField("retroLatitude", FloatType(), True),
-        StructField("sensorLongitude", FloatType(), True),
-    ]
-)
