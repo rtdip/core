@@ -36,7 +36,6 @@ class WeatherQueryBuilder:
     status_column: str
     value_column: str
 
-
     def connect(self, connection: ConnectionInterface):
         """
         Specifies the connection to be used for the query
