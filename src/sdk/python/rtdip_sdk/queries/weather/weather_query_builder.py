@@ -82,8 +82,6 @@ class WeatherQueryBuilder:
         forecast_run_end_date: str,
         lat: float,
         lon: float,
-        time_zone: str = None,
-        include_bad_data: bool = False,
         limit: int = None,
     ) -> DataFrame:
         """
@@ -96,8 +94,6 @@ class WeatherQueryBuilder:
             forecast_run_end_date (str): End date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             lat (float): latitude
             lon (float): longitude
-            time_zone (str): Timezone of the data
-            include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
             limit (optional int): The number of rows to be returned
 
         Returns:
@@ -109,10 +105,10 @@ class WeatherQueryBuilder:
             "end_date": end_date,
             "forecast_run_start_date": forecast_run_start_date,
             "forecast_run_end_date": forecast_run_end_date,
+            "timestamp_column": self.timestamp_column,
+            "forecast_run_timestamp_column": self.forecast_run_timestamp_column,
             "lat": lat,
             "lon": lon,
-            "time_zone": time_zone,
-            "include_bad_data": include_bad_data,
             "limit": limit,
             "supress_warning": True,
         }
@@ -156,8 +152,6 @@ class WeatherQueryBuilder:
         min_lon: float,
         max_lat: float,
         max_lon: float,
-        time_zone: str = None,
-        include_bad_data: bool = False,
         limit: int = None,  # NOSONAR
     ) -> DataFrame:
         """
@@ -172,8 +166,6 @@ class WeatherQueryBuilder:
             min_lon (float): Min longitude
             max_lat (float): Max latitude
             max_lon (float): Max longitude
-            time_zone (str): Timezone of the data
-            include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
             limit (optional int): The number of rows to be returned
 
         Returns:
@@ -185,12 +177,12 @@ class WeatherQueryBuilder:
             "end_date": end_date,
             "forecast_run_start_date": forecast_run_start_date,
             "forecast_run_end_date": forecast_run_end_date,
+            "timestamp_column": self.timestamp_column,
+            "forecast_run_timestamp_column": self.forecast_run_timestamp_column,
             "min_lat": min_lat,
             "min_lon": min_lon,
             "max_lat": max_lat,
             "max_lon": max_lon,
-            "time_zone": time_zone,
-            "include_bad_data": include_bad_data,
             "limit": limit,
             "supress_warning": True,
         }
