@@ -23,11 +23,18 @@ from pandas import DataFrame
 
 class WeatherQueryBuilder:
     """
-    A builder for developing RTDIP queries using any delta table
+    A builder for developing RTDIP forecast queries using any delta table
+
     """
 
     parameters: dict
     connection: ConnectionInterface
+    close_connection: bool
+    data_source: str
+    tagname_column: str
+    timestamp_column: str
+    status_column: str
+    value_column: str
 
     def connect(self, connection: ConnectionInterface):
         """
@@ -44,6 +51,7 @@ class WeatherQueryBuilder:
         source: str,
         tagname_column: str = "TagName",
         timestamp_column: str = "EventTime",
+        forecast_run_timestamp_column: str = "EnqueuedTime",
         status_column: Union[str, None] = "Status",
         value_column: str = "Value",
     ):
@@ -54,63 +62,82 @@ class WeatherQueryBuilder:
             source (str): Source of the query can be a Unity Catalog table, Hive metastore table or path
             tagname_column (optional str): The column name in the source that contains the tagnames or series
             timestamp_column (optional str): The timestamp column name in the source
+            forecast_run_timestamp_column (optional str): The forecast run timestamp column name in the source
             status_column (optional str): The status column name in the source indicating `Good` or `Bad`. If this is not available, specify `None`
             value_column (optional str): The value column name in the source which is normally a float or string value for the time series event
         """
         self.data_source = "`.`".join(source.split("."))
         self.tagname_column = tagname_column
         self.timestamp_column = timestamp_column
+        self.forecast_run_timestamp_column = forecast_run_timestamp_column
         self.status_column = status_column
         self.value_column = value_column
         return self
 
     def raw_point(
         self,
-        forecast: str,
-        region: str,
-        data_security_level: str,
-        data_type: str,
         start_date: str,
         end_date: str,
+        forecast_run_start_date: str,
+        forecast_run_end_date: str,
         lat: float,
         lon: float,
-        source: str = None,
-        time_zone: str = None,
-        include_bad_data: bool = False,
         limit: int = None,
     ) -> DataFrame:
         """
         A function to return back raw data for a point.
 
+        **Example:**
+        ```python
+        from rtdip_sdk.queries.weather.weather_query_builder import (
+            WeatherQueryBuilder,
+        )
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+                WeatherQueryBuilder()
+                .connect(connection)
+                .source("example.forecast.table")
+                .raw_point(
+                    start_date="2021-01-01",
+                    end_date="2021-01-02",
+                    forecast_run_start_date="2021-01-01",
+                    forecast_run_end_date="2021-01-02",
+                    lat=0.1,
+                    lon=0.1,
+                )
+            )
+
+        print(data)
+        ```
+
         Args:
-            forecast (str): Business unit
-            region (str): Region
-            data_security_level (str): Level of data security
-            data_type (str): Type of the data (float, integer, double, string)
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            forecast_run_start_date (str): Start date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            forecast_run_end_date (str): End date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             lat (float): latitude
             lon (float): longitude
-            source (optional str): Source of the data ie ECMWF
-            time_zone (str): Timezone of the data
-            include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
             limit (optional int): The number of rows to be returned
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "forecast": forecast,
-            "region": region,
-            "data_security_level": data_security_level,
-            "data_type": data_type,
+            "source": self.data_source,
             "start_date": start_date,
             "end_date": end_date,
+            "forecast_run_start_date": forecast_run_start_date,
+            "forecast_run_end_date": forecast_run_end_date,
+            "timestamp_column": self.timestamp_column,
+            "forecast_run_timestamp_column": self.forecast_run_timestamp_column,
             "lat": lat,
             "lon": lon,
-            "source": source,
-            "time_zone": time_zone,
-            "include_bad_data": include_bad_data,
             "limit": limit,
             "supress_warning": True,
         }
@@ -119,39 +146,50 @@ class WeatherQueryBuilder:
 
     def latest_point(
         self,
-        forecast: str,
-        region: str,
-        data_security_level: str,
-        data_type: str,
         lat: float,
         lon: float,
-        source: str = None,
         limit: int = None,
     ) -> DataFrame:
         """
         A function to return back the latest data for a point.
 
+        **Example:**
+        ```python
+        from rtdip_sdk.queries.weather.weather_query_builder import (
+            WeatherQueryBuilder,
+        )
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+                WeatherQueryBuilder()
+                .connect(connection)
+                .source("example.forecast.table")
+                .latest_point(
+                    lat=0.1,
+                    lon=0.1,
+                    )
+                )
+
+        print(data)
+        ```
+
         Args:
-            forecast (str): Business unit
-            region (str): Region
-            data_security_level (str): Level of data security
-            data_type (str): Type of the data (float, integer, double, string)
             lat (float): latitude
             lon (float): longitude
-            source (optional str): Source of the data ie ECMWF
             limit (optional int): The number of rows to be returned
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "forecast": forecast,
-            "region": region,
-            "data_security_level": data_security_level,
-            "data_type": data_type,
+            "source": self.data_source,
             "lat": lat,
             "lon": lon,
-            "source": source,
             "limit": limit,
             "supress_warning": True,
         }
@@ -160,57 +198,76 @@ class WeatherQueryBuilder:
 
     def raw_grid(  # NOSONAR
         self,  # NOSONAR
-        forecast: str,
-        region: str,
-        data_security_level: str,
-        data_type: str,
         start_date: str,
         end_date: str,
+        forecast_run_start_date: str,
+        forecast_run_end_date: str,
         min_lat: float,
         min_lon: float,
         max_lat: float,
         max_lon: float,
-        source: str = None,
-        time_zone: str = None,
-        include_bad_data: bool = False,
         limit: int = None,  # NOSONAR
     ) -> DataFrame:
         """
-        A function to return back raw data for a point.
+        A function to return back raw data for a grid.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.queries.weather.weather_query_builder import (
+            WeatherQueryBuilder,
+        )
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+                WeatherQueryBuilder()
+                .connect(connection)
+                .source("example.forecast.table")
+                .raw_grid(
+                    start_date="2021-01-01",
+                    end_date="2021-01-02",
+                    forecast_run_start_date="2021-01-01",
+                    forecast_run_end_date="2021-01-02",
+                    min_lat=0.1,
+                    max_lat=0.1,
+                    min_lon=0.1,
+                    max_lon=0.1,
+                )
+            )
+
+        print(data)
+        ```
 
         Args:
-            forecast (str): Business unit
-            region (str): Region
-            data_security_level (str): Level of data security
-            data_type (str): Type of the data (float, integer, double, string)
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            forecast_run_start_date (str): Start date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            forecast_run_end_date (str): End date of the forecast run (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             min_lat (float): Min latitude
             min_lon (float): Min longitude
             max_lat (float): Max latitude
             max_lon (float): Max longitude
-            source (optional str): Source of the data ie ECMWF
-            time_zone (str): Timezone of the data
-            include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
             limit (optional int): The number of rows to be returned
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "forecast": forecast,
-            "region": region,
-            "data_security_level": data_security_level,
-            "data_type": data_type,
+            "source": self.data_source,
             "start_date": start_date,
             "end_date": end_date,
+            "forecast_run_start_date": forecast_run_start_date,
+            "forecast_run_end_date": forecast_run_end_date,
+            "timestamp_column": self.timestamp_column,
+            "forecast_run_timestamp_column": self.forecast_run_timestamp_column,
             "min_lat": min_lat,
             "min_lon": min_lon,
             "max_lat": max_lat,
             "max_lon": max_lon,
-            "source": source,
-            "time_zone": time_zone,
-            "include_bad_data": include_bad_data,
             "limit": limit,
             "supress_warning": True,
         }
@@ -219,45 +276,58 @@ class WeatherQueryBuilder:
 
     def latest_grid(
         self,
-        forecast: str,
-        region: str,
-        data_security_level: str,
-        data_type: str,
         min_lat: float,
         min_lon: float,
         max_lat: float,
         max_lon: float,
-        source: str = None,
         limit: int = None,
     ) -> DataFrame:
         """
-        A function to return back the latest data for a point.
+        A function to return back the latest data for a grid.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.queries.weather.weather_query_builder import (
+            WeatherQueryBuilder,
+        )
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+                WeatherQueryBuilder()
+                .connect(connection)
+                .source("example.forecast.table")
+                .latest_grid(
+                    min_lat=0.1,
+                    max_lat=0.1,
+                    min_lon=0.1,
+                    max_lon=0.1,
+                )
+            )
+
+        print(data)
+        ```
 
         Args:
-            forecast (str): Business unit
-            region (str): Region
-            data_security_level (str): Level of data security
-            data_type (str): Type of the data (float, integer, double, string)
             min_lat (float): Min latitude
             min_lon (float): Min longitude
             max_lat (float): Max latitude
             max_lon (float): Max longitude
-            source (optional str): Source of the data ie ECMWF
             limit (optional int): The number of rows to be returned
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
         """
         raw_parameters = {
-            "forecast": forecast,
-            "region": region,
-            "data_security_level": data_security_level,
-            "data_type": data_type,
+            "source": self.data_source,
             "min_lat": min_lat,
             "min_lon": min_lon,
             "max_lat": max_lat,
             "max_lon": max_lon,
-            "source": source,
             "limit": limit,
             "supress_warning": True,
         }

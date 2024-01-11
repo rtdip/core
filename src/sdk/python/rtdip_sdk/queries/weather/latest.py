@@ -34,7 +34,9 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        forecast (str): Business unit
+        source (optional str): Source of the data the full table name
+        forecast (str): Any specific identifier for forecast
+        forecast_type(str): Type of forecast ie weather, solar, power, etc
         region (str): Region
         data_security_level (str): Level of data security
         data_type (str): Type of the data (float, integer, double, string)
@@ -42,7 +44,6 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
         max_lon (float): Maximum longitude
         min_lat (float): Minimum latitude
         min_lon (float): Minimum longitude
-        source (optional str): Source of the data ie ECMWF
         limit (optional int): The number of rows to be returned
 
     Returns:
@@ -84,13 +85,14 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:
-        forecast (str): Business unit
+        source (optional str): Source of the data the full table name
+        forecast (str): Any specific identifier for forecast
+        forecast_type(str): Type of forecast ie weather, solar, power, etc
         region (str): Region
         data_security_level (str): Level of data security
         data_type (str): Type of the data (float, integer, double, string)
         lat (float): latitude
         lon (float): longitude
-        source (optional str): Source of the data ie ECMWF
         limit (optional int): The number of rows to be returned
 
     Returns:
