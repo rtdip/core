@@ -23,7 +23,7 @@ from pandas import DataFrame
 
 class WeatherQueryBuilder:
     """
-    A builder for developing RTDIP queries using any delta table
+    A builder for developing RTDIP forecast queries using any delta table
 
     """
 
@@ -87,6 +87,39 @@ class WeatherQueryBuilder:
         """
         A function to return back raw data for a point.
 
+        **Example:**
+
+        ```python
+        from rtdip_sdk.queries.weather.weather_query_builder import (
+            WeatherQueryBuilder,
+        )
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        table = "weather.forecast.table"
+
+        data = (
+                WeatherQueryBuilder()
+                .connect(connection)
+                .source(table, status_column=None)
+                .raw_point(
+                    start_date="2021-01-01",
+                    end_date="2021-01-02",
+                    forecast_run_start_date="2021-01-01",
+                    forecast_run_end_date="2021-01-02",
+                    lat=0.1,
+                    lon=0.1,
+                )
+            )
+
+        print(data)
+        ```
+
         Args:
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
@@ -124,6 +157,35 @@ class WeatherQueryBuilder:
         """
         A function to return back the latest data for a point.
 
+        **Example:**
+
+        ```python
+        from rtdip_sdk.queries.weather.weather_query_builder import (
+            WeatherQueryBuilder,
+        )
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        table = "weather.forecast.table"
+
+        data = (
+                WeatherQueryBuilder()
+                .connect(connection)
+                .source(table, status_column=None)
+                .latest_point(
+                    lat=0.1,
+                    lon=0.1,
+                    )
+                )
+
+        print(data)
+        ```
+
         Args:
             lat (float): latitude
             lon (float): longitude
@@ -155,7 +217,42 @@ class WeatherQueryBuilder:
         limit: int = None,  # NOSONAR
     ) -> DataFrame:
         """
-        A function to return back raw data for a point.
+        A function to return back raw data for a grid.
+
+        **Example:**
+
+        ```python
+        from rtdip_sdk.queries.weather.weather_query_builder import (
+            WeatherQueryBuilder,
+        )
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        table = "weather.forecast.table"
+
+        data = (
+                WeatherQueryBuilder()
+                .connect(connection)
+                .source(table, status_column=None)
+                .raw_grid(
+                    start_date="2021-01-01",
+                    end_date="2021-01-02",
+                    forecast_run_start_date="2021-01-01",
+                    forecast_run_end_date="2021-01-02",
+                    min_lat=0.1,
+                    max_lat=0.1,
+                    min_lon=0.1,
+                    max_lon=0.1,
+                )
+            )
+
+        print(data)
+        ```
 
         Args:
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
@@ -198,7 +295,38 @@ class WeatherQueryBuilder:
         limit: int = None,
     ) -> DataFrame:
         """
-        A function to return back the latest data for a point.
+        A function to return back the latest data for a grid.
+
+        **Example:**
+
+        ```python
+        from rtdip_sdk.queries.weather.weather_query_builder import (
+            WeatherQueryBuilder,
+        )
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        table = "weather.forecast.table"
+
+        data = (
+                WeatherQueryBuilder()
+                .connect(connection)
+                .source(table, status_column=None)
+                .latest_grid(
+                    min_lat=0.1,
+                    max_lat=0.1,
+                    min_lon=0.1,
+                    max_lon=0.1,
+                )
+            )
+
+        print(data)
+        ```
 
         Args:
             min_lat (float): Min latitude

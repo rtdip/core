@@ -8,6 +8,7 @@ from rtdip_sdk.authentication.azure import DefaultAuth
 from rtdip_sdk.queries.weather.raw import get_point
 from rtdip_sdk.connectors import DatabricksSQLConnection
 
+
 auth = DefaultAuth().authenticate()
 token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
 connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
@@ -33,6 +34,7 @@ print(x)
 from rtdip_sdk.authentication.azure import DefaultAuth
 from rtdip_sdk.queries.weather.raw import get_point
 from rtdip_sdk.connectors import DatabricksSQLConnection
+
 
 auth = DefaultAuth().authenticate()
 token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
@@ -74,6 +76,7 @@ from rtdip_sdk.authentication.azure import DefaultAuth
 from rtdip_sdk.queries.weather.raw import get_grid
 from rtdip_sdk.connectors import DatabricksSQLConnection
 
+
 auth = DefaultAuth().authenticate()
 token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
 connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
@@ -101,6 +104,7 @@ print(x)
 from rtdip_sdk.authentication.azure import DefaultAuth
 from rtdip_sdk.queries.weather.raw import get_grid
 from rtdip_sdk.connectors import DatabricksSQLConnection
+
 
 auth = DefaultAuth().authenticate()
 token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
