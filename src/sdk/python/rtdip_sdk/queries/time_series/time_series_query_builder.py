@@ -47,6 +47,23 @@ class TimeSeriesQueryBuilder:
         """
         Specifies the connection to be used for the query.
 
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        connect = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+        )
+
+        ```
+
         Args:
             connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
         """
@@ -63,6 +80,26 @@ class TimeSeriesQueryBuilder:
     ):
         """
         Specifies the source of the query.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        source = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source(
+                source="{table_path}"
+            )
+        )
+
+        ```
 
         Args:
             source (str): Source of the query can be a Unity Catalog table, Hive metastore table or path
@@ -89,6 +126,31 @@ class TimeSeriesQueryBuilder:
     ) -> DataFrame:
         """
         A function to return back raw data.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .raw(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                start_date="2023-01-01",
+                end_date="2023-01-31",
+            )
+        )
+
+        display(data)
+
+        ```
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -132,6 +194,34 @@ class TimeSeriesQueryBuilder:
     ) -> DataFrame:
         """
         A query to resample the source data.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .resample(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                start_date="2023-01-01",
+                end_date="2023-01-31",
+                time_interval_rate="15",
+                time_interval_unit="minute",
+                agg_method="first",
+            )
+        )
+
+        display(data)
+
+        ```
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -187,6 +277,35 @@ class TimeSeriesQueryBuilder:
         """
         The Interpolate function will forward fill, backward fill or linearly interpolate the resampled data depending on the parameters specified.
 
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .interpolate(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                start_date="2023-01-01",
+                end_date="2023-01-31",
+                time_interval_rate="15",
+                time_interval_unit="minute",
+                agg_method="first",
+                interpolation_method="forward_fill",
+            )
+        )
+
+        display(data)
+
+        ```
+
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
@@ -238,6 +357,30 @@ class TimeSeriesQueryBuilder:
         """
         A interpolation at time function which works out the linear interpolation at a specific time based on the points before and after.
 
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .interpolation_at_time(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                timestamp_filter=["2023-01-01T09:30:00", "2023-01-02T12:00:00"],
+            )
+        )
+
+        display(data)
+
+        ```
+
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
             timestamp_filter (list): List of timestamp or timestamps in the format YYY-MM-DDTHH:MM:SS or YYY-MM-DDTHH:MM:SS+zz:zz where %z is the timezone. (Example +00:00 is the UTC timezone)
@@ -287,6 +430,34 @@ class TimeSeriesQueryBuilder:
     ) -> DataFrame:
         """
         A function that receives a dataframe of raw tag data and performs a time weighted averages.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .time_weighted_average(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                start_date="2023-01-01",
+                end_date="2023-01-31",
+                time_interval_rate="15",
+                time_interval_unit="minute",
+                step="true",
+            )
+        )
+
+        display(data)
+
+        ```
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -341,6 +512,29 @@ class TimeSeriesQueryBuilder:
         """
         A query to retrieve metadata.
 
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .metadata(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+            )
+        )
+
+        display(data)
+
+        ```
+
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
             limit (optional int): The number of rows to be returned
@@ -368,6 +562,29 @@ class TimeSeriesQueryBuilder:
     ) -> DataFrame:
         """
         A query to retrieve latest event_values.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .latest(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+            )
+        )
+
+        display(data)
+
+        ```
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -404,6 +621,35 @@ class TimeSeriesQueryBuilder:
     ) -> DataFrame:
         """
         A function that receives a dataframe of raw tag data and computes the circular mean for samples in a range.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .circular_average(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                start_date="2023-01-01",
+                end_date="2023-01-31",
+                time_interval_rate="15",
+                time_interval_unit="minute",
+                lower_bound="0",
+                upper_bound="360",
+            )
+        )
+
+        display(data)
+
+        ```
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
@@ -460,6 +706,35 @@ class TimeSeriesQueryBuilder:
         """
         A function that receives a dataframe of raw tag data and computes the circular standard deviation for samples assumed to be in the range.
 
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .circular_standard_deviation(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                start_date="2023-01-01",
+                end_date="2023-01-31",
+                time_interval_rate="15",
+                time_interval_unit="minute",
+                lower_bound="0",
+                upper_bound="360",
+            )
+        )
+
+        display(data)
+
+        ```
+
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
@@ -511,6 +786,31 @@ class TimeSeriesQueryBuilder:
     ) -> DataFrame:
         """
         A function to return back a summary of statistics.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .summary(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                start_date="2023-01-01",
+                end_date="2023-01-31",
+            )
+        )
+
+        display(data)
+
+        ```
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
