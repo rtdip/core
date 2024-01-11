@@ -33,12 +33,10 @@ def test_weather_query_builder_raw_point(mocker: MockerFixture):
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .raw_point(
-            forecast="mock_forecast",
-            region="mock_region",
-            data_security_level="mock_data_security_level",
-            data_type="mock_data_type",
             start_date="2021-01-01",
             end_date="2021-01-02",
+            forecast_run_start_date="2021-01-01",
+            forecast_run_end_date="2021-01-02",
             lat=0.1,
             lon=0.1,
         )
@@ -57,10 +55,6 @@ def test_query_builder_latest_point(mocker: MockerFixture):
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .latest_point(
-            forecast="mock_forecast",
-            region="mock_region",
-            data_security_level="mock_data_security_level",
-            data_type="mock_data_type",
             lat=0.1,
             lon=0.1,
         )
@@ -79,12 +73,10 @@ def test_weather_query_builder_raw_grid(mocker: MockerFixture):
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .raw_grid(
-            forecast="mock_forecast",
-            region="mock_region",
-            data_security_level="mock_data_security_level",
-            data_type="mock_data_type",
             start_date="2021-01-01",
             end_date="2021-01-02",
+            forecast_run_start_date="2021-01-01",
+            forecast_run_end_date="2021-01-02",
             min_lat=0.1,
             max_lat=0.1,
             min_lon=0.1,
@@ -105,10 +97,6 @@ def test_query_builder_latest_grid(mocker: MockerFixture):
         .connect(MOCK_CONNECTION)
         .source(MOCK_TABLE, status_column=None)
         .latest_grid(
-            forecast="mock_forecast",
-            region="mock_region",
-            data_security_level="mock_data_security_level",
-            data_type="mock_data_type",
             min_lat=0.1,
             max_lat=0.1,
             min_lon=0.1,
