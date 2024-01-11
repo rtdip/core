@@ -88,7 +88,6 @@ class WeatherQueryBuilder:
         A function to return back raw data for a point.
 
         **Example:**
-
         ```python
         from rtdip_sdk.queries.weather.weather_query_builder import (
             WeatherQueryBuilder,
@@ -96,17 +95,14 @@ class WeatherQueryBuilder:
         from rtdip_sdk.authentication.azure import DefaultAuth
         from rtdip_sdk.connectors import DatabricksSQLConnection
 
-
         auth = DefaultAuth().authenticate()
         token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
         connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
 
-        table = "weather.forecast.table"
-
         data = (
                 WeatherQueryBuilder()
                 .connect(connection)
-                .source(table, status_column=None)
+                .source("example.forecast.table")
                 .raw_point(
                     start_date="2021-01-01",
                     end_date="2021-01-02",
@@ -158,7 +154,6 @@ class WeatherQueryBuilder:
         A function to return back the latest data for a point.
 
         **Example:**
-
         ```python
         from rtdip_sdk.queries.weather.weather_query_builder import (
             WeatherQueryBuilder,
@@ -166,17 +161,14 @@ class WeatherQueryBuilder:
         from rtdip_sdk.authentication.azure import DefaultAuth
         from rtdip_sdk.connectors import DatabricksSQLConnection
 
-
         auth = DefaultAuth().authenticate()
         token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
         connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
 
-        table = "weather.forecast.table"
-
         data = (
                 WeatherQueryBuilder()
                 .connect(connection)
-                .source(table, status_column=None)
+                .source("example.forecast.table")
                 .latest_point(
                     lat=0.1,
                     lon=0.1,
@@ -220,7 +212,6 @@ class WeatherQueryBuilder:
         A function to return back raw data for a grid.
 
         **Example:**
-
         ```python
         from rtdip_sdk.queries.weather.weather_query_builder import (
             WeatherQueryBuilder,
@@ -228,17 +219,14 @@ class WeatherQueryBuilder:
         from rtdip_sdk.authentication.azure import DefaultAuth
         from rtdip_sdk.connectors import DatabricksSQLConnection
 
-
         auth = DefaultAuth().authenticate()
         token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
         connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
 
-        table = "weather.forecast.table"
-
         data = (
                 WeatherQueryBuilder()
                 .connect(connection)
-                .source(table, status_column=None)
+                .source("example.forecast.table")
                 .raw_grid(
                     start_date="2021-01-01",
                     end_date="2021-01-02",
@@ -298,7 +286,6 @@ class WeatherQueryBuilder:
         A function to return back the latest data for a grid.
 
         **Example:**
-
         ```python
         from rtdip_sdk.queries.weather.weather_query_builder import (
             WeatherQueryBuilder,
@@ -306,17 +293,14 @@ class WeatherQueryBuilder:
         from rtdip_sdk.authentication.azure import DefaultAuth
         from rtdip_sdk.connectors import DatabricksSQLConnection
 
-
         auth = DefaultAuth().authenticate()
         token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
         connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
 
-        table = "weather.forecast.table"
-
         data = (
                 WeatherQueryBuilder()
                 .connect(connection)
-                .source(table, status_column=None)
+                .source("example.forecast.table")
                 .latest_grid(
                     min_lat=0.1,
                     max_lat=0.1,
