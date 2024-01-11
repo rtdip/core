@@ -84,7 +84,11 @@ extra:
 plugins:
   - search
   - autorefs
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            members_order: source
   - tags
   - blog:
       post_excerpt: required
