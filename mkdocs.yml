@@ -240,6 +240,7 @@ nav:
                       - ADLS Gen 2 Service Principal Connect: sdk/code-reference/pipelines/utilities/spark/adls_gen2_spn_connect.md
                   - AWS:
                       - S3 Bucket Policy: sdk/code-reference/pipelines/utilities/aws/s3_bucket_policy.md
+                      - S3 Copy Utility: sdk/code-reference/pipelines/utilities/aws/s3_copy_utility.md
                   - Azure:
                       - ADLS Gen 2 ACLs: sdk/code-reference/pipelines/utilities/azure/adls_gen2_acl.md
                       - Autoloader Resources: sdk/code-reference/pipelines/utilities/azure/autoloader_resources.md
