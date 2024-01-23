@@ -43,10 +43,10 @@ theme:
     - content.code.select
     - content.tabs.link
     - content.tooltips
-    #- navigation.expand
+    # - navigation.expand
     - navigation.indexes
     - navigation.instant
-    - navigation.sections
+    # - navigation.sections
     - navigation.tabs
     # - navigation.tabs.sticky
     - navigation.top
@@ -54,6 +54,7 @@ theme:
     - search.highlight
     - search.share
     - search.suggest
+    - toc.follow
   palette:
     - scheme: default
       primary: custom
@@ -120,44 +121,19 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting started:
-      - Installation: getting-started/installation.md
       - About RTDIP: getting-started/about-rtdip.md
-  - Domains:
-      - Process Control: 
-          - Overview: domains/process_control/overview.md
-          - Data Model: domains/process_control/data_model.md
-      - Smart Meter Data: 
-          - Overview: domains/smart_meter/overview.md
-          - Data Model: domains/smart_meter/data_model.md
-      - Weather Data: 
-          - Overview: domains/weather/overview.md
-          - Data Model: domains/weather/data_model.md
-  - Integration:
-      - Power BI: integration/power-bi.md
+      - Installation: getting-started/installation.md    
   - SDK:
       - Overview: sdk/overview.md
+      - Authentication:
+          - Azure: 
+              - Overview: sdk/authentication/azure.md
+              - Azure Active Directory: sdk/code-reference/authentication/azure.md
+          - Databricks: sdk/authentication/databricks.md
       - Pipelines:
           - Overview: sdk/pipelines/framework.md
-          - Components: sdk/pipelines/components.md
-          - Jobs: sdk/pipelines/jobs.md
-          - Deploy:
-              - Databricks Workflows: sdk/pipelines/deploy/databricks.md
-              - Apache Airflow: sdk/pipelines/deploy/apache-airflow.md
-      - Queries:
-          - Connectors: sdk/queries/connectors.md
-          - Databricks:
-              - Databricks SQL: sdk/queries/databricks/databricks-sql.md
-              - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
-              - Troubleshooting: sdk/queries/databricks/troubleshooting.md
-          - Spark Connect: sdk/queries/spark/spark-connect.md
-          - LLMs:
-              - Chat Open AI Databricks: sdk/queries/llm/chatopenai_databricks_connector.md
-          - Functions: sdk/queries/functions.md
-      - Authentication:
-          - Azure Active Directory: sdk/authentication/azure.md
-          - Databricks: sdk/authentication/databricks.md
-      - Code Reference:
-          - Pipelines:
+          - Components: 
+              - Overview: sdk/pipelines/components.md
               - Sources:
                   - Spark:
                       - Eventhub: sdk/code-reference/pipelines/sources/spark/eventhub.md
@@ -229,7 +205,6 @@ nav:
                       - Delta: sdk/code-reference/pipelines/destinations/python/delta.md
                   - Blockchain:
                       - EVM: sdk/code-reference/pipelines/destinations/blockchain/evm.md
-
               - Utilities:
                   - Spark:
                       - Session: sdk/code-reference/pipelines/utilities/spark/session.md
@@ -240,7 +215,6 @@ nav:
                       - ADLS Gen 2 Service Principal Connect: sdk/code-reference/pipelines/utilities/spark/adls_gen2_spn_connect.md
                   - AWS:
                       - S3 Bucket Policy: sdk/code-reference/pipelines/utilities/aws/s3_bucket_policy.md
-                      - S3 Copy Utility: sdk/code-reference/pipelines/utilities/aws/s3_copy_utility.md
                   - Azure:
                       - ADLS Gen 2 ACLs: sdk/code-reference/pipelines/utilities/azure/adls_gen2_acl.md
                       - Autoloader Resources: sdk/code-reference/pipelines/utilities/azure/autoloader_resources.md
@@ -252,49 +226,49 @@ nav:
                   - Azure Key Vault: sdk/code-reference/pipelines/secrets/azure_key_vault.md
               - Deploy:
                   - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
-          - Queries:
-              - Functions:
-                  - Metadata: sdk/code-reference/query/functions/metadata.md
-                  - Time Series:
-                      - Time Series Query Builder: sdk/code-reference/query/functions/time_series/time_series_query_builder.md
-                      - Raw: sdk/code-reference/query/functions/time_series/raw.md
-                      - Latest: sdk/code-reference/query/functions/time_series/latest.md
-                      - Resample: sdk/code-reference/query/functions/time_series/resample.md
-                      - Interpolate: sdk/code-reference/query/functions/time_series/interpolate.md
-                      - Interpolation at Time: sdk/code-reference/query/functions/time_series/interpolation-at-time.md
-                      - Time Weighted Average: sdk/code-reference/query/functions/time_series/time-weighted-average.md
-                      - Circular Average: sdk/code-reference/query/functions/time_series/circular-average.md
-                      - Circular Standard Deviation: sdk/code-reference/query/functions/time_series/circular-standard-deviation.md
-                      - Summary: sdk/code-reference/query/functions/time_series/summary.md
-                  - Weather:
-                      - Weather Data Query Builder: sdk/code-reference/query/functions/weather/weather_query_builder.md
-                      - Weather Raw: sdk/code-reference/query/functions/weather/raw.md
-                      - Weather Latest: sdk/code-reference/query/functions/weather/latest.md
-              - Connectors:
-                  - Databricks SQL Connector: sdk/code-reference/query/connectors/db-sql-connector.md
-                  - PYODBC SQL Connector: sdk/code-reference/query/connectors/pyodbc-sql-connector.md
-                  - TURBODBC SQL Connector: sdk/code-reference/query/connectors/turbodbc-sql-connector.md
-                  - Spark Connector: sdk/code-reference/query/connectors/spark-connector.md
-                  - Chat Open AI Databricks Connector: sdk/code-reference/query/connectors/chatopenai_databricks_connector.md
-              - SQL Query:
-                  - SQL Query Builder: sdk/code-reference/query/sql/sql_query.md
-
-          - Authentication:
-              - Azure Active Directory: sdk/code-reference/authentication/azure.md
-      - Examples:
-          - Pipelines:
-              - Deploy:
-                  - Python Delta to Delta: sdk/examples/pipelines/deploy/Python-Delta-to-Delta.md
-                  - EdgeX Eventhub to Delta: sdk/examples/pipelines/deploy/EdgeX-Eventhub-to-Delta.md
-                  - ECMWF to Delta: sdk/examples/pipelines/deploy/ECMWF-to-Delta.md
-                  - Dagster:
-                      - Databricks Connect: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Databricks.md
-                      - Local: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Local.md
-                  - Databricks:
-                      - MISO Daily Load Databricks: sdk/examples/pipelines/deploy/databricks/MISODailyLoad-Batch-Pipeline-Databricks.md
-                  - MISO Daily Load Local: sdk/examples/pipelines/deploy/MISODailyLoad-Batch-Pipeline-Local.md
-                  - PJM Daily Load Local: sdk/examples/pipelines/deploy/PJMDailyLoad-Batch-Pipeline-Local.md
-          - Queries:
+          - Jobs: sdk/pipelines/jobs.md
+          - Deploy:
+              - Databricks Workflows: sdk/pipelines/deploy/databricks.md
+              - Apache Airflow: sdk/pipelines/deploy/apache-airflow.md
+          - Examples:
+              - Python Delta to Delta: sdk/examples/pipelines/deploy/Python-Delta-to-Delta.md
+              - EdgeX Eventhub to Delta: sdk/examples/pipelines/deploy/EdgeX-Eventhub-to-Delta.md
+              - ECMWF to Delta: sdk/examples/pipelines/deploy/ECMWF-to-Delta.md
+              - Dagster:
+                  - Databricks Connect: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Databricks.md
+                  - Local: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Local.md
+              - Databricks:
+                  - MISO Daily Load Databricks: sdk/examples/pipelines/deploy/databricks/MISODailyLoad-Batch-Pipeline-Databricks.md
+              - MISO Daily Load Local: sdk/examples/pipelines/deploy/MISODailyLoad-Batch-Pipeline-Local.md
+              - PJM Daily Load Local: sdk/examples/pipelines/deploy/PJMDailyLoad-Batch-Pipeline-Local.md
+      - Queries:
+          - Connectors: sdk/queries/connectors.md
+          - Databricks:
+              - Databricks SQL: sdk/queries/databricks/databricks-sql.md
+              - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md
+              - Troubleshooting: sdk/queries/databricks/troubleshooting.md
+          - Spark Connect: sdk/queries/spark/spark-connect.md
+          - LLMs:
+              - Chat Open AI Databricks: sdk/queries/llm/chatopenai_databricks_connector.md
+          - Functions: 
+              - Overview: sdk/queries/functions.md
+              - Metadata: sdk/code-reference/query/functions/metadata.md
+              - Time Series:
+                  - Time Series Query Builder: sdk/code-reference/query/functions/time_series/time_series_query_builder.md
+                  - Raw: sdk/code-reference/query/functions/time_series/raw.md
+                  - Latest: sdk/code-reference/query/functions/time_series/latest.md
+                  - Resample: sdk/code-reference/query/functions/time_series/resample.md
+                  - Interpolate: sdk/code-reference/query/functions/time_series/interpolate.md
+                  - Interpolation at Time: sdk/code-reference/query/functions/time_series/interpolation-at-time.md
+                  - Time Weighted Average: sdk/code-reference/query/functions/time_series/time-weighted-average.md
+                  - Circular Average: sdk/code-reference/query/functions/time_series/circular-average.md
+                  - Circular Standard Deviation: sdk/code-reference/query/functions/time_series/circular-standard-deviation.md
+                  - Summary: sdk/code-reference/query/functions/time_series/summary.md
+              - Weather:
+                  - Weather Data Query Builder: sdk/code-reference/query/functions/weather/weather_query_builder.md
+                  - Weather Raw: sdk/code-reference/query/functions/weather/raw.md
+                  - Weather Latest: sdk/code-reference/query/functions/weather/latest.md\
+          - Examples:
               - Interpolate: sdk/examples/query/Interpolate.md
               - Interpolation at Time: sdk/examples/query/Interpolation-at-Time.md
               - Metadata: sdk/examples/query/Metadata.md
@@ -311,6 +285,18 @@ nav:
       - REST API Documentation: api/rest_apis.md
       - Deployment:
           - Azure: api/deployment/azure.md
+  - Domains:
+      - Process Control: 
+          - Overview: domains/process_control/overview.md
+          - Data Model: domains/process_control/data_model.md
+      - Smart Meter Data: 
+          - Overview: domains/smart_meter/overview.md
+          - Data Model: domains/smart_meter/data_model.md
+      - Weather Data: 
+          - Overview: domains/weather/overview.md
+          - Data Model: domains/weather/data_model.md
+  - Integration:
+      - Power BI: integration/power-bi.md
   - Roadmaps:
       - Overview: roadmap/roadmap-overview.md
       - 2023: roadmap/yearly-roadmaps/2023-development-roadmap.md
