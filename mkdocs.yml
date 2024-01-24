@@ -242,6 +242,24 @@ nav:
               - MISO Daily Load Local: sdk/examples/pipelines/deploy/MISODailyLoad-Batch-Pipeline-Local.md
               - PJM Daily Load Local: sdk/examples/pipelines/deploy/PJMDailyLoad-Batch-Pipeline-Local.md
       - Queries:
+          - Query Types: 
+                - Overview: sdk/queries/functions.md
+                - Metadata: sdk/code-reference/query/functions/metadata.md
+                - Time Series:
+                    - Time Series Query Builder: sdk/code-reference/query/functions/time_series/time_series_query_builder.md
+                    - Raw: sdk/code-reference/query/functions/time_series/raw.md
+                    - Latest: sdk/code-reference/query/functions/time_series/latest.md
+                    - Resample: sdk/code-reference/query/functions/time_series/resample.md
+                    - Interpolate: sdk/code-reference/query/functions/time_series/interpolate.md
+                    - Interpolation at Time: sdk/code-reference/query/functions/time_series/interpolation-at-time.md
+                    - Time Weighted Average: sdk/code-reference/query/functions/time_series/time-weighted-average.md
+                    - Circular Average: sdk/code-reference/query/functions/time_series/circular-average.md
+                    - Circular Standard Deviation: sdk/code-reference/query/functions/time_series/circular-standard-deviation.md
+                    - Summary: sdk/code-reference/query/functions/time_series/summary.md
+                - Weather:
+                    - Weather Data Query Builder: sdk/code-reference/query/functions/weather/weather_query_builder.md
+                    - Weather Raw: sdk/code-reference/query/functions/weather/raw.md
+                    - Weather Latest: sdk/code-reference/query/functions/weather/latest.md
           - Connectors: sdk/queries/connectors.md
           - Databricks:
               - Databricks SQL: sdk/queries/databricks/databricks-sql.md
@@ -250,24 +268,6 @@ nav:
           - Spark Connect: sdk/queries/spark/spark-connect.md
           - LLMs:
               - Chat Open AI Databricks: sdk/queries/llm/chatopenai_databricks_connector.md
-          - Functions: 
-              - Overview: sdk/queries/functions.md
-              - Metadata: sdk/code-reference/query/functions/metadata.md
-              - Time Series:
-                  - Time Series Query Builder: sdk/code-reference/query/functions/time_series/time_series_query_builder.md
-                  - Raw: sdk/code-reference/query/functions/time_series/raw.md
-                  - Latest: sdk/code-reference/query/functions/time_series/latest.md
-                  - Resample: sdk/code-reference/query/functions/time_series/resample.md
-                  - Interpolate: sdk/code-reference/query/functions/time_series/interpolate.md
-                  - Interpolation at Time: sdk/code-reference/query/functions/time_series/interpolation-at-time.md
-                  - Time Weighted Average: sdk/code-reference/query/functions/time_series/time-weighted-average.md
-                  - Circular Average: sdk/code-reference/query/functions/time_series/circular-average.md
-                  - Circular Standard Deviation: sdk/code-reference/query/functions/time_series/circular-standard-deviation.md
-                  - Summary: sdk/code-reference/query/functions/time_series/summary.md
-              - Weather:
-                  - Weather Data Query Builder: sdk/code-reference/query/functions/weather/weather_query_builder.md
-                  - Weather Raw: sdk/code-reference/query/functions/weather/raw.md
-                  - Weather Latest: sdk/code-reference/query/functions/weather/latest.md\
           - Examples:
               - Interpolate: sdk/examples/query/Interpolate.md
               - Interpolation at Time: sdk/examples/query/Interpolation-at-Time.md
