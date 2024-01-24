@@ -11,3 +11,15 @@
 ## Installation
 
 To get started with the RTDIP SDK, follow these [installation instructions.](../getting-started/installation.md)
+
+## Pipelines
+
+Find out more about RTDIP Ingestion Pipeline Framework and the components [here.](./pipelines/framework.md)
+
+## Queries
+
+Find out more about querying RTDIP data using built in time series functions [here.](./queries/functions.md)
+
+## Authentication
+
+Find out more about authentication to securely interact with evironments and data [here.](./authentication/azure.md)
