@@ -55,7 +55,7 @@ def test_ssip_binary_file_to_pcdm_setup():
     assert ssip_pi_binary_file_to_pcdm.post_transform_validation()
 
 
-def test_ssip_binary_file_to_pcdm_udf(spark_session: SparkSession, ssip_pi_binary_data: [dict], expected_data: [dict]):
+def _test_ssip_binary_file_to_pcdm_udf(spark_session: SparkSession, ssip_pi_binary_data: [dict], expected_data: [dict]):
     parquet_df = pd.DataFrame(ssip_pi_binary_data)
     binary_data = parquet_df.to_parquet()
     ssip_pi_binary_df = pd.DataFrame(
@@ -134,7 +134,7 @@ def test_ssip_binary_file_to_pcdm_files(spark_session: SparkSession):
         }
     ]
 
-    test_ssip_binary_file_to_pcdm_udf(spark_session, ssip_pi_binary_data, expected_data)
+    _test_ssip_binary_file_to_pcdm_udf(spark_session, ssip_pi_binary_data, expected_data)
 
 def test_ssip_binary_file_to_pcdm_eventhub(spark_session: SparkSession):
     ssip_pi_binary_data = [
@@ -177,4 +177,4 @@ def test_ssip_binary_file_to_pcdm_eventhub(spark_session: SparkSession):
         },
     ]
 
-    test_ssip_binary_file_to_pcdm_udf(spark_session, ssip_pi_binary_data, expected_data)
+    _test_ssip_binary_file_to_pcdm_udf(spark_session, ssip_pi_binary_data, expected_data)
