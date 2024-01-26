@@ -214,7 +214,6 @@ class WeatherQueryBuilder:
         max_lon: float,
         limit: int = None,  # NOSONAR
         measurement: str = None,
-
     ) -> DataFrame:
         """
         A function to return back raw data for a grid.
