@@ -50,6 +50,7 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
         max_lon (float): Maximum longitude
         min_lat (float): Minimum latitude
         min_lon (float): Minimum longitude
+        measurement (optional str): Measurement type
         limit (optional int): The number of rows to be returned
     }
 
@@ -108,6 +109,7 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
         forecast_run_timestamp_column (str): The column which contains whent the forecast was run. Default "EnqueuedTime.
         lat (float): latitude
         lon (float): longitude
+        measurement (optional str): Measurement type
         limit (optional int): The number of rows to be returned
     }
 

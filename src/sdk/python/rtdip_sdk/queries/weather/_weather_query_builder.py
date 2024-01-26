@@ -40,6 +40,7 @@ def _build_parameters(
         "data_security_level": parameters_dict.get("data_security_level", None),
         "data_type": parameters_dict.get("data_type", None),
         "limit": parameters_dict.get("limit", None),
+        "measurement": parameters_dict.get("measurement", None),
         "latitude_column": parameters_dict.get("latitude_column", "Latitude"),
         "longitude_column": parameters_dict.get("longitude_column", "Longitude"),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
@@ -89,6 +90,9 @@ def _raw_query_grid(parameters_dict: dict) -> str:
         "AND `{{ latitude_column }}` < {{ max_lat}} "
         "AND `{{ longitude_column }}` > {{ min_lon}} "
         "AND `{{ longitude_column }}` < {{ max_lon}} "
+        "{% if measurement is defined and measurement is not none %}"
+        "AND `{{ tagname_column }}` like `%_{{ measurement }}`"
+        "{% endif %}"
         "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -113,6 +117,9 @@ def _raw_query_point(parameters_dict: dict) -> str:
         'AND (`{{ forecast_run_timestamp_column }}` BETWEEN to_timestamp("{{ forecast_run_start_date }}") AND to_timestamp("{{ forecast_run_end_date }}")) '
         "AND `{{ latitude_column }}` == {{ lat }} "
         "AND `{{ longitude_column }}` == {{ lon }} "
+        "{% if measurement is defined and measurement is not none %}"
+        "AND `{{ tagname_column }}` like `%_{{ measurement }}`"
+        "{% endif %}"
         "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -137,6 +144,9 @@ def _latest_query_grid(parameters_dict: dict) -> str:
         "AND `{{ latitude_column }}` < {{ max_lat}} "
         "AND `{{ longitude_column }}` > {{ min_lon}} "
         "AND `{{ longitude_column }}` < {{ max_lon}} "
+        "{% if measurement is defined and measurement is not none %}"
+        "AND `{{ tagname_column }}` like `%_{{ measurement }}`"
+        "{% endif %}"
         "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -159,6 +169,9 @@ def _latest_query_point(parameters_dict: dict) -> str:
         "{% endif %}"
         "WHERE `{{ latitude_column }}` == {{ lat }} "
         "AND `{{ longitude_column }}` == {{ lon }} "
+        "{% if measurement is defined and measurement is not none %}"
+        "AND `{{ tagname_column }}` like `%_{{ measurement }}`"
+        "{% endif %}"
         "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
