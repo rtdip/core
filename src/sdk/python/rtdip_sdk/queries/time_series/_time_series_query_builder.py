@@ -64,14 +64,18 @@ def _raw_query(parameters_dict: dict) -> str:
         "time_zone": parameters_dict["time_zone"],
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": False
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else True,
-        "status_column": "Status"
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else parameters_dict.get("status_column", "Status"),
+        "include_status": (
+            False
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else True
+        ),
+        "status_column": (
+            "Status"
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else parameters_dict.get("status_column", "Status")
+        ),
         "value_column": parameters_dict.get("value_column", "Value"),
     }
 
@@ -135,14 +139,18 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "is_resample": True,
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": False
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else True,
-        "status_column": "Status"
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else parameters_dict.get("status_column", "Status"),
+        "include_status": (
+            False
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else True
+        ),
+        "status_column": (
+            "Status"
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else parameters_dict.get("status_column", "Status")
+        ),
         "value_column": parameters_dict.get("value_column", "Value"),
         "range_join_seconds": parameters_dict["range_join_seconds"],
     }
@@ -284,14 +292,18 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": False
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else True,
-        "status_column": "Status"
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else parameters_dict.get("status_column", "Status"),
+        "include_status": (
+            False
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else True
+        ),
+        "status_column": (
+            "Status"
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else parameters_dict.get("status_column", "Status")
+        ),
         "value_column": parameters_dict.get("value_column", "Value"),
     }
     sql_template = Template(interpolate_at_time_query)
@@ -455,14 +467,18 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "range_join_seconds": parameters_dict["range_join_seconds"],
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": False
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else True,
-        "status_column": "Status"
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else parameters_dict.get("status_column", "Status"),
+        "include_status": (
+            False
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else True
+        ),
+        "status_column": (
+            "Status"
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else parameters_dict.get("status_column", "Status")
+        ),
         "value_column": parameters_dict.get("value_column", "Value"),
     }
 
@@ -551,14 +567,18 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": False
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else True,
-        "status_column": "Status"
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else parameters_dict.get("status_column", "Status"),
+        "include_status": (
+            False
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else True
+        ),
+        "status_column": (
+            "Status"
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else parameters_dict.get("status_column", "Status")
+        ),
         "value_column": parameters_dict.get("value_column", "Value"),
     }
 
@@ -610,14 +630,18 @@ def _summary_query(parameters_dict: dict) -> str:
         "time_zone": parameters_dict["time_zone"],
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": False
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else True,
-        "status_column": "Status"
-        if "status_column" in parameters_dict
-        and parameters_dict.get("status_column") is None
-        else parameters_dict.get("status_column", "Status"),
+        "include_status": (
+            False
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else True
+        ),
+        "status_column": (
+            "Status"
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else parameters_dict.get("status_column", "Status")
+        ),
         "value_column": parameters_dict.get("value_column", "Value"),
     }
 

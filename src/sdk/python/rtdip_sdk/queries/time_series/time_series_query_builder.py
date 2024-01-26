@@ -485,9 +485,11 @@ class TimeSeriesQueryBuilder:
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
             "step": step,
-            "source_metadata": None
-            if source_metadata is None
-            else "`.`".join(source_metadata.split(".")),
+            "source_metadata": (
+                None
+                if source_metadata is None
+                else "`.`".join(source_metadata.split("."))
+            ),
             "window_length": window_length,
             "pivot": pivot,
             "limit": limit,
