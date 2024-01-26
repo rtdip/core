@@ -55,7 +55,9 @@ def test_ssip_binary_file_to_pcdm_setup():
     assert ssip_pi_binary_file_to_pcdm.post_transform_validation()
 
 
-def _test_ssip_binary_file_to_pcdm_udf(spark_session: SparkSession, ssip_pi_binary_data: [dict], expected_data: [dict]):
+def _test_ssip_binary_file_to_pcdm_udf(
+    spark_session: SparkSession, ssip_pi_binary_data: [dict], expected_data: [dict]
+):
     parquet_df = pd.DataFrame(ssip_pi_binary_data)
     binary_data = parquet_df.to_parquet()
     ssip_pi_binary_df = pd.DataFrame(
@@ -97,6 +99,7 @@ def _test_ssip_binary_file_to_pcdm_udf(spark_session: SparkSession, ssip_pi_bina
     assert expected_schema == actual_df.schema
     assert_frame_equal(udf_expected_df, udf_actual_df)
 
+
 def test_ssip_binary_file_to_pcdm_files(spark_session: SparkSession):
     ssip_pi_binary_data = [
         {
@@ -110,7 +113,7 @@ def test_ssip_binary_file_to_pcdm_files(spark_session: SparkSession):
             "EventTime": datetime.fromisoformat("2023-04-19T16:41:55.056+00:00"),
             "Status": "Bad",
             "Value": "test",
-        }
+        },
     ]
 
     expected_data = [
@@ -131,10 +134,13 @@ def test_ssip_binary_file_to_pcdm_files(spark_session: SparkSession):
             "Value": "test",
             "ValueType": "string",
             "ChangeType": "insert",
-        }
+        },
     ]
 
-    _test_ssip_binary_file_to_pcdm_udf(spark_session, ssip_pi_binary_data, expected_data)
+    _test_ssip_binary_file_to_pcdm_udf(
+        spark_session, ssip_pi_binary_data, expected_data
+    )
+
 
 def test_ssip_binary_file_to_pcdm_eventhub(spark_session: SparkSession):
     ssip_pi_binary_data = [
@@ -165,7 +171,7 @@ def test_ssip_binary_file_to_pcdm_eventhub(spark_session: SparkSession):
             "Value": "1.0",
             "ValueType": "float",
             "ChangeType": "merge",
-        },    
+        },
         {
             "EventDate": datetime(2023, 4, 19).date(),
             "TagName": "Test2",
@@ -177,4 +183,6 @@ def test_ssip_binary_file_to_pcdm_eventhub(spark_session: SparkSession):
         },
     ]
 
-    _test_ssip_binary_file_to_pcdm_udf(spark_session, ssip_pi_binary_data, expected_data)
+    _test_ssip_binary_file_to_pcdm_udf(
+        spark_session, ssip_pi_binary_data, expected_data
+    )
