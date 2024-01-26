@@ -68,4 +68,4 @@ The biggest limitation experienced to date is the token limit on the Chat GPT mo
 
 The connector does not perform much cross querying of tables to solve answers. For example, the agent does not try to query a metadata table to then solve a question for related data in another table. 
 
-The answers are not always the same and asking the same question multiple times did not always provide the same answer(however, because its an Intelligence based solution, there could be good reasons for that).
+The answers are not always the same and asking the same question multiple times did not always provide the same answer (however, because its an Intelligence based solution, there could be good reasons for that).
