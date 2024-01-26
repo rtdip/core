@@ -154,22 +154,26 @@ class BaseHeaders:
     def __init__(
         self,
         x_databricks_server_hostname: str = Header(
-            default=...
-            if os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME") is None
-            else os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME"),
+            default=(
+                ...
+                if os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME") is None
+                else os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME")
+            ),
             description="Databricks SQL Server Hostname",
-            include_in_schema=True
-            if os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME") is None
-            else False,
+            include_in_schema=(
+                True if os.getenv("DATABRICKS_SQL_SERVER_HOSTNAME") is None else False
+            ),
         ),
         x_databricks_http_path: str = Header(
-            default=...
-            if os.getenv("DATABRICKS_SQL_HTTP_PATH") is None
-            else os.getenv("DATABRICKS_SQL_HTTP_PATH"),
+            default=(
+                ...
+                if os.getenv("DATABRICKS_SQL_HTTP_PATH") is None
+                else os.getenv("DATABRICKS_SQL_HTTP_PATH")
+            ),
             description="Databricks SQL HTTP Path",
-            include_in_schema=True
-            if os.getenv("DATABRICKS_SQL_HTTP_PATH") is None
-            else False,
+            include_in_schema=(
+                True if os.getenv("DATABRICKS_SQL_HTTP_PATH") is None else False
+            ),
         ),
     ):
         self.x_databricks_server_hostname = x_databricks_server_hostname

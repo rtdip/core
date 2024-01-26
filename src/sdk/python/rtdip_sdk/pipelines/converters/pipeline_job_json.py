@@ -71,16 +71,16 @@ class PipelineJobFromJsonConverter(ConverterInterface):
             for step in task["step_list"]:
                 step["component"] = getattr(sys.modules[__name__], step["component"])
                 for param_key, param_value in step["component_parameters"].items():
-                    step["component_parameters"][
-                        param_key
-                    ] = self._try_convert_to_pipeline_secret(param_value)
+                    step["component_parameters"][param_key] = (
+                        self._try_convert_to_pipeline_secret(param_value)
+                    )
                     if not isinstance(
                         step["component_parameters"][param_key], PipelineSecret
                     ) and isinstance(param_value, dict):
                         for key, value in param_value.items():
-                            step["component_parameters"][param_key][
-                                key
-                            ] = self._try_convert_to_pipeline_secret(value)
+                            step["component_parameters"][param_key][key] = (
+                                self._try_convert_to_pipeline_secret(value)
+                            )
 
         return PipelineJob(**pipeline_job_dict)
 
