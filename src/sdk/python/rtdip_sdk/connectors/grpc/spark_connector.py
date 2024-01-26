@@ -49,12 +49,12 @@ class SparkConnection(ConnectionInterface):
 
         if spark is None:
             self.connection = SparkClient(
-                spark_configuration={}
-                if spark_configuration is None
-                else spark_configuration,
-                spark_libraries=Libraries()
-                if spark_libraries is None
-                else spark_libraries,
+                spark_configuration=(
+                    {} if spark_configuration is None else spark_configuration
+                ),
+                spark_libraries=(
+                    Libraries() if spark_libraries is None else spark_libraries
+                ),
                 spark_remote=spark_remote,
             ).spark_session
         else:
