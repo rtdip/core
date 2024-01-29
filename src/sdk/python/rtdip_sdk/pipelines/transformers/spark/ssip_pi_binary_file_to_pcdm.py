@@ -96,16 +96,19 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
                 }
             )
 
-        value_type = str(table.schema.field("Value").type)
-        if value_type == "int16" or value_type == "int32":
-            value_type = "integer"
-
         output_pdf = table.to_pandas()
+
+        if "ValueType" not in output_pdf.columns:
+            value_type = str(table.schema.field("Value").type)
+            if value_type == "int16" or value_type == "int32":
+                value_type = "integer"
+            output_pdf["ValueType"] = value_type
+
+        if "ChangeType" not in output_pdf.columns:
+            output_pdf["ChangeType"] = "insert"
 
         output_pdf["EventDate"] = output_pdf["EventTime"].dt.date
         output_pdf["Value"] = output_pdf["Value"].astype(str)
-        output_pdf["ChangeType"] = "insert"
-        output_pdf["ValueType"] = value_type
         output_pdf = output_pdf[
             [
                 "EventDate",
