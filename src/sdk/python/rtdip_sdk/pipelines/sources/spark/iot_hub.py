@@ -154,10 +154,10 @@ class SparkIoThubSource(SourceInterface):
         try:
             if iothub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options[
-                    iothub_connection_string
-                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
-                    self.options[iothub_connection_string]
+                self.options[iothub_connection_string] = (
+                    sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                        self.options[iothub_connection_string]
+                    )
                 )
 
             return self.spark.read.format("eventhubs").options(**self.options).load()
@@ -177,10 +177,10 @@ class SparkIoThubSource(SourceInterface):
         try:
             if iothub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options[
-                    iothub_connection_string
-                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
-                    self.options[iothub_connection_string]
+                self.options[iothub_connection_string] = (
+                    sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                        self.options[iothub_connection_string]
+                    )
                 )
 
             return (
