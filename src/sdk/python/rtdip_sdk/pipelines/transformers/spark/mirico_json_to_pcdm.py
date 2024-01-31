@@ -70,12 +70,14 @@ class MiricoJsonToPCDMTransformer(TransformerInterface):
         source_column_name: str,
         status_null_value: str = "Good",
         change_type_value: str = "insert",
+        tagname_field: str = None,
     ) -> None:
         _package_version_meets_minimum("pyspark", "3.4.0")
         self.data = data
         self.source_column_name = source_column_name
         self.status_null_value = status_null_value
         self.change_type_value = change_type_value
+        self.tagname_field = tagname_field
 
     @staticmethod
     def system_type():
