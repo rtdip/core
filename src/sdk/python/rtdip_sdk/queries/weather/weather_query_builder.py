@@ -83,6 +83,7 @@ class WeatherQueryBuilder:
         lat: float,
         lon: float,
         limit: int = None,
+        measurement: str = None,
     ) -> DataFrame:
         """
         A function to return back raw data for a point.
@@ -124,6 +125,7 @@ class WeatherQueryBuilder:
             lat (float): latitude
             lon (float): longitude
             limit (optional int): The number of rows to be returned
+            measurement (optional str): Measurement type
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
@@ -139,6 +141,7 @@ class WeatherQueryBuilder:
             "lat": lat,
             "lon": lon,
             "limit": limit,
+            "measurement": measurement,
             "supress_warning": True,
         }
 
@@ -149,6 +152,7 @@ class WeatherQueryBuilder:
         lat: float,
         lon: float,
         limit: int = None,
+        measurement: str = None,
     ) -> DataFrame:
         """
         A function to return back the latest data for a point.
@@ -182,6 +186,7 @@ class WeatherQueryBuilder:
             lat (float): latitude
             lon (float): longitude
             limit (optional int): The number of rows to be returned
+            measurement (optional str): Measurement type
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
@@ -191,6 +196,7 @@ class WeatherQueryBuilder:
             "lat": lat,
             "lon": lon,
             "limit": limit,
+            "measurement": measurement,
             "supress_warning": True,
         }
 
@@ -207,6 +213,7 @@ class WeatherQueryBuilder:
         max_lat: float,
         max_lon: float,
         limit: int = None,  # NOSONAR
+        measurement: str = None,
     ) -> DataFrame:
         """
         A function to return back raw data for a grid.
@@ -252,6 +259,7 @@ class WeatherQueryBuilder:
             max_lat (float): Max latitude
             max_lon (float): Max longitude
             limit (optional int): The number of rows to be returned
+            measurement (optional str): Measurement type
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
@@ -269,6 +277,7 @@ class WeatherQueryBuilder:
             "max_lat": max_lat,
             "max_lon": max_lon,
             "limit": limit,
+            "measurement": measurement,
             "supress_warning": True,
         }
 
@@ -281,6 +290,7 @@ class WeatherQueryBuilder:
         max_lat: float,
         max_lon: float,
         limit: int = None,
+        measurement: str = None,
     ) -> DataFrame:
         """
         A function to return back the latest data for a grid.
@@ -318,6 +328,7 @@ class WeatherQueryBuilder:
             max_lat (float): Max latitude
             max_lon (float): Max longitude
             limit (optional int): The number of rows to be returned
+            measurement (optional str): Measurement type
 
         Returns:
             DataFrame: A dataframe of raw timeseries data.
@@ -329,6 +340,7 @@ class WeatherQueryBuilder:
             "max_lat": max_lat,
             "max_lon": max_lon,
             "limit": limit,
+            "measurement": measurement,
             "supress_warning": True,
         }
 

@@ -44,6 +44,7 @@ def get_grid(connection: object, parameters_dict: dict) -> pd.DataFrame:
         max_lon (float): Maximum longitude
         min_lat (float): Minimum latitude
         min_lon (float): Minimum longitude
+        measurement (optional str): Measurement type
         limit (optional int): The number of rows to be returned
 
     Returns:
@@ -93,6 +94,7 @@ def get_point(connection: object, parameters_dict: dict) -> pd.DataFrame:
         data_type (str): Type of the data (float, integer, double, string)
         lat (float): latitude
         lon (float): longitude
+        measurement (optional str): Measurement type
         limit (optional int): The number of rows to be returned
 
     Returns:
