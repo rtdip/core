@@ -35,7 +35,11 @@ def _raw_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
         "AND `{{ status_column }}` = 'Good'"
         "{% endif %}"
@@ -77,6 +81,7 @@ def _raw_query(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
+        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
     }
 
     sql_template = Template(raw_query)
@@ -91,7 +96,11 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
         ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
         ",window_buckets AS (SELECT timestamp_array AS window_start, timestampadd({{time_interval_unit }}, {{ time_interval_rate }}, timestamp_array) AS window_end FROM date_array) "
@@ -102,10 +111,17 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% endif %}"
         ") "
         "{% if is_resample is defined and is_resample == true and pivot is defined and pivot == true %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
         "{% for i in range(tag_names | length) %}"
         "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
+        "{% else %}"
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "{% endif %}"
         "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
         "SELECT * FROM project "
@@ -153,6 +169,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
         "range_join_seconds": parameters_dict["range_join_seconds"],
+        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
     }
 
     sql_template = Template(sample_query)
@@ -190,10 +207,17 @@ def _interpolation_query(
         ",project AS (SELECT * FROM resample) "
         "{% endif %}"
         "{% if pivot is defined and pivot == true %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
         "{% for i in range(tag_names | length) %}"
         "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
+        "{% else %}"
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "{% endif %}"
         "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
         "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
@@ -240,7 +264,12 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "WHERE to_date(`{{ timestamp_column }}`) BETWEEN "
         "{% if timestamps is defined %} "
         'date_sub(to_date(to_timestamp("{{ min_timestamp }}")), {{ window_length }}) AND date_add(to_date(to_timestamp("{{ max_timestamp }}")), {{ window_length}}) '
-        "{% endif %} AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% endif %} "
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
+        "AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %} "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
         ", date_array AS (SELECT DISTINCT explode(array( "
         "{% for timestamp in timestamps -%} "
@@ -257,10 +286,17 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "{% if not loop.last %} , {% endif %} {% endfor %}) "
         ") "
         "{% if pivot is defined and pivot == true %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
         "{% for i in range(tag_names | length) %}"
         "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
+        "{% else %}"
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "{% endif %}"
         "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
         "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
@@ -305,6 +341,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
+        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
     }
     sql_template = Template(interpolate_at_time_query)
     return sql_template.render(interpolation_at_time_parameters)
@@ -318,8 +355,10 @@ def _metadata_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` "
         "{% endif %}"
-        "{% if tag_names is defined and tag_names|length > 0 %} "
+        "{% if tag_names is defined and tag_names|length > 0 and case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         "WHERE UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "WHERE `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
@@ -340,6 +379,7 @@ def _metadata_query(parameters_dict: dict) -> str:
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
     }
 
     sql_template = Template(metadata_query)
@@ -354,8 +394,10 @@ def _latest_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_latest` "
         "{% endif %}"
-        "{% if tag_names is defined and tag_names|length > 0 %} "
+        "{% if tag_names is defined and tag_names|length > 0 and case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         "WHERE UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "WHERE `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"
@@ -376,6 +418,7 @@ def _latest_query(parameters_dict: dict) -> str:
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
     }
 
     sql_template = Template(latest_query)
@@ -397,7 +440,11 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}')  "
+        "{% else %}"
+        "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
         ',date_array AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events) '
         ",boundary_events AS (SELECT coalesce(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, coalesce(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN raw_events b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
@@ -426,10 +473,17 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",twa AS (SELECT `{{ tagname_column }}`, `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, sum(twa_value) / sum(good_minutes) AS `{{ value_column }}` from twa_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
         ',project AS (SELECT * FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) '
         "{% if pivot is defined and pivot == true %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
         "{% for i in range(tag_names | length) %}"
         "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
+        "{% else %}"
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "{% endif %}"
         "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
         "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
@@ -480,6 +534,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
+        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
     }
 
     sql_template = Template(time_weighted_average_query)
@@ -494,7 +549,11 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         "WHERE `{{ timestamp_column }}` BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
         ',date_array AS (SELECT DISTINCT EXPLODE(SEQUENCE(FROM_UTC_TIMESTAMP(TO_TIMESTAMP("{{ start_date }}"), "{{ time_zone }}"), FROM_UTC_TIMESTAMP(TO_TIMESTAMP("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, EXPLODE(ARRAY(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events)  '
         ",window_events AS (SELECT COALESCE(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, COALESCE(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, WINDOW(COALESCE(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`), '{{ time_interval_rate + ' ' + time_interval_unit }}').START `Window{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN raw_events b ON CAST(a.`{{ timestamp_column }}` AS LONG) = CAST(b.`{{ timestamp_column }}` AS LONG) AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
@@ -508,10 +567,17 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             ",circular_average_results AS (SELECT `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, `{{ tagname_column }}`, sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages, sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages, array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R, mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians, (Circular_Average_Value_in_Radians * ({{ upper_bound }} - {{ lower_bound }})) / (2*pi())+ 0 AS Circular_Average_Value_in_Degrees FROM circular_average_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
             ",project AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, Circular_Average_Value_in_Degrees AS `{{ value_column }}` FROM circular_average_results) "
             "{% if pivot is defined and pivot == true %}"
+            "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
             ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
             "{% for i in range(tag_names | length) %}"
             "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
             "{% endfor %}"
+            "{% else %}"
+            ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+            "{% for i in range(tag_names | length) %}"
+            "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+            "{% endfor %}"
+            "{% endif %}"
             "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
             "{% else %}"
             "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
@@ -529,10 +595,17 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             ",circular_average_results AS (SELECT `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, `{{ tagname_column }}`, sum(Diff_Average_Cos)/sum(Time_Difference) AS Cos_Time_Averages, sum(Diff_Average_Sin)/sum(Time_Difference) AS Sin_Time_Averages, array_min(array(1, sqrt(pow(Cos_Time_Averages, 2) + pow(Sin_Time_Averages, 2)))) AS R, mod(2*pi() + atan2(Sin_Time_Averages, Cos_Time_Averages), 2*pi()) AS Circular_Average_Value_in_Radians, SQRT(-2*LN(R)) * ( {{ upper_bound }} - {{ lower_bound }}) / (2*PI()) AS Circular_Standard_Deviation FROM circular_average_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
             ",project AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, Circular_Standard_Deviation AS `Value` FROM circular_average_results) "
             "{% if pivot is defined and pivot == true %}"
+            "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
             ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
             "{% for i in range(tag_names | length) %}"
             "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
             "{% endfor %}"
+            "{% else %}"
+            ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+            "{% for i in range(tag_names | length) %}"
+            "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+            "{% endfor %}"
+            "{% endif %}"
             "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
             "{% else %}"
             "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
@@ -580,6 +653,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
+        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
     }
 
     sql_template = Template(circular_stats_query)
@@ -601,7 +675,11 @@ def _summary_query(parameters_dict: dict) -> str:
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
         "{% endif %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
         "AND `{{ status_column }}` = 'Good'"
         "{% endif %}"
@@ -643,6 +721,7 @@ def _summary_query(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
+        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
     }
 
     sql_template = Template(summary_query)
