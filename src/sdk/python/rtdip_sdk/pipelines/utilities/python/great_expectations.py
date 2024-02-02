@@ -21,8 +21,6 @@ from great_expectations.expectations.expectation_configuration import (
 
 
 # Create a new context
-
-
 class GreatExpectations:
     """ """
 
@@ -31,12 +29,10 @@ class GreatExpectations:
         context_root_dir: str,
         df: str,
         expectation_suite_name: str,
-        GXConfig: dict,
     ) -> None:
         self.context_root_dir = context_root_dir
         self.df = df
         self.expectation_suite_name = expectation_suite_name
-        self.GXConfig = GXConfig
 
     @staticmethod
     def system_type():
@@ -66,7 +62,6 @@ class GreatExpectations:
 
     def create_batch_request(self):
         batch_request = self.df.build_batch_request()
-
         return batch_request
 
     # Create Expectations
@@ -85,20 +80,20 @@ class GreatExpectations:
         expectation_configuration = ExpectationConfiguration(
             expectation_type=exception_type, kwargs=exception_dict, meta=meta_dict
         )
-
         return expectation_configuration
 
     def add_expectations(self, suite, expectation_configuration):
-        # Add the Expectation to the suite
         suite.add_expectation_configuration(
             expectation_configuration=expectation_configuration
         )
 
-    def remove_expectations(self, suite, expectation_configuration):
+    def remove_expectations(
+        self, suite, expectation_configuration, remove_multiple_matches=False
+    ):
         suite.remove_expectation(
             expectation_configuration,
             match_type="domain",
-            remove_multiple_matches=False,
+            remove_multiple_matches=remove_multiple_matches,
         )
 
     def display_expectations(self, suite):
@@ -194,7 +189,7 @@ class GreatExpectations:
     def add_or_update_checkpoint(self, context, batch_request, checkpoint_name):
         checkpoint = Checkpoint(
             name=checkpoint_name,
-            run_name_template="%Y%m%d-%H%M%S-my-run-name-template",
+            run_name_template="%Y%m%d-%H%M%S-run-name-template",
             data_context=context,
             batch_request=batch_request,
             expectation_suite_name=self.expectation_suite_name,
