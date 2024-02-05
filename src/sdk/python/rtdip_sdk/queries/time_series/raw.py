@@ -43,9 +43,13 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
+        case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
 
     Returns:
         DataFrame: A dataframe of raw timeseries data.
+
+    !!! warning
+        Setting `case_insensitivity_tag_search` to True will result in a longer query time.
     """
     try:
         query = _query_builder(parameters_dict, "raw")
