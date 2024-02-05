@@ -28,6 +28,7 @@ MOCKED_PARAMETER_DICT = {
     "start_date": "2011-01-01",
     "end_date": "2011-01-02",
     "include_bad_data": True,
+    "case_insensitivity_tag_search": True,
 }
 
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "
