@@ -28,6 +28,7 @@ from src.api.v1.models import (
     TagsBodyParams,
     LimitOffsetQueryParams,
     HTTPError,
+    PaginationRow,
 )
 from src.api.auth.azuread import oauth2_scheme
 from src.api.FastAPIApp import api_v1_router
@@ -53,9 +54,33 @@ def raw_events_get(
         )
 
         data = raw.get(connection, parameters)
+
+
+        if limit_offset_query_parameters.limit is not None and limit_offset_query_parameters.offset is not None:
+            next = limit_offset_query_parameters.offset + limit_offset_query_parameters.limit
+            if next > len(data.index):
+                next = len(data.index)
+            
+            pagination = PaginationRow(limit: limit_offset_query_parameters.limit, offset: limit_offset_query_parameters.offset, next: next)
+        else:
+            pagination = None 
+
+        #note
+        # pagination logic
+        # if offset and limit is null then return null pagination (empty)
+        # else add logic calulcation to return next
+        # if the number of records in data does not equal the limit then the next is null
+        # the next is the offset +limit
+
+
+        # total = 525 000
+        # offset is 450000 + limit 100000  so next = 550000
+        # next = null
+
         return RawResponse(
             schema=build_table_schema(data, index=False, primary_key=False),
             data=data.replace({np.nan: None}).to_dict(orient="records"),
+            pagination=pagination
         )
     except Exception as e:
         logging.error(str(e))

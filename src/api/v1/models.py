@@ -66,6 +66,10 @@ class LatestRow(BaseModel):
     GoodValue: Union[str, None]
     GoodValueType: Union[str, None]
 
+class PaginationRow(BaseModel):
+    limit: int
+    offset: int
+    next: int
 
 class RawRow(BaseModel):
     EventTime: datetime
@@ -103,7 +107,8 @@ class RawResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    data: List[RawRow]
+    data: List[RawRow],
+    pagination: PaginationRow
 
 
 class ResampleInterpolateRow(BaseModel):
