@@ -50,7 +50,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
-    
+
     Returns:
         DataFrame: A resampled and interpolated dataframe.
 

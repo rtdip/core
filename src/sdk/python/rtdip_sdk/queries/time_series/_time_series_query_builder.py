@@ -81,7 +81,9 @@ def _raw_query(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
-        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
     }
 
     sql_template = Template(raw_query)
@@ -169,7 +171,9 @@ def _sample_query(parameters_dict: dict) -> tuple:
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
         "range_join_seconds": parameters_dict["range_join_seconds"],
-        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
     }
 
     sql_template = Template(sample_query)
@@ -341,7 +345,9 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
-        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
     }
     sql_template = Template(interpolate_at_time_query)
     return sql_template.render(interpolation_at_time_parameters)
@@ -381,7 +387,9 @@ def _metadata_query(parameters_dict: dict) -> str:
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
-        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
     }
 
     sql_template = Template(metadata_query)
@@ -422,7 +430,9 @@ def _latest_query(parameters_dict: dict) -> str:
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
-        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
     }
 
     sql_template = Template(latest_query)
@@ -538,7 +548,9 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
-        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
     }
 
     sql_template = Template(time_weighted_average_query)
@@ -657,7 +669,9 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
-        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
     }
 
     sql_template = Template(circular_stats_query)
@@ -725,7 +739,9 @@ def _summary_query(parameters_dict: dict) -> str:
             else parameters_dict.get("status_column", "Status")
         ),
         "value_column": parameters_dict.get("value_column", "Value"),
-        "case_insensitivity_tag_search": parameters_dict.get("case_insensitivity_tag_search", False)
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
     }
 
     sql_template = Template(summary_query)
