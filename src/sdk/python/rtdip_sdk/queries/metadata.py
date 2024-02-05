@@ -39,8 +39,14 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         tag_names (optional, list): Either pass a list of tagname/tagnames ["tag_1", "tag_2"] or leave the list blank [] or leave the parameter out completely
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
+        case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
+
     Returns:
         DataFrame: A dataframe of metadata.
+
+    !!! warning
+        Setting `case_insensitivity_tag_search` to True will result in a longer query time.
+
     """
     try:
         query = _query_builder(parameters_dict, "metadata")

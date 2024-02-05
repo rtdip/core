@@ -150,10 +150,9 @@ class ADLSGen2DirectoryACLUtility(UtilitiesInterface):
             if group_object_id in acl:
                 acl_props_list.remove(acl)
 
+        acl_props_list.append(group_id_acl)
         if set_as_default_acl == True:
             acl_props_list.append("default:{}".format(group_id_acl))
-        else:
-            acl_props_list.append(group_id_acl)
 
         new_acl_props = ",".join(acl_props_list)
         acl_directory_client.set_access_control(acl=new_acl_props)
