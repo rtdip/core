@@ -35,7 +35,9 @@ EVENTTIME = datetime.fromisoformat("2023-11-03T16:21:16")
 
 
 def test_mirico_json_to_pcdm(spark_session: SparkSession):
-    mirico_json_data = '{"timeStamp": "2023-11-03T16:21:16", "siteName": "20231016AMEPReleaseTesting1"}'
+    mirico_json_data = (
+        '{"timeStamp": "2023-11-03T16:21:16", "siteName": "test_site_name"}'
+    )
     mirico_df: DataFrame = spark_session.createDataFrame([{"body": mirico_json_data}])
 
     expected_schema = StructType(
@@ -52,7 +54,7 @@ def test_mirico_json_to_pcdm(spark_session: SparkSession):
     expected_data = [
         {
             "EventTime": EVENTTIME,
-            "TagName": "20231016AMEPReleaseTesting1:timeStamp",
+            "TagName": "TEST_SITE_NAME_TIMESTAMP",
             "Status": "Good",
             "Value": "2023-11-03T16:21:16",
             "ValueType": "string",
@@ -60,9 +62,9 @@ def test_mirico_json_to_pcdm(spark_session: SparkSession):
         },
         {
             "EventTime": EVENTTIME,
-            "TagName": "20231016AMEPReleaseTesting1:siteName",
+            "TagName": "TEST_SITE_NAME_SITENAME",
             "Status": "Good",
-            "Value": "20231016AMEPReleaseTesting1",
+            "Value": "test_site_name",
             "ValueType": "integer",
             "ChangeType": "insert",
         },
