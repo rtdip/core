@@ -109,8 +109,8 @@ class RawResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    data: List[RawRow]
     pagination: PaginationRow
+    data: List[RawRow]
 
 
 class ResampleInterpolateRow(BaseModel):

@@ -18,7 +18,7 @@ import numpy as np
 from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
-from src.sdk.python.rtdip_sdk.queries.time_series import raw
+from src.sdk.python.rtdip_sdk.queries.time_series import raw, summary
 from src.api.v1.models import (
     BaseHeaders,
     BaseQueryParams,
@@ -53,34 +53,36 @@ def raw_events_get(
             base_headers=base_headers,
         )
 
+        count_parameters = parameters.copy()
+        count_parameters.pop("limit", None)
+        count_parameters.pop("offset", None)
+
+        count = summary.get(connection, count_parameters)
+        print(count)
+
         data = raw.get(connection, parameters)
 
+        pagination = None
 
-        if limit_offset_query_parameters.limit is not None and limit_offset_query_parameters.offset is not None:
-            next = limit_offset_query_parameters.offset + limit_offset_query_parameters.limit
-            if next > len(data.index):
-                next = len(data.index)
-            
-            pagination = PaginationRow(limit: limit_offset_query_parameters.limit, offset: limit_offset_query_parameters.offset, next: next)
-        else:
-            pagination = None 
+        if (
+            limit_offset_parameters.limit is not None
+            and limit_offset_parameters.offset is not None
+        ):
+            next = None
 
-        #note
-        # pagination logic
-        # if offset and limit is null then return null pagination (empty)
-        # else add logic calulcation to return next
-        # if the number of records in data does not equal the limit then the next is null
-        # the next is the offset +limit
+            if len(data.index) == limit_offset_parameters.limit:
+                next = limit_offset_parameters.offset + limit_offset_parameters.limit
 
-
-        # total = 525 000
-        # offset is 450000 + limit 100000  so next = 550000
-        # next = null
+            pagination = PaginationRow(
+                limit=limit_offset_parameters.limit,
+                offset=limit_offset_parameters.offset,
+                next=next,
+            )
 
         return RawResponse(
             schema=build_table_schema(data, index=False, primary_key=False),
             data=data.replace({np.nan: None}).to_dict(orient="records"),
-            pagination=pagination
+            pagination=pagination,
         )
     except Exception as e:
         logging.error(str(e))
