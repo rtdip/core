@@ -53,13 +53,6 @@ def raw_events_get(
             base_headers=base_headers,
         )
 
-        count_parameters = parameters.copy()
-        count_parameters.pop("limit", None)
-        count_parameters.pop("offset", None)
-
-        count = summary.get(connection, count_parameters)
-        print(count)
-
         data = raw.get(connection, parameters)
 
         pagination = None
@@ -81,8 +74,8 @@ def raw_events_get(
 
         return RawResponse(
             schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
             pagination=pagination,
+            data=data.replace({np.nan: None}).to_dict(orient="records"),
         )
     except Exception as e:
         logging.error(str(e))

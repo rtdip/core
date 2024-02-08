@@ -31,6 +31,7 @@ from src.api.v1.models import (
     InterpolationAtTimeQueryParams,
     PivotQueryParams,
     LimitOffsetQueryParams,
+    PaginationRow,
 )
 import src.api.v1.common
 
@@ -56,14 +57,34 @@ def interpolation_at_time_events_get(
         )
 
         data = interpolation_at_time.get(connection, parameters)
+
+        pagination = None
+
+        if (
+            limit_offset_parameters.limit is not None
+            and limit_offset_parameters.offset is not None
+        ):
+            next = None
+
+            if len(data.index) == limit_offset_parameters.limit:
+                next = limit_offset_parameters.offset + limit_offset_parameters.limit
+
+            pagination = PaginationRow(
+                limit=limit_offset_parameters.limit,
+                offset=limit_offset_parameters.offset,
+                next=next,
+            )
+
         if parameters.get("pivot") == True:
             return PivotResponse(
                 schema=build_table_schema(data, index=False, primary_key=False),
+                pagination=pagination,
                 data=data.replace({np.nan: None}).to_dict(orient="records"),
             )
         else:
             return ResampleInterpolateResponse(
                 schema=build_table_schema(data, index=False, primary_key=False),
+                pagination=pagination,
                 data=data.replace({np.nan: None}).to_dict(orient="records"),
             )
     except Exception as e:

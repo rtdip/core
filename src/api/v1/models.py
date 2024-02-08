@@ -68,9 +68,9 @@ class LatestRow(BaseModel):
 
 
 class PaginationRow(BaseModel):
-    limit: int
-    offset: int
-    next: int
+    limit: Union[int, None]
+    offset: Union[int, None]
+    next: Union[int, None]
 
 
 class RawRow(BaseModel):
@@ -95,6 +95,7 @@ class MetadataResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
+    pagination: Union[PaginationRow, None]
     data: List[MetadataRow]
 
 
@@ -102,6 +103,7 @@ class LatestResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
+    pagination: Union[PaginationRow, None]
     data: List[LatestRow]
 
 
@@ -109,7 +111,7 @@ class RawResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    pagination: PaginationRow
+    pagination: Union[PaginationRow, None]
     data: List[RawRow]
 
 
@@ -129,6 +131,7 @@ class ResampleInterpolateResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
+    pagination: Union[PaginationRow, None]
     data: List[ResampleInterpolateRow]
 
 
@@ -136,6 +139,7 @@ class SummaryResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
+    pagination: Union[PaginationRow, None]
     data: List[SummaryRow]
 
 
@@ -143,6 +147,7 @@ class PivotResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
+    pagination: Union[PaginationRow, None]
     data: List[PivotRow]
 
 
