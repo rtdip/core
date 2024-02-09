@@ -15,6 +15,7 @@
 import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
+import numpy as np
 from datetime import datetime
 from tests.api.v1.api_test_objects import (
     RAW_MOCKED_PARAMETER_DICT,
@@ -25,6 +26,10 @@ from tests.api.v1.api_test_objects import (
     TEST_HEADERS,
     BASE_URL,
 )
+from src.api.v1.models import (
+    RawResponse,
+)
+from pandas.io.json import build_table_schema
 from httpx import AsyncClient
 from src.api.v1 import app
 
@@ -50,7 +55,12 @@ async def test_api_raw_get_success(mocker: MockerFixture):
             MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_DICT
         )
     actual = response.text
+
+    # '{"schema":{"fields":[{"name":"EventTime","type":"datetime"},{"name":"TagName","type":"string"},{"name":"Status","type":"string"},{"name":"Value","type":"number"}],"pandas_version":"1.4.0"},"pagination":null,"data":[{"EventTime":"2024-02-09T12:04:39.523793","TagName":"TestTag","Status":"Good","Value":1.01}]}'
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
+
+    # '{"schema":{"fields":[{"name":"EventTime","type":"datetime"},{"name":"TagName","type":"string"},{"name":"Status","type":"string"},{"name":"Value","type":"number"}],"pandas_version":"1.4.0"},"data":[{"EventTime":"2024-02-09T14:26:48.049572","TagName":"TestTag","Status":"Good","Value":1.01}]}'
+    print(type(expected))
 
     assert response.status_code == 200
     assert actual == expected
