@@ -28,6 +28,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     MOCKED_QUERY_OFFSET_LIMIT,
     CIRCULAR_AVERAGE_MOCKED_QUERY,
+    CIRCULAR_AVERAGE_MOCKED_QUERY_CHECK_TAGS,
     CIRCULAR_AVERAGE_MOCKED_QUERY_PIVOT,
 )
 
@@ -48,7 +49,18 @@ def test_circular_average(mocker: MockerFixture):
     )
 
 
+def test_circular_average_check_tags(mocker: MockerFixture):
+    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["case_insensitivity_tag_search"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT,
+        CIRCULAR_AVERAGE_MOCKED_QUERY_CHECK_TAGS,
+        circular_average_get,
+    )
+
+
 def test_circular_average_pivot(mocker: MockerFixture):
+    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["case_insensitivity_tag_search"] = False
     MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["pivot"] = True
     _test_base_succeed(
         mocker,
