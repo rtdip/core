@@ -34,6 +34,7 @@ MOCKED_RAW_DICT = MOCKED_PARAMETER_DICT.copy()
 def test_raw(mocker: MockerFixture):
     _test_base_succeed(mocker, MOCKED_RAW_DICT, RAW_MOCKED_QUERY, raw_get)
 
+
 def test_raw_check_tags(mocker: MockerFixture):
     MOCKED_RAW_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(mocker, MOCKED_RAW_DICT, RAW_MOCKED_QUERY_CHECK_TAGS, raw_get)

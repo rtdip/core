@@ -47,6 +47,7 @@ def test_summary_get(mocker: MockerFixture):
         summary_get,
     )
 
+
 def test_summary_get_check_tags(mocker: MockerFixture):
     MOCKED_SUMMARY_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(

@@ -45,6 +45,7 @@ def test_resample(mocker: MockerFixture):
         resample_get,
     )
 
+
 def test_resample_check_tags(mocker: MockerFixture):
     MOCKED_RESAMPLED_PARAMETER_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(

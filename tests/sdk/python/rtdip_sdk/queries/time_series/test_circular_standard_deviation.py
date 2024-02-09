@@ -47,6 +47,7 @@ def test_circular_standard_deviation(mocker: MockerFixture):
         circular_standard_deviation_get,
     )
 
+
 def test_circular_standard_deviation_check_tags(mocker: MockerFixture):
     MOCKED_CIRCULAR_SD_PARAMETER_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(

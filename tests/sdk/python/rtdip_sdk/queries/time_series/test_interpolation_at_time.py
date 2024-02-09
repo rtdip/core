@@ -46,6 +46,7 @@ def test_interpolation_at_time(mocker: MockerFixture):
         interpolation_at_time_get,
     )
 
+
 def test_interpolation_at_time_check_tags(mocker: MockerFixture):
     MOCKED_IAT_PARAMETER_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(

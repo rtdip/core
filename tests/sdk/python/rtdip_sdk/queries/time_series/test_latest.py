@@ -37,6 +37,7 @@ def test_latest(mocker: MockerFixture):
         mocker, MOCKED_LATEST_PARAMETER_DICT, LATEST_MOCKED_QUERY, latest_raw
     )
 
+
 def test_latest_check_tags(mocker: MockerFixture):
     MOCKED_LATEST_PARAMETER_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(

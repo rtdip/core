@@ -39,10 +39,14 @@ def test_metadata(mocker: MockerFixture):
         mocker, MOCKED_METADATA_PARAMETER_DICT, METADATA_MOCKED_QUERY, metadata_raw
     )
 
+
 def test_metadata_check_tags(mocker: MockerFixture):
     MOCKED_METADATA_PARAMETER_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(
-        mocker, MOCKED_METADATA_PARAMETER_DICT, METADATA_MOCKED_QUERY_CHECK_TAGS, metadata_raw
+        mocker,
+        MOCKED_METADATA_PARAMETER_DICT,
+        METADATA_MOCKED_QUERY_CHECK_TAGS,
+        metadata_raw,
     )
 
 

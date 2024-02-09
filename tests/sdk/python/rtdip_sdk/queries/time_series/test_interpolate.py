@@ -59,6 +59,7 @@ def test_interpolate_forward_fill(mocker: MockerFixture):
         interpolate_get,
     )
 
+
 def test_interpolate_check_tags(mocker: MockerFixture):
     MOCKED_INTERPOLATE_PARAMETER_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(
