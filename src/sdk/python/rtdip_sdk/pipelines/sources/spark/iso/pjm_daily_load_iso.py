@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 import logging
 import pandas as pd
 import numpy as np
@@ -20,48 +21,29 @@ from pyspark.sql import SparkSession
 from datetime import timedelta
 from io import BytesIO
 
-from ...._pipeline_utils.iso import PJM_SCHEMA
+
+from ...._pipeline_utils.iso import PJM_PRICING_SCHEMA
 
 from . import BaseISOSource
 
 
 class PJMDailyLoadISOSource(BaseISOSource):
     """
-    The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Actual and Forecast data. Actual will return 1 day, Forecast will return 7 days
+    The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Real-Time Hourly LMPs and Day-Ahead Hourly LMPs data. Real-Time will return privous 1 day, Day-Ahead will return T + 1 days data.
 
-    API:           <a href="https://api.pjm.com/api/v1/">https://api.pjm.com/api/v1/</a>  (must be a valid apy key from PJM)
+    API:              <a href="https://api.pjm.com/api/v1/">  (must be a valid apy key from PJM)
 
-    Actual doc:    <a href="https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition">https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition</a>
+    Real-Time doc:    <a href="https://dataminer2.pjm.com/feed/da_hrl_lmps/definition">
 
-    Forecast doc:  <a href="https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition">https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition</a>
-
-    Example
-    --------
-    ```python
-    from rtdip_sdk.pipelines.sources import PJMDailyLoadISOSource
-    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
-
-    # Not required if using Databricks
-    spark = SparkSessionUtility(config={}).execute()
-
-    pjm_source = PJMDailyLoadISOSource(
-        spark=spark,
-        options={
-            "api_key": "{api_key}",
-            "load_type": "actual"
-        }
-    )
-
-    pjm_source.read_batch()
-    ```
-
+    Day-Ahead doc:    <a href="https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition">
+    
     Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
     Attributes:
         api_key (str): Must be a valid key from PJM, see api url
-        load_type (str): Must be one of `actual` or `forecast`
+        load_type (str): Must be one of `real_time` or `day_ahead`
 
     Please check the BaseISOSource for available methods.
 
@@ -70,7 +52,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
     """
 
     spark: SparkSession
-    spark_schema = PJM_SCHEMA
+    spark_schema = PJM_PRICING_SCHEMA
     options: dict
     iso_url: str = "https://api.pjm.com/api/v1/"
     query_datetime_format: str = "%Y-%m-%d %H:%M"
@@ -101,16 +83,16 @@ class PJMDailyLoadISOSource(BaseISOSource):
         logging.info(
             f"Requesting URL - {url}, start_date={start_date}, end_date={end_date}, load_type={self.load_type}"
         )
-        load_key = (
-            "datetime_beginning_ept"
-            if self.load_type != "forecast"
-            else "forecast_datetime_beginning_ept"
-        )
+        
+        load_key = "datetime_beginning_ept"
+
         feed = (
-            "ops_sum_prev_period"
-            if self.load_type != "forecast"
-            else "load_frcstd_7_day"
+            "rt_hrl_lmps"
+            if self.load_type != "day_ahead"
+            else "da_hrl_lmps"
         )
+        
+        print("This feed is being used: ",feed)
         query = {
             "startRow": "1",
             load_key: f"{start_date}to{end_date}",
@@ -118,6 +100,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
             "download": "true",
         }
         query_s = "&".join(["=".join([k, v]) for k, v in query.items()])
+        
         new_url = f"{url}{feed}?{query_s}"
         response = requests.get(new_url, headers=headers)
         code = response.status_code
@@ -136,15 +119,20 @@ class PJMDailyLoadISOSource(BaseISOSource):
         Returns:
             Raw form of data.
         """
-        start_date = self.current_date - timedelta(days=1)
-        start_date = start_date.replace(hour=0, minute=0)
-        end_date = (start_date + timedelta(days=self.days)).replace(hour=23)
+        start_date = datetime(2024, 2, 7, 21, 00) # for custome use only
+        end_date = datetime(2024, 2, 7, 22, 00) # for custome use only
+        
+        # start_date = self.current_date - timedelta(days=7)
+        # start_date = start_date.replace(hour=0, minute=0)
+        # end_date = (start_date + timedelta(days=self.days)).replace(hour=23)
         start_date_str = start_date.strftime(self.query_datetime_format)
         end_date_str = end_date.strftime(self.query_datetime_format)
         df = pd.read_csv(
             BytesIO(self._fetch_from_url("", start_date_str, end_date_str))
         )
-
+        print("***** This is  pull data methed******")
+        print(df.columns)
+        # df.to_csv('raw_data.csv',index=False)
         return df
 
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -159,46 +147,63 @@ class PJMDailyLoadISOSource(BaseISOSource):
 
         """
 
-        if self.load_type == "forecast":
+        if self.load_type == "day_ahead":
             df = df.rename(
                 columns={
-                    "forecast_datetime_beginning_utc": "start_time",
-                    "forecast_area": "zone",
-                    "forecast_datetime_ending_utc": "end_time",
-                    "forecast_load_mw": "load",
+                    "datetime_beginning_utc": "StartTime",
+                    "datetime_beginning_ept": "DatetimeBeginningEpt",
+                    "pnode_id": "PnodeId",
+                    "pnode_name": "PnodeName",
+                    "voltage": "Voltage",
+                    "equipment": "Equipment",
+                    "type": "Type",
+                    "zone": "Zone",
+                    "system_energy_price_da": "SystemEnergyPrice",
+                    "total_lmp_da": "TotalLmp",
+                    "congestion_price_da": "CongestionPrice",
+                    "marginal_loss_price_da": "MarginalLossPrice",
+                    # "row_is_current": "RowIsCurrent",
+                    "version_nbr": "VersionNbr"
+                    
                 }
             )
         else:
             df = df.rename(
                 columns={
-                    "datetime_beginning_utc": "start_time",
-                    "area": "zone",
-                    "datetime_ending_utc": "end_time",
-                    "actual_load": "load",
+                    "datetime_beginning_utc": "StartTime",
+                    "datetime_beginning_ept": "DatetimeBeginningEpt",
+                    "pnode_id": "PnodeId",
+                    "pnode_name": "PnodeName",
+                    "voltage": "Voltage",
+                    "equipment": "Equipment",
+                    "type": "Type",
+                    "zone": "Zone",
+                    "system_energy_price_rt": "SystemEnergyPrice",
+                    "total_lmp_rt": "TotalLmp",
+                    "congestion_price_rt": "CongestionPrice",
+                    "marginal_loss_price_rt": "MarginalLossPrice",
+                    # "row_is_current": "RowIsCurrent",
+                    "version_nbr": "VersionNbr"
+                    
                 }
             )
-
-        df = df[["start_time", "end_time", "zone", "load"]]
+                
+        df = df[["StartTime", "DatetimeBeginningEpt", "PnodeId", "PnodeName", "Voltage", "Equipment", "Type", "Zone", "SystemEnergyPrice", "TotalLmp", "CongestionPrice", "MarginalLossPrice","VersionNbr"]]
+        
         df = df.replace({np.nan: None, "": None})
-
-        date_cols = ["start_time", "end_time"]
+        print(df.head(5))
+    
+        date_cols = ["StartTime", "DatetimeBeginningEpt"]
         for col in date_cols:
             df[col] = pd.to_datetime(df[col], format="%m/%d/%Y %I:%M:%S %p")
-
-        df["load"] = df["load"].astype(float)
+        
+    
         df = df.replace({np.nan: None, "": None})
-        df.columns = list(map(lambda x: x.upper(), df.columns))
-
-        rename_cols = {
-            "START_TIME": "StartTime",
-            "END_TIME": "EndTime",
-            "ZONE": "Zone",
-            "LOAD": "Load",
-        }
-
-        df = df.rename(columns=rename_cols)
+        print(df.head(5))
+        # df.columns = list(map(lambda x: x.upper(), df.columns))
 
         df.reset_index(inplace=True, drop=True)
+        # df.to_csv('ptable_data.csv',index=False)
 
         return df
 
@@ -211,7 +216,7 @@ class PJMDailyLoadISOSource(BaseISOSource):
             True if all looks good otherwise raises Exception.
         """
 
-        valid_load_types = ["actual", "forecast"]
+        valid_load_types = ["real_time", "day_ahead"]
 
         if self.load_type not in valid_load_types:
             raise ValueError(

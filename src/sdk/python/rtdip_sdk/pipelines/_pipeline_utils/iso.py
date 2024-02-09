@@ -46,6 +46,25 @@ PJM_SCHEMA = StructType(
     ]
 )
 
+PJM_PRICING_SCHEMA = StructType(
+    [
+        StructField("StartTime", TimestampType(), True),
+        StructField("DatetimeBeginningEpt", TimestampType(), True),
+        StructField("PnodeId", LongType(), True),
+        StructField("PnodeName", StringType(), True),
+        StructField("Voltage", StringType(), True),
+        StructField("Equipment", StringType(), True),
+        StructField("Type", StringType(), True),
+        StructField("Zone", StringType(), True),
+        StructField("SystemEnergyPrice", DoubleType(), True),
+        StructField("TotalLmp", DoubleType(), True),
+        StructField("CongestionPrice", DoubleType(), True),
+        StructField("MarginalLossPrice", DoubleType(), True),
+        StructField("VersionNbr", LongType(), True),
+    ]
+)
+
+
 CAISO_SCHEMA = StructType(
     [
         StructField("StartTime", TimestampType(), True),
