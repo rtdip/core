@@ -27,6 +27,8 @@ from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
 from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     INTERPOLATE_MOCKED_QUERY,
+    INTERPOLATE_MOCKED_QUERY_BACKWARD_FILL,
+    INTERPOLATE_MOCKED_QUERY_CHECK_TAGS,
     MOCKED_QUERY_OFFSET_LIMIT,
     INTERPOLATE_MOCKED_QUERY_PIVOT,
 )
@@ -35,11 +37,21 @@ MOCKED_INTERPOLATE_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
 MOCKED_INTERPOLATE_PARAMETER_DICT["time_interval_rate"] = "15"
 MOCKED_INTERPOLATE_PARAMETER_DICT["time_interval_unit"] = "minute"
 MOCKED_INTERPOLATE_PARAMETER_DICT["agg_method"] = "avg"
-MOCKED_INTERPOLATE_PARAMETER_DICT["interpolation_method"] = "forward_fill"
+MOCKED_INTERPOLATE_PARAMETER_DICT["interpolation_method"] = "backward_fill"
 MOCKED_INTERPOLATE_PARAMETER_DICT["pivot"] = False
 
 
-def test_interpolate(mocker: MockerFixture):
+def test_interpolate_backward_fill(mocker: MockerFixture):
+    _test_base_succeed(
+        mocker,
+        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        INTERPOLATE_MOCKED_QUERY_BACKWARD_FILL,
+        interpolate_get,
+    )
+
+
+def test_interpolate_forward_fill(mocker: MockerFixture):
+    MOCKED_INTERPOLATE_PARAMETER_DICT["interpolation_method"] = "forward_fill"
     _test_base_succeed(
         mocker,
         MOCKED_INTERPOLATE_PARAMETER_DICT,
@@ -48,7 +60,18 @@ def test_interpolate(mocker: MockerFixture):
     )
 
 
+def test_interpolate_check_tags(mocker: MockerFixture):
+    MOCKED_INTERPOLATE_PARAMETER_DICT["case_insensitivity_tag_search"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        INTERPOLATE_MOCKED_QUERY_CHECK_TAGS,
+        interpolate_get,
+    )
+
+
 def test_interpolate_sample_rate_unit(mocker: MockerFixture):
+    MOCKED_INTERPOLATE_PARAMETER_DICT["case_insensitivity_tag_search"] = False
     MOCKED_INTERPOLATE_PARAMETER_DICT["sample_rate"] = "15"
     MOCKED_INTERPOLATE_PARAMETER_DICT["sample_unit"] = "minute"
     _test_base_succeed(

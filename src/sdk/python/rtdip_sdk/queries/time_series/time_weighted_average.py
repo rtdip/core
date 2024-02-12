@@ -27,6 +27,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     Args:
         connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
         parameters_dict (dict): A dictionary of parameters (see Attributes table below)
+
     Attributes:
         business_unit (str): Business unit
         region (str): Region
@@ -45,8 +46,13 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
+        case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
+
     Returns:
         DataFrame: A dataframe containing the time weighted averages.
+
+    !!! warning
+        Setting `case_insensitivity_tag_search` to True will result in a longer query time.
     """
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")

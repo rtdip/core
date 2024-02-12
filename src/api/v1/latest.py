@@ -27,6 +27,7 @@ from src.api.v1.models import (
     LatestResponse,
     LimitOffsetQueryParams,
     HTTPError,
+    PaginationRow,
 )
 from src.api.auth.azuread import oauth2_scheme
 from src.api.FastAPIApp import api_v1_router
@@ -47,9 +48,28 @@ def latest_retrieval_get(
         )
 
         data = latest.get(connection, parameters)
+
+        pagination = None
+
+        if (
+            limit_offset_parameters.limit is not None
+            and limit_offset_parameters.offset is not None
+        ):
+            next = None
+
+            if len(data.index) == limit_offset_parameters.limit:
+                next = limit_offset_parameters.offset + limit_offset_parameters.limit
+
+            pagination = PaginationRow(
+                limit=limit_offset_parameters.limit,
+                offset=limit_offset_parameters.offset,
+                next=next,
+            )
+
         return LatestResponse(
             schema=build_table_schema(data, index=False, primary_key=False),
             data=data.replace({np.nan: None}).to_dict(orient="records"),
+            pagination=pagination,
         )
     except Exception as e:
         logging.error(str(e))

@@ -67,6 +67,12 @@ class LatestRow(BaseModel):
     GoodValueType: Union[str, None]
 
 
+class PaginationRow(BaseModel):
+    limit: Union[int, None]
+    offset: Union[int, None]
+    next: Union[int, None]
+
+
 class RawRow(BaseModel):
     EventTime: datetime
     TagName: str
@@ -90,6 +96,7 @@ class MetadataResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[MetadataRow]
+    pagination: Union[PaginationRow, None]
 
 
 class LatestResponse(BaseModel):
@@ -97,6 +104,7 @@ class LatestResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[LatestRow]
+    pagination: Union[PaginationRow, None]
 
 
 class RawResponse(BaseModel):
@@ -104,6 +112,7 @@ class RawResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[RawRow]
+    pagination: Union[PaginationRow, None]
 
 
 class ResampleInterpolateRow(BaseModel):
@@ -123,6 +132,7 @@ class ResampleInterpolateResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[ResampleInterpolateRow]
+    pagination: Union[PaginationRow, None]
 
 
 class SummaryResponse(BaseModel):
@@ -130,6 +140,7 @@ class SummaryResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[SummaryRow]
+    pagination: Union[PaginationRow, None]
 
 
 class PivotResponse(BaseModel):
@@ -137,6 +148,7 @@ class PivotResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[PivotRow]
+    pagination: Union[PaginationRow, None]
 
 
 class HTTPError(BaseModel):

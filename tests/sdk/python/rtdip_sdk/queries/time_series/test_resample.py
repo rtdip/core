@@ -26,6 +26,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_QUERY_OFFSET_LIMIT,
     MOCKED_PARAMETER_DICT,
     RESAMPLE_MOCKED_QUERY,
+    RESAMPLE_MOCKED_QUERY_CHECK_TAGS,
     RESAMPLE_MOCKED_QUERY_PIVOT,
 )
 
@@ -45,7 +46,18 @@ def test_resample(mocker: MockerFixture):
     )
 
 
+def test_resample_check_tags(mocker: MockerFixture):
+    MOCKED_RESAMPLED_PARAMETER_DICT["case_insensitivity_tag_search"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_RESAMPLED_PARAMETER_DICT,
+        RESAMPLE_MOCKED_QUERY_CHECK_TAGS,
+        resample_get,
+    )
+
+
 def test_resample_sample_rate_unit(mocker: MockerFixture):
+    MOCKED_RESAMPLED_PARAMETER_DICT["case_insensitivity_tag_search"] = False
     MOCKED_RESAMPLED_PARAMETER_DICT["sample_rate"] = "15"
     MOCKED_RESAMPLED_PARAMETER_DICT["sample_unit"] = "minute"
     _test_base_succeed(
