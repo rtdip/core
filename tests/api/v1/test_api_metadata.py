@@ -45,6 +45,7 @@ async def test_api_metadata_get_tags_provided_success(mocker: MockerFixture):
         )
     actual = response.text
     expected = TEST_DATA.to_json(orient="table", index=False)
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected
@@ -63,6 +64,7 @@ async def test_api_metadata_get_no_tags_provided_success(mocker: MockerFixture):
         )
     actual = response.text
     expected = TEST_DATA.to_json(orient="table", index=False)
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected
@@ -113,6 +115,7 @@ async def test_api_metadata_post_tags_provided_success(mocker: MockerFixture):
         )
     actual = response.text
     expected = TEST_DATA.to_json(orient="table", index=False)
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected

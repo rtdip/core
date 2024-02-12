@@ -28,6 +28,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     MOCKED_QUERY_OFFSET_LIMIT,
     TWA_MOCKED_QUERY,
+    TWA_MOCKED_QUERY_CHECK_TAGS,
     TWA_MOCKED_QUERY_PIVOT,
     TWA_MOCKED_QUERY_METADATA,
 )
@@ -49,7 +50,18 @@ def test_time_weighted_average(mocker: MockerFixture):
     )
 
 
+def test_time_weighted_average_check_tags(mocker: MockerFixture):
+    MOCKED_TWA_PARAMETER_DICT["case_insensitivity_tag_search"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_TWA_PARAMETER_DICT,
+        TWA_MOCKED_QUERY_CHECK_TAGS,
+        time_weighted_average_get,
+    )
+
+
 def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
+    MOCKED_TWA_PARAMETER_DICT["case_insensitivity_tag_search"] = False
     MOCKED_TWA_PARAMETER_DICT["window_size_mins"] = 15
     _test_base_succeed(
         mocker,
