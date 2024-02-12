@@ -49,7 +49,6 @@ PJM_SCHEMA = StructType(
 PJM_PRICING_SCHEMA = StructType(
     [
         StructField("StartTime", TimestampType(), True),
-        StructField("DatetimeBeginningEpt", TimestampType(), True),
         StructField("PnodeId", LongType(), True),
         StructField("PnodeName", StringType(), True),
         StructField("Voltage", StringType(), True),
