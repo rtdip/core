@@ -25,6 +25,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     MOCKED_QUERY_OFFSET_LIMIT,
     LATEST_MOCKED_QUERY,
+    LATEST_MOCKED_QUERY_CHECK_TAGS,
     LATEST_MOCKED_QUERY_NO_TAGS,
 )
 
@@ -37,7 +38,15 @@ def test_latest(mocker: MockerFixture):
     )
 
 
+def test_latest_check_tags(mocker: MockerFixture):
+    MOCKED_LATEST_PARAMETER_DICT["case_insensitivity_tag_search"] = True
+    _test_base_succeed(
+        mocker, MOCKED_LATEST_PARAMETER_DICT, LATEST_MOCKED_QUERY_CHECK_TAGS, latest_raw
+    )
+
+
 def test_latest_offset_limit(mocker: MockerFixture):
+    MOCKED_LATEST_PARAMETER_DICT["case_insensitivity_tag_search"] = False
     MOCKED_LATEST_PARAMETER_DICT["offset"] = 10
     MOCKED_LATEST_PARAMETER_DICT["limit"] = 10
     _test_base_succeed(

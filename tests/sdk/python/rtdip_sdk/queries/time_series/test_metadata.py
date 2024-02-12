@@ -25,6 +25,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     MOCKED_QUERY_OFFSET_LIMIT,
     METADATA_MOCKED_QUERY,
+    METADATA_MOCKED_QUERY_CHECK_TAGS,
     METADATA_MOCKED_QUERY_NO_TAGS,
 )
 
@@ -39,7 +40,18 @@ def test_metadata(mocker: MockerFixture):
     )
 
 
+def test_metadata_check_tags(mocker: MockerFixture):
+    MOCKED_METADATA_PARAMETER_DICT["case_insensitivity_tag_search"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_METADATA_PARAMETER_DICT,
+        METADATA_MOCKED_QUERY_CHECK_TAGS,
+        metadata_raw,
+    )
+
+
 def test_metadata_with_no_tag(mocker: MockerFixture):
+    MOCKED_METADATA_PARAMETER_DICT["case_insensitivity_tag_search"] = False
     MOCKED_METADATA_PARAMETER_DICT.pop("tag_names")
     _test_base_succeed(
         mocker,
@@ -52,11 +64,11 @@ def test_metadata_with_no_tag(mocker: MockerFixture):
 def test_metadata_offset_limit(mocker: MockerFixture):
     MOCKED_METADATA_PARAMETER_DICT["offset"] = 10
     MOCKED_METADATA_PARAMETER_DICT["limit"] = 10
-    MOCKED_METADATA_PARAMETER_DICT["tag_names"] = ["MOCKED-TAGNAME"]
+    MOCKED_METADATA_PARAMETER_DICT["tag_names"] = ["mocked-TAGNAME"]
     _test_base_succeed(
         mocker,
         MOCKED_METADATA_PARAMETER_DICT,
-        "SELECT * FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE UPPER(`TagName`) IN ('MOCKED-TAGNAME') ORDER BY `TagName` LIMIT 10 OFFSET 10 ",
+        "SELECT * FROM `mocked-buiness-unit`.`sensors`.`mocked-asset_mocked-data-security-level_metadata`  WHERE `TagName` IN ('mocked-TAGNAME') ORDER BY `TagName` LIMIT 10 OFFSET 10 ",
         metadata_raw,
     )
 
