@@ -15,6 +15,7 @@
 import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
+import numpy as np
 from datetime import datetime
 from tests.api.v1.api_test_objects import (
     RAW_MOCKED_PARAMETER_DICT,
@@ -25,6 +26,10 @@ from tests.api.v1.api_test_objects import (
     TEST_HEADERS,
     BASE_URL,
 )
+from src.api.v1.models import (
+    RawResponse,
+)
+from pandas.io.json import build_table_schema
 from httpx import AsyncClient
 from src.api.v1 import app
 
@@ -51,6 +56,7 @@ async def test_api_raw_get_success(mocker: MockerFixture):
         )
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected
@@ -123,6 +129,7 @@ async def test_api_raw_post_success(mocker: MockerFixture):
         )
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected

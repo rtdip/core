@@ -47,6 +47,7 @@ async def test_api_interpolation_at_time_get_success(mocker: MockerFixture):
         )
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected
@@ -109,6 +110,7 @@ async def test_api_interpolation_at_time_post_success(mocker: MockerFixture):
         )
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected
