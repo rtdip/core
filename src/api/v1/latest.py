@@ -68,8 +68,8 @@ def latest_retrieval_get(
 
         return LatestResponse(
             schema=build_table_schema(data, index=False, primary_key=False),
-            pagination=pagination,
             data=data.replace({np.nan: None}).to_dict(orient="records"),
+            pagination=pagination,
         )
     except Exception as e:
         logging.error(str(e))

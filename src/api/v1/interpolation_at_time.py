@@ -78,14 +78,14 @@ def interpolation_at_time_events_get(
         if parameters.get("pivot") == True:
             return PivotResponse(
                 schema=build_table_schema(data, index=False, primary_key=False),
-                pagination=pagination,
                 data=data.replace({np.nan: None}).to_dict(orient="records"),
+                pagination=pagination,
             )
         else:
             return ResampleInterpolateResponse(
                 schema=build_table_schema(data, index=False, primary_key=False),
-                pagination=pagination,
                 data=data.replace({np.nan: None}).to_dict(orient="records"),
+                pagination=pagination,
             )
     except Exception as e:
         logging.error(str(e))

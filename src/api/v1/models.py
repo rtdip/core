@@ -95,24 +95,24 @@ class MetadataResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    pagination: Union[PaginationRow, None]
     data: List[MetadataRow]
+    pagination: Union[PaginationRow, None]
 
 
 class LatestResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    pagination: Union[PaginationRow, None]
     data: List[LatestRow]
+    pagination: Union[PaginationRow, None]
 
 
 class RawResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    pagination: Union[PaginationRow, None]
     data: List[RawRow]
+    pagination: Union[PaginationRow, None]
 
 
 class ResampleInterpolateRow(BaseModel):
@@ -131,24 +131,24 @@ class ResampleInterpolateResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    pagination: Union[PaginationRow, None]
     data: List[ResampleInterpolateRow]
+    pagination: Union[PaginationRow, None]
 
 
 class SummaryResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    pagination: Union[PaginationRow, None]
     data: List[SummaryRow]
+    pagination: Union[PaginationRow, None]
 
 
 class PivotResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
     )
-    pagination: Union[PaginationRow, None]
     data: List[PivotRow]
+    pagination: Union[PaginationRow, None]
 
 
 class HTTPError(BaseModel):

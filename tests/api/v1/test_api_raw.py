@@ -55,12 +55,8 @@ async def test_api_raw_get_success(mocker: MockerFixture):
             MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_DICT
         )
     actual = response.text
-
-    # '{"schema":{"fields":[{"name":"EventTime","type":"datetime"},{"name":"TagName","type":"string"},{"name":"Status","type":"string"},{"name":"Value","type":"number"}],"pandas_version":"1.4.0"},"pagination":null,"data":[{"EventTime":"2024-02-09T12:04:39.523793","TagName":"TestTag","Status":"Good","Value":1.01}]}'
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
-
-    # '{"schema":{"fields":[{"name":"EventTime","type":"datetime"},{"name":"TagName","type":"string"},{"name":"Status","type":"string"},{"name":"Value","type":"number"}],"pandas_version":"1.4.0"},"data":[{"EventTime":"2024-02-09T14:26:48.049572","TagName":"TestTag","Status":"Good","Value":1.01}]}'
-    print(type(expected))
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected
@@ -133,6 +129,7 @@ async def test_api_raw_post_success(mocker: MockerFixture):
         )
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = expected.rstrip("}") + ',"pagination":null}'
 
     assert response.status_code == 200
     assert actual == expected
