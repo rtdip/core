@@ -110,17 +110,32 @@ class GreatExpectations:
         )
         return validator
 
-    def add_expectations_value_in_set(self, validator, column, set):
-        validator.expect_column_values_to_be_in_set(column=column, value_set=set)
+    def save_expectations(self, validator):
+        validator.save_expectation_suite(discard_failed_expectations=False)
         return validator
 
-    def add_expectations_value_unique(self, validator, column):
-        validator.expect_column_values_to_be_unique(column=column)
-        return validator
+    # Validate your data
 
-    def add_expectations_value_type(self, validator, column, type):
-        validator.expect_column_values_to_be_of_type(column=column, type_=type)
-        return validator
+    def add_or_update_checkpoint(
+        self,
+        context,
+        batch_request,
+        checkpoint_name,
+        run_name_template: str,
+        action_list: list,
+    ):
+        checkpoint = Checkpoint(
+            name=checkpoint_name,
+            run_name_template=run_name_template,
+            data_context=context,
+            batch_request=batch_request,
+            expectation_suite_name=self.expectation_suite_name,
+            action_list=action_list,
+        )
+
+        context.add_or_update_checkpoint(checkpoint=checkpoint)
+        checkpoint_result = checkpoint.run()
+        return checkpoint_result
 
     expect_column_chisquare_test_p_value_to_be_greater_than.py
     expect_column_distinct_values_to_be_in_set.py
@@ -180,31 +195,16 @@ class GreatExpectations:
     expect_table_row_count_to_equal.py
     expect_table_row_count_to_equal_other_table.py
 
-    def save_expectations(self, validator):
-        validator.save_expectation_suite(discard_failed_expectations=False)
-        return validator
 
-    # Validate your data
-
-    def add_or_update_checkpoint(self, context, batch_request, checkpoint_name):
-        checkpoint = Checkpoint(
-            name=checkpoint_name,
-            run_name_template="%Y%m%d-%H%M%S-run-name-template",
-            data_context=context,
-            batch_request=batch_request,
-            expectation_suite_name=self.expectation_suite_name,
-            action_list=[
-                {
-                    "name": "store_validation_result",
-                    "action": {"class_name": "StoreValidationResultAction"},
-                },
-                {
-                    "name": "update_data_docs",
-                    "action": {"class_name": "UpdateDataDocsAction"},
-                },
-            ],
-        )
-
-        context.add_or_update_checkpoint(checkpoint=checkpoint)
-        checkpoint_result = checkpoint.run()
-        return checkpoint_result
+action_list = (
+    [
+        {
+            "name": "store_validation_result",
+            "action": {"class_name": "StoreValidationResultAction"},
+        },
+        {
+            "name": "update_data_docs",
+            "action": {"class_name": "UpdateDataDocsAction"},
+        },
+    ],
+)
