@@ -86,8 +86,8 @@ Retrieval of data via a POST method to enable execution of generic SQL statement
 
 
 @api_v1_router.post(
-    path="/sql",
-    name="Sql POST",
+    path="/sql/execute",
+    name="Sql Execute POST",
     description=post_description,
     tags=["SQL"],
     dependencies=[Depends(oauth2_scheme)],
