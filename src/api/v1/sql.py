@@ -49,7 +49,7 @@ def sql_get(
             base_headers=base_headers,
         )
 
-        data = SQLQueryBuilder().get(connection, sql_query_parameters.sql_statement)
+        data = SQLQueryBuilder().get(connection, parameters["sql_statement"])
 
         pagination = None
 
@@ -79,17 +79,17 @@ def sql_get(
 
 
 post_description = """
-## Raw 
+## Sql 
 
-Retrieval of raw timeseries data via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
+Retrieval of data via a POST method to enable execution of generic SQL statements.
 """
 
 
 @api_v1_router.post(
-    path="/events/raw",
-    name="Raw POST",
+    path="/sql",
+    name="Sql POST",
     description=post_description,
-    tags=["Events"],
+    tags=["SQL"],
     dependencies=[Depends(oauth2_scheme)],
     responses={200: {"model": SqlResponse}, 400: {"model": HTTPError}},
     openapi_extra={
