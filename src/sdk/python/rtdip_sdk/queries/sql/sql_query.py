@@ -15,6 +15,7 @@
 import logging
 import pandas as pd
 from ...connectors.connection_interface import ConnectionInterface
+from ..time_series._time_series_query_builder import _query_builder
 
 
 class SQLQueryBuilder:
@@ -25,7 +26,9 @@ class SQLQueryBuilder:
     sql_query: dict
     connection: ConnectionInterface
 
-    def get(self, connection=object, sql_query=str) -> pd.DataFrame:
+    def get(
+        self, connection=object, sql_query=str, limit=None, offset=None
+    ) -> pd.DataFrame:
         """
         A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
 
@@ -38,14 +41,23 @@ class SQLQueryBuilder:
         Args:
             connection (obj): Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
             sql_query (str): A string of the SQL query to be executed.
+            limit (optional int): Limit the number of rows to be returned
+            offset (optional int): Offset the start of the rows to be returned
 
         Returns:
-            DataFrame: A dataframe of raw timeseries data.
+            DataFrame: A dataframe of data.
         """
         try:
+            parameters_dict = {"sql_statement": sql_query}
+            if limit:
+                parameters_dict["limit"] = limit
+            if offset:
+                parameters_dict["offset"] = offset
+
+            query = _query_builder(parameters_dict, "sql")
             try:
                 cursor = connection.cursor()
-                cursor.execute(sql_query)
+                cursor.execute(query)
                 df = cursor.fetch_all()
                 cursor.close()
                 connection.close()
