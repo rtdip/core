@@ -49,7 +49,11 @@ def sql_get(
             base_headers=base_headers,
         )
 
-        data = SQLQueryBuilder().get(connection, parameters["sql_statement"])
+        limit = None if "limit" in parameters else int(parameters["limit"])
+        offset = None if "offset" in parameters else int(parameters["offset"])
+        data = SQLQueryBuilder().get(
+            connection, parameters["sql_statement"], limit, offset
+        )
 
         pagination = None
 
