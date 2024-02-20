@@ -177,9 +177,7 @@ class PJMDailyPricingISOSource(BaseISOSource):
         df = df.replace({np.nan: None, "": None})
         
         df.reset_index(inplace=True, drop=True)
-        
-        df.to_csv("/home/sarjeet/Desktop/Inno_accounts/New_Data/RT_Data_3Days.csv",index=False)
-
+    
         return df
      
     def _validate_options(self) -> bool:
