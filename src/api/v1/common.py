@@ -27,6 +27,7 @@ def common_api_setup_tasks(  # NOSONAR
     base_headers: BaseHeaders,  # NOSONAR
     metadata_query_parameters=None,
     raw_query_parameters=None,
+    sql_query_parameters=None,
     tag_query_parameters=None,
     resample_query_parameters=None,
     interpolate_query_parameters=None,
@@ -82,6 +83,9 @@ def common_api_setup_tasks(  # NOSONAR
         parameters = dict(parameters, **raw_query_parameters.__dict__)
         parameters["start_date"] = raw_query_parameters.start_date
         parameters["end_date"] = raw_query_parameters.end_date
+
+    if sql_query_parameters != None:
+        parameters = dict(parameters, **sql_query_parameters.__dict__)
 
     if tag_query_parameters != None:
         parameters = dict(parameters, **tag_query_parameters.__dict__)
