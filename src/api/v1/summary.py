@@ -31,8 +31,8 @@ from src.api.v1.models import (
     PaginationRow,
 )
 from src.api.auth.azuread import oauth2_scheme
+from src.api.v1.common import common_api_setup_tasks, pagination
 from src.api.FastAPIApp import api_v1_router
-import src.api.v1.common
 
 nest_asyncio.apply()
 
@@ -45,7 +45,7 @@ def summary_events_get(
     base_headers,
 ):
     try:
-        (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
+        (connection, parameters) = common_api_setup_tasks(
             base_query_parameters,
             summary_query_parameters=summary_query_parameters,
             tag_query_parameters=tag_query_parameters,
@@ -55,27 +55,10 @@ def summary_events_get(
 
         data = summary.get(connection, parameters)
 
-        pagination = None
-
-        if (
-            limit_offset_parameters.limit is not None
-            and limit_offset_parameters.offset is not None
-        ):
-            next = None
-
-            if len(data.index) == limit_offset_parameters.limit:
-                next = limit_offset_parameters.offset + limit_offset_parameters.limit
-
-            pagination = PaginationRow(
-                limit=limit_offset_parameters.limit,
-                offset=limit_offset_parameters.offset,
-                next=next,
-            )
-
         return SummaryResponse(
             schema=build_table_schema(data, index=False, primary_key=False),
             data=data.replace({np.nan: None}).to_dict(orient="records"),
-            pagination=pagination,
+            pagination=pagination(limit_offset_parameters, data),
         )
     except Exception as e:
         logging.error(str(e))

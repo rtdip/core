@@ -257,18 +257,6 @@ class RawQueryParams:
         self.end_date = end_date
 
 
-class SqlQueryParams:
-    def __init__(
-        self,
-        sql_statement: str = Query(
-            ...,
-            description="SQL Statement to be executed",
-            examples=["select * from 1"],
-        ),
-    ):
-        self.sql_statement = sql_statement
-
-
 class SqlBodyParams(BaseModel):
     sql_statement: str
 

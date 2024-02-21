@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from databricks import sql
+import pyarrow as pa
 from ..connection_interface import ConnectionInterface
 from ..cursor_interface import CursorInterface
 import logging
@@ -98,7 +99,7 @@ class DatabricksSQLCursor(CursorInterface):
             logging.exception("error while executing the query")
             raise e
 
-    def fetch_all(self) -> list:
+    def fetch_all(self, fetch_size=5_000_000) -> list:
         """
         Gets all rows of a query.
 
@@ -106,8 +107,16 @@ class DatabricksSQLCursor(CursorInterface):
             list: list of results
         """
         try:
-            result = self.cursor.fetchall_arrow()
-            df = result.to_pandas()
+            get_next_result = True
+            results = []
+            while get_next_result:
+                result = self.cursor.fetchmany_arrow(fetch_size)
+                results.append(result)
+                if result.num_rows < fetch_size:
+                    get_next_result = False
+
+            pyarrow_table = pa.concat_tables(results)
+            df = pyarrow_table.to_pandas()
             return df
         except Exception as e:
             logging.exception("error while fetching the rows of a query")
