@@ -88,8 +88,8 @@ class PJMDailyPricingISOSource(BaseISOSource):
             data = response.json() 
             logging.info(f"Data for page {next_page}:")
             items.extend(data['items'])
-            next_page = next((link['href'] for link in data['links'] if link['rel'] == 'next'), None)
-            url_suffix = next_page if next_page else ""
+            next_urls = list(filter(lambda item: item['rel'] == 'next', data['links'])) 
+            next_page = next_urls[0]['href'] if next_urls else None
             time.sleep(10)
 
         return items
@@ -101,7 +101,7 @@ class PJMDailyPricingISOSource(BaseISOSource):
         Returns:
             Raw form of data.
         """
-        start_date = self.current_date - timedelta(days=3)
+        start_date = self.current_date - timedelta(self.days)
         start_date = start_date.replace(hour=0, minute=0)
         end_date = (start_date + timedelta(days=self.days)).replace(hour=23)
         start_date_str = start_date.strftime(self.query_datetime_format)
@@ -177,7 +177,7 @@ class PJMDailyPricingISOSource(BaseISOSource):
         df = df.replace({np.nan: None, "": None})
         
         df.reset_index(inplace=True, drop=True)
-    
+              
         return df
      
     def _validate_options(self) -> bool:
