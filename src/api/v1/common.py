@@ -14,12 +14,14 @@
 
 import os
 import importlib.util
+
+from pandas import DataFrame
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 
 if importlib.util.find_spec("turbodbc") != None:
     from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
 from src.api.auth import azuread
-from src.api.v1.models import BaseHeaders
+from .models import BaseHeaders, LimitOffsetQueryParams, PaginationRow
 
 
 def common_api_setup_tasks(  # NOSONAR
@@ -121,3 +123,24 @@ def common_api_setup_tasks(  # NOSONAR
         parameters = dict(parameters, **limit_offset_query_parameters.__dict__)
 
     return connection, parameters
+
+
+def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: DataFrame):
+    pagination = None
+
+    if (
+        limit_offset_parameters.limit is not None
+        and limit_offset_parameters.offset is not None
+    ):
+        next = None
+
+        if len(data.index) == limit_offset_parameters.limit:
+            next = limit_offset_parameters.offset + limit_offset_parameters.limit
+
+        pagination = PaginationRow(
+            limit=limit_offset_parameters.limit,
+            offset=limit_offset_parameters.offset,
+            next=next,
+        )
+
+    return pagination

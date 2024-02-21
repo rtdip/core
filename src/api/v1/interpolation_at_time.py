@@ -31,9 +31,8 @@ from src.api.v1.models import (
     InterpolationAtTimeQueryParams,
     PivotQueryParams,
     LimitOffsetQueryParams,
-    PaginationRow,
 )
-import src.api.v1.common
+from src.api.v1.common import common_api_setup_tasks, pagination
 
 nest_asyncio.apply()
 
@@ -47,7 +46,7 @@ def interpolation_at_time_events_get(
     base_headers,
 ):
     try:
-        (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
+        (connection, parameters) = common_api_setup_tasks(
             base_query_parameters,
             tag_query_parameters=tag_query_parameters,
             interpolation_at_time_query_parameters=interpolation_at_time_query_parameters,
@@ -58,34 +57,17 @@ def interpolation_at_time_events_get(
 
         data = interpolation_at_time.get(connection, parameters)
 
-        pagination = None
-
-        if (
-            limit_offset_parameters.limit is not None
-            and limit_offset_parameters.offset is not None
-        ):
-            next = None
-
-            if len(data.index) == limit_offset_parameters.limit:
-                next = limit_offset_parameters.offset + limit_offset_parameters.limit
-
-            pagination = PaginationRow(
-                limit=limit_offset_parameters.limit,
-                offset=limit_offset_parameters.offset,
-                next=next,
-            )
-
         if parameters.get("pivot") == True:
             return PivotResponse(
                 schema=build_table_schema(data, index=False, primary_key=False),
                 data=data.replace({np.nan: None}).to_dict(orient="records"),
-                pagination=pagination,
+                pagination=pagination(limit_offset_parameters, data),
             )
         else:
             return ResampleInterpolateResponse(
                 schema=build_table_schema(data, index=False, primary_key=False),
                 data=data.replace({np.nan: None}).to_dict(orient="records"),
-                pagination=pagination,
+                pagination=pagination(limit_offset_parameters, data),
             )
     except Exception as e:
         logging.error(str(e))
