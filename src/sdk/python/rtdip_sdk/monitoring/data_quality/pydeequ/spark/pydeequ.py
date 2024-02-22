@@ -1,15 +1,14 @@
 from pyspark.sql import DataFrame, SparkSession
 
-from pydeequ.checks import *
-from pydeequ.verification import *
-from pydeequ.suggestions import *
-from pydeequ.analyzers import *
-from pydeequ.profiles import *
+from pydeequ.checks import Check, CheckLevel
+from pydeequ.verification import VerificationSuite, VerificationResult
+from pydeequ.suggestions import ConstraintSuggestionRunner
+from pydeequ.analyzers import AnalysisRunner, AnalyzerContext
+from pydeequ.profiles import ColumnProfilerRunner
 
 
-
-class PythonDeequPipeline():
-    """ 
+class PythonDeequPipeline:
+    """
     Base class for data quality checks, profiles and suggestions using PyDeequ.
 
     Parameters:
@@ -44,94 +43,109 @@ class PythonDeequPipeline():
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def profiles(self) -> list:
         result = ColumnProfilerRunner(self.spark).onData(self.data).run()
         return result
-    
+
     def analyse(self) -> DataFrame:
-        analysisResult = (
+        """
+        Run the analysis on the data for all columns for the following metrics:
+        Size, Completeness, ApproxCountDistinct, CountDistinct, Datatype, Distinctness, Entropy, Mean, Compliance, Correlation, Maxium, Minimum, MaxLength, MinLength, StandardDeviation, Sum, Uniqueness, MutualInformation
+
+        Returns: Computed metrics as a DataFrame.
+
+        """
+        analysis_result = (
             AnalysisRunner(self.spark)
             .onData(self.data)
             .addAnalyzer(Size())
             .addAnalyzer(Completeness())
             .addAnalyzer(ApproxCountDistinct())
+            .addAnalyzer(CountDistinct())
+            .addAnalyzer(Datatype())
+            .addAnalyzer(Distinctness())
+            .addAnalyzer(Entropy())
             .addAnalyzer(Mean())
             .addAnalyzer(Compliance())
             .addAnalyzer(Correlation())
-            .addAnalyzer(Correlation())
+            .addAnalyzer(Maxium())
+            .addAnalyzer(Minimum())
+            .addAnalyzer(MaxLength())
+            .addAnalyzer(MinLength())
+            .addAnalyzer(StandardDeviation())
+            .addAnalyzer(Sum())
+            .addAnalyzer(Uniqueness())
+            .addAnalyzer(MutualInformation())
             .run()
         )
-        analysisResult_df = AnalyzerContext.successMetricsAsDataFrame(self.spark, analysisResult)
 
-        return analysisResult_df
-    
-    def suggestions(self):
-        suggestionResult = (
-            ConstraintSuggestionRunner(self.spark).onData(self.data).addConstraintRule(DEFAULT()).run()
+        analysis_result_df = AnalyzerContext.successMetricsAsDataFrame(
+            self.spark, analysis_result
         )
-        return suggestionResult
-    
-    def perform_check_suggestions(self, suggestionResult):
-    
-    # Creating empty string to concatenate against
+
+        return analysis_result_df
+
+    def suggestions(self):
+        """
+        Returns:  Data quality suggestions as a dictionary for the dataframe.
+
+        """
+        suggestion_result = (
+            ConstraintSuggestionRunner(self.spark)
+            .onData(self.data)
+            .addConstraintRule(DEFAULT())
+            .run()
+        )
+        return suggestion_result
+
+    def check(self, suggestion_result):
+        """
+        Inputs the data quality suggestions and performs the checks on the dataframe.
+
+        Parameters:
+            suggestion_result (dict): The dictionary containing the data quality suggestions for the dataframe.
+
+        Returns:
+            df_checked_constraints (DataFrame): The dataframe containing the results of the data quality checks.
+            df_checked_constraints_failures (DataFrame): The dataframe containing the results of the data quality checks that failed.
+        """
+
+        # Creating empty string to concatenate against
         pydeequ_validation_string = ""
 
         # Building string from suggestions
-        for suggestion in suggestionResult['constraint_suggestions']:
-            pydeequ_validation_string = pydeequ_validation_string + suggestion["code_for_constraint"]
+        for suggestion in suggestion_result["constraint_suggestions"]:
+            pydeequ_validation_string = (
+                pydeequ_validation_string + suggestion["code_for_constraint"]
+            )
 
         # Initializing
-        check = Check(spark_session=self.spark,
-                level=CheckLevel.Warning,
-                description="Data Quality Check")
+        check = Check(
+            spark_session=self.spark,
+            level=CheckLevel.Warning,
+            description="Data Quality Check",
+        )
 
         # Building validation string of constraints to check
         pydeequ_validation_string_to_check = "check" + pydeequ_validation_string
 
         # Checking constraints
-        checked_constraints = \
-            (VerificationSuite(spark)
-            .onData(df)
+        checked_constraints = (
+            VerificationSuite(self.spark)
+            .onData(self.data)
             .addCheck(eval(pydeequ_validation_string_to_check))
-            .run())
+            .run()
+        )
 
         # Returning results as DataFrame
-        df_checked_constraints = (VerificationResult.checkResultsAsDataFrame(spark, checked_constraints))
+        df_checked_constraints = VerificationResult.checkResultsAsDataFrame(
+            self.spark, checked_constraints
+        )
 
         # Filtering for any failed data quality constraints
-        df_checked_constraints_failures = (df_checked_constraints.filter(F.col("constraint_status") == "Failure"))
+        df_checked_constraints_failures = df_checked_constraints.filter(
+            df_checked_constraints.col("constraint_status") == "Failure"
+        )
 
-        # If any data quality check fails, raise exception
-        if df_checked_constraints_failures.count() > 0:
-            logger.info(
-                df_checked_constraints_failures.show(n=df_checked_constraints_failures.count(),
-                                                    truncate=False)
-
-
-  
-# Printing string validation string
-# If desired, edit 
-    def p
-
-check = Check(spark, CheckLevel.Warning, "Data Quality Check")
-
-checkResult = (
-    VerificationSuite(spark)
-    .onData(df)
-    .addCheck(
-        check.hasSize(lambda x: x >= 3000000)
-        .hasMin("star_rating", lambda x: x == 1.0)
-        .hasMax("star_rating", lambda x: x == 5.0)
-        .isComplete("review_id")
-        .isUnique("review_id")
-        .isComplete("marketplace")
-        .isContainedIn("marketplace", ["US", "UK", "DE", "JP", "FR"])
-        .isNonNegative("year")
-    )
-    .run()
-)
-
-print(f"Verification Run Status: {checkResult.status}")
-checkResult_df = VerificationResult.checkResultsAsDataFrame(spark, checkResult)
-checkResult_df.show()
+        return df_checked_constraints, df_checked_constraints_failures
