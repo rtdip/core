@@ -4,6 +4,7 @@ from .miso_daily_load_iso import MISODailyLoadISOSource
 from .miso_historical_load_iso import MISOHistoricalLoadISOSource
 from .pjm_daily_load_iso import PJMDailyLoadISOSource
 from .pjm_daily_pricing_iso import PJMDailyPricingISOSource
+from .pjm_historical_pricing_iso import PJMHistoricalPricingISOSource
 from .pjm_historical_load_iso import PJMHistoricalLoadISOSource
 from .caiso_daily_load_iso import CAISODailyLoadISOSource
 from .caiso_historical_load_iso import CAISOHistoricalLoadISOSource
