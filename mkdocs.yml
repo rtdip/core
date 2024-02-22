@@ -286,6 +286,15 @@ nav:
               - Circular Average: sdk/examples/query/Circular-Average.md
               - Circular Standard Deviation: sdk/examples/query/Circular-Standard-Deviation.md
               - Summary: sdk/examples/query/Summary.md
+      - Monitoring:
+          - Data Quality: 
+              - Great Expectations: 
+                - Python:
+                        - Data Quality Monitoring: sdk/code-reference/monitoring/data-quality/great-expectations.md
+              - PyDeequ: 
+                    - Spark:
+                        - Data Quality Monitoring: sdk/code-reference/monitoring/data-quality/pydeequ.md
+
   - API:
       - Overview: api/overview.md
       - Authentication: api/authentication.md
