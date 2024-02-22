@@ -45,7 +45,6 @@ class GreatExpectations:
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_pypi_library(get_default_package("azure_adls_gen_2"))
         return libraries
 
     @staticmethod

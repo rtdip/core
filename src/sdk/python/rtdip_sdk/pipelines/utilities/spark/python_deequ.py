@@ -10,7 +10,13 @@ from pydeequ.profiles import *
 
 
 class PythonDeequPipeline():
-    """ """
+    """ 
+    Base class for data quality checks, profiles and suggestions using PyDeequ.
+
+    Parameters:
+        spark (SparkSession): Spark Session instance.
+        data (DataFrame): Dataframe containing the raw MISO data.
+    """
 
     spark: SparkSession
     data: DataFrame
@@ -34,18 +40,17 @@ class PythonDeequPipeline():
     @staticmethod
     def libraries():
         libraries = Libraries()
-        libraries.add_pypi_library(get_default_package("azure_adls_gen_2"))
         return libraries
 
     @staticmethod
     def settings() -> dict:
         return {}
     
-    def profiles(self):
+    def profiles(self) -> list:
         result = ColumnProfilerRunner(self.spark).onData(self.data).run()
         return result
     
-    def analyse(self):
+    def analyse(self) -> DataFrame:
         analysisResult = (
             AnalysisRunner(self.spark)
             .onData(self.data)
@@ -78,8 +83,7 @@ class PythonDeequPipeline():
             pydeequ_validation_string = pydeequ_validation_string + suggestion["code_for_constraint"]
 
         # Initializing
-        check = \
-            Check(spark_session=self.spark,
+        check = Check(spark_session=self.spark,
                 level=CheckLevel.Warning,
                 description="Data Quality Check")
 
@@ -94,57 +98,24 @@ class PythonDeequPipeline():
             .run())
 
         # Returning results as DataFrame
-        df_checked_constraints = \
-            (VerificationResult
-            .checkResultsAsDataFrame(spark, checked_constraints))
-
-        logger.info(
-            df_checked_constraints.show(n=df_checked_constraints.count(),
-                                        truncate=False)
-        )
+        df_checked_constraints = (VerificationResult.checkResultsAsDataFrame(spark, checked_constraints))
 
         # Filtering for any failed data quality constraints
-        df_checked_constraints_failures = \
-            (df_checked_constraints
-            .filter(F.col("constraint_status") == "Failure"))
+        df_checked_constraints_failures = (df_checked_constraints.filter(F.col("constraint_status") == "Failure"))
 
         # If any data quality check fails, raise exception
         if df_checked_constraints_failures.count() > 0:
             logger.info(
                 df_checked_constraints_failures.show(n=df_checked_constraints_failures.count(),
                                                     truncate=False)
-    Share
-Improve this answer
-Follow
-edited Feb 23, 2023 at 3:04
+
 
   
 # Printing string validation string
-# If desired, edit this string to control what data quality validations are performed
-print(pydeequ_validation_string)
+# If desired, edit 
+    def p
 
-
-suggestionResult = (
-    ConstraintSuggestionRunner(spark).onData(df).addConstraintRule(DEFAULT()).run()
-)
-
-for sugg in suggestionResult["constraint_suggestions"]:
-    print(f"Constraint suggestion for '{sugg['column_name']}': {sugg['description']}")
-    print(f"The corresponding Python code is: {sugg['code_for_constraint']}\n")
-
-suggestionResult = (
-    ConstraintSuggestionRunner(spark).onData(df).addConstraintRule(DEFAULT()).run()
-)
-
-print(json.dumps(suggestionResult, indent=2))
-
-
-from pydeequ.profiles import *
-
-result = ColumnProfilerRunner(spark).onData(df).run()
-print(result)
-
-check = Check(spark, CheckLevel.Warning, "Amazon Electronic Products Reviews")
+check = Check(spark, CheckLevel.Warning, "Data Quality Check")
 
 checkResult = (
     VerificationSuite(spark)
