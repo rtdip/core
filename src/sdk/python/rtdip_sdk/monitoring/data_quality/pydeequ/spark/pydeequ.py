@@ -8,7 +8,6 @@ from pydeequ.profiles import *
 
 
 
-
 class PythonDeequPipeline():
     """ 
     Base class for data quality checks, profiles and suggestions using PyDeequ.
