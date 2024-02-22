@@ -29,7 +29,7 @@ from pydeequ.suggestions import ConstraintSuggestionRunner
 from pydeequ.analyzers import AnalysisRunner, AnalyzerContext
 from pydeequ.profiles import ColumnProfilerRunner
 
-test_df = spark_session.createDataFrame()
+test_df = 
 
 
 def test_profiles(spark_session: SparkSession):
