@@ -58,6 +58,7 @@ dependencies:
     - xlrd==2.0.1
     - pygithub==1.59.0
     - pydantic==2.4.2
+    - pyjwt==2.8.0
     - web3==6.5.0
     - twine==4.0.2
     - delta-sharing-python==1.0.0

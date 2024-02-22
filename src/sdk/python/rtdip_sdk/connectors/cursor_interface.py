@@ -25,7 +25,7 @@ class CursorInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def fetch_all(self) -> list:
+    def fetch_all(self, fetch_size: int = 5_000_000) -> list:
         pass
 
     @abstractmethod
