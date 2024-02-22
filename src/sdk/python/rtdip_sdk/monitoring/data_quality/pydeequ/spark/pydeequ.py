@@ -7,7 +7,7 @@ from pydeequ.analyzers import AnalysisRunner, AnalyzerContext
 from pydeequ.profiles import ColumnProfilerRunner
 
 
-class PythonDeequPipeline:
+class PyDeequDataQuality:
     """
     Base class for data quality checks, profiles and suggestions using PyDeequ.
 
@@ -99,17 +99,17 @@ class PythonDeequPipeline:
         )
         return suggestion_result
 
-    def check(self, suggestion_result):
+    def check(self):
         """
         Inputs the data quality suggestions and performs the checks on the dataframe.
 
-        Parameters:
-            suggestion_result (dict): The dictionary containing the data quality suggestions for the dataframe.
 
         Returns:
             df_checked_constraints (DataFrame): The dataframe containing the results of the data quality checks.
             df_checked_constraints_failures (DataFrame): The dataframe containing the results of the data quality checks that failed.
         """
+
+        suggestion_result = self.suggestions()
 
         # Creating empty string to concatenate against
         pydeequ_validation_string = ""

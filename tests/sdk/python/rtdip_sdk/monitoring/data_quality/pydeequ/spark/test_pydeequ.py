@@ -1,137 +1,105 @@
-from pyspark.sql import DataFrame, SparkSession
+# Copyright 2022 RTDIP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-from pydeequ.checks import *
-from pydeequ.verification import *
-from pydeequ.suggestions import *
-from pydeequ.analyzers import *
-from pydeequ.profiles import *
+import sys
 
-
-
-class PythonDeequPipeline():
-    """ 
-    Base class for data quality checks, profiles and suggestions using PyDeequ.
-
-    Parameters:
-        spark (SparkSession): Spark Session instance.
-        data (DataFrame): Dataframe containing the raw MISO data.
-    """
-
-    spark: SparkSession
-    data: DataFrame
-
-    def __init__(
-        self,
-        spark: SparkSession,
-        data: DataFrame,
-    ):
-        self.spark = spark
-        self.data = data
-
-    @staticmethod
-    def system_type():
-        """
-        Attributes:
-            SystemType (Environment): Requires PYTHON
-        """
-        return SystemType.PYTHON
-
-    @staticmethod
-    def libraries():
-        libraries = Libraries()
-        return libraries
-
-    @staticmethod
-    def settings() -> dict:
-        return {}
-    
-    def profiles(self) -> list:
-        result = ColumnProfilerRunner(self.spark).onData(self.data).run()
-        return result
-    
-    def analyse(self) -> DataFrame:
-        analysisResult = (
-            AnalysisRunner(self.spark)
-            .onData(self.data)
-            .addAnalyzer(Size())
-            .addAnalyzer(Completeness())
-            .addAnalyzer(ApproxCountDistinct())
-            .addAnalyzer(Mean())
-            .addAnalyzer(Compliance())
-            .addAnalyzer(Correlation())
-            .addAnalyzer(Correlation())
-            .run()
-        )
-        analysisResult_df = AnalyzerContext.successMetricsAsDataFrame(self.spark, analysisResult)
-
-        return analysisResult_df
-    
-    def suggestions(self):
-        suggestionResult = (
-            ConstraintSuggestionRunner(self.spark).onData(self.data).addConstraintRule(DEFAULT()).run()
-        )
-        return suggestionResult
-    
-    def perform_check_suggestions(self, suggestionResult):
-    
-    # Creating empty string to concatenate against
-        pydeequ_validation_string = ""
-
-        # Building string from suggestions
-        for suggestion in suggestionResult['constraint_suggestions']:
-            pydeequ_validation_string = pydeequ_validation_string + suggestion["code_for_constraint"]
-
-        # Initializing
-        check = Check(spark_session=self.spark,
-                level=CheckLevel.Warning,
-                description="Data Quality Check")
-
-        # Building validation string of constraints to check
-        pydeequ_validation_string_to_check = "check" + pydeequ_validation_string
-
-        # Checking constraints
-        checked_constraints = \
-            (VerificationSuite(spark)
-            .onData(df)
-            .addCheck(eval(pydeequ_validation_string_to_check))
-            .run())
-
-        # Returning results as DataFrame
-        df_checked_constraints = (VerificationResult.checkResultsAsDataFrame(spark, checked_constraints))
-
-        # Filtering for any failed data quality constraints
-        df_checked_constraints_failures = (df_checked_constraints.filter(F.col("constraint_status") == "Failure"))
-
-        # If any data quality check fails, raise exception
-        if df_checked_constraints_failures.count() > 0:
-            logger.info(
-                df_checked_constraints_failures.show(n=df_checked_constraints_failures.count(),
-                                                    truncate=False)
-
-
-  
-# Printing string validation string
-# If desired, edit 
-    def p
-
-check = Check(spark, CheckLevel.Warning, "Data Quality Check")
-
-checkResult = (
-    VerificationSuite(spark)
-    .onData(df)
-    .addCheck(
-        check.hasSize(lambda x: x >= 3000000)
-        .hasMin("star_rating", lambda x: x == 1.0)
-        .hasMax("star_rating", lambda x: x == 5.0)
-        .isComplete("review_id")
-        .isUnique("review_id")
-        .isComplete("marketplace")
-        .isContainedIn("marketplace", ["US", "UK", "DE", "JP", "FR"])
-        .isNonNegative("year")
-    )
-    .run()
+from src.sdk.python.rtdip_sdk.monitoring.data_quality.pydeequ.spark.pydeequ import (
+    PyDeequDataQuality,
+)
+from src.sdk.python.rtdip_sdk.monitoring._monitoring_utils.models import (
+    Libraries,
+    SystemType,
 )
 
-print(f"Verification Run Status: {checkResult.status}")
-checkResult_df = VerificationResult.checkResultsAsDataFrame(spark, checkResult)
-checkResult_df.show()
+from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType
+
+from pydeequ.suggestions import ConstraintSuggestionRunner
+from pydeequ.analyzers import AnalysisRunner, AnalyzerContext
+from pydeequ.profiles import ColumnProfilerRunner
+
+test_df = spark_session.createDataFrame()
+
+
+def test_profiles(spark_session: SparkSession):
+
+    expected_result = ColumnProfilerRunner(spark_session).onData(test_df).run()
+
+    actual_result = PyDeequDataQuality(spark_session, test_df).profiles()
+
+    assert expected_result.collect() == actual_result.collect
+    assert isinstance(actual_result, dict)
+
+
+def test_analyse(spark_session: SparkSession):
+
+    expected_analysis_result = (
+        AnalysisRunner(spark_session)
+        .onData(test_df)
+        .addAnalyzer(Size())
+        .addAnalyzer(Completeness())
+        .addAnalyzer(ApproxCountDistinct())
+        .addAnalyzer(CountDistinct())
+        .addAnalyzer(Datatype())
+        .addAnalyzer(Distinctness())
+        .addAnalyzer(Entropy())
+        .addAnalyzer(Mean())
+        .addAnalyzer(Compliance())
+        .addAnalyzer(Correlation())
+        .addAnalyzer(Maxium())
+        .addAnalyzer(Minimum())
+        .addAnalyzer(MaxLength())
+        .addAnalyzer(MinLength())
+        .addAnalyzer(StandardDeviation())
+        .addAnalyzer(Sum())
+        .addAnalyzer(Uniqueness())
+        .addAnalyzer(MutualInformation())
+        .run()
+    )
+
+    expected_analysis_result_df = AnalyzerContext.successMetricsAsDataFrame(
+        spark_session, expected_analysis_result
+    )
+
+    actual_analysis_result_df = PyDeequDataQuality(spark_session, test_df).analyse()
+
+    assert expected_analysis_result_df.shape == actual_analysis_result_df.shape
+    assert expected_analysis_result_df.schema == actual_analysis_result_df.schema
+    assert expected_analysis_result_df.collect() == actual_analysis_result_df.collect()
+    assert isinstance(actual_analysis_result_df, DataFrame)
+
+
+def test_suggestions(spark_session: SparkSession):
+
+    expected_suggestion_result = (
+        ConstraintSuggestionRunner(spark_session)
+        .onData(test_df)
+        .addConstraintRule(DEFAULT())
+        .run()
+    )
+
+    actual_suggestion_result = PyDeequDataQuality(spark_session, test_df).suggestions()
+
+    assert expected_suggestion_result.collect() == actual_suggestion_result.collect()
+    assert isinstance(actual_suggestion_result, dict)
+
+
+def test_check(spark_session: SparkSession):
+
+    df_checked_constraints, df_checked_constraints_failures = PyDeequDataQuality(
+        spark_session, test_df
+    ).check()
+
+    assert isinstance(df_checked_constraints, DataFrame)
+    assert isinstance(df_checked_constraints_failures, DataFrame)
