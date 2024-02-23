@@ -13,7 +13,7 @@ from . import BaseISOSource
 
 class PJMDailyPricingISOSource(BaseISOSource):
     """
-    The PJM Daily Pricing ISO Source is used to read Real-Time and Day-Ahead hourly data from PJM API. It supports both Real-Time Hourly LMPs and Day-Ahead Hourly LMPs data. 
+    The PJM Daily Pricing ISO Source is used to retrieve Real-Time and Day-Ahead hourly data from PJM API. 
     Real-Time will return data for T - 3 to T days and Day-Ahead will return T - 3 to T + 1 days data.
 
     API:              <a href="https://api.pjm.com/api/v1/">  (must be a valid apy key from PJM)
