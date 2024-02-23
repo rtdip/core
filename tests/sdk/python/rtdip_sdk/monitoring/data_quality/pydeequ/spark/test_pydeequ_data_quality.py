@@ -14,7 +14,7 @@
 
 import sys
 
-from src.sdk.python.rtdip_sdk.monitoring.data_quality.pydeequ.spark.pydeequ import (
+from src.sdk.python.rtdip_sdk.monitoring.data_quality.pydeequ.spark.great_expectations_data_quality import (
     PyDeequDataQuality,
 )
 from src.sdk.python.rtdip_sdk.monitoring._monitoring_utils.models import (
