@@ -1,17 +1,13 @@
 import pytest
-from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.great_expectations_data_quality import (
-    GreatExpectationsDataQuality,
-)
-
-from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.great_expectations_data_quality import (
-    GreatExpectationsDataQuality,
-)
+from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.great_expectations_data_quality import GreatExpectationsDataQuality
+GreatExpectationsDataQuality
+from great_expectations 
 
 
 class TestGreatExpectations:
     @pytest.fixture(autouse=True)
     def setup_class(self, mocker):
-        self.gx = GreatExpectations("context_root_dir", "df", "expectation_suite_name")
+        self.gx = great("context_root_dir", "df", "expectation_suite_name")
         self.mocker = mocker
 
     def test_create_expectations(self):

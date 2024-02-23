@@ -16,7 +16,7 @@ import great_expectations as gx
 from great_expectations.checkpoint import (
     Checkpoint,
 )
-from great_expectations.expectations.expectation_configuration import (
+from great_expectations.expectations.expectation import (
     ExpectationConfiguration,
 )
 

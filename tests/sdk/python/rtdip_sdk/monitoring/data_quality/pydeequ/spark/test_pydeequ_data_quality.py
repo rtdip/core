@@ -20,7 +20,7 @@ from src.sdk.python.rtdip_sdk.monitoring.data_quality.pydeequ.spark.pydeequ_data
 
 from src.sdk.python.rtdip_sdk.monitoring._monitoring_utils.models import (
     Libraries,
-    SystemType,
+    MavenLibrary,
 )
 
 from pyspark.sql import SparkSession, DataFrame
@@ -28,7 +28,6 @@ from pyspark.sql.types import (
     StructType,
     StructField,
     StringType,
-    TimestampType,
     IntegerType,
 )
 
