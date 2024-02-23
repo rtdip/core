@@ -2,8 +2,9 @@ import pytest
 from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.great_expectations_data_quality import (
     GreatExpectationsDataQuality,
 )
-from great_expectations.expectations.expectation_configuration import (
-    ExpectationConfiguration,
+
+from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.great_expectations_data_quality import (
+    GreatExpectationsDataQuality,
 )
 
 
