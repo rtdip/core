@@ -59,7 +59,6 @@ class GreatExpectationsDataQuality:
         return {}
 
     # Create a new context
-    @staticmethod
     def _create_context(self):
         """
         Create a new context
@@ -69,13 +68,12 @@ class GreatExpectationsDataQuality:
         return context
 
     # Create a batch request from a dataframe
-    @staticmethod
     def _create_batch_request(self):
         """
         Create a batch request from a dataframe
         Returns: batch_request
         """
-        batch_request = self.df.build_batch_request()
+        batch_request = (self.df).build_batch_request()
         return batch_request
 
     # Create Expectations
@@ -108,7 +106,7 @@ class GreatExpectationsDataQuality:
         self, suite, expectation_configuration, remove_multiple_matches=False
     ):
         suite.remove_expectation(
-            expectation_configuration,
+            expectation_configuration=expectation_configuration,
             match_type="domain",
             remove_multiple_matches=remove_multiple_matches,
         )
