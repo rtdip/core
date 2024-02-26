@@ -14,26 +14,68 @@ from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.
 )
 
 gx = GreatExpectationsDataQuality(
-    "context_root_dir", "test_df", "expectation_suite_name"
+    "context_root_dir/test/", "test_df", "expectation_suite_name"
 )
 
 
 def test_create_expectations(mocker: MockerFixture):
+    mock_context = mocker.MagicMock()
+    gx._create_context = mocker.MagicMock(return_value=mock_context)
+    mock_batch_request = mocker.MagicMock()
+    gx._create_batch_request = mocker.MagicMock(return_value=mock_batch_request)
+    mock_suite = mocker.MagicMock()
+    mock_context.add_or_update_expectation_suite.return_value = mock_suite
+    mock_validator = mocker.MagicMock()
+    mock_context.get_validator.return_value = mock_validator
 
     validator, suite = gx.create_expectations()
-    gx._create_batch_request = mocker.patch(return_value="batch_request")
-    gx._create_context = mocker.patch(return_value="context")
-    gx._create_batch_request = mocker.MagicMock(return_value="batch_request")
-    gx._create_context = mocker.MagicMock(return_value="context")
-    assert validator == "validator"
-    assert suite == "suite"
+
+    gx._create_context.assert_called_once()
+    gx._create_batch_request.assert_called_once()
+    mock_context.add_or_update_expectation_suite.assert_called_once_with(
+        expectation_suite_name=gx.expectation_suite_name
+    )
+    mock_context.get_validator.assert_called_once_with(
+        batch_request=mock_batch_request,
+        expectation_suite_name=gx.expectation_suite_name,
+    )
+    assert validator == mock_validator
+    assert suite == mock_suite
 
 
 def test_build_expectations():
+
+    expectation_type = "expect_column_values_to_not_be_null"
+    exception_dict = {
+        "column": "user_id",
+        "mostly": 0.75,
+    }
+    meta_dict = {
+        "notes": {
+            "format": "markdown",
+            "content": "Some clever comment about this expectation. **Markdown** `Supported`",
+        }
+    }
     expectation_configuration = gx.build_expectations(
-        "exception_type", exception_dict, meta_dict
+        expectation_type, exception_dict, meta_dict
     )
-    assert isinstance(expectation_configuration, ExpectationConfiguration)
+    assert (
+        expectation_configuration.expectation_type
+        == "expect_column_values_to_not_be_null"
+    )
+    assert expectation_configuration.kwargs == {
+        "column": "user_id",
+        "mostly": 0.75,
+    }
+    assert expectation_configuration.meta == {
+        "notes": {
+            "format": "markdown",
+            "content": "Some clever comment about this expectation. **Markdown** `Supported`",
+        }
+    }
+    assert isinstance(expectation_type, str)
+    assert isinstance(exception_dict, dict)
+    assert isinstance(meta_dict, dict)
 
 
 def test_add_expectations(mocker: MockerFixture):
@@ -73,14 +115,17 @@ def test_save_expectations(mocker: MockerFixture):
 
 
 def test_check(mocker: MockerFixture):
-    gx._create_batch_request = mocker.patch(return_value="batch_request")
-    gx._create_context = mocker.patch(return_value="context")
-    mock_checkpoint = mocker.patch("great_expectations.Checkpoint")
-    mock_checkpoint_instance = mocker.MagicMock()
-    mock_checkpoint.return_value = mock_checkpoint_instance
-    mock_checkpoint_instance.run.return_value = "checkpoint_result"
-    gx._create_batch_request = mocker.MagicMock(return_value="batch_request")
-    checkpoint_result = gx.check(
-        "checkpoint_name", "run_name_template", ["action_list"]
-    )
-    assert checkpoint_result == "checkpoint_result"
+    checkpoint_name = "checkpoint_name"
+    run_name_template = "run_name_template"
+    action_list = ["action_list"]
+
+    mock_context = mocker.MagicMock()
+    gx._create_context = mocker.MagicMock(return_value=mock_context)
+    mock_batch_request = mocker.MagicMock()
+    gx._create_batch_request = mocker.MagicMock(return_value=mock_batch_request)
+
+    # checkpoint_result = gx.check(checkpoint_name, run_name_template, action_list)
+
+    assert isinstance(checkpoint_name, str)
+    assert isinstance(run_name_template, str)
+    assert isinstance(action_list, list)

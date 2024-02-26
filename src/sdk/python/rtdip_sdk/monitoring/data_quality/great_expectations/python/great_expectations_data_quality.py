@@ -91,7 +91,9 @@ class GreatExpectationsDataQuality:
         )
         return validator, suite
 
-    def build_expectations(self, exception_type, exception_dict, meta_dict):
+    def build_expectations(
+        self, exception_type: str, exception_dict: dict, meta_dict: dict
+    ):
         expectation_configuration = ExpectationConfiguration(
             expectation_type=exception_type, kwargs=exception_dict, meta=meta_dict
         )
