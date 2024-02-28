@@ -14,8 +14,9 @@
 
 import logging
 from typing import Union
+
 from src.api.FastAPIApp import api_v1_router
-from fastapi import HTTPException, Depends, Body
+from fastapi import HTTPException, Depends, Body, Response
 import nest_asyncio
 from pandas.io.json import build_table_schema
 import numpy as np
@@ -23,6 +24,7 @@ from src.sdk.python.rtdip_sdk.queries.time_series import interpolate
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
+    FieldSchema,
     ResampleInterpolateResponse,
     PivotResponse,
     HTTPError,
@@ -63,18 +65,19 @@ def interpolate_events_get(
 
         data = interpolate.get(connection, parameters)
 
-        if parameters.get("pivot") == True:
-            return PivotResponse(
-                schema=build_table_schema(data, index=False, primary_key=False),
-                data=data.replace({np.nan: None}).to_dict(orient="records"),
-                pagination=pagination(limit_offset_parameters, data),
+        return Response(
+            "{"
+            + '"schema":{},"data":{},"pagination":{}'.format(
+                FieldSchema.model_validate(
+                    build_table_schema(data, index=False, primary_key=False),
+                ).model_dump_json(),
+                data.replace({np.nan: None}).to_json(
+                    orient="records", date_format="iso", date_unit="us"
+                ),
+                pagination(limit_offset_parameters, data).model_dump_json(),
             )
-        else:
-            return ResampleInterpolateResponse(
-                schema=build_table_schema(data, index=False, primary_key=False),
-                data=data.replace({np.nan: None}).to_dict(orient="records"),
-                pagination=pagination(limit_offset_parameters, data),
-            )
+            + "}",
+        )
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
