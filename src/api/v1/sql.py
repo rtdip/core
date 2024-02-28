@@ -20,6 +20,7 @@ from fastapi import Query, HTTPException, Depends, Body, Response
 import nest_asyncio
 from src.sdk.python.rtdip_sdk.queries.sql.sql_query import SQLQueryBuilder
 from src.api.v1.models import (
+    AuthQueryParams,
     BaseHeaders,
     BaseQueryParams,
     FieldSchema,
@@ -97,7 +98,7 @@ Retrieval of data via a POST method to enable execution of generic SQL statement
     },
 )
 async def raw_post(
-    base_query_parameters: BaseQueryParams = Depends(),
+    base_query_parameters: AuthQueryParams = Depends(),
     sql_query_parameters: SqlBodyParams = Body(default=...),
     limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
     base_headers: BaseHeaders = Depends(),
