@@ -52,8 +52,16 @@ def sql_get(
             base_headers=base_headers,
         )
 
-        limit = None if "limit" not in parameters else int(parameters["limit"])
-        offset = None if "offset" not in parameters else int(parameters["offset"])
+        limit = (
+            None
+            if "limit" not in parameters or parameters["limit"] == None
+            else int(parameters["limit"])
+        )
+        offset = (
+            None
+            if "offset" not in parameters or parameters["offset"] == None
+            else int(parameters["offset"])
+        )
         data = SQLQueryBuilder().get(
             connection, parameters["sql_statement"], limit, offset
         )
