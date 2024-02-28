@@ -16,7 +16,6 @@ import os
 import importlib.util
 from typing import Any
 from fastapi import Response
-import orjson
 
 from pandas import DataFrame
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
