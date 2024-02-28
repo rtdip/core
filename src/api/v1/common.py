@@ -14,6 +14,8 @@
 
 import os
 import importlib.util
+from typing import Any
+from fastapi import Response
 
 from pandas import DataFrame
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
@@ -126,21 +128,28 @@ def common_api_setup_tasks(  # NOSONAR
 
 
 def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: DataFrame):
-    pagination = None
+    pagination = PaginationRow(
+        limit=None,
+        offset=None,
+        next=None,
+    )
 
     if (
         limit_offset_parameters.limit is not None
-        and limit_offset_parameters.offset is not None
+        or limit_offset_parameters.offset is not None
     ):
-        next = None
+        next_offset = None
 
-        if len(data.index) == limit_offset_parameters.limit:
-            next = limit_offset_parameters.offset + limit_offset_parameters.limit
+        if (
+            len(data.index) == limit_offset_parameters.limit
+            and limit_offset_parameters.offset is not None
+        ):
+            next_offset = limit_offset_parameters.offset + limit_offset_parameters.limit
 
         pagination = PaginationRow(
             limit=limit_offset_parameters.limit,
             offset=limit_offset_parameters.offset,
-            next=next,
+            next=next_offset,
         )
 
     return pagination

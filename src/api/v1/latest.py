@@ -16,12 +16,13 @@
 import logging
 import numpy as np
 from pandas.io.json import build_table_schema
-from fastapi import Query, HTTPException, Depends, Body
+from fastapi import Query, HTTPException, Depends, Body, Response
 import nest_asyncio
 from src.sdk.python.rtdip_sdk.queries.time_series import latest
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
+    FieldSchema,
     MetadataQueryParams,
     TagsBodyParams,
     LatestResponse,
@@ -48,10 +49,18 @@ def latest_retrieval_get(
 
         data = latest.get(connection, parameters)
 
-        return LatestResponse(
-            schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
-            pagination=pagination(limit_offset_parameters, data),
+        return Response(
+            "{"
+            + '"schema":{},"data":{},"pagination":{}'.format(
+                FieldSchema.model_validate(
+                    build_table_schema(data, index=False, primary_key=False),
+                ).model_dump_json(),
+                data.replace({np.nan: None}).to_json(
+                    orient="records", date_format="iso", date_unit="us"
+                ),
+                pagination(limit_offset_parameters, data).model_dump_json(),
+            )
+            + "}",
         )
     except Exception as e:
         logging.error(str(e))
