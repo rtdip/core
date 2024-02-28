@@ -65,6 +65,9 @@ class DummyJob:
     def run_now(self, job_id=None):
         return None
 
+    def cancel_all_runs(self, job_id=None):
+        return None
+
     def list(self, name=None, job_id=None):
         return [self]
 
@@ -166,6 +169,13 @@ def test_pipeline_job_deploy(mocker: MockerFixture):
     launch_result = databricks_job.launch()
     assert launch_result
 
+    mocker.patch(default_list_package, return_value=[DummyJob()])
+    mocker.patch(
+        "databricks.sdk.service.jobs.JobsAPI.cancel_all_runs", return_value=None
+    )
+    launch_result = databricks_job.stop()
+    assert launch_result
+
 
 def test_pipeline_job_deploy_fails(mocker: MockerFixture):
     cluster_list = []
@@ -231,5 +241,12 @@ def test_pipeline_job_deploy_fails(mocker: MockerFixture):
 
     mocker.patch(default_list_package, return_value=[DummyJob()])
     mocker.patch("databricks.sdk.service.jobs.JobsAPI.run_now", side_effect=Exception)
+    with pytest.raises(Exception):
+        databricks_job.launch()
+
+    mocker.patch(default_list_package, return_value=[DummyJob()])
+    mocker.patch(
+        "databricks.sdk.service.jobs.JobsAPI.cancel_all_runs", side_effect=Exception
+    )
     with pytest.raises(Exception):
         databricks_job.launch()

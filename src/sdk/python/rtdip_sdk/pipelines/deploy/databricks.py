@@ -275,3 +275,21 @@ class DatabricksSDKDeploy(DeployInterface):
             raise ValueError("Job not found in Databricks Workflows")
 
         return True
+
+    def stop(self):
+        """
+        Cancels an RTDIP Pipeline Job in Databricks Workflows. This will perform the equivalent of a `Cancel All Runs` in Databricks Workflows
+        """
+        workspace_client = WorkspaceClient(
+            host=self.host, token=self.token, auth_type="pat"
+        )
+        job_found = False
+        for existing_job in workspace_client.jobs.list(name=self.databricks_job.name):
+            workspace_client.jobs.cancel_all_runs(job_id=existing_job.job_id)
+            job_found = True
+            break
+
+        if job_found == False:
+            raise ValueError("Job not found in Databricks Workflows")
+
+        return True
