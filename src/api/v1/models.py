@@ -205,6 +205,14 @@ class BaseHeaders:
         self.x_databricks_http_path = x_databricks_http_path
 
 
+class AuthQueryParams:
+    def __init__(
+        self,
+        authorization: str = Depends(oauth2_scheme),
+    ):
+        self.authorization = authorization
+
+
 class BaseQueryParams:
     def __init__(
         self,
