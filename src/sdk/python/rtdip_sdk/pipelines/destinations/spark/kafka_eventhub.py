@@ -62,6 +62,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         options={
             "kafka.bootstrap.servers": "host1:port1,host2:port2"
         },
+        connection_string="{YOUR-EVENTHUB-CONNECTION-STRING}",
         consumer_group="{YOUR-EVENTHUB-CONSUMER-GROUP}",
         trigger="10 seconds",
         query_name="KafkaEventhubDestination",
