@@ -16,7 +16,7 @@ import os
 import logging
 from py4j.protocol import Py4JJavaError
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, map_from_entries, map_filter
+from pyspark.sql.functions import col, map_from_entries, map_filter, create_map
 from urllib.parse import urlparse
 
 from ..interfaces import SourceInterface
