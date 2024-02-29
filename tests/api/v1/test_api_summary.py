@@ -55,7 +55,7 @@ async def test_api_summary_get_success(mocker: MockerFixture):
             MOCK_API_NAME, headers=TEST_HEADERS, params=SUMMARY_MOCKED_PARAMETER_DICT
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
         expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
@@ -108,7 +108,7 @@ async def test_api_summary_post_success(mocker: MockerFixture):
             json=SUMMARY_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
         expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )

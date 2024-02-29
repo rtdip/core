@@ -64,17 +64,18 @@ def resample_events_get(
         data = resample.get(connection, parameters)
 
         return Response(
-            "{"
+            content="{"
             + '"schema":{},"data":{},"pagination":{}'.format(
                 FieldSchema.model_validate(
                     build_table_schema(data, index=False, primary_key=False),
                 ).model_dump_json(),
                 data.replace({np.nan: None}).to_json(
-                    orient="records", date_format="iso", date_unit="us"
+                    orient="records", date_format="iso", date_unit="ns"
                 ),
                 pagination(limit_offset_parameters, data).model_dump_json(),
             )
             + "}",
+            media_type="application/json",
         )
     except Exception as e:
         logging.error(str(e))
