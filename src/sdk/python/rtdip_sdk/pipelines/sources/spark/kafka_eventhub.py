@@ -124,6 +124,7 @@ class SparkKafkaEventhubSource(SourceInterface):
         options (dict): A dictionary of Kafka configurations (See Attributes tables below). For more information on configuration options see [here](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html){ target="_blank" }
         connection_string (str): Eventhubs connection string is required to connect to the Eventhubs service. This must include the Eventhub name as the `EntityPath` parameter. Example `"Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"`
         consumer_group (str): The Eventhub consumer group to use for the connection
+        decode_kafka_headers_to_amqp_properties (optional bool): Perform decoding of Kafka headers into their AMQP properties. Default is True
 
     The only configuration that must be set for the Kafka source for both batch and streaming queries is listed below.
 
@@ -172,11 +173,15 @@ class SparkKafkaEventhubSource(SourceInterface):
         options: dict,
         connection_string: str,
         consumer_group: str,
+        decode_kafka_headers_to_amqp_properties: bool = True,
     ) -> None:
         self.spark = spark
         self.options = options
         self.connection_string = connection_string
         self.consumer_group = consumer_group
+        self.decode_kafka_headers_to_amqp_properties = (
+            decode_kafka_headers_to_amqp_properties
+        )
         self.connection_string_properties = self._parse_connection_string(
             connection_string
         )
@@ -320,8 +325,12 @@ class SparkKafkaEventhubSource(SourceInterface):
                 col("partition").cast("string"),
                 col("offset").alias("sequenceNumber"),
                 col("timestamp").alias("enqueuedTime"),
-                decode_kafka_headers_to_amqp_properties(col("headers")).alias(
-                    "properties"
+                (
+                    decode_kafka_headers_to_amqp_properties(col("headers")).alias(
+                        "properties"
+                    )
+                    if self.decode_kafka_headers_to_amqp_properties
+                    else create_map().cast("map<string,string>").alias("properties")
                 ),
             )
             .withColumn("offset", col("properties").getItem("x-opt-offset"))
