@@ -240,6 +240,7 @@ nav:
                   - Local: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Local.md
               - Databricks:
                   - MISO Daily Load Databricks: sdk/examples/pipelines/deploy/databricks/MISODailyLoad-Batch-Pipeline-Databricks.md
+              - Spark Connect: sdk/examples/pipelines/deploy/Fledge-SparkConnect-PCDM.md                  
               - MISO Daily Load Local: sdk/examples/pipelines/deploy/MISODailyLoad-Batch-Pipeline-Local.md
               - PJM Daily Load Local: sdk/examples/pipelines/deploy/PJMDailyLoad-Batch-Pipeline-Local.md
       - Queries:
