@@ -294,7 +294,7 @@ class SparkKafkaEventhubSource(SourceInterface):
         if "kafka.sasl.jaas.config" not in options:
             kafka_package = "org.apache.kafka.common.security.plain.PlainLoginModule"
             if "DATABRICKS_RUNTIME_VERSION" in os.environ or (
-                "client" in self.spark.__dict__
+                "_client" in self.spark.__dict__
                 and "databricks" in self.spark.client.host
             ):
                 kafka_package = "kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule"
