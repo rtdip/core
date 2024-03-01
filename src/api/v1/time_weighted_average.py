@@ -14,16 +14,13 @@
 
 import logging
 from typing import Union
-import numpy as np
 from src.api.FastAPIApp import api_v1_router
-from fastapi import HTTPException, Depends, Body, Response
+from fastapi import HTTPException, Depends, Body
 import nest_asyncio
-from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.queries.time_series import time_weighted_average
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
-    FieldSchema,
     ResampleInterpolateResponse,
     PivotResponse,
     HTTPError,
@@ -34,7 +31,7 @@ from src.api.v1.models import (
     PivotQueryParams,
     LimitOffsetQueryParams,
 )
-from src.api.v1.common import common_api_setup_tasks, pagination
+from src.api.v1.common import common_api_setup_tasks, json_response
 
 nest_asyncio.apply()
 
@@ -62,20 +59,7 @@ def time_weighted_average_events_get(
         data = time_weighted_average.get(connection, parameters)
         data = data.reset_index()
 
-        return Response(
-            content="{"
-            + '"schema":{},"data":{},"pagination":{}'.format(
-                FieldSchema.model_validate(
-                    build_table_schema(data, index=False, primary_key=False),
-                ).model_dump_json(),
-                data.replace({np.nan: None}).to_json(
-                    orient="records", date_format="iso", date_unit="ns"
-                ),
-                pagination(limit_offset_parameters, data).model_dump_json(),
-            )
-            + "}",
-            media_type="application/json",
-        )
+        return json_response(data, limit_offset_parameters)
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
