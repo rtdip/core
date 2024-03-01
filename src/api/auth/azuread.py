@@ -14,7 +14,9 @@
 
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
+from azure.identity import OnBehalfOfCredential
 import os
+import jwt
 
 tenant_id = os.environ.get("TENANT_ID")
 
@@ -37,5 +39,36 @@ def get_azure_ad_token(authorization=None):
         ).token
     else:
         token = authorization.replace("Bearer ", "")
+        client_id = os.environ.get("EXCEL_APP_CLIENT_ID")
+        if client_id != None:
+            client_secret = os.environ.get("EXCEL_APP_CLIENT_SECRET")
+            token = azure_ad_on_behalf_of_token(
+                tenant_id, client_id, client_secret, token
+            )
 
     return token
+
+
+def azure_ad_on_behalf_of_token(tenant_id, client_id, client_secret, token):
+    try:
+        alg = jwt.get_unverified_header(token)["alg"]
+        decoded_access_token = jwt.decode(
+            token, algorithms=[alg], options={"verify_signature": False}
+        )
+    except:
+        return token
+
+    if decoded_access_token["aud"] == client_id:
+        on_behalf_of_token = (
+            OnBehalfOfCredential(
+                tenant_id=tenant_id,
+                client_id=client_id,
+                client_secret=client_secret,
+                user_assertion=token,
+            )
+            .get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default")
+            .token
+        )
+        return on_behalf_of_token
+    else:
+        return token

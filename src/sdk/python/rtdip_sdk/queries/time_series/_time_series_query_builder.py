@@ -90,6 +90,27 @@ def _raw_query(parameters_dict: dict) -> str:
     return sql_template.render(raw_parameters)
 
 
+def _sql_query(parameters_dict: dict) -> str:
+    sql_query = (
+        "{{ sql_statement }}"
+        "{% if limit is defined and limit is not none %}"
+        "LIMIT {{ limit }} "
+        "{% endif %}"
+        "{% if offset is defined and offset is not none %}"
+        "OFFSET {{ offset }} "
+        "{% endif %}"
+    )
+
+    sql_parameters = {
+        "sql_statement": parameters_dict.get("sql_statement"),
+        "limit": parameters_dict.get("limit", None),
+        "offset": parameters_dict.get("offset", None),
+    }
+
+    sql_template = Template(sql_query)
+    return sql_template.render(sql_parameters)
+
+
 def _sample_query(parameters_dict: dict) -> tuple:
     sample_query = (
         "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
@@ -780,6 +801,9 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
         dict.fromkeys(parameters_dict["tag_names"])
     )  # remove potential duplicates in tags
     parameters_dict["tag_names"] = tagnames_deduplicated.copy()
+
+    if query_type == "sql":
+        return _sql_query(parameters_dict)
 
     if query_type == "metadata":
         return _metadata_query(parameters_dict)

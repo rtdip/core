@@ -16,11 +16,9 @@
 import logging
 from typing import Union
 import numpy as np
-from requests import request
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
 import nest_asyncio
-from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.queries.time_series import circular_standard_deviation
 from src.api.v1.models import (
     BaseQueryParams,
@@ -34,9 +32,8 @@ from src.api.v1.models import (
     PivotQueryParams,
     LimitOffsetQueryParams,
     CircularAverageQueryParams,
-    PaginationRow,
 )
-import src.api.v1.common
+from src.api.v1.common import common_api_setup_tasks, json_response
 
 nest_asyncio.apply()
 
@@ -51,7 +48,7 @@ def circular_standard_deviation_events_get(
     base_headers,
 ):
     try:
-        (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
+        (connection, parameters) = common_api_setup_tasks(
             base_query_parameters,
             raw_query_parameters=raw_query_parameters,
             tag_query_parameters=tag_query_parameters,
@@ -63,36 +60,7 @@ def circular_standard_deviation_events_get(
 
         data = circular_standard_deviation.get(connection, parameters)
 
-        pagination = None
-
-        if (
-            limit_offset_parameters.limit is not None
-            and limit_offset_parameters.offset is not None
-        ):
-            next = None
-
-            if len(data.index) == limit_offset_parameters.limit:
-                next = limit_offset_parameters.offset + limit_offset_parameters.limit
-
-            pagination = PaginationRow(
-                limit=limit_offset_parameters.limit,
-                offset=limit_offset_parameters.offset,
-                next=next,
-            )
-
-        if parameters.get("pivot") == True:
-            return PivotResponse(
-                schema=build_table_schema(data, index=False, primary_key=False),
-                data=data.replace({np.nan: None}).to_dict(orient="records"),
-                pagination=pagination,
-            )
-        else:
-            return ResampleInterpolateResponse(
-                schema=build_table_schema(data, index=False, primary_key=False),
-                data=data.replace({np.nan: None}).to_dict(orient="records"),
-                pagination=pagination,
-            )
-
+        return json_response(data, limit_offset_parameters)
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

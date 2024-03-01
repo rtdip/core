@@ -62,6 +62,7 @@ class SparkKafkaEventhubDestination(DestinationInterface):
         options={
             "kafka.bootstrap.servers": "host1:port1,host2:port2"
         },
+        connection_string="{YOUR-EVENTHUB-CONNECTION-STRING}",
         consumer_group="{YOUR-EVENTHUB-CONSUMER-GROUP}",
         trigger="10 seconds",
         query_name="KafkaEventhubDestination",
@@ -229,7 +230,10 @@ class SparkKafkaEventhubDestination(DestinationInterface):
 
         if "kafka.sasl.jaas.config" not in options:
             kafka_package = "org.apache.kafka.common.security.plain.PlainLoginModule"
-            if "DATABRICKS_RUNTIME_VERSION" in os.environ:
+            if "DATABRICKS_RUNTIME_VERSION" in os.environ or (
+                "client" in self.spark.__dict__
+                and "databricks" in self.spark.client.host
+            ):
                 kafka_package = "kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule"
             connection_string = self._connection_string_builder(
                 self.connection_string_properties

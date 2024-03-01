@@ -20,6 +20,8 @@ from typing import List, Union, Dict, Any
 from fastapi import Query, Header, Depends
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
+from typing import Generic, TypeVar
+
 
 EXAMPLE_DATE = "2022-01-01"
 EXAMPLE_DATETIME = "2022-01-01T15:00:00"
@@ -115,6 +117,17 @@ class RawResponse(BaseModel):
     pagination: Union[PaginationRow, None]
 
 
+SqlT = TypeVar("SqlT")
+
+
+class SqlResponse(BaseModel, Generic[SqlT]):
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
+    data: List[SqlT]
+    pagination: Union[PaginationRow, None]
+
+
 class ResampleInterpolateRow(BaseModel):
     EventTime: datetime
     TagName: str
@@ -192,6 +205,14 @@ class BaseHeaders:
         self.x_databricks_http_path = x_databricks_http_path
 
 
+class AuthQueryParams:
+    def __init__(
+        self,
+        authorization: str = Depends(oauth2_scheme),
+    ):
+        self.authorization = authorization
+
+
 class BaseQueryParams:
     def __init__(
         self,
@@ -242,6 +263,10 @@ class RawQueryParams:
         self.include_bad_data = include_bad_data
         self.start_date = start_date
         self.end_date = end_date
+
+
+class SqlBodyParams(BaseModel):
+    sql_statement: str
 
 
 class TagsQueryParams:

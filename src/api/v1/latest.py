@@ -14,8 +14,6 @@
 
 
 import logging
-import numpy as np
-from pandas.io.json import build_table_schema
 from fastapi import Query, HTTPException, Depends, Body
 import nest_asyncio
 from src.sdk.python.rtdip_sdk.queries.time_series import latest
@@ -27,11 +25,10 @@ from src.api.v1.models import (
     LatestResponse,
     LimitOffsetQueryParams,
     HTTPError,
-    PaginationRow,
 )
 from src.api.auth.azuread import oauth2_scheme
+from src.api.v1.common import common_api_setup_tasks, json_response
 from src.api.FastAPIApp import api_v1_router
-from src.api.v1 import common
 
 nest_asyncio.apply()
 
@@ -40,7 +37,7 @@ def latest_retrieval_get(
     query_parameters, metadata_query_parameters, limit_offset_parameters, base_headers
 ):
     try:
-        (connection, parameters) = common.common_api_setup_tasks(
+        (connection, parameters) = common_api_setup_tasks(
             query_parameters,
             metadata_query_parameters=metadata_query_parameters,
             limit_offset_query_parameters=limit_offset_parameters,
@@ -49,28 +46,7 @@ def latest_retrieval_get(
 
         data = latest.get(connection, parameters)
 
-        pagination = None
-
-        if (
-            limit_offset_parameters.limit is not None
-            and limit_offset_parameters.offset is not None
-        ):
-            next = None
-
-            if len(data.index) == limit_offset_parameters.limit:
-                next = limit_offset_parameters.offset + limit_offset_parameters.limit
-
-            pagination = PaginationRow(
-                limit=limit_offset_parameters.limit,
-                offset=limit_offset_parameters.offset,
-                next=next,
-            )
-
-        return LatestResponse(
-            schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
-            pagination=pagination,
-        )
+        return json_response(data, limit_offset_parameters)
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

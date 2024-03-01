@@ -55,8 +55,10 @@ async def test_api_latest_get_tags_provided_success(mocker: MockerFixture):
             MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
-    expected = expected.rstrip("}") + ',"pagination":null}'
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
 
     assert response.status_code == 200
     assert actual == expected
@@ -85,8 +87,10 @@ async def test_api_latest_get_no_good_values_tags_provided_success(
             MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
-    expected = expected.rstrip("}") + ',"pagination":null}'
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
 
     assert response.status_code == 200
     assert actual == expected
@@ -117,8 +121,10 @@ async def test_api_latest_get_no_tags_provided_success(mocker: MockerFixture):
             params=METADATA_MOCKED_PARAMETER_NO_TAG_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
-    expected = expected.rstrip("}") + ',"pagination":null}'
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
 
     assert response.status_code == 200
     assert actual == expected
@@ -207,8 +213,10 @@ async def test_api_latest_post_tags_provided_success(mocker: MockerFixture):
             json=METADATA_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
-    expected = expected.rstrip("}") + ',"pagination":null}'
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
 
     assert response.status_code == 200
     assert actual == expected

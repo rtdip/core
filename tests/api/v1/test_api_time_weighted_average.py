@@ -49,8 +49,10 @@ async def test_api_time_weighted_average_get_success(mocker: MockerFixture):
         )
     actual = response.text
     test_data = test_data.reset_index()
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
-    expected = expected.rstrip("}") + ',"pagination":null}'
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
 
     assert response.status_code == 200
     assert actual == expected
@@ -113,8 +115,10 @@ async def test_api_time_weighted_average_post_success(mocker: MockerFixture):
         )
     actual = response.text
     test_data = test_data.reset_index()
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
-    expected = expected.rstrip("}") + ',"pagination":null}'
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
 
     assert response.status_code == 200
     assert actual == expected

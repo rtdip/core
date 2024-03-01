@@ -50,6 +50,9 @@ class MockedCursor:
     def fetchall(self) -> list:
         return list
 
+    def fetchmany_arrow(self) -> list:
+        return pa.Table
+
     def fetchall_arrow(self) -> list:
         return pa.Table
 
@@ -94,7 +97,7 @@ def test_cursor_execute(mocker: MockerFixture):
 def test_cursor_fetch_all(mocker: MockerFixture):
     mocker.patch.object(
         MockedCursor,
-        "fetchall_arrow",
+        "fetchmany_arrow",
         return_value=pa.Table.from_pandas(
             pd.DataFrame(
                 data={
