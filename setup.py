@@ -41,7 +41,8 @@ INSTALL_REQUIRES = [
     "googleapis-common-protos>=1.56.4",
     "langchain==0.0.291",
     "openai==0.27.8",
-    "pydantic==2.4.2",
+    "sqlparams==5.1.0",
+    "entsoe-py==0.5.10",
 ]
 
 PYSPARK_PACKAGES = [
@@ -52,6 +53,7 @@ PYSPARK_PACKAGES = [
 PIPELINE_PACKAGES = [
     "dependency-injector==4.41.0",
     "databricks-sdk==0.20.0",
+    "pydantic==2.4.2",
     "azure-storage-file-datalake==12.12.0",
     "azure-mgmt-storage==21.0.0",
     "azure-mgmt-eventgrid==10.2.0",
@@ -65,8 +67,6 @@ PIPELINE_PACKAGES = [
     "ecmwf-api-client==1.6.3",
     "netCDF4==1.6.4",
     "joblib==1.3.2",
-    "sqlparams==5.1.0",
-    "entsoe-py==0.5.10",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
