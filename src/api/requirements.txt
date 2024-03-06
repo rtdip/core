@@ -1,7 +1,7 @@
 # Do not include azure-functions-worker as it may conflict with the Azure Functions platform
 azure-functions==1.15.0
 fastapi==0.103.2
-nest_asyncio==1.5.6
+nest_asyncio==1.6.0
 pydantic==2.4.2
 # turbodbc==4.11.0
 pyodbc==4.0.39
