@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from langchain.chat_models import ChatOpenAI
-from langchain import SQLDatabase
-from langchain.agents import create_sql_agent
-from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain_community.chat_models import ChatOpenAI
+from langchain_community.utilities.sql_database import SQLDatabase
+from langchain_community.agent_toolkits import create_sql_agent
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain.agents.agent_types import AgentType
 import logging
 
@@ -144,7 +144,9 @@ class ChatOpenAIDatabricksSQLCursor(CursorInterface):
             logging.exception("error while executing the query")
             raise e
 
-    def fetch_all(self) -> list:
+    def fetch_all(
+        self,
+    ) -> list:
         """
         Gets all rows of a query.
 

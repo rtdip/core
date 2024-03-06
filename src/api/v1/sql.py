@@ -15,7 +15,7 @@
 
 import logging
 from fastapi import HTTPException, Depends, Body
-import nest_asyncio
+
 from src.sdk.python.rtdip_sdk.queries.sql.sql_query import SQLQueryBuilder
 from src.api.v1.models import (
     AuthQueryParams,
@@ -28,8 +28,6 @@ from src.api.v1.models import (
 from src.api.auth.azuread import oauth2_scheme
 from src.api.v1.common import common_api_setup_tasks, json_response
 from src.api.FastAPIApp import api_v1_router
-
-nest_asyncio.apply()
 
 
 def sql_get(
