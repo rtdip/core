@@ -2,7 +2,6 @@
 hide:
   - navigation
   - toc
-title: Title
 template: home.html
 ---
 <style>
