@@ -15,7 +15,6 @@
 
 import logging
 from fastapi import HTTPException, Depends, Body
-import nest_asyncio
 from src.sdk.python.rtdip_sdk.queries.time_series import summary
 from src.api.v1.models import (
     BaseHeaders,
@@ -30,8 +29,6 @@ from src.api.v1.models import (
 from src.api.auth.azuread import oauth2_scheme
 from src.api.v1.common import common_api_setup_tasks, json_response
 from src.api.FastAPIApp import api_v1_router
-
-nest_asyncio.apply()
 
 
 def summary_events_get(

@@ -18,7 +18,7 @@ from typing import Union
 import numpy as np
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
-import nest_asyncio
+
 from src.sdk.python.rtdip_sdk.queries.time_series import circular_standard_deviation
 from src.api.v1.models import (
     BaseQueryParams,
@@ -34,8 +34,6 @@ from src.api.v1.models import (
     CircularAverageQueryParams,
 )
 from src.api.v1.common import common_api_setup_tasks, json_response
-
-nest_asyncio.apply()
 
 
 def circular_standard_deviation_events_get(

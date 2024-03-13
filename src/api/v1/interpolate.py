@@ -17,7 +17,7 @@ from typing import Union
 
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
-import nest_asyncio
+
 from src.sdk.python.rtdip_sdk.queries.time_series import interpolate
 from src.api.v1.models import (
     BaseQueryParams,
@@ -34,8 +34,6 @@ from src.api.v1.models import (
     LimitOffsetQueryParams,
 )
 from src.api.v1.common import common_api_setup_tasks, json_response
-
-nest_asyncio.apply()
 
 
 def interpolate_events_get(
