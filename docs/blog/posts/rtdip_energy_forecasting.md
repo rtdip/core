@@ -60,6 +60,9 @@ RTDIP allows you to develop and deploy cloud agnostic pipelines to popular orche
 
 [ECMWF MARS Weather Forecast](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/ecmwf/weather_forecast/)
 
+The class SparkECMWFWeatherForecastSource allows users to access the ECMWF MARS Server via an API, to access historical forecast data and download as a .nc file. More information about th [ECMWF MARS Server](https://confluence.ecmwf.int/display/UDOC/MARS+user+documentation) can be found here.
+
+
 ### Transformers
 
 [MISO To Meters Data Model](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm/)
@@ -74,7 +77,12 @@ RTDIP allows you to develop and deploy cloud agnostic pipelines to popular orche
 
 [ECMWF NC Forecast Extract Point To Weather Data Model](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/ecmwf/nc_extractpoint_to_weather_data_model/)
 
+The class ECMWFExtractPointToWeatherDataModel allows users to extract the forecast at a singular latitude and longitude point from a .nc file which has been downloaded and stored locally from a request to the ECMWF MARS server. The forecast is extracted and transformed to the Weather data model.
+
 [ECMWF NC Forecast Extract Grid To Weather Data Model](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/ecmwf/nc_extractgrid_to_weather_data_model/)
+
+The class ECMWFExtractGridToWeatherDataModel allows users to extract the forecast for grid area from a .nc file which has been downloaded and stored locally from a request to the ECMWF MARS server. The forecast is extracted and transformed to the Weather data model.
+
 
 ## Contribute 
 
