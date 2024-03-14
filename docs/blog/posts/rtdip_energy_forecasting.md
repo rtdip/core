@@ -42,21 +42,38 @@ RTDIP allows you to develop and deploy cloud agnostic pipelines to popular orche
 
 [MISO Daily Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/miso_daily_load_iso/)
 
+The MISO Daily Load ISO Source is used to read daily load data from MISO API. It supports both Actual and Forecast data. The [MISO API](https://docs.misoenergy.org/marketreports/) can be foun here.
+
 [MISO Historical Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/miso_historical_load_iso/)
+
+The MISO Historical Load ISO Source is used to read historical load data from MISO API. The [MISO API](https://docs.misoenergy.org/marketreports/) can be foun here.
 
 [PJM Daily Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/pjm_daily_load_iso/)	
 
+The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Actual and Forecast data. Actual will return 1 day, Forecast will return 7 days. The [PJM API](https://api.pjm.com/api/v1/) can be found here. 
+
 [PJM Historical Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/pjm_historical_load_iso/)
+The PJM Historical Load ISO Source is used to read historical load data from PJM API. The [PJM API](https://api.pjm.com/api/v1/) can be found here. 
 
 [CAISO Daily Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/caiso_daily_load_iso/)
 
+The CAISO Daily Load ISO Source is used to read daily load data from CAISO API. It supports multiple types of data. Check the load_types attribute. The [CAISO API](http://oasis.caiso.com/oasisapi) can be found here. 
+
 [CAISO Historical Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/caiso_historical_load_iso/)
+
+The CAISO Historical Load ISO Source is used to read load data for an interval of dates between start_date and end_date inclusive from CAISO API. It supports multiple types of data. Check the load_types attribute. The [CAISO API](http://oasis.caiso.com/oasisapi) can be found here. 
 
 [ERCOT Daily Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/ercot_daily_load_iso/)
 
+The ERCOT Daily Load ISO Source is used to read daily load data from ERCOT using WebScrapping. It supports actual and forecast data. The [ERCOT API](https://mis.ercot.com) can be found here. 
+
 [Weather Forecast API V1](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/the_weather_company/weather_forecast_api_v1/)		
 
+The Weather Forecast API V1 Source is used to read 15 days forecast from the Weather API. The [Weather API](https://api.weather.com/v1/geocode/32.3667/-95.4/forecast/hourly/360hour.json) can be found here.
+
 [Weather Forecast API V1 Multi](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/the_weather_company/weather_forecast_api_v1_multi/)	
+
+The Weather Forecast API V1 Multi Source is used to read 15 days forecast from the Weather API. It allows to pull weather data for multiple stations and returns all of them in a single DataFrame. The [Weather API] https://api.weather.com/v1/geocode/32.3667/-95.4/forecast/hourly/360hour.json for one station can be found here.
 
 [ECMWF MARS Weather Forecast](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/ecmwf/weather_forecast/)
 
@@ -67,13 +84,23 @@ The class SparkECMWFWeatherForecastSource allows users to access the ECMWF MARS 
 
 [MISO To Meters Data Model](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/iso/miso_to_mdm/)
 
+Converts MISO Raw data into Meters Data Model.
+
 [PJM To Meters Data Model](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/iso/pjm_to_mdm/)
+
+Converts PJM Raw data into Meters Data Model.
 
 [CAISO To Meters Data Model](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/iso/caiso_to_mdm/)
 
+Converts CAISO Raw data into Meters Data Model.
+
 [ERCOT To Meters Data Model](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/iso/ercot_to_mdm/)
 
+Converts ERCOT Raw data into Meters Data Model.
+
 [Raw Forecast to Weather Data Mode](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/the_weather_company/raw_forecast_to_weather_data_model/)
+
+Converts a raw forecast from the The Weather Company into weather data model.
 
 [ECMWF NC Forecast Extract Point To Weather Data Model](https://www.rtdip.io/sdk/code-reference/pipelines/transformers/spark/ecmwf/nc_extractpoint_to_weather_data_model/)
 
