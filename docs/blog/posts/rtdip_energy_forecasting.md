@@ -6,16 +6,15 @@ authors:
 
 # Energy Forecasting: Utilising the Power of Tomorrow’s Data
 
-<center> ![EnergyForecastingImage](../images/energy-forecasting.png){width=100%} </center>
+![EnergyForecastingImage](../images/energy-forecasting.png){width=100%} 
 
+Energy forecasting plays a pivotal role in our modern world, where energy consumption, production and pricing are critical factors. 
 
-Energy forecasting plays a pivotal role in our modern world, where energy consumption, production, and pricing are critical factors. 
+Energy forecasting involves predicting the demand (load) and price of various energy sources, including both fossil fuels and renewable energy sources like wind and solar.
 
-Energy forecasting involves predicting the demand (load) and price of various energy sources, including both fossil fuels and renewable energy sources (like hydro, wind, and solar).
+With an accurate energy usage forecast a business can efficiently allocate and manage resources, this is crucial to maintain a stable energy supply to the consumer, this is fundamental as we transition to renewable energy sources which do not produce consistent energy. Energy companies, grid operators and industrial consumers rely on forecasts to optimize their operations. Over- or undercontracting can lead to significant financial losses, so precise forecasts are essential.
 
-With an accurate energy usage forecast a business can efficiently allocate and manage resources, this is crucial to maintain a stable energy supply to the consumer, this is fundamental as we transitions to renewable energy sources which do not produce consistent energy. Energy companies, grid operators, and industrial consumers rely on forecasts to optimize their operations. Over- or undercontracting can lead to significant financial losses, so precise forecasts are essential.
-
-Energy load prices and forecasts greatly influence the energy sector and the decisions made across multiple departments in energy companies.  For example energy forecasts are vital for planning and investing in new capacity, they guide decisions on new assets,  transmission lines, and distribution networks. Another example is risk mitigation, unstable electricity prices can be handled with accurate forecasting of the market companies can develop bidding strategies, production schedules, and consumption patterns to minimize risk and maximize profits.
+Energy load prices and forecasts greatly influence the energy sector and the decisions made across multiple departments in energy companies.  For example energy forecasts are vital for planning and investing in new capacity, they guide decisions on new assets,  transmission lines and distribution networks. Another example is risk mitigation, unstable electricity prices can be handled with accurate forecasting of the market, companies can develop bidding strategies, production schedules and consumption patterns to minimize risk and maximize profits.
 
 A rough estimate of savings from a 1% reduction in the mean absolute percentage error (MAPE) for a utility with a 1 GW peak load includes: 
 
@@ -27,26 +26,27 @@ Energy Forecasting allows for significant cost avoidance due to better price for
 
 ## Energy Forecasting with RTDIP
 
-RTDIP can be a powerful tool for businesses looking to forecast energy usage. RTDIP supports load forecasting, a critical technique used by ISOs (Independent System Operators) and energy providers. Load forecasting allows a business to predict the power or energy needed to maintain the balance between energy demand and supply on the grid. Two primary inputs for load forecasting are weather data and meter data, RTDIP has developed pipeline components for varying 
+RTDIP can be a powerful tool for businesses looking to forecast energy usage. RTDIP supports load forecasting, a critical technique used by ISOs (Independent System Operators) and energy providers. Load forecasting allows a business to predict the power or energy needed to maintain the balance between energy demand and supply on the grid. Two primary inputs for load forecasting are weather data and meter data, RTDIP has developed pipeline components for these types of data.
 
-RTDIP provides example pipelines for weather forecast data ingestion. Accurate weather data helps predict energy production in renewable assets based on factors like temperature, humidity, and wind patterns.
+RTDIP provides example pipelines for weather forecast data ingestion. Accurate weather data helps predict energy production in renewable assets based on factors like temperature, humidity and wind patterns.
 
-RTDIP defines example pipelines for meter data from ISOs like MISO and PJM. Meter data includes consumption patterns, load profiles, and real-time measurements. Transformers translate raw meter data into specific Delta schemas for efficient storage and analysis.
+RTDIP defines example pipelines for meter data from ISOs like MISO and PJM. Meter data includes consumption patterns, load profiles, and real-time measurements. The transformers in RTDIP can translate raw meter data into suitable data models for efficient storage and analysis.
 
 The data models in RTDIP are IEC CIM (Common Information Model) for time series and metering data. This ensures compatibility with systems requiring data aligning with the IEC CIM standard.
-Building Pipelines for Energy Forecasting
 
-RTDIP allows you to develop and deploy cloud agnostic pipelines to popular orchestration engines. There are a number of RTDIP components focused on weather and metering data, these are all listed below:
+## Building Pipelines for Energy Forecasting
+
+RTDIP allows you to develop and deploy cloud agnostic pipelines with popular orchestration engines. There are a number of RTDIP components focused on weather and metering data, these are all listed below.
 
 ### Sources
 
 [MISO Daily Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/miso_daily_load_iso/)
 
-The MISO Daily Load ISO Source is used to read daily load data from MISO API. It supports both Actual and Forecast data. The [MISO API](https://docs.misoenergy.org/marketreports/) can be foun here.
+The MISO Daily Load ISO Source is used to read daily load data from MISO API. It supports both Actual and Forecast data. The [MISO API](https://docs.misoenergy.org/marketreports/) can be found here.
 
 [MISO Historical Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/miso_historical_load_iso/)
 
-The MISO Historical Load ISO Source is used to read historical load data from MISO API. The [MISO API](https://docs.misoenergy.org/marketreports/) can be foun here.
+The MISO Historical Load ISO Source is used to read historical load data from MISO API. The [MISO API](https://docs.misoenergy.org/marketreports/) can be found here.
 
 [PJM Daily Load ISO](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/iso/pjm_daily_load_iso/)	
 
