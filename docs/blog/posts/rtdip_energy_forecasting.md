@@ -6,7 +6,8 @@ authors:
 
 # Energy Forecasting: Utilising the Power of Tomorrow’s Data
 
-<center> ![Energy Forecasting Image](../images/energy-forecasting.png){width=50%} </center>
+<center> ![EnergyForecastingImage](../images/energy-forecasting.png){width=100%} </center>
+
 
 Energy forecasting plays a pivotal role in our modern world, where energy consumption, production, and pricing are critical factors. 
 
