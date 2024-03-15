@@ -168,11 +168,7 @@ class HTTPError(BaseModel):
     detail: str
 
     class Config:
-        json_schema_extra = (
-            {
-                "example": {"detail": "HTTPException raised."},
-            },
-        )
+        json_schema_extra = {"example": {"detail": "HTTPException raised."}}
 
 
 class BaseHeaders:
