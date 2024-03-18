@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import great_expectations as gx
+from pyspark.sql import DataFrame, SparkSession
 from great_expectations.checkpoint import (
     Checkpoint,
 )
@@ -25,8 +26,70 @@ from great_expectations.expectations.expectation import (
 class GreatExpectationsDataQuality:
     """
     Data Quality Monitoring using Great Expectations allowing you to create and check your data quality expectations.
+
+    Example
+    --------
+    ```python
+    #
+    from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.great_expectations_data_quality import  GreatExpectationsDataQuality
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+    import json
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    df = example_df_from_spark
+    context_root_dir = "great_expectations_dir",
+    expectation_suite_name = "great_expectations_suite_name"
+
+    expectation_type = "expect_column_values_to_not_be_null"
+    exception_dict = {
+        "column": "user_id",
+        "mostly": 0.75,
+    }
+    meta_dict = {
+        "notes": {
+            "format": "markdown",
+            "content": "Some clever comment about this expectation. **Markdown** `Supported`",
+        }
+    }
+
+    #Configure the Great Expectations Data Quality
+
+    GX = GreatExpectationsDataQuality(spark, context_root_dir, df, expectation_suite_name)
+
+    validator, suite = GX.create_expectations(spark, context_root_dir, df, expectation_suite_name)
+
+    expectation_configuration = GX.build_expectations(
+        exception_type, exception_dict, meta_dict
+    )
+
+    GX.add_expectations(suite, expectation_configuration)
+
+    GX.save_expectations(validator)
+
+    GX.display_expectations(suite)
+
+    #Run the Data Quality Check by Validating your data against set expecations in the suite
+
+    checkpoint_name = "checkpoint_name"
+    run_name_template = "run_name_template"
+    action_list = [
+        {
+            "name": "store_validation_result",
+            "action": {"class_name": "StoreValidationResultAction"},
+        },
+        {"name": "update_data_docs", "action": {"class_name": "UpdateDataDocsAction"}},
+    ]
+
+    checkpoint_result = GX.check(checkpoint_name, run_name_template, action_list)
+
+    print(checkpoint_result)
+
+    ```
+
     Parameters:
-        df (DataFrame): Dataframe containing the raw MISO data.
+        df (DataFrame): Dataframe containing the raw data.
         context_root_dir (str): The root directory of the Great Expectations project.
         expectation_suite_name (str): The name of the expectation suite to be created.
     """
@@ -34,7 +97,7 @@ class GreatExpectationsDataQuality:
     def __init__(
         self,
         context_root_dir: str,
-        df: str,
+        df: DataFrame,
         expectation_suite_name: str,
     ) -> None:
         self.context_root_dir = context_root_dir

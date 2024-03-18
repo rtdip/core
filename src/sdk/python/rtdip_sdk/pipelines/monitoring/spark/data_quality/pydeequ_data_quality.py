@@ -25,6 +25,41 @@ class PyDeequDataQuality:
     """
     Base class for data quality checks, profiles and suggestions using PyDeequ.
 
+        Example
+        --------
+        ```python
+        #
+        from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.pydeequ_data_quality import PyDeequDataQuality
+        from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+        import json
+
+        # Not required if using Databricks
+        spark = SparkSessionUtility(config={}).execute()
+
+        df = example_df_from_spark
+
+        PyDQ = PyDeequDataQuality(spark, df)
+
+        #Run the Data Quality Profile
+        profile = PyDQ.profiles()
+        print(profile)
+
+        #Run the Data Quality Analysis
+        analysis = PyDQ.analyse()
+        print(analysis)
+
+        #Run the Data Quality Suggestions
+        suggestions = PyDQ.suggestions()
+        print(suggestions)
+
+        #Run the Data Quality Checks based on the suggestions
+        checks, failed_checks = PyDQ.check()
+
+        print(checks)
+        print(failed_checks)
+
+        ```
+
     Parameters:
         spark (SparkSession): Spark Session instance.
         data (DataFrame): Dataframe containing the raw MISO data.

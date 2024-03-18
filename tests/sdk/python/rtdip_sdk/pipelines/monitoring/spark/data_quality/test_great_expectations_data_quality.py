@@ -9,7 +9,7 @@ from pyspark.sql.types import (
     IntegerType,
 )
 
-from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.great_expectations_data_quality import (
+from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.great_expectations_data_quality import (
     GreatExpectationsDataQuality,
 )
 

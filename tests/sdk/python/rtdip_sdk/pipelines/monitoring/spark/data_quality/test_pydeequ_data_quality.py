@@ -14,11 +14,11 @@
 
 import sys
 
-from src.sdk.python.rtdip_sdk.monitoring.data_quality.pydeequ.spark.pydeequ_data_quality import (
+from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.pydeequ_data_quality import (
     PyDeequDataQuality,
 )
 
-from src.sdk.python.rtdip_sdk.monitoring._monitoring_utils.models import (
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     MavenLibrary,
 )
