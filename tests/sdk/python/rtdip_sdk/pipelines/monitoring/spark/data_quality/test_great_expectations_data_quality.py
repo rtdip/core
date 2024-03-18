@@ -124,8 +124,6 @@ def test_check(mocker: MockerFixture):
     mock_batch_request = mocker.MagicMock()
     gx._create_batch_request = mocker.MagicMock(return_value=mock_batch_request)
 
-    # checkpoint_result = gx.check(checkpoint_name, run_name_template, action_list)
-
     assert isinstance(checkpoint_name, str)
     assert isinstance(run_name_template, str)
     assert isinstance(action_list, list)

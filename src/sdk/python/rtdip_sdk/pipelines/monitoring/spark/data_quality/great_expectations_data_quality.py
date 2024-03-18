@@ -14,6 +14,7 @@
 
 import great_expectations as gx
 from pyspark.sql import DataFrame, SparkSession
+from ...._pipeline_utils.models import Libraries, SystemType
 from great_expectations.checkpoint import (
     Checkpoint,
 )
@@ -108,9 +109,9 @@ class GreatExpectationsDataQuality:
     def system_type():
         """
         Attributes:
-            SystemType (Environment): Requires PYTHON
+            SystemType (Environment): Requires PYSPARK
         """
-        return SystemType.PYTHON
+        return SystemType.PYSPARK
 
     @staticmethod
     def libraries():

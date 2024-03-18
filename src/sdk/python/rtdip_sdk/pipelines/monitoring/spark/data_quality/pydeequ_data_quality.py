@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from pyspark.sql import DataFrame, SparkSession
+from ...._pipeline_utils.models import Libraries, SystemType
+from ...._pipeline_utils.constants import get_default_package
 
 from pydeequ.checks import Check, CheckLevel
 from pydeequ.verification import VerificationSuite, VerificationResult
@@ -80,18 +82,19 @@ class PyDeequDataQuality:
     def system_type():
         """
         Attributes:
-            SystemType (Environment): Requires PYTHON
+            SystemType (Environment): Requires PYSPARK
         """
-        return SystemType.PYTHON
-
-    @staticmethod
-    def libraries():
-        libraries = Libraries()
-        return libraries
+        return SystemType.PYSPARK
 
     @staticmethod
     def settings() -> dict:
         return {}
+
+    @staticmethod
+    def libraries():
+        spark_libraries = Libraries()
+        spark_libraries.add_maven_library(get_default_package("pydeequ"))
+        return spark_libraries
 
     def profiles(self) -> list:
         result = ColumnProfilerRunner(self.spark).onData(self.data).run()
