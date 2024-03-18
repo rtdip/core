@@ -72,12 +72,5 @@ def get_default_package(package_name):
         "api_requests": PyPiLibrary(name="requests", version="2.30.0"),
         "pyarrow": PyPiLibrary(name="pyarrow", version="12.0.0"),
         "pandas": PyPiLibrary(name="pandas", version="2.0.1"),
-
-        <!-- https://mvnrepository.com/artifact/com.amazon.deequ/deequ -->
-<dependency>
-    <groupId>com.amazon.deequ</groupId>
-    <artifactId>deequ</artifactId>
-    <version>2.0.6-spark-3.4</version>
-</dependency>
     }
     return DEFAULT_PACKAGES[package_name]
