@@ -1,19 +1,18 @@
 import pytest
 from pytest_mock import MockerFixture
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
-    IntegerType,
-)
 
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.great_expectations_data_quality import (
     GreatExpectationsDataQuality,
 )
 
 gx = GreatExpectationsDataQuality(
-    "context_root_dir/test/", "test_df", "expectation_suite_name"
+    spark=SparkSession,
+    context_root_dir="context_root_dir/test/",
+    df="test_df",
+    expectation_suite_name="expectation_suite_name",
+    df_datasource_name="my_spark_in_memory_datasource",
+    df_asset_name="df_asset_name",
 )
 
 
