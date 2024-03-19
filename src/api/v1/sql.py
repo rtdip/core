@@ -14,26 +14,20 @@
 
 
 import logging
-import numpy as np
-from pandas.io.json import build_table_schema
-from fastapi import Query, HTTPException, Depends, Body
-import nest_asyncio
+from fastapi import HTTPException, Depends, Body
+
 from src.sdk.python.rtdip_sdk.queries.sql.sql_query import SQLQueryBuilder
 from src.api.v1.models import (
+    AuthQueryParams,
     BaseHeaders,
-    BaseQueryParams,
     SqlBodyParams,
     SqlResponse,
     LimitOffsetQueryParams,
     HTTPError,
-    PaginationRow,
 )
 from src.api.auth.azuread import oauth2_scheme
-from src.api.v1.common import common_api_setup_tasks, pagination
+from src.api.v1.common import common_api_setup_tasks, json_response
 from src.api.FastAPIApp import api_v1_router
-import src.api.v1.common
-
-nest_asyncio.apply()
 
 
 def sql_get(
@@ -50,17 +44,21 @@ def sql_get(
             base_headers=base_headers,
         )
 
-        limit = None if "limit" not in parameters else int(parameters["limit"])
-        offset = None if "offset" not in parameters else int(parameters["offset"])
+        limit = (
+            None
+            if "limit" not in parameters or parameters["limit"] == None
+            else int(parameters["limit"])
+        )
+        offset = (
+            None
+            if "offset" not in parameters or parameters["offset"] == None
+            else int(parameters["offset"])
+        )
         data = SQLQueryBuilder().get(
             connection, parameters["sql_statement"], limit, offset
         )
 
-        return SqlResponse(
-            schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
-            pagination=pagination(limit_offset_parameters, data),
-        )
+        return json_response(data, limit_offset_parameters)
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
@@ -88,7 +86,7 @@ Retrieval of data via a POST method to enable execution of generic SQL statement
     },
 )
 async def raw_post(
-    base_query_parameters: BaseQueryParams = Depends(),
+    base_query_parameters: AuthQueryParams = Depends(),
     sql_query_parameters: SqlBodyParams = Body(default=...),
     limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
     base_headers: BaseHeaders = Depends(),
