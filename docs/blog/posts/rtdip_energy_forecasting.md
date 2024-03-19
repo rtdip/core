@@ -12,13 +12,13 @@ authors:
 
 Energy forecasting plays a pivotal role in our modern world, where energy consumption, production and pricing are critical factors. 
 
-Energy forecasting involves predicting the demand (load) and price of various energy sources, including both fossil fuels and renewable energy sources like wind and solar.
+Energy forecasting involves predicting the demand load and price of various energy sources, including both fossil fuels and renewable energy resources like wind and solar.
 
-With an accurate energy usage forecast a business can efficiently allocate and manage resources, this is crucial to maintain a stable energy supply to the consumer, this is fundamental as we transition to renewable energy sources which do not produce consistent energy. Energy companies, grid operators and industrial consumers rely on forecasts to optimize their operations. Over- or undercontracting can lead to significant financial losses, so precise forecasts are essential.
+With an accurate energy usage forecast, a business can efficiently allocate and manage resources, this is crucial to maintain a stable energy supply to the consumer; energy forecasting is fundamental as we transition to renewable energy sources which do not produce consistent energy. Energy companies, grid operators and industrial consumers rely on forecasts to optimize their operations. Over- or undercontracting can lead to significant financial losses, so precise forecasts are essential.
 
 <!-- more -->
 
-Energy load prices and forecasts greatly influence the energy sector and the decisions made across multiple departments in energy companies.  For example energy forecasts are vital for planning and investing in new capacity, they guide decisions on new assets,  transmission lines and distribution networks. Another example is risk mitigation, unstable electricity prices can be handled with accurate forecasting of the market, companies can develop bidding strategies, production schedules and consumption patterns to minimize risk and maximize profits.
+Energy load prices and forecasts greatly influence the energy sector and the decisions made across multiple departments in energy companies.  For example, energy forecasts are vital for planning and investing in new capacity, they guide decisions on new assets,  transmission lines and distribution networks. Another example is risk mitigation, unstable electricity prices can be handled with accurate forecasting of the market, companies can develop bidding strategies, production schedules and consumption patterns to minimize risk and maximize profits.
 
 A rough estimate of savings from a 1% reduction in the mean absolute percentage error (MAPE) for a utility with a 1 GW peak load includes: 
 
@@ -34,7 +34,7 @@ RTDIP can be a powerful tool for businesses looking to forecast energy usage. RT
 
 RTDIP provides example pipelines for weather forecast data ingestion. Accurate weather data helps predict energy production in renewable assets based on factors like temperature, humidity and wind patterns.
 
-RTDIP defines example pipelines for meter data from ISOs like MISO and PJM. Meter data includes consumption patterns, load profiles, and real-time measurements. The transformers in RTDIP can translate raw meter data into suitable data models for efficient storage and analysis.
+RTDIP defines example pipelines for meter data from ISOs like MISO and PJM. Meter data includes consumption patterns, load profiles and real-time measurements. The transformers in RTDIP can translate raw meter data into suitable data models for efficient storage and analysis.
 
 The data models in RTDIP are IEC CIM (Common Information Model) for time series and metering data. This ensures compatibility with systems requiring data aligning with the IEC CIM standard.
 
@@ -77,7 +77,7 @@ The Weather Forecast API V1 Source is used to read 15 days forecast from the Wea
 
 [Weather Forecast API V1 Multi](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/the_weather_company/weather_forecast_api_v1_multi/)	
 
-The Weather Forecast API V1 Multi Source is used to read 15 days forecast from the Weather API. It allows to pull weather data for multiple stations and returns all of them in a single DataFrame. The [Weather API] https://api.weather.com/v1/geocode/32.3667/-95.4/forecast/hourly/360hour.json for one station can be found here.
+The Weather Forecast API V1 Multi Source is used to read 15 days forecast from the Weather API. It allows to pull weather data for multiple stations and returns all of them in a single DataFrame. The [Weather API](https://api.weather.com/v1/geocode/32.3667/-95.4/forecast/hourly/360hour.json) for one station can be found here.
 
 [ECMWF MARS Weather Forecast](https://www.rtdip.io/sdk/code-reference/pipelines/sources/spark/ecmwf/weather_forecast/)
 
@@ -117,5 +117,5 @@ The class ECMWFExtractGridToWeatherDataModel allows users to extract the forecas
 
 ## Contribute 
 
-RTDIP empowers energy professionals to share solutions, RTDIP welcomes contributions and recognises the importance of sharing code. There are multiple sources for weather and metering data crucial to forecasting energy needs, if you have anymore you’d like to add to RTDIP please raise an Issue and contribute.
+RTDIP empowers energy professionals to share solutions, RTDIP welcomes contributions and recognises the importance of sharing code. There are multiple sources for weather and metering data crucial to forecasting energy needs, if you have anymore you’d like to add to RTDIP please raise a feature request and contribute.
  
