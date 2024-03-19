@@ -227,6 +227,12 @@ nav:
                   - Azure Key Vault: sdk/code-reference/pipelines/secrets/azure_key_vault.md
               - Deploy:
                   - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
+              - Monitoring:
+                  - Data Quality: 
+                      - Great Expectations: 
+                        - Data Quality Monitoring: sdk/code-reference/pipelines/monitoring/data_quality/spark/great_expectations.md
+                      - PyDeequ: 
+                        - Data Quality Monitoring: sdk/code-reference/pipelines/monitoring/data_quality/spark/pydeequ.md
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md

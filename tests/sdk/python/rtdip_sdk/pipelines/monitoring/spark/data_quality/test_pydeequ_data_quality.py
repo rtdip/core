@@ -17,12 +17,10 @@ import sys
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.pydeequ_data_quality import (
     PyDeequDataQuality,
 )
-
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     MavenLibrary,
 )
-
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import (
     StructType,

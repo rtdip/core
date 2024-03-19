@@ -69,7 +69,7 @@ dependencies:
     - netCDF4==1.6.4
     - black==24.1.0
     - great-expectations==0.18.8
-    - pydeequ == 1.1.0
+    - pydeequ==1.1.0
     - pip:
         - dependency-injector==4.41.0
         - azure-functions==1.15.0

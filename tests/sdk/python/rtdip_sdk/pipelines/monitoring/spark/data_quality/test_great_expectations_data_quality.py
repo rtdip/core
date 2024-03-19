@@ -1,7 +1,6 @@
 import pytest
 from pytest_mock import MockerFixture
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import (
     StructType,
     StructField,
