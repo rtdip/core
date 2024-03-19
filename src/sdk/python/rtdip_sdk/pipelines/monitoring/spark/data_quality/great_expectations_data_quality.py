@@ -14,6 +14,7 @@
 
 import great_expectations as gx
 from pyspark.sql import DataFrame, SparkSession
+from ...interfaces import MonitoringBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 from great_expectations.checkpoint import (
     Checkpoint,
@@ -24,7 +25,7 @@ from great_expectations.expectations.expectation import (
 
 
 # Create a new context
-class GreatExpectationsDataQuality:
+class GreatExpectationsDataQuality(MonitoringBaseInterface):
     """
     Data Quality Monitoring using Great Expectations allowing you to create and check your data quality expectations.
 
@@ -36,7 +37,7 @@ class GreatExpectationsDataQuality:
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
     import json
 
-    # Not required if using Databricks
+    # Not required if using Databricks or dataframe not created in spark
     spark = SparkSessionUtility(config={}).execute()
 
     df = example_df_from_spark
@@ -88,11 +89,11 @@ class GreatExpectationsDataQuality:
     print(checkpoint_result)
 
     ```
-
     Parameters:
         df (DataFrame): Dataframe containing the raw data.
         context_root_dir (str): The root directory of the Great Expectations project.
         expectation_suite_name (str): The name of the expectation suite to be created.
+
     """
 
     def __init__(
