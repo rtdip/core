@@ -123,11 +123,11 @@ class MiricoJsonToPCDMTransformer(TransformerInterface):
             .select(
                 map_from_arrays("TagName", "Value").alias("x"),
                 col("x.timeStamp").alias("EventTime"),
-                col("x.siteName").alias("SiteName"),
+                col("x.siteName").alias("siteName"),
                 col("x.gasType").alias("gasType"),
                 col("x.retroName").alias("retroName"),
             )
-            .select("EventTime", "SiteName", "gasType", "retroName", posexplode("x"))
+            .select("EventTime", "siteName", "gasType", "retroName", posexplode("x"))
             .withColumn(
                 "ValueType", udf(lambda row: mapping[row]["ValueType"])(col("pos"))
             )
@@ -144,7 +144,7 @@ class MiricoJsonToPCDMTransformer(TransformerInterface):
                             concat_ws(
                                 "_",
                                 *[
-                                    upper(col("SiteName")),
+                                    upper(col("siteName")),
                                     upper(col("retroName")),
                                     when(
                                         upper(col("key")) == "GASPPM",
@@ -161,7 +161,7 @@ class MiricoJsonToPCDMTransformer(TransformerInterface):
                     concat_ws(
                         "_",
                         *[
-                            upper(col("SiteName")),
+                            upper(col("siteName")),
                             upper(col("retroName")),
                             when(
                                 upper(col("key")) == "GASPPM",
