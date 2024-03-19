@@ -122,7 +122,7 @@ class MiricoJsonToPCDMTransformer(TransformerInterface):
             .withColumn("Value", map_values("body"))
             .select(
                 map_from_arrays("TagName", "Value").alias("x"),
-                col("x.timeStamp").alias("EventTime"),
+                to_timestamp(col("x.timeStamp")).alias("EventTime"),
                 col("x.siteName").alias("siteName"),
                 col("x.gasType").alias("gasType"),
                 col("x.retroName").alias("retroName"),
