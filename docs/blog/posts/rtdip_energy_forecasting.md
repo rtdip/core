@@ -6,13 +6,17 @@ authors:
 
 # Energy Forecasting: Utilising the Power of Tomorrow’s Data
 
-![EnergyForecastingImage](../images/energy-forecasting.png){width=100%} 
+<center>
+![EnergyForecastingImage](../images/energy-forecasting.png){width=75%} 
+</center>
 
 Energy forecasting plays a pivotal role in our modern world, where energy consumption, production and pricing are critical factors. 
 
 Energy forecasting involves predicting the demand (load) and price of various energy sources, including both fossil fuels and renewable energy sources like wind and solar.
 
 With an accurate energy usage forecast a business can efficiently allocate and manage resources, this is crucial to maintain a stable energy supply to the consumer, this is fundamental as we transition to renewable energy sources which do not produce consistent energy. Energy companies, grid operators and industrial consumers rely on forecasts to optimize their operations. Over- or undercontracting can lead to significant financial losses, so precise forecasts are essential.
+
+<!-- more -->
 
 Energy load prices and forecasts greatly influence the energy sector and the decisions made across multiple departments in energy companies.  For example energy forecasts are vital for planning and investing in new capacity, they guide decisions on new assets,  transmission lines and distribution networks. Another example is risk mitigation, unstable electricity prices can be handled with accurate forecasting of the market, companies can develop bidding strategies, production schedules and consumption patterns to minimize risk and maximize profits.
 
