@@ -53,7 +53,7 @@ async def test_api_raw_post_success(mocker: MockerFixture):
             json=SQL_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
         expected.rstrip("}") + ',"pagination":{"limit":100,"offset":100,"next":null}}'
     )

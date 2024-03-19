@@ -168,11 +168,7 @@ class HTTPError(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = (
-            {
-                "example": {"detail": "HTTPException raised."},
-            },
-        )
+        json_schema_extra = {"example": {"detail": "HTTPException raised."}}
 
 
 class BaseHeaders:
@@ -203,6 +199,14 @@ class BaseHeaders:
     ):
         self.x_databricks_server_hostname = x_databricks_server_hostname
         self.x_databricks_http_path = x_databricks_http_path
+
+
+class AuthQueryParams:
+    def __init__(
+        self,
+        authorization: str = Depends(oauth2_scheme),
+    ):
+        self.authorization = authorization
 
 
 class BaseQueryParams:

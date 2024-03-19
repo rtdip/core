@@ -11,14 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 import logging
 import numpy as np
-from pandas.io.json import build_table_schema
-from fastapi import Query, HTTPException, Depends, Body
-import nest_asyncio
-from src.sdk.python.rtdip_sdk.queries.time_series import raw, summary
+from fastapi import HTTPException, Depends, Body
+
+from src.sdk.python.rtdip_sdk.queries.time_series import raw
 from src.api.v1.models import (
     BaseHeaders,
     BaseQueryParams,
@@ -30,10 +27,8 @@ from src.api.v1.models import (
     HTTPError,
 )
 from src.api.auth.azuread import oauth2_scheme
-from src.api.v1.common import common_api_setup_tasks, pagination
+from src.api.v1.common import common_api_setup_tasks, json_response
 from src.api.FastAPIApp import api_v1_router
-
-nest_asyncio.apply()
 
 
 def raw_events_get(
@@ -54,11 +49,7 @@ def raw_events_get(
 
         data = raw.get(connection, parameters)
 
-        return RawResponse(
-            schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
-            pagination=pagination(limit_offset_parameters, data),
-        )
+        return json_response(data, limit_offset_parameters)
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

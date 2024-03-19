@@ -123,9 +123,11 @@ class MiricoJsonToPCDMTransformer(TransformerInterface):
             .select(
                 map_from_arrays("TagName", "Value").alias("x"),
                 to_timestamp(col("x.timeStamp")).alias("EventTime"),
-                col("x.siteName").alias("SiteName"),
+                col("x.siteName").alias("siteName"),
+                col("x.gasType").alias("gasType"),
+                col("x.retroName").alias("retroName"),
             )
-            .select("EventTime", "SiteName", posexplode("x"))
+            .select("EventTime", "siteName", "gasType", "retroName", posexplode("x"))
             .withColumn(
                 "ValueType", udf(lambda row: mapping[row]["ValueType"])(col("pos"))
             )
@@ -140,13 +142,51 @@ class MiricoJsonToPCDMTransformer(TransformerInterface):
                         *[
                             upper(lit(self.tagname_field)),
                             concat_ws(
-                                "_", *[upper(col("SiteName")), upper(col("key"))]
+                                "_",
+                                *[
+                                    upper(col("siteName")),
+                                    upper(col("retroName")),
+                                    when(
+                                        upper(col("key")) == "GASPPM",
+                                        concat_ws(
+                                            "_",
+                                            *[upper(col("key")), upper(col("gasType"))]
+                                        ),
+                                    ).otherwise(upper(col("key"))),
+                                ]
                             ),
                         ]
                     ),
                 ).otherwise(
-                    concat_ws("_", *[upper(col("SiteName")), upper(col("key"))])
+                    concat_ws(
+                        "_",
+                        *[
+                            upper(col("siteName")),
+                            upper(col("retroName")),
+                            when(
+                                upper(col("key")) == "GASPPM",
+                                concat_ws(
+                                    "_", *[upper(col("key")), upper(col("gasType"))]
+                                ),
+                            ).otherwise(upper(col("key"))),
+                        ]
+                    )
                 ),
+            )
+            .filter(
+                ~col("key").isin(
+                    "timeStamp",
+                    "gasType",
+                    "retroLongitude",
+                    "retroLatitude",
+                    "retroAltitude",
+                    "sensorLongitude",
+                    "sensorLatitude",
+                    "sensorAltitude",
+                    "siteName",
+                    "siteKey",
+                    "retroName",
+                )
             )
         )
         return df.select(
