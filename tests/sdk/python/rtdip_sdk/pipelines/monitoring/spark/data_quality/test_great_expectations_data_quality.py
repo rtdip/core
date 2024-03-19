@@ -92,7 +92,7 @@ def test_remove_expectations(mocker: MockerFixture):
     mock_suite.remove_expectation.assert_called_once_with(
         expectation_configuration=mock_expectation_configuration,
         match_type="domain",
-        remove_multiple_matches=False,
+        remove_multiple_matches=True,
     )
 
 
