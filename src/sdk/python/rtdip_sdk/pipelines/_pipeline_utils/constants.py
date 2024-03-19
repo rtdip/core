@@ -52,11 +52,6 @@ def get_default_package(package_name):
             artifact_id="spark-connect_2.12",
             version=_get_package_version("pyspark"),
         ),
-        "pydeequ": MavenLibrary(
-            group_id="com.amazon.deequ",
-            artifact_id="deequ",
-            version="2.0.6-spark-3.4",
-        ),
         "azure_adls_gen_2": PyPiLibrary(
             name="azure-storage-file-datalake", version="12.12.0"
         ),
