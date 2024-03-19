@@ -15,6 +15,9 @@
 from pyspark.sql import DataFrame, SparkSession
 from ...._pipeline_utils.models import Libraries, SystemType
 from ...._pipeline_utils.constants import get_default_package
+import os
+
+os.environ["SPARK_VERSION"] = "3.3"
 
 from pydeequ.checks import Check, CheckLevel
 from pydeequ.verification import VerificationSuite, VerificationResult
@@ -64,7 +67,7 @@ class PyDeequDataQuality:
 
     Parameters:
         spark (SparkSession): Spark Session instance.
-        data (DataFrame): Dataframe containing the raw MISO data.
+        data (DataFrame): Dataframe containing the raw data.
     """
 
     spark: SparkSession

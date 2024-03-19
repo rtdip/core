@@ -17,10 +17,7 @@ import sys
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.pydeequ_data_quality import (
     PyDeequDataQuality,
 )
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
-    Libraries,
-    MavenLibrary,
-)
+
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import (
     StructType,
@@ -52,10 +49,9 @@ schema = StructType(
     ]
 )
 
-test_df = SparkSession.createDataFrame(data=data2, schema=schema)
-
 
 def test_profiles(spark_session: SparkSession):
+    test_df = spark_session.createDataFrame(data=data2, schema=schema)
 
     expected_result = ColumnProfilerRunner(spark_session).onData(test_df).run()
 
@@ -66,7 +62,7 @@ def test_profiles(spark_session: SparkSession):
 
 
 def test_analyse(spark_session: SparkSession):
-
+    test_df = spark_session.createDataFrame(data=data2, schema=schema)
     expected_analysis_result = (
         AnalysisRunner(spark_session)
         .onData(test_df)
@@ -104,6 +100,7 @@ def test_analyse(spark_session: SparkSession):
 
 
 def test_suggestions(spark_session: SparkSession):
+    test_df = spark_session.createDataFrame(data=data2, schema=schema)
 
     expected_suggestion_result = (
         ConstraintSuggestionRunner(spark_session)
@@ -119,6 +116,7 @@ def test_suggestions(spark_session: SparkSession):
 
 
 def test_check(spark_session: SparkSession):
+    test_df = spark_session.createDataFrame(data=data2, schema=schema)
 
     df_checked_constraints, df_checked_constraints_failures = PyDeequDataQuality(
         spark_session, test_df
