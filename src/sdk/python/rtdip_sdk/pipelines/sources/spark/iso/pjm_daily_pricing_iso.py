@@ -1,19 +1,20 @@
-from datetime import datetime
 import logging
 import time
-import pandas as pd
+from datetime import datetime
+from datetime import timedelta
+
 import numpy as np
+import pandas as pd
 import requests
 from pyspark.sql import SparkSession
-from datetime import timedelta
-from io import BytesIO
 
-from ...._pipeline_utils.iso import PJM_PRICING_SCHEMA
 from . import BaseISOSource
+from ...._pipeline_utils.iso import PJM_PRICING_SCHEMA
+
 
 class PJMDailyPricingISOSource(BaseISOSource):
     """
-    The PJM Daily Pricing ISO Source is used to retrieve Real-Time and Day-Ahead hourly data from PJM API. 
+    The PJM Daily Pricing ISO Source is used to retrieve Real-Time and Day-Ahead hourly data from PJM API.
     Real-Time will return data for T - 3 to T days and Day-Ahead will return T - 3 to T + 1 days data.
 
     API:              <a href="https://api.pjm.com/api/v1/">  (must be a valid apy key from PJM)
@@ -21,7 +22,7 @@ class PJMDailyPricingISOSource(BaseISOSource):
     Real-Time doc:    <a href="https://dataminer2.pjm.com/feed/da_hrl_lmps/definition">
 
     Day-Ahead doc:    <a href="https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition">
-    
+
     Parameters:
         spark (SparkSession): Spark Session instance
         options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
@@ -52,7 +53,9 @@ class PJMDailyPricingISOSource(BaseISOSource):
         self.api_key: str = self.options.get("api_key", "").strip()
         self.days: int = self.options.get("days", 3)
 
-    def _fetch_paginated_data(self, url_suffix: str, start_date: str, end_date: str) -> bytes:
+    def _fetch_paginated_data(
+        self, url_suffix: str, start_date: str, end_date: str
+    ) -> bytes:
         """
         Fetches data from the PJM API with pagination support.
 
@@ -68,14 +71,14 @@ class PJMDailyPricingISOSource(BaseISOSource):
         items = []
         query = {
             "startRow": "1",
-            "rowCount": "50000",
-            "datetime_beginning_ept":f"{start_date}to{end_date}"
+            "rowCount": "5",
+            "datetime_beginning_ept": f"{start_date}to{end_date}",
         }
         query_s = "&".join(["=".join([k, v]) for k, v in query.items()])
         base_url = f"{self.iso_url}{url_suffix}?{query_s}"
 
         next_page = base_url
-        
+
         logging.info(
             f"Requesting URL - {base_url}, start_date={start_date}, end_date={end_date}, load_type={self.load_type}"
         )
@@ -84,12 +87,23 @@ class PJMDailyPricingISOSource(BaseISOSource):
             now = datetime.now()
             logging.info(f"Timestamp: {now}")
             response = requests.get(next_page, headers=headers)
-            response.raise_for_status()
-            data = response.json() 
+            code = response.status_code
+
+            if code != 200:
+                raise requests.HTTPError(
+                    f"Unable to access URL `{next_page}`."
+                    f" Received status code {code} with message {response.content}"
+                )
+
+            data = response.json()
+            print(data)
+            # with open("File.json", "wb") as f:
+            #     f.write(response.content)
+            # exit()
             logging.info(f"Data for page {next_page}:")
-            items.extend(data['items'])
-            next_urls = list(filter(lambda item: item['rel'] == 'next', data['links'])) 
-            next_page = next_urls[0]['href'] if next_urls else None
+            items.extend(data["items"])
+            next_urls = list(filter(lambda item: item["rel"] == "next", data["links"]))
+            next_page = next_urls[0]["href"] if next_urls else None
             time.sleep(10)
 
         return items
@@ -106,20 +120,19 @@ class PJMDailyPricingISOSource(BaseISOSource):
         end_date = (start_date + timedelta(days=self.days)).replace(hour=23)
         start_date_str = start_date.strftime(self.query_datetime_format)
         end_date_str = end_date.strftime(self.query_datetime_format)
-                
-        if self.load_type == 'day_ahead':
-            url_suffix = 'da_hrl_lmps'
-        else:
-            url_suffix = 'rt_hrl_lmps'
 
-        
+        if self.load_type == "day_ahead":
+            url_suffix = "da_hrl_lmps"
+        else:
+            url_suffix = "rt_hrl_lmps"
+
         data = self._fetch_paginated_data(url_suffix, start_date_str, end_date_str)
-            
+
         df = pd.DataFrame(data)
         logging.info(f"Data fetched successfully: {len(df)} rows")
-            
-        return df 
-        
+
+        return df
+
     def _prepare_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Creates a new date time column and removes null values. Renames columns
@@ -146,8 +159,7 @@ class PJMDailyPricingISOSource(BaseISOSource):
                     "total_lmp_da": "TotalLmp",
                     "congestion_price_da": "CongestionPrice",
                     "marginal_loss_price_da": "MarginalLossPrice",
-                    "version_nbr": "VersionNbr"
-                    
+                    "version_nbr": "VersionNbr",
                 }
             )
         else:
@@ -164,22 +176,36 @@ class PJMDailyPricingISOSource(BaseISOSource):
                     "total_lmp_rt": "TotalLmp",
                     "congestion_price_rt": "CongestionPrice",
                     "marginal_loss_price_rt": "MarginalLossPrice",
-                    "version_nbr": "VersionNbr"
-                    
+                    "version_nbr": "VersionNbr",
                 }
             )
-                
-        df = df[["StartTime", "PnodeId", "PnodeName", "Voltage", "Equipment", "Type", "Zone", "SystemEnergyPrice", "TotalLmp", "CongestionPrice", "MarginalLossPrice","VersionNbr"]]
-        
+
+        df = df[
+            [
+                "StartTime",
+                "PnodeId",
+                "PnodeName",
+                "Voltage",
+                "Equipment",
+                "Type",
+                "Zone",
+                "SystemEnergyPrice",
+                "TotalLmp",
+                "CongestionPrice",
+                "MarginalLossPrice",
+                "VersionNbr",
+            ]
+        ]
+
         df = df.replace({np.nan: None, "": None})
-    
+
         df["StartTime"] = pd.to_datetime(df["StartTime"])
         df = df.replace({np.nan: None, "": None})
-        
+
         df.reset_index(inplace=True, drop=True)
-              
+
         return df
-     
+
     def _validate_options(self) -> bool:
         """
         Validates the following options:

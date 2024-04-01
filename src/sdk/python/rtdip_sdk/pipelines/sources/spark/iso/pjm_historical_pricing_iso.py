@@ -11,6 +11,7 @@ from .pjm_daily_pricing_iso import PJMDailyPricingISOSource
 from ...._pipeline_utils.iso import PJM_PRICING_SCHEMA
 from . import BaseISOSource
 
+
 class PJMHistoricalPricingISOSource(PJMDailyPricingISOSource):
     """
     The PJM Historical Pricing ISO Source is used to retrieve historical Real-Time and Day-Ahead hourly data from the PJM API.
@@ -47,7 +48,6 @@ class PJMHistoricalPricingISOSource(PJMDailyPricingISOSource):
         self.end_date: str = self.options.get("end_date", "")
         self.user_datetime_format = "%Y-%m-%d"
 
-
     def _pull_data(self) -> pd.DataFrame:
         """
         Pulls historical pricing data from the PJM API within the specified date range.
@@ -55,28 +55,31 @@ class PJMHistoricalPricingISOSource(PJMDailyPricingISOSource):
         Returns:
             pd.DataFrame: A DataFrame containing the raw historical pricing data retrieved from the PJM API.
         """
-       
-        logging.info(f"Historical data requested from {self.start_date} to {self.end_date}")
-        
-        start_date_str = datetime.strptime(self.start_date, self.user_datetime_format).replace(hour=0, minute=0)
-        end_date_str = datetime.strptime(self.end_date, self.user_datetime_format).replace(hour=23)
-                    
-        if self.load_type == 'day_ahead':
-            url_suffix = 'da_hrl_lmps'
+
+        logging.info(
+            f"Historical data requested from {self.start_date} to {self.end_date}"
+        )
+
+        start_date_str = datetime.strptime(
+            self.start_date, self.user_datetime_format
+        ).replace(hour=0, minute=0)
+        end_date_str = datetime.strptime(
+            self.end_date, self.user_datetime_format
+        ).replace(hour=23)
+
+        if self.load_type == "day_ahead":
+            url_suffix = "da_hrl_lmps"
         else:
-            url_suffix = 'rt_hrl_lmps'
-        
+            url_suffix = "rt_hrl_lmps"
 
         data = self._fetch_paginated_data(url_suffix, start_date_str, end_date_str)
-            
+
         df = pd.DataFrame(data)
         logging.info(f"Data fetched successfully: {len(df)} rows")
-        
-            
-        return df 
-            
+
+        return df
+
     def _validate_options(self) -> bool:
-         
         """
         Validates all parameters including the following examples:
             - `start_date` & `end_data` must be in the correct format.
