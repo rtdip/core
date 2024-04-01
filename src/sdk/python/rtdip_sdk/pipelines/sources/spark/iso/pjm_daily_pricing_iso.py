@@ -96,10 +96,7 @@ class PJMDailyPricingISOSource(BaseISOSource):
                 )
 
             data = response.json()
-            print(data)
-            # with open("File.json", "wb") as f:
-            #     f.write(response.content)
-            # exit()
+            
             logging.info(f"Data for page {next_page}:")
             items.extend(data["items"])
             next_urls = list(filter(lambda item: item["rel"] == "next", data["links"]))
