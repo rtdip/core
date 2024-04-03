@@ -34,8 +34,14 @@ from ...._pipeline_utils.temp_cert_files import TempCertFiles
 class ERCOTDailyLoadISOSource(BaseISOSource):
     """
     The ERCOT Daily Load ISO Source is used to read daily load data from ERCOT using WebScrapping.
-    It supports actual and forecast data.
-    <br>API: <a href="https://mis.ercot.com">https://mis.ercot.com</a>
+    It supports actual and forecast data. To read more about the reports, visit the following URLs
+    (The urls are only accessible if the requester/client is in US)-
+
+    For load type `actual`: [Actual System Load by Weather Zone](https://www.ercot.com/mp/data-products/
+    data-product-details?id=NP6-345-CD)
+    <br>
+    For load type `forecast`: [Seven-Day Load Forecast by Weather Zone](https://www.ercot.com/mp/data-products/
+    data-product-details?id=NP3-561-CD)
 
 
     Parameters:
