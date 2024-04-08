@@ -19,7 +19,6 @@ import pandas as pd
 from pyspark.sql import SparkSession
 
 from .caiso_daily_load_iso import CAISODailyLoadISOSource
-from ...._pipeline_utils.iso import CAISO_SCHEMA
 
 
 class CAISOHistoricalLoadISOSource(CAISODailyLoadISOSource):
@@ -27,8 +26,11 @@ class CAISOHistoricalLoadISOSource(CAISODailyLoadISOSource):
     The CAISO Historical Load ISO Source is used to read load data for an interval of dates
      between start_date and end_date inclusive from CAISO API.
     It supports multiple types of data. Check the `load_types` attribute.
-    <br>API: <a href="http://oasis.caiso.com/oasisapi">http://oasis.caiso.com/oasisapi</a>
-    <br> It creates batches of interval of 30 days and queries the CAISO API sequentially.
+
+    To read more about the available reports from CAISO API, download the file -
+     [Interface Specification](https://www.caiso.com/Documents/OASISAPISpecification.pdf)
+
+    From the list of reports in the file, it pulls the report named `CAISO Demand Forecast` in the file.
 
     Parameters:
         spark (SparkSession): Spark Session instance
