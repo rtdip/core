@@ -1,3 +1,17 @@
+# Copyright 2022 RTDIP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 import time
 from datetime import datetime
@@ -17,15 +31,35 @@ class PJMDailyPricingISOSource(BaseISOSource):
     The PJM Daily Pricing ISO Source is used to retrieve Real-Time and Day-Ahead hourly data from PJM API.
     Real-Time will return data for T - 3 to T days and Day-Ahead will return T - 3 to T + 1 days data.
 
-    API:              <a href="https://api.pjm.com/api/v1/">  (must be a valid apy key from PJM)
+    API:             <a href="https://api.pjm.com/api/v1/">https://api.pjm.com/api/v1/</a>  (must be a valid apy key from PJM)
 
-    Real-Time doc:    <a href="https://dataminer2.pjm.com/feed/da_hrl_lmps/definition">
+    Real-Time doc:    <a href="https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition">https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition</a>
 
-    Day-Ahead doc:    <a href="https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition">
+    Day-Ahead doc:    <a href="https://dataminer2.pjm.com/feed/da_hrl_lmps/definition">https://dataminer2.pjm.com/feed/da_hrl_lmps/definition</a>
+    
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.sources import PJMDailyPricingISOSource
+    from rtdip_sdk.pipelines.utilities import SparkSessionUtility
+
+    # Not required if using Databricks
+    spark = SparkSessionUtility(config={}).execute()
+
+    pjm_source = PJMDailyPricingISOSource(
+        spark=spark,
+        options={
+            "api_key": "{api_key}",
+            "load_type": "real_time"
+        }
+    )
+
+    pjm_source.read_batch()
+    ```
 
     Parameters:
-        spark (SparkSession): Spark Session instance
-        options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
+       spark (SparkSession): Spark Session instance
+       options (dict): A dictionary of ISO Source specific configurations (See Attributes table below)
 
     Attributes:
         api_key (str): Must be a valid key from PJM, see api url
