@@ -20,6 +20,8 @@ from typing import List, Union, Dict, Any
 from fastapi import Query, Header, Depends
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
+from typing import Generic, TypeVar
+
 
 EXAMPLE_DATE = "2022-01-01"
 EXAMPLE_DATETIME = "2022-01-01T15:00:00"
@@ -67,6 +69,12 @@ class LatestRow(BaseModel):
     GoodValueType: Union[str, None]
 
 
+class PaginationRow(BaseModel):
+    limit: Union[int, None]
+    offset: Union[int, None]
+    next: Union[int, None]
+
+
 class RawRow(BaseModel):
     EventTime: datetime
     TagName: str
@@ -90,6 +98,7 @@ class MetadataResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[MetadataRow]
+    pagination: Union[PaginationRow, None]
 
 
 class LatestResponse(BaseModel):
@@ -97,6 +106,7 @@ class LatestResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[LatestRow]
+    pagination: Union[PaginationRow, None]
 
 
 class RawResponse(BaseModel):
@@ -104,6 +114,18 @@ class RawResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[RawRow]
+    pagination: Union[PaginationRow, None]
+
+
+SqlT = TypeVar("SqlT")
+
+
+class SqlResponse(BaseModel, Generic[SqlT]):
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
+    data: List[SqlT]
+    pagination: Union[PaginationRow, None]
 
 
 class ResampleInterpolateRow(BaseModel):
@@ -123,6 +145,7 @@ class ResampleInterpolateResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[ResampleInterpolateRow]
+    pagination: Union[PaginationRow, None]
 
 
 class SummaryResponse(BaseModel):
@@ -130,6 +153,7 @@ class SummaryResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[SummaryRow]
+    pagination: Union[PaginationRow, None]
 
 
 class PivotResponse(BaseModel):
@@ -137,17 +161,14 @@ class PivotResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[PivotRow]
+    pagination: Union[PaginationRow, None]
 
 
 class HTTPError(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = (
-            {
-                "example": {"detail": "HTTPException raised."},
-            },
-        )
+        json_schema_extra = {"example": {"detail": "HTTPException raised."}}
 
 
 class BaseHeaders:
@@ -178,6 +199,14 @@ class BaseHeaders:
     ):
         self.x_databricks_server_hostname = x_databricks_server_hostname
         self.x_databricks_http_path = x_databricks_http_path
+
+
+class AuthQueryParams:
+    def __init__(
+        self,
+        authorization: str = Depends(oauth2_scheme),
+    ):
+        self.authorization = authorization
 
 
 class BaseQueryParams:
@@ -215,12 +244,12 @@ class RawQueryParams:
         include_bad_data: bool = Query(
             ..., description="Include or remove Bad data points"
         ),
-        start_date: Union[date, datetime] = Query(
+        start_date: Union[datetime, date] = Query(
             ...,
             description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
-        end_date: Union[date, datetime] = Query(
+        end_date: Union[datetime, date] = Query(
             ...,
             description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
@@ -230,6 +259,10 @@ class RawQueryParams:
         self.include_bad_data = include_bad_data
         self.start_date = start_date
         self.end_date = end_date
+
+
+class SqlBodyParams(BaseModel):
+    sql_statement: str
 
 
 class TagsQueryParams:

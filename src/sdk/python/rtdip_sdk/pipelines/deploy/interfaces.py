@@ -23,3 +23,7 @@ class DeployInterface(ABC):
     @abstractmethod
     def launch(self):
         pass
+
+    @abstractmethod
+    def stop(self):
+        pass

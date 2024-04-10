@@ -15,6 +15,7 @@
 from pytest_mock import MockerFixture
 from src.api.auth import azuread
 from azure.identity import DefaultAzureCredential
+from azure.identity import OnBehalfOfCredential
 from azure.core.credentials import AccessToken
 
 

@@ -38,7 +38,7 @@ def _test_base_succeed(
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(
         MockedCursor,
-        "fetchall_arrow",
+        "fetchmany_arrow",
         return_value=pa.Table.from_pandas(
             pd.DataFrame(
                 data={
@@ -75,7 +75,7 @@ def _test_base_fails(mocker: MockerFixture, parameters: dict, function: Callable
     mocker.spy(MockedDBConnection, "cursor")
     mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
-    mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
+    mocker.patch.object(MockedCursor, "fetchmany_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value=MockedDBConnection())
 

@@ -18,6 +18,7 @@ from src.api.FastAPIApp import app, api_v1_router
 from src.api.v1 import (
     metadata,
     raw,
+    sql,
     latest,
     resample,
     interpolate,

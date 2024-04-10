@@ -34,6 +34,10 @@ tags_metadata = [
         "name": "Metadata",
         "description": "Contextual metadata about timeseries events",
     },
+    {
+        "name": "SQL",
+        "description": "Retrieval of data using SQL queries",
+    },
 ]
 
 description = """

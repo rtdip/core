@@ -14,10 +14,8 @@
 
 
 import logging
-import numpy as np
-from pandas.io.json import build_table_schema
-from fastapi import Query, HTTPException, Depends, Body
-import nest_asyncio
+from fastapi import HTTPException, Depends, Body
+
 from src.sdk.python.rtdip_sdk.queries.time_series import latest
 from src.api.v1.models import (
     BaseQueryParams,
@@ -29,17 +27,15 @@ from src.api.v1.models import (
     HTTPError,
 )
 from src.api.auth.azuread import oauth2_scheme
+from src.api.v1.common import common_api_setup_tasks, json_response
 from src.api.FastAPIApp import api_v1_router
-from src.api.v1 import common
-
-nest_asyncio.apply()
 
 
 def latest_retrieval_get(
     query_parameters, metadata_query_parameters, limit_offset_parameters, base_headers
 ):
     try:
-        (connection, parameters) = common.common_api_setup_tasks(
+        (connection, parameters) = common_api_setup_tasks(
             query_parameters,
             metadata_query_parameters=metadata_query_parameters,
             limit_offset_query_parameters=limit_offset_parameters,
@@ -47,10 +43,8 @@ def latest_retrieval_get(
         )
 
         data = latest.get(connection, parameters)
-        return LatestResponse(
-            schema=build_table_schema(data, index=False, primary_key=False),
-            data=data.replace({np.nan: None}).to_dict(orient="records"),
-        )
+
+        return json_response(data, limit_offset_parameters)
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

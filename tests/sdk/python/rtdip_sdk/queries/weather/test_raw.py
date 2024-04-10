@@ -109,7 +109,7 @@ def test_raw_grid_(mocker: MockerFixture):
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(
         MockedCursor,
-        "fetchall_arrow",
+        "fetchmany_arrow",
         return_value=pa.Table.from_pandas(
             pd.DataFrame(data={"m": [1], "n": [2], "o": [3], "p": [4]})
         ),
@@ -137,7 +137,7 @@ def test_raw_grid_source(mocker: MockerFixture):
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(
         MockedCursor,
-        "fetchall_arrow",
+        "fetchmany_arrow",
         return_value=pa.Table.from_pandas(
             pd.DataFrame(data={"a": [1], "d": [2], "e": [3], "r": [4]})
         ),
@@ -163,7 +163,7 @@ def test_raw_grid_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
     mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
-    mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
+    mocker.patch.object(MockedCursor, "fetchmany_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value=MockedDBConnection())
 
@@ -181,7 +181,7 @@ def test_raw_point(mocker: MockerFixture):
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(
         MockedCursor,
-        "fetchall_arrow",
+        "fetchmany_arrow",
         return_value=pa.Table.from_pandas(
             pd.DataFrame(data={"q": [1], "r": [2], "s": [3], "t": [4]})
         ),
@@ -209,7 +209,7 @@ def test_raw_point_source(mocker: MockerFixture):
     mocked_execute = mocker.spy(MockedCursor, "execute")
     mocked_fetch_all = mocker.patch.object(
         MockedCursor,
-        "fetchall_arrow",
+        "fetchmany_arrow",
         return_value=pa.Table.from_pandas(
             pd.DataFrame(data={"u": [1], "v": [2], "w": [3], "x": [4]})
         ),
@@ -235,7 +235,7 @@ def test_raw_point_fails(mocker: MockerFixture):
     mocker.spy(MockedDBConnection, "cursor")
     mocker.spy(MockedDBConnection, "close")
     mocker.spy(MockedCursor, "execute")
-    mocker.patch.object(MockedCursor, "fetchall_arrow", side_effect=Exception)
+    mocker.patch.object(MockedCursor, "fetchmany_arrow", side_effect=Exception)
     mocker.spy(MockedCursor, "close")
     mocker.patch(DATABRICKS_SQL_CONNECT, return_value=MockedDBConnection())
 

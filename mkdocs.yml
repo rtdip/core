@@ -217,6 +217,7 @@ nav:
                       - ADLS Gen 2 Service Principal Connect: sdk/code-reference/pipelines/utilities/spark/adls_gen2_spn_connect.md
                   - AWS:
                       - S3 Bucket Policy: sdk/code-reference/pipelines/utilities/aws/s3_bucket_policy.md
+                      - S3 Copy Utility: sdk/code-reference/pipelines/utilities/aws/s3_copy_utility.md
                   - Azure:
                       - ADLS Gen 2 ACLs: sdk/code-reference/pipelines/utilities/azure/adls_gen2_acl.md
                       - Autoloader Resources: sdk/code-reference/pipelines/utilities/azure/autoloader_resources.md
@@ -241,6 +242,7 @@ nav:
                   - Local: sdk/examples/pipelines/deploy/dagster/Fledge-Dagster-Pipeline-Local.md
               - Databricks:
                   - MISO Daily Load Databricks: sdk/examples/pipelines/deploy/databricks/MISODailyLoad-Batch-Pipeline-Databricks.md
+              - Spark Connect: sdk/examples/pipelines/deploy/Fledge-SparkConnect-PCDM.md                  
               - MISO Daily Load Local: sdk/examples/pipelines/deploy/MISODailyLoad-Batch-Pipeline-Local.md
               - PJM Daily Load Local: sdk/examples/pipelines/deploy/PJMDailyLoad-Batch-Pipeline-Local.md
       - Queries:
@@ -262,7 +264,14 @@ nav:
                     - Weather Data Query Builder: sdk/code-reference/query/functions/weather/weather_query_builder.md
                     - Weather Raw: sdk/code-reference/query/functions/weather/raw.md
                     - Weather Latest: sdk/code-reference/query/functions/weather/latest.md
-          - Connectors: sdk/queries/connectors.md
+          - SQL: sdk/code-reference/query/sql/sql_query.md
+          - Connectors: 
+                - Overview: sdk/queries/connectors.md
+                - Databricks SQL Connector: sdk/code-reference/query/connectors/db-sql-connector.md
+                - PYODBC SQL Connector: sdk/code-reference/query/connectors/pyodbc-sql-connector.md
+                - TURBODBC SQL Connector: sdk/code-reference/query/connectors/turbodbc-sql-connector.md
+                - Spark Connector: sdk/code-reference/query/connectors/spark-connector.md
+                - Chat Open AI Databricks Connector: sdk/code-reference/query/connectors/chatopenai_databricks_connector.md
           - Databricks:
               - Databricks SQL: sdk/queries/databricks/databricks-sql.md
               - SQL Warehouses: sdk/queries/databricks/sql-warehouses.md

@@ -49,7 +49,10 @@ async def test_api_circular_standard_deviation_get_success(mocker: MockerFixture
             params=CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
 
     assert response.status_code == 200
     assert actual == expected
@@ -112,7 +115,10 @@ async def test_api_circular_standard_deviation_post_success(mocker: MockerFixtur
             json=CIRCULAR_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="us")
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
 
     assert response.status_code == 200
     assert actual == expected

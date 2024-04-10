@@ -15,12 +15,9 @@
 
 import logging
 from typing import Union
-import numpy as np
-from requests import request
 from src.api.FastAPIApp import api_v1_router
 from fastapi import HTTPException, Depends, Body
-import nest_asyncio
-from pandas.io.json import build_table_schema
+
 from src.sdk.python.rtdip_sdk.queries.time_series import circular_average
 from src.api.v1.models import (
     BaseQueryParams,
@@ -35,9 +32,7 @@ from src.api.v1.models import (
     PivotQueryParams,
     LimitOffsetQueryParams,
 )
-import src.api.v1.common
-
-nest_asyncio.apply()
+from src.api.v1.common import common_api_setup_tasks, json_response
 
 
 def circular_average_events_get(
@@ -50,7 +45,7 @@ def circular_average_events_get(
     base_headers,
 ):
     try:
-        (connection, parameters) = src.api.v1.common.common_api_setup_tasks(
+        (connection, parameters) = common_api_setup_tasks(
             base_query_parameters,
             raw_query_parameters=raw_query_parameters,
             tag_query_parameters=tag_query_parameters,
@@ -61,16 +56,8 @@ def circular_average_events_get(
         )
 
         data = circular_average.get(connection, parameters)
-        if parameters.get("pivot") == True:
-            return PivotResponse(
-                schema=build_table_schema(data, index=False, primary_key=False),
-                data=data.replace({np.nan: None}).to_dict(orient="records"),
-            )
-        else:
-            return ResampleInterpolateResponse(
-                schema=build_table_schema(data, index=False, primary_key=False),
-                data=data.replace({np.nan: None}).to_dict(orient="records"),
-            )
+
+        return json_response(data, limit_offset_parameters)
     except Exception as e:
         logging.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

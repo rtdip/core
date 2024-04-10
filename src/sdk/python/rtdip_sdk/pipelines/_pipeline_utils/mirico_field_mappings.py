@@ -1,8 +1,8 @@
 MIRICO_FIELD_MAPPINGS = {
     0: {"TagName": "timeStamp", "ValueType": "string"},
-    1: {"TagName": "gasTypeId", "ValueType": "integer"},
+    1: {"TagName": "gasTypeId", "ValueType": "float"},
     2: {"TagName": "pathLengthMeters", "ValueType": "float"},
-    3: {"TagName": "quality", "ValueType": "integer"},
+    3: {"TagName": "quality", "ValueType": "float"},
     4: {"TagName": "windBearingDegreesTo", "ValueType": "float"},
     5: {"TagName": "windSpeedMetersPerSecond", "ValueType": "float"},
     6: {"TagName": "pressureMillibar", "ValueType": "float"},
