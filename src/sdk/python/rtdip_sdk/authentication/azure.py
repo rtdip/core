@@ -68,7 +68,12 @@ class CertificateAuth:
     """
 
     def __init__(
-        self, tenant_id: str, client_id: str, certificate_path: str = None, certificate_data: bytes = None, password: Union[str, bytes] = None
+        self,
+        tenant_id: str,
+        client_id: str,
+        certificate_path: str = None,
+        certificate_data: bytes = None,
+        password: Union[str, bytes] = None,
     ) -> None:
         self.tenant_id = tenant_id
         self.client_id = client_id
@@ -85,7 +90,11 @@ class CertificateAuth:
         """
         try:
             access_token = CertificateCredential(
-                self.tenant_id, self.client_id, self.certificate_path, certificate_data=self.certificate_data, password=self.password
+                self.tenant_id,
+                self.client_id,
+                self.certificate_path,
+                certificate_data=self.certificate_data,
+                password=self.password,
             )
             return access_token
         except Exception as e:
