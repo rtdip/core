@@ -67,6 +67,7 @@ class PYODBCSQLConnection(ConnectionInterface):
                 + "UID=token;"
                 +
                 #'PWD=' + access_token+ ";" +
+                +"UserAgentEntry=RTDIP"
                 "Auth_AccessToken=" + self.access_token + ";"
                 "ThriftTransport=2;" + "SSL=1;" + "HTTPPath=" + self.http_path,
                 autocommit=True,
