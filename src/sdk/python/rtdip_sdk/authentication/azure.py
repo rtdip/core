@@ -17,6 +17,7 @@ from azure.identity import (
     CertificateCredential,
     DefaultAzureCredential,
 )
+from typing import Union
 import logging
 
 
@@ -62,14 +63,18 @@ class CertificateAuth:
         tenant_id: The Azure Active Directory tenant (directory) Id of the service principal.
         client_id: The client (application) ID of the service principal
         certificate_path: Optional path to a certificate file in PEM or PKCS12 format, including the private key. If not provided, certificate_data is required.
+        certificate_data: Optional bytes of a certificate in PEM or PKCS12 format, including the private key
+        password: Optional certificate password. If a unicode string, it will be encoded as UTF-8. If the certificate requires a different encoding, pass appropriately encoded bytes instead.
     """
 
     def __init__(
-        self, tenant_id: str, client_id: str, certificate_path: str = None
+        self, tenant_id: str, client_id: str, certificate_path: str = None, certificate_data: bytes = None, password: Union[str, bytes] = None
     ) -> None:
         self.tenant_id = tenant_id
         self.client_id = client_id
         self.certificate_path = certificate_path
+        self.certificate_data = certificate_data
+        self.password = password
 
     def authenticate(self) -> CertificateCredential:
         """
@@ -80,7 +85,7 @@ class CertificateAuth:
         """
         try:
             access_token = CertificateCredential(
-                self.tenant_id, self.client_id, self.certificate_path
+                self.tenant_id, self.client_id, self.certificate_path, certificate_data=self.certificate_data, password=self.password
             )
             return access_token
         except Exception as e:
