@@ -13,22 +13,28 @@
 # limitations under the License.
 
 import logging
+
 import pandas as pd
 from pyspark.sql import SparkSession
 
-from ...._pipeline_utils.iso import MISO_SCHEMA
 from . import BaseISOSource
+from ...._pipeline_utils.iso import MISO_SCHEMA
 
 
 class MISODailyLoadISOSource(BaseISOSource):
     """
     The MISO Daily Load ISO Source is used to read daily load data from MISO API. It supports both Actual and Forecast data.
 
-    API: <a href="https://docs.misoenergy.org/marketreports/">https://docs.misoenergy.org/marketreports/</a>
+    To read more about the available reports from MISO API, download the file -
+    [Market Reports](https://cdn.misoenergy.org/Market%20Reports%20Directory115139.xlsx)
+
+    From the list of reports in the file, it pulls the report named
+    `Daily Forecast and Actual Load by Local Resource Zone`.
 
     Actual data is available for one day minus from the given date.
 
     Forecast data is available for next 6 day (inclusive of given date).
+
 
     Example
     --------

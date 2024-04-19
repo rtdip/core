@@ -10,7 +10,8 @@ Please ensure that you have followed the [instructions](https://spark.apache.org
 
 ## Example
 
-This
+Below is an example of connecting to Spark using Spark Connect.
+
 ```python
 from rtdip_sdk.connectors import SparkConnection
 

@@ -23,7 +23,7 @@ class DatabricksSQLConnection(ConnectionInterface):
     """
     The Databricks SQL Connector for Python is a Python library that allows you to use Python code to run SQL commands on Databricks clusters and Databricks SQL warehouses.
 
-    The connection class represents a connection to a database and uses the Databricks SQL Connector API's for Python to intereact with cluster/jobs.
+    The connection class represents a connection to a database and uses the Databricks SQL Connector API's for Python to interact with cluster/jobs.
     To find details for SQL warehouses server_hostname and http_path location to the SQL Warehouse tab in the documentation.
 
     Args:
@@ -46,6 +46,7 @@ class DatabricksSQLConnection(ConnectionInterface):
                 server_hostname=self.server_hostname,
                 http_path=self.http_path,
                 access_token=self.access_token,
+                _user_agent_entry="RTDIP",
             )
         except Exception as e:
             logging.exception("error while connecting to the endpoint")

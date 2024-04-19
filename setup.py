@@ -41,7 +41,7 @@ INSTALL_REQUIRES = [
     "googleapis-common-protos>=1.56.4",
     "langchain==0.1.11",
     "openai==1.13.3",
-    "pydantic==2.4.2",
+    "pydantic==2.6.0",
 ]
 
 PYSPARK_PACKAGES = [
