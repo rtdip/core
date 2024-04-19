@@ -113,7 +113,7 @@ RTDIP SDK is a PyPi package that can be found [here](https://pypi.org/project/rt
 Features of the SDK can be installed using different extras statements when installing the **rtdip-sdk** package:
 
 === "Queries"
-    When installing the package for only quering data, simply specify  in your preferred python package installer:
+    When installing the package for only querying data, simply specify  in your preferred python package installer:
 
         pip install rtdip-sdk
 
@@ -129,6 +129,11 @@ Features of the SDK can be installed using different extras statements when inst
 
     !!! note "Java"
         Ensure that Java is installed prior to installing the rtdip-sdk with the **[pipelines,pyspark]**. See [here](#java) for more information.
+
+=== "Integrations"
+    RTDIP SDK can be installed with extra dependencies for integrations. If running OpenSTEF's automated pipelines with RTDIP, include the additional **[integrations]** during the RTDIP SDK installation to ensure the necessary OpenSTEF packages are included during installation.
+
+        pip install "rtdip-sdk[integrations]"
 
 The following provides examples of how to install the RTDIP SDK package with Pip, Conda or Micromamba. Please note the section above to update any extra packages to be installed as part of the RTDIP SDK.
 

@@ -22,4 +22,8 @@ Find out more about querying RTDIP data using built in time series functions [he
 
 ## Authentication
 
-Find out more about authentication to securely interact with evironments and data [here.](./authentication/azure.md)
+Find out more about authentication to securely interact with environments and data [here.](./authentication/azure.md)
+
+## Integrations
+
+Find out more about integrations with RTDIP [here.](./code-reference/integrations/openstef/overview.md)

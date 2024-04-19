@@ -79,5 +79,6 @@ dependencies:
         - build==0.10.0
         - deltalake==0.10.1
         - trio==0.22.1
+        - openstef-dbc==3.7.7
         - sqlparams==5.1.0
-        - entsoe-py==0.5.10
+        - entsoe-py==0.6.7

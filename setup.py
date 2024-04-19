@@ -36,9 +36,6 @@ INSTALL_REQUIRES = [
     "importlib_metadata>=1.0.0",
     "semver==3.0.0",
     "xlrd==2.0.1",
-    "grpcio>=1.48.1",
-    "grpcio-status>=1.48.1",
-    "googleapis-common-protos>=1.56.4",
     "langchain==0.1.11",
     "openai==1.13.3",
     "pydantic==2.6.0",
@@ -65,13 +62,21 @@ PIPELINE_PACKAGES = [
     "ecmwf-api-client==1.6.3",
     "netCDF4==1.6.4",
     "joblib==1.3.2",
+    "grpcio>=1.48.1",
+    "grpcio-status>=1.48.1",
+    "googleapis-common-protos>=1.56.4",
+    "entsoe-py==0.6.7",
+]
+
+INTEGRATION_PACKAGES = [
+    "openstef-dbc==3.7.7",
     "sqlparams==5.1.0",
-    "entsoe-py==0.5.10",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
     "pipelines": PIPELINE_PACKAGES,
     "pyspark": PYSPARK_PACKAGES,
+    "integrations": INTEGRATION_PACKAGES,
 }
 
 setup(
