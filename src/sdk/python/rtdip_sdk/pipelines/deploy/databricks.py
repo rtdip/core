@@ -19,6 +19,7 @@ from pathlib import Path
 from io import BytesIO
 
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.config import Config
 from databricks.sdk.service.jobs import CreateJob, JobSettings
 from databricks.sdk.service.compute import Library, PythonPyPiLibrary, MavenLibrary
 from .interfaces import DeployInterface
@@ -125,7 +126,12 @@ class DatabricksSDKDeploy(DeployInterface):
         """
         # Add libraries to Databricks Job
         workspace_client = WorkspaceClient(
-            host=self.host, token=self.token, auth_type="pat"
+            host=self.host,
+            token=self.token,
+            auth_type="pat",
+            config=Config(
+                product="RTDIP",
+            ),
         )
         for task in self.databricks_job.tasks:
             if task.notebook_task is None and task.spark_python_task is None:
@@ -263,7 +269,12 @@ class DatabricksSDKDeploy(DeployInterface):
         Launches an RTDIP Pipeline Job in Databricks Workflows. This will perform the equivalent of a `Run Now` in Databricks Workflows
         """
         workspace_client = WorkspaceClient(
-            host=self.host, token=self.token, auth_type="pat"
+            host=self.host,
+            token=self.token,
+            auth_type="pat",
+            config=Config(
+                product="RTDIP",
+            ),
         )
         job_found = False
         for existing_job in workspace_client.jobs.list(name=self.databricks_job.name):
@@ -281,7 +292,12 @@ class DatabricksSDKDeploy(DeployInterface):
         Cancels an RTDIP Pipeline Job in Databricks Workflows. This will perform the equivalent of a `Cancel All Runs` in Databricks Workflows
         """
         workspace_client = WorkspaceClient(
-            host=self.host, token=self.token, auth_type="pat"
+            host=self.host,
+            token=self.token,
+            auth_type="pat",
+            config=Config(
+                product="RTDIP",
+            ),
         )
         job_found = False
         for existing_job in workspace_client.jobs.list(name=self.databricks_job.name):

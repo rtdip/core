@@ -115,3 +115,11 @@ Once a job is deployed to Databricks, it can be executed immediately using the f
 # Run/Launch the Job in Databricks
 launch_result = databricks_job.launch()
 ```
+
+## Stop
+
+A job that is running and is deployed to Databricks, can be cancelled using the following code.
+
+```python
+# Run/Launch the Job in Databricks
+stop_result = databricks_job.stop()
