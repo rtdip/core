@@ -36,7 +36,7 @@ class PJMDailyPricingISOSource(BaseISOSource):
     Real-Time doc:    <a href="https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition">https://dataminer2.pjm.com/feed/rt_hrl_lmps/definition</a>
 
     Day-Ahead doc:    <a href="https://dataminer2.pjm.com/feed/da_hrl_lmps/definition">https://dataminer2.pjm.com/feed/da_hrl_lmps/definition</a>
-    
+
     Example
     --------
     ```python
@@ -130,7 +130,7 @@ class PJMDailyPricingISOSource(BaseISOSource):
                 )
 
             data = response.json()
-            
+
             logging.info(f"Data for page {next_page}:")
             items.extend(data["items"])
             next_urls = list(filter(lambda item: item["rel"] == "next", data["links"]))

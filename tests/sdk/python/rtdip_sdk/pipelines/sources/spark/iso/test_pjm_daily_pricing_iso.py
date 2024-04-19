@@ -14,6 +14,7 @@
 import io
 import json
 import sys
+from datetime import timedelta
 from io import StringIO
 
 import numpy as np
@@ -24,7 +25,9 @@ sys.path.insert(0, ".")
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import PJM_PRICING_SCHEMA
 
 import pytest
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import PJMDailyPricingISOSource
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import (
+    PJMDailyPricingISOSource,
+)
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import SparkSession, DataFrame
 from pytest_mock import MockerFixture
@@ -315,10 +318,14 @@ def test_pjm_daily_load_iso_iso_fetch_url_fails(
 
     with pytest.raises(HTTPError) as exc_info:
         base_iso_source.read_batch()
-
+    current_date = base_iso_source.current_date
+    start_dt = (current_date - timedelta(days=base_iso_source.days)).strftime(
+        "%Y-%m-%d 00:00"
+    )
+    end_dt = current_date.strftime("%Y-%m-%d 23:00")
     expected = (
-        "Unable to access URL `https://api.pjm.com/api/v1/rt_hrl_lmps?startRow=1&rowCount=5"
-        "&datetime_beginning_ept=2024-03-29 00:00to2024-04-01 23:00`."
+        f"Unable to access URL `https://api.pjm.com/api/v1/rt_hrl_lmps?startRow=1&rowCount=5"
+        f"&datetime_beginning_ept={start_dt}to{end_dt}`."
         " Received status code 401 with message b'Unknown Error'"
     )
     assert str(exc_info.value) == expected

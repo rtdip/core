@@ -37,7 +37,7 @@ class PJMHistoricalPricingISOSource(PJMDailyPricingISOSource):
     Day-Ahead doc:    <a href="https://dataminer2.pjm.com/feed/da_hrl_lmps/definition">https://dataminer2.pjm.com/feed/da_hrl_lmps/definition</a>
 
     The PJM Historical Pricing ISO Source accesses the same PJM endpoints as the daily pricing source but is tailored for retrieving data within a specified historical range defined by the `start_date` and `end_date` attributes.
-    
+
     Example
     --------
     ```python
