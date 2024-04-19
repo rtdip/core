@@ -13,27 +13,28 @@
 # limitations under the License.
 
 import logging
-import pandas as pd
-import numpy as np
-import requests
-from pyspark.sql import SparkSession
 from datetime import timedelta
 from io import BytesIO
 
-from ...._pipeline_utils.iso import PJM_SCHEMA
+import numpy as np
+import pandas as pd
+import requests
+from pyspark.sql import SparkSession
 
 from . import BaseISOSource
+from ...._pipeline_utils.iso import PJM_SCHEMA
 
 
 class PJMDailyLoadISOSource(BaseISOSource):
     """
-    The PJM Daily Load ISO Source is used to read daily load data from PJM API. It supports both Actual and Forecast data. Actual will return 1 day, Forecast will return 7 days
+    The PJM Daily Load ISO Source is used to read daily load data from PJM API.
+    It supports both Actual and Forecast data. Actual will return 1 day, Forecast will return 7 days.
 
-    API:           <a href="https://api.pjm.com/api/v1/">https://api.pjm.com/api/v1/</a>  (must be a valid apy key from PJM)
-
-    Actual doc:    <a href="https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition">https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition</a>
-
-    Forecast doc:  <a href="https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition">https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition</a>
+    To read more about the reports, visit the following URLs -
+    <br>
+    Actual doc:    [ops_sum_prev_period](https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition)
+    <br>
+    Forecast doc:  [load_frcstd_7_day](https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition)
 
     Example
     --------

@@ -13,11 +13,12 @@
 # limitations under the License.
 
 import logging
-import pandas as pd
-from pyspark.sql import SparkSession
+import time
 from datetime import datetime, timedelta
 from io import BytesIO
-import time
+
+import pandas as pd
+from pyspark.sql import SparkSession
 
 from . import PJMDailyLoadISOSource
 
@@ -26,11 +27,14 @@ class PJMHistoricalLoadISOSource(PJMDailyLoadISOSource):
     """
     The PJM Historical Load ISO Source is used to read historical load data from PJM API.
 
-    API:               <a href="https://api.pjm.com/api/v1/">https://api.pjm.com/api/v1/</a>  (must be a valid apy key from PJM)
+    To read more about the reports, visit the following URLs -
+    <br>
+    Actual doc:    [ops_sum_prev_period](https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition)
+    <br>
+    Forecast doc:  [load_frcstd_7_day](https://dataminer2.pjm.com/feed/load_frcstd_7_day/definition)
 
-    Historical doc:    <a href="https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition">https://dataminer2.pjm.com/feed/ops_sum_prev_period/definition</a>
-
-    Historical is the same PJM endpoint as Actual, but is called repeatedly within a range established by the start_date & end_date attributes
+    Historical is the same PJM endpoint as Actual, but is called repeatedly within a range established by the
+    start_date & end_date attributes
 
     Example
     --------

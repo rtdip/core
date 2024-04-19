@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql import SparkSession
-import pandas as pd
 import logging
 from datetime import datetime, timedelta
+
+import pandas as pd
+from pyspark.sql import SparkSession
+
 from . import MISODailyLoadISOSource
 
 
@@ -23,7 +25,11 @@ class MISOHistoricalLoadISOSource(MISODailyLoadISOSource):
     """
     The MISO Historical Load ISO Source is used to read historical load data from MISO API.
 
-    API: <a href="https://docs.misoenergy.org/marketreports/">https://docs.misoenergy.org/marketreports/</a>
+    To read more about the available reports from MISO API, download the file -
+     [Market Reports](https://cdn.misoenergy.org/Market%20Reports%20Directory115139.xlsx)
+
+    From the list of reports in the file, it pulls the report named
+     `Historical Daily Forecast and Actual Load by Local Resource Zone`.
 
     Example
     --------
