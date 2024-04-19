@@ -21,10 +21,11 @@ import numpy as np
 import pandas as pd
 from requests import HTTPError
 
-from rtdip_sdk.pipelines._pipeline_utils.iso import PJM_PRICING_SCHEMA
-from rtdip_sdk.pipelines.sources import PJMHistoricalPricingISOSource
-
 sys.path.insert(0, ".")
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import PJM_PRICING_SCHEMA
+from src.sdk.python.rtdip_sdk.pipelines.sources import PJMHistoricalPricingISOSource
+
+
 import pytest
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import SparkSession, DataFrame

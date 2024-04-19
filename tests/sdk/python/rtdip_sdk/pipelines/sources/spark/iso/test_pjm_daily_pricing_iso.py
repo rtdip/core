@@ -20,13 +20,11 @@ import numpy as np
 import pandas as pd
 from requests import HTTPError
 
-from rtdip_sdk.pipelines._pipeline_utils.iso import PJM_PRICING_SCHEMA
-
 sys.path.insert(0, ".")
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.iso import PJM_PRICING_SCHEMA
+
 import pytest
-from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import (
-    PJMDailyPricingISOSource,
-)
+from src.sdk.python.rtdip_sdk.pipelines.sources.spark.iso import PJMDailyPricingISOSource
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries
 from pyspark.sql import SparkSession, DataFrame
 from pytest_mock import MockerFixture
