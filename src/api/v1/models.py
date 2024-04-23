@@ -134,6 +134,17 @@ class ResampleInterpolateRow(BaseModel):
     Value: Union[float, int, str, None]
 
 
+class PlotRow(BaseModel):
+    EventTime: datetime
+    TagName: str
+    Average: float
+    Min: float
+    Max: float
+    First: float
+    Last: float
+    StdDev: float
+
+
 class PivotRow(BaseModel):
     EventTime: datetime
 
@@ -145,6 +156,14 @@ class ResampleInterpolateResponse(BaseModel):
         None, alias="schema", serialization_alias="schema"
     )
     data: List[ResampleInterpolateRow]
+    pagination: Union[PaginationRow, None]
+
+
+class PlotResponse(BaseModel):
+    field_schema: FieldSchema = Field(
+        None, alias="schema", serialization_alias="schema"
+    )
+    data: List[PlotRow]
     pagination: Union[PaginationRow, None]
 
 
@@ -275,6 +294,30 @@ class TagsQueryParams:
 
 class TagsBodyParams(BaseModel):
     tag_name: List[str]
+
+
+class PlotQueryParams:
+    def __init__(
+        self,
+        sample_rate: str = Query(
+            ...,
+            description="sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.",
+            examples=[5],
+            deprecated=True,
+        ),
+        sample_unit: str = Query(
+            ...,
+            description="sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.",
+            examples=["second", "minute", "hour", "day"],
+            deprecated=True,
+        ),
+        time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
+        time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
+    ):
+        self.sample_rate = sample_rate
+        self.sample_unit = sample_unit
+        self.time_interval_rate = time_interval_rate
+        self.time_interval_unit = time_interval_unit
 
 
 class ResampleQueryParams:

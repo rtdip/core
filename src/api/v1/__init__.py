@@ -21,6 +21,7 @@ from src.api.v1 import (
     sql,
     latest,
     resample,
+    plot,
     interpolate,
     interpolation_at_time,
     circular_average,

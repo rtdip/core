@@ -202,6 +202,103 @@ def _sample_query(parameters_dict: dict) -> tuple:
     return sql_query, sample_query, sample_parameters
 
 
+def _plot_query(parameters_dict: dict) -> tuple:
+    plot_query = (
+        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
+        "{% if source is defined and source is not none %}"
+        "`{{ source|lower }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
+        "{% endif %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %}"
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
+        ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
+        ",window_buckets AS (SELECT timestamp_array AS window_start, timestampadd({{time_interval_unit }}, {{ time_interval_rate }}, timestamp_array) AS window_end FROM date_array) "
+        ",plot AS (SELECT /*+ RANGE_JOIN(d, {{ range_join_seconds }} ) */ d.window_start, d.window_end, e.`{{ tagname_column }}`"
+        ", avg(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `avg_{{ value_column }}`"
+        ", min(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `min_{{ value_column }}`"
+        ", max(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `max_{{ value_column }}`"
+        ", first(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `first_{{ value_column }}`"
+        ", last(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `last_{{ value_column }}`"
+        ", stddev(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `stddev_{{ value_column }}` "
+        "FROM window_buckets d INNER JOIN raw_events e ON d.window_start <= e.`{{ timestamp_column }}` AND d.window_end > e.`{{ timestamp_column }}`) "
+        ",project AS (SELECT window_start AS `{{ timestamp_column }}`, `{{ tagname_column }}`, `avg_{{ value_column }}` as `Average`, `min_{{ value_column }}` as `Min`, `max_{{ value_column }}` as `Max`, `first_{{ value_column }}` as `First`, `last_{{ value_column }}` as `Last`, `stddev_{{ value_column }}` as `StdDev` FROM plot GROUP BY window_start, `{{ tagname_column }}`, `avg_{{ value_column }}`, `min_{{ value_column }}`, `max_{{ value_column }}`, `first_{{ value_column }}`, `last_{{ value_column }}`, `stddev_{{ value_column }}` "
+        "{% if is_resample is defined and is_resample == true %}"
+        "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% endif %}"
+        ") "
+        "{% if is_resample is defined and is_resample == true and pivot is defined and pivot == true %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "{% else %}"
+        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
+        "{% for i in range(tag_names | length) %}"
+        "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
+        "{% endfor %}"
+        "{% endif %}"
+        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        "{% else %}"
+        "SELECT * FROM project "
+        "{% endif %}"
+        "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
+        "LIMIT {{ limit }} "
+        "{% endif %}"
+        "{% if is_resample is defined and is_resample == true and offset is defined and offset is not none %}"
+        "OFFSET {{ offset }} "
+        "{% endif %}"
+    )
+
+    plot_parameters = {
+        "source": parameters_dict.get("source", None),
+        "business_unit": parameters_dict.get("business_unit"),
+        "region": parameters_dict.get("region"),
+        "asset": parameters_dict.get("asset"),
+        "data_security_level": parameters_dict.get("data_security_level"),
+        "data_type": parameters_dict.get("data_type"),
+        "start_date": parameters_dict["start_date"],
+        "end_date": parameters_dict["end_date"],
+        "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
+        "include_bad_data": parameters_dict["include_bad_data"],
+        "time_interval_rate": parameters_dict["time_interval_rate"],
+        "time_interval_unit": parameters_dict["time_interval_unit"],
+        "time_zone": parameters_dict["time_zone"],
+        "pivot": False,
+        "limit": parameters_dict.get("limit", None),
+        "offset": parameters_dict.get("offset", None),
+        "is_resample": True,
+        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
+        "include_status": (
+            False
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else True
+        ),
+        "status_column": (
+            "Status"
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else parameters_dict.get("status_column", "Status")
+        ),
+        "value_column": parameters_dict.get("value_column", "Value"),
+        "range_join_seconds": parameters_dict["range_join_seconds"],
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
+    }
+
+    sql_template = Template(plot_query)
+    sql_query = sql_template.render(plot_parameters)
+    return sql_query, plot_query, plot_parameters
+
+
 def _interpolation_query(
     parameters_dict: dict, sample_query: str, sample_parameters: dict
 ) -> str:
@@ -829,6 +926,15 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             parameters_dict
         )
         return sample_prepared_query
+
+    if query_type == "plot":
+        parameters_dict["range_join_seconds"] = _convert_to_seconds(
+            parameters_dict["time_interval_rate"]
+            + " "
+            + parameters_dict["time_interval_unit"][0]
+        )
+        plot_prepared_query, _, _ = _plot_query(parameters_dict)
+        return plot_prepared_query
 
     if query_type == "interpolate":
         parameters_dict["range_join_seconds"] = _convert_to_seconds(

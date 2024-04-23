@@ -36,6 +36,7 @@ def common_api_setup_tasks(  # NOSONAR
     sql_query_parameters=None,
     tag_query_parameters=None,
     resample_query_parameters=None,
+    plot_query_parameters=None,
     interpolate_query_parameters=None,
     interpolation_at_time_query_parameters=None,
     time_weighted_average_query_parameters=None,
@@ -99,6 +100,9 @@ def common_api_setup_tasks(  # NOSONAR
 
     if resample_query_parameters != None:
         parameters = dict(parameters, **resample_query_parameters.__dict__)
+
+    if plot_query_parameters != None:
+        parameters = dict(parameters, **plot_query_parameters.__dict__)
 
     if interpolate_query_parameters != None:
         parameters = dict(parameters, **interpolate_query_parameters.__dict__)
