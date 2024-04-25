@@ -48,8 +48,8 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.11"]
-        pyspark: ["3.5.0"]
-        delta-spark: ["3.0.0"]
+        pyspark: ["3.5.1"]
+        delta-spark: ["3.1.0"]
     runs-on: ${{ matrix.os }} 
     steps:
       - uses: actions/checkout@v3

@@ -28,7 +28,7 @@ from tests.api.v1.api_test_objects import (
 from httpx import AsyncClient
 from src.api.v1 import app
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.latest.get"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.latest.get"
 MOCK_API_NAME = "/api/v1/events/latest"
 
 pytestmark = pytest.mark.anyio
