@@ -244,12 +244,12 @@ class RawQueryParams:
         include_bad_data: bool = Query(
             ..., description="Include or remove Bad data points"
         ),
-        start_date: Union[date, datetime] = Query(
+        start_date: Union[datetime, date] = Query(
             ...,
             description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
-        end_date: Union[date, datetime] = Query(
+        end_date: Union[datetime, date] = Query(
             ...,
             description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],

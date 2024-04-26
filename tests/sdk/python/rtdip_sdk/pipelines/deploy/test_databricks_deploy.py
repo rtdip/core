@@ -94,6 +94,11 @@ class DummyWorkspaceClient:
     jobs = DummyJob()
 
 
+class DummyConfig:
+    def __init__(self, product=None):
+        return None
+
+
 default_version = "0.0.0rc0"
 default_list_package = "databricks.sdk.service.jobs.JobsAPI.list"
 
@@ -161,6 +166,10 @@ def test_pipeline_job_deploy(mocker: MockerFixture):
     )
     mocker.patch(default_list_package, return_value=[])
     mocker.patch("databricks.sdk.service.jobs.JobsAPI.create", return_value=None)
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.pipelines.deploy.databricks.Config",
+        return_value=DummyConfig(),
+    )
     deploy_result = databricks_job.deploy()
     assert deploy_result
 

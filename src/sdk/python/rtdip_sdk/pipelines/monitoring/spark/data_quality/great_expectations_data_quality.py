@@ -14,6 +14,10 @@
 
 import great_expectations as gx
 from pyspark.sql import DataFrame, SparkSession
+<<<<<<< HEAD
+=======
+from ...interfaces import MonitoringBaseInterface
+>>>>>>> origin/develop
 from ...._pipeline_utils.models import Libraries, SystemType
 from great_expectations.checkpoint import (
     Checkpoint,
@@ -24,14 +28,21 @@ from great_expectations.expectations.expectation import (
 
 
 # Create a new context
+<<<<<<< HEAD
 class GreatExpectationsDataQuality:
+=======
+class GreatExpectationsDataQuality(MonitoringBaseInterface):
+>>>>>>> origin/develop
     """
     Data Quality Monitoring using Great Expectations allowing you to create and check your data quality expectations.
 
     Example
     --------
     ```python
+<<<<<<< HEAD
     #
+=======
+>>>>>>> origin/develop
     from src.sdk.python.rtdip_sdk.monitoring.data_quality.great_expectations.python.great_expectations_data_quality import  GreatExpectationsDataQuality
     from rtdip_sdk.pipelines.utilities import SparkSessionUtility
     import json
@@ -39,6 +50,7 @@ class GreatExpectationsDataQuality:
     # Not required if using Databricks
     spark = SparkSessionUtility(config={}).execute()
 
+<<<<<<< HEAD
     df = example_df_from_spark
     context_root_dir = "great_expectations_dir",
     expectation_suite_name = "great_expectations_suite_name"
@@ -46,20 +58,42 @@ class GreatExpectationsDataQuality:
     expectation_type = "expect_column_values_to_not_be_null"
     exception_dict = {
         "column": "user_id",
+=======
+    df = spark_dataframe
+    context_root_dir = "/dbfs/great_expectations/",
+    expectation_suite_name = "great_expectations_suite_name"
+    df_datasource_name = "my_spark_in_memory_datasource",
+    df_asset_name = "df_asset_name",
+
+
+    expectation_type = "expect_column_values_to_not_be_null"
+    exception_dict = {
+        "column": "column_name",
+>>>>>>> origin/develop
         "mostly": 0.75,
     }
     meta_dict = {
         "notes": {
             "format": "markdown",
+<<<<<<< HEAD
             "content": "Some clever comment about this expectation. **Markdown** `Supported`",
+=======
+            "content": "Comment about this expectation.",
+>>>>>>> origin/develop
         }
     }
 
     #Configure the Great Expectations Data Quality
 
+<<<<<<< HEAD
     GX = GreatExpectationsDataQuality(spark, context_root_dir, df, expectation_suite_name)
 
     validator, suite = GX.create_expectations(spark, context_root_dir, df, expectation_suite_name)
+=======
+    GX = GreatExpectationsDataQuality(spark, context_root_dir, df, expectation_suite_name, df_datasource_name, df_asset_name)
+
+    validator, suite = GX.create_expectations()
+>>>>>>> origin/develop
 
     expectation_configuration = GX.build_expectations(
         exception_type, exception_dict, meta_dict
@@ -93,10 +127,16 @@ class GreatExpectationsDataQuality:
         df (DataFrame): Dataframe containing the raw data.
         context_root_dir (str): The root directory of the Great Expectations project.
         expectation_suite_name (str): The name of the expectation suite to be created.
+<<<<<<< HEAD
+=======
+        df_datasource_name (str): The name of the datasource.
+        df_asset_name (str): The name of the asset.
+>>>>>>> origin/develop
     """
 
     def __init__(
         self,
+<<<<<<< HEAD
         context_root_dir: str,
         df: DataFrame,
         expectation_suite_name: str,
@@ -104,6 +144,21 @@ class GreatExpectationsDataQuality:
         self.context_root_dir = context_root_dir
         self.df = df
         self.expectation_suite_name = expectation_suite_name
+=======
+        spark: SparkSession,
+        context_root_dir: str,
+        df: DataFrame,
+        expectation_suite_name: str,
+        df_datasource_name: str = "my_spark_in_memory_datasource",
+        df_asset_name: str = "df_asset_name",
+    ) -> None:
+        self.spark = spark
+        self.context_root_dir = context_root_dir
+        self.df = df
+        self.expectation_suite_name = expectation_suite_name
+        self.df_datasource_name = df_datasource_name
+        self.df_asset_name = df_asset_name
+>>>>>>> origin/develop
 
     @staticmethod
     def system_type():
@@ -137,7 +192,21 @@ class GreatExpectationsDataQuality:
         Create a batch request from a dataframe
         Returns: batch_request
         """
+<<<<<<< HEAD
         batch_request = (self.df).build_batch_request()
+=======
+        context = self._create_context()
+
+        dataframe_datasource = context.sources.add_or_update_spark(
+            name=self.df_datasource_name,
+        )
+        dataframe_asset = dataframe_datasource.add_dataframe_asset(
+            name=self.df_asset_name,
+            dataframe=self.df,
+        )
+
+        batch_request = (dataframe_asset).build_batch_request()
+>>>>>>> origin/develop
         return batch_request
 
     # Create Expectations
@@ -169,7 +238,11 @@ class GreatExpectationsDataQuality:
         )
 
     def remove_expectations(
+<<<<<<< HEAD
         self, suite, expectation_configuration, remove_multiple_matches=False
+=======
+        self, suite, expectation_configuration, remove_multiple_matches=True
+>>>>>>> origin/develop
     ):
         suite.remove_expectation(
             expectation_configuration=expectation_configuration,
@@ -189,7 +262,11 @@ class GreatExpectationsDataQuality:
 
     def check(
         self,
+<<<<<<< HEAD
         checkpoint_name,
+=======
+        checkpoint_name: str,
+>>>>>>> origin/develop
         run_name_template: str,
         action_list: list,
     ):
@@ -199,7 +276,12 @@ class GreatExpectationsDataQuality:
             checkpoint_name (str): The name of the checkpoint.
             run_name_template (str): The name of the run.
             action_list (list): The list of actions to be performed.
+<<<<<<< HEAD
          Returns: checkpoint_result(dict)"""
+=======
+         Returns: checkpoint_result(dict)
+        """
+>>>>>>> origin/develop
         context = self._create_context()
         batch_request = self._create_batch_request()
 

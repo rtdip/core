@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from _datetime import datetime, timedelta
 import logging
+from _datetime import datetime, timedelta
 from io import BytesIO
 from zipfile import ZipFile
 
@@ -20,16 +20,19 @@ import pandas as pd
 from pyspark.sql import SparkSession
 from requests import HTTPError
 
-from ...._pipeline_utils.iso import CAISO_SCHEMA
 from . import BaseISOSource
+from ...._pipeline_utils.iso import CAISO_SCHEMA
 
 
 class CAISODailyLoadISOSource(BaseISOSource):
     """
     The CAISO Daily Load ISO Source is used to read daily load data from CAISO API.
     It supports multiple types of data. Check the `load_types` attribute.
-    <br>API: <a href="http://oasis.caiso.com/oasisapi">http://oasis.caiso.com/oasisapi</a>
 
+    To read more about the available reports from CAISO API, download the file -
+     [Interface Specification](https://www.caiso.com/Documents/OASISAPISpecification.pdf)
+
+    From the list of reports in the file, it pulls the report named `CAISO Demand Forecast` in the file.
 
     Parameters:
         spark (SparkSession): Spark Session instance

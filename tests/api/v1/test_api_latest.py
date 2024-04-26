@@ -28,7 +28,7 @@ from tests.api.v1.api_test_objects import (
 from httpx import AsyncClient
 from src.api.v1 import app
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.latest.get"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.latest.get"
 MOCK_API_NAME = "/api/v1/events/latest"
 
 pytestmark = pytest.mark.anyio
@@ -157,7 +157,7 @@ async def test_api_latest_get_validation_error(mocker: MockerFixture):
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["query","business_unit"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.4/v/missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["query","business_unit"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
     )
 
 
@@ -251,7 +251,7 @@ async def test_api_latest_post_no_tags_provided_error(mocker: MockerFixture):
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["body"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.4/v/missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["body"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
     )
 
 
@@ -283,7 +283,7 @@ async def test_api_latest_post_validation_error(mocker: MockerFixture):
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["query","business_unit"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.4/v/missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["query","business_unit"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
     )
 
 

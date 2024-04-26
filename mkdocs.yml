@@ -152,6 +152,8 @@ nav:
                           - CAISO Daily Load: sdk/code-reference/pipelines/sources/spark/iso/caiso_daily_load_iso.md
                           - CAISO Historical Load: sdk/code-reference/pipelines/sources/spark/iso/caiso_historical_load_iso.md
                           - ERCOT Daily Load: sdk/code-reference/pipelines/sources/spark/iso/ercot_daily_load_iso.md
+                          - PJM Daily Pricing Load: sdk/code-reference/pipelines/sources/spark/iso/pjm_daily_pricing_iso.md
+                          - PJM Historical Pricing Load: sdk/code-reference/pipelines/sources/spark/iso/pjm_historical_pricing_iso.md
                       - Weather:
                           - Base Weather: sdk/code-reference/pipelines/sources/spark/the_weather_company/base_weather.md
                           - Weather Forecast API V1: sdk/code-reference/pipelines/sources/spark/the_weather_company/weather_forecast_api_v1.md
@@ -230,9 +232,13 @@ nav:
               - Monitoring:
                   - Data Quality: 
                       - Great Expectations: 
+<<<<<<< HEAD
                         - Data Quality Monitoring: sdk/code-reference/pipelines/monitoring/data_quality/spark/great_expectations.md
                       - PyDeequ: 
                         - Data Quality Monitoring: sdk/code-reference/pipelines/monitoring/data_quality/spark/pydeequ.md
+=======
+                        - Data Quality Monitoring: sdk/code-reference/pipelines/monitoring/spark/data_quality/great_expectations.md
+>>>>>>> origin/develop
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md

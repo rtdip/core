@@ -65,6 +65,7 @@ class PYODBCSQLConnection(ConnectionInterface):
                 + "SparkServerType=3;"
                 + "AuthMech=11;"
                 + "UID=token;"
+                + "UserAgentEntry=RTDIP;"
                 +
                 #'PWD=' + access_token+ ";" +
                 "Auth_AccessToken=" + self.access_token + ";"

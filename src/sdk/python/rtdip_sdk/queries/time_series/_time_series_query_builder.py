@@ -41,7 +41,7 @@ def _raw_query(parameters_dict: dict) -> str:
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
-        "AND `{{ status_column }}` = 'Good'"
+        "AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good')"
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% if limit is defined and limit is not none %}"
@@ -124,7 +124,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% else %}"
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
         ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
         ",window_buckets AS (SELECT timestamp_array AS window_start, timestampadd({{time_interval_unit }}, {{ time_interval_rate }}, timestamp_array) AS window_end FROM date_array) "
         ",resample AS (SELECT /*+ RANGE_JOIN(d, {{ range_join_seconds }} ) */ d.window_start, d.window_end, e.`{{ tagname_column }}`, {{ agg_method }}(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `{{ value_column }}` FROM window_buckets d INNER JOIN raw_events e ON d.window_start <= e.`{{ timestamp_column }}` AND d.window_end > e.`{{ timestamp_column }}`) "
@@ -299,7 +299,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "{% else %}"
         "AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}')"
         "{% endif %} "
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ", date_array AS (SELECT DISTINCT explode(array("
         "{% else %}"
@@ -492,7 +492,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% else %}"
         "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ',date_array AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events) '
         "{% else %}"
@@ -501,7 +501,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",boundary_events AS (SELECT coalesce(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, coalesce(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN raw_events b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
         ",window_buckets AS (SELECT `{{ timestamp_column }}` AS window_start, LEAD(`{{ timestamp_column }}`) OVER (ORDER BY `{{ timestamp_column }}`) AS window_end FROM (SELECT distinct `{{ timestamp_column }}` FROM date_array) ) "
         ",window_events AS (SELECT /*+ RANGE_JOIN(b, {{ range_join_seconds }} ) */ b.`{{ tagname_column }}`, b.`{{ timestamp_column }}`, a.window_start AS `Window{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM boundary_events b LEFT OUTER JOIN window_buckets a ON a.window_start <= b.`{{ timestamp_column }}` AND a.window_end > b.`{{ timestamp_column }}`) "
-        ',fill_status AS (SELECT *, last_value(`{{ status_column }}`, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Fill_{{ status_column }}`, CASE WHEN `Fill_{{ status_column }}` = "Good" THEN `{{ value_column }}` ELSE null END AS `Good_{{ value_column }}` FROM window_events) '
+        ',fill_status AS (SELECT *, last_value(`{{ status_column }}`, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Fill_{{ status_column }}`, CASE WHEN `Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") THEN `{{ value_column }}` ELSE null END AS `Good_{{ value_column }}` FROM window_events) '
         ",fill_value AS (SELECT *, last_value(`Good_{{ value_column }}`, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Fill_{{ value_column }}` FROM fill_status) "
         '{% if step is defined and step == "metadata" %} '
         ",fill_step AS (SELECT *, IFNULL(Step, false) AS Step FROM fill_value f LEFT JOIN "
@@ -517,9 +517,9 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",interpolate AS (SELECT *, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lag(`{{ timestamp_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Previous_{{ timestamp_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lag(`Fill_{{ value_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Previous_Fill_{{ value_column }}`, "
         "lead(`{{ timestamp_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) AS `Next_{{ timestamp_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lead(`Fill_{{ value_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Next_Fill_{{ value_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN `Previous_Fill_{{ value_column }}` + ( (`Next_Fill_{{ value_column }}` - `Previous_Fill_{{ value_column }}`) * ( ( unix_timestamp(`{{ timestamp_column }}`) - unix_timestamp(`Previous_{{ timestamp_column }}`) ) / ( unix_timestamp(`Next_{{ timestamp_column }}`) - unix_timestamp(`Previous_{{ timestamp_column }}`) ) ) ) ELSE NULL END AS `Interpolated_{{ value_column }}`, coalesce(`Interpolated_{{ value_column }}`, `Fill_{{ value_column }}`) as `Event_{{ value_column }}` FROM fill_step )"
         ",twa_calculations AS (SELECT `{{ tagname_column }}`, `{{ timestamp_column }}`, `Window{{ timestamp_column }}`, `Step`, `{{ status_column }}`, `{{ value_column }}`, `Previous_{{ timestamp_column }}`, `Previous_Fill_{{ value_column }}`, `Next_{{ timestamp_column }}`, `Next_Fill_{{ value_column }}`, `Interpolated_{{ value_column }}`, `Fill_{{ status_column }}`, `Fill_{{ value_column }}`, `Event_{{ value_column }}`, lead(`Fill_{{ status_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ status_column }}` "
-        ', CASE WHEN `Next_{{ status_column }}` = "Good" OR (`Fill_{{ status_column }}` = "Good" AND `Next_{{ status_column }}` != "Good") THEN lead(`Event_{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) ELSE `{{ value_column }}` END AS `Next_{{ value_column }}_For_{{ status_column }}` '
-        ', CASE WHEN `Fill_{{ status_column }}` = "Good" THEN `Next_{{ value_column }}_For_{{ status_column }}` ELSE 0 END AS `Next_{{ value_column }}` '
-        ', CASE WHEN `Fill_{{ status_column }}` = "Good" AND `Next_{{ status_column }}` = "Good" THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) WHEN `Fill_{{ status_column }}` = "Good" AND `Next_{{ status_column }}` != "Good" THEN ((cast(`Next_{{ timestamp_column }}` AS integer) - cast(`{{ timestamp_column }}` AS double)) / 60) ELSE 0 END AS good_minutes '
+        ', CASE WHEN `Next_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") OR (`Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") AND `Next_{{ status_column }}` NOT IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good")) THEN lead(`Event_{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) ELSE `{{ value_column }}` END AS `Next_{{ value_column }}_For_{{ status_column }}` '
+        ', CASE WHEN `Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") THEN `Next_{{ value_column }}_For_{{ status_column }}` ELSE 0 END AS `Next_{{ value_column }}` '
+        ', CASE WHEN `Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") AND `Next_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) WHEN `Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") AND `Next_{{ status_column }}` NOT IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") THEN ((cast(`Next_{{ timestamp_column }}` AS integer) - cast(`{{ timestamp_column }}` AS double)) / 60) ELSE 0 END AS good_minutes '
         ", CASE WHEN Step == false THEN ((`Event_{{ value_column }}` + `Next_{{ value_column }}`) * 0.5) * good_minutes ELSE (`Event_{{ value_column }}` * good_minutes) END AS twa_value FROM interpolate) "
         ",twa AS (SELECT `{{ tagname_column }}`, `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, sum(twa_value) / sum(good_minutes) AS `{{ value_column }}` from twa_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
         ',project AS (SELECT * FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) '
@@ -607,7 +607,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "{% else %}"
         "WHERE `{{ timestamp_column }}` BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` = 'Good' {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ',date_array AS (SELECT DISTINCT EXPLODE(SEQUENCE(FROM_UTC_TIMESTAMP(TO_TIMESTAMP("{{ start_date }}"), "{{ time_zone }}"), FROM_UTC_TIMESTAMP(TO_TIMESTAMP("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, EXPLODE(ARRAY(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events)  '
         "{% else %}"
@@ -740,7 +740,7 @@ def _summary_query(parameters_dict: dict) -> str:
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
-        "AND `{{ status_column }}` = 'Good'"
+        "AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good')"
         "{% endif %}"
         "GROUP BY `{{ tagname_column }}` "
         "{% if limit is defined and limit is not none %}"

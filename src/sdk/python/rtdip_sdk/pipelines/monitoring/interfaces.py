@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
 from abc import ABC, abstractmethod
 from ._monitoring_utils.models import Libraries, SystemType
 
@@ -31,3 +32,11 @@ class MonitoringBaseInterface(ABC):
     @abstractmethod
     def settings() -> dict:
         pass
+=======
+from abc import abstractmethod
+from ..interfaces import PipelineComponentBaseInterface
+
+
+class MonitoringBaseInterface(PipelineComponentBaseInterface):
+    pass
+>>>>>>> origin/develop

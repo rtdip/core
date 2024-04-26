@@ -1,19 +1,31 @@
 import pytest
 from pytest_mock import MockerFixture
 from pyspark.sql import SparkSession, DataFrame
+<<<<<<< HEAD
 from pyspark.sql.types import (
     StructType,
     StructField,
     StringType,
     IntegerType,
 )
+=======
+>>>>>>> origin/develop
 
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.great_expectations_data_quality import (
     GreatExpectationsDataQuality,
 )
 
 gx = GreatExpectationsDataQuality(
+<<<<<<< HEAD
     "context_root_dir/test/", "test_df", "expectation_suite_name"
+=======
+    spark=SparkSession,
+    context_root_dir="context_root_dir/test/",
+    df="test_df",
+    expectation_suite_name="expectation_suite_name",
+    df_datasource_name="my_spark_in_memory_datasource",
+    df_asset_name="df_asset_name",
+>>>>>>> origin/develop
 )
 
 
@@ -93,7 +105,11 @@ def test_remove_expectations(mocker: MockerFixture):
     mock_suite.remove_expectation.assert_called_once_with(
         expectation_configuration=mock_expectation_configuration,
         match_type="domain",
+<<<<<<< HEAD
         remove_multiple_matches=False,
+=======
+        remove_multiple_matches=True,
+>>>>>>> origin/develop
     )
 
 

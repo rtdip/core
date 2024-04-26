@@ -70,6 +70,7 @@ class TURBODBCSQLConnection(ConnectionInterface):
                 DisableLimitZero=1,
                 EnableAsyncExec=1,
                 RowsFetchedPerBlock=os.getenv("RTDIP_ODBC_ROW_BLOCK_SIZE", 500000),
+                UserAgentEntry="RTDIP",
                 turbodbc_options=options,
             )
 
