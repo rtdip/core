@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import sys
+import os
 
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.pydeequ_data_quality import (
     PyDeequDataQuality,
@@ -29,6 +30,9 @@ from pyspark.sql.types import (
 from pydeequ.suggestions import ConstraintSuggestionRunner
 from pydeequ.analyzers import AnalysisRunner, AnalyzerContext
 from pydeequ.profiles import ColumnProfilerRunner
+
+os.environ["SPARK_VERSION"] = "3.3"
+
 
 data2 = [
     ("James", "", "Smith", "36636", "M", 3000),
