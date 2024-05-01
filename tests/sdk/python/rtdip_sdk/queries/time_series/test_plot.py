@@ -83,32 +83,3 @@ def test_plot_fails(mocker: MockerFixture):
 def test_plot_tag_name_not_list_fails(mocker: MockerFixture):
     MOCKED_PLOT_PARAMETER_DICT["tag_names"] = "abc"
     _test_base_fails(mocker, MOCKED_PLOT_PARAMETER_DICT, plot_get)
-
-
-def test_plot():
-    from src.sdk.python.rtdip_sdk.queries import TimeSeriesQueryBuilder
-    from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
-
-    auth = DefaultAuth().authenticate()
-    token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-    connection = DatabricksSQLConnection(
-        "adb-8969364155430721.1.azuredatabricks.net",
-        "/sql/1.0/endpoints/9ecb6a8d6707260c",
-        token,
-    )
-
-    tag_list = ["PGP:720FY003.PV", "PGP:720X001A.PV", "SGHP:600XX533.PV"]
-
-    data = (
-        TimeSeriesQueryBuilder()
-        .connect(connection=connection)
-        .source("downstream.sensors.pernis_restricted_events_float")
-        .plot(
-            tagname_filter=tag_list,
-            start_date="2022-01-01T00:00:00+00:00",
-            end_date="2022-01-02T00:00:00+00:00",
-            time_interval_rate="1",
-            time_interval_unit="hour",
-        )
-    )
-    print(data)
