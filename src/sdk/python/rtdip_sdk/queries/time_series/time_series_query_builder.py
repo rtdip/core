@@ -273,7 +273,7 @@ class TimeSeriesQueryBuilder:
         offset: int = None,
     ) -> DataFrame:
         """
-        A query to plot the source data using Average, Min, Max, First, Last, StdDev aggregations.
+        A query to plot the source data for a time interval for Min, Max, First, Last and an Exception Value(Status = Bad), if it exists.
 
         **Example:**
         ```python

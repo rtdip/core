@@ -219,14 +219,14 @@ def _plot_query(parameters_dict: dict) -> tuple:
         ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
         ",window_buckets AS (SELECT timestamp_array AS window_start, timestampadd({{time_interval_unit }}, {{ time_interval_rate }}, timestamp_array) AS window_end FROM date_array) "
         ",plot AS (SELECT /*+ RANGE_JOIN(d, {{ range_join_seconds }} ) */ d.window_start, d.window_end, e.`{{ tagname_column }}`"
-        ", avg(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `avg_{{ value_column }}`"
-        ", min(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `min_{{ value_column }}`"
-        ", max(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `max_{{ value_column }}`"
-        ", first(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `first_{{ value_column }}`"
-        ", last(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `last_{{ value_column }}`"
-        ", stddev(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `stddev_{{ value_column }}` "
+        ", min(CASE WHEN `{{ status_column }}` = 'Bad' THEN null ELSE struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) END) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `min_{{ value_column }}`"
+        ", max(CASE WHEN `{{ status_column }}` = 'Bad' THEN null ELSE struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) END) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `max_{{ value_column }}`"
+        ", first(CASE WHEN `{{ status_column }}` = 'Bad' THEN null ELSE struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) END, True) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `first_{{ value_column }}`"
+        ", last(CASE WHEN `{{ status_column }}` = 'Bad' THEN null ELSE struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) END, True) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `last_{{ value_column }}`"
+        ", first(CASE WHEN `{{ status_column }}` = 'Bad' THEN struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) ELSE null END, True) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `excp_{{ value_column }}` "
         "FROM window_buckets d INNER JOIN raw_events e ON d.window_start <= e.`{{ timestamp_column }}` AND d.window_end > e.`{{ timestamp_column }}`) "
-        ",project AS (SELECT window_start AS `{{ timestamp_column }}`, `{{ tagname_column }}`, `avg_{{ value_column }}` as `Average`, `min_{{ value_column }}` as `Min`, `max_{{ value_column }}` as `Max`, `first_{{ value_column }}` as `First`, `last_{{ value_column }}` as `Last`, `stddev_{{ value_column }}` as `StdDev` FROM plot GROUP BY window_start, `{{ tagname_column }}`, `avg_{{ value_column }}`, `min_{{ value_column }}`, `max_{{ value_column }}`, `first_{{ value_column }}`, `last_{{ value_column }}`, `stddev_{{ value_column }}` "
+        ",deduplicate AS (SELECT window_start AS `{{ timestamp_column }}`, `{{ tagname_column }}`, `min_{{ value_column }}` as `Min`, `max_{{ value_column }}` as `Max`, `first_{{ value_column }}` as `First`, `last_{{ value_column }}` as `Last`, `excp_{{ value_column }}` as `Exception` FROM plot GROUP BY window_start, `{{ tagname_column }}`, `min_{{ value_column }}`, `max_{{ value_column }}`, `first_{{ value_column }}`, `last_{{ value_column }}`, `excp_{{ value_column }}`) "
+        ",project AS (SELECT distinct Values.{{ timestamp_column }}, `{{ tagname_column }}`, Values.{{ value_column }} FROM (SELECT * FROM deduplicate UNPIVOT (`Values` for `Aggregation` IN (`Min`, `Max`, `First`, `Last`, `Exception`))) "
         "{% if is_resample is defined and is_resample == true %}"
         "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% endif %}"
@@ -265,7 +265,7 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "start_date": parameters_dict["start_date"],
         "end_date": parameters_dict["end_date"],
         "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
-        "include_bad_data": parameters_dict["include_bad_data"],
+        "include_bad_data": True,
         "time_interval_rate": parameters_dict["time_interval_rate"],
         "time_interval_unit": parameters_dict["time_interval_unit"],
         "time_zone": parameters_dict["time_zone"],

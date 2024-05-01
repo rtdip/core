@@ -22,7 +22,7 @@ from src.sdk.python.rtdip_sdk.queries.time_series import plot
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
-    PlotResponse,
+    ResampleInterpolateRow,
     HTTPError,
     RawQueryParams,
     TagsQueryParams,
@@ -63,7 +63,7 @@ def plot_events_get(
 get_description = """
 ## Plot 
 
-Plotting of resampled raw timeseries data and aggregated to Average, Min, Max, First, Last, StdDev.
+Plotting of resampled raw timeseries data and aggregated to Min, Max, First and Last and an Exception Value(Status = Bad) if it exists.
 """
 
 
@@ -73,7 +73,7 @@ Plotting of resampled raw timeseries data and aggregated to Average, Min, Max, F
     description=get_description,
     tags=["Events"],
     responses={
-        200: {"model": PlotResponse},
+        200: {"model": ResampleInterpolateRow},
         400: {"model": HTTPError},
     },
     openapi_extra={
@@ -104,7 +104,7 @@ async def plot_get(
 post_description = """
 ## Plot 
 
-Plotting of resampled raw timeseries data and aggregated to Average, Min, Max, First, Last, StdDev via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
+Plotting of resampled raw timeseries data and aggregated to Average, Min, Max, First and Last and an Exception Value(Status = Bad) if it exists, via a POST method to enable providing a list of tag names that can exceed url length restrictions via GET Query Parameters.
 """
 
 
@@ -114,7 +114,7 @@ Plotting of resampled raw timeseries data and aggregated to Average, Min, Max, F
     description=post_description,
     tags=["Events"],
     responses={
-        200: {"model": PlotResponse},
+        200: {"model": ResampleInterpolateRow},
         400: {"model": HTTPError},
     },
     openapi_extra={

@@ -19,7 +19,7 @@ from ._time_series_query_builder import _query_builder
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
-    An RTDIP Resampling plot function in spark to resample data by querying databricks SQL warehouses using a connection and authentication method specified by the user. This spark resample function will return a resampled dataframe.
+    An RTDIP Resampling plot function in spark to resample data to find the First, Last, Min, Max and Exception Value for the time interval by querying databricks SQL warehouses using a connection and authentication method specified by the user. This spark resample function will return a resampled dataframe.
 
     The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
 
@@ -44,8 +44,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         sample_unit (str): (deprecated) Please use time_interval_unit instead. See below.
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
-        include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False

@@ -159,14 +159,6 @@ class ResampleInterpolateResponse(BaseModel):
     pagination: Union[PaginationRow, None]
 
 
-class PlotResponse(BaseModel):
-    field_schema: FieldSchema = Field(
-        None, alias="schema", serialization_alias="schema"
-    )
-    data: List[PlotRow]
-    pagination: Union[PaginationRow, None]
-
-
 class SummaryResponse(BaseModel):
     field_schema: FieldSchema = Field(
         None, alias="schema", serialization_alias="schema"
