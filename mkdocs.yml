@@ -113,8 +113,8 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg # Page tree
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg # Page tree
   - pymdownx.snippets:
       url_download: true
 
@@ -258,6 +258,7 @@ nav:
                     - Raw: sdk/code-reference/query/functions/time_series/raw.md
                     - Latest: sdk/code-reference/query/functions/time_series/latest.md
                     - Resample: sdk/code-reference/query/functions/time_series/resample.md
+                    - Plot: sdk/code-reference/query/functions/time_series/plot.md
                     - Interpolate: sdk/code-reference/query/functions/time_series/interpolate.md
                     - Interpolation at Time: sdk/code-reference/query/functions/time_series/interpolation-at-time.md
                     - Time Weighted Average: sdk/code-reference/query/functions/time_series/time-weighted-average.md
@@ -289,6 +290,7 @@ nav:
               - Metadata: sdk/examples/query/Metadata.md
               - Raw: sdk/examples/query/Raw.md
               - Resample: sdk/examples/query/Resample.md
+              - Plot: sdk/examples/query/Plot.md
               - Time Weighted Average: sdk/examples/query/Time-Weighted-Average.md
               - Circular Average: sdk/examples/query/Circular-Average.md
               - Circular Standard Deviation: sdk/examples/query/Circular-Standard-Deviation.md

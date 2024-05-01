@@ -61,6 +61,27 @@ def test_query_builder_resample(mocker: MockerFixture):
     assert data == {"test": "data"}
 
 
+def test_query_builder_plot(mocker: MockerFixture):
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.plot.get",
+        return_value={"test": "data"},
+    )
+
+    data = (
+        TimeSeriesQueryBuilder()
+        .connect(MOCK_CONNECTION)
+        .source(MOCK_TABLE)
+        .plot(
+            tagname_filter=["mock_tag"],
+            start_date="2021-01-01",
+            end_date="2021-01-02",
+            time_interval_rate="1",
+            time_interval_unit="hour",
+        )
+    )
+    assert data == {"test": "data"}
+
+
 def test_query_builder_interpolate(mocker: MockerFixture):
     mocker.patch(
         "src.sdk.python.rtdip_sdk.queries.time_series.time_series_query_builder.interpolate.get",
