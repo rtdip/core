@@ -34,7 +34,7 @@ MOCKED_PLOT_PARAMETER_DICT["time_interval_rate"] = "15"
 MOCKED_PLOT_PARAMETER_DICT["time_interval_unit"] = "minute"
 
 
-def test_plot(mocker: MockerFixture):
+def test_plot_success(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_PLOT_PARAMETER_DICT,
