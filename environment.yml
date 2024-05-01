@@ -58,7 +58,7 @@ dependencies:
     - pygithub==1.59.0
     - pydantic==2.6.0
     - pyjwt==2.8.0
-    - web3==6.5.0
+    - web3==6.16.0
     - twine==4.0.2
     - delta-sharing-python==1.0.0
     - polars==0.18.8
@@ -81,3 +81,4 @@ dependencies:
         - trio==0.22.1
         - sqlparams==5.1.0
         - entsoe-py==0.5.10
+        - eth-typing==4.2.1
