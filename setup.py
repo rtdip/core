@@ -39,7 +39,7 @@ INSTALL_REQUIRES = [
     "grpcio>=1.48.1",
     "grpcio-status>=1.48.1",
     "googleapis-common-protos>=1.56.4",
-    "langchain==0.1.11",
+    "langchain==0.1.17",
     "openai==1.13.3",
     "pydantic==2.6.0",
 ]

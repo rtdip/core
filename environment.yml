@@ -75,7 +75,7 @@ dependencies:
         - azure-functions==1.15.0
         - azure-mgmt-eventgrid==10.2.0
         - hvac==1.1.1
-        - langchain==0.1.11
+        - langchain==0.1.17
         - build==0.10.0
         - deltalake==0.10.1
         - trio==0.22.1
