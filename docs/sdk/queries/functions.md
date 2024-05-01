@@ -26,6 +26,18 @@ The RTDIP SDK enables users to perform complex queries, including aggregation on
 !!! note "Note"
     </b>Sample Rate and Sample Unit parameters are deprecated and will be removed in v1.0.0. Please use Time Interval Rate and Time Interval Unit instead.<br />
 
+### Plot
+
+[Plot](../code-reference/query/functions/time_series/plot.md) enables changing the frequency of time series observations and performing Average, Min, Max, First, Last and StdDev aggregations. This is achieved by providing the following parameters:
+
+- Sample Rate - (<em>deprecated</em>)
+- Sample Unit - (<em>deprecated</em>)
+- Time Interval Rate - The time interval rate
+- Time Interval Unit - The time interval unit (second, minute, day, hour)
+
+!!! note "Note"
+    </b>Sample Rate and Sample Unit parameters are deprecated and will be removed in v1.0.0. Please use Time Interval Rate and Time Interval Unit instead.<br />
+
 ### Interpolate
 
 [Interpolate](../code-reference/query/functions/time_series/interpolate.md) - takes [resampling](#resample) one step further to estimate the values of unknown data points that fall between existing, known data points. In addition to the resampling parameters, interpolation also requires:

@@ -17,6 +17,7 @@ from ...connectors.connection_interface import ConnectionInterface
 from . import (
     raw,
     resample,
+    plot,
     interpolate,
     interpolation_at_time,
     time_weighted_average,
@@ -259,6 +260,79 @@ class TimeSeriesQueryBuilder:
         }
 
         return resample.get(self.connection, resample_parameters)
+
+    def plot(
+        self,
+        tagname_filter: [str],
+        start_date: str,
+        end_date: str,
+        time_interval_rate: str,
+        time_interval_unit: str,
+        include_bad_data: bool = False,
+        limit: int = None,
+        offset: int = None,
+    ) -> DataFrame:
+        """
+        A query to plot the source data for a time interval for Min, Max, First, Last and an Exception Value(Status = Bad), if it exists.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        data = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source("{table_path}")
+            .plot(
+                tagname_filter=["{tag_name_1}", "{tag_name_2}"],
+                start_date="2023-01-01",
+                end_date="2023-01-31",
+                time_interval_rate="15",
+                time_interval_unit="minute",
+            )
+        )
+
+        display(data)
+
+        ```
+
+        Args:
+            tagname_filter (list str): List of tagnames to filter on the source
+            start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
+            time_interval_rate (str): The time interval rate (numeric input)
+            time_interval_unit (str): The time interval unit (second, minute, day, hour)
+            limit (optional int): The number of rows to be returned
+            offset (optional int): The number of rows to skip before returning rows
+
+        Returns:
+            DataFrame: A dataframe of resampled timeseries data.
+        """
+
+        plot_parameters = {
+            "source": self.data_source,
+            "tag_names": tagname_filter,
+            "start_date": start_date,
+            "end_date": end_date,
+            "include_bad_data": include_bad_data,
+            "time_interval_rate": time_interval_rate,
+            "time_interval_unit": time_interval_unit,
+            "limit": limit,
+            "offset": offset,
+            "tagname_column": self.tagname_column,
+            "timestamp_column": self.timestamp_column,
+            "status_column": self.status_column,
+            "value_column": self.value_column,
+            "supress_warning": True,
+        }
+
+        return plot.get(self.connection, plot_parameters)
 
     def interpolate(
         self,
