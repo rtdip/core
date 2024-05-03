@@ -190,3 +190,33 @@ async def test_api_raw_post_error(mocker: MockerFixture):
 
     assert response.status_code == 400
     assert actual == '{"detail":"Error Connecting to Database"}'
+
+
+# async def test_api_raw_get_success_dates(mocker: MockerFixture):
+#     test_data = pd.DataFrame(
+#         {
+#             "EventTime": [datetime.utcnow()],
+#             "TagName": ["TestTag"],
+#             "Status": ["Good"],
+#             "Value": [1.01],
+#         }
+#     )
+#     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+
+#     raw_parameters_with_updated_dates = RAW_MOCKED_PARAMETER_DICT.copy()
+#     raw_parameters_with_updated_dates["start_date"] = "2023-03-10"
+#     raw_parameters_with_updated_dates["end_date"] = "2023-03-11T00:00:00"
+#     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+#         response = await ac.get(
+#             MOCK_API_NAME,
+#             headers=TEST_HEADERS,
+#             params=raw_parameters_with_updated_dates,
+#         )
+#     actual = response.text
+#     expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+#     expected = (
+#         expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+#     )
+
+#     assert response.status_code == 200
+#     assert actual == expected
