@@ -59,6 +59,7 @@ PIPELINE_PACKAGES = [
     "hvac==1.1.1",
     "azure-keyvault-secrets==4.7.0",
     "web3==6.16.0",
+    "eth-typing>=4.2.2",
     "polars[deltalake]==0.18.8",
     "delta-sharing==1.0.0",
     "xarray>=2023.1.0,<2023.8.0",

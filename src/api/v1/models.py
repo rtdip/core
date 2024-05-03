@@ -15,8 +15,15 @@
 import os
 from datetime import datetime
 from tracemalloc import start
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
-from typing import List, Union, Dict, Any
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    Strict,
+    field_serializer,
+)
+from typing import Annotated, List, Union, Dict, Any
 from fastapi import Query, Header, Depends
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
@@ -244,6 +251,13 @@ class MetadataQueryParams:
         self.tag_name = tag_name
 
 
+def check_date(v: str) -> str:
+    assert (
+        len(v) == 10 or len(v) == 15 or len(v) == 16
+    )  # "Date must be in format YYYY-MM-DD, YYYY-MM-DD+zzzz or YYYY-MM-DD+zz:zz"
+    return v
+
+
 class RawQueryParams:
     def __init__(
         self,
@@ -255,12 +269,14 @@ class RawQueryParams:
         include_bad_data: bool = Query(
             ..., description="Include or remove Bad data points"
         ),
-        start_date: Union[datetime, date] = Query(
+        start_date: Union[
+            Annotated[date, BeforeValidator(check_date)], datetime
+        ] = Query(
             ...,
             description="Start Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
-        end_date: Union[datetime, date] = Query(
+        end_date: Union[Annotated[date, BeforeValidator(check_date)], datetime] = Query(
             ...,
             description="End Date in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
