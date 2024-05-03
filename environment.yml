@@ -39,7 +39,7 @@ dependencies:
     - fastapi==0.110.0
     - httpx==0.24.1
     - pyspark>=3.3.0,<3.6.0
-    - delta-spark>=2.2.0,<3.2.0
+    - delta-spark>=2.2.0,<3.3.0
     - grpcio>=1.48.1
     - grpcio-status>=1.48.1
     - googleapis-common-protos>=1.56.4
@@ -52,7 +52,7 @@ dependencies:
     - mkdocs-macros-plugin==1.0.1
     - pygments==2.16.1
     - pymdown-extensions==10.8.1
-    - databricks-sql-connector==3.1.0
+    - databricks-sql-connector==2.9.3
     - semver==3.0.0
     - xlrd==2.0.1
     - pygithub==1.59.0
@@ -81,4 +81,4 @@ dependencies:
         - trio==0.22.1
         - sqlparams==5.1.0
         - entsoe-py==0.5.10
-        - eth-typing==4.2.1
+        - eth-typing>=4.2.2
