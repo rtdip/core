@@ -29,19 +29,19 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
-    "databricks-sql-connector==3.1.0",
-    "azure-identity==1.12.0",
-    "pandas>=1.5.2,<3.0.0",
-    "jinja2==3.1.2",
+    "databricks-sql-connector>=3.1.0",
+    "azure-identity>=1.12.0",
+    "pandas>=1.5.2,<2.2.0",
+    "jinja2>=3.1.2",
     "importlib_metadata>=1.0.0",
-    "semver==3.0.0",
-    "xlrd==2.0.1",
+    "semver>=3.0.0",
+    "xlrd>=2.0.1",
     "grpcio>=1.48.1",
     "grpcio-status>=1.48.1",
     "googleapis-common-protos>=1.56.4",
-    "langchain==0.1.17",
-    "openai==1.13.3",
-    "pydantic==2.6.0",
+    "langchain>=0.1.17",
+    "openai>=1.13.3",
+    "pydantic>=2.6.0",
 ]
 
 PYSPARK_PACKAGES = [
@@ -50,23 +50,23 @@ PYSPARK_PACKAGES = [
 ]
 
 PIPELINE_PACKAGES = [
-    "dependency-injector==4.41.0",
-    "databricks-sdk==0.20.0",
-    "azure-storage-file-datalake==12.12.0",
-    "azure-mgmt-storage==21.0.0",
-    "azure-mgmt-eventgrid==10.2.0",
-    "boto3==1.28.2",
-    "hvac==1.1.1",
-    "azure-keyvault-secrets==4.7.0",
-    "web3==6.16.0",
-    "polars[deltalake]==0.18.8",
-    "delta-sharing==1.0.0",
+    "dependency-injector>=4.41.0",
+    "databricks-sdk>=0.20.0",
+    "azure-storage-file-datalake>=12.12.0",
+    "azure-mgmt-storage>=21.0.0",
+    "azure-mgmt-eventgrid>=10.2.0",
+    "boto3>=1.28.2",
+    "hvac>=1.1.1",
+    "azure-keyvault-secrets>=4.7.0",
+    "web3>=6.16.0",
+    "polars[deltalake]>=0.18.8",
+    "delta-sharing>=1.0.0",
     "xarray>=2023.1.0,<2023.8.0",
-    "ecmwf-api-client==1.6.3",
-    "netCDF4==1.6.4",
-    "joblib==1.3.2",
-    "sqlparams==5.1.0",
-    "entsoe-py==0.5.10",
+    "ecmwf-api-client>=1.6.3",
+    "netCDF4>=1.6.4",
+    "joblib>=1.3.2",
+    "sqlparams>=5.1.0",
+    "entsoe-py>=0.5.10",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {

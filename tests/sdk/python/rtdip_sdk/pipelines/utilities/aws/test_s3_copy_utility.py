@@ -19,7 +19,7 @@ import random
 import sys
 from datetime import datetime
 import boto3
-from moto import mock_s3
+from moto import mock_aws
 
 
 sys.path.insert(0, ".")
@@ -31,7 +31,7 @@ from src.sdk.python.rtdip_sdk.pipelines.utilities.aws.s3_copy_utility import (
 from src.sdk.python.rtdip_sdk.data_models.storage_objects import storage_objects_utils
 
 
-@mock_s3
+@mock_aws
 def test_s3_copy_utility():
     length: int = 1024
     random.seed(datetime.now().timestamp())

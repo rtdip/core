@@ -89,7 +89,7 @@ async def test_api_plot_get_validation_error(mocker: MockerFixture):
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["query","start_date"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["query","start_date"],"msg":"Field required","input":null}]}'
     )
 
 
@@ -179,7 +179,7 @@ async def test_api_plot_post_validation_error(mocker: MockerFixture):
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["query","start_date"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["query","start_date"],"msg":"Field required","input":null}]}'
     )
 
 
