@@ -29,7 +29,7 @@ def _is_date_format(dt, format):
 
 def _parse_date(dt, is_end_date=False, exclude_date_format=False):  # NOSONAR
     if isinstance(dt, datetime):
-        if dt.time() == time.min:
+        if dt.time() == time.min and not is_end_date:
             if dt.tzinfo is not None:
                 dt = datetime.strftime(dt, "%Y-%m-%d%z")
             else:
