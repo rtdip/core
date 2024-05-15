@@ -11,14 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import os
 from github import Github
 
 
 def define_env(env):
     @env.macro
     def github_releases(owner, repo):
-        github_client = Github()
+        # due to rate limits, only get this data on release
+        release_env = os.environ.get("GITHUB_JOB", "dev")
+        if release_env != "job_deploy_mkdocs_github_pages":
+            return "----\r\n"
+
+        github_client = Github(retry=0, timeout=5)
         repo = github_client.get_repo("{}/{}".format(owner, repo))
         output = "----\r\n"
         for release in repo.get_releases():
