@@ -80,6 +80,5 @@ dependencies:
         - trio>=0.22.1
         - sqlparams>=5.1.0
         - entsoe-py>=0.5.10
-        - pandas
-        - eth-typing>=4.2.1
+        - eth-typing>=4.2.3
         - pandas>=1.5.2,<2.2.0
