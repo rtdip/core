@@ -15,6 +15,7 @@
 import sys
 
 sys.path.insert(0, ".")
+import os
 from datetime import datetime
 from pytest_mock import MockerFixture
 from docs.macros import define_env
@@ -52,6 +53,7 @@ class MockGithub:
 
 
 def test_github_releases(mocker: MockerFixture):
+    os.environ["GITHUB_JOB"] = "job_deploy_mkdocs_github_pages"
     mocker.patch("docs.macros.Github", return_value=MockGithub())
     config = load_config()
     env = MacrosPlugin()
