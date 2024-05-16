@@ -30,7 +30,9 @@ from datetime import datetime
 
 def test_aio_json_to_pcdm(spark_session: SparkSession):
     aio_json_data = '{"SequenceNumber":12345,"Timestamp":"2024-05-13T13:05:10.975317Z","DataSetWriterName":"test","MessageType":"test","Payload":{"test_tag1":{"SourceTimestamp":"2024-05-13T13:05:19.7278555Z","Value":67},"test_tag2":{"SourceTimestamp":"2024-05-13T13:05:19.7288616Z","Value":165.5}}}'
-    fledge_df: DataFrame = spark_session.createDataFrame([{"body": aio_json_data}])
+    aio_df: DataFrame = spark_session.createDataFrame([aio_json_data], "string").toDF(
+        "body"
+    )
 
     expected_schema = StructType(
         [
@@ -53,7 +55,7 @@ def test_aio_json_to_pcdm(spark_session: SparkSession):
             "ChangeType": "insert",
         },
         {
-            "TagName": "test_tag1",
+            "TagName": "test_tag2",
             "Value": "165.5",
             "EventTime": datetime.fromisoformat("2024-05-13T13:05:19.7288616Z"),
             "Status": "Good",
@@ -66,8 +68,10 @@ def test_aio_json_to_pcdm(spark_session: SparkSession):
         schema=expected_schema, data=expected_data
     )
 
+    print(expected_df.collect())
+
     eventhub_json_to_aio_transformer = AIOJsonToPCDMTransformer(
-        data=fledge_df, source_column_name="body"
+        data=aio_df, source_column_name="body"
     )
     actual_df = eventhub_json_to_aio_transformer.transform()
 

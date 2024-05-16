@@ -13,14 +13,7 @@
 # limitations under the License.
 
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import (
-    from_json,
-    col,
-    explode,
-    when,
-    lit,
-    expr
-)
+from pyspark.sql.functions import from_json, col, explode, when, lit, expr
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
@@ -100,15 +93,22 @@ class AIOJsonToPCDMTransformer(TransformerInterface):
         """
         df = (
             self.data.withColumn(
-                self.source_column_name, 
-                from_json(expr(self.source_column_name + "Payload"), AIO_SCHEMA, {"allowUnquotedFieldNames": "true"}))
+                self.source_column_name,
+                from_json(
+                    expr("body:Payload"),
+                    AIO_SCHEMA,
+                    # {"allowUnquotedFieldNames": "true"},
+                ),
+            )
             .select(explode(self.source_column_name))
             .select(col("key").alias("TagName"), "value.*")
             .select(col("SourceTimestamp").alias("EventTime"), "TagName", "Value")
             .withColumn("Status", lit(self.status_null_value))
             .withColumn(
                 "ValueType",
-                when(col("Value").cast("float").isNotNull(), "float").otherwise("string")
+                when(col("Value").cast("float").isNotNull(), "float").otherwise(
+                    "string"
+                ),
             )
             .withColumn("ChangeType", lit(self.change_type_value))
         )
