@@ -611,7 +611,7 @@ SEM_SCHEMA = StructType(
     ]
 )
 
-AIO_SCHEMA  = MapType(
+AIO_SCHEMA = MapType(
     StringType(),
     StructType(
         [
