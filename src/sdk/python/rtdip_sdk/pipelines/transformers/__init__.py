@@ -18,6 +18,7 @@ from .spark.opc_publisher_opcae_json_to_pcdm import *
 from .spark.fledge_opcua_json_to_pcdm import *
 from .spark.ssip_pi_binary_file_to_pcdm import *
 from .spark.ssip_pi_binary_json_to_pcdm import *
+from .spark.aio_json_to_pcdm import *
 from .spark.iso import *
 from .spark.edgex_opcua_json_to_pcdm import *
 from .spark.ecmwf.nc_extractbase_to_weather_data_model import *
