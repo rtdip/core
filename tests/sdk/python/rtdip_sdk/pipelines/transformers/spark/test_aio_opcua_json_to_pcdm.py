@@ -25,7 +25,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
-from datetime import datetime
+from dateutil import parser
 
 
 def test_aio_json_to_pcdm(spark_session: SparkSession):
@@ -49,7 +49,7 @@ def test_aio_json_to_pcdm(spark_session: SparkSession):
         {
             "TagName": "test_tag1",
             "Value": "67",
-            "EventTime": datetime.fromisoformat("2024-05-13T13:05:19.7278555Z"),
+            "EventTime": parser.parse("2024-05-13T13:05:19.7278555Z"),
             "Status": "Good",
             "ValueType": "float",
             "ChangeType": "insert",
@@ -57,7 +57,7 @@ def test_aio_json_to_pcdm(spark_session: SparkSession):
         {
             "TagName": "test_tag2",
             "Value": "165.5",
-            "EventTime": datetime.fromisoformat("2024-05-13T13:05:19.7288616Z"),
+            "EventTime": parser.parse("2024-05-13T13:05:19.7288616Z"),
             "Status": "Good",
             "ValueType": "float",
             "ChangeType": "insert",
