@@ -36,11 +36,11 @@ def test_aio_json_to_pcdm(spark_session: SparkSession):
 
     expected_schema = StructType(
         [
-            StructField("TagName", StringType(), False),
             StructField("EventTime", TimestampType(), True),
+            StructField("TagName", StringType(), False),
             StructField("Status", StringType(), False),
             StructField("Value", StringType(), True),
-            StructField("ValueType", StringType(), True),
+            StructField("ValueType", StringType(), False),
             StructField("ChangeType", StringType(), False),
         ]
     )
@@ -67,8 +67,6 @@ def test_aio_json_to_pcdm(spark_session: SparkSession):
     expected_df: DataFrame = spark_session.createDataFrame(
         schema=expected_schema, data=expected_data
     )
-
-    print(expected_df.collect())
 
     eventhub_json_to_aio_transformer = AIOJsonToPCDMTransformer(
         data=aio_df, source_column_name="body"

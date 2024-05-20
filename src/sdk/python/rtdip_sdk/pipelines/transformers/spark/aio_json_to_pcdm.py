@@ -92,15 +92,11 @@ class AIOJsonToPCDMTransformer(TransformerInterface):
             DataFrame: A dataframe with the specified column converted to PCDM
         """
         df = (
-            self.data.withColumn(
-                self.source_column_name,
-                from_json(
-                    expr("body:Payload"),
-                    AIO_SCHEMA,
-                    # {"allowUnquotedFieldNames": "true"},
-                ),
+            self.data.select(
+                from_json(col(self.source_column_name), "Payload STRING").alias("body")
             )
-            .select(explode(self.source_column_name))
+            .select(from_json(expr("body.Payload"), AIO_SCHEMA).alias("body"))
+            .select(explode("body"))
             .select(col("key").alias("TagName"), "value.*")
             .select(col("SourceTimestamp").alias("EventTime"), "TagName", "Value")
             .withColumn("Status", lit(self.status_null_value))
