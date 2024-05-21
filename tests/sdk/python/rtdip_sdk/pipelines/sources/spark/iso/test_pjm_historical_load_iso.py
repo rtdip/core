@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import sys
 from io import StringIO
 
@@ -141,7 +141,7 @@ def test_miso_historical_load_iso_invalid_dates(spark_session: SparkSession):
 
     assert str(exc_info.value) == "Start date can't be ahead of End date."
 
-    future_date = (datetime.utcnow() + timedelta(days=10)).strftime("%Y-%m-%d")
+    future_date = (datetime.now(timezone.utc) + timedelta(days=10)).strftime("%Y-%m-%d")
 
     with pytest.raises(ValueError) as exc_info:
         iso_source = PJMHistoricalLoadISOSource(

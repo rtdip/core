@@ -610,3 +610,13 @@ SEM_SCHEMA = StructType(
         StructField("sourceName", StringType(), True),
     ]
 )
+
+AIO_SCHEMA = MapType(
+    StringType(),
+    StructType(
+        [
+            StructField("SourceTimestamp", TimestampType(), True),
+            StructField("Value", StringType(), True),
+        ]
+    ),
+)

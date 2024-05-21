@@ -15,7 +15,7 @@
 import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 from tests.api.v1.api_test_objects import (
     RESAMPLE_MOCKED_PARAMETER_DICT,
     RESAMPLE_MOCKED_PARAMETER_ERROR_DICT,
@@ -36,7 +36,11 @@ pytestmark = pytest.mark.anyio
 
 async def test_api_resample_get_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Value": [1.01],
+        }
     )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
@@ -47,7 +51,8 @@ async def test_api_resample_get_success(mocker: MockerFixture):
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200
@@ -56,7 +61,11 @@ async def test_api_resample_get_success(mocker: MockerFixture):
 
 async def test_api_resample_get_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Value": [1.01],
+        }
     )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
@@ -77,7 +86,11 @@ async def test_api_resample_get_validation_error(mocker: MockerFixture):
 
 async def test_api_resample_get_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Value": [1.01],
+        }
     )
     mocker = mocker_setup(
         mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
@@ -95,7 +108,11 @@ async def test_api_resample_get_error(mocker: MockerFixture):
 
 async def test_api_resample_post_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Value": [1.01],
+        }
     )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
@@ -109,7 +126,8 @@ async def test_api_resample_post_success(mocker: MockerFixture):
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200
@@ -118,7 +136,11 @@ async def test_api_resample_post_success(mocker: MockerFixture):
 
 async def test_api_resample_post_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Value": [1.01],
+        }
     )
     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
@@ -140,7 +162,11 @@ async def test_api_resample_post_validation_error(mocker: MockerFixture):
 
 async def test_api_resample_post_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
-        {"EventTime": [datetime.utcnow()], "TagName": ["TestTag"], "Value": [1.01]}
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Value": [1.01],
+        }
     )
     mocker = mocker_setup(
         mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
