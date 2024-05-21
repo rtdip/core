@@ -68,12 +68,12 @@ def test_aio_json_to_pcdm(spark_session: SparkSession):
         schema=expected_schema, data=expected_data
     )
 
-    eventhub_json_to_aio_transformer = AIOJsonToPCDMTransformer(
+    aio_json_to_pcdm_transformer = AIOJsonToPCDMTransformer(
         data=aio_df, source_column_name="body"
     )
-    actual_df = eventhub_json_to_aio_transformer.transform()
+    actual_df = aio_json_to_pcdm_transformer.transform()
 
-    assert eventhub_json_to_aio_transformer.system_type() == SystemType.PYSPARK
-    assert isinstance(eventhub_json_to_aio_transformer.libraries(), Libraries)
+    assert aio_json_to_pcdm_transformer.system_type() == SystemType.PYSPARK
+    assert isinstance(aio_json_to_pcdm_transformer.libraries(), Libraries)
     assert expected_schema == actual_df.schema
     assert expected_df.collect() == actual_df.collect()
