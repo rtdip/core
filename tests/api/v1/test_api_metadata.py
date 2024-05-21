@@ -46,7 +46,8 @@ async def test_api_metadata_get_tags_provided_success(mocker: MockerFixture):
     actual = response.text
     expected = TEST_DATA.to_json(orient="table", index=False)
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200
@@ -67,7 +68,8 @@ async def test_api_metadata_get_no_tags_provided_success(mocker: MockerFixture):
     actual = response.text
     expected = TEST_DATA.to_json(orient="table", index=False)
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200
@@ -120,7 +122,8 @@ async def test_api_metadata_post_tags_provided_success(mocker: MockerFixture):
     actual = response.text
     expected = TEST_DATA.to_json(orient="table", index=False)
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200

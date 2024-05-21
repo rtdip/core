@@ -14,7 +14,7 @@
 import io
 import json
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from io import StringIO
 
 import numpy as np
@@ -368,7 +368,7 @@ def test_miso_historical_pricing_iso_invalid_dates(spark_session: SparkSession):
 
     assert str(exc_info.value) == "Start date can't be ahead of End date."
 
-    future_date = (datetime.utcnow() + timedelta(days=10)).strftime("%Y-%m-%d")
+    future_date = (datetime.now(timezone.utc) + timedelta(days=10)).strftime("%Y-%m-%d")
 
     with pytest.raises(ValueError) as exc_info:
         iso_source = PJMHistoricalPricingISOSource(

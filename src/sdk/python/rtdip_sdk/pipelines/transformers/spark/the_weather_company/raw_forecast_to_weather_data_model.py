@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import when, substring, lit, col, concat
@@ -91,7 +91,7 @@ class RawForecastToWeatherDataModel(TransformerInterface):
 
         self.pre_transform_validation()
 
-        processed_date = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        processed_date = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
         df = (
             self.data.withColumn("WeatherDay", substring("FcstValidLocal", 0, 10))
