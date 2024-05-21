@@ -15,7 +15,7 @@
 import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 from tests.api.v1.api_test_objects import (
     METADATA_MOCKED_PARAMETER_DICT,
     METADATA_MOCKED_PARAMETER_ERROR_DICT,
@@ -38,11 +38,11 @@ async def test_api_latest_get_tags_provided_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
-            "GoodEventTime": [datetime.utcnow()],
+            "GoodEventTime": [datetime.now(timezone.utc)],
             "GoodValue": ["1.01"],
             "GoodValueType": ["string"],
         }
@@ -57,7 +57,8 @@ async def test_api_latest_get_tags_provided_success(mocker: MockerFixture):
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200
@@ -70,7 +71,7 @@ async def test_api_latest_get_no_good_values_tags_provided_success(
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
@@ -89,7 +90,8 @@ async def test_api_latest_get_no_good_values_tags_provided_success(
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200
@@ -100,11 +102,11 @@ async def test_api_latest_get_no_tags_provided_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
-            "GoodEventTime": [datetime.utcnow()],
+            "GoodEventTime": [datetime.now(timezone.utc)],
             "GoodValue": ["1.01"],
             "GoodValueType": ["string"],
         }
@@ -123,7 +125,8 @@ async def test_api_latest_get_no_tags_provided_success(mocker: MockerFixture):
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200
@@ -134,11 +137,11 @@ async def test_api_latest_get_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
-            "GoodEventTime": [datetime.utcnow()],
+            "GoodEventTime": [datetime.now(timezone.utc)],
             "GoodValue": ["1.01"],
             "GoodValueType": ["string"],
         }
@@ -165,11 +168,11 @@ async def test_api_latest_get_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
-            "GoodEventTime": [datetime.utcnow()],
+            "GoodEventTime": [datetime.now(timezone.utc)],
             "GoodValue": ["1.01"],
             "GoodValueType": ["string"],
         }
@@ -193,11 +196,11 @@ async def test_api_latest_post_tags_provided_success(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
-            "GoodEventTime": [datetime.utcnow()],
+            "GoodEventTime": [datetime.now(timezone.utc)],
             "GoodValue": ["1.01"],
             "GoodValueType": ["string"],
         }
@@ -215,7 +218,8 @@ async def test_api_latest_post_tags_provided_success(mocker: MockerFixture):
     actual = response.text
     expected = test_data.to_json(orient="table", index=False, date_unit="ns")
     expected = (
-        expected.rstrip("}") + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
     )
 
     assert response.status_code == 200
@@ -226,11 +230,11 @@ async def test_api_latest_post_no_tags_provided_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
-            "GoodEventTime": [datetime.utcnow()],
+            "GoodEventTime": [datetime.now(timezone.utc)],
             "GoodValue": ["1.01"],
             "GoodValueType": ["string"],
         }
@@ -259,11 +263,11 @@ async def test_api_latest_post_validation_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
-            "GoodEventTime": [datetime.utcnow()],
+            "GoodEventTime": [datetime.now(timezone.utc)],
             "GoodValue": ["1.01"],
             "GoodValueType": ["string"],
         }
@@ -291,11 +295,11 @@ async def test_api_raw_post_error(mocker: MockerFixture):
     test_data = pd.DataFrame(
         {
             "TagName": ["TestTag"],
-            "EventTime": [datetime.utcnow()],
+            "EventTime": [datetime.now(timezone.utc)],
             "Status": ["Good"],
             "Value": ["1.01"],
             "ValueType": ["string"],
-            "GoodEventTime": [datetime.utcnow()],
+            "GoodEventTime": [datetime.now(timezone.utc)],
             "GoodValue": ["1.01"],
             "GoodValueType": ["string"],
         }

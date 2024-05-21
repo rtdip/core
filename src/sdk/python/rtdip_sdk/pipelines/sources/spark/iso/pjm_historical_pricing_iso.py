@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 import time
 import pandas as pd
@@ -142,13 +142,17 @@ class PJMHistoricalPricingISOSource(PJMDailyPricingISOSource):
                 f"Unable to parse End date. Please specify in {self.user_datetime_format} format."
             )
 
-        if start_date > datetime.utcnow() - timedelta(days=1):
+        if start_date > datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(
+            days=1
+        ):
             raise ValueError("Start date can't be in future.")
 
         if start_date > end_date:
             raise ValueError("Start date can't be ahead of End date.")
 
-        if end_date > datetime.utcnow() - timedelta(days=1):
+        if end_date > datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(
+            days=1
+        ):
             raise ValueError("End date can't be in future.")
 
         return True
