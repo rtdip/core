@@ -620,3 +620,23 @@ AIO_SCHEMA = MapType(
         ]
     ),
 )
+
+OPCUA_SCHEMA = ArrayType(
+    StructType(
+        [
+            StructField("DataSetWriterId", LongType(), True),
+            StructField("Timestamp", TimestampType(), True),
+            StructField(
+                "Payload",
+                MapType(
+                    StringType(),
+                    StructType(
+                        [
+                            StructField("Value", StringType(), True),
+                        ]
+                    ),
+                ),
+            ),
+        ]
+    )
+)
