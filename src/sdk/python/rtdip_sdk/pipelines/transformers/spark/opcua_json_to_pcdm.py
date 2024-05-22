@@ -17,30 +17,30 @@ from pyspark.sql.functions import from_json, col, explode, when, lit, expr
 
 from ..interfaces import TransformerInterface
 from ..._pipeline_utils.models import Libraries, SystemType
-from ..._pipeline_utils.spark import AIO_SCHEMA
+from ..._pipeline_utils.spark import OPCUA_SCHEMA
 
 
-class AIOJsonToPCDMTransformer(TransformerInterface):
+class OPCUAJsonToPCDMTransformer(TransformerInterface):
     """
-    Converts a Spark Dataframe column containing a json string created by AIO to the Process Control Data Model.
+    Converts a Spark Dataframe column containing a json string created by Open Source OPCUA to the Process Control Data Model.
 
     Example
     --------
     ```python
-    from rtdip_sdk.pipelines.transformers import AIOJsonToPCDMTransformer
+    from rtdip_sdk.pipelines.transformers import OPCUAJsonToPCDMTransformer
 
-    aio_json_to_pcdm_transfromer = AIOJsonToPCDMTransformer(
+    opcua_json_to_pcdm_transfromer = OPCUAJsonToPCDMTransformer(
         data=df,
         souce_column_name="body",
         status_null_value="Good",
         change_type_value="insert"
     )
 
-    result = aio_json_to_pcdm_transfromer.transform()
+    result = opcua_json_to_pcdm_transfromer.transform()
     ```
 
     Parameters:
-        data (DataFrame): Dataframe containing the column with Json AIO data
+        data (DataFrame): Dataframe containing the column with Json OPCUA data
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         status_null_value (str): If populated, will replace 'Good' in the Status column with the specified value.
         change_type_value (optional str): If populated, will replace 'insert' in the ChangeType column with the specified value.
@@ -93,12 +93,12 @@ class AIOJsonToPCDMTransformer(TransformerInterface):
         """
         df = (
             self.data.select(
-                from_json(col(self.source_column_name), "Payload STRING").alias("body")
+                from_json(col(self.source_column_name), "Messages STRING").alias("body")
             )
-            .select(from_json(expr("body.Payload"), AIO_SCHEMA).alias("body"))
-            .select(explode("body"))
-            .select(col("key").alias("TagName"), "value.*")
-            .select(col("SourceTimestamp").alias("EventTime"), "TagName", "Value")
+            .select(from_json(expr("body.Messages"), OPCUA_SCHEMA).alias("body"))
+            .selectExpr("inline(body)")
+            .select(col("Timestamp").alias("EventTime"), explode("Payload"))
+            .select("EventTime", col("key").alias("TagName"), "value.*")
             .withColumn("Status", lit(self.status_null_value))
             .withColumn(
                 "ValueType",
