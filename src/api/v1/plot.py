@@ -22,7 +22,7 @@ from src.sdk.python.rtdip_sdk.queries.time_series import plot
 from src.api.v1.models import (
     BaseQueryParams,
     BaseHeaders,
-    ResampleInterpolateRow,
+    ResampleInterpolateResponse,
     HTTPError,
     RawQueryParams,
     TagsQueryParams,
@@ -73,7 +73,7 @@ Plotting of resampled raw timeseries data and aggregated to Min, Max, First and 
     description=get_description,
     tags=["Events"],
     responses={
-        200: {"model": ResampleInterpolateRow},
+        200: {"model": ResampleInterpolateResponse},
         400: {"model": HTTPError},
     },
     openapi_extra={
@@ -114,7 +114,7 @@ Plotting of resampled raw timeseries data and aggregated to Average, Min, Max, F
     description=post_description,
     tags=["Events"],
     responses={
-        200: {"model": ResampleInterpolateRow},
+        200: {"model": ResampleInterpolateResponse},
         400: {"model": HTTPError},
     },
     openapi_extra={
