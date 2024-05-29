@@ -640,3 +640,17 @@ OPCUA_SCHEMA = ArrayType(
         ]
     )
 )
+
+MIRICO_METADATA_SCHEMA = StructType(
+    [
+        StructField("retroName", StringType(), True),
+        StructField("siteName", StringType(), True),
+        StructField("retroAltitude", FloatType(), True),
+        StructField("sensorAltitude", FloatType(), True),
+        StructField("retroLongitude", FloatType(), True),
+        StructField("gasType", StringType(), True),
+        StructField("sensorLatitude", FloatType(), True),
+        StructField("retroLatitude", FloatType(), True),
+        StructField("sensorLongitude", FloatType(), True),
+    ]
+)
