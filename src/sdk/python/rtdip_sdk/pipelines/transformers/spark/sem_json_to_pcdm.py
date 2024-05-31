@@ -57,7 +57,7 @@ class SEMJsonToPCDMTransformer(TransformerInterface):
 
     Parameters:
         data (DataFrame): Dataframe containing the column with SEM data
-        source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
+        source_column_name (str): Spark Dataframe column containing the Json SEM data
         version (int): The version for the OBC field mappings. The latest version is 10.
         status_null_value (optional str): If populated, will replace 'Good' in the Status column with the specified value.
         change_type_value (optional str): If populated, will replace 'insert' in the ChangeType column with the specified value.
