@@ -31,7 +31,7 @@ from ..._pipeline_utils.spark import MIRICO_METADATA_SCHEMA
 
 class MiricoJsonToMetadataTransformer(TransformerInterface):
     """
-    Converts a Spark Dataframe column containing a json string created from Mirico to the metadata model.
+    Converts a Spark Dataframe column containing a json string created from Mirico to the Metadata Model.
 
     Example
     --------
@@ -47,8 +47,8 @@ class MiricoJsonToMetadataTransformer(TransformerInterface):
     ```
 
     Parameters:
-        data (DataFrame): Dataframe containing the column with SEM data
-        source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
+        data (DataFrame): Dataframe containing the column with Mirico data
+        source_column_name (str): Spark Dataframe column containing the Json Mirico data
     """
 
     data: DataFrame
