@@ -85,7 +85,7 @@ class MiricoJsonToMetadataTransformer(TransformerInterface):
     def transform(self) -> DataFrame:
         """
         Returns:
-            DataFrame: A dataframe with the specified column converted to PCDM
+            DataFrame: A dataframe with the specified column converted to Metadata model
         """
 
         df = self.data.select(
