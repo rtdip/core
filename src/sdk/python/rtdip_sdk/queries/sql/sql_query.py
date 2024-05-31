@@ -49,6 +49,7 @@ class SQLQueryBuilder:
         """
         try:
             parameters_dict = {"sql_statement": sql_query}
+            parameters_dict["supress_warning"] = True
             if limit:
                 parameters_dict["limit"] = limit
             if offset:

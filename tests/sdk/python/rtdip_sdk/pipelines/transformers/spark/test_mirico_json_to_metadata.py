@@ -24,14 +24,11 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StructType, StructField, StringType, TimestampType
-from datetime import datetime
+from pyspark.sql.types import StructType, StructField, StringType, FloatType
 import pytest
 from src.sdk.python.rtdip_sdk._sdk_utils.compare_versions import (
     _package_version_meets_minimum,
 )
-
-EVENTTIME = datetime.fromisoformat("2023-11-03T16:21:16")
 
 
 def test_mirico_json_to_metadata(spark_session: SparkSession):
@@ -40,10 +37,23 @@ def test_mirico_json_to_metadata(spark_session: SparkSession):
 
     expected_schema = StructType(
         [
-            StructField("TagName", StringType(), True),
-            StructField("Description", StringType(), True),
-            StructField("UoM", StringType(), True),
-            StructField("Properties", StructType(), False),
+            StructField("TagName", StringType(), False),
+            StructField("Description", StringType(), False),
+            StructField("UoM", StringType(), False),
+            StructField(
+                "Properties",
+                StructType(
+                    [
+                        StructField("retroAltitude", FloatType(), True),
+                        StructField("retroLongitude", FloatType(), True),
+                        StructField("retroLatitude", FloatType(), True),
+                        StructField("sensorAltitude", FloatType(), True),
+                        StructField("sensorLongitude", FloatType(), True),
+                        StructField("sensorLatitude", FloatType(), True),
+                    ]
+                ),
+                False,
+            ),
         ]
     )
 
