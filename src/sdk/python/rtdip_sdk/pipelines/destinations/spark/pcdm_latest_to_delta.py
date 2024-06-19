@@ -185,7 +185,7 @@ class SparkPCDMLatestToDeltaDestination(DestinationInterface):
                 },
             ),
             DeltaMergeConditionValues(
-                condition="source.EventTime > target.EventTime AND source.GoodLatest.EventTime IS NOT NULL AND (source.GoodLatest.EventTime > target.GoodEventTime OR target.GoodEventTime IS NULL))",
+                condition="source.EventTime > target.EventTime AND (source.GoodLatest.EventTime IS NOT NULL AND (source.GoodLatest.EventTime > target.GoodEventTime OR target.GoodEventTime IS NULL))",
                 values={
                     "EventTime": "source.EventTime",
                     "Status": "source.Status",
@@ -197,7 +197,7 @@ class SparkPCDMLatestToDeltaDestination(DestinationInterface):
                 },
             ),
             DeltaMergeConditionValues(
-                condition="source.EventTime <= target.EventTime AND source.GoodLatest.EventTime IS NOT NULL AND (source.GoodLatest.EventTime > target.GoodEventTime OR target.GoodEventTime IS NULL))",
+                condition="source.EventTime <= target.EventTime AND (source.GoodLatest.EventTime IS NOT NULL AND (source.GoodLatest.EventTime > target.GoodEventTime OR target.GoodEventTime IS NULL))",
                 values={
                     "GoodEventTime": "source.GoodLatest.EventTime",
                     "GoodValue": "source.GoodLatest.Value",
