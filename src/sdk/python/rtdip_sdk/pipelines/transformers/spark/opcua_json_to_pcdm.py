@@ -22,7 +22,7 @@ from ..._pipeline_utils.spark import OPCUA_SCHEMA
 
 class OPCUAJsonToPCDMTransformer(TransformerInterface):
     """
-    Converts a Spark Dataframe column containing a json string created by Open Source OPCUA to the Process Control Data Model.
+    Converts a Spark Dataframe column containing a json string created by Open Source OPC UA to the Process Control Data Model.
 
     Example
     --------
@@ -40,7 +40,7 @@ class OPCUAJsonToPCDMTransformer(TransformerInterface):
     ```
 
     Parameters:
-        data (DataFrame): Dataframe containing the column with Json OPCUA data
+        data (DataFrame): Dataframe containing the column with Json OPC UA data
         source_column_name (str): Spark Dataframe column containing the OPC Publisher Json OPC UA data
         status_null_value (str): If populated, will replace 'Good' in the Status column with the specified value.
         change_type_value (optional str): If populated, will replace 'insert' in the ChangeType column with the specified value.
