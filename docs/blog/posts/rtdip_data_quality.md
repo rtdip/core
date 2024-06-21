@@ -10,11 +10,11 @@ authors:
 ![DataQualityImage](../images/data-quality.png){width=75%} 
 </center>
 
-High-quality data plays a pivotal role in business success across various dimensions. Accurate and reliable data empowers business leaders to make well-informed decisions and achieve operational efficiency, promoting growth and profitability. Data quality encompasses more than just accuracy it also includes completeness, consistency, and relevance. 
+High quality data plays a pivotal role in business success across various dimensions. Accurate and reliable data empowers business leaders to make well informed decisions and achieve operational efficiency, promoting growth and profitability. Data quality encompasses more than just accuracy it also includes completeness, consistency, and relevance. 
 
 <!-- more -->
 
-Maintaining consistent data quality becomes challenging without a robust data governance framework. Organizations often lack comprehensive data quality assessment procedures, so it’s crucial to regularly evaluate data quality using metrics and automated checks. Integrating data from various sources can introduce inconsistencies, but implementing data integration best practices ensures seamless data flow. Manual data entry is prone to errors, so automation reduces reliance on manual input. To measure data quality, define clear metrics such as accuracy and completeness, and track them consistently. Additionally, automate data cleansing routines (e.g., deduplication, validation) to streamline processes and reduce manual effort. Lastly, use automation to identify incomplete or outdated records, and regularly update data sources while retiring obsolete information.
+Maintaining consistent data quality becomes challenging without a robust data governance framework. Organizations often lack comprehensive data quality assessment procedures, so it’s crucial to regularly evaluate data quality using metrics and automated checks. Integrating data from various sources can introduce inconsistencies, but implementing data integration best practices ensures seamless data flow. Manual data entry is prone to errors, so automation reduces reliance on manual input. To measure data quality, define clear metrics such as accuracy and completeness, and track them consistently. Additionally, automate data cleansing routines (e.g., deduplication, validation) to streamline processes and reduce manual effort. Lastly, use of automation  can help to identify incomplete or outdated records and regularly update data sources while retiring obsolete information.
 
 Maintaining data quality with time series data presents unique challenges. First, the high volume and velocity of incoming data makes real-time validation and processing difficult. Second, time series data often exhibits temporal dependencies, irregular sampling intervals, and missing values, requiring specialized handling. Lastly, dynamic data distribution due to seasonality, trends, or sudden events poses an ongoing challenge for adapting data quality checks. Ensuring data quality in time series streaming demands agility, adaptability and automation.
 
@@ -22,7 +22,7 @@ Maintaining data quality with time series data presents unique challenges. First
 
 ### Data Validation at Ingestion
 
-Implementing data validation checks when data enters a pipeline before any transformation can prevent issues from becoming lost and hard to tracks. It is possible to set this with automated scripts that can validate incoming data against predefined rules for example it is possible to check for duplication, outliers, missing values, inconsistent data types and much more. 
+Implementing data validation checks when data enters a pipeline before any transformation can prevent issues from becoming lost and hard to track. It is possible to set this with automated scripts that can validate incoming data against predefined rules, for example, it is possible to check for duplication, outliers, missing values, inconsistent data types and much more. 
 
 ### Continuous Monitoring
 
@@ -38,21 +38,21 @@ Automated profiling tools can analyse data distributions, patterns, and correlat
 
 ### Data Governance
 
-Data Governance polices provide a clear framework to follow when ensuring data quality across a business. Managing access controls, data retention, and compliance, maintaining data quality and security.
+Data governance polices provide a clear framework to follow when ensuring data quality across a business. Managing access controls, data retention, and compliance, maintaining data quality and security.
 
 ## RTDIP and Data Quality 
 
-RTDIP now includes data quality scripts that support the end user in developing strong data quality pass gates for their datasets. The RTDIP component has been built using the opensource tool Great Exceptions  which is a Python-based open-source library for validating, documenting, and profiling your data. It helps you to maintain data quality and improve communication about data between teams.
+RTDIP now includes data quality scripts that support the end user in developing strong data quality pass gates for their datasets. The RTDIP component has been built using the open source tool Great Exceptions which is a Python-based open source library for validating, documenting, and profiling your data. It helps you to maintain data quality and improve communication about data between teams.
 
-RTDIP believes that data quality should be considered an integral part of any data pipeline, more information about RTDIPs compoentnest can be found at [Examine Data Quality with Great Expectations](https://www.rtdip.io/sdk/code-reference/pipelines/monitoring/spark/data_quality/great_expectations/).
+RTDIP believes that data quality should be considered an integral part of any data pipeline, more information about RTDIPs data quality components can be found at [Examine Data Quality with Great Expectations](https://www.rtdip.io/sdk/code-reference/pipelines/monitoring/spark/data_quality/great_expectations/).
 
-## Open-Source Tools and Data Quality 
+## Open Source Tools and Data Quality 
 
-RTDIP empowers energy professionals to share solutions, RTDIP welcomes contributions and recognises the importance of sharing code. There are also a number of great open source data quality tools which have gained notoriety due to their transparency, adaptability, and community-driven enhancements.
+RTDIP empowers energy professionals to share solutions, RTDIP welcomes contributions and recognises the importance of sharing code. There are also a number of great open source data quality tools which have gained notoriety due to their transparency, adaptability, and community driven enhancements.
 
 Choosing the right tool depends on your specific requirements and architecture. Some notable open open source data quality tools include:
 
 * Built on Spark, Deequ is excellent for testing large datasets. It allows you to validate data using constraint suggestions and verification suites. 
-* dbt Core a data pipeline development platform. Its automated testing features include data quality checks and validations. 
-* MobyDQ offers data profiling, monitoring, and validation. It helps maintain data quality by identifying issues and inconsistencies1.
+* dbt Core is a data pipeline development platform. Its automated testing features include data quality checks and validations. 
+* MobyDQ offers data profiling, monitoring, and validation. It helps maintain data quality by identifying issues and inconsistencies.
 * Soda Core focuses on data monitoring and anomaly detection allowing the business to the track data quality over time and alerting.
