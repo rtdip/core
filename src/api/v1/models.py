@@ -35,28 +35,22 @@ EXAMPLE_DATE = "2022-01-01"
 EXAMPLE_DATETIME = "2022-01-01T15:00:00"
 EXAMPLE_DATETIME_TIMEZOME = "2022-01-01T15:00:00+00:00"
 
-from dotenv import load_dotenv
-load_dotenv()
 
+class Settings(BaseSettings):
+    DATABRICKS_SQL_SERVER_HOSTNAME: str = Field(..., env="DATABRICKS_SQL_SERVER_HOSTNAME")
+    DATABRICKS_SQL_HTTP_PATH: str = Field(..., env="DATABRICKS_SQL_HTTP_PATH")
+    DATABRICKS_SERVING_ENDPOINT: str = Field(None, env="DATABRICKS_SERVING_ENDPOINT")
 
-# class Settings(BaseSettings):
-#     DATABRICKS_SQL_SERVER_HOSTNAME: str = Field(..., env="DATABRICKS_SQL_SERVER_HOSTNAME")
-#     DATABRICKS_SQL_HTTP_PATH: str = Field(..., env="DATABRICKS_SQL_HTTP_PATH")
-#     DATABRICKS_SERVING_ENDPOINT: str = Field("", env="DATABRICKS_SERVING_ENDPOINT")
+    class Config:
+        env_file = ".env"
 
-#     class Config:
-#         env_file = ".env"
-
-# class Settings(BaseModel):
-#     DATABRICKS_SERVING_ENDPOINT: str = os.environ.get("DATABRICKS_SERVING_ENDPOINT", "")
-
-
-# settings = Settings()
 
 def hasMappingEndpoint():
-    if(os.environ.get("DATABRICKS_SERVING_ENDPOINT")):
+    settings = Settings()
+    if(settings.DATABRICKS_SERVING_ENDPOINT):
         return True
     return False
+
 
 class DuplicatedQueryParameters:
     time_interval_rate = Query(
