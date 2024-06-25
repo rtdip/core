@@ -28,12 +28,35 @@ from fastapi import Query, Header, Depends
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
 from typing import Generic, TypeVar
+from pydantic_settings import BaseSettings
 
 
 EXAMPLE_DATE = "2022-01-01"
 EXAMPLE_DATETIME = "2022-01-01T15:00:00"
 EXAMPLE_DATETIME_TIMEZOME = "2022-01-01T15:00:00+00:00"
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
+# class Settings(BaseSettings):
+#     DATABRICKS_SQL_SERVER_HOSTNAME: str = Field(..., env="DATABRICKS_SQL_SERVER_HOSTNAME")
+#     DATABRICKS_SQL_HTTP_PATH: str = Field(..., env="DATABRICKS_SQL_HTTP_PATH")
+#     DATABRICKS_SERVING_ENDPOINT: str = Field("", env="DATABRICKS_SERVING_ENDPOINT")
+
+#     class Config:
+#         env_file = ".env"
+
+# class Settings(BaseModel):
+#     DATABRICKS_SERVING_ENDPOINT: str = os.environ.get("DATABRICKS_SERVING_ENDPOINT", "")
+
+
+# settings = Settings()
+
+def hasMappingEndpoint():
+    if(os.environ.get("DATABRICKS_SERVING_ENDPOINT")):
+        return True
+    return False
 
 class DuplicatedQueryParameters:
     time_interval_rate = Query(
@@ -230,10 +253,10 @@ class AuthQueryParams:
 class BaseQueryParams:
     def __init__(
         self,
-        business_unit: str = Query(..., description="Business Unit Name"),
+        business_unit: str = Query(None if hasMappingEndpoint() else ..., description="Business Unit Name"),
         region: str = Query(..., description="Region"),
-        asset: str = Query(..., description="Asset"),
-        data_security_level: str = Query(..., description="Data Security Level"),
+        asset: str = Query(None if hasMappingEndpoint() else ..., description="Asset"),
+        data_security_level: str = Query(None if hasMappingEndpoint() else ..., description="Data Security Level"),
         authorization: str = Depends(oauth2_scheme),
     ):
         self.business_unit = business_unit
@@ -262,7 +285,7 @@ class RawQueryParams:
     def __init__(
         self,
         data_type: str = Query(
-            ...,
+            None if hasMappingEndpoint()else ...,
             description="Data Type can be one of the following options: float, double, integer, string",
             examples=["float", "double", "integer", "string"],
         ),
@@ -401,7 +424,7 @@ class InterpolationAtTimeQueryParams:
     def __init__(
         self,
         data_type: str = Query(
-            ...,
+            None if hasMappingEndpoint() else ...,
             description="Data Type can be one of the following options:[float, double, integer, string]",
         ),
         timestamps: List[Union[date, datetime]] = Query(

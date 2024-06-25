@@ -30,7 +30,7 @@ from src.api.v1.models import (
     PivotQueryParams,
     LimitOffsetQueryParams,
 )
-from src.api.v1.common import common_api_setup_tasks, json_response
+from src.api.v1.common import common_api_setup_tasks, json_response, lookup_before_get
 
 
 def interpolation_at_time_events_get(
@@ -51,7 +51,12 @@ def interpolation_at_time_events_get(
             base_headers=base_headers,
         )
 
-        data = interpolation_at_time.get(connection, parameters)
+        if all( (key in parameters and parameters[key] != None) for key in ["business_unit", "asset", "data_security_level", "data_type"]):
+            # if have all required params, run normally
+            data = interpolation_at_time.get(connection, parameters)
+        else:
+            # else wrap in lookup function that finds tablenames and runs function (if mutliple tables, handles concurrent requests)
+            data = lookup_before_get("interpolation_at_time", connection, parameters)
 
         return json_response(data, limit_offset_parameters)
     except Exception as e:
