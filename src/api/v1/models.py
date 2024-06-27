@@ -37,8 +37,10 @@ EXAMPLE_DATETIME_TIMEZOME = "2022-01-01T15:00:00+00:00"
 
 
 class Settings(BaseSettings):
-    DATABRICKS_SQL_SERVER_HOSTNAME: str = Field(..., env="DATABRICKS_SQL_SERVER_HOSTNAME")
-    DATABRICKS_SQL_HTTP_PATH: str = Field(..., env="DATABRICKS_SQL_HTTP_PATH")
+    DATABRICKS_SQL_SERVER_HOSTNAME: str = Field(
+        None, env="DATABRICKS_SQL_SERVER_HOSTNAME"
+    )
+    DATABRICKS_SQL_HTTP_PATH: str = Field(None, env="DATABRICKS_SQL_HTTP_PATH")
     DATABRICKS_SERVING_ENDPOINT: str = Field(None, env="DATABRICKS_SERVING_ENDPOINT")
 
     class Config:
@@ -47,7 +49,7 @@ class Settings(BaseSettings):
 
 def hasMappingEndpoint():
     settings = Settings()
-    if(settings.DATABRICKS_SERVING_ENDPOINT):
+    if settings.DATABRICKS_SERVING_ENDPOINT:
         return True
     return False
 
@@ -247,10 +249,14 @@ class AuthQueryParams:
 class BaseQueryParams:
     def __init__(
         self,
-        business_unit: str = Query(None if hasMappingEndpoint() else ..., description="Business Unit Name"),
+        business_unit: str = Query(
+            None if hasMappingEndpoint() else ..., description="Business Unit Name"
+        ),
         region: str = Query(..., description="Region"),
         asset: str = Query(None if hasMappingEndpoint() else ..., description="Asset"),
-        data_security_level: str = Query(None if hasMappingEndpoint() else ..., description="Data Security Level"),
+        data_security_level: str = Query(
+            None if hasMappingEndpoint() else ..., description="Data Security Level"
+        ),
         authorization: str = Depends(oauth2_scheme),
     ):
         self.business_unit = business_unit
@@ -279,7 +285,7 @@ class RawQueryParams:
     def __init__(
         self,
         data_type: str = Query(
-            None if hasMappingEndpoint()else ...,
+            None if hasMappingEndpoint() else ...,
             description="Data Type can be one of the following options: float, double, integer, string",
             examples=["float", "double", "integer", "string"],
         ),
@@ -482,3 +488,29 @@ class CircularAverageQueryParams:
         self.time_interval_unit = time_interval_unit
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
+
+
+class BatchDict(BaseModel):
+    url: str
+    method: str
+    params: dict
+    body: dict = None
+
+    def __getitem__(self, item):
+        if item in self.__dict__:
+            return self.__dict__[item]
+        else:
+            raise KeyError(f"Key {item} not found in the model.")
+
+
+class BatchBodyParams(BaseModel):
+    requests: List[BatchDict]
+
+
+class BatchResponse(BaseModel):
+    schema: FieldSchema = Field(None, alias="schema", serialization_alias="schema")
+    data: List
+
+
+class BatchListResponse(BaseModel):
+    data: List[BatchResponse]

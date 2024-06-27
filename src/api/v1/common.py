@@ -21,6 +21,7 @@ import json
 import pandas as pd
 
 from fastapi import Response
+from fastapi.responses import JSONResponse
 from pandas import DataFrame
 from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
@@ -30,6 +31,7 @@ if importlib.util.find_spec("turbodbc") != None:
     from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
 from src.api.auth import azuread
 from .models import BaseHeaders, FieldSchema, LimitOffsetQueryParams, PaginationRow
+from decimal import Decimal
 
 
 def common_api_setup_tasks(  # NOSONAR
@@ -183,32 +185,67 @@ def json_response(
         media_type="application/json",
     )
 
-def lookup_before_get(func_name: str, connection: DatabricksSQLConnection, parameters: Dict):
+
+def json_response_batch(data_list: List[DataFrame]) -> Response:
+
+    # Function to parse dataframe into dictionary along with schema
+    def get_as_dict(data):
+
+        def convert_value(x):
+            if isinstance(x, pd.Timestamp):
+                return x.isoformat(timespec="nanoseconds")
+            elif isinstance(x, pd.Timedelta):
+                return x.isoformat()
+            elif isinstance(x, Decimal):
+                return float(x)
+            return x
+
+        print("before this?")
+        data_parsed = data.map(convert_value)
+        schema = build_table_schema(data_parsed, index=False, primary_key=False)
+        data_dict = data_parsed.to_dict(orient="records")
+
+        return {"schema": schema, "data": data_dict}
+
+    # Parse each dataframe into a dictionary containing the schema and the data as dict
+    dict_content = {"data": [get_as_dict(data) for data in data_list]}
+
+    print("================")
+    print(dict_content)
+    print("================")
+
+    return JSONResponse(content=dict_content)
+
+
+def lookup_before_get(
+    func_name: str, connection: DatabricksSQLConnection, parameters: Dict
+):
 
     # query mapping endpoint for tablenames - returns tags as array under each table key
     tag_table_mapping = query_mapping_endpoint(
-        tags = parameters["tag_names"],
-        mapping_endpoint = os.getenv("DATABRICKS_SERVING_ENDPOINT"),
-        connection=connection
-    ) 
+        tags=parameters["tag_names"],
+        mapping_endpoint=os.getenv("DATABRICKS_SERVING_ENDPOINT"),
+        connection=connection,
+    )
 
     # create list of parameter dicts for each table
     request_list = []
     for table in tag_table_mapping:
         params = parameters.copy()
         params["tag_names"] = tag_table_mapping[table]
-        params.update(split_table_name(table)) # Adds business_unit, asset, data_security_level, data_type
-        request = {
-            "type": func_name,
-            "parameters_dict": params
-        }
+        params.update(
+            split_table_name(table)
+        )  # Adds business_unit, asset, data_security_level, data_type
+        request = {"type": func_name, "parameters_dict": params}
         request_list.append(request)
-    
+
     # run function with each parameters concurrently
     results = batch.get(connection, request_list)
 
     # Append/concat results as required
-    data = concatenate_dfs_and_order(dfs_arr=results, pivot=False, tags=parameters["tag_names"])
+    data = concatenate_dfs_and_order(
+        dfs_arr=results, pivot=False, tags=parameters["tag_names"]
+    )
 
     return data
 
@@ -217,18 +254,18 @@ def query_mapping_endpoint(tags: list, mapping_endpoint: str, connection: Dict):
 
     # Form header dict with token from connection
     token = swap_for_databricks_token(connection.access_token)
-    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
     # Create body of request
-    data = {
-        "dataframe_records": [ {"TagName": tag} for tag in tags]
-    }
+    data = {"dataframe_records": [{"TagName": tag} for tag in tags]}
     data_json = json.dumps(data, allow_nan=True)
 
     # Make request to mapping endpoint
     response = requests.post(headers=headers, url=mapping_endpoint, data=data_json)
     if response.status_code != 200:
-        raise Exception(f'Request failed with status {response.status_code}, {response.text}')
+        raise Exception(
+            f"Request failed with status {response.status_code}, {response.text}"
+        )
     result = response.json()
 
     # Map tags to tables, where all tags belonging to each table are stored in an array
@@ -236,7 +273,9 @@ def query_mapping_endpoint(tags: list, mapping_endpoint: str, connection: Dict):
     for row in result["outputs"]:
         # Check results are returned
         if any(row[x] == None for x in ["CatalogName", "SchemaName", "DataTable"]):
-            raise Exception(f"One or more tags do not have tables associated with them, the data belongs to a confidential table, or you do not have access. If the tag belongs to a confidential table and you do have access, please supply the business_unit, asset, data_security_level and data_type")
+            raise Exception(
+                f"One or more tags do not have tables associated with them, the data belongs to a confidential table, or you do not have access. If the tag belongs to a confidential table and you do have access, please supply the business_unit, asset, data_security_level and data_type"
+            )
 
         # Construct full tablename from output
         table_name = f"""{row["CatalogName"]}.{row["SchemaName"]}.{row["DataTable"]}"""
@@ -244,57 +283,60 @@ def query_mapping_endpoint(tags: list, mapping_endpoint: str, connection: Dict):
         # Store table names along with tags in dict (all tags that share table under same key)
         if table_name not in tag_table_mapping:
             tag_table_mapping[table_name] = []
-        
+
         tag_table_mapping[table_name].append(row["TagName"])
 
     return tag_table_mapping
 
 
 def split_table_name(str):
-    
+
     try:
         # Retireve parts by splitting string
-        parts = str.split('.')
+        parts = str.split(".")
         business_unit = parts[0]
         schema = parts[1]
-        asset_security_type = parts[2].split('_')
-        
+        asset_security_type = parts[2].split("_")
+
         # check if of correct format
         if schema != "sensors" and ("events" not in str or "metadata" not in str):
             raise Exception()
-      
+
         # Get the asset, data security level and type
         asset = asset_security_type[0].lower()
         data_security_level = asset_security_type[1].lower()
-        data_type = asset_security_type[len(asset_security_type) - 1].lower() # i.e. the final part
-        
-    
+        data_type = asset_security_type[
+            len(asset_security_type) - 1
+        ].lower()  # i.e. the final part
+
         #  Return the formatted object
         return {
             "business_unit": business_unit,
             "asset": asset,
             "data_security_level": data_security_level,
-            "data_type": data_type
+            "data_type": data_type,
         }
     except Exception as e:
-      raise Exception("Unsupported table name format supplied. Please use the format 'businessunit.schema.asset.datasecurityevel_events_datatype")
+        raise Exception(
+            "Unsupported table name format supplied. Please use the format 'businessunit.schema.asset.datasecurityevel_events_datatype"
+        )
 
 
 def concatenate_dfs_and_order(dfs_arr: List[DataFrame], pivot: bool, tags: list):
     if pivot:
         # If pivoted, then must add columns horizontally
         concat_df = pd.concat(dfs_arr, axis=1, ignore_index=False)
-        concat_df = concat_df.loc[:,~concat_df.columns.duplicated()]
+        concat_df = concat_df.loc[:, ~concat_df.columns.duplicated()]
 
         # reorder columns so that they match the order of the tags provided
         time_col = concat_df.columns.to_list()[0]
         cols = [time_col, *tags]
         concat_df = concat_df[cols]
-        
+
     else:
         # Otherwise, can concat vertically
         concat_df = pd.concat(dfs_arr, axis=0, ignore_index=True)
-    
+
     return concat_df
 
 

@@ -30,6 +30,7 @@ from src.api.v1 import (
     circular_average,
     circular_standard_deviation,
     summary,
+    batch
 )
 from src.api.auth.azuread import oauth2_scheme
 
