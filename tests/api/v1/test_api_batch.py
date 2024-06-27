@@ -119,8 +119,6 @@ async def test_api_batch_single_get_success(mocker: MockerFixture):
         ]
     }
 
-    expected = json.loads(json_response_batch([test_data]).body.decode("utf-8"))
-
     assert actual.json() == expected
     assert actual.status_code == 200
 

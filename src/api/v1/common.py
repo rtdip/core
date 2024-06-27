@@ -210,10 +210,6 @@ def json_response_batch(data_list: List[DataFrame]) -> Response:
     # Parse each dataframe into a dictionary containing the schema and the data as dict
     dict_content = {"data": [get_as_dict(data) for data in data_list]}
 
-    print("================")
-    print(dict_content)
-    print("================")
-
     return JSONResponse(content=dict_content)
 
 
