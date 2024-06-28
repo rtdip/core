@@ -20,7 +20,7 @@ from concurrent.futures import *
 
 
 def get(
-    connection: object, request_list: List[dict], threadpool_max_workers=3
+    connection: object, request_list: List[dict], threadpool_max_workers=1
 ) -> List[pd.DataFrame]:
     """
     A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.

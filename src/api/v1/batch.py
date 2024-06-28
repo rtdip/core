@@ -13,6 +13,7 @@
 # limitations under the License.
 import logging
 import numpy as np
+import os
 from fastapi import HTTPException, Depends, Body  # , JSONResponse
 
 from src.api.v1.models import (
@@ -89,8 +90,11 @@ async def batch_events_get(
             # Append to array
             parsed_requests.append({"func": func, "parameters": parameters})
 
+        # Obtain max workers from environment var, otherwise default to one less than cpu count
+        max_workers = os.environ.get("BATCH_THREADPOOL_WORKERS", os.cpu_count() - 1)
+
         # Request the data for each concurrently with threadpool
-        with ThreadPoolExecutor(max_workers=10) as executor:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Use executor.map to preserve order
             results = executor.map(
                 lambda arguments: lookup_before_get(*arguments),

@@ -234,8 +234,11 @@ def lookup_before_get(
         request = {"type": func_name, "parameters_dict": params}
         request_list.append(request)
 
+    # make default workers 3 as within one query typically will request from only a few tables at once
+    max_workers = os.environ.get("LOOKUP_THREADPOOL_WORKERS", 3)
+
     # run function with each parameters concurrently
-    results = batch.get(connection, request_list)
+    results = batch.get(connection, request_list, threadpool_max_workers=max_workers)
 
     # Append/concat results as required
     data = concatenate_dfs_and_order(
