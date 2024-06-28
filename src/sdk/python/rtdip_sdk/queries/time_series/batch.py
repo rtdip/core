@@ -19,7 +19,9 @@ from ...connectors.odbc.db_sql_connector import DatabricksSQLConnection
 from concurrent.futures import *
 
 
-def get(connection: object, request_list: List[dict], threadpool_max_workers=4) -> List[pd.DataFrame]:
+def get(
+    connection: object, request_list: List[dict], threadpool_max_workers=3
+) -> List[pd.DataFrame]:
     """
     A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
 
@@ -53,24 +55,24 @@ def get(connection: object, request_list: List[dict], threadpool_max_workers=4) 
             except Exception as e:
                 logging.exception("error returning dataframe")
                 raise e
-            
-
 
         with ThreadPoolExecutor(max_workers=threadpool_max_workers) as executor:
             # Create connection and cursor
-            connection = DatabricksSQLConnection(server_hostname, http_path, access_token)
+            connection = DatabricksSQLConnection(
+                server_hostname, http_path, access_token
+            )
             cursor = connection.cursor()
 
-            # Execute queries with threadpool
-            futures = [executor.submit(execute_request, cursor, request) for request in request_list]
-            results = []
-            for future in as_completed(futures):
-                results.append(future.result())
+            # Execute queries with threadpool - map preserves order
+            results = executor.map(
+                lambda arguments: execute_request(*arguments),
+                [(cursor, request) for request in request_list],
+            )
 
             # Close cursor and connections
             cursor.close()
             connection.close()
-    
+
         return results
 
     except Exception as e:
