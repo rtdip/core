@@ -22,36 +22,18 @@ from pydantic import (
     Field,
     Strict,
     field_serializer,
+    BaseModel,
 )
 from typing import Annotated, List, Union, Dict, Any
-from fastapi import Query, Header, Depends
+from fastapi import Query, Header, Depends, HTTPException
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
-from typing import Generic, TypeVar
-from pydantic_settings import BaseSettings
+from typing import Generic, TypeVar, Optional
 
 
 EXAMPLE_DATE = "2022-01-01"
 EXAMPLE_DATETIME = "2022-01-01T15:00:00"
 EXAMPLE_DATETIME_TIMEZOME = "2022-01-01T15:00:00+00:00"
-
-
-class Settings(BaseSettings):
-    DATABRICKS_SQL_SERVER_HOSTNAME: str = Field(
-        None, env="DATABRICKS_SQL_SERVER_HOSTNAME"
-    )
-    DATABRICKS_SQL_HTTP_PATH: str = Field(None, env="DATABRICKS_SQL_HTTP_PATH")
-    DATABRICKS_SERVING_ENDPOINT: str = Field(None, env="DATABRICKS_SERVING_ENDPOINT")
-
-    class Config:
-        env_file = ".env"
-
-
-def hasMappingEndpoint():
-    settings = Settings()
-    if settings.DATABRICKS_SERVING_ENDPOINT:
-        return True
-    return False
 
 
 class DuplicatedQueryParameters:
@@ -249,16 +231,18 @@ class AuthQueryParams:
 class BaseQueryParams:
     def __init__(
         self,
-        business_unit: str = Query(
-            None if hasMappingEndpoint() else ..., description="Business Unit Name"
-        ),
+        business_unit: str = Query(None, description="Business Unit Name"),
         region: str = Query(..., description="Region"),
-        asset: str = Query(None if hasMappingEndpoint() else ..., description="Asset"),
-        data_security_level: str = Query(
-            None if hasMappingEndpoint() else ..., description="Data Security Level"
-        ),
+        asset: str = Query(None, description="Asset"),
+        data_security_level: str = Query(None, description="Data Security Level"),
         authorization: str = Depends(oauth2_scheme),
     ):
+        
+        # Additional validation when mapping endpoint not provided - ensure validation error for missing params
+        if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
+            required_params = {"business_unit": business_unit, "asset": asset, "data_security_level": data_security_level}
+            additionaly_validate_params(required_params)
+
         self.business_unit = business_unit
         self.region = region
         self.asset = asset
@@ -280,15 +264,25 @@ def check_date(v: str) -> str:
     )  # "Date must be in format YYYY-MM-DD, YYYY-MM-DD+zzzz or YYYY-MM-DD+zz:zz"
     return v
 
+def additionaly_validate_params(required_params):
+    # Checks if any of the supplied parameters are missing, and throws HTTPException in pydantic format
+    errors = []
+    for field in required_params.keys():
+        if required_params[field] is None:
+            errors.append({
+                "type": "missing",
+                "loc": ("query", field),
+                "msg": "Field required",
+                "input": required_params[field]
+            })
+    if len(errors) > 0:
+        print(errors)
+        raise HTTPException(status_code=422, detail=errors)
 
 class RawQueryParams:
     def __init__(
         self,
-        data_type: str = Query(
-            None if hasMappingEndpoint() else ...,
-            description="Data Type can be one of the following options: float, double, integer, string",
-            examples=["float", "double", "integer", "string"],
-        ),
+        data_type: str = Query(None, description="Data Type"),
         include_bad_data: bool = Query(
             ..., description="Include or remove Bad data points"
         ),
@@ -305,6 +299,12 @@ class RawQueryParams:
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
     ):
+
+        # Additional validation when mapping endpoint not provided - ensure validation error for missing params
+        if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
+            required_params = {"data_type": data_type}
+            additionaly_validate_params(required_params)
+        
         self.data_type = data_type
         self.include_bad_data = include_bad_data
         self.start_date = start_date
@@ -423,10 +423,7 @@ class InterpolateQueryParams:
 class InterpolationAtTimeQueryParams:
     def __init__(
         self,
-        data_type: str = Query(
-            None if hasMappingEndpoint() else ...,
-            description="Data Type can be one of the following options:[float, double, integer, string]",
-        ),
+        data_type: str = Query(..., description="Data Type"),
         timestamps: List[Union[date, datetime]] = Query(
             ...,
             description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
@@ -439,6 +436,12 @@ class InterpolationAtTimeQueryParams:
             ..., description="Include or remove Bad data points"
         ),
     ):
+
+        # Additional validation when mapping endpoint not provided - ensure validation error for missing params
+        if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
+            required_params = {"data_type": data_type}
+            additionaly_validate_params(required_params)
+
         self.data_type = data_type
         self.timestamps = timestamps
         self.window_length = window_length

@@ -46,8 +46,15 @@ def get(
         access_token = connection.access_token
         connection.close()
 
-        def execute_request(cursor, request):
+        def execute_request(connection_params, request):
+            # Create connection and cursor
+            connection = DatabricksSQLConnection(*connection_params)
+            cursor = connection.cursor()
+
+            # Build query with query builder
             query = _query_builder(request["parameters_dict"], request["type"])
+
+            # Execute query
             try:
                 cursor.execute(query)
                 df = cursor.fetch_all()
@@ -55,23 +62,21 @@ def get(
             except Exception as e:
                 logging.exception("error returning dataframe")
                 raise e
+            finally:
+                # Close cursor and connection at end
+                cursor.close()
+                connection.close()
 
         with ThreadPoolExecutor(max_workers=threadpool_max_workers) as executor:
-            # Create connection and cursor
-            connection = DatabricksSQLConnection(
-                server_hostname, http_path, access_token
-            )
-            cursor = connection.cursor()
+
+            # Package up connection params into tuple
+            connection_params = (server_hostname, http_path, access_token)
 
             # Execute queries with threadpool - map preserves order
             results = executor.map(
                 lambda arguments: execute_request(*arguments),
-                [(cursor, request) for request in request_list],
+                [(connection_params, request) for request in request_list],
             )
-
-            # Close cursor and connections
-            cursor.close()
-            connection.close()
 
         return results
 

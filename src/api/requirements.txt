@@ -1,7 +1,7 @@
 # Do not include azure-functions-worker as it may conflict with the Azure Functions platform
 azure-functions==1.18.0
 fastapi==0.110.0
-pydantic==2.7.0
+pydantic==2.6.0
 # turbodbc==4.11.0
 pyodbc==4.0.39
 importlib_metadata>=1.0.0
@@ -22,4 +22,3 @@ langchain>=0.2.0,<0.3.0
 langchain-community>=0.2.0,<0.3.0
 openai==1.13.3
 pyjwt==2.8.0
-pydantic-settings==2.3.4
