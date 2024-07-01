@@ -282,7 +282,12 @@ def additionaly_validate_params(required_params):
 class RawQueryParams:
     def __init__(
         self,
-        data_type: str = Query(None, description="Data Type"),
+        data_type: str = Query(
+            None,
+            description="Data Type can be one of the following options: float, double, integer, string",
+            examples=["float", "double", "integer", "string"],
+        ),
+        
         include_bad_data: bool = Query(
             ..., description="Include or remove Bad data points"
         ),
@@ -423,7 +428,11 @@ class InterpolateQueryParams:
 class InterpolationAtTimeQueryParams:
     def __init__(
         self,
-        data_type: str = Query(..., description="Data Type"),
+        data_type: str = Query(
+            ...,
+            description="Data Type can be one of the following options: float, double, integer, string",
+            examples=["float", "double", "integer", "string"],
+        ),
         timestamps: List[Union[date, datetime]] = Query(
             ...,
             description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
