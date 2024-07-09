@@ -26,6 +26,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     RAW_MOCKED_QUERY_CHECK_TAGS,
     MOCKED_QUERY_OFFSET_LIMIT,
     MOCKED_PARAMETER_DICT,
+    RAW_MOCKED_QUERY_DISLAY_UOM,
 )
 
 MOCKED_RAW_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -38,6 +39,11 @@ def test_raw(mocker: MockerFixture):
 def test_raw_check_tags(mocker: MockerFixture):
     MOCKED_RAW_DICT["case_insensitivity_tag_search"] = True
     _test_base_succeed(mocker, MOCKED_RAW_DICT, RAW_MOCKED_QUERY_CHECK_TAGS, raw_get)
+
+
+def test_raw_display_uom(mocker: MockerFixture):
+    MOCKED_RAW_DICT["display_uom"] = True
+    _test_base_succeed(mocker, MOCKED_RAW_DICT, RAW_MOCKED_QUERY_DISLAY_UOM, raw_get)
 
 
 def test_raw_offset_limit(mocker: MockerFixture):
