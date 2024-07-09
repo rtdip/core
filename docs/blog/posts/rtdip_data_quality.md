@@ -56,3 +56,7 @@ Choosing the right tool depends on your specific requirements and architecture. 
 * dbt Core is a data pipeline development platform. Its automated testing features include data quality checks and validations. 
 * MobyDQ offers data profiling, monitoring, and validation. It helps maintain data quality by identifying issues and inconsistencies.
 * Soda Core focuses on data monitoring and anomaly detection allowing the business to the track data quality over time and alerting.
+
+## Contribute 
+
+RTDIP empowers energy professionals to share solutions, RTDIP welcomes contributions and recognises the importance of sharing code. If you would like to contribute to RTDIP please follow our [Contributing](https://github.com/rtdip/core/blob/develop/CONTRIBUTING.md) guide.
