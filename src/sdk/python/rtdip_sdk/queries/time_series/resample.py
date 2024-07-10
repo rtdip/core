@@ -49,7 +49,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
+        display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
+
 
     Returns:
         DataFrame: A resampled dataframe.

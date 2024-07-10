@@ -147,7 +147,11 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% endif %}"
         "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
+        "{% if display_uom is defined and display_uom == true %}"
+        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        "{% else %}"
         "SELECT * FROM project "
+        "{% endif %}"
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -195,6 +199,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "display_uom": parameters_dict.get("display_uom", False),
     }
 
     sql_template = Template(sample_query)
