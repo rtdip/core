@@ -28,6 +28,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     RESAMPLE_MOCKED_QUERY,
     RESAMPLE_MOCKED_QUERY_CHECK_TAGS,
     RESAMPLE_MOCKED_QUERY_PIVOT,
+    RESAMPLE_MOCKED_QUERY_UOM,
 )
 
 MOCKED_RESAMPLED_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -78,10 +79,21 @@ def test_resample_pivot(mocker: MockerFixture):
     )
 
 
+def test_resample_uom(mocker: MockerFixture):
+    MOCKED_RESAMPLED_PARAMETER_DICT["pivot"] = False
+    MOCKED_RESAMPLED_PARAMETER_DICT["display_uom"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_RESAMPLED_PARAMETER_DICT,
+        RESAMPLE_MOCKED_QUERY_UOM,
+        resample_get,
+    )
+
+
 def test_resample_offset_limit(mocker: MockerFixture):
     MOCKED_RESAMPLED_PARAMETER_DICT["offset"] = 10
     MOCKED_RESAMPLED_PARAMETER_DICT["limit"] = 10
-    MOCKED_RESAMPLED_PARAMETER_DICT["pivot"] = False
+    MOCKED_RESAMPLED_PARAMETER_DICT["display_uom"] = False
     _test_base_succeed(
         mocker,
         MOCKED_RESAMPLED_PARAMETER_DICT,
