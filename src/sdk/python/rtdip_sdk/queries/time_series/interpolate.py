@@ -14,7 +14,6 @@
 
 import logging
 import pandas as pd
-import sys
 from ._time_series_query_builder import _query_builder
 
 
@@ -47,6 +46,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
+        display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
