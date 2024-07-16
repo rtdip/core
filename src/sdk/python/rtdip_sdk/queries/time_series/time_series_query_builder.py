@@ -122,6 +122,7 @@ class TimeSeriesQueryBuilder:
         start_date: str,
         end_date: str,
         include_bad_data: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -158,6 +159,7 @@ class TimeSeriesQueryBuilder:
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -170,6 +172,7 @@ class TimeSeriesQueryBuilder:
             "start_date": start_date,
             "end_date": end_date,
             "include_bad_data": include_bad_data,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
