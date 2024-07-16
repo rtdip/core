@@ -31,6 +31,7 @@ RUN rm -rf /var/lib/apt/lists/partial \
     && unzip /odbc/SimbaSparkODBC-2.7.7.1016-Debian-64bit.zip -d /odbc \
     && dpkg -i /odbc/simbaspark_2.7.7.1016-2_amd64.deb \
     && pip install --no-cache-dir pyarrow==14.0.2 \
+    && pip install --no-cache-dir numpy==1.26.4 \
     && python -c "import pyarrow; pyarrow.create_library_symlinks()" \
     && CFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" pip install --no-cache-dir -r /requirements.txt \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* \    

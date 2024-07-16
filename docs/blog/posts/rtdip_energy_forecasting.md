@@ -14,13 +14,13 @@ Energy forecasting plays a pivotal role in our modern world, where energy consum
 
 Energy forecasting involves predicting the demand load and price of various energy sources, including both fossil fuels and renewable energy resources like wind and solar.
 
-With an accurate energy usage forecast, a business can efficiently allocate and manage resources, this is crucial to maintain a stable energy supply to the consumer; energy forecasting is fundamental as we transition to renewable energy sources which do not produce consistent energy. Energy companies, grid operators and industrial consumers rely on forecasts to optimize their operations. Over- or undercontracting can lead to significant financial losses, so precise forecasts are essential.
+With an accurate energy usage forecast, a business can efficiently allocate and manage resources, this is crucial to maintain a stable energy supply to the consumer; energy forecasting is fundamental as we transition to renewable energy sources which do not produce consistent energy. Energy companies, grid operators and industrial consumers rely on forecasts to optimise their operations. Over- or undercontracting can lead to significant financial losses, so precise forecasts are essential.
 
 <!-- more -->
 
 Energy load prices and forecasts greatly influence the energy sector and the decisions made across multiple departments in energy companies.  For example, medium to long-term energy forecasts are vital for planning and investing in new capacity, they guide decisions on new assets,  transmission lines and distribution networks. Another example is risk mitigation, unstable electricity prices can be handled with accurate forecasting of the market, companies can develop bidding strategies, production schedules and consumption patterns to minimize risk and maximize profits.
 
-Energy forecasting is foused on performance, i.e. how much over or under a forecast is and performance during extreme weather days. Quantifying a financial impact relative to market conditions can be diffcult. However, a rough estimate of savings from a 1% reduction in the mean absolute percentage error (MAPE) for a utility with a 1 GW peak load includes: 
+Energy forecasting is focused on performance, i.e. how much over or under a forecast is and performance during extreme weather days. Quantifying a financial impact relative to market conditions can be diffcult. However, a rough estimate of savings from a 1% reduction in the mean absolute percentage error (MAPE) for a utility with a 1 GW peak load includes: 
 
 -	$500,000 per year from long-term load forecasting
 -	$300,000 per year from short-term load forecasting
@@ -30,7 +30,7 @@ Energy Forecasting allows for significant cost avoidance due to better price for
 
 ## Energy Forecasting with RTDIP
 
-RTDIP can be a powerful tool for businesses looking to forecast energy usage. RTDIP supports load forecasting applications, a critical technique used by RTOs(Regional Transmission Organisations)/TSOs(Transmission System Operators), ISOs (Independent System Operators) and energy providers. Load forecasting allows a business to predict the power or energy needed to maintain the balance between energy demand and supply on the grid. Two primary inputs for load forecasting are weather data and meter data, RTDIP has developed pipeline components for these types of data.
+RTDIP can be a powerful tool for businesses looking to forecast energy usage. RTDIP supports load forecasting applications, a critical technique used by RTOs (Regional Transmission Organisations)/TSO (Transmission System Operators), ISOs (Independent System Operators) and energy providers. Load forecasting allows a business to predict the power or energy needed to maintain the balance between energy demand and supply on the grid. Two primary inputs for load forecasting are weather data and meter data, RTDIP has developed pipeline components for these types of data.
 
 RTDIP provides example pipelines for weather forecast data ingestion. Accurate weather data helps predict energy production in renewable assets based on factors like temperature, humidity and wind patterns.
 
@@ -88,4 +88,4 @@ Data conversion into 'Meters Data Model' via transformers
 
 ## Contribute 
 
-RTDIP empowers energy professionals to share solutions, RTDIP welcomes contributions and recognises the importance of sharing code. There are multiple sources for weather and metering data crucial to forecasting energy needs, if you have anymore you’d like to add to RTDIP please raise a feature request and contribute.
+RTDIP empowers energy professionals to share solutions, RTDIP welcomes contributions and recognises the importance of sharing code. There are multiple sources for weather and metering data crucial to forecasting energy needs, if you have anymore you’d like to add to RTDIP please follow our [Contributing](https://github.com/rtdip/core/blob/develop/CONTRIBUTING.md) guide.
