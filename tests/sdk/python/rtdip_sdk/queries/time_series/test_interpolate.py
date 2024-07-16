@@ -31,7 +31,6 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     INTERPOLATE_MOCKED_QUERY_CHECK_TAGS,
     MOCKED_QUERY_OFFSET_LIMIT,
     INTERPOLATE_MOCKED_QUERY_PIVOT,
-    INTERPOLATE_MOCKED_QUERY_PIVOT_FALSE,
 )
 
 MOCKED_INTERPOLATE_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -91,16 +90,6 @@ def test_interpolate_pivot(mocker: MockerFixture):
         INTERPOLATE_MOCKED_QUERY_PIVOT,
         interpolate_get,
     )
-
-
-# def test_interpolate_pivot2(mocker: MockerFixture):
-#     MOCKED_INTERPOLATE_PARAMETER_DICT["pivot"] = False
-#     _test_base_succeed(
-#         mocker,
-#         MOCKED_INTERPOLATE_PARAMETER_DICT,
-#         INTERPOLATE_MOCKED_QUERY_PIVOT_FALSE,
-#         interpolate_get,
-#     )
 
 
 def test_interpolate_offset_limit(mocker: MockerFixture):
