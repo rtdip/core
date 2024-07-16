@@ -29,7 +29,7 @@ seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
 def _raw_query(parameters_dict: dict) -> str:
     raw_query = (
-        "SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
+        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -44,6 +44,13 @@ def _raw_query(parameters_dict: dict) -> str:
         "AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good')"
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        ") "
+        "{% if display_uom is defined and display_uom == true %}"
+        "SELECT e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM` FROM raw_events e "
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON e.`TagName` = m.`TagName` "
+        "{% else %}"
+        "SELECT * FROM raw_events "
+        "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
@@ -65,6 +72,7 @@ def _raw_query(parameters_dict: dict) -> str:
         "include_bad_data": parameters_dict["include_bad_data"],
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
+        "display_uom": parameters_dict.get("display_uom", False),
         "time_zone": parameters_dict["time_zone"],
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
