@@ -258,7 +258,11 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "{% endif %}"
         "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
+        "{% if display_uom is defined and display_uom == true %}"
+        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        "{% else %}"
         "SELECT * FROM project "
+        "{% endif %}"
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -282,7 +286,8 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "time_interval_rate": parameters_dict["time_interval_rate"],
         "time_interval_unit": parameters_dict["time_interval_unit"],
         "time_zone": parameters_dict["time_zone"],
-        "pivot": False,
+        "pivot": parameters_dict.get("pivot", None),
+        "display_uom": parameters_dict.get("display_uom", False),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "is_resample": True,

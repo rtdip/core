@@ -66,6 +66,10 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
 
+    if "pivot" in parameters_dict and "display_uom" in parameters_dict:
+        if parameters_dict["pivot"] is True and parameters_dict["display_uom"] is True:
+            raise ValueError("pivot True and display_uom True cannot be used together")
+
     if "sample_rate" in parameters_dict:
         logging.warning(
             "Parameter sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead."

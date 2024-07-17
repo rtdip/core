@@ -14,6 +14,7 @@
 
 import logging
 import pandas as pd
+import sys
 from ._time_series_query_builder import _query_builder
 
 
@@ -57,9 +58,16 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     !!! warning
         Setting `case_insensitivity_tag_search` to True will result in a longer query time.
 
+    !!! Note
+        `display_uom` True will not work in conjunction with `pivot` set to True.
+
     """
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
+
+    if "pivot" in parameters_dict and "display_uom" in parameters_dict:
+        if parameters_dict["pivot"] is True and parameters_dict["display_uom"] is True:
+            raise ValueError("pivot True and display_uom True cannot be used together")
 
     if "sample_rate" in parameters_dict:
         logging.warning(
@@ -80,8 +88,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor = connection.cursor()
             cursor.execute(query)
             df = cursor.fetch_all()
-            a = type(df)
-            print(a)
             cursor.close()
             connection.close()
             return df
