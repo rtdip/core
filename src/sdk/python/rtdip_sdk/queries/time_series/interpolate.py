@@ -80,6 +80,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
             cursor = connection.cursor()
             cursor.execute(query)
             df = cursor.fetch_all()
+            a = type(df)
+            print(a)
             cursor.close()
             connection.close()
             return df

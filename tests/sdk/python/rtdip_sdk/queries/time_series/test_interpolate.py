@@ -31,6 +31,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     INTERPOLATE_MOCKED_QUERY_CHECK_TAGS,
     MOCKED_QUERY_OFFSET_LIMIT,
     INTERPOLATE_MOCKED_QUERY_PIVOT,
+    INTERPOLATE_MOCKED_QUERY_UOM,
 )
 
 MOCKED_INTERPOLATE_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -50,8 +51,19 @@ def test_interpolate_backward_fill(mocker: MockerFixture):
     )
 
 
+def test_interpolate_uom(mocker: MockerFixture):
+    MOCKED_INTERPOLATE_PARAMETER_DICT["display_uom"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        INTERPOLATE_MOCKED_QUERY_UOM,
+        interpolate_get,
+    )
+
+
 def test_interpolate_forward_fill(mocker: MockerFixture):
     MOCKED_INTERPOLATE_PARAMETER_DICT["interpolation_method"] = "forward_fill"
+    MOCKED_INTERPOLATE_PARAMETER_DICT["display_uom"] = False
     _test_base_succeed(
         mocker,
         MOCKED_INTERPOLATE_PARAMETER_DICT,
