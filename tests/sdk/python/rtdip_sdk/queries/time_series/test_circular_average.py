@@ -30,6 +30,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     CIRCULAR_AVERAGE_MOCKED_QUERY,
     CIRCULAR_AVERAGE_MOCKED_QUERY_CHECK_TAGS,
     CIRCULAR_AVERAGE_MOCKED_QUERY_PIVOT,
+    CIRCULAR_AVERAGE_MOCKED_QUERY_UOM,
 )
 
 MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -70,10 +71,21 @@ def test_circular_average_pivot(mocker: MockerFixture):
     )
 
 
+def test_circular_average_uom(mocker: MockerFixture):
+    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["pivot"] = False
+    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["display_uom"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT,
+        CIRCULAR_AVERAGE_MOCKED_QUERY_UOM,
+        circular_average_get,
+    )
+
+
 def test_circular_average_offset_limit(mocker: MockerFixture):
     MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["limit"] = 10
     MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["offset"] = 10
-    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["pivot"] = False
+    MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT["display_uom"] = False
     _test_base_succeed(
         mocker,
         MOCKED_CIRCULAR_AVERAGE_PARAMETER_DICT,

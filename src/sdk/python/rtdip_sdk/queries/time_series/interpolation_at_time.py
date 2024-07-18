@@ -38,6 +38,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         window_length (int): Add longer window time in days for the start or end of specified date to cater for edge cases.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
+        display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
@@ -47,12 +48,19 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
     !!! warning
         Setting `case_insensitivity_tag_search` to True will result in a longer query time.
+
+    !!! Note
+        `display_uom` True will not work in conjunction with `pivot` set to True.
     """
     if isinstance(parameters_dict["tag_names"], list) is False:
         raise ValueError("tag_names must be a list")
 
     if isinstance(parameters_dict["timestamps"], list) is False:
         raise ValueError("timestamps must be a list")
+
+    if "pivot" in parameters_dict and "display_uom" in parameters_dict:
+        if parameters_dict["pivot"] is True and parameters_dict["display_uom"] is True:
+            raise ValueError("pivot True and display_uom True cannot be used together")
 
     try:
         query = _query_builder(parameters_dict, "interpolation_at_time")

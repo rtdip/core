@@ -455,7 +455,11 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "{% endif %}"
         "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
+        "{% if display_uom is defined and display_uom == true %}"
+        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% else%}"
         "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -480,6 +484,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "max_timestamp": parameters_dict["max_timestamp"],
         "window_length": parameters_dict["window_length"],
         "pivot": parameters_dict.get("pivot", None),
+        "display_uom": parameters_dict.get("display_uom", False),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
@@ -550,7 +555,7 @@ def _metadata_query(parameters_dict: dict) -> str:
 
 def _latest_query(parameters_dict: dict) -> str:
     latest_query = (
-        "SELECT * FROM "
+        "WITH latest AS (SELECT * FROM "
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -563,7 +568,13 @@ def _latest_query(parameters_dict: dict) -> str:
         " WHERE `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
         "{% endif %}"
-        "ORDER BY `{{ tagname_column }}` "
+        "ORDER BY `{{ tagname_column }}` ) "
+        "{% if display_uom is defined and display_uom == true %}"
+        "SELECT l.*, m.`UoM` FROM latest l "
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON l.`TagName` = m.`TagName` "
+        "{% else %}"
+        "SELECT * FROM latest "
+        "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
@@ -579,6 +590,7 @@ def _latest_query(parameters_dict: dict) -> str:
         "asset": parameters_dict.get("asset"),
         "data_security_level": parameters_dict.get("data_security_level"),
         "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
+        "display_uom": parameters_dict.get("display_uom", False),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
@@ -656,7 +668,11 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% endif %}"
         "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
         "{% else %}"
+        "{% if display_uom is defined and display_uom == true %}"
+        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% else%}"
         "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -685,6 +701,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "include_bad_data": parameters_dict["include_bad_data"],
         "step": parameters_dict["step"],
         "pivot": parameters_dict.get("pivot", None),
+        "display_uom": parameters_dict.get("display_uom", False),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "time_zone": parameters_dict["time_zone"],
@@ -756,7 +773,11 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             "{% endif %}"
             "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
             "{% else %}"
+            "{% if display_uom is defined and display_uom == true %}"
+            "SELECT p.*, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{% else%}"
             "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{% endif %}"
             "{% endif %}"
             "{% if limit is defined and limit is not none %}"
             "LIMIT {{ limit }} "
@@ -784,7 +805,11 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             "{% endif %}"
             "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
             "{% else %}"
+            "{% if display_uom is defined and display_uom == true %}"
+            "SELECT p.*, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{% else%}"
             "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{% endif %}"
             "{% endif %}"
             "{% if limit is defined and limit is not none %}"
             "LIMIT {{ limit }} "
@@ -812,6 +837,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "time_zone": parameters_dict["time_zone"],
         "circular_function": parameters_dict["circular_function"],
         "pivot": parameters_dict.get("pivot", None),
+        "display_uom": parameters_dict.get("display_uom", False),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
@@ -840,7 +866,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
 
 def _summary_query(parameters_dict: dict) -> str:
     summary_query = (
-        "SELECT `{{ tagname_column }}`, "
+        "WITH summary AS (SELECT `{{ tagname_column }}`, "
         "count(`{{ value_column }}`) as Count, "
         "CAST(Avg(`{{ value_column }}`) as decimal(10, 2)) as Avg, "
         "CAST(Min(`{{ value_column }}`) as decimal(10, 2)) as Min, "
@@ -861,7 +887,12 @@ def _summary_query(parameters_dict: dict) -> str:
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
         "AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good')"
         "{% endif %}"
-        "GROUP BY `{{ tagname_column }}` "
+        "GROUP BY `{{ tagname_column }}`) "
+        "{% if display_uom is defined and display_uom == true %}"
+        "SELECT s.*, m.`UoM` FROM summary s LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON s.`TagName` = m.`TagName` "
+        "{% else%}"
+        "SELECT * FROM summary "
+        "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
@@ -881,6 +912,7 @@ def _summary_query(parameters_dict: dict) -> str:
         "end_date": parameters_dict["end_date"],
         "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
         "include_bad_data": parameters_dict["include_bad_data"],
+        "display_uom": parameters_dict.get("display_uom", False),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
         "time_zone": parameters_dict["time_zone"],
