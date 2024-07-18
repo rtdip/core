@@ -31,6 +31,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     TWA_MOCKED_QUERY_CHECK_TAGS,
     TWA_MOCKED_QUERY_PIVOT,
     TWA_MOCKED_QUERY_METADATA,
+    TWA_MOCKED_QUERY_UOM,
 )
 
 MOCKED_TWA_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -52,6 +53,7 @@ def test_time_weighted_average(mocker: MockerFixture):
 
 def test_time_weighted_average_check_tags(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["case_insensitivity_tag_search"] = True
+
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
@@ -63,6 +65,7 @@ def test_time_weighted_average_check_tags(mocker: MockerFixture):
 def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["case_insensitivity_tag_search"] = False
     MOCKED_TWA_PARAMETER_DICT["window_size_mins"] = 15
+
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
@@ -73,6 +76,7 @@ def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
 
 def test_time_weighted_average_metadata_step(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["step"] = "metadata"
+
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
@@ -83,6 +87,7 @@ def test_time_weighted_average_metadata_step(mocker: MockerFixture):
 
 def test_time_weighted_average_pivot(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["pivot"] = True
+
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
@@ -91,11 +96,24 @@ def test_time_weighted_average_pivot(mocker: MockerFixture):
     )
 
 
+def test_time_weighted_average_uom(mocker: MockerFixture):
+    MOCKED_TWA_PARAMETER_DICT["pivot"] = False
+    MOCKED_TWA_PARAMETER_DICT["step"] = "false"
+    MOCKED_TWA_PARAMETER_DICT["display_uom"] = True
+
+    _test_base_succeed(
+        mocker,
+        MOCKED_TWA_PARAMETER_DICT,
+        TWA_MOCKED_QUERY_UOM,
+        time_weighted_average_get,
+    )
+
+
 def test_time_weighted_average_offset_limit(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["offset"] = 10
     MOCKED_TWA_PARAMETER_DICT["limit"] = 10
-    MOCKED_TWA_PARAMETER_DICT["pivot"] = False
-    MOCKED_TWA_PARAMETER_DICT["step"] = "false"
+    MOCKED_TWA_PARAMETER_DICT["display_uom"] = False
+
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,

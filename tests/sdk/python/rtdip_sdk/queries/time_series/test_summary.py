@@ -34,6 +34,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     SUMMARY_MOCKED_QUERY,
     SUMMARY_MOCKED_QUERY_CHECK_TAGS,
+    SUMMARY_MOCKED_QUERY_UOM,
 )
 
 MOCKED_SUMMARY_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -58,8 +59,19 @@ def test_summary_get_check_tags(mocker: MockerFixture):
     )
 
 
-def test_summary_offset_limit(mocker: MockerFixture):
+def test_summary_uom(mocker: MockerFixture):
     MOCKED_SUMMARY_DICT["case_insensitivity_tag_search"] = False
+    MOCKED_SUMMARY_DICT["display_uom"] = True
+    _test_base_succeed(
+        mocker,
+        MOCKED_SUMMARY_DICT,
+        SUMMARY_MOCKED_QUERY_UOM,
+        summary_get,
+    )
+
+
+def test_summary_offset_limit(mocker: MockerFixture):
+    MOCKED_SUMMARY_DICT["display_uom"] = False
     MOCKED_SUMMARY_DICT["offset"] = 10
     MOCKED_SUMMARY_DICT["limit"] = 10
     _test_base_succeed(
