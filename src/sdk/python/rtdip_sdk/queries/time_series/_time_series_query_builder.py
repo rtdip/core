@@ -46,10 +46,10 @@ def _raw_query(parameters_dict: dict) -> str:
         "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         ") "
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM` FROM raw_events e "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM`{% endif %} FROM raw_events e '
         "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON e.`TagName` = m.`TagName` "
         "{% else %}"
-        "SELECT * FROM raw_events "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM raw_events '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -92,6 +92,7 @@ def _raw_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(raw_query)
@@ -153,9 +154,9 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
-        "SELECT * FROM project "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -203,6 +204,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(sample_query)
@@ -251,9 +253,9 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
-        "SELECT * FROM project "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -300,6 +302,7 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(plot_query)
@@ -352,9 +355,9 @@ def _interpolation_query(
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -439,9 +442,9 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -486,6 +489,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
     sql_template = Template(interpolate_at_time_query)
     return sql_template.render(interpolation_at_time_parameters)
@@ -493,7 +497,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
 
 def _metadata_query(parameters_dict: dict) -> str:
     metadata_query = (
-        "SELECT * FROM "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -528,6 +532,7 @@ def _metadata_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(metadata_query)
@@ -536,7 +541,7 @@ def _metadata_query(parameters_dict: dict) -> str:
 
 def _latest_query(parameters_dict: dict) -> str:
     latest_query = (
-        "SELECT * FROM "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -571,6 +576,7 @@ def _latest_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(latest_query)
@@ -640,9 +646,9 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -693,6 +699,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(time_weighted_average_query)
@@ -740,9 +747,9 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
             "{% endfor %}"
             "{% endif %}"
-            "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+            '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
             "{% else %}"
-            "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
             "{% endif %}"
             "{% if limit is defined and limit is not none %}"
             "LIMIT {{ limit }} "
@@ -768,9 +775,9 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
             "{% endfor %}"
             "{% endif %}"
-            "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+            '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
             "{% else %}"
-            "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
             "{% endif %}"
             "{% if limit is defined and limit is not none %}"
             "LIMIT {{ limit }} "
@@ -818,6 +825,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(circular_stats_query)
@@ -826,6 +834,16 @@ def _circular_stats_query(parameters_dict: dict) -> str:
 
 def _summary_query(parameters_dict: dict) -> str:
     summary_query = (
+        "{% if to_json is defined and to_json == true %}"
+        "SELECT to_json(struct(`{{ tagname_column }}`, "
+        "count(`{{ value_column }}`) as Count, "
+        "CAST(Avg(`{{ value_column }}`) as decimal(10, 2)) as Avg, "
+        "CAST(Min(`{{ value_column }}`) as decimal(10, 2)) as Min, "
+        "CAST(Max(`{{ value_column }}`) as decimal(10, 2)) as Max, "
+        "CAST(stddev(`{{ value_column }}`) as decimal(10, 2)) as StDev, "
+        "CAST(sum(`{{ value_column }}`) as decimal(10, 2)) as Sum, "
+        'CAST(variance(`{{ value_column }}`) as decimal(10, 2)) as Var), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) FROM '
+        "{% else %}"
         "SELECT `{{ tagname_column }}`, "
         "count(`{{ value_column }}`) as Count, "
         "CAST(Avg(`{{ value_column }}`) as decimal(10, 2)) as Avg, "
@@ -834,6 +852,7 @@ def _summary_query(parameters_dict: dict) -> str:
         "CAST(stddev(`{{ value_column }}`) as decimal(10, 2)) as StDev, "
         "CAST(sum(`{{ value_column }}`) as decimal(10, 2)) as Sum, "
         "CAST(variance(`{{ value_column }}`) as decimal(10, 2)) as Var FROM "
+        "{% endif %}"
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -888,6 +907,7 @@ def _summary_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(summary_query)
