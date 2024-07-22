@@ -27,6 +27,8 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     PLOT_MOCKED_QUERY,
     PLOT_MOCKED_QUERY_CHECK_TAGS,
+    PLOT_MOCKED_QUERY_PIVOT,
+    PLOT_MOCKED_QUERY_UOM,
 )
 
 MOCKED_PLOT_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -65,7 +67,31 @@ def test_plot_sample_rate_unit(mocker: MockerFixture):
     )
 
 
+def test_plot_pivot(mocker: MockerFixture):
+    MOCKED_PLOT_PARAMETER_DICT["pivot"] = True
+
+    _test_base_succeed(
+        mocker,
+        MOCKED_PLOT_PARAMETER_DICT,
+        PLOT_MOCKED_QUERY_PIVOT,
+        plot_get,
+    )
+
+
+def test_plot_uom(mocker: MockerFixture):
+    MOCKED_PLOT_PARAMETER_DICT["pivot"] = False
+    MOCKED_PLOT_PARAMETER_DICT["display_uom"] = True
+
+    _test_base_succeed(
+        mocker,
+        MOCKED_PLOT_PARAMETER_DICT,
+        PLOT_MOCKED_QUERY_UOM,
+        plot_get,
+    )
+
+
 def test_plot_offset_limit(mocker: MockerFixture):
+    MOCKED_PLOT_PARAMETER_DICT["display_uom"] = False
     MOCKED_PLOT_PARAMETER_DICT["offset"] = 10
     MOCKED_PLOT_PARAMETER_DICT["limit"] = 10
     _test_base_succeed(

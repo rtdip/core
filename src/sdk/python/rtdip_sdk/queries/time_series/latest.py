@@ -37,6 +37,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         asset (str): Asset
         data_security_level (str): Level of data security
         tag_names (optional, list): Either pass a list of tagname/tagnames ["tag_1", "tag_2"] or leave the list blank [] or leave the parameter out completely
+        display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
