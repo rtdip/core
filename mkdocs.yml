@@ -322,3 +322,6 @@ nav:
       - core: releases/core.md
   - Blog:
       - blog/index.md
+  - University:
+      - University: university/overview.md
+  

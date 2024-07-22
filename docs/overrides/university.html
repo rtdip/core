@@ -1,0 +1,44 @@
+<!-- {% extends "main.html" %} -->
+
+<!-- Render hero under tabs -->
+{% block tabs %}
+  {{ super() }}
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="../../overrides/university.css">
+
+<div class="container">
+    <section class="intro-section">
+        <div class="intro-section-content">
+            <div class="intro-left">
+                <h1>Welcome to RTDIP University </h1>
+                <p>Learn how to leverage RTDIP and build robust, production-ready ingestion pipelines and time series queries with ease.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function toggleDetails(clickedItem) {
+            // Close all other details and reset indicators
+            document.querySelectorAll('.clickable-list-item').forEach(function(item) {
+                if (item !== clickedItem) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Toggle the clicked item's details
+            clickedItem.classList.toggle('active');
+
+            // Reset all indicators
+            document.querySelectorAll('.clickable-list-toggle-indicator').forEach(indicator => {
+                indicator.textContent = '+';
+            });
+            
+            // Toggle the indicator of the clicked item
+            const indicator = clickedItem.querySelector('.clickable-list-toggle-indicator');
+            indicator.textContent = clickedItem.classList.contains('active') ? '-' : '+';
+        }
+    </script>
+</div>
+
+{% endblock %}
