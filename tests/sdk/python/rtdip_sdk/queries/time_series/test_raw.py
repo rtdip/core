@@ -15,6 +15,7 @@
 import sys
 
 sys.path.insert(0, ".")
+import pytest
 from pytest_mock import MockerFixture
 from src.sdk.python.rtdip_sdk.queries.time_series.raw import get as raw_get
 from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
@@ -62,3 +63,35 @@ def test_raw_offset_limit(mocker: MockerFixture):
 
 def test_raw_fails(mocker: MockerFixture):
     _test_base_fails(mocker, MOCKED_PARAMETER_DICT, raw_get)
+
+
+@pytest.mark.parametrize(
+    "parameters, expected",
+    [
+        (
+            {
+                "source": "test_table",
+                "start_date": "2022-01-01",
+                "end_date": "2022-01-01",
+                "tag_names": ["TestTag"],
+                "include_bad_data": True,
+            },
+            {"count": 2},
+        ),
+        (
+            {
+                "source": "test_table",
+                "start_date": "2022-01-01T00:00:00",
+                "end_date": "2022-01-01T23:59:59",
+                "tag_names": ["TestTag"],
+                "include_bad_data": True,
+            },
+            {"count": 2},
+        ),
+        # Add more test cases as needed
+    ],
+)
+def test_raw_query(spark_connection, parameters, expected):
+    df = raw_get(spark_connection, parameters)
+    assert df.columns == ["EventTime", "TagName", "Status", "Value"]
+    assert df.count() == expected["count"]
