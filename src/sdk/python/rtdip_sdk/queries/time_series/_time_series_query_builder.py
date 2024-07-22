@@ -154,12 +154,13 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
         "{% else %}"
-        "SELECT * FROM project "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
@@ -209,6 +210,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
             "case_insensitivity_tag_search", False
         ),
         "display_uom": parameters_dict.get("display_uom", False),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(sample_query)
@@ -257,12 +259,13 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
         "{% else %}"
-        "SELECT * FROM project "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
@@ -367,9 +370,10 @@ def _interpolation_query(
         '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% else%}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
@@ -458,9 +462,10 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% else%}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
@@ -574,10 +579,10 @@ def _latest_query(parameters_dict: dict) -> str:
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}` ) "
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT l.*, m.`UoM` FROM latest l "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(l.*, m.`UoM), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}l.*, m.`UoM`{% endif %} FROM latest l '
         "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON l.`TagName` = m.`TagName` "
         "{% else %}"
-        "SELECT * FROM latest "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM latest '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -674,9 +679,10 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% else%}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
@@ -780,9 +786,10 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
             "{% else %}"
             "{% if display_uom is defined and display_uom == true %}"
-            "SELECT p.*, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.*, m.`UoM`{% endif %} FROM project p '
+            "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% else%}"
-            "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
             "{% endif %}"
             "{% endif %}"
             "{% if limit is defined and limit is not none %}"
@@ -812,9 +819,10 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
             "{% else %}"
             "{% if display_uom is defined and display_uom == true %}"
-            "SELECT p.*, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.*, m.`UoM`{% endif %} FROM project p '
+            "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% else%}"
-            "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
             "{% endif %}"
             "{% endif %}"
             "{% if limit is defined and limit is not none %}"
@@ -881,7 +889,6 @@ def _summary_query(parameters_dict: dict) -> str:
         "CAST(stddev(`{{ value_column }}`) as decimal(10, 2)) as StDev, "
         "CAST(sum(`{{ value_column }}`) as decimal(10, 2)) as Sum, "
         "CAST(variance(`{{ value_column }}`) as decimal(10, 2)) as Var FROM "
-        "{% endif %}"
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -897,9 +904,10 @@ def _summary_query(parameters_dict: dict) -> str:
         "{% endif %}"
         "GROUP BY `{{ tagname_column }}`) "
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT s.*, m.`UoM` FROM summary s LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON s.`TagName` = m.`TagName` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(s.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}s.*, m.`UoM`{% endif %} FROM summary s '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON s.`TagName` = m.`TagName` "
         "{% else%}"
-        "SELECT * FROM summary "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM summary '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
