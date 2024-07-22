@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
+import json
 import os
-import numpy as np
+import pandas as pd
 import importlib.util
 from typing import Any
 from fastapi import Response
-
+import dateutil.parser
 from pandas import DataFrame
 from pandas.io.json import build_table_schema
 from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
@@ -76,6 +78,7 @@ def common_api_setup_tasks(  # NOSONAR
         )
 
     parameters = base_query_parameters.__dict__
+    parameters["to_json"] = True
 
     if metadata_query_parameters != None:
         parameters = dict(parameters, **metadata_query_parameters.__dict__)
@@ -161,18 +164,38 @@ def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: DataFrame)
     return pagination
 
 
+def datetime_parser(json_dict):
+    for key, value in json_dict.items():
+        try:
+            json_dict[key] = (
+                dateutil.parser.parse(value, ignoretz=True)
+                if isinstance(value, str) and "eventtime" in key.lower()
+                else value
+            )
+        except Exception:
+            pass
+    return json_dict
+
+
 def json_response(
     data: DataFrame, limit_offset_parameters: LimitOffsetQueryParams
 ) -> Response:
+    schema_df = pd.DataFrame()
+    if not data.empty:
+        json_str = data.loc[0, "Value"]
+        json_dict = json.loads(json_str, object_hook=datetime_parser)
+        schema_df = pd.json_normalize(json_dict)
+
     return Response(
         content="{"
         + '"schema":{},"data":{},"pagination":{}'.format(
             FieldSchema.model_validate(
-                build_table_schema(data, index=False, primary_key=False),
+                build_table_schema(schema_df, index=False, primary_key=False),
             ).model_dump_json(),
-            data.replace({np.nan: None}).to_json(
-                orient="records", date_format="iso", date_unit="ns"
-            ),
+            "[" + ",".join(data["Value"]) + "]",
+            # data.replace({np.nan: None}).to_json(
+            #     orient="records", date_format="iso", date_unit="ns"
+            # ),
             pagination(limit_offset_parameters, data).model_dump_json(),
         )
         + "}",
