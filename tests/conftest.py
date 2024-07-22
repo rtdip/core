@@ -15,6 +15,7 @@ import pytest
 import os
 import shutil
 
+from src.sdk.python.rtdip_sdk.connectors.grpc.spark_connector import SparkConnection
 from src.sdk.python.rtdip_sdk.pipelines.destinations import *  # NOSONAR
 from src.sdk.python.rtdip_sdk.pipelines.sources import *  # NOSONAR
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import (
@@ -28,6 +29,8 @@ SPARK_TESTING_CONFIGURATION = {
     "spark.app.name": "test_app",
     "spark.master": "local[*]",
 }
+
+datetime_format = "%Y-%m-%dT%H:%M:%S.%f000Z"
 
 
 @pytest.fixture(scope="session")
@@ -45,7 +48,32 @@ def spark_session():
         shutil.rmtree(path)
 
 
-datetime_format = "%Y-%m-%dT%H:%M:%S.%f000Z"
+@pytest.fixture(scope="session")
+def spark_connection(spark_session: SparkSession):
+    table_name = "test_table"
+    data = [
+        {
+            "EventTime": datetime(2022, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            "TagName": "TestTag",
+            "Status": "Good",
+            "Value": 1.5,
+        },
+        {
+            "EventTime": datetime(2022, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+            "TagName": "TestTag",
+            "Status": "Good",
+            "Value": 2.0,
+        },
+        {
+            "EventTime": datetime(2022, 1, 2, 0, 0, 0, tzinfo=timezone.utc),
+            "TagName": "TestTag",
+            "Status": "Good",
+            "Value": 1.0,
+        },
+    ]
+    df = spark_session.createDataFrame(data)
+    df.write.format("delta").mode("overwrite").saveAsTable(table_name)
+    return SparkConnection(spark=spark_session)
 
 
 def expected_result(data, limit="null", offset="null", next="null"):
