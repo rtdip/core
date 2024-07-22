@@ -168,7 +168,7 @@ def datetime_parser(json_dict):
     for key, value in json_dict.items():
         try:
             json_dict[key] = (
-                dateutil.parser.parse(value)
+                dateutil.parser.parse(value, ignoretz=True)
                 if isinstance(value, str) and "eventtime" in key.lower()
                 else value
             )
