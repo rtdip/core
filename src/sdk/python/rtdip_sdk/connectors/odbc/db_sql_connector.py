@@ -110,7 +110,7 @@ class DatabricksSQLCursor(CursorInterface):
             logging.exception("error while executing the query")
             raise e
 
-    def fetch_all(self, fetch_size=5_000_000):
+    def fetch_all(self, fetch_size=5_000_000) -> list | dict:
         """
         Gets all rows of a query.
 
