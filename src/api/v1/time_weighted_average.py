@@ -54,7 +54,6 @@ def time_weighted_average_events_get(
         )
 
         data = time_weighted_average.get(connection, parameters)
-        data = data.reset_index()
 
         return json_response(data, limit_offset_parameters)
     except Exception as e:

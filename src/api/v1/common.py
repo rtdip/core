@@ -142,7 +142,7 @@ def common_api_setup_tasks(  # NOSONAR
     return connection, parameters
 
 
-def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: DataFrame):
+def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: str):
     pagination = PaginationRow(
         limit=None,
         offset=None,
@@ -156,7 +156,7 @@ def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: DataFrame)
         next_offset = None
 
         if (
-            len(data.index) == limit_offset_parameters.limit
+            data.count("}") == limit_offset_parameters.limit
             and limit_offset_parameters.offset is not None
         ):
             next_offset = limit_offset_parameters.offset + limit_offset_parameters.limit
