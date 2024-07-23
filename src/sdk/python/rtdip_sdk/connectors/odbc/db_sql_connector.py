@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Union
 from databricks import sql
 import pyarrow as pa
 import polars as pl
@@ -110,7 +111,7 @@ class DatabricksSQLCursor(CursorInterface):
             logging.exception("error while executing the query")
             raise e
 
-    def fetch_all(self, fetch_size=5_000_000) -> list:
+    def fetch_all(self, fetch_size=5_000_000) -> Union[list, dict]:
         """
         Gets all rows of a query.
 
