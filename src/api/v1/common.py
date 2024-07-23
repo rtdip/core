@@ -142,7 +142,7 @@ def common_api_setup_tasks(  # NOSONAR
     return connection, parameters
 
 
-def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: str):
+def pagination(limit_offset_parameters: LimitOffsetQueryParams, rows: int):
     pagination = PaginationRow(
         limit=None,
         offset=None,
@@ -156,7 +156,7 @@ def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: str):
         next_offset = None
 
         if (
-            data.count("}") == limit_offset_parameters.limit
+            rows == limit_offset_parameters.limit
             and limit_offset_parameters.offset is not None
         ):
             next_offset = limit_offset_parameters.offset + limit_offset_parameters.limit
@@ -184,11 +184,11 @@ def datetime_parser(json_dict):
 
 
 def json_response(
-    data: str, limit_offset_parameters: LimitOffsetQueryParams
+    data: dict, limit_offset_parameters: LimitOffsetQueryParams
 ) -> Response:
     schema_df = pd.DataFrame()
-    if data is not None and data != "":
-        json_str = data[0 : data.find("}") + 1]
+    if data["data"] is not None and data["data"] != "":
+        json_str = data["data"][0 : data["data"].find("}") + 1]
         json_dict = json.loads(json_str, object_hook=datetime_parser)
         schema_df = pd.json_normalize(json_dict)
 
@@ -198,11 +198,8 @@ def json_response(
             FieldSchema.model_validate(
                 build_table_schema(schema_df, index=False, primary_key=False),
             ).model_dump_json(),
-            "[" + data + "]",
-            # data.replace({np.nan: None}).to_json(
-            #     orient="records", date_format="iso", date_unit="ns"
-            # ),
-            pagination(limit_offset_parameters, data).model_dump_json(),
+            "[" + data["data"] + "]",
+            pagination(limit_offset_parameters, data["count"]).model_dump_json(),
         )
         + "}",
         media_type="application/json",

@@ -110,7 +110,7 @@ class DatabricksSQLCursor(CursorInterface):
             logging.exception("error while executing the query")
             raise e
 
-    def fetch_all(self, fetch_size=5_000_000) -> list:
+    def fetch_all(self, fetch_size=5_000_000):
         """
         Gets all rows of a query.
 
@@ -120,8 +120,10 @@ class DatabricksSQLCursor(CursorInterface):
         try:
             get_next_result = True
             results = None if ConnectionReturnType.String else []
+            count = 0
             while get_next_result:
                 result = self.cursor.fetchmany_arrow(fetch_size)
+                count += result.num_rows
                 if self.return_type == ConnectionReturnType.List:
                     column_list = []
                     for column in result.columns:
@@ -148,11 +150,13 @@ class DatabricksSQLCursor(CursorInterface):
             elif self.return_type == ConnectionReturnType.Pyarrow:
                 pyarrow_table = pa.concat_tables(results)
                 return pyarrow_table
-            elif self.return_type in (
-                ConnectionReturnType.List,
-                ConnectionReturnType.String,
-            ):
+            elif self.return_type == ConnectionReturnType.List:
                 return results
+            elif self.return_type == ConnectionReturnType.String:
+                return {
+                    "data": results,
+                    "count": count,
+                }
         except Exception as e:
             logging.exception("error while fetching the rows of a query")
             raise e
