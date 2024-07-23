@@ -120,7 +120,7 @@ class DatabricksSQLCursor(CursorInterface):
         """
         try:
             get_next_result = True
-            results = None if ConnectionReturnType.String else []
+            results = None if self.return_type == ConnectionReturnType.String else []
             count = 0
             while get_next_result:
                 result = self.cursor.fetchmany_arrow(fetch_size)
