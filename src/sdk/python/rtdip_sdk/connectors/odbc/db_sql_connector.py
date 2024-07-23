@@ -15,7 +15,6 @@
 from typing import Union
 from databricks import sql
 import pyarrow as pa
-import polars as pl
 from ..connection_interface import ConnectionInterface
 from ..cursor_interface import CursorInterface
 from ..models import ConnectionReturnType
