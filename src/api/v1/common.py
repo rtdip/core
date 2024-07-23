@@ -21,8 +21,12 @@ from typing import Any
 from fastapi import Response
 import dateutil.parser
 from pandas import DataFrame
+import pyarrow as pa
 from pandas.io.json import build_table_schema
-from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
+from src.sdk.python.rtdip_sdk.connectors import (
+    DatabricksSQLConnection,
+    ConnectionReturnType,
+)
 
 if importlib.util.find_spec("turbodbc") != None:
     from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
@@ -69,12 +73,14 @@ def common_api_setup_tasks(  # NOSONAR
             databricks_server_host_name,
             databricks_http_path,
             token,
+            ConnectionReturnType.String,
         )
     else:
         connection = DatabricksSQLConnection(
             databricks_server_host_name,
             databricks_http_path,
             token,
+            ConnectionReturnType.String,
         )
 
     parameters = base_query_parameters.__dict__
@@ -178,11 +184,11 @@ def datetime_parser(json_dict):
 
 
 def json_response(
-    data: DataFrame, limit_offset_parameters: LimitOffsetQueryParams
+    data: str, limit_offset_parameters: LimitOffsetQueryParams
 ) -> Response:
     schema_df = pd.DataFrame()
-    if not data.empty:
-        json_str = data.loc[0, "Value"]
+    if data is not None and data != "":
+        json_str = data[0 : data.find("}") + 1]
         json_dict = json.loads(json_str, object_hook=datetime_parser)
         schema_df = pd.json_normalize(json_dict)
 
@@ -192,7 +198,7 @@ def json_response(
             FieldSchema.model_validate(
                 build_table_schema(schema_df, index=False, primary_key=False),
             ).model_dump_json(),
-            "[" + ",".join(data["Value"]) + "]",
+            "[" + data + "]",
             # data.replace({np.nan: None}).to_json(
             #     orient="records", date_format="iso", date_unit="ns"
             # ),

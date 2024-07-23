@@ -65,7 +65,7 @@ def get_default_package(package_name):
         "aws_boto3": PyPiLibrary(name="boto3", version="1.28.2"),
         "hashicorp_vault": PyPiLibrary(name="hvac", version="1.1.0"),
         "api_requests": PyPiLibrary(name="requests", version="2.30.0"),
-        "pyarrow": PyPiLibrary(name="pyarrow", version="12.0.0"),
+        "pyarrow": PyPiLibrary(name="pyarrow", version="14.0.2"),
         "pandas": PyPiLibrary(name="pandas", version="2.0.1"),
     }
     return DEFAULT_PACKAGES[package_name]

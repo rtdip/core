@@ -14,8 +14,10 @@
 
 from databricks import sql
 import pyarrow as pa
+import polars as pl
 from ..connection_interface import ConnectionInterface
 from ..cursor_interface import CursorInterface
+from ..models import ConnectionReturnType
 import logging
 
 
@@ -32,10 +34,17 @@ class DatabricksSQLConnection(ConnectionInterface):
         access_token: Azure AD or Databricks PAT token
     """
 
-    def __init__(self, server_hostname: str, http_path: str, access_token: str) -> None:
+    def __init__(
+        self,
+        server_hostname: str,
+        http_path: str,
+        access_token: str,
+        return_type=ConnectionReturnType.Pandas,
+    ) -> None:
         self.server_hostname = server_hostname
         self.http_path = http_path
         self.access_token = access_token
+        self.return_type = return_type
         # call auth method
         self.connection = self._connect()
 
@@ -70,7 +79,7 @@ class DatabricksSQLConnection(ConnectionInterface):
         try:
             if self.connection.open == False:
                 self.connection = self._connect()
-            return DatabricksSQLCursor(self.connection.cursor())
+            return DatabricksSQLCursor(self.connection.cursor(), self.return_type)
         except Exception as e:
             logging.exception("error with cursor object")
             raise e
@@ -84,8 +93,9 @@ class DatabricksSQLCursor(CursorInterface):
         cursor: controls execution of commands on cluster or SQL Warehouse
     """
 
-    def __init__(self, cursor: object) -> None:
+    def __init__(self, cursor: object, return_type=ConnectionReturnType.Pandas) -> None:
         self.cursor = cursor
+        self.return_type = return_type
 
     def execute(self, query: str) -> None:
         """
@@ -109,16 +119,40 @@ class DatabricksSQLCursor(CursorInterface):
         """
         try:
             get_next_result = True
-            results = []
+            results = None if ConnectionReturnType.String else []
             while get_next_result:
                 result = self.cursor.fetchmany_arrow(fetch_size)
-                results.append(result)
+                if self.return_type == ConnectionReturnType.List:
+                    column_list = []
+                    for column in result.columns:
+                        column_list.append(column.to_pylist())
+                    results.extend(zip(*column_list))
+                elif self.return_type == ConnectionReturnType.String:
+                    column_list = []
+                    for column in result.columns:
+                        column_list.append(column.to_pylist())
+
+                    strings = ",".join([str(item[0]) for item in zip(*column_list)])
+                    if results is None:
+                        results = strings
+                    else:
+                        results = ",".join([results, strings])
+                else:
+                    results.append(result)
                 if result.num_rows < fetch_size:
                     get_next_result = False
 
-            pyarrow_table = pa.concat_tables(results)
-            df = pyarrow_table.to_pandas()
-            return df
+            if self.return_type == ConnectionReturnType.Pandas:
+                pyarrow_table = pa.concat_tables(results)
+                return pyarrow_table.to_pandas()
+            elif self.return_type == ConnectionReturnType.Pyarrow:
+                pyarrow_table = pa.concat_tables(results)
+                return pyarrow_table
+            elif self.return_type in (
+                ConnectionReturnType.List,
+                ConnectionReturnType.String,
+            ):
+                return results
         except Exception as e:
             logging.exception("error while fetching the rows of a query")
             raise e
