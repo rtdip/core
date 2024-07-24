@@ -51,7 +51,7 @@ body {
     background-image: url('./images/terrain.png');
     background-size: 100% auto;
     background-repeat: no-repeat; 
-    background-position: 50% 45%;
+    background-position: 50% 35%;
     z-index: 1;
 }
 
@@ -114,9 +114,8 @@ body {
  
 .content-section {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
-    /* margin-top: 50px; */
     margin-bottom: 50px;
     margin-left: 50px;
     margin-right: 50px;
@@ -200,49 +199,21 @@ body {
     margin-left: 10px;
 }
 
-/* === WAVE STYLES === */
-/* .wave-container-expect {
-    display: inline-block;
-    position: relative;
-    width: 100%;
-    margin-bottom: 10%;
-    z-index: -1;
+/* Dark theme colours */
+[data-md-color-scheme="slate"] .linkcard {
+    background-color: #2f2e35;
+    border: 2px solid #535353;
 }
 
-.wave-container-expect svg {
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-.wave-container-query-top {
-    display: inline-block;
-    position: relative;
-    width: 100%;
-    height: 50px;
-    z-index: -1;
+[data-md-color-scheme="slate"] .linkcard:hover {
+    opacity: 0.8;
+    border: 2px solid #b6b6b6;
 }
 
-.wave-container-query-top svg {
-    display: inline-block;
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-  }
-
-
-.wave-container-query-bottom {
-    display: inline-block;
-    position: relative;
-    width: 100%;
-    height: 150px;
-    z-index: -1;
+[data-md-color-scheme="slate"] .linkcard-grey-top {
+    background-color: #4a4a4b;
 }
 
-.wave-container-query-bottom svg {
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    left: 0;
-  } */
+[data-md-color-scheme="slate"] .linkcard-link {
+    color: white;
+}
