@@ -17,6 +17,7 @@ import pandas as pd
 from ..._sdk_utils.compare_versions import _package_version_meets_minimum
 from ..connection_interface import ConnectionInterface
 from ..cursor_interface import CursorInterface
+from ..models import ConnectionReturnType
 import logging
 import os
 
@@ -37,11 +38,18 @@ class TURBODBCSQLConnection(ConnectionInterface):
         More fields such as driver can be configured upon extension.
     """
 
-    def __init__(self, server_hostname: str, http_path: str, access_token: str) -> None:
+    def __init__(
+        self,
+        server_hostname: str,
+        http_path: str,
+        access_token: str,
+        return_type=ConnectionReturnType.Pandas,
+    ) -> None:
         _package_version_meets_minimum("turbodbc", "4.0.0")
         self.server_hostname = server_hostname
         self.http_path = http_path
         self.access_token = access_token
+        self.return_type = return_type
         # call auth method
         self.connection = self._connect()
         self.open = True
@@ -97,7 +105,9 @@ class TURBODBCSQLConnection(ConnectionInterface):
         try:
             if self.open == False:
                 self.connection = self._connect()
-            return TURBODBCSQLCursor(self.connection.cursor())
+            return TURBODBCSQLCursor(
+                self.connection.cursor(), return_type=self.return_type
+            )
         except Exception as e:
             logging.exception("error with cursor object")
             raise e
@@ -111,8 +121,9 @@ class TURBODBCSQLCursor(CursorInterface):
         cursor: controls execution of commands on cluster or SQL Warehouse
     """
 
-    def __init__(self, cursor: object) -> None:
+    def __init__(self, cursor: object, return_type=ConnectionReturnType.Pandas) -> None:
         self.cursor = cursor
+        self.return_type = return_type
 
     def execute(self, query: str) -> None:
         """
@@ -136,8 +147,10 @@ class TURBODBCSQLCursor(CursorInterface):
         """
         try:
             result = self.cursor.fetchallarrow()
-            df = result.to_pandas()
-            return df
+            if self.return_type == ConnectionReturnType.Pyarrow:
+                return result
+            elif self.return_type == ConnectionReturnType.Pandas:
+                return result.to_pandas()
         except Exception as e:
             logging.exception("error while fetching the rows from the query")
             raise e

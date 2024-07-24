@@ -17,6 +17,7 @@ from pytest_mock import MockerFixture
 import pandas as pd
 import numpy as np
 from datetime import datetime, timezone
+from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
 from tests.api.v1.api_test_objects import (
     RAW_MOCKED_PARAMETER_DICT,
     RAW_MOCKED_PARAMETER_ERROR_DICT,
