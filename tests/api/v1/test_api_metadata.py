@@ -33,33 +33,29 @@ from src.api.v1 import app
 
 MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.metadata.get"
 MOCK_API_NAME = "/api/v1/metadata"
-TEST_DATA = pd.DataFrame(
-    {"TagName": ["TestTag"], "UoM": ["UoM1"], "Description": ["Test Description"]}
-)
 
 pytestmark = pytest.mark.anyio
 
 
-async def test_api_metadata_get_tags_provided_success(mocker: MockerFixture):
-    mocker = mocker_setup(mocker, MOCK_METHOD, TEST_DATA)
+async def test_api_metadata_get_tags_provided_success(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_metadata"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
         )
     actual = response.text
-    expected = TEST_DATA.to_json(orient="table", index=False)
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_metadata"]
 
 
-async def test_api_metadata_get_no_tags_provided_success(mocker: MockerFixture):
-    mocker = mocker_setup(mocker, MOCK_METHOD, TEST_DATA)
+async def test_api_metadata_get_no_tags_provided_success(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_metadata"])
 
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT = METADATA_MOCKED_PARAMETER_DICT.copy()
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT.pop("tag_name")
@@ -70,18 +66,13 @@ async def test_api_metadata_get_no_tags_provided_success(mocker: MockerFixture):
             params=METADATA_MOCKED_PARAMETER_NO_TAG_DICT,
         )
     actual = response.text
-    expected = TEST_DATA.to_json(orient="table", index=False)
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_metadata"]
 
 
-async def test_api_metadata_get_validation_error(mocker: MockerFixture):
-    mocker = mocker_setup(mocker, MOCK_METHOD, TEST_DATA)
+async def test_api_metadata_get_validation_error(mocker: MockerFixture, api_test_data):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_metadata"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
@@ -98,9 +89,12 @@ async def test_api_metadata_get_validation_error(mocker: MockerFixture):
     )
 
 
-async def test_api_metadata_get_error(mocker: MockerFixture):
+async def test_api_metadata_get_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(
-        mocker, MOCK_METHOD, TEST_DATA, Exception("Error Connecting to Database")
+        mocker,
+        MOCK_METHOD,
+        api_test_data["mock_data_metadata"],
+        Exception("Error Connecting to Database"),
     )
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
@@ -113,8 +107,10 @@ async def test_api_metadata_get_error(mocker: MockerFixture):
     assert actual == '{"detail":"Error Connecting to Database"}'
 
 
-async def test_api_metadata_post_tags_provided_success(mocker: MockerFixture):
-    mocker = mocker_setup(mocker, MOCK_METHOD, TEST_DATA)
+async def test_api_metadata_post_tags_provided_success(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_metadata"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
@@ -124,18 +120,15 @@ async def test_api_metadata_post_tags_provided_success(mocker: MockerFixture):
             json=METADATA_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = TEST_DATA.to_json(orient="table", index=False)
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_metadata"]
 
 
-async def test_api_metadata_post_no_tags_provided_error(mocker: MockerFixture):
-    mocker = mocker_setup(mocker, MOCK_METHOD, TEST_DATA)
+async def test_api_metadata_post_no_tags_provided_error(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_metadata"])
 
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT = METADATA_MOCKED_PARAMETER_DICT.copy()
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT.pop("tag_name")
@@ -154,8 +147,8 @@ async def test_api_metadata_post_no_tags_provided_error(mocker: MockerFixture):
     )
 
 
-async def test_api_metadata_post_validation_error(mocker: MockerFixture):
-    mocker = mocker_setup(mocker, MOCK_METHOD, TEST_DATA)
+async def test_api_metadata_post_validation_error(mocker: MockerFixture, api_test_data):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_metadata"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
@@ -173,9 +166,12 @@ async def test_api_metadata_post_validation_error(mocker: MockerFixture):
     )
 
 
-async def test_api_metadata_post_error(mocker: MockerFixture):
+async def test_api_metadata_post_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(
-        mocker, MOCK_METHOD, TEST_DATA, Exception("Error Connecting to Database")
+        mocker,
+        MOCK_METHOD,
+        api_test_data["mock_data_metadata"],
+        Exception("Error Connecting to Database"),
     )
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:

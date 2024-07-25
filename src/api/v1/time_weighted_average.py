@@ -60,8 +60,6 @@ def time_weighted_average_events_get(
         else:
             # else wrap in lookup function that finds tablenames and runs function (if mutliple tables, handles concurrent requests)
             data = lookup_before_get("time_weighted_average", connection, parameters)
-        
-        data = data.reset_index()
 
         return json_response(data, limit_offset_parameters)
     except Exception as e:

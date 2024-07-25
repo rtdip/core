@@ -27,6 +27,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     LATEST_MOCKED_QUERY,
     LATEST_MOCKED_QUERY_CHECK_TAGS,
     LATEST_MOCKED_QUERY_NO_TAGS,
+    LATEST_MOCKED_QUERY_UOM,
 )
 
 MOCKED_LATEST_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -45,8 +46,16 @@ def test_latest_check_tags(mocker: MockerFixture):
     )
 
 
-def test_latest_offset_limit(mocker: MockerFixture):
+def test_latest_uom(mocker: MockerFixture):
     MOCKED_LATEST_PARAMETER_DICT["case_insensitivity_tag_search"] = False
+    MOCKED_LATEST_PARAMETER_DICT["display_uom"] = True
+    _test_base_succeed(
+        mocker, MOCKED_LATEST_PARAMETER_DICT, LATEST_MOCKED_QUERY_UOM, latest_raw
+    )
+
+
+def test_latest_offset_limit(mocker: MockerFixture):
+    MOCKED_LATEST_PARAMETER_DICT["display_uom"] = False
     MOCKED_LATEST_PARAMETER_DICT["offset"] = 10
     MOCKED_LATEST_PARAMETER_DICT["limit"] = 10
     _test_base_succeed(
@@ -59,8 +68,8 @@ def test_latest_offset_limit(mocker: MockerFixture):
 
 def test_no_tag_latest(mocker: MockerFixture):
     MOCKED_LATEST_PARAMETER_DICT.pop("tag_names")
-    MOCKED_LATEST_PARAMETER_DICT.pop("offset")
-    MOCKED_LATEST_PARAMETER_DICT.pop("limit")
+    MOCKED_LATEST_PARAMETER_DICT["offset"] = None
+    MOCKED_LATEST_PARAMETER_DICT["limit"] = None
     _test_base_succeed(
         mocker, MOCKED_LATEST_PARAMETER_DICT, LATEST_MOCKED_QUERY_NO_TAGS, latest_raw
     )

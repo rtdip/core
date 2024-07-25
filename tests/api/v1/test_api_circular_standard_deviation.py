@@ -36,15 +36,10 @@ MOCK_API_NAME = "/api/v1/events/circularstandarddeviation"
 pytestmark = pytest.mark.anyio
 
 
-async def test_api_circular_standard_deviation_get_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "EventTime": [datetime.now(timezone.utc)],
-            "TagName": ["TestTag"],
-            "Value": [1.5],
-        }
-    )
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+async def test_api_circular_standard_deviation_get_success(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
@@ -53,27 +48,15 @@ async def test_api_circular_standard_deviation_get_success(mocker: MockerFixture
             params=CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_agg"]
 
 
 async def test_api_circular_standard_deviation_get_validation_error(
-    mocker: MockerFixture,
+    mocker: MockerFixture, api_test_data
 ):
-    test_data = pd.DataFrame(
-        {
-            "EventTime": [datetime.now(timezone.utc)],
-            "TagName": ["TestTag"],
-            "Value": [1.01],
-        }
-    )
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
@@ -90,16 +73,14 @@ async def test_api_circular_standard_deviation_get_validation_error(
     )
 
 
-async def test_api_circular_standard_deviation_get_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "EventTime": [datetime.now(timezone.utc)],
-            "TagName": ["TestTag"],
-            "Value": [1.01],
-        }
-    )
+async def test_api_circular_standard_deviation_get_error(
+    mocker: MockerFixture, api_test_data
+):
     mocker = mocker_setup(
-        mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
+        mocker,
+        MOCK_METHOD,
+        api_test_data["mock_data_agg"],
+        Exception("Error Connecting to Database"),
     )
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
@@ -114,15 +95,10 @@ async def test_api_circular_standard_deviation_get_error(mocker: MockerFixture):
     assert actual == '{"detail":"Error Connecting to Database"}'
 
 
-async def test_api_circular_standard_deviation_post_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "EventTime": [datetime.now(timezone.utc)],
-            "TagName": ["TestTag"],
-            "Value": [1.5],
-        }
-    )
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+async def test_api_circular_standard_deviation_post_success(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
@@ -132,27 +108,15 @@ async def test_api_circular_standard_deviation_post_success(mocker: MockerFixtur
             json=CIRCULAR_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_agg"]
 
 
 async def test_api_circular_standard_deviation_post_validation_error(
-    mocker: MockerFixture,
+    mocker: MockerFixture, api_test_data
 ):
-    test_data = pd.DataFrame(
-        {
-            "EventTime": [datetime.now(timezone.utc)],
-            "TagName": ["TestTag"],
-            "Value": [1.01],
-        }
-    )
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
@@ -170,16 +134,14 @@ async def test_api_circular_standard_deviation_post_validation_error(
     )
 
 
-async def test_api_circular_standard_deviation_post_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "EventTime": [datetime.now(timezone.utc)],
-            "TagName": ["TestTag"],
-            "Value": [1.01],
-        }
-    )
+async def test_api_circular_standard_deviation_post_error(
+    mocker: MockerFixture, api_test_data
+):
     mocker = mocker_setup(
-        mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
+        mocker,
+        MOCK_METHOD,
+        api_test_data["mock_data_agg"],
+        Exception("Error Connecting to Database"),
     )
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:

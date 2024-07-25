@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
+import json
 import os
-import numpy as np
+import pandas as pd
 import importlib.util
+
 from typing import Any, List, Dict
 import requests
 import json
@@ -22,10 +25,19 @@ import pandas as pd
 
 from fastapi import Response
 from fastapi.responses import JSONResponse
+import dateutil.parser
+
 from pandas import DataFrame
+import pyarrow as pa
 from pandas.io.json import build_table_schema
-from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
+
+from src.sdk.python.rtdip_sdk.connectors import (
+    DatabricksSQLConnection,
+    ConnectionReturnType,
+)
+
 from src.sdk.python.rtdip_sdk.queries.time_series import batch
+
 
 if importlib.util.find_spec("turbodbc") != None:
     from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
@@ -73,15 +85,18 @@ def common_api_setup_tasks(  # NOSONAR
             databricks_server_host_name,
             databricks_http_path,
             token,
+            ConnectionReturnType.String,
         )
     else:
         connection = DatabricksSQLConnection(
             databricks_server_host_name,
             databricks_http_path,
             token,
+            ConnectionReturnType.String,
         )
 
     parameters = base_query_parameters.__dict__
+    parameters["to_json"] = True
 
     if metadata_query_parameters != None:
         parameters = dict(parameters, **metadata_query_parameters.__dict__)
@@ -139,7 +154,7 @@ def common_api_setup_tasks(  # NOSONAR
     return connection, parameters
 
 
-def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: DataFrame):
+def pagination(limit_offset_parameters: LimitOffsetQueryParams, rows: int):
     pagination = PaginationRow(
         limit=None,
         offset=None,
@@ -153,7 +168,7 @@ def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: DataFrame)
         next_offset = None
 
         if (
-            len(data.index) == limit_offset_parameters.limit
+            rows == limit_offset_parameters.limit
             and limit_offset_parameters.offset is not None
         ):
             next_offset = limit_offset_parameters.offset + limit_offset_parameters.limit
@@ -167,19 +182,36 @@ def pagination(limit_offset_parameters: LimitOffsetQueryParams, data: DataFrame)
     return pagination
 
 
+def datetime_parser(json_dict):
+    for key, value in json_dict.items():
+        try:
+            json_dict[key] = (
+                dateutil.parser.parse(value, ignoretz=True)
+                if isinstance(value, str) and "eventtime" in key.lower()
+                else value
+            )
+        except Exception:
+            pass
+    return json_dict
+
+
 def json_response(
-    data: DataFrame, limit_offset_parameters: LimitOffsetQueryParams
+    data: dict, limit_offset_parameters: LimitOffsetQueryParams
 ) -> Response:
+    schema_df = pd.DataFrame()
+    if data["data"] is not None and data["data"] != "":
+        json_str = data["sample_row"]
+        json_dict = json.loads(json_str, object_hook=datetime_parser)
+        schema_df = pd.json_normalize(json_dict)
+
     return Response(
         content="{"
         + '"schema":{},"data":{},"pagination":{}'.format(
             FieldSchema.model_validate(
-                build_table_schema(data, index=False, primary_key=False),
+                build_table_schema(schema_df, index=False, primary_key=False),
             ).model_dump_json(),
-            data.replace({np.nan: None}).to_json(
-                orient="records", date_format="iso", date_unit="ns"
-            ),
-            pagination(limit_offset_parameters, data).model_dump_json(),
+            "[" + data["data"] + "]",
+            pagination(limit_offset_parameters, data["count"]).model_dump_json(),
         )
         + "}",
         media_type="application/json",
