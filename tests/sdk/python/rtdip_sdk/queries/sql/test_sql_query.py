@@ -17,7 +17,7 @@ HTTP_PATH = "sql/mock/mock-test"
 ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
-MOCKED_SQL_QUERY = "SELECT * FROM MOCKEDTABLE"
+MOCKED_SQL_QUERY = "SELECT * FROM MOCKEDTABLE "
 
 
 def test_sql_query(mocker: MockerFixture):
