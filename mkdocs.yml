@@ -324,4 +324,5 @@ nav:
       - blog/index.md
   - University:
       - University: university/overview.md
+      - Essentials: university/essentials.md
   

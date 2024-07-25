@@ -1,0 +1,157 @@
+/* === GENERAL STYLES === */
+
+/* Reset default margins and padding to eliminate unexpected spacing */
+
+body, h1, h2, h3, p{
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    padding: 0px;
+    margin: 0px;
+    font-family: 'Roboto', 'Arial', sans-serif;
+}
+
+/* === ESSENTIALS CONTAINER STYLES === */
+
+.essentials-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    align-items: center;
+}
+
+/* === INTRO SECTION STYLES === */
+
+.essentials-intro-section {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(180deg, rgba(78,8,199,1) 0%, rgba(78,8,199,1) 30%, rgba(167,26,170,1) 90%, rgba(212,69,163,1) 100%);
+    height: 40vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.essentials-intro-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: url('./images/terrain.png');
+    background-size: 100% auto;
+    background-repeat: no-repeat; 
+    background-position: 50% 35%;
+    z-index: 1;
+}
+
+.essentials-intro-header {
+    color: white;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 61rem;
+}
+
+.essentials-intro-header h1 {
+    font-size: 2rem;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: center;
+}
+
+.essentials-intro-header p {
+    font-weight: 300;
+    font-size: 0.8rem;
+    line-height: 1.5rem;
+    margin: 1rem 0;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: center;
+}
+
+/* === PREREQUISITES SECTION STYLES === */
+
+.prerequisites-section {
+    width: 100%;
+    /* min-height: 90vh; */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.prerequisites-content-container {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.prerequisites-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+    width: 50%;
+    padding: 0 6rem;
+}
+
+.prerequisites-left h3 {
+    font-size: 1.5rem;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: left;
+}
+
+.prerequisites-left p {
+    font-weight: 300;
+    font-size: 0.8rem;
+    line-height: 1.5rem;
+    margin: 1rem 0;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: left;
+}
+
+.prerequisites-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+    width: 50%;
+    padding: 0 6rem;
+}
+
+.prerequisites-right h3 {
+    font-size: 1.25rem;
+    font-weight: 300;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: left;
+}
+
+.prerequisites-right p {
+    font-weight: 300;
+    font-size: 0.5rem;
+    line-height: 1.5rem;
+    margin: 1rem 0;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: left;
+}
