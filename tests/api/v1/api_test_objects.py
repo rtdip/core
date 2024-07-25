@@ -19,6 +19,7 @@ from tests.sdk.python.rtdip_sdk.connectors.odbc.test_db_sql_connector import (
 from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
     DATABRICKS_SQL_CONNECT,
 )
+import os
 
 START_DATE = "2011-01-01T00:00:00+00:00"
 END_DATE = "2011-01-02T00:00:00+00:00"
@@ -230,12 +231,158 @@ TEST_HEADERS_POST = {
 }
 
 
-def mocker_setup(mocker: MockerFixture, patch_method, test_data, side_effect=None):
+# Batch api test parameters
+BATCH_MOCKED_PARAMETER_DICT = {
+    "region": "mocked-region",
+}
+
+BATCH_POST_PAYLOAD_SINGLE_WITH_GET = {
+    "requests": [
+        {
+            "url": "/api/v1/events/summary",
+            "method": "GET",
+            "headers": TEST_HEADERS,
+            "params": SUMMARY_MOCKED_PARAMETER_DICT,
+        }
+    ]
+}
+
+BATCH_POST_PAYLOAD_SINGLE_WITH_POST = {
+    "requests": [
+        {
+            "url": "/api/v1/events/raw",
+            "method": "POST",
+            "headers": TEST_HEADERS,
+            "params": RAW_MOCKED_PARAMETER_DICT,
+            "body": RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT,
+        }
+    ]
+}
+
+BATCH_POST_PAYLOAD_SINGLE_WITH_GET_ERROR_DICT = {
+    "requests": [
+        {
+            "url": "an_unsupported_route",
+            "method": "GET",
+            "headers": TEST_HEADERS,
+            "params": SUMMARY_MOCKED_PARAMETER_DICT,
+        }
+    ]
+}
+
+BATCH_POST_PAYLOAD_SINGLE_WITH_POST_ERROR_DICT = {
+    "requests": [
+        {
+            "url": "/api/v1/events/raw",
+            "method": "POST",
+            "headers": TEST_HEADERS,
+            "params": RAW_MOCKED_PARAMETER_DICT,
+            # No body supplied
+        }
+    ]
+}
+
+BATCH_POST_PAYLOAD_MULTIPLE = {
+    "requests": [
+        {
+            "url": "/api/v1/events/summary",
+            "method": "GET",
+            "headers": TEST_HEADERS,
+            "params": SUMMARY_MOCKED_PARAMETER_DICT,
+        },
+        {
+            "url": "/api/v1/events/raw",
+            "method": "POST",
+            "headers": TEST_HEADERS,
+            "params": RAW_MOCKED_PARAMETER_DICT,
+            "body": RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT,
+        },
+    ]
+}
+
+# Tag mapping test parameters
+
+MOCK_TAG_MAPPING_SINGLE = {
+    "outputs": [
+        {
+            "TagName": "Tagname1",
+            "CatalogName": "rtdip",
+            "SchemaName": "sensors",
+            "DataTable": "asset1_restricted_events_float",
+        }
+    ]
+}
+
+MOCK_TAG_MAPPING_MULTIPLE = {
+    "outputs": [
+        {
+            "TagName": "Tagname1",
+            "CatalogName": "rtdip",
+            "SchemaName": "sensors",
+            "DataTable": "asset1_restricted_events_float",
+        },
+        {
+            "TagName": "Tagname2",
+            "CatalogName": "rtdip",
+            "SchemaName": "sensors",
+            "DataTable": "asset1_restricted_events_float",
+        },
+        {
+            "TagName": "Tagname3",
+            "CatalogName": "rtdip",
+            "SchemaName": "sensors",
+            "DataTable": "asset2_restricted_events_integer",
+        },
+    ]
+}
+
+MOCK_TAG_MAPPING_EMPTY = {
+    "outputs": [
+        {
+            "TagName": "Tagname1",
+            "CatalogName": None,
+            "SchemaName": None,
+            "DataTable": None,
+        }
+    ]
+}
+
+MOCK_TAG_MAPPING_BODY = {"dataframe_records": [{"TagName": "MOCKED-TAGNAME1"}]}
+
+MOCK_MAPPING_ENDPOINT_URL = "https://mockdatabricksmappingurl.com/serving-endpoints/metadata-mapping/invocations"
+
+
+# Mocker set-up utility
+
+
+def mocker_setup(
+    mocker: MockerFixture,
+    patch_method,
+    test_data,
+    side_effect=None,
+    patch_side_effect=None,
+    tag_mapping_data=None,
+):
     mocker.patch(
         DATABRICKS_SQL_CONNECT,
         return_value=MockedDBConnection(),
         side_effect=side_effect,
     )
-    mocker.patch(patch_method, return_value=test_data)
+
+    if patch_side_effect is not None:
+        mocker.patch(patch_method, side_effect=patch_side_effect)
+    else:
+        mocker.patch(patch_method, return_value=test_data)
+
     mocker.patch("src.api.auth.azuread.get_azure_ad_token", return_value="token")
+
+    # Create a mock response object for tag mapping endpoint with a .json() method that returns the mock data
+    if tag_mapping_data is not None:
+        mock_response = mocker.MagicMock()
+        mock_response.json.return_value = tag_mapping_data
+        mock_response.status_code = 200
+
+        # Patch 'requests.post' to return the mock response
+        mocker.patch("requests.post", return_value=mock_response)
+
     return mocker
