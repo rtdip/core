@@ -27,7 +27,7 @@ from tests.api.v1.api_test_objects import (
     BASE_URL,
     MOCK_TAG_MAPPING_SINGLE,
     MOCK_TAG_MAPPING_EMPTY,
-    MOCK_MAPPING_ENDPOINT_URL
+    MOCK_MAPPING_ENDPOINT_URL,
 )
 from httpx import AsyncClient
 from src.api.v1 import app
@@ -224,8 +224,15 @@ async def test_api_latest_get_lookup_success(mocker: MockerFixture):
     # Mock the batch method, which outputs test data in the form of an array of dfs
     mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
     mock_method_return_data = [test_data]
-    mocker = mocker_setup(mocker, mock_method, mock_method_return_data, tag_mapping_data=MOCK_TAG_MAPPING_SINGLE)
-    mocker.patch.dict(os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL})
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
 
     # Remove parameters so that runs lookup
     modified_param_dict = METADATA_MOCKED_PARAMETER_DICT.copy()
@@ -244,7 +251,6 @@ async def test_api_latest_get_lookup_success(mocker: MockerFixture):
 
     assert actual.text == expected
     assert actual.status_code == 200
-
 
 
 async def test_api_latest_post_lookup_success(mocker: MockerFixture):
@@ -268,8 +274,15 @@ async def test_api_latest_post_lookup_success(mocker: MockerFixture):
     # Mock the batch method, which outputs test data in the form of an array of dfs
     mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
     mock_method_return_data = [test_data]
-    mocker = mocker_setup(mocker, mock_method, mock_method_return_data, tag_mapping_data=MOCK_TAG_MAPPING_SINGLE)
-    mocker.patch.dict(os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL})
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
 
     # Remove parameters so that runs lookup
     modified_param_dict = METADATA_MOCKED_PARAMETER_DICT.copy()
@@ -314,8 +327,15 @@ async def test_api_latest_get_lookup_no_tag_map_error(mocker: MockerFixture):
     # Mock the batch method, which outputs test data in the form of an array of dfs
     mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
     mock_method_return_data = [test_data]
-    mocker = mocker_setup(mocker, mock_method, mock_method_return_data, tag_mapping_data=MOCK_TAG_MAPPING_EMPTY)
-    mocker.patch.dict(os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL})
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        tag_mapping_data=MOCK_TAG_MAPPING_EMPTY,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
 
     # Remove parameters so that runs lookup
     modified_param_dict = METADATA_MOCKED_PARAMETER_DICT.copy()
@@ -328,6 +348,6 @@ async def test_api_latest_get_lookup_no_tag_map_error(mocker: MockerFixture):
         )
 
     expected = '{"detail":"One or more tags do not have tables associated with them, the data belongs to a confidential table, or you do not have access. If the tag belongs to a confidential table and you do have access, please supply the business_unit, asset, data_security_level and data_type"}'
-    
+
     assert actual.text == expected
     assert actual.status_code == 400

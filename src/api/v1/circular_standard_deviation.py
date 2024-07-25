@@ -54,14 +54,19 @@ def circular_standard_deviation_events_get(
             pivot_query_parameters=pivot_parameters,
             limit_offset_query_parameters=limit_offset_parameters,
             base_headers=base_headers,
-        )       
+        )
 
-        if all( (key in parameters and parameters[key] != None) for key in ["business_unit", "asset", "data_security_level", "data_type"]):
+        if all(
+            (key in parameters and parameters[key] != None)
+            for key in ["business_unit", "asset", "data_security_level", "data_type"]
+        ):
             # if have all required params, run normally
             data = circular_standard_deviation.get(connection, parameters)
         else:
             # else wrap in lookup function that finds tablenames and runs function (if mutliple tables, handles concurrent requests)
-            data = lookup_before_get("circular_standard_deviation", connection, parameters)
+            data = lookup_before_get(
+                "circular_standard_deviation", connection, parameters
+            )
 
         return json_response(data, limit_offset_parameters)
     except Exception as e:

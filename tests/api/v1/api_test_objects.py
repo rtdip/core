@@ -378,7 +378,6 @@ def mocker_setup(
 
     # Create a mock response object for tag mapping endpoint with a .json() method that returns the mock data
     if tag_mapping_data is not None:
-
         mock_response = mocker.MagicMock()
         mock_response.json.return_value = tag_mapping_data
         mock_response.status_code = 200

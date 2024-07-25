@@ -54,9 +54,7 @@ ROUTE_FUNCTION_MAPPING = {
 async def batch_events_get(
     base_query_parameters, base_headers, batch_query_parameters, limit_offset_parameters
 ):
-
     try:
-
         (connection, parameters) = common_api_setup_tasks(
             base_query_parameters=base_query_parameters,
             base_headers=base_headers,
@@ -65,7 +63,6 @@ async def batch_events_get(
         # Validate the parameters
         parsed_requests = []
         for request in batch_query_parameters.requests:
-
             # If required, combine request body and parameters:
             parameters = request["params"]
             if request["method"] == "POST":

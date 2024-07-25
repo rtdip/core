@@ -58,7 +58,10 @@ def interpolate_events_get(
             base_headers=base_headers,
         )
 
-        if all( (key in parameters and parameters[key] != None) for key in ["business_unit", "asset", "data_security_level", "data_type"]):
+        if all(
+            (key in parameters and parameters[key] != None)
+            for key in ["business_unit", "asset", "data_security_level", "data_type"]
+        ):
             # if have all required params, run normally
             data = interpolate.get(connection, parameters)
         else:

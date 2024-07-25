@@ -48,7 +48,6 @@ MOCK_BATCH_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
 # Tests for lookup_before_get
 ###############################
 def test_api_lookup_before_get(mocker):
-
     # parameters dict
     test_parameters = RAW_MOCKED_PARAMETER_DICT
     test_parameters["tag_names"] = ["Tagname1", "Tagname2", "Tagname3"]
@@ -118,7 +117,6 @@ def test_api_lookup_before_get(mocker):
 
 
 def test_api_common_query_mapping_endpoint(mocker):
-
     # Set-up mocker
     mocker_setup(
         mocker, MOCK_METHOD, test_data={}, tag_mapping_data=MOCK_TAG_MAPPING_MULTIPLE

@@ -198,7 +198,6 @@ def datetime_parser(json_dict):
 def json_response(
     data: Union[dict, DataFrame], limit_offset_parameters: LimitOffsetQueryParams
 ) -> Response:
-    
     if isinstance(data, DataFrame):
         return Response(
             content="{"
@@ -236,10 +235,8 @@ def json_response(
 
 
 def json_response_batch(data_list: List[DataFrame]) -> Response:
-
     # Function to parse dataframe into dictionary along with schema
     def get_as_dict(data):
-
         def convert_value(x):
             if isinstance(x, pd.Timestamp):
                 return x.isoformat(timespec="nanoseconds")
@@ -264,7 +261,6 @@ def json_response_batch(data_list: List[DataFrame]) -> Response:
 def lookup_before_get(
     func_name: str, connection: DatabricksSQLConnection, parameters: Dict
 ):
-
     # Ensure returns data as DataFrames
     parameters["to_json"] = False
 
@@ -301,7 +297,6 @@ def lookup_before_get(
 
 
 def query_mapping_endpoint(tags: list, mapping_endpoint: str, connection: Dict):
-
     # Form header dict with token from connection
     token = swap_for_databricks_token(connection.access_token)
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
@@ -340,7 +335,6 @@ def query_mapping_endpoint(tags: list, mapping_endpoint: str, connection: Dict):
 
 
 def split_table_name(str):
-
     try:
         # Retireve parts by splitting string
         parts = str.split(".")

@@ -41,8 +41,11 @@ def latest_retrieval_get(
             limit_offset_query_parameters=limit_offset_parameters,
             base_headers=base_headers,
         )
-        
-        if all( (key in parameters and parameters[key] != None) for key in ["business_unit", "asset", "data_security_level"]):
+
+        if all(
+            (key in parameters and parameters[key] != None)
+            for key in ["business_unit", "asset", "data_security_level"]
+        ):
             # if have all required params, run normally
             data = latest.get(connection, parameters)
         else:

@@ -237,10 +237,13 @@ class BaseQueryParams:
         data_security_level: str = Query(None, description="Data Security Level"),
         authorization: str = Depends(oauth2_scheme),
     ):
-        
         # Additional validation when mapping endpoint not provided - ensure validation error for missing params
         if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
-            required_params = {"business_unit": business_unit, "asset": asset, "data_security_level": data_security_level}
+            required_params = {
+                "business_unit": business_unit,
+                "asset": asset,
+                "data_security_level": data_security_level,
+            }
             additionaly_validate_params(required_params)
 
         self.business_unit = business_unit
@@ -264,20 +267,24 @@ def check_date(v: str) -> str:
     )  # "Date must be in format YYYY-MM-DD, YYYY-MM-DD+zzzz or YYYY-MM-DD+zz:zz"
     return v
 
+
 def additionaly_validate_params(required_params):
     # Checks if any of the supplied parameters are missing, and throws HTTPException in pydantic format
     errors = []
     for field in required_params.keys():
         if required_params[field] is None:
-            errors.append({
-                "type": "missing",
-                "loc": ("query", field),
-                "msg": "Field required",
-                "input": required_params[field]
-            })
+            errors.append(
+                {
+                    "type": "missing",
+                    "loc": ("query", field),
+                    "msg": "Field required",
+                    "input": required_params[field],
+                }
+            )
     if len(errors) > 0:
         print(errors)
         raise HTTPException(status_code=422, detail=errors)
+
 
 class RawQueryParams:
     def __init__(
@@ -287,7 +294,6 @@ class RawQueryParams:
             description="Data Type can be one of the following options: float, double, integer, string",
             examples=["float", "double", "integer", "string"],
         ),
-        
         include_bad_data: bool = Query(
             ..., description="Include or remove Bad data points"
         ),
@@ -304,12 +310,11 @@ class RawQueryParams:
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
     ):
-
         # Additional validation when mapping endpoint not provided - ensure validation error for missing params
         if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
             required_params = {"data_type": data_type}
             additionaly_validate_params(required_params)
-        
+
         self.data_type = data_type
         self.include_bad_data = include_bad_data
         self.start_date = start_date
@@ -445,7 +450,6 @@ class InterpolationAtTimeQueryParams:
             ..., description="Include or remove Bad data points"
         ),
     ):
-
         # Additional validation when mapping endpoint not provided - ensure validation error for missing params
         if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
             required_params = {"data_type": data_type}

@@ -68,7 +68,6 @@ def get(
                 connection.close()
 
         with ThreadPoolExecutor(max_workers=threadpool_max_workers) as executor:
-
             # Package up connection params into tuple
             connection_params = (server_hostname, http_path, access_token)
 
