@@ -48,10 +48,10 @@ def process_file(file_source_name_str: str, transformer_list=None) -> str:
     sanitize_map['"'] = ""
     PROCESS_REPLACE = "replace"
     process_definitions: dict = dict()
-    process_definitions[
-        PROCESS_REPLACE
-    ] = lambda source_str, to_be_replaced_str, to_replaced_with_str: source_str.replace(
-        to_be_replaced_str, to_replaced_with_str
+    process_definitions[PROCESS_REPLACE] = (
+        lambda source_str, to_be_replaced_str, to_replaced_with_str: source_str.replace(
+            to_be_replaced_str, to_replaced_with_str
+        )
     )
     sanitize_function = process_definitions[PROCESS_REPLACE]
     ####

@@ -141,15 +141,15 @@ class PipelineJobExecute:
             # get secrets
             for param_key, param_value in step.component_parameters.items():
                 if isinstance(param_value, PipelineSecret):
-                    step.component_parameters[
-                        param_key
-                    ] = self._get_secret_provider_attributes(param_value)().get()
+                    step.component_parameters[param_key] = (
+                        self._get_secret_provider_attributes(param_value)().get()
+                    )
                 if isinstance(param_value, dict):
                     for key, value in param_value.items():
                         if isinstance(value, PipelineSecret):
-                            step.component_parameters[param_key][
-                                key
-                            ] = self._get_secret_provider_attributes(value)().get()
+                            step.component_parameters[param_key][key] = (
+                                self._get_secret_provider_attributes(value)().get()
+                            )
 
             provider.add_kwargs(**step.component_parameters)
 
