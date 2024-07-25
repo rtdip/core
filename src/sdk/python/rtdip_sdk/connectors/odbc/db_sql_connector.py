@@ -121,6 +121,7 @@ class DatabricksSQLCursor(CursorInterface):
             get_next_result = True
             results = None if self.return_type == ConnectionReturnType.String else []
             count = 0
+            sample_row = None
             while get_next_result:
                 result = self.cursor.fetchmany_arrow(fetch_size)
                 count += result.num_rows
@@ -133,8 +134,9 @@ class DatabricksSQLCursor(CursorInterface):
                     column_list = []
                     for column in result.columns:
                         column_list.append(column.to_pylist())
-
-                    strings = ",".join([str(item[0]) for item in zip(*column_list)])
+                    rows = [str(item[0]) for item in zip(*column_list)]
+                    sample_row = rows[0]
+                    strings = ",".join(rows)
                     if results is None:
                         results = strings
                     else:
@@ -155,6 +157,7 @@ class DatabricksSQLCursor(CursorInterface):
             elif self.return_type == ConnectionReturnType.String:
                 return {
                     "data": results,
+                    "sample_row": sample_row,
                     "count": count,
                 }
         except Exception as e:

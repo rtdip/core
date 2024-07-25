@@ -55,7 +55,11 @@ def sql_get(
             else int(parameters["offset"])
         )
         data = SQLQueryBuilder().get(
-            connection, parameters["sql_statement"], limit, offset
+            connection,
+            parameters["sql_statement"],
+            parameters["to_json"],
+            limit,
+            offset,
         )
 
         return json_response(data, limit_offset_parameters)

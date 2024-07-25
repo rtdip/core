@@ -188,7 +188,7 @@ def json_response(
 ) -> Response:
     schema_df = pd.DataFrame()
     if data["data"] is not None and data["data"] != "":
-        json_str = data["data"][0 : data["data"].find("}") + 1]
+        json_str = data["sample_row"]
         json_dict = json.loads(json_str, object_hook=datetime_parser)
         schema_df = pd.json_normalize(json_dict)
 
