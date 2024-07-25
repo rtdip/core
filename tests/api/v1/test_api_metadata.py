@@ -33,6 +33,9 @@ from src.api.v1 import app
 
 MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.metadata.get"
 MOCK_API_NAME = "/api/v1/metadata"
+TEST_DATA = pd.DataFrame(
+    {"TagName": ["TestTag"], "UoM": ["UoM1"], "Description": ["Test Description"]}
+)
 
 pytestmark = pytest.mark.anyio
 

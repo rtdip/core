@@ -15,13 +15,13 @@
 from datetime import datetime
 import json
 import os
-import pandas as pd
 import importlib.util
 
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Union
 import requests
 import json
 import pandas as pd
+import numpy as np
 
 from fastapi import Response
 from fastapi.responses import JSONResponse
@@ -196,26 +196,43 @@ def datetime_parser(json_dict):
 
 
 def json_response(
-    data: dict, limit_offset_parameters: LimitOffsetQueryParams
+    data: Union[dict, DataFrame], limit_offset_parameters: LimitOffsetQueryParams
 ) -> Response:
-    schema_df = pd.DataFrame()
-    if data["data"] is not None and data["data"] != "":
-        json_str = data["sample_row"]
-        json_dict = json.loads(json_str, object_hook=datetime_parser)
-        schema_df = pd.json_normalize(json_dict)
-
-    return Response(
-        content="{"
-        + '"schema":{},"data":{},"pagination":{}'.format(
-            FieldSchema.model_validate(
-                build_table_schema(schema_df, index=False, primary_key=False),
-            ).model_dump_json(),
-            "[" + data["data"] + "]",
-            pagination(limit_offset_parameters, data["count"]).model_dump_json(),
+    
+    if isinstance(data, DataFrame):
+        return Response(
+            content="{"
+            + '"schema":{},"data":{},"pagination":{}'.format(
+                FieldSchema.model_validate(
+                    build_table_schema(data, index=False, primary_key=False),
+                ).model_dump_json(),
+                data.replace({np.nan: None}).to_json(
+                    orient="records", date_format="iso", date_unit="ns"
+                ),
+                pagination(limit_offset_parameters, data).model_dump_json(),
+            )
+            + "}",
+            media_type="application/json",
         )
-        + "}",
-        media_type="application/json",
-    )
+    else:
+        schema_df = pd.DataFrame()
+        if data["data"] is not None and data["data"] != "":
+            json_str = data["sample_row"]
+            json_dict = json.loads(json_str, object_hook=datetime_parser)
+            schema_df = pd.json_normalize(json_dict)
+
+        return Response(
+            content="{"
+            + '"schema":{},"data":{},"pagination":{}'.format(
+                FieldSchema.model_validate(
+                    build_table_schema(schema_df, index=False, primary_key=False),
+                ).model_dump_json(),
+                "[" + data["data"] + "]",
+                pagination(limit_offset_parameters, data["count"]).model_dump_json(),
+            )
+            + "}",
+            media_type="application/json",
+        )
 
 
 def json_response_batch(data_list: List[DataFrame]) -> Response:
@@ -247,6 +264,9 @@ def json_response_batch(data_list: List[DataFrame]) -> Response:
 def lookup_before_get(
     func_name: str, connection: DatabricksSQLConnection, parameters: Dict
 ):
+
+    # Ensure returns data as DataFrames
+    parameters["to_json"] = False
 
     # query mapping endpoint for tablenames - returns tags as array under each table key
     tag_table_mapping = query_mapping_endpoint(

@@ -16,6 +16,7 @@ import pytest
 from unittest.mock import patch
 import json
 import pandas as pd
+import numpy as np
 from datetime import datetime, timezone
 from src.api.v1.common import (
     lookup_before_get,

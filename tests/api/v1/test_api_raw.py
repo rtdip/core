@@ -28,6 +28,7 @@ from tests.api.v1.api_test_objects import (
     MOCK_MAPPING_ENDPOINT_URL,
 )
 from pandas.io.json import build_table_schema
+import pandas as pd
 from httpx import AsyncClient
 from src.api.v1 import app
 
@@ -140,7 +141,7 @@ async def test_api_raw_post_error(mocker: MockerFixture, api_test_data):
     assert actual == '{"detail":"Error Connecting to Database"}'
 
 
-async def test_api_raw_get_lookup_success(mocker: MockerFixture):
+async def test_api_raw_get_lookup_success(mocker: MockerFixture, api_test_data):
     """
     Case when no business_unit, asset etc supplied so instead invokes tag lookup
     """
