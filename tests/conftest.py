@@ -99,7 +99,11 @@ def api_test_data():
     }
     mock_raw_data = test_raw_data.copy()
     mock_raw_data["EventTime"] = mock_raw_data["EventTime"].strftime(datetime_format)
-    mock_raw_df = {"data": json.dumps(mock_raw_data, separators=(",", ":")), "count": 1}
+    mock_raw_df = {
+        "data": json.dumps(mock_raw_data, separators=(",", ":")),
+        "count": 1,
+        "sample_row": json.dumps(mock_raw_data, separators=(",", ":")),
+    }
     expected_raw = expected_result(test_raw_data)
 
     # Mock Aggregated Data
@@ -110,7 +114,11 @@ def api_test_data():
     }
     mock_agg_data = test_agg_data.copy()
     mock_agg_data["EventTime"] = mock_agg_data["EventTime"].strftime(datetime_format)
-    mock_agg_df = {"data": json.dumps(mock_agg_data, separators=(",", ":")), "count": 1}
+    mock_agg_df = {
+        "data": json.dumps(mock_agg_data, separators=(",", ":")),
+        "count": 1,
+        "sample_row": json.dumps(mock_agg_data, separators=(",", ":")),
+    }
     expected_agg = expected_result(test_agg_data)
 
     # Summary Data
@@ -130,6 +138,7 @@ def api_test_data():
     mock_plot_df = {
         "data": json.dumps(mock_plot_data, separators=(",", ":")),
         "count": 1,
+        "sample_row": json.dumps(mock_plot_data, separators=(",", ":")),
     }
     expected_plot = expected_result(test_plot_data)
 
@@ -147,6 +156,7 @@ def api_test_data():
     mock_summary_df = {
         "data": json.dumps(test_summary_data, separators=(",", ":")),
         "count": 1,
+        "sample_row": json.dumps(test_summary_data, separators=(",", ":")),
     }
     expected_summary = expected_result(test_summary_data)
 
@@ -159,6 +169,7 @@ def api_test_data():
     mock_metadata_df = {
         "data": json.dumps(test_metadata, separators=(",", ":")),
         "count": 1,
+        "sample_row": json.dumps(test_metadata, separators=(",", ":")),
     }
     expected_metadata = expected_result(test_metadata)
 
@@ -183,6 +194,7 @@ def api_test_data():
     mock_latest_df = {
         "data": json.dumps(mock_latest_data, separators=(",", ":")),
         "count": 1,
+        "sample_row": json.dumps(mock_latest_data, separators=(",", ":")),
     }
     expected_latest = expected_result(test_latest_data)
 

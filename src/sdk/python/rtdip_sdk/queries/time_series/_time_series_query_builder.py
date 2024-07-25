@@ -101,12 +101,18 @@ def _raw_query(parameters_dict: dict) -> str:
 
 def _sql_query(parameters_dict: dict) -> str:
     sql_query = (
-        "{{ sql_statement }}"
+        "{% if to_json is defined and to_json == true %}"
+        'SELECT to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value FROM ('
+        "{% endif %}"
+        "{{ sql_statement }} "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
         "{% if offset is defined and offset is not none %}"
         "OFFSET {{ offset }} "
+        "{% endif %}"
+        "{% if to_json is defined and to_json == true %}"
+        ")"
         "{% endif %}"
     )
 
@@ -114,6 +120,7 @@ def _sql_query(parameters_dict: dict) -> str:
         "sql_statement": parameters_dict.get("sql_statement"),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(sql_query)
@@ -1013,10 +1020,13 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             + " "
             + parameters_dict["time_interval_unit"][0]
         )
+        to_json = parameters_dict.get("to_json", False)
+        parameters_dict["to_json"] = False
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
         sample_parameters["is_resample"] = False
+        sample_parameters["to_json"] = to_json
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
 
     if query_type == "time_weighted_average":
