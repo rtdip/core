@@ -22,6 +22,7 @@ from .time_series import (
     circular_standard_deviation,
     circular_average,
     summary,
+    plot,
 )
 from .time_series.time_series_query_builder import TimeSeriesQueryBuilder
 from .sql.sql_query import SQLQueryBuilder
