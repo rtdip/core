@@ -1,5 +1,7 @@
 # Databricks 
 
+<!-- --8<-- [start:databrickspat] -->
+
 Databricks supports authentication using Personal Access Tokens (PAT) and information about this authentication method is available [here.](https://docs.databricks.com/dev-tools/api/latest/authentication.html)
 
 ## Authentication
@@ -23,3 +25,5 @@ connection = DatabricksSQLConnection(server_hostname, http_path, access_token)
 ```
 
 Replace **server_hostname**, **http_path** with your own information and specify your Databricks PAT token for the **access_token**. 
+
+<!-- --8<-- [end:databrickspat] -->

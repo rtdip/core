@@ -1,1 +1,1 @@
---8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Circular-Standard-Deviation/README.md"
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/TimeSeriesQueryBuilder/Circular-Standard-Deviation/README.md"

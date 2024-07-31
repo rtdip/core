@@ -116,7 +116,13 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg # Page tree
   - pymdownx.snippets:
+      base_path: 
+        - docs
+        - src/sdk
+      check_paths: true
       url_download: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 nav:
   - Home: index.md
@@ -322,3 +328,26 @@ nav:
       - core: releases/core.md
   - Blog:
       - blog/index.md
+#   - University:
+#       - RTDIP Essentials: 
+#           - Overview: university/essentials/rtdip/overview.md
+#       - SDK:
+#           - Getting Started:
+#               - Introduction: university/essentials/sdk/getting-started/introduction.md
+#               - Prerequisites: university/essentials/sdk/getting-started/prerequisites.md
+#               - Installation: university/essentials/sdk/getting-started/installation.md
+#               - Exercise: university/essentials/sdk/getting-started/exercise.md
+#           - Authentication:
+#               - Azure Active Directory: university/essentials/sdk/authentication/azure.md
+#               - Databricks: university/essentials/sdk/authentication/databricks.md
+#               - Exercise: university/essentials/sdk/authentication/exercise.md
+#           - Connectors:
+#               - Databricks SQL: university/essentials/sdk/connectors/databricks-sql-connector.md
+#               - ODBC: university/essentials/sdk/connectors/odbc-connectors.md
+#               - Spark: university/essentials/sdk/connectors/spark-connector.md
+#               - Exercise: university/essentials/sdk/connectors/exercise.md
+#           - Queries:
+#               - Time Series: university/essentials/sdk/queries/timeseries.md
+#               - SQL: university/essentials/sdk/queries/sql.md
+#               - Weather: university/essentials/sdk/queries/weather.md
+#               - Exercise: university/essentials/sdk/queries/exercise.md

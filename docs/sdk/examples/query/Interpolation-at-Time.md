@@ -1,1 +1,1 @@
---8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Interpolation-at-Time/README.md"
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/TimeSeriesQueryBuilder/Interpolation-at-Time/README.md"
