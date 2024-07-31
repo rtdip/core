@@ -96,7 +96,7 @@ class TimeSeriesQueryBuilder:
             TimeSeriesQueryBuilder()
             .connect(connection)
             .source(
-                source="{table_path}"
+                source="{tablename_or_path}"
             )
         )
 
@@ -142,7 +142,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .raw(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -150,7 +150,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -213,7 +213,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .resample(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -224,7 +224,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -296,7 +296,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .plot(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -306,7 +306,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -378,7 +378,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .interpolate(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -390,7 +390,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -461,14 +461,14 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .interpolation_at_time(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 timestamp_filter=["2023-01-01T09:30:00", "2023-01-02T12:00:00"],
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -538,7 +538,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .time_weighted_average(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -549,7 +549,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -623,13 +623,13 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .metadata(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -675,13 +675,13 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .latest(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -737,7 +737,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .circular_average(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -749,7 +749,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -824,7 +824,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .circular_standard_deviation(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -836,7 +836,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -908,7 +908,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .summary(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -916,7 +916,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 

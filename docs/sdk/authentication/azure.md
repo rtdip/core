@@ -14,10 +14,12 @@ The RTDIP SDK includes several Azure AD authentication methods to cater to the p
 
 ## Authentication
 
-The following section describes authentication using [Azure Active Directory.](../code-reference/authentication/azure.md).
+<!-- --8<-- [start:azuread] -->
+
+The following section describes authentication using [Azure Active Directory.](https://www.rtdip.io/sdk/code-reference/authentication/azure/).
 
 !!! note "Note"
-        </b>If you are using the SDK directly in Databricks please note that DefaultAuth will not work.<br />
+       If you are using the SDK directly in Databricks please note that DefaultAuth will not work.
 
 1\. Import **rtdip-sdk** authentication methods with the following:
 
@@ -43,5 +45,8 @@ Once authenticated, it is possible to retrieve tokens for specific Azure Resourc
 === "Databricks"
         access_token = DefaultAzureCredential.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
 
+<!-- --8<-- [end:azuread] -->
+
 !!! note "Note"
-    </b>RTDIP are continuously adding more to this list so check back regularly!<br />
+    RTDIP are continuously adding more to this list so check back regularly!
+
