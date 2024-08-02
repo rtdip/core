@@ -1,0 +1,22 @@
+# RTDIP Essentials
+
+<p align="center"><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></p>
+<p style="text-align: center; font-size: 2em; font-weight: bold;">Essentials</p>
+
+Welcome to the RTDIP Essentials training course. This section introduces you to the Real Time Data Ingestion Platform, a scalable solution for ingesting and processing data from a variety of time series data sources. 
+
+By the end of this course, you will have a good understanding of:
+
+- The RTDIP architecture
+- How to use the SDK to interact with the RTDIP platform
+- How to use the APIs to execute time series queries
+- Build visualizations and dashboards in Power BI
+
+## Course Progress
+
+-   [ ] Overview
+    -  [X] Introduction
+    -  [ ] Prerequisites
+-   [ ] Architecture
+-   [ ] SDK
+-   [ ] APIs

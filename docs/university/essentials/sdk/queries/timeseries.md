@@ -91,6 +91,7 @@
 
 ## Course Progress
 -   [X] Overview
+-   [X] Architecture
 -   [ ] SDK
     *   [X] Getting Started
     *   [X] Authentication
