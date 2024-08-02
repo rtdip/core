@@ -20,7 +20,6 @@ https://github.com/pypa/sampleproject
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages, sic
-from setuptools.extern import packaging
 import pathlib
 import os
 
