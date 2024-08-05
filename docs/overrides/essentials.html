@@ -18,7 +18,7 @@
     <section class="prerequisites-section">
         <div class="prerequisites-content-container">
             <div class="prerequisites-left">
-                <h3>Course prerequisites</h3>
+                <h3>Course <span class="pink-span">Prerequisites</span></h3>
                 <p>This course is geared towards RTDIP beginners.</p>
             </div>
             <div class="prerequisites-right">
@@ -65,7 +65,53 @@
                         <span class="clickable-title">
                             Lesson 1: Introduction
                         </span>
-                        <span class="clickable-list-toggle-indicator">+</span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
+                    </div>
+                    <ul class="clickable-list-details">
+                        <li>
+                            <a href="../../sdk/overview">What is RTDIP? </a>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Lesson 2: Prerequisites & setup
+                        </span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
+                    </div>
+                    <p class="clickable-list-details">
+                        blah blah blah
+                    </p>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Lesson 3: RTDIP SDK & API
+                        </span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
+                    </div>
+                    <p class="clickable-list-details">
+                        blah blah blah
+                    </p>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Lesson 4: Excel connector
+                        </span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
                     </div>
                     <p class="clickable-list-details">
                         blah blah blah
@@ -74,10 +120,8 @@
                 </div>
             </div>
         </div>
-    
-    
     </section>
-
+    
     <script>
         function toggleDetails(clickedItem) {
             // Close all other details and reset indicators

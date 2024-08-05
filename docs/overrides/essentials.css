@@ -196,6 +196,8 @@ body {
     display: flex;
     flex-direction: row;
     flex-grow: 1;
+    padding: 0 6rem;
+    padding-bottom: 2rem;
 }
 
 .course-curriculum-section h1 {
@@ -203,10 +205,49 @@ body {
     margin-top: 2rem;
 }
 
+.course-curriculum-left {
+    display: block;
+    flex-direction: column;
+    align-items: left;
+    margin-top: 2rem;
+    width: 50%;
+}
+
+.course-curriculum-right {
+    display: block;
+    flex-direction: column;
+    align-items: left;
+    margin-top: 2rem;
+    width: 50%;
+}
+
 .clickable-list-item {
     cursor: pointer;
-    margin: 0.2rem 0;
-    padding-right: 7rem;
+    margin-top: 2rem;
+    /* padding-right: 7rem; */
+}
+
+.clickable-list-item hr {
+    border: 0.3px solid black;
+    background-color: black;
+    opacity: 0.3;
+    margin-top: 0.6rem;
+}
+
+.clickable-list-item-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem 0;
+    width: 100%; 
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.clickable-list-toggle-indicator {
+    font-weight: 300;
+    font-size: 1.5rem;
 }
 
 .clickable-list-details {
@@ -223,31 +264,4 @@ body {
 .clickable-list-item.active .clickable-list-details {
     opacity: 1;
     max-height: 200px;
-}
-
-.clickable-list-item hr {
-    border: 0.3px solid white;
-    background-color: white;
-    opacity: 0.3;
-    margin-top: 0.6rem;
-}
-
-.clickable-list-item-title {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.4rem 0;
-    width: 100%; 
-    font-weight: 500;
-    font-size: 0.8rem;
-}
-
-.clickable-list-item-title span{
-    align-self: right;
-}
-
-.clickable-list-toggle-indicator {
-    font-weight: 300;
-    font-size: 1.5rem;
 }
