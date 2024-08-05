@@ -224,7 +224,9 @@ body {
 .clickable-list-item {
     cursor: pointer;
     margin-top: 2rem;
-    /* padding-right: 7rem; */
+    margin-bottom: 2rem;
+    padding-right: 7rem;
+    height: auto;
 }
 
 .clickable-list-item hr {
@@ -232,6 +234,13 @@ body {
     background-color: black;
     opacity: 0.3;
     margin-top: 0.6rem;
+}
+
+
+.clickable-subtitle {
+    margin-left: -41px;
+    font-weight: 400;
+    font-size: 0.8rem;
 }
 
 .clickable-list-item-title {
@@ -244,6 +253,15 @@ body {
     font-weight: 500;
     font-size: 0.8rem;
 }
+.clickable-list-item-subtitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; 
+    font-weight: 400;
+    font-size: 0.8rem;
+}
 
 .clickable-list-toggle-indicator {
     font-weight: 300;
@@ -253,15 +271,20 @@ body {
 .clickable-list-details {
     opacity: 0;
     max-height: 0;
-    overflow: hidden;
+    overflow: visible;
     transition: opacity 0.1s ease-out, max-height 0.3s ease-in-out;
     font-weight: 300;
     font-size: 0.8rem;
     line-height: 1.5rem;
     width: 85%;
+    margin-bottom: 0.6rem;
 }
 
-.clickable-list-item.active .clickable-list-details {
+.remove-marker {
+    list-style-type: none;
+}
+
+.clickable-list-item.active .clickable-list-details  {
     opacity: 1;
     max-height: 200px;
 }
