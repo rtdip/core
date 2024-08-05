@@ -20,7 +20,6 @@ https://github.com/pypa/sampleproject
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages, sic
-from setuptools.extern import packaging
 import pathlib
 import os
 
@@ -33,7 +32,7 @@ INSTALL_REQUIRES = [
     "azure-identity>=1.12.0,<2.0.0",
     "pandas>=1.5.2,<2.2.0",
     "jinja2>=3.1.2,<4.0.0",
-    "importlib_metadata>=7.0.0",
+    "importlib_metadata>=7.0.0,<8.0.0",
     "semver>=3.0.0,<4.0.0",
     "xlrd>=2.0.1,<3.0.0",
     "grpcio>=1.48.1",

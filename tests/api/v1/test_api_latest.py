@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import pytest
 from pytest_mock import MockerFixture
 import pandas as pd
@@ -24,6 +25,9 @@ from tests.api.v1.api_test_objects import (
     mocker_setup,
     TEST_HEADERS,
     BASE_URL,
+    MOCK_TAG_MAPPING_SINGLE,
+    MOCK_TAG_MAPPING_EMPTY,
+    MOCK_MAPPING_ENDPOINT_URL,
 )
 from httpx import AsyncClient
 from src.api.v1 import app
@@ -34,85 +38,40 @@ MOCK_API_NAME = "/api/v1/events/latest"
 pytestmark = pytest.mark.anyio
 
 
-async def test_api_latest_get_tags_provided_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": [datetime.now(timezone.utc)],
-            "GoodValue": ["1.01"],
-            "GoodValueType": ["string"],
-        }
-    )
-
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+async def test_api_latest_get_tags_provided_success(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_latest"]
 
 
 async def test_api_latest_get_no_good_values_tags_provided_success(
-    mocker: MockerFixture,
+    mocker: MockerFixture, api_test_data
 ):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": None,
-            "GoodValue": None,
-            "GoodValueType": None,
-        }
-    )
-
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_latest"]
 
 
-async def test_api_latest_get_no_tags_provided_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": [datetime.now(timezone.utc)],
-            "GoodValue": ["1.01"],
-            "GoodValueType": ["string"],
-        }
-    )
-
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+async def test_api_latest_get_no_tags_provided_success(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT = METADATA_MOCKED_PARAMETER_DICT.copy()
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT.pop("tag_name")
@@ -123,31 +82,13 @@ async def test_api_latest_get_no_tags_provided_success(mocker: MockerFixture):
             params=METADATA_MOCKED_PARAMETER_NO_TAG_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_latest"]
 
 
-async def test_api_latest_get_validation_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": [datetime.now(timezone.utc)],
-            "GoodValue": ["1.01"],
-            "GoodValueType": ["string"],
-        }
-    )
-
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+async def test_api_latest_get_validation_error(mocker: MockerFixture, api_test_data):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.get(
@@ -164,22 +105,12 @@ async def test_api_latest_get_validation_error(mocker: MockerFixture):
     )
 
 
-async def test_api_latest_get_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": [datetime.now(timezone.utc)],
-            "GoodValue": ["1.01"],
-            "GoodValueType": ["string"],
-        }
-    )
-
+async def test_api_latest_get_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(
-        mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
+        mocker,
+        MOCK_METHOD,
+        api_test_data["mock_data_latest"],
+        Exception("Error Connecting to Database"),
     )
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
@@ -192,21 +123,10 @@ async def test_api_latest_get_error(mocker: MockerFixture):
     assert actual == '{"detail":"Error Connecting to Database"}'
 
 
-async def test_api_latest_post_tags_provided_success(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": [datetime.now(timezone.utc)],
-            "GoodValue": ["1.01"],
-            "GoodValueType": ["string"],
-        }
-    )
-
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+async def test_api_latest_post_tags_provided_success(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
@@ -216,31 +136,15 @@ async def test_api_latest_post_tags_provided_success(mocker: MockerFixture):
             json=METADATA_POST_BODY_MOCKED_PARAMETER_DICT,
         )
     actual = response.text
-    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
-    expected = (
-        expected.replace(',"tz":"UTC"', "").rstrip("}")
-        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
-    )
 
     assert response.status_code == 200
-    assert actual == expected
+    assert actual == api_test_data["expected_latest"]
 
 
-async def test_api_latest_post_no_tags_provided_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": [datetime.now(timezone.utc)],
-            "GoodValue": ["1.01"],
-            "GoodValueType": ["string"],
-        }
-    )
-
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+async def test_api_latest_post_no_tags_provided_error(
+    mocker: MockerFixture, api_test_data
+):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT = METADATA_MOCKED_PARAMETER_DICT.copy()
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT.pop("tag_name")
@@ -259,21 +163,8 @@ async def test_api_latest_post_no_tags_provided_error(mocker: MockerFixture):
     )
 
 
-async def test_api_latest_post_validation_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": [datetime.now(timezone.utc)],
-            "GoodValue": ["1.01"],
-            "GoodValueType": ["string"],
-        }
-    )
-
-    mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
+async def test_api_latest_post_validation_error(mocker: MockerFixture, api_test_data):
+    mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         response = await ac.post(
@@ -291,22 +182,12 @@ async def test_api_latest_post_validation_error(mocker: MockerFixture):
     )
 
 
-async def test_api_raw_post_error(mocker: MockerFixture):
-    test_data = pd.DataFrame(
-        {
-            "TagName": ["TestTag"],
-            "EventTime": [datetime.now(timezone.utc)],
-            "Status": ["Good"],
-            "Value": ["1.01"],
-            "ValueType": ["string"],
-            "GoodEventTime": [datetime.now(timezone.utc)],
-            "GoodValue": ["1.01"],
-            "GoodValueType": ["string"],
-        }
-    )
-
+async def test_api_raw_post_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(
-        mocker, MOCK_METHOD, test_data, Exception("Error Connecting to Database")
+        mocker,
+        MOCK_METHOD,
+        api_test_data["mock_data_latest"],
+        Exception("Error Connecting to Database"),
     )
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
@@ -320,3 +201,153 @@ async def test_api_raw_post_error(mocker: MockerFixture):
 
     assert response.status_code == 400
     assert actual == '{"detail":"Error Connecting to Database"}'
+
+
+async def test_api_latest_get_lookup_success(mocker: MockerFixture):
+    """
+    Case when no business_unit, asset etc supplied so instead invokes tag lookup
+    """
+
+    test_data = pd.DataFrame(
+        {
+            "TagName": ["TestTag"],
+            "EventTime": [datetime.now(timezone.utc)],
+            "Status": ["Good"],
+            "Value": ["1.01"],
+            "ValueType": ["string"],
+            "GoodEventTime": [datetime.now(timezone.utc)],
+            "GoodValue": ["1.01"],
+            "GoodValueType": ["string"],
+        }
+    )
+
+    # Mock the batch method, which outputs test data in the form of an array of dfs
+    mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
+    mock_method_return_data = [test_data]
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
+
+    # Remove parameters so that runs lookup
+    modified_param_dict = METADATA_MOCKED_PARAMETER_DICT.copy()
+    del modified_param_dict["business_unit"]
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        actual = await ac.get(
+            MOCK_API_NAME, headers=TEST_HEADERS, params=modified_param_dict
+        )
+
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
+
+    assert actual.text == expected
+    assert actual.status_code == 200
+
+
+async def test_api_latest_post_lookup_success(mocker: MockerFixture):
+    """
+    Case when no business_unit, asset etc supplied so instead invokes tag lookup
+    """
+
+    test_data = pd.DataFrame(
+        {
+            "TagName": ["TestTag"],
+            "EventTime": [datetime.now(timezone.utc)],
+            "Status": ["Good"],
+            "Value": ["1.01"],
+            "ValueType": ["string"],
+            "GoodEventTime": [datetime.now(timezone.utc)],
+            "GoodValue": ["1.01"],
+            "GoodValueType": ["string"],
+        }
+    )
+
+    # Mock the batch method, which outputs test data in the form of an array of dfs
+    mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
+    mock_method_return_data = [test_data]
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
+
+    # Remove parameters so that runs lookup
+    modified_param_dict = METADATA_MOCKED_PARAMETER_DICT.copy()
+    del modified_param_dict["business_unit"]
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        actual = await ac.post(
+            MOCK_API_NAME,
+            headers=TEST_HEADERS,
+            params=modified_param_dict,
+            json=METADATA_POST_BODY_MOCKED_PARAMETER_DICT,
+        )
+
+    expected = test_data.to_json(orient="table", index=False, date_unit="ns")
+    expected = (
+        expected.replace(',"tz":"UTC"', "").rstrip("}")
+        + ',"pagination":{"limit":null,"offset":null,"next":null}}'
+    )
+
+    assert actual.text == expected
+    assert actual.status_code == 200
+
+
+async def test_api_latest_get_lookup_no_tag_map_error(mocker: MockerFixture):
+    """
+    Case when no business_unit, asset etc supplied so instead invokes tag lookup
+    """
+
+    test_data = pd.DataFrame(
+        {
+            "TagName": ["TestTag"],
+            "EventTime": [datetime.now(timezone.utc)],
+            "Status": ["Good"],
+            "Value": ["1.01"],
+            "ValueType": ["string"],
+            "GoodEventTime": [datetime.now(timezone.utc)],
+            "GoodValue": ["1.01"],
+            "GoodValueType": ["string"],
+        }
+    )
+
+    # Mock the batch method, which outputs test data in the form of an array of dfs
+    mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
+    mock_method_return_data = [test_data]
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        tag_mapping_data=MOCK_TAG_MAPPING_EMPTY,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
+
+    # Remove parameters so that runs lookup
+    modified_param_dict = METADATA_MOCKED_PARAMETER_DICT.copy()
+    modified_param_dict["tagname"] = ["NonExistentTag"]
+    del modified_param_dict["business_unit"]
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        actual = await ac.get(
+            MOCK_API_NAME, headers=TEST_HEADERS, params=modified_param_dict
+        )
+
+    expected = '{"detail":"One or more tags do not have tables associated with them, the data belongs to a confidential table, or you do not have access. If the tag belongs to a confidential table and you do have access, please supply the business_unit, asset, data_security_level and data_type"}'
+
+    assert actual.text == expected
+    assert actual.status_code == 400

@@ -86,6 +86,7 @@ def test_time_weighted_average_metadata_step(mocker: MockerFixture):
 
 
 def test_time_weighted_average_pivot(mocker: MockerFixture):
+    MOCKED_TWA_PARAMETER_DICT["step"] = "false"
     MOCKED_TWA_PARAMETER_DICT["pivot"] = True
 
     _test_base_succeed(
@@ -98,7 +99,6 @@ def test_time_weighted_average_pivot(mocker: MockerFixture):
 
 def test_time_weighted_average_uom(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["pivot"] = False
-    MOCKED_TWA_PARAMETER_DICT["step"] = "false"
     MOCKED_TWA_PARAMETER_DICT["display_uom"] = True
 
     _test_base_succeed(

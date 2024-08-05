@@ -27,7 +27,7 @@ class SQLQueryBuilder:
     connection: ConnectionInterface
 
     def get(
-        self, connection=object, sql_query=str, limit=None, offset=None
+        self, connection=object, sql_query=str, to_json=False, limit=None, offset=None
     ) -> pd.DataFrame:
         """
         A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
@@ -49,6 +49,7 @@ class SQLQueryBuilder:
         """
         try:
             parameters_dict = {"sql_statement": sql_query}
+            parameters_dict["to_json"] = to_json
             parameters_dict["supress_warning"] = True
             if limit:
                 parameters_dict["limit"] = limit

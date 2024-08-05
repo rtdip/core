@@ -41,15 +41,15 @@ def _raw_query(parameters_dict: dict) -> str:
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
-        "AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good')"
+        "AND `{{ status_column }}` <> 'Bad'"
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         ") "
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM` FROM raw_events e "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM`{% endif %} FROM raw_events e '
         "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON e.`TagName` = m.`TagName` "
         "{% else %}"
-        "SELECT * FROM raw_events "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM raw_events '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -92,6 +92,7 @@ def _raw_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(raw_query)
@@ -100,12 +101,18 @@ def _raw_query(parameters_dict: dict) -> str:
 
 def _sql_query(parameters_dict: dict) -> str:
     sql_query = (
-        "{{ sql_statement }}"
+        "{% if to_json is defined and to_json == true %}"
+        'SELECT to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value FROM ('
+        "{% endif %}"
+        "{{ sql_statement }} "
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
         "{% if offset is defined and offset is not none %}"
         "OFFSET {{ offset }} "
+        "{% endif %}"
+        "{% if to_json is defined and to_json == true %}"
+        ")"
         "{% endif %}"
     )
 
@@ -113,6 +120,7 @@ def _sql_query(parameters_dict: dict) -> str:
         "sql_statement": parameters_dict.get("sql_statement"),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(sql_query)
@@ -132,7 +140,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% else %}"
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
         ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
         ",window_buckets AS (SELECT timestamp_array AS window_start, timestampadd({{time_interval_unit }}, {{ time_interval_rate }}, timestamp_array) AS window_end FROM date_array) "
         ",resample AS (SELECT /*+ RANGE_JOIN(d, {{ range_join_seconds }} ) */ d.window_start, d.window_end, e.`{{ tagname_column }}`, {{ agg_method }}(e.`{{ value_column }}`) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `{{ value_column }}` FROM window_buckets d INNER JOIN raw_events e ON d.window_start <= e.`{{ timestamp_column }}` AND d.window_end > e.`{{ timestamp_column }}`) "
@@ -153,12 +161,13 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
         "{% else %}"
-        "SELECT * FROM project "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
@@ -208,6 +217,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
             "case_insensitivity_tag_search", False
         ),
         "display_uom": parameters_dict.get("display_uom", False),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(sample_query)
@@ -228,7 +238,7 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "{% else %}"
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
         ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
         ",window_buckets AS (SELECT timestamp_array AS window_start, timestampadd({{time_interval_unit }}, {{ time_interval_rate }}, timestamp_array) AS window_end FROM date_array) "
         ",plot AS (SELECT /*+ RANGE_JOIN(d, {{ range_join_seconds }} ) */ d.window_start, d.window_end, e.`{{ tagname_column }}`"
@@ -256,12 +266,13 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
         "{% else %}"
-        "SELECT * FROM project "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
@@ -310,6 +321,7 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(plot_query)
@@ -362,12 +374,13 @@ def _interpolation_query(
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% else%}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
@@ -418,7 +431,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "{% else %}"
         "AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}')"
         "{% endif %} "
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ", date_array AS (SELECT DISTINCT explode(array("
         "{% else %}"
@@ -433,7 +446,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "explode(array('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`) "
         "{% endif %} "
         ", interpolation_events AS (SELECT coalesce(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, coalesce(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, a.`{{ timestamp_column }}` AS `Requested_{{ timestamp_column }}`, b.`{{ timestamp_column }}` AS `Found_{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN  raw_events b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
-        ", interpolation_calculations AS (SELECT *, lag(`{{ timestamp_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ timestamp_column }}`, lag(`{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ value_column }}`, lead(`{{ timestamp_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ timestamp_column }}`, lead(`{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ value_column }}`, "
+        ", interpolation_calculations AS (SELECT *, lag(`Found_{{ timestamp_column }}`) IGNORE NULLS OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ timestamp_column }}`, lag(`{{ value_column }}`) IGNORE NULLS OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ value_column }}`, lead(`Found_{{ timestamp_column }}`) IGNORE NULLS OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ timestamp_column }}`, lead(`{{ value_column }}`) IGNORE NULLS OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ value_column }}`, "
         "CASE WHEN `Requested_{{ timestamp_column }}` = `Found_{{ timestamp_column }}` THEN `{{ value_column }}` WHEN `Next_{{ timestamp_column }}` IS NULL THEN `Previous_{{ value_column }}` WHEN `Previous_{{ timestamp_column }}` IS NULL AND `Next_{{ timestamp_column }}` IS NULL THEN NULL "
         "ELSE `Previous_{{ value_column }}` + ((`Next_{{ value_column }}` - `Previous_{{ value_column }}`) * ((unix_timestamp(`{{ timestamp_column }}`) - unix_timestamp(`Previous_{{ timestamp_column }}`)) / (unix_timestamp(`Next_{{ timestamp_column }}`) - unix_timestamp(`Previous_{{ timestamp_column }}`)))) END AS `Interpolated_{{ value_column }}` FROM interpolation_events) "
         ",project AS (SELECT `{{ tagname_column }}`, `{{ timestamp_column }}`, `Interpolated_{{ value_column }}` AS `{{ value_column }}` FROM interpolation_calculations WHERE `{{ timestamp_column }}` IN ( "
@@ -453,12 +466,13 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% else%}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
@@ -505,6 +519,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
     sql_template = Template(interpolate_at_time_query)
     return sql_template.render(interpolation_at_time_parameters)
@@ -512,7 +527,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
 
 def _metadata_query(parameters_dict: dict) -> str:
     metadata_query = (
-        "SELECT * FROM "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -547,6 +562,7 @@ def _metadata_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(metadata_query)
@@ -570,10 +586,10 @@ def _latest_query(parameters_dict: dict) -> str:
         "{% endif %}"
         "ORDER BY `{{ tagname_column }}` ) "
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT l.*, m.`UoM` FROM latest l "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(l.*, m.`UoM), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}l.*, m.`UoM`{% endif %} FROM latest l '
         "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON l.`TagName` = m.`TagName` "
         "{% else %}"
-        "SELECT * FROM latest "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM latest '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -597,6 +613,7 @@ def _latest_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(latest_query)
@@ -623,7 +640,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% else %}"
         "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ',date_array AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events) '
         "{% else %}"
@@ -632,7 +649,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",boundary_events AS (SELECT coalesce(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, coalesce(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN raw_events b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
         ",window_buckets AS (SELECT `{{ timestamp_column }}` AS window_start, LEAD(`{{ timestamp_column }}`) OVER (ORDER BY `{{ timestamp_column }}`) AS window_end FROM (SELECT distinct `{{ timestamp_column }}` FROM date_array) ) "
         ",window_events AS (SELECT /*+ RANGE_JOIN(b, {{ range_join_seconds }} ) */ b.`{{ tagname_column }}`, b.`{{ timestamp_column }}`, a.window_start AS `Window{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM boundary_events b LEFT OUTER JOIN window_buckets a ON a.window_start <= b.`{{ timestamp_column }}` AND a.window_end > b.`{{ timestamp_column }}`) "
-        ',fill_status AS (SELECT *, last_value(`{{ status_column }}`, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Fill_{{ status_column }}`, CASE WHEN `Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") THEN `{{ value_column }}` ELSE null END AS `Good_{{ value_column }}` FROM window_events) '
+        ',fill_status AS (SELECT *, last_value(`{{ status_column }}`, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Fill_{{ status_column }}`, CASE WHEN `Fill_{{ status_column }}` <> "Bad" THEN `{{ value_column }}` ELSE null END AS `Good_{{ value_column }}` FROM window_events) '
         ",fill_value AS (SELECT *, last_value(`Good_{{ value_column }}`, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Fill_{{ value_column }}` FROM fill_status) "
         '{% if step is defined and step == "metadata" %} '
         ",fill_step AS (SELECT *, IFNULL(Step, false) AS Step FROM fill_value f LEFT JOIN "
@@ -648,9 +665,9 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",interpolate AS (SELECT *, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lag(`{{ timestamp_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Previous_{{ timestamp_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lag(`Fill_{{ value_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Previous_Fill_{{ value_column }}`, "
         "lead(`{{ timestamp_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) AS `Next_{{ timestamp_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lead(`Fill_{{ value_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Next_Fill_{{ value_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN `Previous_Fill_{{ value_column }}` + ( (`Next_Fill_{{ value_column }}` - `Previous_Fill_{{ value_column }}`) * ( ( unix_timestamp(`{{ timestamp_column }}`) - unix_timestamp(`Previous_{{ timestamp_column }}`) ) / ( unix_timestamp(`Next_{{ timestamp_column }}`) - unix_timestamp(`Previous_{{ timestamp_column }}`) ) ) ) ELSE NULL END AS `Interpolated_{{ value_column }}`, coalesce(`Interpolated_{{ value_column }}`, `Fill_{{ value_column }}`) as `Event_{{ value_column }}` FROM fill_step )"
         ",twa_calculations AS (SELECT `{{ tagname_column }}`, `{{ timestamp_column }}`, `Window{{ timestamp_column }}`, `Step`, `{{ status_column }}`, `{{ value_column }}`, `Previous_{{ timestamp_column }}`, `Previous_Fill_{{ value_column }}`, `Next_{{ timestamp_column }}`, `Next_Fill_{{ value_column }}`, `Interpolated_{{ value_column }}`, `Fill_{{ status_column }}`, `Fill_{{ value_column }}`, `Event_{{ value_column }}`, lead(`Fill_{{ status_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ status_column }}` "
-        ', CASE WHEN `Next_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") OR (`Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") AND `Next_{{ status_column }}` NOT IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good")) THEN lead(`Event_{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) ELSE `{{ value_column }}` END AS `Next_{{ value_column }}_For_{{ status_column }}` '
-        ', CASE WHEN `Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") THEN `Next_{{ value_column }}_For_{{ status_column }}` ELSE 0 END AS `Next_{{ value_column }}` '
-        ', CASE WHEN `Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") AND `Next_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) WHEN `Fill_{{ status_column }}` IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") AND `Next_{{ status_column }}` NOT IN ("Good", "Good, Annotated", "Substituted, Good, Annotated", "Substituted, Good", "Good, Questionable", "Questionable, Good") THEN ((cast(`Next_{{ timestamp_column }}` AS integer) - cast(`{{ timestamp_column }}` AS double)) / 60) ELSE 0 END AS good_minutes '
+        ', CASE WHEN `Next_{{ status_column }}` <> "Bad" OR (`Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` = "Bad") THEN lead(`Event_{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) ELSE `{{ value_column }}` END AS `Next_{{ value_column }}_For_{{ status_column }}` '
+        ', CASE WHEN `Fill_{{ status_column }}` <> "Bad" THEN `Next_{{ value_column }}_For_{{ status_column }}` ELSE 0 END AS `Next_{{ value_column }}` '
+        ', CASE WHEN `Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` <> "Bad" THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) WHEN `Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` = "Bad" THEN ((cast(`Next_{{ timestamp_column }}` AS integer) - cast(`{{ timestamp_column }}` AS double)) / 60) ELSE 0 END AS good_minutes '
         ", CASE WHEN Step == false THEN ((`Event_{{ value_column }}` + `Next_{{ value_column }}`) * 0.5) * good_minutes ELSE (`Event_{{ value_column }}` * good_minutes) END AS twa_value FROM interpolate) "
         ",twa AS (SELECT `{{ tagname_column }}`, `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, sum(twa_value) / sum(good_minutes) AS `{{ value_column }}` from twa_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
         ',project AS (SELECT * FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) '
@@ -666,12 +683,13 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% else%}"
-        "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
@@ -724,6 +742,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(time_weighted_average_query)
@@ -743,7 +762,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "{% else %}"
         "WHERE `{{ timestamp_column }}` BETWEEN TO_TIMESTAMP(\"{{ start_date }}\") AND TO_TIMESTAMP(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good') {% endif %}) "
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ',date_array AS (SELECT DISTINCT EXPLODE(SEQUENCE(FROM_UTC_TIMESTAMP(TO_TIMESTAMP("{{ start_date }}"), "{{ time_zone }}"), FROM_UTC_TIMESTAMP(TO_TIMESTAMP("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, EXPLODE(ARRAY(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events)  '
         "{% else %}"
@@ -771,12 +790,13 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
             "{% endfor %}"
             "{% endif %}"
-            "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+            '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
             "{% else %}"
             "{% if display_uom is defined and display_uom == true %}"
-            "SELECT p.*, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.*, m.`UoM`{% endif %} FROM project p '
+            "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% else%}"
-            "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
             "{% endif %}"
             "{% endif %}"
             "{% if limit is defined and limit is not none %}"
@@ -803,12 +823,13 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
             "{% endfor %}"
             "{% endif %}"
-            "))) SELECT * FROM pivot ORDER BY `{{ timestamp_column }}` "
+            '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
             "{% else %}"
             "{% if display_uom is defined and display_uom == true %}"
-            "SELECT p.*, m.`UoM` FROM project p LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.*, m.`UoM`{% endif %} FROM project p '
+            "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% else%}"
-            "SELECT * FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
             "{% endif %}"
             "{% endif %}"
             "{% if limit is defined and limit is not none %}"
@@ -858,6 +879,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(circular_stats_query)
@@ -885,13 +907,14 @@ def _summary_query(parameters_dict: dict) -> str:
         "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
-        "AND `{{ status_column }}` IN ('Good', 'Good, Annotated', 'Substituted, Good, Annotated', 'Substituted, Good', 'Good, Questionable', 'Questionable, Good')"
+        "AND `{{ status_column }}` <> 'Bad'"
         "{% endif %}"
         "GROUP BY `{{ tagname_column }}`) "
         "{% if display_uom is defined and display_uom == true %}"
-        "SELECT s.*, m.`UoM` FROM summary s LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON s.`TagName` = m.`TagName` "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(s.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}s.*, m.`UoM`{% endif %} FROM summary s '
+        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON s.`TagName` = m.`TagName` "
         "{% else%}"
-        "SELECT * FROM summary "
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM summary '
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
@@ -934,6 +957,7 @@ def _summary_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(summary_query)
@@ -996,10 +1020,13 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             + " "
             + parameters_dict["time_interval_unit"][0]
         )
+        to_json = parameters_dict.get("to_json", False)
+        parameters_dict["to_json"] = False
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
         sample_parameters["is_resample"] = False
+        sample_parameters["to_json"] = to_json
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
 
     if query_type == "time_weighted_average":

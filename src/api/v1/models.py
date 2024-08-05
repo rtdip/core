@@ -22,12 +22,13 @@ from pydantic import (
     Field,
     Strict,
     field_serializer,
+    BaseModel,
 )
 from typing import Annotated, List, Union, Dict, Any
-from fastapi import Query, Header, Depends
+from fastapi import Query, Header, Depends, HTTPException
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional
 
 
 EXAMPLE_DATE = "2022-01-01"
@@ -230,12 +231,21 @@ class AuthQueryParams:
 class BaseQueryParams:
     def __init__(
         self,
-        business_unit: str = Query(..., description="Business Unit Name"),
+        business_unit: str = Query(None, description="Business Unit Name"),
         region: str = Query(..., description="Region"),
-        asset: str = Query(..., description="Asset"),
-        data_security_level: str = Query(..., description="Data Security Level"),
+        asset: str = Query(None, description="Asset"),
+        data_security_level: str = Query(None, description="Data Security Level"),
         authorization: str = Depends(oauth2_scheme),
     ):
+        # Additional validation when mapping endpoint not provided - ensure validation error for missing params
+        if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
+            required_params = {
+                "business_unit": business_unit,
+                "asset": asset,
+                "data_security_level": data_security_level,
+            }
+            additionaly_validate_params(required_params)
+
         self.business_unit = business_unit
         self.region = region
         self.asset = asset
@@ -258,11 +268,29 @@ def check_date(v: str) -> str:
     return v
 
 
+def additionaly_validate_params(required_params):
+    # Checks if any of the supplied parameters are missing, and throws HTTPException in pydantic format
+    errors = []
+    for field in required_params.keys():
+        if required_params[field] is None:
+            errors.append(
+                {
+                    "type": "missing",
+                    "loc": ("query", field),
+                    "msg": "Field required",
+                    "input": required_params[field],
+                }
+            )
+    if len(errors) > 0:
+        print(errors)
+        raise HTTPException(status_code=422, detail=errors)
+
+
 class RawQueryParams:
     def __init__(
         self,
         data_type: str = Query(
-            ...,
+            None,
             description="Data Type can be one of the following options: float, double, integer, string",
             examples=["float", "double", "integer", "string"],
         ),
@@ -282,6 +310,11 @@ class RawQueryParams:
             examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
     ):
+        # Additional validation when mapping endpoint not provided - ensure validation error for missing params
+        if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
+            required_params = {"data_type": data_type}
+            additionaly_validate_params(required_params)
+
         self.data_type = data_type
         self.include_bad_data = include_bad_data
         self.start_date = start_date
@@ -402,7 +435,8 @@ class InterpolationAtTimeQueryParams:
         self,
         data_type: str = Query(
             ...,
-            description="Data Type can be one of the following options:[float, double, integer, string]",
+            description="Data Type can be one of the following options: float, double, integer, string",
+            examples=["float", "double", "integer", "string"],
         ),
         timestamps: List[Union[date, datetime]] = Query(
             ...,
@@ -416,6 +450,11 @@ class InterpolationAtTimeQueryParams:
             ..., description="Include or remove Bad data points"
         ),
     ):
+        # Additional validation when mapping endpoint not provided - ensure validation error for missing params
+        if not os.getenv("DATABRICKS_SERVING_ENDPOINT"):
+            required_params = {"data_type": data_type}
+            additionaly_validate_params(required_params)
+
         self.data_type = data_type
         self.timestamps = timestamps
         self.window_length = window_length
@@ -465,3 +504,29 @@ class CircularAverageQueryParams:
         self.time_interval_unit = time_interval_unit
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
+
+
+class BatchDict(BaseModel):
+    url: str
+    method: str
+    params: dict
+    body: dict = None
+
+    def __getitem__(self, item):
+        if item in self.__dict__:
+            return self.__dict__[item]
+        else:
+            raise KeyError(f"Key {item} not found in the model.")
+
+
+class BatchBodyParams(BaseModel):
+    requests: List[BatchDict]
+
+
+class BatchResponse(BaseModel):
+    schema: FieldSchema = Field(None, alias="schema", serialization_alias="schema")
+    data: List
+
+
+class BatchListResponse(BaseModel):
+    data: List[BatchResponse]

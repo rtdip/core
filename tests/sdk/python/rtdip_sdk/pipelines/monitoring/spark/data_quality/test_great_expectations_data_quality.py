@@ -42,7 +42,6 @@ def test_create_expectations(mocker: MockerFixture):
 
 
 def test_build_expectations():
-
     expectation_type = "expect_column_values_to_not_be_null"
     exception_dict = {
         "column": "user_id",

@@ -34,6 +34,34 @@ Ensure that you setup the **local.settings.json** file with the relevant paramet
 |---------|-------|
 |DATABRICKS_SQL_SERVER_HOSTNAME|adb-xxxxx.x.azuredatabricks.net|
 |DATABRICKS_SQL_HTTP_PATH|/sql/1.0/warehouses/xxx|
+|DATABRICKS_SERVING_ENDPOINT|https://adb-xxxxx.x.azuredatabricks.net/serving-endpoints/xxxxxxx/invocations|
+|BATCH_THREADPOOL_WORKERS|3|
+|LOOKUP_THREADPOOL_WORKERS|10|
+
+### Information:
+
+DATABRICKS_SERVING_ENDPOINT 
+- **This is an optional parameter**
+- This represents a Databricks feature serving endpont, which is used to create lower-latency look-ups of databricks tables.
+- In this API, this is used to map tagnames to their respective "CatalogName", "SchemaName" and "DataTable"
+- This enables the parameters of business_unit, asset and data_security_level to be optional, thereby reducing user friction in querying data.
+- Given these parameters are optional, custom validation logic based on the presence (or not) of the mapping endpoint is done in the models.py via pydantic.
+- For more information on feature serving endpoints please see: https://docs.databricks.com/en/machine-learning/feature-store/feature-function-serving.html
+
+LOOKUP_THREADPOOL_WORKERS
+- **This is an optional parameter**
+- In the event of a query with multiple tags residing in multiple tables, the api will query these tables separately and the results will be concatenated. 
+- This parameter will parallelise these requests.
+- This defaults to 3 if it is not defined in the .env.
+
+BATCH_THREADPOOL_WORKERS 
+- **This is an optional parameter**
+- This represents the number of workers for parallelisation of requests in a batch sent to the /batch route.
+- This defaults to the cpu count minus one if not defined in the .env.
+
+Please note that the batch API route calls the lookup under the hood by default. Therefore if there are many requests, with each requiring multiple tables the total number of threads will be up to BATCH_THREADPOOL_WORKERS * LOOKUP_THREADPOOL_WORKERS.
+For example, 10 requests in the batch with each querying 3 tables means there will be up to 30 simulatanous queries. 
+Therefore, it is recommended to set these parameters for performance optimization.
 
 Please also ensure to install all the turbodbc requirements for your machine by reviewing the [installation instructions](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) of turbodbc. On a macbook, this includes executing the following commands:
 

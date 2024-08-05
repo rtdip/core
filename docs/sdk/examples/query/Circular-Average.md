@@ -1,1 +1,1 @@
---8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Circular-Average/README.md"
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/TimeSeriesQueryBuilder/Circular-Average/README.md"
