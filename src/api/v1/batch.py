@@ -15,6 +15,7 @@ import logging
 import numpy as np
 import os
 from fastapi import HTTPException, Depends, Body  # , JSONResponse
+from src.sdk.python.rtdip_sdk.queries.time_series import batch
 
 from src.api.v1.models import (
     BaseQueryParams,
@@ -33,6 +34,7 @@ from src.api.v1.common import (
 from src.api.FastAPIApp import api_v1_router
 from src.api.v1.common import lookup_before_get
 from concurrent.futures import *
+import pandas as pd
 
 
 ROUTE_FUNCTION_MAPPING = {
@@ -51,41 +53,80 @@ ROUTE_FUNCTION_MAPPING = {
 }
 
 
+def parse_batch_requests(requests):
+    """
+    Parse requests into dict of required format of sdk function
+        - Unpack request body if post request
+        - Map the url to the sdk function
+        - Rename tag_name parameter to tag_names
+    """
+
+    parsed_requests = []
+    for request in requests:
+
+        # If required, combine request body and parameters:
+        parameters = request["params"]
+        if request["method"] == "POST":
+            if request["body"] == None:
+                raise Exception(
+                    "Incorrectly formatted request provided: All POST requests require a body"
+                )
+            parameters = {**parameters, **request["body"]}
+
+        # Map the url to a specific function
+        try:
+            func = ROUTE_FUNCTION_MAPPING[request["url"]]
+        except:
+            raise Exception(
+                "Unsupported url: Only relative base urls are supported, for example '/events/raw'. Please provide any parameters under the params key in the same format as the sdk"
+            )
+
+        # Rename tag_name to tag_names, if required
+        if "tag_name" in parameters.keys():
+            parameters["tag_names"] = parameters.pop("tag_name")
+
+        # Append to array
+        parsed_requests.append({"func": func, "parameters": parameters})
+
+    return parsed_requests
+
+
+def run_direct_or_lookup(func_name, connection, parameters):
+    """
+    Runs directly if all params (or SQL function) provided, otherwise uses lookup table
+    """
+    try:
+        if func_name == "sql" or all(
+            (key in parameters and parameters[key] != None)
+            for key in ["business_unit", "asset"]
+        ):
+            # Run batch get for single table query if table name provided, or SQL function
+            params_list = [{"type": func_name, "parameters_dict": parameters}]
+            batch_results = batch.get(connection, params_list, threadpool_max_workers=1)
+
+            # Extract 0th from generator object since only one result
+            result = [result for result in batch_results][0]
+            return result
+        else:
+            return lookup_before_get(func_name, connection, parameters)
+    except Exception as e:
+        # Return a dataframe with an error message if any of requests fail
+        return pd.DataFrame([{"Error": str(e)}])
+
+
 async def batch_events_get(
     base_query_parameters, base_headers, batch_query_parameters, limit_offset_parameters
 ):
+
     try:
+        # Set up connection
         (connection, parameters) = common_api_setup_tasks(
             base_query_parameters=base_query_parameters,
             base_headers=base_headers,
         )
 
-        # Validate the parameters
-        parsed_requests = []
-        for request in batch_query_parameters.requests:
-            # If required, combine request body and parameters:
-            parameters = request["params"]
-            if request["method"] == "POST":
-                if request["body"] == None:
-                    raise Exception(
-                        "Incorrectly formatted request provided: All POST requests require a body"
-                    )
-                parameters = {**parameters, **request["body"]}
-
-            # Map the url to a specific function
-            try:
-                func = ROUTE_FUNCTION_MAPPING[request["url"]]
-            except:
-                raise Exception(
-                    "Unsupported url: Only relative base urls are supported. Please provide any parameters in the params key"
-                )
-
-            # Rename tag_name to tag_names, if required
-            if "tag_name" in parameters.keys():
-                parameters["tag_names"] = parameters.pop("tag_name")
-
-            # Append to array
-            parsed_requests.append({"func": func, "parameters": parameters})
+        # Parse requests into dicts required by sdk
+        parsed_requests = parse_batch_requests(batch_query_parameters.requests)
 
         # Obtain max workers from environment var, otherwise default to one less than cpu count
         max_workers = os.environ.get("BATCH_THREADPOOL_WORKERS", os.cpu_count() - 1)
@@ -94,7 +135,8 @@ async def batch_events_get(
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Use executor.map to preserve order
             results = executor.map(
-                lambda arguments: lookup_before_get(*arguments),
+                # lambda arguments: lookup_before_get(*arguments),
+                lambda arguments: run_direct_or_lookup(*arguments),
                 [
                     (parsed_request["func"], connection, parsed_request["parameters"])
                     for parsed_request in parsed_requests

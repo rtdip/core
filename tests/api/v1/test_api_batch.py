@@ -22,10 +22,12 @@ from datetime import datetime, timezone
 from tests.api.v1.api_test_objects import (
     BATCH_MOCKED_PARAMETER_DICT,
     BATCH_POST_PAYLOAD_SINGLE_WITH_GET,
+    BATCH_POST_PAYLOAD_SINGLE_WITH_MISSING_BUSINESS_UNIT,
     BATCH_POST_PAYLOAD_SINGLE_WITH_POST,
     BATCH_POST_PAYLOAD_SINGLE_WITH_GET_ERROR_DICT,
     BATCH_POST_PAYLOAD_SINGLE_WITH_POST_ERROR_DICT,
     BATCH_POST_PAYLOAD_MULTIPLE,
+    BATCH_POST_PAYLOAD_ONE_SUCCESS_ONE_FAIL,
     mocker_setup,
     TEST_HEADERS,
     BASE_URL,
@@ -48,7 +50,8 @@ pytestmark = pytest.mark.anyio
 
 async def test_api_batch_single_get_success(mocker: MockerFixture):
     """
-    Case when single get request supplied in array of correct format
+    Case when single get request supplied in array of correct format,
+    fully defined parameters so no lookup required
     """
 
     test_data = pd.DataFrame(
@@ -73,9 +76,15 @@ async def test_api_batch_single_get_success(mocker: MockerFixture):
         mock_method_return_data,
         tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
     )
+
+    # Mock the mapping endpoint variable
     mocker.patch.dict(
         os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
     )
+
+    # Mock the lookup_before_get function, so we can check if called
+    mock_lookup = "src.api.v1.batch.lookup_before_get"
+    mocked_lookup_before_get = mocker.patch(mock_lookup, return_value=None)
 
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         actual = await ac.post(
@@ -119,6 +128,98 @@ async def test_api_batch_single_get_success(mocker: MockerFixture):
         ]
     }
 
+    # Check lookup_before_get function not called - since parameters fully defined
+    assert mocked_lookup_before_get.call_count == 0
+
+    # Check response
+    assert actual.json() == expected
+    assert actual.status_code == 200
+
+
+async def test_api_batch_single_get_success_with_lookup(mocker: MockerFixture):
+    """
+    Case when single get request supplied in array of correct format,
+    but with missing business unit, so lookup is required
+    """
+
+    test_data = pd.DataFrame(
+        {
+            "TagName": ["TestTag"],
+            "Count": [10.0],
+            "Avg": [5.05],
+            "Min": [1.0],
+            "Max": [10.0],
+            "StDev": [3.02],
+            "Sum": [25.0],
+            "Var": [0.0],
+        }
+    )
+
+    # Mock the batch method, which outputs test data in the form of an array of dfs
+    mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
+    mock_method_return_data = [test_data]
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
+    )
+
+    # Mock the mapping endpoint variable
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
+
+    # Mock the lookup_before_get function
+    mock_lookup = "src.api.v1.batch.lookup_before_get"
+    mocked_lookup_before_get = mocker.patch(mock_lookup, return_value=test_data)
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        actual = await ac.post(
+            MOCK_API_NAME,
+            headers=TEST_HEADERS,
+            params=BATCH_MOCKED_PARAMETER_DICT,
+            json=BATCH_POST_PAYLOAD_SINGLE_WITH_MISSING_BUSINESS_UNIT,
+        )
+
+    # Define full expected structure for one test - for remainder use json_response_batch as already tested in common
+    expected = {
+        "data": [
+            {
+                "schema": {
+                    "fields": [
+                        {"name": "TagName", "type": "string"},
+                        {"name": "Count", "type": "number"},
+                        {"name": "Avg", "type": "number"},
+                        {"name": "Min", "type": "number"},
+                        {"name": "Max", "type": "number"},
+                        {"name": "StDev", "type": "number"},
+                        {"name": "Sum", "type": "number"},
+                        {"name": "Var", "type": "number"},
+                    ],
+                    "primaryKey": False,
+                    "pandas_version": "1.4.0",
+                },
+                "data": [
+                    {
+                        "TagName": "TestTag",
+                        "Count": 10.0,
+                        "Avg": 5.05,
+                        "Min": 1.0,
+                        "Max": 10.0,
+                        "StDev": 3.02,
+                        "Sum": 25.0,
+                        "Var": 0.0,
+                    }
+                ],
+            }
+        ]
+    }
+
+    # Check lookup_before_get function was called
+    assert mocked_lookup_before_get.call_count == 1
+
+    # Check response
     assert actual.json() == expected
     assert actual.status_code == 200
 
@@ -200,7 +301,7 @@ async def test_api_batch_single_get_unsupported_route_error(mocker: MockerFixtur
         )
 
     expected = {
-        "detail": "Unsupported url: Only relative base urls are supported. Please provide any parameters in the params key"
+        "detail": "Unsupported url: Only relative base urls are supported, for example '/events/raw'. Please provide any parameters under the params key in the same format as the sdk"
     }
 
     assert actual.json() == expected
@@ -304,6 +405,57 @@ async def test_api_batch_multiple_success(mocker: MockerFixture):
 
     expected = json.loads(
         json_response_batch([summary_test_data, raw_test_data]).body.decode("utf-8")
+    )
+
+    assert actual.json() == expected
+    assert actual.status_code == 200
+
+
+# Test where one fails and one passes, including
+async def test_api_batch_one_success_one_fail(mocker: MockerFixture):
+    """
+    Case when single post request supplied in overall array of
+    correct format, but one passes and one fails due to missing parameters
+    """
+
+    sql_test_data = pd.DataFrame(
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Status": ["Good"],
+            "Value": [1.01],
+        }
+    )
+
+    raw_test_data_fail = pd.DataFrame([{"Error": "'tag_names'"}])
+
+    # Mock the batch method, which outputs test data in the form of an array of dfs
+    mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
+    mock_method_return_data = None
+    # add side effect since require batch to return different data after each call
+    # batch.get return value is array of dfs, so must patch with nested array
+    mock_patch_side_effect = [[sql_test_data], [raw_test_data_fail]]
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        patch_side_effect=mock_patch_side_effect,
+        tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        actual = await ac.post(
+            MOCK_API_NAME,
+            headers=TEST_HEADERS,
+            params=BATCH_MOCKED_PARAMETER_DICT,
+            json=BATCH_POST_PAYLOAD_ONE_SUCCESS_ONE_FAIL,
+        )
+
+    expected = json.loads(
+        json_response_batch([sql_test_data, raw_test_data_fail]).body.decode("utf-8")
     )
 
     assert actual.json() == expected
