@@ -157,7 +157,6 @@ body {
     font-size: 1.25rem;
     font-weight: 400;
     width: 100%;
-    /* padding-left: 0.8rem; */
     text-align: left;
 }
 
@@ -167,7 +166,6 @@ body {
     line-height: 1rem;
     margin: 1rem 0;
     width: 100%;
-    /* padding-left: 0.8rem; */
     text-align: left;
 }
 
@@ -193,11 +191,18 @@ body {
 
 .course-curriculum-container {
     width: 80%;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
     flex-grow: 1;
     padding: 0 6rem;
     padding-bottom: 2rem;
+}
+
+/* Make columns collapse into single column when screen too small*/
+@media (max-width: 1080px) {
+    .course-curriculum-container {
+        grid-template-columns: 1fr;
+    }
 }
 
 .course-curriculum-section h1 {
@@ -209,8 +214,7 @@ body {
     display: block;
     flex-direction: column;
     align-items: left;
-    margin-top: 2rem;
-    width: 50%;
+    margin-top: 1rem;
 }
 
 .course-curriculum-right {
@@ -218,7 +222,6 @@ body {
     flex-direction: column;
     align-items: left;
     margin-top: 2rem;
-    width: 50%;
 }
 
 .clickable-list-item {
@@ -241,6 +244,8 @@ body {
     margin-left: -41px;
     font-weight: 400;
     font-size: 0.8rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .clickable-list-item-title {
@@ -251,15 +256,6 @@ body {
     margin-bottom: 0.4rem 0;
     width: 100%; 
     font-weight: 500;
-    font-size: 0.8rem;
-}
-.clickable-list-item-subtitle {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%; 
-    font-weight: 400;
     font-size: 0.8rem;
 }
 
@@ -277,7 +273,7 @@ body {
     font-size: 0.8rem;
     line-height: 1.5rem;
     width: 85%;
-    margin-bottom: 0.6rem;
+    margin-bottom: 1rem;
 }
 
 .remove-marker {
@@ -286,5 +282,82 @@ body {
 
 .clickable-list-item.active .clickable-list-details  {
     opacity: 1;
-    max-height: 200px;
+    max-height: 100%;
+}
+
+.linkcard {
+    display: flex;
+    flex-direction: column;
+    max-width: 85vw;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 38px;
+    cursor: pointer;
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 2px 5px;
+}
+.linkcard:hover {
+    opacity: 0.8;
+    border: 1px solid #b6b6b6;
+}
+
+.linkcard-top{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: 250px;
+    position: relative;
+    background-color: #f5f5f5;
+    border-radius: 38px 38px 0 0;
+    padding: 15px;
+}
+
+.linkcard-top img {
+    width: 200px;
+    position: absolute;
+    top: calc(50% - 100px);
+    left: calc(50% - 100px);
+
+}
+
+.linkcard-bottom{
+    display: flex;
+    padding: 10px;
+}
+
+.linkcard-title {
+    font-size: 1.5rem;
+    margin-top: auto;
+    padding: 10px;
+}
+
+.linkcard-description {
+    height: 50px;
+    font-size: 0.8rem;
+    font-weight: 300;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.skill-content {
+    font-weight: 300;
+    font-size: 0.9rem;
+    line-height: 1.5rem;
+    width: 85%;
+    margin-bottom: 1rem;
+    list-style: none;
+}
+
+.skill-content h3 {
+    /* margin-left: -41px; */
+    font-weight: 400;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.skill-content li:before {
+    content: "✓";
+    padding-right: 5px;
 }

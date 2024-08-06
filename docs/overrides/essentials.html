@@ -57,7 +57,7 @@
         </div>
     </section>
     <section class="course-curriculum-section">
-        <h1>Course <span class="pink-span">Curriculum</span></h1>
+        <h1>Course <span class="pink-span"> Curriculum</span></h1>
         <div class="course-curriculum-container">
             <div class="course-curriculum-left">
                 <div class="clickable-list-item" onclick="toggleDetails(this)">
@@ -71,7 +71,20 @@
                     </div>
                     <ul class="clickable-list-details">
                         <li>
-                            <a href="../../essentials/rtdip/overview">What is RTDIP? </a>
+                            <a href="../../essentials/rtdip/overview">Course Overview </a>
+                        </li>
+                        <h3 class="clickable-subtitle">Getting Started</h3>
+                        <li>
+                            <a href="../../essentials/sdk/getting-started/introduction">Introduction to RTDIP</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/getting-started/prerequisites">Prerequisites</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/getting-started/installation">Installation steps</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/getting-started/exercise">Exercise</a>
                         </li>
                     </ul>
                     <hr>
@@ -86,28 +99,41 @@
                         </span>
                     </div>
                     <ul class="clickable-list-details">
-                        <h3 class="clickable-subtitle">Getting Started</h3>
-                        <li>
-                            <a href="../../essentials/sdk/getting-started/introduction">Introduction</a>
-                        </li>
-                        <li>
-                            <a href="../../essentials/sdk/getting-started/prerequisites">Prerequisites</a>
-                        </li>
-                        <li>
-                            <a href="../../essentials/sdk/getting-started/installation">Installation steps</a>
-                        </li>
-                        <li>
-                            <a href="../../essentials/sdk/getting-started/exercise">Exercise</a>
-                        </li>
                         <h3 class="clickable-subtitle">Authentication</h3>
                         <li>
-                            <a href="../../essentials/sdk/authentication/azure">Azure</a>
+                            <a href="../../essentials/sdk/authentication/azure">Authentication using Azure Active Directory</a>
                         </li>
                         <li>
-                            <a href="../../essentials/sdk/authentication/databricks">Databricks</a>
+                            <a href="../../essentials/sdk/authentication/databricks">Authentiation using Databricks</a>
                         </li>
                         <li>
                             <a href="../../essentials/sdk/authentication/exercise">Exercise</a>
+                        </li>
+                        <h3 class="clickable-subtitle">Connectors</h3>
+                        <li>
+                            <a href="../../essentials/sdk/connectors/databricks-sql-connector">Databricks SQL Connector</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/connectors/odbc-connectors">ODBC Connector</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/connector/spark-connector">Spark Connector</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/connector/exercise">Exercise</a>
+                        </li>
+                        <h3 class="clickable-subtitle">Queries</h3>
+                        <li>
+                            <a href="../../essentials/sdk/queries/timeseries">Time Series</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/queries/sql">SQL queries</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/queries/sq">Weather</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/queries/exercise">Exercise</a>
                         </li>
                     </ul>
                     <hr>
@@ -123,16 +149,16 @@
                     </div>
                     <ul class="clickable-list-details">
                         <li>
-                            <a href="../../essentials/sdk/getting-started/introduction">Introduction</a>
+                            <a href="../../essentials/api/overview">Overview</a>
                         </li>
                         <li>
-                            <a href="../../essentials/sdk/getting-started/prerequisites">Prerequisites</a>
+                            <a href="../../essentials/api/swagger">Swagger</a>
                         </li>
                         <li>
-                            <a href="../../essentials/sdk/getting-started/installation">Installation steps</a>
+                            <a href="../../essentials/api/postman">Postman</a>
                         </li>
                         <li>
-                            <a href="../../essentials/sdk/getting-started/exercise">Exercise</a>
+                            <a href="../../essentials/api/exercise">Exercise</a>
                         </li>
                     </ul>
                     <hr>
@@ -146,26 +172,34 @@
                             +
                         </span>
                     </div>
-                    <ul class="clickable-list-details remove-marker">
+                    <ul class="clickable-list-details">
                         <li>
-                            <div class="clickable-list-item" onclick="toggleDetails(this)">
-                                <div class="clickable-list-item-title">
-                                    <span class="clickable-title">
-                                        hello
-                                    </span>
-                                    <span class="clickable-list-toggle-indicator">
-                                        +
-                                    </span>
-                                </div>
-                                <ul class="clickable-list-details">
-                                    <li>
-                                        <a href="../../essentials/sdk/getting-started/introduction">Introduction</a>
-                                    </li>
-                                </ul>
-                            </div> 
+                            <a href="../../essentials/api/overview">Overview</a>
                         </li>
                     </ul>
                     <hr>
+                </div>
+            </div>
+            <div class="course-curriculum-right">
+                <div class="linkcard">
+                    <div class="linkcard-top">
+                        <img src="../../../assets/rtdip-horizontal-color.png">
+                        <h2 class="linkcard-title">RTDIP Essentials</h2>
+                    </div>
+                    <div class="linkcard-bottom">
+                        <ul class="skill-content">
+                            <h3>Skills you'll gain in this course</h3>
+                            <li>
+                                <a>blah blah blah</a>
+                            </li>
+                            <li>
+                                <a>blah blah blah</a>
+                            </li>
+                            <li>
+                                <a>blah blah blah</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -173,6 +207,7 @@
     
     <script>
         function toggleDetails(clickedItem) {
+            console.log("toggledetails")
             // Close all other details and reset indicators
             document.querySelectorAll('.clickable-list-item').forEach(function(item) {
                 if (item !== clickedItem) {
