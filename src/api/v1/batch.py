@@ -38,18 +38,18 @@ import pandas as pd
 
 
 ROUTE_FUNCTION_MAPPING = {
-    "/api/v1/events/raw": "raw",
-    "/api/v1/events/latest": "latest",
-    "/api/v1/events/resample": "resample",
-    "/api/v1/events/plot": "plot",
-    "/api/v1/events/interpolate": "interpolate",
-    "/api/v1/events/interpolationattime": "interpolationattime",
-    "/api/v1/events/circularaverage": "circularaverage",
-    "/api/v1/events/circularstandarddeviation": "circularstandarddeviation",
-    "/api/v1/events/timeweightedaverage": "timeweightedaverage",
-    "/api/v1/events/summary": "summary",
-    "/api/v1/events/metadata": "metadata",
-    "/api/v1/sql/execute": "execute",
+    "/events/raw": "raw",
+    "/events/latest": "latest",
+    "/events/resample": "resample",
+    "/events/plot": "plot",
+    "/events/interpolate": "interpolate",
+    "/events/interpolationattime": "interpolationattime",
+    "/events/circularaverage": "circularaverage",
+    "/events/circularstandarddeviation": "circularstandarddeviation",
+    "/events/timeweightedaverage": "timeweightedaverage",
+    "/events/summary": "summary",
+    "/events/metadata": "metadata",
+    "/sql/execute": "sql",
 }
 
 
