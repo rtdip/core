@@ -267,13 +267,23 @@ body {
 .clickable-list-details {
     opacity: 0;
     max-height: 0;
-    overflow: visible;
-    transition: opacity 0.1s ease-out, max-height 0.3s ease-in-out;
+    overflow: hidden;
+    transition:  opacity 0.7s ease-out, max-height 0.7s ease-in-out;
     font-weight: 300;
     font-size: 0.8rem;
     line-height: 1.5rem;
     width: 85%;
     margin-bottom: 1rem;
+}
+
+.clickable-list-details a {
+    text-decoration: none;
+    color: #4e08c7;
+}
+
+.clickable-list-details a:hover {
+    text-decoration: none;
+    color: #d445a3;
 }
 
 .remove-marker {
@@ -282,10 +292,10 @@ body {
 
 .clickable-list-item.active .clickable-list-details  {
     opacity: 1;
-    max-height: 100%;
+    max-height: 1000px;
 }
 
-.linkcard {
+.skillcard {
     display: flex;
     flex-direction: column;
     max-width: 85vw;
@@ -296,12 +306,12 @@ body {
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.3) 0 2px 5px;
 }
-.linkcard:hover {
+.skillcard:hover {
     opacity: 0.8;
     border: 1px solid #b6b6b6;
 }
 
-.linkcard-top{
+.skillcard-top{
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -313,7 +323,7 @@ body {
     padding: 15px;
 }
 
-.linkcard-top img {
+.skillcard-top img {
     width: 200px;
     position: absolute;
     top: calc(50% - 100px);
@@ -321,18 +331,18 @@ body {
 
 }
 
-.linkcard-bottom{
+.skillcard-bottom{
     display: flex;
     padding: 10px;
 }
 
-.linkcard-title {
+.skillcard-title {
     font-size: 1.5rem;
     margin-top: auto;
     padding: 10px;
 }
 
-.linkcard-description {
+.skillcard-description {
     height: 50px;
     font-size: 0.8rem;
     font-weight: 300;
