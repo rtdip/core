@@ -2,6 +2,7 @@
 
 ## Course Progress
 -   [X] Overview
+-   [X] Architecture
 -   [ ] SDK
     *   [ ] Getting Started
         +   [X] Introduction
