@@ -2,12 +2,10 @@
 
 ## Course Progress
 -   [X] Overview
+-   [X] Architecture
 -   [ ] SDK
     *   [X] Getting Started
-    *   [ ] Authentication
-        +   [X] Azure Active Directory
-        +   [X] Databricks
-        +   [ ] Exercise
+    *   [X] Authentication
     *   [ ] Connectors
     *   [ ] Queries
 -   [ ] APIs
