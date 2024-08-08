@@ -262,14 +262,29 @@ BATCH_POST_PAYLOAD_SINGLE_WITH_MISSING_BUSINESS_UNIT["requests"][0]["params"].po
 )
 
 
+BATCH_POST_PAYLOAD_SINGLE_WITH_MISSING_BUSINESS_UNIT = {
+    "requests": [
+        {
+            "url": "/events/summary",
+            "method": "GET",
+            "headers": TEST_HEADERS,
+            "params": SUMMARY_MOCKED_PARAMETER_DICT.copy(),
+        }
+    ]
+}
+BATCH_POST_PAYLOAD_SINGLE_WITH_MISSING_BUSINESS_UNIT["requests"][0]["params"].pop(
+    "business_unit"
+)
+
+
 BATCH_POST_PAYLOAD_SINGLE_WITH_POST = {
     "requests": [
         {
-            "url": "/events/raw",
+            "url": "/events/timeweightedaverage",
             "method": "POST",
             "headers": TEST_HEADERS,
-            "params": RAW_MOCKED_PARAMETER_DICT,
-            "body": RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT,
+            "params": TIME_WEIGHTED_AVERAGE_MOCKED_PARAMETER_DICT,
+            "body": TIME_WEIGHTED_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
         }
     ]
 }
@@ -300,17 +315,37 @@ BATCH_POST_PAYLOAD_SINGLE_WITH_POST_ERROR_DICT = {
 BATCH_POST_PAYLOAD_MULTIPLE = {
     "requests": [
         {
-            "url": "/events/summary",
+            "url": "/events/interpolationattime",
             "method": "GET",
             "headers": TEST_HEADERS,
-            "params": SUMMARY_MOCKED_PARAMETER_DICT,
+            "params": INTERPOLATION_AT_TIME_MOCKED_PARAMETER_DICT,
+        },
+        {
+            "url": "/events/circularaverage",
+            "method": "POST",
+            "headers": TEST_HEADERS,
+            "params": CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
+            "body": CIRCULAR_AVERAGE_POST_BODY_MOCKED_PARAMETER_DICT,
+        },
+    ]
+}
+
+BATCH_POST_PAYLOAD_ONE_SUCCESS_ONE_FAIL = {
+    "requests": [
+        {
+            "url": "/sql/execute",
+            "method": "POST",
+            "headers": TEST_HEADERS,
+            "params": {},
+            "body": {
+                "sql_statement": "SELECT * FROM 1",
+            },
         },
         {
             "url": "/events/raw",
-            "method": "POST",
+            "method": "GET",
             "headers": TEST_HEADERS,
-            "params": RAW_MOCKED_PARAMETER_DICT,
-            "body": RESAMPLE_POST_BODY_MOCKED_PARAMETER_DICT,
+            "params": {},
         },
     ]
 }

@@ -43,10 +43,10 @@ ROUTE_FUNCTION_MAPPING = {
     "/events/resample": "resample",
     "/events/plot": "plot",
     "/events/interpolate": "interpolate",
-    "/events/interpolationattime": "interpolationattime",
-    "/events/circularaverage": "circularaverage",
-    "/events/circularstandarddeviation": "circularstandarddeviation",
-    "/events/timeweightedaverage": "timeweightedaverage",
+    "/events/interpolationattime": "interpolation_at_time",
+    "/events/circularaverage": "circular_average",
+    "/events/circularstandarddeviation": "circular_standard_deviation",
+    "/events/timeweightedaverage": "time_weighted_average",
     "/events/summary": "summary",
     "/events/metadata": "metadata",
     "/sql/execute": "sql",
@@ -135,7 +135,6 @@ async def batch_events_get(
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Use executor.map to preserve order
             results = executor.map(
-                # lambda arguments: lookup_before_get(*arguments),
                 lambda arguments: run_direct_or_lookup(*arguments),
                 [
                     (parsed_request["func"], connection, parsed_request["parameters"])

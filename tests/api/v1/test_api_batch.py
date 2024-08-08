@@ -41,8 +41,9 @@ from pandas.io.json import build_table_schema
 from httpx import AsyncClient
 from src.api.v1 import app
 from src.api.v1.common import json_response_batch
+from src.sdk.python.rtdip_sdk.queries.time_series import batch
 
-MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.raw.get"
+MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
 MOCK_API_NAME = "/api/v1/events/batch"
 
 pytestmark = pytest.mark.anyio
@@ -251,6 +252,9 @@ async def test_api_batch_single_post_success(mocker: MockerFixture):
         os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
     )
 
+    # Make a surveillance batch method reference to check if called and what args with
+    surveillance_batch = mocker.patch(mock_method, return_value=mock_method_return_data)
+
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
@@ -260,6 +264,10 @@ async def test_api_batch_single_post_success(mocker: MockerFixture):
         )
 
     expected = json.loads(json_response_batch([test_data]).body.decode("utf-8"))
+
+    # Check batch method called with correct parameters, specifically the right function mapping
+    assert surveillance_batch.call_count == 1
+    assert surveillance_batch.call_args[0][1][0]["type"] == "time_weighted_average"
 
     assert actual.json() == expected
     assert actual.status_code == 200
@@ -395,6 +403,9 @@ async def test_api_batch_multiple_success(mocker: MockerFixture):
         os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
     )
 
+    # Make a surveillance batch method reference to check if called and what args with
+    surveillance_batch = mocker.patch(mock_method, side_effect=mock_patch_side_effect)
+
     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
@@ -405,6 +416,64 @@ async def test_api_batch_multiple_success(mocker: MockerFixture):
 
     expected = json.loads(
         json_response_batch([summary_test_data, raw_test_data]).body.decode("utf-8")
+    )
+
+    # Check batch method called with correct parameters, specifically the right function mappings
+    assert surveillance_batch.call_count == 2
+    assert (
+        surveillance_batch.call_args_list[0][0][1][0]["type"] == "interpolation_at_time"
+    )
+    assert surveillance_batch.call_args_list[1][0][1][0]["type"] == "circular_average"
+
+    assert actual.json() == expected
+    assert actual.status_code == 200
+
+
+# Test where one fails and one passes, including
+async def test_api_batch_one_success_one_fail(mocker: MockerFixture):
+    """
+    Case when single post request supplied in overall array of
+    correct format, but one passes and one fails due to missing parameters
+    """
+
+    sql_test_data = pd.DataFrame(
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Status": ["Good"],
+            "Value": [1.01],
+        }
+    )
+
+    raw_test_data_fail = pd.DataFrame([{"Error": "'tag_names'"}])
+
+    # Mock the batch method, which outputs test data in the form of an array of dfs
+    mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
+    mock_method_return_data = None
+    # add side effect since require batch to return different data after each call
+    # batch.get return value is array of dfs, so must patch with nested array
+    mock_patch_side_effect = [[sql_test_data], [raw_test_data_fail]]
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        patch_side_effect=mock_patch_side_effect,
+        tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        actual = await ac.post(
+            MOCK_API_NAME,
+            headers=TEST_HEADERS,
+            params=BATCH_MOCKED_PARAMETER_DICT,
+            json=BATCH_POST_PAYLOAD_ONE_SUCCESS_ONE_FAIL,
+        )
+
+    expected = json.loads(
+        json_response_batch([sql_test_data, raw_test_data_fail]).body.decode("utf-8")
     )
 
     assert actual.json() == expected
