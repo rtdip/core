@@ -13,3 +13,4 @@
         +   [ ] Exercise
     *   [ ] Queries
 -   [ ] APIs
+-   [ ] Excel Connector

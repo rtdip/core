@@ -11,3 +11,4 @@
     *   [ ] Connectors
     *   [ ] Queries
 -   [ ] APIs
+-   [ ] Excel Connector

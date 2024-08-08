@@ -5,7 +5,10 @@
 -   [X] Architecture
 -   [ ] SDK
     *   [X] Getting Started
-    *   [X] Authentication
+    *   [ ] Authentication
+        +   [X] Azure Active Directory
+        +   [X] Databricks
     *   [ ] Connectors
     *   [ ] Queries
 -   [ ] APIs
+-   [ ] Excel Connector

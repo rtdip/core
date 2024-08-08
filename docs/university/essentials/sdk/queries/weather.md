@@ -31,3 +31,4 @@
         +   [X] Weather
         +   [ ] Exercise
 -   [ ] APIs
+-   [ ] Excel Connector

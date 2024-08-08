@@ -18,14 +18,13 @@ It's time to confirm your environment is set up correctly so that you can progre
     pip install rtdip-sdk
     ```
 
-
-
 ## Course Progress
 -   [X] Overview
 -   [X] Architecture
--   [ ] SDK
-    *   [X] Getting Started
-    *   [ ] Authentication
-    *   [ ] Connectors
-    *   [ ] Queries
+-   [X] Getting Started
+    -  [X] Introduction
+    -  [X] Prerequisites
+    -  [X] Installation
+    -  [X] Exercise
 -   [ ] APIs
+-   [ ] Excel Connector

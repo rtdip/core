@@ -21,3 +21,4 @@ In this exercise, you will obtain an access token for Azure AD using the RTDIP S
     *   [X] Connectors
     *   [ ] Queries
 -   [ ] APIs
+-   [ ] Excel Connector

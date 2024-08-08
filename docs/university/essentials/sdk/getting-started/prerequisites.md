@@ -3,13 +3,11 @@
 ## Course Progress
 -   [X] Overview
 -   [X] Architecture
+-   [X] Getting Started
+    -  [X] Introduction
+    -  [X] Prerequisites
+    -  [ ] Installation
+    -  [ ] Exercise
 -   [ ] SDK
-    *   [ ] Getting Started
-        +   [X] Introduction
-        +   [X] Prerequisites
-        +   [ ] Installation
-        +   [ ] Exercise
-    *   [ ] Authentication
-    *   [ ] Connectors
-    *   [ ] Queries
 -   [ ] APIs
+-   [ ] Excel Connector
