@@ -352,7 +352,7 @@ body {
 
 .skill-content {
     font-weight: 300;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     line-height: 1.5rem;
     width: 85%;
     margin-bottom: 1rem;
@@ -360,7 +360,6 @@ body {
 }
 
 .skill-content h3 {
-    /* margin-left: -41px; */
     font-weight: 400;
     font-size: 1rem;
     margin-top: 0.5rem;

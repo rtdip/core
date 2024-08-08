@@ -135,10 +135,11 @@ body {
     flex-direction: column;
     max-width: 85vw;
     padding: 10px;
-    border: 1px solid #e0e0e0;
+    border: none;
     border-radius: 38px;
     cursor: pointer;
     background-color: white;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 .linkcard:hover {
     opacity: 0.8;
@@ -168,20 +169,21 @@ body {
 .linkcard-content-section {
     display: flex;
     flex-direction: column;
-    padding: 10px;
+    padding: 35px;
 }
 
 .linkcard-title {
     height: 50px;
     font-size: 1.2rem;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
+    text-align: center;
 }
 
 .linkcard-description {
     height: 50px;
     font-size: 0.8rem;
-    font-weight: 300;
+    font-weight: 400;
     margin-top: 20px;
     margin-bottom: 20px;
 }
