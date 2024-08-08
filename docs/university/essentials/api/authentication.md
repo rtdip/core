@@ -1,5 +1,4 @@
-# What is Swagger?
-
+--8<-- "api/authentication.md:authentication"
 
 ## Course Progress
 -   [X] Overview
@@ -7,6 +6,6 @@
 -   [ ] APIs
     *   [X] Overview
     *   [X] Authentication
-    *   [X] Swagger
+    *   [ ] Swagger
     *   [ ] Postman
     *   [ ] Exercise

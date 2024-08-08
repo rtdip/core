@@ -1,3 +1,5 @@
+<!-- --8<-- [start:authentication] -->
+
 # Authentication 
 
 RTDIP REST APIs require Azure Active Directory Authentication and passing the token received as an `authorization` header in the form of a Bearer token. An example of the REST API header is `Authorization: Bearer <<token>>`
@@ -18,3 +20,6 @@ If a developer or business user would like to leverage the RTDIP REST API suite,
 Ensure to install the relevant package and obtain a token.
 
 See the [examples](./examples.md) section to see various authentication methods implemented.
+
+
+<!-- --8<-- [end:authentication] -->
