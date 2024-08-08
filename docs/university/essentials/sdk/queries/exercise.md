@@ -12,6 +12,10 @@ Its time to start running some time series queries using the RTDIP SDK.
 
 1. Finally, try running a `Time Weighted Average` query on the data, with `Step` set to False
 
+## Additional Task
+
+1. The data returned from these queries is in the form of a pandas DataFrame. Use the `matplotlib` or `plotly` library to plot the data returned from the `Time Weighted Average` query
+
 ## Course Progress
 -   [X] Overview
 -   [X] Architecture
