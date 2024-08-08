@@ -135,7 +135,6 @@ async def batch_events_get(
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Use executor.map to preserve order
             results = executor.map(
-                # lambda arguments: lookup_before_get(*arguments),
                 lambda arguments: run_direct_or_lookup(*arguments),
                 [
                     (parsed_request["func"], connection, parsed_request["parameters"])

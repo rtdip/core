@@ -478,3 +478,54 @@ async def test_api_batch_one_success_one_fail(mocker: MockerFixture):
 
     assert actual.json() == expected
     assert actual.status_code == 200
+
+
+# Test where one fails and one passes, including
+async def test_api_batch_one_success_one_fail(mocker: MockerFixture):
+    """
+    Case when single post request supplied in overall array of
+    correct format, but one passes and one fails due to missing parameters
+    """
+
+    sql_test_data = pd.DataFrame(
+        {
+            "EventTime": [datetime.now(timezone.utc)],
+            "TagName": ["TestTag"],
+            "Status": ["Good"],
+            "Value": [1.01],
+        }
+    )
+
+    raw_test_data_fail = pd.DataFrame([{"Error": "'tag_names'"}])
+
+    # Mock the batch method, which outputs test data in the form of an array of dfs
+    mock_method = "src.sdk.python.rtdip_sdk.queries.time_series.batch.get"
+    mock_method_return_data = None
+    # add side effect since require batch to return different data after each call
+    # batch.get return value is array of dfs, so must patch with nested array
+    mock_patch_side_effect = [[sql_test_data], [raw_test_data_fail]]
+    mocker = mocker_setup(
+        mocker,
+        mock_method,
+        mock_method_return_data,
+        patch_side_effect=mock_patch_side_effect,
+        tag_mapping_data=MOCK_TAG_MAPPING_SINGLE,
+    )
+    mocker.patch.dict(
+        os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
+    )
+
+    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+        actual = await ac.post(
+            MOCK_API_NAME,
+            headers=TEST_HEADERS,
+            params=BATCH_MOCKED_PARAMETER_DICT,
+            json=BATCH_POST_PAYLOAD_ONE_SUCCESS_ONE_FAIL,
+        )
+
+    expected = json.loads(
+        json_response_batch([sql_test_data, raw_test_data_fail]).body.decode("utf-8")
+    )
+
+    assert actual.json() == expected
+    assert actual.status_code == 200
