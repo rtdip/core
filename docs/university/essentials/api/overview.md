@@ -10,3 +10,4 @@
     *   [ ] Swagger
     *   [ ] Postman
     *   [ ] Exercise
+-   [ ] Excel Connector
