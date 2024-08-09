@@ -19,7 +19,6 @@ If a developer or business user would like to leverage the RTDIP REST API suite,
 
 Ensure to install the relevant package and obtain a token.
 
-See the [examples](./examples.md) section to see various authentication methods implemented.
-
+See the [examples](https://www.rtdip.io/api/examples/) section to see various authentication methods implemented.
 
 <!-- --8<-- [end:authentication] -->
