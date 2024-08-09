@@ -1,5 +1,3 @@
-# Overview
-
 --8<-- "api/overview.md:restapi"
 
 ## Course Progress
