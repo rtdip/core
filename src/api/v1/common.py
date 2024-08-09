@@ -246,7 +246,7 @@ def json_response_batch(data_list: List[DataFrame]) -> Response:
                 return float(x)
             return x
 
-        data_parsed = data.replace({np.nan: None}).map(convert_value)
+        data_parsed = data.map(convert_value).replace({np.nan: None})
         schema = build_table_schema(data_parsed, index=False, primary_key=False)
         data_dict = data_parsed.to_dict(orient="records")
 

@@ -1026,7 +1026,7 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             parameters_dict
         )
         sample_parameters["is_resample"] = False
-        sample_parameters["to_json"] = to_json
+        parameters_dict["to_json"] = to_json
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
 
     if query_type == "time_weighted_average":
