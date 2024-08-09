@@ -102,3 +102,4 @@
         +   [ ] Weather
         +   [ ] Exercise
 -   [ ] APIs
+-   [ ] Excel Connector

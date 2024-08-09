@@ -4,7 +4,8 @@ Before you begin the course, ensure you obtain the following prerequisites(from 
 
 ## Development Environment
 - Python >=3.9,<=3.11
-- An IDE uch as Visual Studio Code or PyCharm
+- An IDE such as Visual Studio Code or PyCharm
+- Postman via the app, web browser or as an extension on Visual Studio Code
 
 ## System Requirements
 - A Cluster for executing Spark SQL - If using Databricks, this would typically be a Databricks SQL Warehouse and its associated connection details:

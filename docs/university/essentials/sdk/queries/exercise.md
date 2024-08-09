@@ -1,20 +1,20 @@
 Its time to start running some time series queries using the RTDIP SDK.
 
-1. Using the python file you created in the previous exercise, import the necessary time series query classes from the RTDIP SDK
+1. Using the python file you created in the previous exercise, import the necessary time series query classes from the RTDIP SDK.
 
-1. Pass the connector you created in the previous exercise to the time series query class
+2. Pass the connector you created in the previous exercise to the time series query class.
 
-1. Run a `Raw` query to retrieve some data from your time series data source
+3. Run a `Raw` query to retrieve some data from your time series data source.
 
-1. Now run a query to `Resample` this data to a 15 minute interval average
+4. Now run a query to `Resample` this data to a 15 minute interval average.
 
-1. Convert the resample query to an `Interpolation` query that executes the `linear` interpolation method
+5. Convert the resample query to an `Interpolation` query that executes the `linear` interpolation method.
 
-1. Finally, try running a `Time Weighted Average` query on the data, with `Step` set to False
+6. Finally, try running a `Time Weighted Average` query on the data, with `Step` set to False.
 
 ## Additional Task
 
-1. The data returned from these queries is in the form of a pandas DataFrame. Use the `matplotlib` or `plotly` library to plot the data returned from the `Time Weighted Average` query
+7. The data returned from these queries is in the form of a pandas DataFrame. Use the `matplotlib` or `plotly` library to plot the data returned from the `Time Weighted Average` query.
 
 ## Course Progress
 -   [X] Overview
@@ -25,4 +25,5 @@ Its time to start running some time series queries using the RTDIP SDK.
     *   [X] Connectors
     *   [X] Queries
 -   [ ] APIs
+-   [ ] Excel Connector
 
