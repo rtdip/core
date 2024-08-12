@@ -53,3 +53,16 @@
 .mermaid {
   text-align: center;
 }
+
+.curved-button {
+  color: rgb(66, 66, 66) !important;
+  border-radius: 20px;
+  padding: 10px 20px;
+  background-color: #E9ECF1;
+}
+
+
+.curved-button:hover {
+  background-color: #D3D9E2;
+  color: black !important;
+}
