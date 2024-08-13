@@ -116,11 +116,11 @@ body {
 .content-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 50px;
     margin-bottom: 50px;
     margin-left: 50px;
     margin-right: 50px;
-    max-width: 50rem;
+    max-width: 45rem;
 }
 
 /* Make columns collapse into single column when screen too small*/
