@@ -4,12 +4,20 @@ RTDIP provides the ability to execute time series queries on the data stored in 
 
 The RTDIP Essentials course will focus on RTDIP queries in the sections that follow.
 
+<br></br>
+[← Previous](../introduction/prerequisites.md){ .curved-button }
+[Next →](./pipelines.md){ .curved-button }
+
 ## Course Progress
 
--   [X] Overview
--   [ ] Architecture
-    -  [X] Queries
-    -  [ ] Pipelines
-    -  [ ] Databricks
+-   [ ] Introduction
+    +  [X] Overview
+    +  [X] Prerequisites
+    *  [ ] Architecture
+        +   [X] Queries
+        +   [ ] Pipelines
+        +   [ ] Databricks
+    *  [ ] Getting Started
 -   [ ] SDK
 -   [ ] APIs
+-   [ ] Excel Connector

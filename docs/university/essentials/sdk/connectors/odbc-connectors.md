@@ -1,10 +1,14 @@
+# ODBC Connectors
+
 --8<-- "sdk/queries/connectors.md:odbcconnectors"
 
+<br></br>
+[← Previous](./databricks-sql-connector.md){ .curved-button }
+[Next →](./spark-connector.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
--   [X] Architecture
+-   [X] Introduction
 -   [ ] SDK
-    *   [X] Getting Started
     *   [X] Authentication
     *   [ ] Connectors
         +   [X] Databricks SQL

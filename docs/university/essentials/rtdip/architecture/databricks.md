@@ -8,12 +8,20 @@ For further information about Databricks, please refer to:
 - [Databricks Workflows](https://docs.databricks.com/en/workflows/index.html)
 - [Delta Live Tables](https://www.databricks.com/product/delta-live-tables)
 
+<br></br>
+[← Previous](./pipelines.md){ .curved-button }
+[Next →](../../sdk/getting-started/introduction.md){ .curved-button }
+
 ## Course Progress
 
--   [X] Overview
--   [X] Architecture
-    -  [X] Queries
-    -  [X] Pipelines
-    -  [X] Databricks
+-   [ ] Introduction
+    +  [X] Overview
+    +  [X] Prerequisites
+    *  [ ] Architecture
+        +   [X] Queries
+        +   [X] Pipelines
+        +   [X] Databricks
+    *  [ ] Getting Started
 -   [ ] SDK
 -   [ ] APIs
+-   [ ] Excel Connector

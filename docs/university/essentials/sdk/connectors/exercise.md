@@ -12,13 +12,19 @@ In this exercise, you will obtain an access token for Azure AD using the RTDIP S
 
 6. Run your code and ensure that you can connect to the Databricks SQL Warehouse succesfully.
 
+<br></br>
+[← Previous](./spark-connector.md){ .curved-button }
+[Next →](../queries/timeseries.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
--   [X] Architecture
+-   [X] Introduction
 -   [ ] SDK
-    *   [X] Getting Started
     *   [X] Authentication
     *   [X] Connectors
+        +   [X] Databricks SQL
+        +   [X] ODBC
+        +   [X] Spark
+        +   [X] Exercise
     *   [ ] Queries
 -   [ ] APIs
 -   [ ] Excel Connector

@@ -1,13 +1,17 @@
+# SQL 
+
 ## Execute
 ```python
 --8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/SQLQueryBuilder/get.py"
 ```
 
+<br></br>
+[← Previous](./timeseries.md){ .curved-button }
+[Next →](./weather.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
--   [X] Architecture
+-   [X] Introduction
 -   [ ] SDK
-    *   [X] Getting Started
     *   [X] Authentication
     *   [X] Connectors
     *   [ ] Queries

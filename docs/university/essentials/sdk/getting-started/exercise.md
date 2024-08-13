@@ -23,9 +23,21 @@ It's time to confirm your environment is set up correctly so that you can progre
     pip install rtdip-sdk
     ```
 
+<br></br>
+[← Previous](./installation.md){ .curved-button }
+[Next →](../authentication/azure.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
--   [X] Architecture
--   [X] Getting Started
+
+-   [X] Introduction
+    +  [X] Overview
+    +  [X] Prerequisites
+    *  [X] Architecture
+    *  [X] Getting Started
+        +   [X] Introduction
+        +   [X] Prerequisites
+        +   [X] Installation
+        +   [X] Exercise
+-   [ ] SDK
 -   [ ] APIs
 -   [ ] Excel Connector

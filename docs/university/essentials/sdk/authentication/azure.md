@@ -1,10 +1,12 @@
 --8<-- "sdk/authentication/azure.md:azuread"
 
+<br></br>
+[← Previous](../getting-started/exercise.md){ .curved-button }
+[Next →](./databricks.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
--   [X] Architecture
+-   [X] Introduction
 -   [ ] SDK
-    *   [X] Getting Started
     *   [ ] Authentication
         +   [X] Azure Active Directory
         +   [ ] Databricks

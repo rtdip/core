@@ -1,13 +1,20 @@
 --8<-- "getting-started/installation.md:installation"
 
+<br></br>
+[← Previous](./prerequisites.md){ .curved-button }
+[Next →](./exercise.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
--   [X] Architecture
--   [X] Getting Started
-    -  [X] Introduction
-    -  [X] Prerequisites
-    -  [X] Installation
-    -  [ ] Exercise
+
+-   [ ] Introduction
+    +  [X] Overview
+    +  [X] Prerequisites
+    *  [X] Architecture
+    *  [ ] Getting Started
+        +   [X] Introduction
+        +   [X] Prerequisites
+        +   [X] Installation
+        +   [ ] Exercise
 -   [ ] SDK
 -   [ ] APIs
 -   [ ] Excel Connector

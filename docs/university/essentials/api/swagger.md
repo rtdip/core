@@ -33,8 +33,12 @@ RTDIP REST API documentation is available in a number of formats, as described b
 
 --8<-- "api/rest_apis.md:redoc"
 
+<br></br>
+[← Previous](./authentication.md){ .curved-button }
+[Next →](./postman.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
+-   [X] Introduction
 -   [X] SDK
 -   [ ] APIs
     *   [X] Overview
