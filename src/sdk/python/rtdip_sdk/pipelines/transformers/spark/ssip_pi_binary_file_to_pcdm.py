@@ -83,7 +83,8 @@ class SSIPPIBinaryFileToPCDMTransformer(TransformerInterface):
             binary_data = binary_list[0][3]
             buf = pa.py_buffer(binary_data)
             table = pq.read_table(buf)
-        except Exception:
+        except Exception as e:
+            print(str(e))
             return pd.DataFrame(
                 {
                     "EventDate": pd.Series([], dtype="datetime64[ns]"),

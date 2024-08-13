@@ -135,7 +135,8 @@ class DatabricksSQLCursor(CursorInterface):
                     for column in result.columns:
                         column_list.append(column.to_pylist())
                     rows = [str(item[0]) for item in zip(*column_list)]
-                    sample_row = rows[0]
+                    if len(rows) > 0:
+                        sample_row = rows[0]
                     strings = ",".join(rows)
                     if results is None:
                         results = strings
