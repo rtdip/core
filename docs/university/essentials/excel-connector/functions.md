@@ -10,12 +10,13 @@ As you will have seen in the previous execise, the Excel Add-in gets data from t
 A function may look like: 
 `=RTDIP.RAW("apiUrl", "region", etc...)`
 
-**Optional:**
+## Additional Task
 
 1. Try removing optional parameters. These are shown with square brackets around them, for example `[includeBadData]`. If not input, the defaults will be input behind the scenes.
 
 Let's continue to the final section:
 
+<br></br>
 [← Previous](./taskpane.md){ .curved-button }
 [Next →](./dashboard.md){ .curved-button }
 

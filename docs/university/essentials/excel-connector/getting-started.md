@@ -17,6 +17,7 @@ After this, you should see our friendly taskpane (you are now completely set-up 
 
 Let's move onto the next section:
 
+<br></br>
 [← Previous](./overview.md){ .curved-button }
 [Next →](./taskpane.md){ .curved-button }
 

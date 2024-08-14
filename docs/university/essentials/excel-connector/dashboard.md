@@ -1,5 +1,5 @@
 
-# Creating a Simple Dashboard with Live Data
+# Exercise: Creating a Simple Dashboard with Live Data
 
 >
 All the functions (except Metadata) are capable of refreshing at a set interval with the `refreshIntervalSeconds` parameter.
@@ -20,12 +20,13 @@ For our final exercise, we will put everything together and create a simple dash
 Note: Currently, if you require excel to recognise dates on plots you will need to do `=VALUE(your_date_cell)`.
 >
 
-**Optional:**
-Look at the dashboard and you will see which functions are streaming and which are not - it is always a good idea to check this in case you have any stray functions running.
+## Additional Task
 
+Look at the dashboard and you will see which functions are streaming and which are not - it is always a good idea to check this in case you have any stray functions running.
 
 That's the end of this lesson - if you have any feedback about the Excel Add-in we'd love to hear it!
 
+<br></br>
 [← Previous](./functions.md){ .curved-button }
 
 >
