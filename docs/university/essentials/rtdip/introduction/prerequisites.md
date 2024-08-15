@@ -30,5 +30,6 @@ Before you begin the course, ensure you obtain the following prerequisites(from 
     *   [ ] Architecture
     *   [ ] Getting Started
 -   [ ] SDK
+-   [ ] Power BI
 -   [ ] APIs
 -   [ ] Excel Connector

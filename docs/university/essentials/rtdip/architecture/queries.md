@@ -23,5 +23,6 @@ The RTDIP Essentials course will focus on RTDIP queries in the sections that fol
         +   [ ] Databricks
     *  [ ] Getting Started
 -   [ ] SDK
+-   [ ] Power BI
 -   [ ] APIs
 -   [ ] Excel Connector

@@ -23,5 +23,6 @@ By the end of this course, you will have a good understanding of:
     *   [ ] Architecture
     *   [ ] Getting Started
 -   [ ] SDK
+-   [ ] Power BI
 -   [ ] APIs
 -   [ ] Excel Connector

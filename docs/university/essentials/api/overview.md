@@ -7,6 +7,7 @@
 ## Course Progress
 -   [X] Introduction
 -   [X] SDK
+-   [X] Power BI
 -   [ ] APIs
     *   [X] Overview
     *   [ ] Authentication

@@ -19,6 +19,7 @@ To learn more about Postman, see [Postman Documentation](https://learning.postma
 ## Course Progress
 -   [X] Introduction
 -   [X] SDK
+-   [X] Power BI
 -   [ ] APIs
     *   [X] Overview
     *   [X] Authentication

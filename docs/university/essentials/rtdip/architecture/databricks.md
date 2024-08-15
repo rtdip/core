@@ -27,5 +27,9 @@ For further information about Databricks, please refer to:
         +   [X] Databricks
     *  [ ] Getting Started
 -   [ ] SDK
+<<<<<<< HEAD
+=======
+-   [ ] Power BI
+>>>>>>> develop
 -   [ ] APIs
 -   [ ] Excel Connector

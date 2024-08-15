@@ -26,6 +26,7 @@ For now, here's a sneak peak of the task pane:
 ## Course Progress
 -   [X] Overview
 -   [X] SDK
+-   [X] Power BI
 -   [X] APIs
 -   [ ] Excel Connector
     *   [X] Overview

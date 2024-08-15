@@ -28,15 +28,9 @@ It's time to confirm your environment is set up correctly so that you can progre
 [Next →](../authentication/azure.md){ .curved-button }
 
 ## Course Progress
-
--   [X] Introduction
-    +  [X] Overview
-    +  [X] Prerequisites
-    *  [X] Architecture
-    *  [X] Getting Started
-        +   [X] Prerequisites
-        +   [X] Installation
-        +   [X] Exercise
--   [ ] SDK
+-   [X] Overview
+-   [X] Architecture
+-   [X] Getting Started
+-   [ ] Power BI
 -   [ ] APIs
 -   [ ] Excel Connector

@@ -17,5 +17,6 @@
         +   [X] Spark
         +   [ ] Exercise
     *   [ ] Queries
+-   [ ] Power BI    
 -   [ ] APIs
 -   [ ] Excel Connector

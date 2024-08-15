@@ -19,5 +19,6 @@
         +   [X] SQL
         +   [ ] Weather
         +   [ ] Exercise
+-   [ ] Power BI        
 -   [ ] APIs
 -   [ ] Excel Connector

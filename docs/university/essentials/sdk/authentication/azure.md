@@ -12,9 +12,11 @@
 -   [X] Introduction
 -   [ ] SDK
     *   [ ] Authentication
+        +   [X] Overview    
         +   [X] Azure Active Directory
         +   [ ] Databricks
     *   [ ] Connectors
     *   [ ] Queries
+-   [ ] Power BI
 -   [ ] APIs
 -   [ ] Excel Connector

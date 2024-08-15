@@ -24,6 +24,7 @@ Let's move onto the next section:
 ## Course Progress
 -   [X] Overview
 -   [X] SDK
+-   [X] Power BI
 -   [X] APIs
 -   [ ] Excel Connector
     *   [X] Overview
