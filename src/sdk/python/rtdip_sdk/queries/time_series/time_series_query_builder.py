@@ -96,7 +96,7 @@ class TimeSeriesQueryBuilder:
             TimeSeriesQueryBuilder()
             .connect(connection)
             .source(
-                source="{table_path}"
+                source="{tablename_or_path}"
             )
         )
 
@@ -122,6 +122,7 @@ class TimeSeriesQueryBuilder:
         start_date: str,
         end_date: str,
         include_bad_data: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -141,7 +142,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .raw(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -149,7 +150,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -158,6 +159,7 @@ class TimeSeriesQueryBuilder:
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -170,6 +172,7 @@ class TimeSeriesQueryBuilder:
             "start_date": start_date,
             "end_date": end_date,
             "include_bad_data": include_bad_data,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -190,6 +193,7 @@ class TimeSeriesQueryBuilder:
         agg_method: str,
         include_bad_data: bool = False,
         pivot: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -209,7 +213,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .resample(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -220,7 +224,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -233,6 +237,7 @@ class TimeSeriesQueryBuilder:
             agg_method (str): Aggregation Method (first, last, avg, min, max)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -250,6 +255,7 @@ class TimeSeriesQueryBuilder:
             "time_interval_unit": time_interval_unit,
             "agg_method": agg_method,
             "pivot": pivot,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -269,6 +275,8 @@ class TimeSeriesQueryBuilder:
         time_interval_rate: str,
         time_interval_unit: str,
         include_bad_data: bool = False,
+        pivot: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -288,7 +296,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .plot(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -298,7 +306,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -308,6 +316,9 @@ class TimeSeriesQueryBuilder:
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             time_interval_rate (str): The time interval rate (numeric input)
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
+            include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -320,9 +331,11 @@ class TimeSeriesQueryBuilder:
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
-            "include_bad_data": include_bad_data,
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
+            "include_bad_data": include_bad_data,
+            "pivot": pivot,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -345,6 +358,7 @@ class TimeSeriesQueryBuilder:
         interpolation_method: str,
         include_bad_data: bool = False,
         pivot: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -364,7 +378,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .interpolate(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -376,7 +390,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -390,6 +404,7 @@ class TimeSeriesQueryBuilder:
             interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -407,6 +422,7 @@ class TimeSeriesQueryBuilder:
             "agg_method": agg_method,
             "interpolation_method": interpolation_method,
             "pivot": pivot,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -425,6 +441,7 @@ class TimeSeriesQueryBuilder:
         include_bad_data: bool = False,
         window_length: int = 1,
         pivot: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -444,14 +461,14 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .interpolation_at_time(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 timestamp_filter=["2023-01-01T09:30:00", "2023-01-02T12:00:00"],
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -461,6 +478,7 @@ class TimeSeriesQueryBuilder:
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -474,6 +492,7 @@ class TimeSeriesQueryBuilder:
             "include_bad_data": include_bad_data,
             "window_length": window_length,
             "pivot": pivot,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -499,6 +518,7 @@ class TimeSeriesQueryBuilder:
         include_bad_data: bool = False,
         window_length: int = 1,
         pivot: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -518,7 +538,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .time_weighted_average(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -529,7 +549,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -544,6 +564,7 @@ class TimeSeriesQueryBuilder:
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -566,6 +587,7 @@ class TimeSeriesQueryBuilder:
             ),
             "window_length": window_length,
             "pivot": pivot,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -601,13 +623,13 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .metadata(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -633,6 +655,7 @@ class TimeSeriesQueryBuilder:
     def latest(
         self,
         tagname_filter: [str] = None,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -652,18 +675,19 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .latest(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -674,6 +698,7 @@ class TimeSeriesQueryBuilder:
             "source": self.data_source,
             "tag_names": [] if tagname_filter is None else tagname_filter,
             "tagname_column": self.tagname_column,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "supress_warning": True,
@@ -692,6 +717,7 @@ class TimeSeriesQueryBuilder:
         upper_bound: int,
         include_bad_data: bool = False,
         pivot: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -711,7 +737,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .circular_average(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -723,7 +749,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -737,6 +763,7 @@ class TimeSeriesQueryBuilder:
             upper_bound (int): Upper boundary for the sample range
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -754,6 +781,7 @@ class TimeSeriesQueryBuilder:
             "lower_bound": lower_bound,
             "upper_bound": upper_bound,
             "pivot": pivot,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -776,6 +804,7 @@ class TimeSeriesQueryBuilder:
         upper_bound: int,
         include_bad_data: bool = False,
         pivot: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -795,7 +824,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .circular_standard_deviation(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -807,7 +836,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -821,6 +850,7 @@ class TimeSeriesQueryBuilder:
             upper_bound (int): Upper boundary for the sample range
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -838,6 +868,7 @@ class TimeSeriesQueryBuilder:
             "lower_bound": lower_bound,
             "upper_bound": upper_bound,
             "pivot": pivot,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -857,6 +888,7 @@ class TimeSeriesQueryBuilder:
         start_date: str,
         end_date: str,
         include_bad_data: bool = False,
+        display_uom: bool = False,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -876,7 +908,7 @@ class TimeSeriesQueryBuilder:
         data = (
             TimeSeriesQueryBuilder()
             .connect(connection)
-            .source("{table_path}")
+            .source("{tablename_or_path}")
             .summary(
                 tagname_filter=["{tag_name_1}", "{tag_name_2}"],
                 start_date="2023-01-01",
@@ -884,7 +916,7 @@ class TimeSeriesQueryBuilder:
             )
         )
 
-        display(data)
+        print(data)
 
         ```
 
@@ -893,6 +925,7 @@ class TimeSeriesQueryBuilder:
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -905,6 +938,7 @@ class TimeSeriesQueryBuilder:
             "start_date": start_date,
             "end_date": end_date,
             "include_bad_data": include_bad_data,
+            "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,

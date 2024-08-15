@@ -44,7 +44,7 @@ def test_sql_query(mocker: MockerFixture):
 
     mocked_cursor.assert_called_once()
     mocked_connection_close.assert_called_once()
-    mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_SQL_QUERY)
+    mocked_execute.assert_called_once_with(mocker.ANY, query=MOCKED_SQL_QUERY + " ")
     mocked_fetch_all.assert_called_once()
     mocked_close.assert_called_once()
     assert isinstance(actual, pd.DataFrame)
@@ -64,3 +64,21 @@ def test_sql_query_fail(mocker: MockerFixture):
 
     with pytest.raises(Exception):
         SQLQueryBuilder().get(mocked_connection, MOCKED_SQL_QUERY)
+
+
+@pytest.mark.parametrize(
+    "parameters, expected",
+    [
+        (
+            {
+                "sql_statement": "SELECT EventTime, TagName, Status, Value FROM test_table",
+            },
+            {"count": 3},
+        ),
+        # Add more test cases as needed
+    ],
+)
+def test_sql_query(spark_connection, parameters, expected):
+    df = SQLQueryBuilder().get(spark_connection, parameters["sql_statement"])
+    assert df.columns == ["EventTime", "TagName", "Status", "Value"]
+    assert df.count() == expected["count"]

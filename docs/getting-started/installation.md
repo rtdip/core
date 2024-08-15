@@ -12,6 +12,8 @@ This article provides a guide on how to install the RTDIP SDK. Get started by en
 
 ## Prerequisites
 
+<!-- --8<-- [start:prerequisites] -->
+
 ### Python
 
 There are a few things to note before using the RTDIP SDK. The following prerequisites will need to be installed on your local machine.
@@ -55,6 +57,8 @@ Installing the RTDIP can be done using a package installer, such as [Pip](https:
        
         micromamba self-update
 
+<!-- --8<-- [end:prerequisites] -->
+
 ### ODBC
 To use pyodbc or turbodbc python libraries, ensure it is installed as per the below and the ODBC driver is installed as per these [instructions](https://docs.microsoft.com/en-us/azure/databricks/integrations/bi/jdbc-odbc-bi#download-the-odbc-driver).
 
@@ -87,7 +91,7 @@ To use RTDIP Pipelines components in your own environment that leverages [pyspar
         - defaults
     dependencies:
         - python==3.11
-        - pip==23.0.1
+        - pip
         - openjdk==11.0.15
         - pip:
             - rtdip-sdk
@@ -107,6 +111,8 @@ To use RTDIP Pipelines components in your own environment that leverages [pyspar
         Windows requires an additional installation of a file called **winutils.exe**. Please see this [repo](https://github.com/steveloughran/winutils) for more information.
 
 ## Installing the RTDIP SDK
+
+<!-- --8<-- [start:installation] -->
 
 RTDIP SDK is a PyPi package that can be found [here](https://pypi.org/project/rtdip-sdk/). On this page you can find the **project description**,  **release history**, **statistics**, **project links** and **maintainers**.
 
@@ -128,7 +134,7 @@ Features of the SDK can be installed using different extras statements when inst
         pip install "rtdip-sdk[pipelines,pyspark]"
 
     !!! note "Java"
-        Ensure that Java is installed prior to installing the rtdip-sdk with the **[pipelines,pyspark]**. See [here](#java) for more information.
+        Ensure that Java is installed prior to installing the rtdip-sdk with the **[pipelines,pyspark]**. See [here](https://www.rtdip.io/getting-started/installation/#java) for more information.
 
 The following provides examples of how to install the RTDIP SDK package with Pip, Conda or Micromamba. Please note the section above to update any extra packages to be installed as part of the RTDIP SDK.
 
@@ -153,7 +159,7 @@ The following provides examples of how to install the RTDIP SDK package with Pip
         - defaults
     dependencies:
         - python==3.11
-        - pip==23.0.1
+        - pip
         - pip:
             - rtdip-sdk
     ```
@@ -177,7 +183,7 @@ The following provides examples of how to install the RTDIP SDK package with Pip
         - defaults
     dependencies:
         - python==3.11
-        - pip==23.0.1
+        - pip
         - pip:
             - rtdip-sdk
     ```
@@ -189,6 +195,9 @@ The following provides examples of how to install the RTDIP SDK package with Pip
     To update an environment previously created:
 
         micromamba update -f environment.yml
+
+
+<!-- --8<-- [end:installation] -->
 
 ## Next steps
 Once the installation is complete you can learn how to use the SDK [here.](../sdk/overview.md)

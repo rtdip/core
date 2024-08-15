@@ -30,6 +30,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     IAT_MOCKED_QUERY,
     IAT_MOCKED_QUERY_CHECK_TAGS,
     IAT_MOCKED_QUERY_PIVOT,
+    IAT_MOCKED_QUERY_UOM,
 )
 
 MOCKED_IAT_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -68,10 +69,23 @@ def test_interpolation_at_time_pivot(mocker: MockerFixture):
     )
 
 
+def test_interpolation_at_time_uom(mocker: MockerFixture):
+    MOCKED_IAT_PARAMETER_DICT["pivot"] = False
+    MOCKED_IAT_PARAMETER_DICT["display_uom"] = True
+
+    _test_base_succeed(
+        mocker,
+        MOCKED_IAT_PARAMETER_DICT,
+        IAT_MOCKED_QUERY_UOM,
+        interpolation_at_time_get,
+    )
+
+
 def test_interpolation_at_time_offset_limit(mocker: MockerFixture):
+    MOCKED_IAT_PARAMETER_DICT["display_uom"] = False
     MOCKED_IAT_PARAMETER_DICT["offset"] = 10
     MOCKED_IAT_PARAMETER_DICT["limit"] = 10
-    MOCKED_IAT_PARAMETER_DICT["pivot"] = False
+
     _test_base_succeed(
         mocker,
         MOCKED_IAT_PARAMETER_DICT,

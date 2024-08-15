@@ -1,1 +1,1 @@
---8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/Raw/README.md"
+--8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/TimeSeriesQueryBuilder/Raw/README.md"

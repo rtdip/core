@@ -116,7 +116,13 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg # Page tree
   - pymdownx.snippets:
+      base_path: 
+        - docs
+        - src/sdk
+      check_paths: true
       url_download: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 nav:
   - Home: index.md
@@ -322,3 +328,6 @@ nav:
       - core: releases/core.md
   - Blog:
       - blog/index.md
+  - University:
+      - University: university/overview.md
+      

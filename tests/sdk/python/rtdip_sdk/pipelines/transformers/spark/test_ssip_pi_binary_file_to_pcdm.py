@@ -45,7 +45,7 @@ def test_ssip_binary_file_to_pcdm_setup():
     assert ssip_pi_binary_file_to_pcdm.libraries() == Libraries(
         maven_libraries=[],
         pypi_libraries=[
-            PyPiLibrary(name="pyarrow", version="12.0.0", repo=None),
+            PyPiLibrary(name="pyarrow", version="14.0.2", repo=None),
             PyPiLibrary(name="pandas", version="2.0.1", repo=None),
         ],
         pythonwheel_libraries=[],

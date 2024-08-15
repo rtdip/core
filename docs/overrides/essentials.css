@@ -1,0 +1,372 @@
+/* === GENERAL STYLES === */
+
+/* Reset default margins and padding to eliminate unexpected spacing */
+
+body, h1, h2, h3, p{
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    padding: 0px;
+    margin: 0px;
+    font-family: 'Roboto', 'Arial', sans-serif;
+}
+
+.purple-span {
+    color: #4E08C7;
+}
+
+.pink-span {
+    color: #D445A3;
+}
+
+/* === ESSENTIALS CONTAINER STYLES === */
+
+.essentials-container {
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    align-items: center;
+}
+
+/* === INTRO SECTION STYLES === */
+
+.essentials-intro-section {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(180deg, rgba(78,8,199,1) 0%, rgba(78,8,199,1) 30%, rgba(167,26,170,1) 90%, rgba(212,69,163,1) 100%);
+    height: 40vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.essentials-intro-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: url('./images/terrain.png');
+    background-size: 100% auto;
+    background-repeat: no-repeat; 
+    background-position: 50% 35%;
+    z-index: 1;
+}
+
+.essentials-intro-header {
+    color: white;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 61rem;
+}
+
+.essentials-intro-header h1 {
+    font-size: 2rem;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: center;
+}
+
+.essentials-intro-header p {
+    font-weight: 300;
+    font-size: 0.8rem;
+    line-height: 1.5rem;
+    margin: 1rem 0;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: center;
+}
+
+/* === PREREQUISITES SECTION STYLES === */
+
+.prerequisites-section {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(240, 238, 238);
+}
+
+.prerequisites-content-container {
+    width: 80%;
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.prerequisites-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+    width: 45%;
+    padding: 0 6rem;
+}
+
+.prerequisites-left h3 {
+    font-size: 1.5rem;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: left;
+}
+
+.prerequisites-left p {
+    font-weight: 300;
+    font-size: 0.8rem;
+    line-height: 1.5rem;
+    margin: 1rem 0;
+    width: 100%;
+    padding-left: 0.8rem;
+    text-align: left;
+}
+
+.prerequisites-right {
+    display: block;
+    flex-direction: column;
+    align-items: left;
+    margin-top: 2rem;
+    width: 55%;
+    padding: 0 6rem;
+}
+
+.prerequisites-right-sections {
+    margin: 0 0 2rem;
+    padding: 0 0 1rem;
+    border-bottom: 1px solid #bcbec7;
+}
+
+.prerequisites-right h3 {
+    font-size: 1.25rem;
+    font-weight: 400;
+    width: 100%;
+    text-align: left;
+}
+
+.prerequisites-right p {
+    font-weight: 300;
+    font-size: 0.7rem;
+    line-height: 1rem;
+    margin: 1rem 0;
+    width: 100%;
+    text-align: left;
+}
+
+.prerequisites-right a {
+    font-weight: 300;
+    font-size: 0.7rem;
+    text-align: left;
+    line-height: 1rem;
+    margin: 1rem 0;
+    text-decoration: underline;
+}
+
+/* === COURSE CURRICULUM SECTION STYLES === */
+
+.course-curriculum-section {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.course-curriculum-container {
+    width: 80%;
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    flex-grow: 1;
+    padding: 0 6rem;
+    padding-bottom: 2rem;
+}
+
+/* Make columns collapse into single column when screen too small*/
+@media (max-width: 1080px) {
+    .course-curriculum-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.course-curriculum-section h1 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+}
+
+.course-curriculum-left {
+    display: block;
+    flex-direction: column;
+    align-items: left;
+    margin-top: 1rem;
+}
+
+.course-curriculum-right {
+    display: block;
+    flex-direction: column;
+    align-items: left;
+    margin-top: 2rem;
+}
+
+.clickable-list-item {
+    cursor: pointer;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    padding-right: 7rem;
+    height: auto;
+}
+
+.clickable-list-item hr {
+    border: 0.3px solid black;
+    background-color: black;
+    opacity: 0.3;
+    margin-top: 0.6rem;
+}
+
+
+.clickable-subtitle {
+    margin-left: -41px;
+    font-weight: 400;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.clickable-list-item-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem 0;
+    width: 100%; 
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.clickable-list-toggle-indicator {
+    font-weight: 300;
+    font-size: 1.5rem;
+}
+
+.clickable-list-details {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition:  opacity 0.7s ease-out, max-height 0.7s ease-in-out;
+    font-weight: 300;
+    font-size: 0.8rem;
+    line-height: 1.5rem;
+    width: 85%;
+    margin-bottom: 1rem;
+}
+
+.clickable-list-details a {
+    text-decoration: none;
+    color: #4e08c7;
+}
+
+.clickable-list-details a:hover {
+    text-decoration: none;
+    color: #d445a3;
+}
+
+.remove-marker {
+    list-style-type: none;
+}
+
+.clickable-list-item.active .clickable-list-details  {
+    opacity: 1;
+    max-height: 1000px;
+}
+
+.skillcard {
+    display: flex;
+    flex-direction: column;
+    max-width: 85vw;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 38px;
+    cursor: pointer;
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 2px 5px;
+}
+.skillcard:hover {
+    opacity: 0.8;
+    border: 1px solid #b6b6b6;
+}
+
+.skillcard-top{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: 250px;
+    position: relative;
+    background-color: #f5f5f5;
+    border-radius: 38px 38px 0 0;
+    padding: 15px;
+}
+
+.skillcard-top img {
+    width: 200px;
+    position: absolute;
+    top: calc(50% - 100px);
+    left: calc(50% - 100px);
+
+}
+
+.skillcard-bottom{
+    display: flex;
+    padding: 10px;
+}
+
+.skillcard-title {
+    font-size: 1.5rem;
+    margin-top: auto;
+    padding: 10px;
+}
+
+.skillcard-description {
+    height: 50px;
+    font-size: 0.8rem;
+    font-weight: 300;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.skill-content {
+    font-weight: 300;
+    font-size: 0.8rem;
+    line-height: 1.5rem;
+    width: 100%;
+    margin-bottom: 1rem;
+    list-style: none;
+}
+
+.skill-content h3 {
+    font-weight: 400;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.skill-content li:before {
+    content: "✓";
+    padding-right: 5px;
+}

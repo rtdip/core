@@ -15,13 +15,13 @@
  */
 
 :root {
-    --md-primary-fg-color: #4e08c7 !important;
-    --md-primary-mg-color: #d445a3 !important;
-    --md-accent-fg-color: #bb1fa4 !important;
-    --md-primary-bg-color: white !important;
-    --md-primary-text-slate: white !important;
-    --md-primary-bg-slate: #2f303e !important;
-  }
+  --md-primary-fg-color: #4e08c7 !important;
+  --md-primary-mg-color: #d445a3 !important;
+  --md-accent-fg-color: #bb1fa4 !important;
+  --md-primary-bg-color: white !important;
+  --md-primary-text-slate: white !important;
+  --md-primary-bg-slate: #2f303e !important;
+}
 
 /* header font colour */
 .md-header {
@@ -41,7 +41,7 @@
 }
 
 .md-nav__item .md-nav__link--active {
-  color:#d445a3;
+  color: #d445a3;
 }
 
 .image-center {
@@ -52,4 +52,17 @@
 
 .mermaid {
   text-align: center;
+}
+
+.curved-button {
+  color: rgb(66, 66, 66) !important;
+  border-radius: 20px;
+  padding: 10px 20px;
+  background-color: #E9ECF1;
+}
+
+
+.curved-button:hover {
+  background-color: #D3D9E2;
+  color: black !important;
 }
