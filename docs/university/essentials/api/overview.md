@@ -1,7 +1,7 @@
 --8<-- "api/overview.md:restapi"
 
 <br></br>
-[← Previous](../sdk/queries/exercise.md){ .curved-button }
+[← Previous](../powerbi/exercise.md){ .curved-button }
 [Next →](./authentication.md){ .curved-button }
 
 ## Course Progress

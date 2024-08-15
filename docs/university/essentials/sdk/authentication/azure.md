@@ -5,7 +5,7 @@
 --8<-- "sdk/authentication/azure.md:azuread"
 
 <br></br>
-[← Previous](../getting-started/exercise.md){ .curved-button }
+[← Previous](./overview.md){ .curved-button }
 [Next →](./databricks.md){ .curved-button }
 
 ## Course Progress

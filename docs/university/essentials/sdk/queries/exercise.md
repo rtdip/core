@@ -18,7 +18,7 @@ Its time to start running some time series queries using the RTDIP SDK.
 
 <br></br>
 [← Previous](./weather.md){ .curved-button }
-[Next →](../../api/overview.md){ .curved-button }
+[Next →](../../powerbi/overview.md){ .curved-button }
 
 ## Course Progress
 -   [X] Introduction
