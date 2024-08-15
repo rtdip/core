@@ -5,7 +5,7 @@
 --8<-- "getting-started/installation.md:prerequisites"
 
 <br></br>
-[← Previous](./introduction.md){ .curved-button }
+[← Previous](../../rtdip/architecture/databricks.md){ .curved-button }
 [Next →](./installation.md){ .curved-button }
 
 ## Course Progress
