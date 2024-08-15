@@ -9,5 +9,6 @@
     -  [X] Installation
     -  [ ] Exercise
 -   [ ] SDK
+-   [ ] Power BI
 -   [ ] APIs
 -   [ ] Excel Connector

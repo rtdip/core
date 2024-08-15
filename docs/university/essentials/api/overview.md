@@ -3,6 +3,7 @@
 ## Course Progress
 -   [X] Overview
 -   [X] SDK
+-   [X] Power BI
 -   [ ] APIs
     *   [X] Overview
     *   [ ] Swagger

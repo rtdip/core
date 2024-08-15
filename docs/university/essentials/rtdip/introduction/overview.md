@@ -20,4 +20,6 @@ By the end of this course, you will have a good understanding of:
     -  [ ] Prerequisites
 -   [ ] Architecture
 -   [ ] SDK
+-   [ ] Power BI
 -   [ ] APIs
+-   [ ] Excel Connector

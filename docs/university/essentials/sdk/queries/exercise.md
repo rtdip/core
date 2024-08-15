@@ -24,6 +24,7 @@ Its time to start running some time series queries using the RTDIP SDK.
     *   [X] Authentication
     *   [X] Connectors
     *   [X] Queries
+-   [ ] Power BI    
 -   [ ] APIs
 -   [ ] Excel Connector
 

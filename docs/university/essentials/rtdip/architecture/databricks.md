@@ -16,4 +16,6 @@ For further information about Databricks, please refer to:
     -  [X] Pipelines
     -  [X] Databricks
 -   [ ] SDK
+-   [ ] Power BI
 -   [ ] APIs
+-   [ ] Excel Connector

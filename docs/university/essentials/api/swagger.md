@@ -36,6 +36,7 @@ RTDIP REST API documentation is available in a number of formats, as described b
 ## Course Progress
 -   [X] Overview
 -   [X] SDK
+-   [X] Power BI
 -   [ ] APIs
     *   [X] Overview
     *   [X] Authentication
