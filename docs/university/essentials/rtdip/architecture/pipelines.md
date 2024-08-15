@@ -10,4 +10,6 @@ Not in scope for this particular course but it is worth mentioning that RTDIP al
     -  [X] Pipelines
     -  [ ] Databricks
 -   [ ] SDK
+-   [ ] Power BI
 -   [ ] APIs
+-   [ ] Excel Connector

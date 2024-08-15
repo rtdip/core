@@ -35,6 +35,7 @@ Congratulations on finishing RTDIP Essentials!
 ## Course Progress
 -   [X] Overview
 -   [X] SDK
+-   [X] Power BI
 -   [X] APIs
 -   [X] Excel Connector
     *   [X] Overview

@@ -22,5 +22,6 @@ In this exercise, you will learn how to run APIs on Swagger and Postman.
 ## Course Progress
 -   [X] Overview
 -   [X] SDK
+-   [X] Power BI
 -   [X] APIs
 -   [ ] Excel Connector

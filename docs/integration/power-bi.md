@@ -2,6 +2,8 @@
 
 ## Integration with Power BI
 
+<!-- --8<-- [start:powerbi] -->
+
 Microsoft Power BI is a business analytics service that provides interactive visualizations with self-service business intelligence capabilities
 that enable end users to create reports and dashboards by themselves without having to depend on information technology staff or database administrators.
 
@@ -34,3 +36,5 @@ For more information on how to connect Power BI with databricks, see [here](http
 ![Power BI Azure Databricks](images/bi-azure-signin.png)
 
 1. Once connected to the Databricks SQL Warehouse, navigate to the Business Unit in the navigator bar on the left and select the asset tables for the data you wish to use in your report. There is functionality to select multiple tables if required. Click **Load** to get the queried data.
+
+<!-- --8<-- [end:powerbi] -->

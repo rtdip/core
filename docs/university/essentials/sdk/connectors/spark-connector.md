@@ -7,10 +7,12 @@
     *   [X] Getting Started
     *   [X] Authentication
     *   [ ] Connectors
+        +   [X] Overview
         +   [X] Databricks SQL
         +   [X] ODBC
         +   [X] Spark
         +   [ ] Exercise
     *   [ ] Queries
+-   [ ] Power BI    
 -   [ ] APIs
 -   [ ] Excel Connector

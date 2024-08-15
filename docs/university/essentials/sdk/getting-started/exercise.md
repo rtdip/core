@@ -27,5 +27,6 @@ It's time to confirm your environment is set up correctly so that you can progre
 -   [X] Overview
 -   [X] Architecture
 -   [X] Getting Started
+-   [ ] Power BI
 -   [ ] APIs
 -   [ ] Excel Connector

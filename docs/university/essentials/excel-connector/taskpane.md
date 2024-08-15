@@ -31,6 +31,7 @@ Onto the next section: exploring the functions directly!
 ## Course Progress
 -   [X] Overview
 -   [X] SDK
+-   [X] Power BI
 -   [X] APIs
 -   [ ] Excel Connector
     *   [X] Overview
