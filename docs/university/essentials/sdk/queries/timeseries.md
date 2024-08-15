@@ -1,3 +1,8 @@
+# Queries
+
+## Time Series
+
+--8<-- "sdk/queries/functions.md:intro"
 
 ## Raw
 
@@ -89,11 +94,13 @@
 --8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/TimeSeriesQueryBuilder/Metadata/metadata.py"
 ```
 
+<br></br>
+[← Previous](../connectors/exercise.md){ .curved-button }
+[Next →](./sql.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
--   [X] Architecture
+-   [X] Introduction
 -   [ ] SDK
-    *   [X] Getting Started
     *   [X] Authentication
     *   [X] Connectors
     *   [ ] Queries

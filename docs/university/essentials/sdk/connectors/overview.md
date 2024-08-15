@@ -6,6 +6,10 @@ Integration and connectivity to RTDIP is facilitated through the use of connecto
 - ODBC Connector: In certain scenarios, users may want to leverage the Spark SIMBA ODBC driver. This requires the user to install and setup the driver in their environment prior to use, after which it can leverage Turbodbc or Pyodbc for connectivity to RTDIP.
 - Spark Connector: This connector supports workloads that are running in a spark environment such as Databricks or where Spark Connect is required.
 
+<br></br>
+[← Previous](../authentication/databricks.md){ .curved-button }
+[Next →](./databricks-sql-connector.md){ .curved-button }
+
 ## Course Progress
 -   [X] Overview
 -   [X] Architecture

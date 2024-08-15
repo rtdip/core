@@ -1,5 +1,9 @@
 --8<-- "api/authentication.md:authentication"
 
+<br></br>
+[← Previous](./overview.md){ .curved-button }
+[Next →](./swagger.md){ .curved-button }
+
 ## Course Progress
 -   [X] Overview
 -   [X] SDK
@@ -10,3 +14,4 @@
     *   [ ] Swagger
     *   [ ] Postman
     *   [ ] Exercise
+-   [ ] Excel Connector

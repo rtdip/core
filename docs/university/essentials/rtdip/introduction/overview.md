@@ -1,4 +1,4 @@
-# RTDIP Essentials
+# Course Overview
 
 <p align="center"><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></p>
 <p style="text-align: center; font-size: 2em; font-weight: bold;">Essentials</p>
@@ -13,12 +13,15 @@ By the end of this course, you will have a good understanding of:
 - How to use the APIs to execute time series queries
 - Build visualizations and dashboards in Power BI
 
-## Course Progress
+<br></br>
+[Next →](./prerequisites.md){ .curved-button }
 
--   [ ] Overview
-    -  [X] Introduction
-    -  [ ] Prerequisites
--   [ ] Architecture
+## Course Progress
+-   [ ] Introduction
+    +   [X] Overview
+    +   [ ] Prerequisites
+    *   [ ] Architecture
+    *   [ ] Getting Started
 -   [ ] SDK
 -   [ ] Power BI
 -   [ ] APIs

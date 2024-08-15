@@ -16,11 +16,13 @@ Its time to start running some time series queries using the RTDIP SDK.
 
 7. The data returned from these queries is in the form of a pandas DataFrame. Use the `matplotlib` or `plotly` library to plot the data returned from the `Time Weighted Average` query.
 
+<br></br>
+[← Previous](./weather.md){ .curved-button }
+[Next →](../../powerbi/overview.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
--   [X] Architecture
+-   [X] Introduction
 -   [X] SDK
-    *   [X] Getting Started
     *   [X] Authentication
     *   [X] Connectors
     *   [X] Queries

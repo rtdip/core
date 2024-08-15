@@ -18,10 +18,18 @@ In this exercise, you will learn how to run APIs on Swagger and Postman.
 
 8. Repeat exercise 2-5 using Postman.
 
+<br></br>
+[← Previous](./postman.md){ .curved-button }
+[Next →](../excel-connector/overview.md){ .curved-button }
 
 ## Course Progress
--   [X] Overview
+-   [X] Introduction
 -   [X] SDK
 -   [X] Power BI
 -   [X] APIs
+    *   [X] Overview
+    *   [X] Authentication
+    *   [X] Swagger
+    *   [X] Postman
+    *   [X] Exercise
 -   [ ] Excel Connector

@@ -17,12 +17,13 @@
 ```python
 --8<-- "https://raw.githubusercontent.com/rtdip/samples/main/queries/WeatherQueryBuilder/Latest-Grid/latest_grid.py"
 ```
+<br></br>
+[← Previous](./sql.md){ .curved-button }
+[Next →](./exercise.md){ .curved-button }
 
 ## Course Progress
--   [X] Overview
--   [X] Architecture
+-   [X] Introduction
 -   [ ] SDK
-    *   [X] Getting Started
     *   [X] Authentication
     *   [X] Connectors
     *   [ ] Queries

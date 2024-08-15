@@ -19,6 +19,8 @@ For now, here's a sneak peak of the task pane:
 > If your course is facillitated, your facilitator will have a completed Excel workbook specific to your organisation
 >
 
+<br></br>
+[← Previous](../api/exercise.md){ .curved-button }
 [Next →](./getting-started.md){ .curved-button }
 
 ## Course Progress

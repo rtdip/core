@@ -23,10 +23,13 @@ It's time to confirm your environment is set up correctly so that you can progre
     pip install rtdip-sdk
     ```
 
+<br></br>
+[← Previous](./installation.md){ .curved-button }
+[Next →](../authentication/overview.md){ .curved-button }
+
 ## Course Progress
 -   [X] Overview
--   [X] Architecture
--   [X] Getting Started
 -   [ ] Power BI
+-   [ ] SDK
 -   [ ] APIs
 -   [ ] Excel Connector

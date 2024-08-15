@@ -18,13 +18,17 @@ Before you begin the course, ensure you obtain the following prerequisites(from 
     - An identifier column
     - A timestamp column
     - A value column
+
+<br></br>
+[← Previous](./overview.md){ .curved-button }
+[Next →](../architecture/queries.md){ .curved-button }
  
 ## Course Progress
-
--   [X] Overview
-    -  [X] Introduction
-    -  [X] Prerequisites
--   [ ] Architecture
+-   [ ] Introduction
+    +   [X] Overview
+    +   [X] Prerequisites
+    *   [ ] Architecture
+    *   [ ] Getting Started
 -   [ ] SDK
 -   [ ] Power BI
 -   [ ] APIs

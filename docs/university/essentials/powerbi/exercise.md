@@ -14,6 +14,10 @@ In this exercise, you will connect to Power BI and build a simple dashboard usin
 
 5. Build a slider filter for selecting a time range
 
+<br></br>
+[← Previous](./overview.md){ .curved-button }
+[Next →](../api/overview.md){ .curved-button }
+
 ## Course Progress
 -   [X] Overview
 -   [X] SDK

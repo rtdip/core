@@ -12,8 +12,12 @@ Developers widely use Postman to simplify the process of testing APIs by providi
 
 To learn more about Postman, see [Postman Documentation](https://learning.postman.com/docs/introduction/overview/#home).
 
+<br></br>
+[← Previous](./swagger.md){ .curved-button }
+[Next →](./exercise.md){ .curved-button }
+
 ## Course Progress
--   [X] Overview
+-   [X] Introduction
 -   [X] SDK
 -   [X] Power BI
 -   [ ] APIs

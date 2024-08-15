@@ -1,6 +1,7 @@
 # Functions
-
+<!-- --8<-- [start:intro] -->
 The RTDIP SDK enables users to perform complex queries, including aggregation on datasets within the Platform. Please find below the various types of queries available for specific dataset types. These SDK Functions are also supported by the [RTDIP API Docker Image.](https://hub.docker.com/r/rtdip/api)
+<!-- --8<-- [end:intro] -->
 
 ## Time Series Events
 
