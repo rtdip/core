@@ -21,9 +21,6 @@ Not in scope for this particular course but it is worth mentioning that RTDIP al
         +   [ ] Databricks
     *  [ ] Getting Started
 -   [ ] SDK
-<<<<<<< HEAD
-=======
 -   [ ] Power BI
->>>>>>> develop
 -   [ ] APIs
 -   [ ] Excel Connector
