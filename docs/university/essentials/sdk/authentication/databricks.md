@@ -2,7 +2,7 @@
 
 <br></br>
 [← Previous](./azure.md){ .curved-button }
-[Next →](../connectors/databricks-sql-connector.md){ .curved-button }
+[Next →](../connectors/overview.md){ .curved-button }
 
 ## Course Progress
 -   [X] Introduction

@@ -1,3 +1,7 @@
+# Getting Started
+
+## Prerequisites
+
 --8<-- "getting-started/installation.md:prerequisites"
 
 <br></br>
@@ -11,7 +15,6 @@
     +  [X] Prerequisites
     *  [X] Architecture
     *  [ ] Getting Started
-        +   [X] Introduction
         +   [X] Prerequisites
         +   [ ] Installation
         +   [ ] Exercise

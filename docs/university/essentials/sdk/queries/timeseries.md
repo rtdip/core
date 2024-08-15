@@ -1,3 +1,8 @@
+# Queries
+
+## Time Series
+
+--8<-- "sdk/queries/functions.md:intro"
 
 ## Raw
 

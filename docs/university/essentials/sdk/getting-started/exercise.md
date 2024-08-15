@@ -34,7 +34,6 @@ It's time to confirm your environment is set up correctly so that you can progre
     +  [X] Prerequisites
     *  [X] Architecture
     *  [X] Getting Started
-        +   [X] Introduction
         +   [X] Prerequisites
         +   [X] Installation
         +   [X] Exercise

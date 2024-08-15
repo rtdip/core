@@ -11,7 +11,6 @@
     +  [X] Prerequisites
     *  [X] Architecture
     *  [ ] Getting Started
-        +   [X] Introduction
         +   [X] Prerequisites
         +   [X] Installation
         +   [ ] Exercise

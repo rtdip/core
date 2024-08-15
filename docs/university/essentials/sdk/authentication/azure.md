@@ -1,3 +1,7 @@
+# Authentication
+
+## Azure Active Directory
+
 --8<-- "sdk/authentication/azure.md:azuread"
 
 <br></br>

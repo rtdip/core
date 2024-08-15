@@ -21,6 +21,7 @@ In this exercise, you will obtain an access token for Azure AD using the RTDIP S
 -   [ ] SDK
     *   [X] Authentication
     *   [X] Connectors
+        +   [X] Overview
         +   [X] Databricks SQL
         +   [X] ODBC
         +   [X] Spark

@@ -11,6 +11,7 @@
 -   [ ] SDK
     *   [X] Authentication
     *   [ ] Connectors
+        +   [X] Overview
         +   [X] Databricks SQL
         +   [X] ODBC
         +   [ ] Spark
