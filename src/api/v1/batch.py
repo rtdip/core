@@ -128,8 +128,11 @@ async def batch_events_get(
         # Parse requests into dicts required by sdk
         parsed_requests = parse_batch_requests(batch_query_parameters.requests)
 
-        # Obtain max workers from environment var, otherwise default to one less than cpu count
-        max_workers = os.environ.get("BATCH_THREADPOOL_WORKERS", os.cpu_count() - 1)
+        # Obtain max workers from environment var, otherwise default to 10
+        max_workers = os.environ.get("BATCH_THREADPOOL_WORKERS", 10)
+
+        # ensure max_workers is an integer
+        max_workers = int(max_workers)
 
         # Request the data for each concurrently with threadpool
         with ThreadPoolExecutor(max_workers=max_workers) as executor:

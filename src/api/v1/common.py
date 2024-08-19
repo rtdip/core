@@ -285,6 +285,9 @@ def lookup_before_get(
     # make default workers 3 as within one query typically will request from only a few tables at once
     max_workers = os.environ.get("LOOKUP_THREADPOOL_WORKERS", 3)
 
+    # ensure max_workers is an integer
+    max_workers = int(max_workers)
+
     # run function with each parameters concurrently
     results = batch.get(connection, request_list, threadpool_max_workers=max_workers)
 
