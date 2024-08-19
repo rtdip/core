@@ -18,7 +18,7 @@ from fastapi import HTTPException, Depends, Body  # , JSONResponse
 from src.sdk.python.rtdip_sdk.queries.time_series import batch
 
 from src.api.v1.models import (
-    BaseQueryParams,
+    BatchBaseQueryParams,
     BaseHeaders,
     BatchBodyParams,
     BatchResponse,
@@ -175,7 +175,7 @@ Retrieval of timeseries data via a POST method to enable providing a list of req
     },
 )
 async def batch_post(
-    base_query_parameters: BaseQueryParams = Depends(),
+    base_query_parameters: BatchBaseQueryParams = Depends(),
     batch_query_parameters: BatchBodyParams = Body(default=...),
     base_headers: BaseHeaders = Depends(),
     limit_offset_query_parameters: LimitOffsetQueryParams = Depends(),
