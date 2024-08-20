@@ -23,18 +23,18 @@ The following section describes authentication using [Azure Active Directory.](h
 
 1\. Import **rtdip-sdk** authentication methods with the following:
 
-    from rtdip_sdk.authentication import authenticate as auth
+    from rtdip_sdk.authentication import azure as auth
 
 2\. Use any of the following authentication methods. Replace **tenant_id** , **client_id**, **certificate_path** or **client_secret** with your own details.
 
 === "Default Authentication"
-        DefaultAzureCredential = auth.DefaultAuth().authenticate()
+        credential = auth.DefaultAuth().authenticate()
     
 === "Certificate Authentication"
-        CertificateCredential = auth.CertificateAuth(tenant_id, client_id, certificate_path).authenticate()
+        credential = auth.CertificateAuth(tenant_id, client_id, certificate_path).authenticate()
 
 === "Client Secret Authentication"
-        ClientSecretCredential = auth.ClientSecretAuth(tenant_id, client_id, client_secret).authenticate()
+        credential = auth.ClientSecretAuth(tenant_id, client_id, client_secret).authenticate()
 
 3\. The methods above will return back a Client Object. The following example will show you how to retrieve the access_token from a credential object. The access token will be used in later steps to connect to RTDIP via the three options (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect).
     
@@ -43,7 +43,7 @@ The following section describes authentication using [Azure Active Directory.](h
 Once authenticated, it is possible to retrieve tokens for specific Azure Resources by providing scopes when retrieving tokens. Please see below for examples of how to retrieve tokens for Azure resources regularly used in RTDIP.
 
 === "Databricks"
-        access_token = DefaultAzureCredential.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        access_token = credential.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
 
 <!-- --8<-- [end:azuread] -->
 
