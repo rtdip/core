@@ -2,7 +2,7 @@
 
 In this exercise, you will learn how to run APIs on Swagger and Postman. 
 
-1. Go to [Swagger](https://ssip-api.shell.com/docs) and click the green Authorize button on the right.
+1. Go to your RTDIP Swagger page and click the green Authorize button on the right.
 
 2. Call a `Raw Get` query to retrieve some data from your time series data source.
 
