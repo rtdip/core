@@ -253,6 +253,16 @@ class BaseQueryParams:
         self.authorization = authorization
 
 
+class BatchBaseQueryParams:
+    def __init__(
+        self,
+        region: str = Query(..., description="Region"),
+        authorization: str = Depends(oauth2_scheme),
+    ):
+        self.region = region
+        self.authorization = authorization
+
+
 class MetadataQueryParams:
     def __init__(
         self,
