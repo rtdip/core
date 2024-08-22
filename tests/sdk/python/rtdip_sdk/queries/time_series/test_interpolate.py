@@ -52,66 +52,74 @@ def test_interpolate_backward_fill(mocker: MockerFixture):
 
 
 def test_interpolate_uom(mocker: MockerFixture):
-    MOCKED_INTERPOLATE_PARAMETER_DICT["display_uom"] = True
+    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    TEST_PARAMETERS["display_uom"] = True
     _test_base_succeed(
         mocker,
-        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        TEST_PARAMETERS,
         INTERPOLATE_MOCKED_QUERY_UOM,
         interpolate_get,
     )
 
 
 def test_interpolate_forward_fill(mocker: MockerFixture):
-    MOCKED_INTERPOLATE_PARAMETER_DICT["interpolation_method"] = "forward_fill"
-    MOCKED_INTERPOLATE_PARAMETER_DICT["display_uom"] = False
+    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    TEST_PARAMETERS["interpolation_method"] = "forward_fill"
+    TEST_PARAMETERS["display_uom"] = False
     _test_base_succeed(
         mocker,
-        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        TEST_PARAMETERS,
         INTERPOLATE_MOCKED_QUERY,
         interpolate_get,
     )
 
 
 def test_interpolate_check_tags(mocker: MockerFixture):
-    MOCKED_INTERPOLATE_PARAMETER_DICT["case_insensitivity_tag_search"] = True
+    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    TEST_PARAMETERS["case_insensitivity_tag_search"] = True
     _test_base_succeed(
         mocker,
-        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        TEST_PARAMETERS,
         INTERPOLATE_MOCKED_QUERY_CHECK_TAGS,
         interpolate_get,
     )
 
 
 def test_interpolate_sample_rate_unit(mocker: MockerFixture):
-    MOCKED_INTERPOLATE_PARAMETER_DICT["case_insensitivity_tag_search"] = False
-    MOCKED_INTERPOLATE_PARAMETER_DICT["sample_rate"] = "15"
-    MOCKED_INTERPOLATE_PARAMETER_DICT["sample_unit"] = "minute"
+    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    TEST_PARAMETERS["interpolation_method"] = "forward_fill"
+    TEST_PARAMETERS["case_insensitivity_tag_search"] = False
+    TEST_PARAMETERS["sample_rate"] = "15"
+    TEST_PARAMETERS["sample_unit"] = "minute"
     _test_base_succeed(
         mocker,
-        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        TEST_PARAMETERS,
         INTERPOLATE_MOCKED_QUERY,
         interpolate_get,
     )
 
 
 def test_interpolate_pivot(mocker: MockerFixture):
-    MOCKED_INTERPOLATE_PARAMETER_DICT["pivot"] = True
+    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    TEST_PARAMETERS["pivot"] = True
     _test_base_succeed(
         mocker,
-        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        TEST_PARAMETERS,
         INTERPOLATE_MOCKED_QUERY_PIVOT,
         interpolate_get,
     )
 
 
 def test_interpolate_offset_limit(mocker: MockerFixture):
-    MOCKED_INTERPOLATE_PARAMETER_DICT["pivot"] = False
-    MOCKED_INTERPOLATE_PARAMETER_DICT["offset"] = 10
-    MOCKED_INTERPOLATE_PARAMETER_DICT["limit"] = 10
+    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    TEST_PARAMETERS["interpolation_method"] = "forward_fill"
+    TEST_PARAMETERS["pivot"] = False
+    TEST_PARAMETERS["offset"] = 10
+    TEST_PARAMETERS["limit"] = 10
 
     _test_base_succeed(
         mocker,
-        MOCKED_INTERPOLATE_PARAMETER_DICT,
+        TEST_PARAMETERS,
         INTERPOLATE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
         interpolate_get,
     )
@@ -122,5 +130,6 @@ def test_interpolate_fails(mocker: MockerFixture):
 
 
 def test_interpolate_tag_name_not_list_fails(mocker: MockerFixture):
-    MOCKED_INTERPOLATE_PARAMETER_DICT["tag_names"] = "abc"
-    _test_base_fails(mocker, MOCKED_INTERPOLATE_PARAMETER_DICT, interpolate_get)
+    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    TEST_PARAMETERS["tag_names"] = "abc"
+    _test_base_fails(mocker, TEST_PARAMETERS, interpolate_get)
