@@ -146,7 +146,7 @@ async def test_api_metadata_post_no_tags_provided_error(
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["body"],"msg":"Field required","input":null}]}'
+        == '{"detail":[{"type":"missing","loc":["body"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
     )
 
 

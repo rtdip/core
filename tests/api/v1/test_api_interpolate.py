@@ -65,7 +65,7 @@ async def test_api_interpolate_get_validation_error(
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["query","start_date"],"msg":"Field required","input":null}]}'
+        == '{"detail":[{"type":"missing","loc":["query","start_date"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
     )
 
 
@@ -122,7 +122,7 @@ async def test_api_interpolate_post_validation_error(
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["query","start_date"],"msg":"Field required","input":null}]}'
+        == '{"detail":[{"type":"missing","loc":["query","start_date"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
     )
 
 
