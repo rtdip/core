@@ -291,9 +291,12 @@ def lookup_before_get(
     # run function with each parameters concurrently
     results = batch.get(connection, request_list, threadpool_max_workers=max_workers)
 
+    # Check if pivot is required
+    should_pivot = parameters["pivot"] if "pivot" in parameters else False
+
     # Append/concat results as required
     data = concatenate_dfs_and_order(
-        dfs_arr=results, pivot=False, tags=parameters["tag_names"]
+        dfs_arr=results, pivot=should_pivot, tags=parameters["tag_names"]
     )
 
     return data

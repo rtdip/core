@@ -29,7 +29,7 @@ seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
 
 def _raw_query(parameters_dict: dict) -> str:
     raw_query = (
-        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM "
+        'WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -101,18 +101,12 @@ def _raw_query(parameters_dict: dict) -> str:
 
 def _sql_query(parameters_dict: dict) -> str:
     sql_query = (
-        "{% if to_json is defined and to_json == true %}"
-        'SELECT to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value FROM ('
-        "{% endif %}"
-        "{{ sql_statement }} "
+        "{{ sql_statement }}"
         "{% if limit is defined and limit is not none %}"
         "LIMIT {{ limit }} "
         "{% endif %}"
         "{% if offset is defined and offset is not none %}"
         "OFFSET {{ offset }} "
-        "{% endif %}"
-        "{% if to_json is defined and to_json == true %}"
-        ")"
         "{% endif %}"
     )
 
@@ -120,7 +114,6 @@ def _sql_query(parameters_dict: dict) -> str:
         "sql_statement": parameters_dict.get("sql_statement"),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
-        "to_json": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(sql_query)
@@ -129,7 +122,7 @@ def _sql_query(parameters_dict: dict) -> str:
 
 def _sample_query(parameters_dict: dict) -> tuple:
     sample_query = (
-        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
+        'WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} `{{ value_column }}` FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -227,7 +220,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
 
 def _plot_query(parameters_dict: dict) -> tuple:
     plot_query = (
-        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
+        'WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} `{{ value_column }}` FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -416,7 +409,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
     parameters_dict["max_timestamp"] = max(timestamps_deduplicated)
 
     interpolate_at_time_query = (
-        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
+        'WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} `{{ value_column }}` FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -446,7 +439,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "explode(array('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`) "
         "{% endif %} "
         ", interpolation_events AS (SELECT coalesce(a.`{{ tagname_column }}`, b.`{{ tagname_column }}`) AS `{{ tagname_column }}`, coalesce(a.`{{ timestamp_column }}`, b.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, a.`{{ timestamp_column }}` AS `Requested_{{ timestamp_column }}`, b.`{{ timestamp_column }}` AS `Found_{{ timestamp_column }}`, b.`{{ status_column }}`, b.`{{ value_column }}` FROM date_array a FULL OUTER JOIN  raw_events b ON a.`{{ timestamp_column }}` = b.`{{ timestamp_column }}` AND a.`{{ tagname_column }}` = b.`{{ tagname_column }}`) "
-        ", interpolation_calculations AS (SELECT *, lag(`Found_{{ timestamp_column }}`) IGNORE NULLS OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ timestamp_column }}`, lag(`{{ value_column }}`) IGNORE NULLS OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ value_column }}`, lead(`Found_{{ timestamp_column }}`) IGNORE NULLS OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ timestamp_column }}`, lead(`{{ value_column }}`) IGNORE NULLS OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ value_column }}`, "
+        ", interpolation_calculations AS (SELECT *, lag(`{{ timestamp_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ timestamp_column }}`, lag(`{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Previous_{{ value_column }}`, lead(`{{ timestamp_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ timestamp_column }}`, lead(`{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ value_column }}`, "
         "CASE WHEN `Requested_{{ timestamp_column }}` = `Found_{{ timestamp_column }}` THEN `{{ value_column }}` WHEN `Next_{{ timestamp_column }}` IS NULL THEN `Previous_{{ value_column }}` WHEN `Previous_{{ timestamp_column }}` IS NULL AND `Next_{{ timestamp_column }}` IS NULL THEN NULL "
         "ELSE `Previous_{{ value_column }}` + ((`Next_{{ value_column }}` - `Previous_{{ value_column }}`) * ((unix_timestamp(`{{ timestamp_column }}`) - unix_timestamp(`Previous_{{ timestamp_column }}`)) / (unix_timestamp(`Next_{{ timestamp_column }}`) - unix_timestamp(`Previous_{{ timestamp_column }}`)))) END AS `Interpolated_{{ value_column }}` FROM interpolation_events) "
         ",project AS (SELECT `{{ tagname_column }}`, `{{ timestamp_column }}`, `Interpolated_{{ value_column }}` AS `{{ value_column }}` FROM interpolation_calculations WHERE `{{ timestamp_column }}` IN ( "
@@ -629,7 +622,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
     ).strftime("%Y-%m-%dT%H:%M:%S")
 
     time_weighted_average_query = (
-        "WITH raw_events AS (SELECT DISTINCT `{{ tagname_column }}`, from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
+        'WITH raw_events AS (SELECT DISTINCT `{{ tagname_column }}`, from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} `{{ value_column }}` FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -751,7 +744,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
 
 def _circular_stats_query(parameters_dict: dict) -> str:
     circular_base_query = (
-        "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(to_timestamp(date_format(`{{ timestamp_column }}`, 'yyyy-MM-dd HH:mm:ss.SSS')), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}` FROM "
+        'WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} `{{ value_column }}` FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
         "{% else %}"
@@ -1020,13 +1013,10 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             + " "
             + parameters_dict["time_interval_unit"][0]
         )
-        to_json = parameters_dict.get("to_json", False)
-        parameters_dict["to_json"] = False
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
         sample_parameters["is_resample"] = False
-        parameters_dict["to_json"] = to_json
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
 
     if query_type == "time_weighted_average":
