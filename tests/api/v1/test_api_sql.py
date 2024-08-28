@@ -65,7 +65,7 @@ async def test_api_sql_post_validation_error(mocker: MockerFixture, api_test_dat
     assert response.status_code == 422
     assert (
         actual
-        == '{"detail":[{"type":"missing","loc":["body","sql_statement"],"msg":"Field required","input":{},"url":"https://errors.pydantic.dev/2.6/v/missing"}]}'
+        == '{"detail":[{"type":"missing","loc":["body","sql_statement"],"msg":"Field required","input":{}}]}'
     )
 
 
