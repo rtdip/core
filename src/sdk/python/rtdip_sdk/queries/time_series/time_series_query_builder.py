@@ -13,17 +13,8 @@
 # limitations under the License.
 
 from typing import Union
-import sys
-
-sys.path.insert(0, ".")
-from src.sdk.python.rtdip_sdk.connectors.connection_interface import (
-    ConnectionInterface,
-)
-
-# from ...connectors.connection_interface import ConnectionInterface
-# from . import
-
-from src.sdk.python.rtdip_sdk.queries.time_series import (
+from ...connectors.connection_interface import ConnectionInterface
+from . import (
     raw,
     resample,
     plot,
@@ -932,6 +923,15 @@ class TimeSeriesQueryBuilder:
             "supress_warning": True,
         }
 
+        if (
+            "display_uom" in circular_average_parameters
+            and circular_average_parameters["display_uom"] is True
+        ):
+            if circular_average_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
+
         return circular_average.get(self.connection, circular_average_parameters)
 
     def circular_standard_deviation(
@@ -1022,6 +1022,15 @@ class TimeSeriesQueryBuilder:
             "supress_warning": True,
         }
 
+        if (
+            "display_uom" in circular_stdev_parameters
+            and circular_stdev_parameters["display_uom"] is True
+        ):
+            if circular_stdev_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
+
         return circular_standard_deviation.get(
             self.connection, circular_stdev_parameters
         )
@@ -1094,40 +1103,14 @@ class TimeSeriesQueryBuilder:
             "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in summary_parameters
+            and summary_parameters["display_uom"] is True
+        ):
+            if summary_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
+
         return summary.get(self.connection, summary_parameters)
-
-
-from src.sdk.python.rtdip_sdk.authentication.azure import DefaultAuth
-from src.sdk.python.rtdip_sdk.connectors.odbc.db_sql_connector import (
-    DatabricksSQLConnection,
-)
-
-# from rtdip_sdk.queries import TimeSeriesQueryBuilder
-
-auth = DefaultAuth().authenticate()
-token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
-connection = DatabricksSQLConnection(
-    "adb-8969364155430721.1.azuredatabricks.net",
-    "/sql/1.0/endpoints/9ecb6a8d6707260c",
-    token,
-)
-
-data = (
-    TimeSeriesQueryBuilder()
-    .connect(connection)
-    .source("downstream.sensors.pernis_restricted_events_float")
-    .m_source("downstream.sensors.pernis_restricted_metadata")
-    .latest(
-        tagname_filter=[
-            "PGP:720FY003.PV",
-        ],
-        # start_date="2023-01-01",
-        # end_date="2023-01-31",
-        # time_interval_rate="15",
-        # time_interval_unit="minute",
-        # step="true",
-        display_uom=True,
-    )
-)
-
-print(data)
