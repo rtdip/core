@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from datetime import datetime
+import datetime as dt
 import json
 import os
 import importlib.util
@@ -240,13 +241,15 @@ def json_response_batch(data_list: List[DataFrame]) -> Response:
         def convert_value(x):
             if isinstance(x, pd.Timestamp):
                 return x.isoformat(timespec="nanoseconds")
+            elif isinstance(x, dt.date):
+                return x.isoformat()
             elif isinstance(x, pd.Timedelta):
                 return x.isoformat()
             elif isinstance(x, Decimal):
                 return float(x)
             return x
 
-        data_parsed = data.map(convert_value).replace({np.nan: None})
+        data_parsed = data.applymap(convert_value).replace({np.nan: None})
         schema = build_table_schema(data_parsed, index=False, primary_key=False)
         data_dict = data_parsed.to_dict(orient="records")
 
@@ -291,9 +294,12 @@ def lookup_before_get(
     # run function with each parameters concurrently
     results = batch.get(connection, request_list, threadpool_max_workers=max_workers)
 
+    # Check if pivot is required
+    should_pivot = parameters["pivot"] if "pivot" in parameters else False
+
     # Append/concat results as required
     data = concatenate_dfs_and_order(
-        dfs_arr=results, pivot=False, tags=parameters["tag_names"]
+        dfs_arr=results, pivot=should_pivot, tags=parameters["tag_names"]
     )
 
     return data
