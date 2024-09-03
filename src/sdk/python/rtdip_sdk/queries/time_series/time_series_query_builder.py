@@ -151,7 +151,9 @@ class TimeSeriesQueryBuilder:
                 source="{tablename_or_path}"
             )
             .m_source(
-                metadata_source="{metadata_table_or_path}")
+                metadata_source="{metadata_table_or_path}"
+                metadata_tagname_column="TagName",
+                metadata_uom_column="UoM")
         )
 
         ```
