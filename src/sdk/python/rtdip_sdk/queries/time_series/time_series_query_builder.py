@@ -131,7 +131,7 @@ class TimeSeriesQueryBuilder:
         metadata_uom_column: str = "UoM",
     ):
         """
-        Specifies the Metadata source of the query. This is only required if display_uom is set to True. Otherwise, it is optional.
+        Specifies the Metadata source of the query. This is only required if display_uom is set to True or Step is set to "metadata". Otherwise, it is optional.
 
         **Example:**
         ```python
