@@ -27,8 +27,7 @@ from . import (
     summary,
 )
 
-# from .. import metadata
-from src.sdk.python.rtdip_sdk.queries import metadata
+from .. import metadata
 from pandas import DataFrame
 
 
@@ -158,7 +157,7 @@ class TimeSeriesQueryBuilder:
         ```
 
         Args:
-            source (str): Source of the query can be a Unity Catalog table, Hive metastore table or path
+            metadata_source (str): Source of the query can be a Unity Catalog table, Hive metastore table or path
             metadata_tagname_column (optional str): The column name in the source that contains the tagnames or series
             metadata_uom_column (optional str): The column name in the source that contains the unit of measure
         """
