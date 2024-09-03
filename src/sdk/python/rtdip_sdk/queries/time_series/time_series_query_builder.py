@@ -150,7 +150,7 @@ class TimeSeriesQueryBuilder:
             .source(
                 source="{tablename_or_path}"
             )
-            .metadata_source(
+            .m_source(
                 metadata_source="{metadata_table_or_path}")
         )
 
