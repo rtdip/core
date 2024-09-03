@@ -47,7 +47,12 @@ def _raw_query(parameters_dict: dict) -> str:
         ") "
         "{% if display_uom is defined and display_uom == true %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM`{% endif %} FROM raw_events e '
-        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON e.`TagName` = m.`TagName` "
+        "LEFT OUTER JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "`{{ metadata_source|lower }}` m ON e.`TagName` = m.`{{ metadata_tagname_column }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON e.`TagName` = m.`TagName` "
+        "{% endif %}"
         "{% else %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM raw_events '
         "{% endif %}"
@@ -61,6 +66,7 @@ def _raw_query(parameters_dict: dict) -> str:
 
     raw_parameters = {
         "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
         "business_unit": parameters_dict.get("business_unit"),
         "region": parameters_dict.get("region"),
         "asset": parameters_dict.get("asset"),
@@ -92,6 +98,10 @@ def _raw_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
     }
 
@@ -165,7 +175,12 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
-        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        "LEFT OUTER JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "`{{ metadata_source|lower }}` m ON p.`TagName` = m.`{{ metadata_tagname_column }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        "{% endif %}"
         "{% else %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
@@ -180,6 +195,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
 
     sample_parameters = {
         "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
         "business_unit": parameters_dict.get("business_unit"),
         "region": parameters_dict.get("region"),
         "asset": parameters_dict.get("asset"),
@@ -217,6 +233,10 @@ def _sample_query(parameters_dict: dict) -> tuple:
             "case_insensitivity_tag_search", False
         ),
         "display_uom": parameters_dict.get("display_uom", False),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
     }
 
@@ -270,7 +290,12 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
-        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        "LEFT OUTER JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "`{{ metadata_source|lower }}` m ON p.`TagName` = m.`{{ metadata_tagname_column }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` "
+        "{% endif %}"
         "{% else %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
@@ -285,6 +310,7 @@ def _plot_query(parameters_dict: dict) -> tuple:
 
     plot_parameters = {
         "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
         "business_unit": parameters_dict.get("business_unit"),
         "region": parameters_dict.get("region"),
         "asset": parameters_dict.get("asset"),
@@ -321,6 +347,10 @@ def _plot_query(parameters_dict: dict) -> tuple:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
     }
 
@@ -378,7 +408,12 @@ def _interpolation_query(
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
-        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "LEFT OUTER JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "`{{ metadata_source|lower }}` m ON p.`TagName` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% endif %}"
         "{% else%}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
@@ -470,7 +505,12 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
-        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "LEFT OUTER JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "`{{ metadata_source|lower }}` m ON p.`TagName` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% endif %}"
         "{% else%}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
@@ -485,6 +525,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
 
     interpolation_at_time_parameters = {
         "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
         "business_unit": parameters_dict.get("business_unit"),
         "region": parameters_dict.get("region"),
         "asset": parameters_dict.get("asset"),
@@ -519,6 +560,10 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
     }
     sql_template = Template(interpolate_at_time_query)
@@ -587,7 +632,12 @@ def _latest_query(parameters_dict: dict) -> str:
         "ORDER BY `{{ tagname_column }}` ) "
         "{% if display_uom is defined and display_uom == true %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(l.*, m.`UoM), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}l.*, m.`UoM`{% endif %} FROM latest l '
-        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON l.`TagName` = m.`TagName` "
+        "LEFT OUTER JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "`{{ metadata_source|lower }}` m ON l.`TagName` = m.`{{ metadata_tagname_column }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON l.`TagName` = m.`TagName` "
+        "{% endif %}"
         "{% else %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM latest '
         "{% endif %}"
@@ -601,6 +651,7 @@ def _latest_query(parameters_dict: dict) -> str:
 
     latest_parameters = {
         "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
         "business_unit": parameters_dict.get("business_unit"),
         "region": parameters_dict.get("region"),
         "asset": parameters_dict.get("asset"),
@@ -613,6 +664,10 @@ def _latest_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
     }
 
@@ -687,7 +742,12 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
-        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "LEFT OUTER JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "`{{ metadata_source|lower }}` m ON p.`TagName` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{% endif %}"
         "{% else%}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
@@ -702,6 +762,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
 
     time_weighted_average_parameters = {
         "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
         "source_metadata": parameters_dict.get("source_metadata", None),
         "business_unit": parameters_dict.get("business_unit"),
         "region": parameters_dict.get("region"),
@@ -742,6 +803,10 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
     }
 
@@ -794,7 +859,12 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             "{% else %}"
             "{% if display_uom is defined and display_uom == true %}"
             'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.*, m.`UoM`{% endif %} FROM project p '
-            "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "LEFT OUTER JOIN "
+            "{% if metadata_source is defined and metadata_source is not none %}"
+            "`{{ metadata_source|lower }}` m ON p.`TagName` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{% else %}"
+            "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{% endif %}"
             "{% else%}"
             'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
             "{% endif %}"
@@ -827,7 +897,12 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             "{% else %}"
             "{% if display_uom is defined and display_uom == true %}"
             'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.*, m.`UoM`{% endif %} FROM project p '
-            "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "LEFT OUTER JOIN "
+            "{% if metadata_source is defined and metadata_source is not none %}"
+            "`{{ metadata_source|lower }}` m ON p.`TagName` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{% else %}"
+            "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`TagName` = m.`TagName` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{% endif %}"
             "{% else%}"
             'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
             "{% endif %}"
@@ -842,6 +917,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
 
     circular_stats_parameters = {
         "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
         "business_unit": parameters_dict.get("business_unit"),
         "region": parameters_dict.get("region"),
         "asset": parameters_dict.get("asset"),
@@ -879,6 +955,10 @@ def _circular_stats_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
     }
 
@@ -912,7 +992,12 @@ def _summary_query(parameters_dict: dict) -> str:
         "GROUP BY `{{ tagname_column }}`) "
         "{% if display_uom is defined and display_uom == true %}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(s.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}s.*, m.`UoM`{% endif %} FROM summary s '
-        "LEFT OUTER JOIN `{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON s.`TagName` = m.`TagName` "
+        "LEFT OUTER JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "`{{ metadata_source|lower }}` m ON s.`TagName` = m.`{{ metadata_tagname_column }}` "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON s.`TagName` = m.`TagName` "
+        "{% endif %}"
         "{% else%}"
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM summary '
         "{% endif %}"
@@ -926,6 +1011,7 @@ def _summary_query(parameters_dict: dict) -> str:
 
     summary_parameters = {
         "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
         "business_unit": parameters_dict.get("business_unit"),
         "region": parameters_dict.get("region"),
         "asset": parameters_dict.get("asset"),
@@ -957,6 +1043,10 @@ def _summary_query(parameters_dict: dict) -> str:
         "case_insensitivity_tag_search": parameters_dict.get(
             "case_insensitivity_tag_search", False
         ),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
     }
 
