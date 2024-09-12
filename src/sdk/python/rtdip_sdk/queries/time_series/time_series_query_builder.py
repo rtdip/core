@@ -43,6 +43,14 @@ class TimeSeriesQueryBuilder:
     timestamp_column: str
     status_column: str
     value_column: str
+    metadata_source: str
+    metadata_tagname_column: str
+    metadata_uom_column: str
+
+    def __init__(self):
+        self.metadata_source = None
+        self.metadata_tagname_column = None
+        self.metadata_uom_column = None
 
     def connect(self, connection: ConnectionInterface):
         """
@@ -116,6 +124,49 @@ class TimeSeriesQueryBuilder:
         self.value_column = value_column
         return self
 
+    def m_source(
+        self,
+        metadata_source: str,
+        metadata_tagname_column: str = "TagName",
+        metadata_uom_column: str = "UoM",
+    ):
+        """
+        Specifies the Metadata source of the query. This is only required if display_uom is set to True or Step is set to "metadata". Otherwise, it is optional.
+
+        **Example:**
+        ```python
+        from rtdip_sdk.authentication.azure import DefaultAuth
+        from rtdip_sdk.connectors import DatabricksSQLConnection
+        from rtdip_sdk.queries import TimeSeriesQueryBuilder
+
+        auth = DefaultAuth().authenticate()
+        token = auth.get_token("2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default").token
+        connection = DatabricksSQLConnection("{server_hostname}", "{http_path}", token)
+
+        source = (
+            TimeSeriesQueryBuilder()
+            .connect(connection)
+            .source(
+                source="{tablename_or_path}"
+            )
+            .m_source(
+                metadata_source="{metadata_table_or_path}"
+                metadata_tagname_column="TagName",
+                metadata_uom_column="UoM")
+        )
+
+        ```
+
+        Args:
+            metadata_source (str): Source of the query can be a Unity Catalog table, Hive metastore table or path
+            metadata_tagname_column (optional str): The column name in the source that contains the tagnames or series
+            metadata_uom_column (optional str): The column name in the source that contains the unit of measure
+        """
+        self.metadata_source = "`.`".join(metadata_source.split("."))
+        self.metadata_tagname_column = metadata_tagname_column
+        self.metadata_uom_column = metadata_uom_column
+        return self
+
     def raw(
         self,
         tagname_filter: [str],
@@ -159,7 +210,7 @@ class TimeSeriesQueryBuilder:
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -168,6 +219,7 @@ class TimeSeriesQueryBuilder:
         """
         raw_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
@@ -179,8 +231,17 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if "display_uom" in raw_parameters and raw_parameters["display_uom"] is True:
+            if raw_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
+
         return raw.get(self.connection, raw_parameters)
 
     def resample(
@@ -237,7 +298,7 @@ class TimeSeriesQueryBuilder:
             agg_method (str): Aggregation Method (first, last, avg, min, max)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -247,6 +308,7 @@ class TimeSeriesQueryBuilder:
 
         resample_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
@@ -262,8 +324,19 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in resample_parameters
+            and resample_parameters["display_uom"] is True
+        ):
+            if resample_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
 
         return resample.get(self.connection, resample_parameters)
 
@@ -318,7 +391,7 @@ class TimeSeriesQueryBuilder:
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -328,6 +401,7 @@ class TimeSeriesQueryBuilder:
 
         plot_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
@@ -342,8 +416,16 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if "display_uom" in plot_parameters and plot_parameters["display_uom"] is True:
+            if plot_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
 
         return plot.get(self.connection, plot_parameters)
 
@@ -404,7 +486,7 @@ class TimeSeriesQueryBuilder:
             interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -413,6 +495,7 @@ class TimeSeriesQueryBuilder:
         """
         interpolation_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
@@ -429,8 +512,19 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in interpolation_parameters
+            and interpolation_parameters["display_uom"] is True
+        ):
+            if interpolation_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
 
         return interpolate.get(self.connection, interpolation_parameters)
 
@@ -478,7 +572,7 @@ class TimeSeriesQueryBuilder:
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -487,6 +581,7 @@ class TimeSeriesQueryBuilder:
         """
         interpolation_at_time_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "timestamps": timestamp_filter,
             "include_bad_data": include_bad_data,
@@ -499,8 +594,19 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in interpolation_at_time_parameters
+            and interpolation_at_time_parameters["display_uom"] is True
+        ):
+            if interpolation_at_time_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
 
         return interpolation_at_time.get(
             self.connection, interpolation_at_time_parameters
@@ -564,7 +670,7 @@ class TimeSeriesQueryBuilder:
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -573,6 +679,7 @@ class TimeSeriesQueryBuilder:
         """
         time_weighted_average_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
@@ -594,8 +701,19 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in time_weighted_average_parameters
+            and time_weighted_average_parameters["display_uom"] is True
+        ):
+            if time_weighted_average_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
 
         return time_weighted_average.get(
             self.connection, time_weighted_average_parameters
@@ -687,7 +805,7 @@ class TimeSeriesQueryBuilder:
 
         Args:
             tagname_filter (list str): List of tagnames to filter on the source
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -696,13 +814,25 @@ class TimeSeriesQueryBuilder:
         """
         latest_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": [] if tagname_filter is None else tagname_filter,
             "tagname_column": self.tagname_column,
             "display_uom": display_uom,
             "limit": limit,
             "offset": offset,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in latest_parameters
+            and latest_parameters["display_uom"] is True
+        ):
+            if latest_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
 
         return latest.get(self.connection, latest_parameters)
 
@@ -763,7 +893,7 @@ class TimeSeriesQueryBuilder:
             upper_bound (int): Upper boundary for the sample range
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -772,6 +902,7 @@ class TimeSeriesQueryBuilder:
         """
         circular_average_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
@@ -788,8 +919,19 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in circular_average_parameters
+            and circular_average_parameters["display_uom"] is True
+        ):
+            if circular_average_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
 
         return circular_average.get(self.connection, circular_average_parameters)
 
@@ -850,7 +992,7 @@ class TimeSeriesQueryBuilder:
             upper_bound (int): Upper boundary for the sample range
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
-            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -859,6 +1001,7 @@ class TimeSeriesQueryBuilder:
         """
         circular_stdev_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
@@ -875,8 +1018,19 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in circular_stdev_parameters
+            and circular_stdev_parameters["display_uom"] is True
+        ):
+            if circular_stdev_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
 
         return circular_standard_deviation.get(
             self.connection, circular_stdev_parameters
@@ -925,7 +1079,7 @@ class TimeSeriesQueryBuilder:
             start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
-            display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
+            display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -934,6 +1088,7 @@ class TimeSeriesQueryBuilder:
         """
         summary_parameters = {
             "source": self.data_source,
+            "metadata_source": self.metadata_source,
             "tag_names": tagname_filter,
             "start_date": start_date,
             "end_date": end_date,
@@ -945,6 +1100,18 @@ class TimeSeriesQueryBuilder:
             "timestamp_column": self.timestamp_column,
             "status_column": self.status_column,
             "value_column": self.value_column,
+            "metadata_tagname_column": self.metadata_tagname_column,
+            "metadata_uom_column": self.metadata_uom_column,
             "supress_warning": True,
         }
+
+        if (
+            "display_uom" in summary_parameters
+            and summary_parameters["display_uom"] is True
+        ):
+            if summary_parameters["metadata_source"] is None:
+                raise ValueError(
+                    "display_uom True requires metadata_source to be populated"
+                )
+
         return summary.get(self.connection, summary_parameters)
