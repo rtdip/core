@@ -23,7 +23,9 @@ def define_env(env):
         if release_env != "job_deploy_mkdocs_github_pages":
             return "----\r\n"
 
-        github_client = Github(retry=0, timeout=5)
+        github_client = Github(
+            login_or_token=os.environ.get("GITHUB_TOKEN", None), retry=0, timeout=5
+        )
         repo = github_client.get_repo("{}/{}".format(owner, repo))
         output = "----\r\n"
         for release in repo.get_releases():
