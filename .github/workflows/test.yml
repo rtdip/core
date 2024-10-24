@@ -89,7 +89,7 @@ jobs:
               python=${{ matrix.python-version }}
               pyspark=${{ matrix.pyspark }}
               delta-spark=${{ matrix.delta-spark }}     
-            cache-environment: false
+            cache-environment: true
 
         - name: Test
           run: |
