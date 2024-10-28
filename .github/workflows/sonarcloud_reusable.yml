@@ -92,6 +92,7 @@ jobs:
           mkdir -p coverage-reports
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
           echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
+          echo ${{ github.workspace }}
 
 
       - name: Mkdocs Test
@@ -100,7 +101,8 @@ jobs:
 
       - name: Override Coverage Source Path for Sonar   
         run: |
-          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
+          echo ${{ github.workspace }}
+          sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" ./coverage-reports/coverage-unittests.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
