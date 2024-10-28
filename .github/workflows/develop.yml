@@ -26,7 +26,7 @@ jobs:
     uses: rtdip/core/.github/workflows/test.yml@develop
 
   job_run_unit_tests_and_sonarqube:
-    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
+    uses: amosproj/amos2024ws01-rtdip-data-quality-checker/.github/workflows/sonarcloud_reusable.yml@hotfix/pipeline-moto
     with:
       REPO_NAME: ""
       HEAD_BRANCH: ""

@@ -98,7 +98,7 @@ jobs:
         run: |
           mkdocs build --strict
 
-      - name: Override Coverage Source Path for Sonar   
+      - name: Override Coverage Source Path for Sonar
         run: |
           sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" coverage-reports/coverage-unittests.xml
 
