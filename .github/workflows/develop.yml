@@ -19,14 +19,15 @@ on:
   push:
     branches:
       - develop
-      - hotfix/pipeline-moto
 
 jobs:
   job_run_unit_tests_previous_versions:
     uses: rtdip/core/.github/workflows/test.yml@develop
 
   job_run_unit_tests_and_sonarqube:
-    uses: amosproj/amos2024ws01-rtdip-data-quality-checker/.github/workflows/sonarcloud_reusable.yml@hotfix/pipeline-moto
+    # TODO: Remove in Merge to main project
+    # uses: amosproj/amos2024ws01-rtdip-data-quality-checker/.github/workflows/sonarcloud_reusable.yml@hotfix/pipeline-moto
+    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
     with:
       REPO_NAME: ""
       HEAD_BRANCH: ""
