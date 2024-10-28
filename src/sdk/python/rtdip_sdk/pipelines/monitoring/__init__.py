@@ -12,3 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from .spark.data_quality.great_expectations_data_quality import *
+from .spark.data_quality.duplicate_detection import *
