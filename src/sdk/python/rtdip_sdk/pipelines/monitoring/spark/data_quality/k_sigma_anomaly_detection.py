@@ -63,7 +63,7 @@ class KSigmaAnomalyDetection(MonitoringBaseInterface):
 
     def filter_anomalies(self) -> DataFrame:
         """
-        Filter outliers based on the k-sigma rule
+        Filter anomalies based on the k-sigma rule
         """
 
         column_name = self.column_names[0]
