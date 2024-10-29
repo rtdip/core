@@ -13,10 +13,11 @@
 # limitations under the License.
 import pytest
 
-from rtdip_sdk.pipelines.monitoring.spark.data_quality.duplicate_detection import DuplicateDetection
-
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
+
+from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.duplicate_detection import DuplicateDetection
+
 
 
 @pytest.fixture(scope="session")

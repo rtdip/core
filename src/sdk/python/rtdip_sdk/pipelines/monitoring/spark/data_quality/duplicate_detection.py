@@ -11,13 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from pyspark.sql.dataframe import DataFrame as PySparkDataFrame
 from pyspark.sql.functions import desc
+from pyspark.sql import DataFrame as PySparkDataFrame
 
-
-from rtdip_sdk.pipelines.monitoring.interfaces import MonitoringBaseInterface
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from ...interfaces import MonitoringBaseInterface
+from ...._pipeline_utils.models import Libraries, SystemType
 
 
 class DuplicateDetection(MonitoringBaseInterface):
@@ -30,6 +28,7 @@ class DuplicateDetection(MonitoringBaseInterface):
     from rtdip_sdk.pipelines.monitoring.spark.data_quality.duplicate_detection import DuplicateDetection
     from pyspark.sql import SparkSession
     from pyspark.sql.dataframe import DataFrame
+    from pyspark.sql.functions import desc
 
     duplicate_detection_monitor = DuplicateDetection(df)
 
