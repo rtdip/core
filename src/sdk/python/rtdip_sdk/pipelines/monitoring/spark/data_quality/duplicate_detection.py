@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from pyspark.sql.dataframe import DataFrame as PySparkDataFrame
+from pyspark.sql.functions import desc
+
 
 from rtdip_sdk.pipelines.monitoring.interfaces import MonitoringBaseInterface
 from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
@@ -65,6 +67,7 @@ class DuplicateDetection(MonitoringBaseInterface):
         Returns:
             DataFrame: A cleansed PySpark DataFrame from all the duplicates.
         """
-        cleansed_df = self.df.dropDuplicates(['TagName', 'EventTime'])
 
+
+        cleansed_df = self.df.dropDuplicates(['TagName', 'EventTime']).orderBy(desc("EventTime"))
         return cleansed_df
