@@ -1117,10 +1117,13 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             + " "
             + parameters_dict["time_interval_unit"][0]
         )
+        to_json_flag = parameters_dict.get("to_json", False)
+        parameters_dict["to_json"] = False
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
         sample_parameters["is_resample"] = False
+        sample_parameters["to_json"] = to_json_flag
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
 
     if query_type == "time_weighted_average":
