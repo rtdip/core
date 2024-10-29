@@ -12,112 +12,71 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 'Reusable Test Workflow'
+name: "Reusable Test Workflow"
 
 on:
   workflow_call:
 
 jobs:
   job_test_python_pyspark_versions:
-      defaults:
-        run:
-          shell: bash -l {0}
-      strategy:
-        fail-fast: false
-        matrix:
-          os: [ubuntu-latest]
-          python-version: ["3.9", "3.10", "3.11"]
-          pyspark: ["3.3.0", "3.3.1", "3.3.2", "3.4.0", "3.4.1", "3.5.0"]
-          exclude:
-            - pyspark: "3.5.0"
-              python-version: "3.9"
-            - pyspark: "3.5.0"
-              python-version: "3.10"  
-            - pyspark: "3.4.1"
-              python-version: "3.9"
-            - pyspark: "3.4.1"
-              python-version: "3.10"  
-            - pyspark: "3.4.0"
-              python-version: "3.9"
-            - pyspark: "3.4.0"
-              python-version: "3.10" 
-            - pyspark: "3.3.2"
-              python-version: "3.11"
-            - pyspark: "3.3.1"
-              python-version: "3.11"  
-            - pyspark: "3.3.0"
-              python-version: "3.11"                 
-          include:
-            - pyspark: "3.3.0"
-              delta-spark: "2.2.0"
-            - pyspark: "3.3.1"
-              delta-spark: "2.3.0"
-            - pyspark: "3.3.2"
-              delta-spark: "2.3.0"
-            - pyspark: "3.4.0"
-              delta-spark: "2.4.0"
-            - pyspark: "3.4.1"
-              delta-spark: "2.4.0"
-            - pyspark: "3.5.0"
-              delta-spark: "3.0.0"                                 
-      runs-on: ${{ matrix.os }}
-      steps:
-        - uses: actions/checkout@v3
-          with:
-            fetch-depth: 0 
-
-        - name: Setup Python 
-          uses: actions/setup-python@v4
-          with:
-            python-version: ${{ matrix.python-version }}
-        
-        - name: Install Boost
-          run: |
-            sudo apt update
-            sudo apt install -y libboost-all-dev
-
-        - name: Add conda to system path
-          run: |
-            # $CONDA is an environment variable pointing to the root of the miniconda directory
-            echo $CONDA/bin >> $GITHUB_PATH
-
-        - name: Install Conda environment with Micromamba
-          uses: mamba-org/setup-micromamba@main
-          with:
-            environment-file: environment.yml
-            create-args: >-
-              python=${{ matrix.python-version }}
-              pyspark=${{ matrix.pyspark }}
-              delta-spark=${{ matrix.delta-spark }}     
-            cache-environment: true
-
-        - name: Test
-          run: |
-            coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
-
-  job_test_mkdocs:
     defaults:
       run:
         shell: bash -l {0}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.11"]
-        pyspark: ["3.5.0"]
-        delta-spark: ["3.0.0"]
-    runs-on: ${{ matrix.os }} 
+        python-version: ["3.9", "3.10", "3.11"]
+        pyspark: ["3.3.0", "3.3.1", "3.3.2", "3.4.0", "3.4.1", "3.5.0", "3.5.1"]
+        exclude:
+          - pyspark: "3.5.0"
+            python-version: "3.9"
+          - pyspark: "3.5.0"
+            python-version: "3.10"
+          - pyspark: "3.5.1"
+            python-version: "3.9"
+          - pyspark: "3.5.1"
+            python-version: "3.10"
+          - pyspark: "3.4.1"
+            python-version: "3.9"
+          - pyspark: "3.4.1"
+            python-version: "3.10"
+          - pyspark: "3.4.0"
+            python-version: "3.9"
+          - pyspark: "3.4.0"
+            python-version: "3.10"
+          - pyspark: "3.3.2"
+            python-version: "3.11"
+          - pyspark: "3.3.1"
+            python-version: "3.11"
+          - pyspark: "3.3.0"
+            python-version: "3.11"
+        include:
+          - pyspark: "3.3.0"
+            delta-spark: "2.2.0"
+          - pyspark: "3.3.1"
+            delta-spark: "2.3.0"
+          - pyspark: "3.3.2"
+            delta-spark: "2.3.0"
+          - pyspark: "3.4.0"
+            delta-spark: "2.4.0"
+          - pyspark: "3.4.1"
+            delta-spark: "2.4.0"
+          - pyspark: "3.5.0"
+            delta-spark: "3.0.0"
+          - pyspark: "3.5.1"
+            delta-spark: "3.1.0"
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.REPO_NAME }}
-          ref: ${{ inputs.HEAD_BRANCH }}
           fetch-depth: 0
 
-      - name: Setup Python 
-        uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - name: Install Boost
         run: |
           sudo apt update
@@ -135,7 +94,54 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             pyspark=${{ matrix.pyspark }}
-            delta-spark=${{ matrix.delta-spark }}          
+            delta-spark=${{ matrix.delta-spark }}
+          cache-environment: true
+
+      - name: Test
+        run: |
+          coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
+
+  job_test_mkdocs:
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11"]
+        pyspark: ["3.5.2"]
+        delta-spark: ["3.2.1"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.REPO_NAME }}
+          ref: ${{ inputs.HEAD_BRANCH }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Boost
+        run: |
+          sudo apt update
+          sudo apt install -y libboost-all-dev
+
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+
+      - name: Install Conda environment with Micromamba
+        uses: mamba-org/setup-micromamba@main
+        with:
+          environment-file: environment.yml
+          create-args: >-
+            python=${{ matrix.python-version }}
+            pyspark=${{ matrix.pyspark }}
+            delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
 
       - name: Mkdocs Test
@@ -145,5 +151,5 @@ jobs:
   job_lint_python_black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: psf/black@stable  
+      - uses: actions/checkout@v4
+      - uses: psf/black@stable

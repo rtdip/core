@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 'Reusable Sonarcloud Scan'
+name: "Reusable Sonarcloud Scan"
 
 on:
   workflow_call:
@@ -25,20 +25,20 @@ on:
         type: string
       HEAD_SHA:
         required: true
-        type: string                        
+        type: string
       PR_NUMBER:
         required: true
-        type: string      
+        type: string
       PR_HEAD_REF:
         required: true
         type: string
       PR_BASE_REF:
         required: true
-        type: string                    
+        type: string
     secrets:
       SONAR_TOKEN:
         required: true
-        
+
 jobs:
   job_test_python_pyspark_latest_version:
     defaults:
@@ -48,21 +48,21 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.11"]
-        pyspark: ["3.5.1"]
-        delta-spark: ["3.0.0"]
-    runs-on: ${{ matrix.os }} 
+        pyspark: ["3.5.2"]
+        delta-spark: ["3.2.1"]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: ${{ inputs.REPO_NAME }}
           ref: ${{ inputs.HEAD_BRANCH }}
           fetch-depth: 0
 
-      - name: Setup Python 
-        uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - name: Install Boost
         run: |
           sudo apt update
@@ -80,7 +80,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             pyspark=${{ matrix.pyspark }}
-            delta-spark=${{ matrix.delta-spark }}          
+            delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
 
       - name: Test
@@ -93,12 +93,11 @@ jobs:
           coverage xml --omit "venv/**,maintenance/**,xunit-reports/**" -i -o coverage-reports/coverage-unittests.xml
           echo Coverage `coverage report --omit "venv/**" | grep TOTAL | tr -s ' ' | cut -d" " -f4`
 
-
       - name: Mkdocs Test
         run: |
           mkdocs build --strict
 
-      - name: Override Coverage Source Path for Sonar   
+      - name: Override Coverage Source Path for Sonar
         run: |
           sed -i "s/<source>\/home\/runner\/work\/core\/core<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/core/core/coverage-reports/coverage-unittests.xml
 
@@ -115,5 +114,5 @@ jobs:
             -Dsonar.pullrequest.branch=${{ inputs.PR_HEAD_REF }}
             -Dsonar.pullrequest.base=${{ inputs.PR_BASE_REF }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
