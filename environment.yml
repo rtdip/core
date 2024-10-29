@@ -62,7 +62,6 @@ dependencies:
     - twine==4.0.2
     - delta-sharing-python>=1.0.0,<2.0.0
     - polars>=0.18.8,<1.0.0
-    - moto[s3]>=5.0.16,<6.0.0
     - xarray>=2023.1.0,<2023.8.0
     - ecmwf-api-client>=1.6.3,<2.0.0
     - netCDF4>=1.6.4,<2.0.0
@@ -85,3 +84,4 @@ dependencies:
           - web3>=6.18.0,<7.0.0
           - eth-typing>=4.2.3,<5.0.0
           - pandas>=1.5.2,<2.2.0
+          - moto[s3]>=5.0.16,<6.0.0
