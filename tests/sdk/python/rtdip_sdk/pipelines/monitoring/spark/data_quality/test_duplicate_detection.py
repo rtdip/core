@@ -11,11 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pytest
 
 from rtdip_sdk.pipelines.monitoring.spark.data_quality.duplicate_detection import DuplicateDetection
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
+
+
+@pytest.fixture(scope="session")
+def spark_session():
+    return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
 
 
 def test_duplicate_detection(spark_session: SparkSession):
@@ -46,6 +52,7 @@ def test_duplicate_detection(spark_session: SparkSession):
 
     duplicate_detection_monitor = DuplicateDetection(df)
     actual_df = duplicate_detection_monitor.filter()
+    print(actual_df.collect())
 
     assert isinstance(actual_df, DataFrame)
 
