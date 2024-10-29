@@ -19,7 +19,6 @@ from pyspark.sql.dataframe import DataFrame
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.duplicate_detection import DuplicateDetection
 
 
-
 @pytest.fixture(scope="session")
 def spark_session():
     return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
