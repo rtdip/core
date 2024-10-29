@@ -53,7 +53,6 @@ def test_duplicate_detection(spark_session: SparkSession):
 
     duplicate_detection_monitor = DuplicateDetection(df)
     actual_df = duplicate_detection_monitor.filter()
-    print(actual_df.collect())
 
     assert isinstance(actual_df, DataFrame)
 
