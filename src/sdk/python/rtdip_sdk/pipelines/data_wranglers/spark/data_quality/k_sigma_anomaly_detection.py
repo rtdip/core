@@ -23,6 +23,28 @@ class KSigmaAnomalyDetection(WranglerBaseInterface):
     Anomaly detection with the k-sigma method. This method either computes the mean and standard deviation, or the median and the median absolute deviation (MAD) of the data.
     The k-sigma method then filters out all data points that are k times the standard deviation away from the mean, or k times the MAD away from the median.
     Assuming a normal distribution, this method keeps around 99.7% of the data points when k=3 and use_median=False.
+
+    Example
+    --------
+    ```python
+    from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.k_sigma_anomaly_detection import KSigmaAnomalyDetection
+
+    spark = ... # SparkSession
+    df = ... # Get a PySpark DataFrame
+
+    filtered_df = KSigmaAnomalyDetection(
+        spark, df, ["<column to filter>"]
+    ).filter()
+
+    filtered_df.show()
+    ```
+
+    Parameters:
+        spark (SparkSession): A SparkSession object.
+        df (DataFrame): Dataframe containing the raw data.
+        column_names (list[str]): The names of the columns to be filtered (currently only one column is supported).
+        k_value (float): The number of deviations to build the threshold.
+        use_median (book): If True the median and the median absolute deviation (MAD) are used, instead of the mean and standard deviation.
     """
 
     def __init__(
