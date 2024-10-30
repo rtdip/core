@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 
-from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.k_sigma_anomaly_detection import (
+from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.k_sigma_anomaly_detection import (
     KSigmaAnomalyDetection,
 )
 
@@ -37,7 +37,7 @@ def test_filter_with_mean(spark_session: SparkSession):
         column_names=["value"],
         k_value=3,
         use_median=False,
-    ).filter_anomalies()
+    ).filter()
 
     assert normal_expected_df.collect() == normal_filtered_df.collect()
 
@@ -51,7 +51,7 @@ def test_filter_with_mean(spark_session: SparkSession):
 
     filtered_df = KSigmaAnomalyDetection(
         spark_session, input_df, column_names=["value"], k_value=3, use_median=False
-    ).filter_anomalies()
+    ).filter()
 
     assert expected_df.collect() != filtered_df.collect()
 
@@ -71,7 +71,7 @@ def test_filter_with_median(spark_session: SparkSession):
         column_names=["value"],
         k_value=3,
         use_median=True,
-    ).filter_anomalies()
+    ).filter()
 
     normal_expected_df.show()
     normal_filtered_df.show()
@@ -88,6 +88,6 @@ def test_filter_with_median(spark_session: SparkSession):
 
     filtered_df = KSigmaAnomalyDetection(
         spark_session, input_df, column_names=["value"], k_value=3, use_median=True
-    ).filter_anomalies()
+    ).filter()
 
     assert expected_df.collect() == filtered_df.collect()
