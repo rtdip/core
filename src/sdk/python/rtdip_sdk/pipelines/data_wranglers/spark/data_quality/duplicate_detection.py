@@ -14,8 +14,8 @@
 from pyspark.sql.functions import desc
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from ...interfaces import MonitoringBaseInterface
-from ...._pipeline_utils.models import Libraries, SystemType
+from rtdip_sdk.pipelines.monitoring.interfaces import MonitoringBaseInterface
+from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 
 
 class DuplicateDetection(MonitoringBaseInterface):

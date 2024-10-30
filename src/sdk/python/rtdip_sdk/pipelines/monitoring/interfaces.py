@@ -17,4 +17,6 @@ from ..interfaces import PipelineComponentBaseInterface
 
 
 class MonitoringBaseInterface(PipelineComponentBaseInterface):
-    pass
+    @abstractmethod
+    def check(self):
+        pass
