@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import mean, stddev, median, abs, col
+from pyspark.sql.functions import mean, stddev, abs, col
 from ...interfaces import MonitoringBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
@@ -73,15 +73,18 @@ class KSigmaAnomalyDetection(MonitoringBaseInterface):
             raise Exception("Couldn't calculate mean value")
 
         if self.use_median:
-            mean_value = self.df.select(median(column_name)).first()
+            mean_value = self.df.approxQuantile(column_name, [0.5], 0.0)[0]
             if mean_value is None:
                 raise Exception("Couldn't calculate median value")
-            mean_value = mean_value[0]
 
-            deviation = self.df.agg(median(abs(col(column_name) - mean_value))).first()
+            df_with_deviation = self.df.withColumn(
+                "absolute_deviation", abs(col(column_name) - mean_value)
+            )
+            deviation = df_with_deviation.approxQuantile(
+                "absolute_deviation", [0.5], 0.0
+            )[0]
             if deviation is None:
                 raise Exception("Couldn't calculate mean value")
-            deviation = deviation[0]
         else:
             stats = self.df.select(
                 mean(column_name), stddev(self.column_names[0])
