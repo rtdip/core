@@ -16,7 +16,7 @@ from abc import abstractmethod
 from ..interfaces import PipelineComponentBaseInterface
 
 
-class MonitoringBaseInterface(PipelineComponentBaseInterface):
+class WranglerBaseInterface(PipelineComponentBaseInterface):
     @abstractmethod
-    def check(self):
+    def filter(self):
         pass

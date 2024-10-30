@@ -11,12 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from abc import abstractmethod
-from ..interfaces import PipelineComponentBaseInterface
-
-
-class MonitoringBaseInterface(PipelineComponentBaseInterface):
-    @abstractmethod
-    def check(self):
-        pass
