@@ -30,7 +30,7 @@ class KSigmaAnomalyDetection(WranglerBaseInterface):
         spark: SparkSession,
         df: DataFrame,
         column_names: list[str],
-        k_value: int = 3,
+        k_value: float = 3.0,
         use_median: bool = False,
     ) -> None:
         if len(column_names) == 0:
