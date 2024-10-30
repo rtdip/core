@@ -14,11 +14,11 @@
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import mean, stddev, abs, col
-from ...interfaces import MonitoringBaseInterface
+from ...interfaces import WranglerBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
 
-class KSigmaAnomalyDetection(MonitoringBaseInterface):
+class KSigmaAnomalyDetection(WranglerBaseInterface):
     """
     Anomaly detection with the k-sigma method. This method either computes the mean and standard deviation, or the median and the median absolute deviation (MAD) of the data.
     The k-sigma method then filters out all data points that are k times the standard deviation away from the mean, or k times the MAD away from the median.
@@ -61,7 +61,7 @@ class KSigmaAnomalyDetection(MonitoringBaseInterface):
     def settings() -> dict:
         return {}
 
-    def filter_anomalies(self) -> DataFrame:
+    def filter(self) -> DataFrame:
         """
         Filter anomalies based on the k-sigma rule
         """

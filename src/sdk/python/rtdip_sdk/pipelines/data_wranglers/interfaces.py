@@ -14,9 +14,10 @@
 
 from abc import abstractmethod
 from ..interfaces import PipelineComponentBaseInterface
+from pyspark.sql import DataFrame
 
 
 class WranglerBaseInterface(PipelineComponentBaseInterface):
     @abstractmethod
-    def filter(self):
+    def filter(self) -> DataFrame:
         pass
