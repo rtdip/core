@@ -36,7 +36,7 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         tolerance (str, optional): Tolerance time beyond which an interval is considered missing (e.g., '10ms'). If not specified, it defaults to 'mad_multiplier' times the Median Absolute Deviation (MAD) of time differences.
         mad_multiplier (float, optional): Multiplier for MAD to calculate tolerance. Default is 3.
         min_tolerance (str, optional): Minimum tolerance for pattern-based detection (e.g., '100ms'). Default is '10ms'.
-        
+
     Returns:
         df (pyspark.sql.Dataframe): Returns the original PySparkDataFrame without changes.
 
@@ -64,7 +64,7 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         interval: str = None,
         tolerance: str = None,
         mad_multiplier: float = 3,
-        min_tolerance: str = '10ms'
+        min_tolerance: str = "10ms",
     ) -> None:
 
         self.df = df
@@ -79,7 +79,7 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
             # Prevent adding multiple handlers in interactive environments
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
@@ -102,21 +102,23 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
     def settings() -> dict:
         return {}
 
-
     def check(self) -> PySparkDataFrame:
-        if 'EventTime' not in self.df.columns:
+        if "EventTime" not in self.df.columns:
             self.logger.error("The DataFrame must contain an 'EventTime' column.")
             raise ValueError("The DataFrame must contain an 'EventTime' column.")
-        
-        df = self.df.withColumn('EventTime', F.to_timestamp('EventTime'))
-        df_sorted = df.orderBy('EventTime')
+
+        df = self.df.withColumn("EventTime", F.to_timestamp("EventTime"))
+        df_sorted = df.orderBy("EventTime")
         # Calculate time difference in milliseconds between consecutive rows
         df_with_diff = df_sorted.withColumn(
-            'TimeDeltaMs',
-            (F.col('EventTime').cast("double") - F.lag('EventTime').over(Window.orderBy('EventTime')).cast("double")) * 1000
+            "TimeDeltaMs",
+            (
+                F.col("EventTime").cast("double")
+                - F.lag("EventTime").over(Window.orderBy("EventTime")).cast("double")
+            )
+            * 1000,
         ).withColumn(
-            'StartMissing',
-            F.lag('EventTime').over(Window.orderBy('EventTime'))
+            "StartMissing", F.lag("EventTime").over(Window.orderBy("EventTime"))
         )
         # Parse interval to milliseconds if given
         if self.interval is not None:
@@ -128,10 +130,12 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
                 raise
         else:
             # Calculate interval based on median of time differences
-            median_expr = F.expr('percentile_approx(TimeDeltaMs, 0.5)')
-            median_row = df_with_diff.select(median_expr.alias('median')).collect()[0]
-            interval_ms = median_row['median']
-            self.logger.info(f"Using median of time differences as expected interval: {interval_ms} ms")
+            median_expr = F.expr("percentile_approx(TimeDeltaMs, 0.5)")
+            median_row = df_with_diff.select(median_expr.alias("median")).collect()[0]
+            interval_ms = median_row["median"]
+            self.logger.info(
+                f"Using median of time differences as expected interval: {interval_ms} ms"
+            )
         # Parse tolernace to milliseconds if given
         if self.tolerance is not None:
             try:
@@ -142,39 +146,40 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
                 raise
         else:
             # Calulate tolerance based on MAD
-            mad_expr = F.expr(f'percentile_approx(abs(TimeDeltaMs - {interval_ms}), 0.5)')
-            mad_row = df_with_diff.select(mad_expr.alias('mad')).collect()[0]
-            mad = mad_row['mad']
+            mad_expr = F.expr(
+                f"percentile_approx(abs(TimeDeltaMs - {interval_ms}), 0.5)"
+            )
+            mad_row = df_with_diff.select(mad_expr.alias("mad")).collect()[0]
+            mad = mad_row["mad"]
             calculated_tolerance_ms = self.mad_multiplier * mad
             min_tolerance_ms = parse_time_string_to_ms(self.min_tolerance)
             tolerance_ms = max(calculated_tolerance_ms, min_tolerance_ms)
             self.logger.info(f"Calculated tolerance: {tolerance_ms} ms (MAD-based)")
         # Calculate the maximum acceptable interval with tolerance
         max_interval_with_tolerance_ms = interval_ms + tolerance_ms
-        self.logger.info(f"Maximum acceptable interval with tolerance: {max_interval_with_tolerance_ms} ms")
-        
+        self.logger.info(
+            f"Maximum acceptable interval with tolerance: {max_interval_with_tolerance_ms} ms"
+        )
+
         # Identify missing intervals
         missing_intervals_df = df_with_diff.filter(
-            (F.col('TimeDeltaMs') > max_interval_with_tolerance_ms) &
-            (F.col('StartMissing').isNotNull())
-        ).select(
-            'StartMissing',
-            F.col('EventTime').alias('EndMissing'),
-            'TimeDeltaMs'
-        )
+            (F.col("TimeDeltaMs") > max_interval_with_tolerance_ms)
+            & (F.col("StartMissing").isNotNull())
+        ).select("StartMissing", F.col("EventTime").alias("EndMissing"), "TimeDeltaMs")
         # Convert time delta to readable format
         missing_intervals_df = missing_intervals_df.withColumn(
-            'DurationMissing',
+            "DurationMissing",
             F.concat(
-                F.floor(F.col('TimeDeltaMs') / 3600000).cast("string"), F.lit('h '),
-                F.floor((F.col('TimeDeltaMs') % 3600000) / 60000).cast("string"), F.lit('m '),
-                F.floor(((F.col('TimeDeltaMs') % 3600000) % 60000) / 1000).cast("string"), F.lit('s')
-            )
-        ).select(
-            'StartMissing',
-            'EndMissing',
-            'DurationMissing'
-        )
+                F.floor(F.col("TimeDeltaMs") / 3600000).cast("string"),
+                F.lit("h "),
+                F.floor((F.col("TimeDeltaMs") % 3600000) / 60000).cast("string"),
+                F.lit("m "),
+                F.floor(((F.col("TimeDeltaMs") % 3600000) % 60000) / 1000).cast(
+                    "string"
+                ),
+                F.lit("s"),
+            ),
+        ).select("StartMissing", "EndMissing", "DurationMissing")
         missing_intervals = missing_intervals_df.collect()
         if missing_intervals:
             self.logger.info("Detected Missing Intervals:")
@@ -186,4 +191,3 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         else:
             self.logger.info("No missing intervals detected.")
         return self.df
-    

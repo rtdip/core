@@ -8,6 +8,7 @@ from ...interfaces import MonitoringBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 from ....utilities.spark.time_string_parsing import parse_time_string_to_ms
 
+
 class IdentifyMissingDataPattern(MonitoringBaseInterface):
     """
     Identifies missing data in a DataFrame based on specified time patterns.
@@ -36,8 +37,8 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
         self,
         df: PySparkDataFrame,
         patterns: list,
-        frequency: str = 'minutely',
-        tolerance: str = '10ms'
+        frequency: str = "minutely",
+        tolerance: str = "10ms",
     ) -> None:
 
         self.df = df
@@ -51,7 +52,7 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
             # Prevent adding multiple handlers in interactive environments
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
@@ -84,8 +85,8 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
                 Returns the original PySpark DataFrame without changes.
         """
         self._validate_inputs()
-        df = self.df.withColumn('EventTime', F.to_timestamp('EventTime'))
-        df_sorted = df.orderBy('EventTime')
+        df = self.df.withColumn("EventTime", F.to_timestamp("EventTime"))
+        df_sorted = df.orderBy("EventTime")
         # Determine if the DataFrame is empty
         count = df_sorted.count()
         if count == 0:
@@ -93,7 +94,9 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
             self.logger.info("DataFrame is empty. No missing patterns to detect.")
             return self.df
         # Determine the time range of the data
-        min_time, max_time = df_sorted.agg(F.min('EventTime'), F.max('EventTime')).first()
+        min_time, max_time = df_sorted.agg(
+            F.min("EventTime"), F.max("EventTime")
+        ).first()
         if not min_time or not max_time:
             self.logger.info("Generated 0 expected times based on patterns.")
             self.logger.info("DataFrame is empty. No missing patterns to detect.")
@@ -106,29 +109,43 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
         return self.df
 
     def _validate_inputs(self):
-        if self.frequency not in ['minutely', 'hourly']:
+        if self.frequency not in ["minutely", "hourly"]:
             error_msg = "Frequency must be either 'minutely' or 'hourly'."
             self.logger.error(error_msg)
             raise ValueError(error_msg)
         for pattern in self.patterns:
-            if self.frequency == 'minutely':
-                if 'second' not in pattern:
-                    raise ValueError("Each pattern must have a 'second' key for 'minutely' frequency.")
-                if pattern.get('second', 0) >= 60:
-                    raise ValueError("For 'minutely' frequency, 'second' must be less than 60.")
-                if 'minute' in pattern or 'hour' in pattern:
-                    raise ValueError("For 'minutely' frequency, pattern should not contain 'minute' or 'hour'.")
-            elif self.frequency == 'hourly':
-                if 'minute' not in pattern or 'second' not in pattern:
-                    raise ValueError("Each pattern must have 'minute' and 'second' keys for 'hourly' frequency.")
-                if pattern.get('minute', 0) >= 60:
-                    raise ValueError("For 'hourly' frequency, 'minute' must be less than 60.")
-                if 'hour' in pattern:
-                    raise ValueError("For 'hourly' frequency, pattern should not contain 'hour'.")
+            if self.frequency == "minutely":
+                if "second" not in pattern:
+                    raise ValueError(
+                        "Each pattern must have a 'second' key for 'minutely' frequency."
+                    )
+                if pattern.get("second", 0) >= 60:
+                    raise ValueError(
+                        "For 'minutely' frequency, 'second' must be less than 60."
+                    )
+                if "minute" in pattern or "hour" in pattern:
+                    raise ValueError(
+                        "For 'minutely' frequency, pattern should not contain 'minute' or 'hour'."
+                    )
+            elif self.frequency == "hourly":
+                if "minute" not in pattern or "second" not in pattern:
+                    raise ValueError(
+                        "Each pattern must have 'minute' and 'second' keys for 'hourly' frequency."
+                    )
+                if pattern.get("minute", 0) >= 60:
+                    raise ValueError(
+                        "For 'hourly' frequency, 'minute' must be less than 60."
+                    )
+                if "hour" in pattern:
+                    raise ValueError(
+                        "For 'hourly' frequency, pattern should not contain 'hour'."
+                    )
         try:
             self.tolerance_ms = parse_time_string_to_ms(self.tolerance)
             self.tolerance_seconds = self.tolerance_ms / 1000
-            self.logger.info(f"Using tolerance: {self.tolerance_ms} ms ({self.tolerance_seconds} seconds)")
+            self.logger.info(
+                f"Using tolerance: {self.tolerance_ms} ms ({self.tolerance_seconds} seconds)"
+            )
         except ValueError as e:
             error_msg = f"Invalid tolerance format: {self.tolerance}"
             self.logger.error(error_msg)
@@ -146,59 +163,72 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
             PySparkDataFrame: DataFrame containing all expected 'ExpectedTime'.
         """
         # Floor min_time to the nearest frequency step
-        if self.frequency == 'minutely':
+        if self.frequency == "minutely":
             floor_min_time = min_time.replace(second=0, microsecond=0)
             step = F.expr("INTERVAL 1 MINUTE")
-        elif self.frequency == 'hourly':
+        elif self.frequency == "hourly":
             floor_min_time = min_time.replace(minute=0, second=0, microsecond=0)
             step = F.expr("INTERVAL 1 HOUR")
         # Ceil max_time to include the last interval
-        if self.frequency == 'minutely':
-            ceil_max_time = (max_time + pd.Timedelta(minutes=1)).replace(second=0, microsecond=0)
-        elif self.frequency == 'hourly':
-            ceil_max_time = (max_time + pd.Timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
-        # Create a DataFrame with a sequence of base times
-        base_times_df = self.df.sparkSession.createDataFrame([(floor_min_time, ceil_max_time)], ['start', 'end']) \
-            .select(
-                F.explode(
-                    F.sequence(
-                        F.col('start').cast("timestamp"),
-                        F.col('end').cast("timestamp"),
-                        step
-                    )
-                ).alias('BaseTime')
+        if self.frequency == "minutely":
+            ceil_max_time = (max_time + pd.Timedelta(minutes=1)).replace(
+                second=0, microsecond=0
             )
+        elif self.frequency == "hourly":
+            ceil_max_time = (max_time + pd.Timedelta(hours=1)).replace(
+                minute=0, second=0, microsecond=0
+            )
+        # Create a DataFrame with a sequence of base times
+        base_times_df = self.df.sparkSession.createDataFrame(
+            [(floor_min_time, ceil_max_time)], ["start", "end"]
+        ).select(
+            F.explode(
+                F.sequence(
+                    F.col("start").cast("timestamp"),
+                    F.col("end").cast("timestamp"),
+                    step,
+                )
+            ).alias("BaseTime")
+        )
         # Generate expected times based on patterns
         expected_times = []
         for pattern in self.patterns:
-            if self.frequency == 'minutely':
-                seconds = pattern.get('second', 0)
-                milliseconds = pattern.get('millisecond', 0)
-                expected_time = (F.col('BaseTime') + F.expr(f"INTERVAL {seconds} SECOND") +
-                                 F.expr(f"INTERVAL {milliseconds} MILLISECOND"))
-            elif self.frequency == 'hourly':
-                minutes = pattern.get('minute', 0)
-                seconds = pattern.get('second', 0)
-                milliseconds = pattern.get('millisecond', 0)
-                expected_time = (F.col('BaseTime') + F.expr(f"INTERVAL {minutes} MINUTE") +
-                                 F.expr(f"INTERVAL {seconds} SECOND") +
-                                 F.expr(f"INTERVAL {milliseconds} MILLISECOND"))
+            if self.frequency == "minutely":
+                seconds = pattern.get("second", 0)
+                milliseconds = pattern.get("millisecond", 0)
+                expected_time = (
+                    F.col("BaseTime")
+                    + F.expr(f"INTERVAL {seconds} SECOND")
+                    + F.expr(f"INTERVAL {milliseconds} MILLISECOND")
+                )
+            elif self.frequency == "hourly":
+                minutes = pattern.get("minute", 0)
+                seconds = pattern.get("second", 0)
+                milliseconds = pattern.get("millisecond", 0)
+                expected_time = (
+                    F.col("BaseTime")
+                    + F.expr(f"INTERVAL {minutes} MINUTE")
+                    + F.expr(f"INTERVAL {seconds} SECOND")
+                    + F.expr(f"INTERVAL {milliseconds} MILLISECOND")
+                )
             expected_times.append(expected_time)
         # Combine all expected times into one DataFrame
         expected_times_df = base_times_df.withColumn(
-            'ExpectedTime',
-            F.explode(F.array(*expected_times))
-        ).select('ExpectedTime')
+            "ExpectedTime", F.explode(F.array(*expected_times))
+        ).select("ExpectedTime")
         # Remove duplicates and filter within the time range
-        expected_times_df = expected_times_df.distinct() \
-            .filter(
-                (F.col('ExpectedTime') >= F.lit(floor_min_time)) &
-                (F.col('ExpectedTime') <= F.lit(max_time))
-            )
-        self.logger.info(f"Generated {expected_times_df.count()} expected times based on patterns.")
+        expected_times_df = expected_times_df.distinct().filter(
+            (F.col("ExpectedTime") >= F.lit(floor_min_time))
+            & (F.col("ExpectedTime") <= F.lit(max_time))
+        )
+        self.logger.info(
+            f"Generated {expected_times_df.count()} expected times based on patterns."
+        )
         return expected_times_df
 
-    def _find_missing_patterns(self, expected_times_df: PySparkDataFrame, actual_df: PySparkDataFrame) -> PySparkDataFrame:
+    def _find_missing_patterns(
+        self, expected_times_df: PySparkDataFrame, actual_df: PySparkDataFrame
+    ) -> PySparkDataFrame:
         """
         Finds missing patterns by comparing expected times with actual EventTimes within tolerance.
 
@@ -212,15 +242,23 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
         # Format tolerance for SQL INTERVAL
         tolerance_str = self._format_timedelta_for_sql(self.tolerance_ms)
         # Perform left join with tolerance window
-        missing_patterns_df = expected_times_df.alias('et') \
+        missing_patterns_df = (
+            expected_times_df.alias("et")
             .join(
-                actual_df.alias('at'),
-                (F.col('at.EventTime') >= F.expr(f"et.ExpectedTime - INTERVAL {tolerance_str}")) &
-                (F.col('at.EventTime') <= F.expr(f"et.ExpectedTime + INTERVAL {tolerance_str}")),
-                how='left'
-            ) \
-            .filter(F.col('at.EventTime').isNull()) \
-            .select(F.col('et.ExpectedTime'))
+                actual_df.alias("at"),
+                (
+                    F.col("at.EventTime")
+                    >= F.expr(f"et.ExpectedTime - INTERVAL {tolerance_str}")
+                )
+                & (
+                    F.col("at.EventTime")
+                    <= F.expr(f"et.ExpectedTime + INTERVAL {tolerance_str}")
+                ),
+                how="left",
+            )
+            .filter(F.col("at.EventTime").isNull())
+            .select(F.col("et.ExpectedTime"))
+        )
         self.logger.info(f"Identified {missing_patterns_df.count()} missing patterns.")
         return missing_patterns_df
 
@@ -235,10 +273,14 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
         if missing_patterns:
             self.logger.info("Detected Missing Patterns:")
             # Sort missing patterns by ExpectedTime
-            sorted_missing_patterns = sorted(missing_patterns, key=lambda row: row['ExpectedTime'])
+            sorted_missing_patterns = sorted(
+                missing_patterns, key=lambda row: row["ExpectedTime"]
+            )
             for row in sorted_missing_patterns:
                 # Format ExpectedTime to include milliseconds correctly
-                formatted_time = row['ExpectedTime'].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                formatted_time = row["ExpectedTime"].strftime("%Y-%m-%d %H:%M:%S.%f")[
+                    :-3
+                ]
                 self.logger.info(f"Missing Pattern at {formatted_time}")
         else:
             self.logger.info("No missing patterns detected.")

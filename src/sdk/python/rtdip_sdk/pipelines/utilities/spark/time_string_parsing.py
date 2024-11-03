@@ -28,19 +28,19 @@ def parse_time_string_to_ms(time_str: str) -> float:
     Raises:
         ValueError: If the format is invalid.
     """
-    pattern = re.compile(r'^(\d+\.?\d*)(ms|s|m|h)$')
+    pattern = re.compile(r"^(\d+\.?\d*)(ms|s|m|h)$")
     match = pattern.match(time_str)
     if not match:
         raise ValueError(f"Invalid time format: {time_str}")
     value, unit = match.groups()
     value = float(value)
-    if unit == 'ms':
+    if unit == "ms":
         return value
-    elif unit == 's':
+    elif unit == "s":
         return value * 1000
-    elif unit == 'm':
+    elif unit == "m":
         return value * 60 * 1000
-    elif unit == 'h':
+    elif unit == "h":
         return value * 3600 * 1000
     else:
         raise ValueError(f"Unsupported time unit in time: {unit}")
