@@ -16,7 +16,9 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 
-from rtdip_sdk.pipelines.data_wranglers.spark.data_quality.duplicate_detection import DuplicateDetection
+from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.duplicate_detection import (
+    DuplicateDetection,
+)
 
 
 @pytest.fixture(scope="session")
@@ -31,9 +33,9 @@ def test_duplicate_detection(spark_session: SparkSession):
             ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "0.150000006"),
             ("A2PS64V0J.:ZUX09R", "2024-01-02 11:56:42.000", "Good", "0.129999995"),
             ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "0.119999997"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "0.129999995")
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "0.129999995"),
         ],
-        ["TagName", "EventTime", "Status", "Value"]
+        ["TagName", "EventTime", "Status", "Value"],
     )
 
     df = spark_session.createDataFrame(
@@ -45,9 +47,9 @@ def test_duplicate_detection(spark_session: SparkSession):
             ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "0.119999997"),
             ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "0.119999997"),
             ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "0.119999997"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "0.129999995")
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "0.129999995"),
         ],
-        ["TagName", "EventTime", "Status", "Value"]
+        ["TagName", "EventTime", "Status", "Value"],
     )
 
     duplicate_detection_monitor = DuplicateDetection(df)

@@ -14,11 +14,11 @@
 from pyspark.sql.functions import desc
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from rtdip_sdk.pipelines.monitoring.interfaces import MonitoringBaseInterface
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from ...interfaces import WranglerBaseInterface
+from ...._pipeline_utils.models import Libraries, SystemType
 
 
-class DuplicateDetection(MonitoringBaseInterface):
+class DuplicateDetection(WranglerBaseInterface):
     """
     Cleanses a PySpark DataFrame from duplicates.
 
@@ -67,6 +67,7 @@ class DuplicateDetection(MonitoringBaseInterface):
             DataFrame: A cleansed PySpark DataFrame from all the duplicates.
         """
 
-
-        cleansed_df = self.df.dropDuplicates(['TagName', 'EventTime']).orderBy(desc("EventTime"))
+        cleansed_df = self.df.dropDuplicates(["TagName", "EventTime"]).orderBy(
+            desc("EventTime")
+        )
         return cleansed_df
