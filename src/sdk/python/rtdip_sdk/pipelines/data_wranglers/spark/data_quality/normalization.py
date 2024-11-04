@@ -11,12 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from enum import Enum
 
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import functions as F
 from typing import List
 from ...interfaces import WranglerBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
+
+class NormalizationMethod(Enum):
+    Z_SCORE = 1
+    MIN_MAX = 2
+    MEAN = 3
+
 
 class Normalization(WranglerBaseInterface):
     """
@@ -40,16 +47,22 @@ class Normalization(WranglerBaseInterface):
     """
 
     df: PySparkDataFrame
-    method: str
+    method: NormalizationMethod
     column_names: List[str]
 
-    def __init__(self, df: PySparkDataFrame, method: str, column_names: List[str]) -> None:
-        self.df = df
-        self.method = method.lower()
-        self.column_names = column_names
+    def __init__(self, df: PySparkDataFrame, method: NormalizationMethod, column_names: List[str]) -> None:
 
-        if self.method not in ["z-score", "min-max", "mean"]:
-            raise ValueError("Normalization method must be either 'z-score' or 'min-max' or 'mean'")
+        # NOTE: Will throw TypeError before python 3.12, in 3.12 will return false on invalid values.
+        if not method in NormalizationMethod:
+            raise TypeError("Invalid normalization method")
+
+        for column_name in column_names:
+            if not column_name in df.columns:
+                raise ValueError("{} not found in the DataFrame.".format(column_name))
+
+        self.df = df
+        self.method = method
+        self.column_names = column_names
 
     @staticmethod
     def system_type():
@@ -79,16 +92,37 @@ class Normalization(WranglerBaseInterface):
             DataFrame: A PySpark DataFrame with the normalized values.
         """
         normalized_df = self.df
-        if self.method == "z-score":
+        if self.method == NormalizationMethod.Z_SCORE:
             for column in self.column_names:
                 normalized_df = self._z_score_normalize(normalized_df, column)
-        elif self.method == "min-max":
+        elif self.method == NormalizationMethod.MIN_MAX:
             for column in self.column_names:
                 normalized_df = self._min_max_normalize(normalized_df, column)
-        elif self.method == "mean":
+        elif self.method == NormalizationMethod.MEAN:
             for column in self.column_names:
                 normalized_df = self._mean_normalize(normalized_df, column)
         return normalized_df
+
+    def denormalize(self, df) -> PySparkDataFrame:
+        """
+            Denormalizes the input DataFrame. Intended to be used by the denormalization component.
+
+            Parameters:
+                df (DataFrame): Dataframe containing the current data.
+        """
+        denormalized_df = self.df
+        if self.method == NormalizationMethod.Z_SCORE:
+            for column in self.column_names:
+                denormalized_df = self._z_score_denormalize(denormalized_df, column)
+        elif self.method == NormalizationMethod.MIN_MAX:
+            for column in self.column_names:
+                denormalized_df = self._min_max_denormalize(denormalized_df, column)
+        elif self.method == NormalizationMethod.MEAN:
+            for column in self.column_names:
+                denormalized_df = self._mean_denormalize(denormalized_df, column)
+        return denormalized_df
+
+        return df
 
     def _z_score_normalize(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
         """
@@ -103,6 +137,10 @@ class Normalization(WranglerBaseInterface):
             (F.col(column) - F.lit(mean_val)) / F.lit(std_dev_val)
         )
 
+    def _z_score_denormalize(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
+        # TODO
+        return
+
     def _min_max_normalize(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
         """
         Private method to apply Min-Max normalization to the specified column.
@@ -115,6 +153,10 @@ class Normalization(WranglerBaseInterface):
             f"{column}_minmax_normalized",
             (F.col(column) - F.lit(min_val)) / (F.lit(max_val) - F.lit(min_val))
         )
+
+    def _min_max_denormalize(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
+        # TODO
+        return
     
     def _mean_normalize(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
         """
@@ -129,3 +171,7 @@ class Normalization(WranglerBaseInterface):
             f"{column}_mean_normalized",
             (F.col(column) - F.lit(mean_val)) / (F.lit(max_val) - F.lit(min_val))
         )
+
+    def _mean_denormalize(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
+        # TODO
+        return
