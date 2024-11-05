@@ -23,7 +23,7 @@ class NormalizationBaseClass(WranglerBaseInterface):
     A base class for applying normalization techniques to multiple columns in a PySpark DataFrame.
     This class serves as a framework to support various normalization methods (e.g., Z-Score, Min-Max, and Mean),
     with specific implementations in separate subclasses for each normalization type.
-    
+
     Subclasses should implement specific normalization and denormalization methods by inheriting from this base class.
 
 
@@ -42,11 +42,11 @@ class NormalizationBaseClass(WranglerBaseInterface):
         df (DataFrame): PySpark DataFrame to be normalized.
         column_names (List[str]): List of columns in the DataFrame to be normalized.
         in_place (bool): If true, then result of normalization is stored in the same column.
-        
+
     Attributes:
     NORMALIZATION_NAME_POSTFIX : str
         Suffix added to the column name if a new column is created for normalized values.
-        
+
     """
 
     df: PySparkDataFrame

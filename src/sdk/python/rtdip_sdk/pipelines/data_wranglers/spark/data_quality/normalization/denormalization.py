@@ -37,7 +37,7 @@ class Denormalization(WranglerBaseInterface):
 
     Parameters:
         df (DataFrame): PySpark DataFrame to be reverted to its original scale.
-        normalization_to_revert (NormalizationBaseClass): An instance of the specific normalization subclass (NormalizationZScore, NormalizationMinMax, NormalizationMean) that was originally used to normalize the data. 
+        normalization_to_revert (NormalizationBaseClass): An instance of the specific normalization subclass (NormalizationZScore, NormalizationMinMax, NormalizationMean) that was originally used to normalize the data.
     """
 
     df: PySparkDataFrame
