@@ -171,10 +171,10 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
+        '))) SELECT {% if to_json_resample is defined and to_json_resample == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        'SELECT {% if to_json_resample is defined and to_json_resample == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
         "LEFT OUTER JOIN "
         "{% if metadata_source is defined and metadata_source is not none %}"
         "`{{ metadata_source|lower }}` m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` "
@@ -182,7 +182,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`{{ tagname_column }}` = m.`{{ tagname_column }}` "
         "{% endif %}"
         "{% else %}"
-        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
+        'SELECT {% if to_json_resample is defined and to_json_resample == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
         "{% endif %}"
         "{% endif %}"
         "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
@@ -237,7 +237,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
             "metadata_tagname_column", "TagName"
         ),
         "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
-        "to_json": parameters_dict.get("to_json", False),
+        "to_json_resample": parameters_dict.get("to_json", False),
     }
 
     sql_template = Template(sample_query)
@@ -1117,10 +1117,13 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             + " "
             + parameters_dict["time_interval_unit"][0]
         )
+        to_json_flag = parameters_dict.get("to_json", False)
+        parameters_dict["to_json"] = False
         sample_prepared_query, sample_query, sample_parameters = _sample_query(
             parameters_dict
         )
         sample_parameters["is_resample"] = False
+        sample_parameters["to_json"] = to_json_flag
         return _interpolation_query(parameters_dict, sample_query, sample_parameters)
 
     if query_type == "time_weighted_average":
