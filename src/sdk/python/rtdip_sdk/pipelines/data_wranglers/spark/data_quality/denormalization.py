@@ -44,9 +44,7 @@ class Denormalization(WranglerBaseInterface):
 
     def __init__(self, df: PySparkDataFrame, normalization_to_revert: Normalization) -> None:
         self.df = df
-        self.normalization_stage = normalization_to_revert
-
-        norm = Normalization(df, 0, )
+        self.normalization_to_revert = normalization_to_revert
 
     @staticmethod
     def system_type():
@@ -65,5 +63,5 @@ class Denormalization(WranglerBaseInterface):
     def settings() -> dict:
         return {}
 
-    def filter(self) -> DataFrame:
+    def filter(self) -> PySparkDataFrame:
         return self.normalization_to_revert.denormalize(self.df)

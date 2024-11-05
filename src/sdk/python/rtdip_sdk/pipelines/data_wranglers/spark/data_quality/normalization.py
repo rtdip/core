@@ -13,6 +13,7 @@
 # limitations under the License.
 from enum import Enum
 
+from eth_abi.grammar import normalize
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import functions as F
 from typing import List
@@ -91,7 +92,7 @@ class Normalization(WranglerBaseInterface):
         return {}
 
     def filter(self):
-        pass
+        return self.normalize()
 
     def normalize(self) -> PySparkDataFrame:
         """
@@ -112,14 +113,14 @@ class Normalization(WranglerBaseInterface):
                 normalized_df = self._mean_normalize(normalized_df, column)
         return normalized_df
 
-    def denormalize(self, df) -> PySparkDataFrame:
+    def denormalize(self, input_df) -> PySparkDataFrame:
         """
             Denormalizes the input DataFrame. Intended to be used by the denormalization component.
 
             Parameters:
-                df (DataFrame): Dataframe containing the current data.
+                input_df (DataFrame): Dataframe containing the current data.
         """
-        denormalized_df = self.df
+        denormalized_df = input_df
         if not self.in_place:
             for column in self.column_names:
                 denormalized_df = denormalized_df.drop(self._get_norm_column_name(column))
@@ -195,7 +196,7 @@ class Normalization(WranglerBaseInterface):
 
         return df.withColumn(
             store_column,
-            F.col(column) * (F.lit(max_val) - F.lit(min_val)) + F.lit(min_val)
+            (F.col(column) * (F.lit(max_val) - F.lit(min_val))) + F.lit(min_val)
         )
     
     def _mean_normalize(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
@@ -220,12 +221,11 @@ class Normalization(WranglerBaseInterface):
             Private method to revert Mean normalization to the specified column.
             Mean denormalization: normalized_value * (max - min) + mean = value
         """
-        mean_val = df.select(F.mean(F.col(column))).collect()[0][0]
-        min_val = df.select(F.min(F.col(column))).collect()[0][0]
-        max_val = df.select(F.max(F.col(column))).collect()[0][0]
+        mean_val = self.reversal_value[0]
+        min_val = self.reversal_value[1]
+        max_val = self.reversal_value[2]
 
         store_column = self._get_norm_column_name(column)
-        self.reversal_value = [mean_val, min_val, max_val]
 
         return df.withColumn(
             store_column,
