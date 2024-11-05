@@ -22,23 +22,22 @@ from .normalization import (
 class Denormalization(WranglerBaseInterface):
     """
     #TODO
-    Applies denormalization to multiple columns in a PySpark DataFrame using Z-Score, Min-Max or Mean normalization.
+    Applies the appropriate denormalization method to revert values to their original scale.
 
     Example
     --------
     ```python
-    from rtdip_sdk.pipelines.monitoring.spark.data_quality.normalization import Normalization
+    from src.sdk.python.rtdip_sdk.pipelines.data_wranglers import Denormalization
     from pyspark.sql import SparkSession
     from pyspark.sql.dataframe import DataFrame
 
-    normalization = Normalization(df, "z-score", ["value_column_1", "value_column_2"])
-    normalized_df = normalization.normalize()
+    denormalization = Denormalization(normalized_df, normalization)
+    denormalized_df = denormalization.filter()
     ```
 
     Parameters:
-        df (DataFrame): PySpark DataFrame to be normalized.
-        method (str): Normalization method, either "z-score" or "min-max" or "mean".
-        column_names (List[str]): List of columns in the DataFrame to be normalized.
+        df (DataFrame): PySpark DataFrame to be reverted to its original scale.
+        normalization_to_revert (NormalizationBaseClass): An instance of the specific normalization subclass (NormalizationZScore, NormalizationMinMax, NormalizationMean) that was originally used to normalize the data. 
     """
 
     df: PySparkDataFrame
