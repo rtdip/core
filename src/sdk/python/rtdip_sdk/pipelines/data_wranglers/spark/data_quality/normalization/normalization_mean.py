@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import math
+
 from .normalization import NormalizationBaseClass
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import functions as F
@@ -28,6 +30,10 @@ class NormalizationMean(NormalizationBaseClass):
         mean_val = df.select(F.mean(F.col(column))).collect()[0][0]
         min_val = df.select(F.min(F.col(column))).collect()[0][0]
         max_val = df.select(F.max(F.col(column))).collect()[0][0]
+
+        divisor = max_val - min_val
+        if math.isclose(divisor, 0.0, abs_tol=10e-8) or not math.isfinite(divisor):
+            raise ZeroDivisionError("Division by Zero in Mean")
 
         store_column = self._get_norm_column_name(column)
         self.reversal_value = [mean_val, min_val, max_val]
