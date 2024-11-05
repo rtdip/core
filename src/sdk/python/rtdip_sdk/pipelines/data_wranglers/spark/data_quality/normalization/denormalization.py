@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2024 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,15 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pyspark.pandas import DataFrame
 from pyspark.sql import DataFrame as PySparkDataFrame
-from typing import List
-from ...interfaces import WranglerBaseInterface
-from ...._pipeline_utils.models import Libraries, SystemType
-from .normalization import Normalization, NormalizationMethod
+from rtdip_sdk.pipelines.data_wranglers.interfaces import WranglerBaseInterface
+from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from rtdip_sdk.pipelines.data_wranglers.spark.data_quality.normalization.normalization import NormalizationBaseClass
 
 class Denormalization(WranglerBaseInterface):
     """
+    #TODO
     Applies denormalization to multiple columns in a PySpark DataFrame using Z-Score, Min-Max or Mean normalization.
 
     Example
@@ -40,9 +39,9 @@ class Denormalization(WranglerBaseInterface):
     """
 
     df: PySparkDataFrame
-    normalization_to_revert: Normalization
+    normalization_to_revert: NormalizationBaseClass
 
-    def __init__(self, df: PySparkDataFrame, normalization_to_revert: Normalization) -> None:
+    def __init__(self, df: PySparkDataFrame, normalization_to_revert: NormalizationBaseClass) -> None:
         self.df = df
         self.normalization_to_revert = normalization_to_revert
 

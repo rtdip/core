@@ -11,12 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from abc import ABCMeta
+
 import pytest
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 
-from rtdip_sdk.pipelines.data_wranglers import Normalization, NormalizationMethod, Denormalization
+from rtdip_sdk.pipelines.data_wranglers import *
 
 
 @pytest.fixture(scope="session")
@@ -24,8 +26,8 @@ def spark_session():
     return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
 
 
-@pytest.mark.parametrize("method", NormalizationMethod)
-def test_idempotence_of_normalization(spark_session: SparkSession, method: NormalizationMethod):
+@pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
+def test_idempotence_of_normalization(spark_session: SparkSession, class_to_test: NormalizationBaseClass):
     expected_df = spark_session.createDataFrame(
         [
             (1.0,),
@@ -39,7 +41,7 @@ def test_idempotence_of_normalization(spark_session: SparkSession, method: Norma
 
     df = expected_df.alias('df')
 
-    normalization_component = Normalization(df, method, column_names=["Value"], in_place=True)
+    normalization_component = class_to_test(df, column_names=["Value"], in_place=True)
     actual_df = normalization_component.filter()
 
     denormalization_component = Denormalization(actual_df, normalization_component)
