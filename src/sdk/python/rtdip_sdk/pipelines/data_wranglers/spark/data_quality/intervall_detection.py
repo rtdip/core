@@ -11,29 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pandas import DataFrame
-
-from rtdip_sdk.pipelines._pipeline_utils.models import SystemType, Libraries
+from pyspark.sql import DataFrame, SparkSession
+from ...._pipeline_utils.models import Libraries, SystemType
 from ...interfaces import WranglerBaseInterface
 
 class IntervallDetection(WranglerBaseInterface):
     """
-       The Intervall Detection cleanses a PySpark DataFrame from entries
+       The Intervall Detection cleanses a PySpark DataFrame from entries specified by a passed interval.
 
 
 
        Parameters:
            spark (SparkSession): A SparkSession object.
-           df (DataFrame): Dataframe containing the raw data.
-           column_names (list[str]): The names of the columns to be filtered (currently only one column is supported).
-           k_value (float): The number of deviations to build the threshold.
-           use_median (book): If True the median and the median absolute deviation (MAD) are used, instead of the mean and standard deviation.
+           df (DataFrame): PySpark DataFrame to be converted
+           interval (float): The interval to be used for the detection in seconds
+
        """
-    df: DataFrame
 
 
-    def __init__(self, df: DataFrame) -> None:
+    def __init__(self, spark: SparkSession,  df: DataFrame, interval: float) -> None:
+        self.spark = spark
         self.df = df
+        self.interval = interval
 
     @staticmethod
     def system_type():
@@ -51,6 +50,12 @@ class IntervallDetection(WranglerBaseInterface):
     @staticmethod
     def settings() -> dict:
         return {}
+
+    def filter(self) -> DataFrame:
+        """
+        Filters the DataFrame based on the interval
+        """
+        return self.df.filter(f"timestamp % {self.interval} == 0")
 
 
 
