@@ -49,7 +49,9 @@ class NormalizationBaseClass(WranglerBaseInterface):
     # Appended to column name if new column is added
     NORMALIZATION_NAME_POSTFIX: str = "normalization"
 
-    def __init__(self, df: PySparkDataFrame, column_names: List[str], in_place: bool = False) -> None:
+    def __init__(
+        self, df: PySparkDataFrame, column_names: List[str], in_place: bool = False
+    ) -> None:
 
         for column_name in column_names:
             if not column_name in df.columns:
@@ -93,15 +95,17 @@ class NormalizationBaseClass(WranglerBaseInterface):
 
     def denormalize(self, input_df) -> PySparkDataFrame:
         """
-            Denormalizes the input DataFrame. Intended to be used by the denormalization component.
+        Denormalizes the input DataFrame. Intended to be used by the denormalization component.
 
-            Parameters:
-                input_df (DataFrame): Dataframe containing the current data.
+        Parameters:
+            input_df (DataFrame): Dataframe containing the current data.
         """
         denormalized_df = input_df
         if not self.in_place:
             for column in self.column_names:
-                denormalized_df = denormalized_df.drop(self._get_norm_column_name(column))
+                denormalized_df = denormalized_df.drop(
+                    self._get_norm_column_name(column)
+                )
         else:
             for column in self.column_names:
                 denormalized_df = self._denormalize_column(denormalized_df, column)
@@ -109,15 +113,16 @@ class NormalizationBaseClass(WranglerBaseInterface):
 
     @property
     @abstractmethod
-    def NORMALIZED_COLUMN_NAME(self):
-        ...
+    def NORMALIZED_COLUMN_NAME(self): ...
 
     @abstractmethod
     def _normalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
         pass
 
     @abstractmethod
-    def _denormalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
+    def _denormalize_column(
+        self, df: PySparkDataFrame, column: str
+    ) -> PySparkDataFrame:
         pass
 
     def _get_norm_column_name(self, column_name: str) -> str:

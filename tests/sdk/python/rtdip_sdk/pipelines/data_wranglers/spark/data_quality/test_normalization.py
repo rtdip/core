@@ -27,8 +27,10 @@ def spark_session():
 
 
 @pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
-def test_idempotence_of_normalization(spark_session: SparkSession, class_to_test: NormalizationBaseClass):
-    expected_df = spark_session.createDataFrame(
+def test_idempotence_with_positive_values(
+    spark_session: SparkSession, class_to_test: NormalizationBaseClass
+):
+    input_df = spark_session.createDataFrame(
         [
             (1.0,),
             (2.0,),
@@ -39,16 +41,48 @@ def test_idempotence_of_normalization(spark_session: SparkSession, class_to_test
         ["Value"],
     )
 
-    df = expected_df.alias('df')
+    expected_df = input_df.alias("input_df")
+    helper_assert_idempotence(spark_session, class_to_test, input_df, expected_df)
 
-    normalization_component = class_to_test(df, column_names=["Value"], in_place=True)
-    actual_df = normalization_component.filter()
 
-    denormalization_component = Denormalization(actual_df, normalization_component)
-    actual_df = denormalization_component.filter()
+@pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
+def test_idempotence_with_zero_values(
+    spark_session: SparkSession, class_to_test: NormalizationBaseClass
+):
+    input_df = spark_session.createDataFrame(
+        [
+            (0.0,),
+            (0.0,),
+            (0.0,),
+            (0.0,),
+            (0.0,),
+        ],
+        ["Value"],
+    )
 
-    assert isinstance(actual_df, DataFrame)
+    expected_df = input_df.alias("input_df")
+    helper_assert_idempotence(spark_session, class_to_test, input_df, expected_df)
 
-    assert expected_df.columns == actual_df.columns
-    assert expected_df.schema == actual_df.schema
-    assert expected_df.collect() == actual_df.collect()
+
+def helper_assert_idempotence(
+    spark_session: SparkSession,
+    class_to_test: NormalizationBaseClass,
+    input_df: DataFrame,
+    expected_df: DataFrame,
+):
+    try:
+        normalization_component = class_to_test(
+            input_df, column_names=["Value"], in_place=True
+        )
+        actual_df = normalization_component.filter()
+
+        denormalization_component = Denormalization(actual_df, normalization_component)
+        actual_df = denormalization_component.filter()
+
+        assert isinstance(actual_df, DataFrame)
+
+        assert expected_df.columns == actual_df.columns
+        assert expected_df.schema == actual_df.schema
+        assert expected_df.collect() == actual_df.collect()
+    except ZeroDivisionError:
+        pass

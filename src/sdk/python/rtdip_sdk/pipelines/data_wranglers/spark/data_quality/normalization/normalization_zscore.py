@@ -18,7 +18,7 @@ from pyspark.sql import functions as F
 
 class NormalizationZScore(NormalizationBaseClass):
 
-    NORMALIZED_COLUMN_NAME = 'zscore'
+    NORMALIZED_COLUMN_NAME = "zscore"
 
     def _normalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
         """
@@ -32,14 +32,15 @@ class NormalizationZScore(NormalizationBaseClass):
         self.reversal_value = [mean_val, std_dev_val]
 
         return df.withColumn(
-            store_column,
-            (F.col(column) - F.lit(mean_val)) / F.lit(std_dev_val)
+            store_column, (F.col(column) - F.lit(mean_val)) / F.lit(std_dev_val)
         )
 
-    def _denormalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
+    def _denormalize_column(
+        self, df: PySparkDataFrame, column: str
+    ) -> PySparkDataFrame:
         """
-            Private method to revert Z-Score normalization to the specified column.
-            Z-Score denormalization: normalized_value * std_dev + mean = value
+        Private method to revert Z-Score normalization to the specified column.
+        Z-Score denormalization: normalized_value * std_dev + mean = value
         """
         mean_val = self.reversal_value[0]
         std_dev_val = self.reversal_value[1]
@@ -47,6 +48,5 @@ class NormalizationZScore(NormalizationBaseClass):
         store_column = self._get_norm_column_name(column)
 
         return df.withColumn(
-            store_column,
-            F.col(column) * F.lit(std_dev_val) + F.lit(mean_val)
+            store_column, F.col(column) * F.lit(std_dev_val) + F.lit(mean_val)
         )

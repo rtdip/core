@@ -15,9 +15,10 @@ from rtdip_sdk.pipelines.data_wranglers import NormalizationBaseClass
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import functions as F
 
+
 class NormalizationMean(NormalizationBaseClass):
 
-    NORMALIZED_COLUMN_NAME = 'mean'
+    NORMALIZED_COLUMN_NAME = "mean"
 
     def _normalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
         """
@@ -33,13 +34,15 @@ class NormalizationMean(NormalizationBaseClass):
 
         return df.withColumn(
             store_column,
-            (F.col(column) - F.lit(mean_val)) / (F.lit(max_val) - F.lit(min_val))
+            (F.col(column) - F.lit(mean_val)) / (F.lit(max_val) - F.lit(min_val)),
         )
 
-    def _denormalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
+    def _denormalize_column(
+        self, df: PySparkDataFrame, column: str
+    ) -> PySparkDataFrame:
         """
-            Private method to revert Mean normalization to the specified column.
-            Mean denormalization: normalized_value * (max - min) + mean = value
+        Private method to revert Mean normalization to the specified column.
+        Mean denormalization: normalized_value * (max - min) + mean = value
         """
         mean_val = self.reversal_value[0]
         min_val = self.reversal_value[1]
@@ -49,5 +52,5 @@ class NormalizationMean(NormalizationBaseClass):
 
         return df.withColumn(
             store_column,
-            F.col(column) * (F.lit(max_val) - F.lit(min_val)) + F.lit(mean_val)
+            F.col(column) * (F.lit(max_val) - F.lit(min_val)) + F.lit(mean_val),
         )

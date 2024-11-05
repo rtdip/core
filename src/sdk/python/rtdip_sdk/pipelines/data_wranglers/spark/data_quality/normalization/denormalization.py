@@ -14,7 +14,10 @@
 from pyspark.sql import DataFrame as PySparkDataFrame
 from rtdip_sdk.pipelines.data_wranglers.interfaces import WranglerBaseInterface
 from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
-from rtdip_sdk.pipelines.data_wranglers.spark.data_quality.normalization.normalization import NormalizationBaseClass
+from rtdip_sdk.pipelines.data_wranglers.spark.data_quality.normalization.normalization import (
+    NormalizationBaseClass,
+)
+
 
 class Denormalization(WranglerBaseInterface):
     """
@@ -41,7 +44,9 @@ class Denormalization(WranglerBaseInterface):
     df: PySparkDataFrame
     normalization_to_revert: NormalizationBaseClass
 
-    def __init__(self, df: PySparkDataFrame, normalization_to_revert: NormalizationBaseClass) -> None:
+    def __init__(
+        self, df: PySparkDataFrame, normalization_to_revert: NormalizationBaseClass
+    ) -> None:
         self.df = df
         self.normalization_to_revert = normalization_to_revert
 

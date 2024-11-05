@@ -18,12 +18,12 @@ from pyspark.sql import functions as F
 
 class NormalizationMinMax(NormalizationBaseClass):
 
-    NORMALIZED_COLUMN_NAME = 'minmax'
+    NORMALIZED_COLUMN_NAME = "minmax"
 
     def _normalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
         """
-            Private method to revert Min-Max normalization to the specified column.
-            Min-Max denormalization: normalized_value * (max - min) + min = value
+        Private method to revert Min-Max normalization to the specified column.
+        Min-Max denormalization: normalized_value * (max - min) + min = value
         """
         min_val = df.select(F.min(F.col(column))).collect()[0][0]
         max_val = df.select(F.max(F.col(column))).collect()[0][0]
@@ -33,13 +33,15 @@ class NormalizationMinMax(NormalizationBaseClass):
 
         return df.withColumn(
             store_column,
-            (F.col(column) - F.lit(min_val)) / (F.lit(max_val) - F.lit(min_val))
+            (F.col(column) - F.lit(min_val)) / (F.lit(max_val) - F.lit(min_val)),
         )
 
-    def _denormalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:
+    def _denormalize_column(
+        self, df: PySparkDataFrame, column: str
+    ) -> PySparkDataFrame:
         """
-            Private method to revert Z-Score normalization to the specified column.
-            Z-Score denormalization: normalized_value * std_dev + mean = value
+        Private method to revert Z-Score normalization to the specified column.
+        Z-Score denormalization: normalized_value * std_dev + mean = value
         """
         min_val = self.reversal_value[0]
         max_val = self.reversal_value[1]
@@ -48,5 +50,5 @@ class NormalizationMinMax(NormalizationBaseClass):
 
         return df.withColumn(
             store_column,
-            (F.col(column) * (F.lit(max_val) - F.lit(min_val))) + F.lit(min_val)
+            (F.col(column) * (F.lit(max_val) - F.lit(min_val))) + F.lit(min_val),
         )
