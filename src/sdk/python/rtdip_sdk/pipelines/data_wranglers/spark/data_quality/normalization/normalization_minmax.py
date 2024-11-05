@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from rtdip_sdk.pipelines.data_wranglers import NormalizationBaseClass
+from .normalization import NormalizationBaseClass
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import functions as F
 

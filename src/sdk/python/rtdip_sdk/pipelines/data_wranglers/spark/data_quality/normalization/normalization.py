@@ -14,8 +14,8 @@
 from abc import abstractmethod
 from pyspark.sql import DataFrame as PySparkDataFrame
 from typing import List
-from rtdip_sdk.pipelines.data_wranglers.interfaces import WranglerBaseInterface
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from .....data_wranglers.interfaces import WranglerBaseInterface
+from ....._pipeline_utils.models import Libraries, SystemType
 
 
 class NormalizationBaseClass(WranglerBaseInterface):
