@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from pyspark.sql import DataFrame as PySparkDataFrame
-from rtdip_sdk.pipelines.data_wranglers.interfaces import WranglerBaseInterface
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
-from rtdip_sdk.pipelines.data_wranglers.spark.data_quality.normalization.normalization import (
+from .....data_wranglers.interfaces import WranglerBaseInterface
+from ....._pipeline_utils.models import Libraries, SystemType
+from .normalization import (
     NormalizationBaseClass,
 )
 
