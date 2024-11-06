@@ -14,12 +14,10 @@
 import pytest
 
 from pyspark.sql import SparkSession
-from pyspark.sql.dataframe import DataFrame
+from pyspark.sql import DataFrame
 
 from rtdip_sdk.pipelines.data_wranglers.spark.data_quality.interval_filtering import IntervalFiltering
-from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.duplicate_detection import (
-    DuplicateDetection,
-)
+
 
 
 @pytest.fixture(scope="session")
@@ -53,7 +51,7 @@ def test_interval_detection(spark_session: SparkSession):
         ["TagName", "EventTime", "Status", "Value"],
     )
 
-    interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "milliseconds")
+    interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "seconds", "EventTime")
     actual_df = interval_filtering_wrangler.filter()
 
     assert isinstance(actual_df, DataFrame)

@@ -106,16 +106,26 @@ class IntervalFiltering(WranglerBaseInterface):
         for i in range(1, len(rows)):
             current_row = rows[i]
             current_time_stamp = current_row[self.time_stamp_column_name]
+            if ((last_time_stamp - current_time_stamp).total_seconds()) >= time_delta.total_seconds():
 
-            if ((last_time_stamp - last_time_stamp).total_seconds()) >= time_delta.total_seconds():
-                print(current_row)
+
                 cleansed_df.append(current_row)
                 last_time_stamp = current_time_stamp
 
-        print(cleansed_df)
+
+        # Create Dataframe from cleansed data
+        result_df = pd.DataFrame(cleansed_df)
+
+        # rename the columns back to original
+        column_names = self.df.columns
+        result_df.columns = column_names
+
+        # Convert Dataframe time_stamp column back to string
+        result_df[self.time_stamp_column_name] = result_df[self.time_stamp_column_name].dt.strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
-        return self.df
+        print(result_df)
+        return result_df
 
 
 
