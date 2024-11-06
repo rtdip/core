@@ -18,10 +18,11 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 
-from rtdip_sdk.pipelines.data_wranglers import NormalizationMean, NormalizationMinMax
 from src.sdk.python.rtdip_sdk.pipelines.data_wranglers import (
     NormalizationBaseClass,
     Denormalization,
+    NormalizationMinMax,
+    NormalizationMean,
 )
 
 
