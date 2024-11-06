@@ -18,6 +18,7 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 
+from rtdip_sdk.pipelines.data_wranglers import NormalizationMean, NormalizationMinMax
 from src.sdk.python.rtdip_sdk.pipelines.data_wranglers import (
     NormalizationBaseClass,
     Denormalization,
@@ -27,6 +28,57 @@ from src.sdk.python.rtdip_sdk.pipelines.data_wranglers import (
 @pytest.fixture(scope="session")
 def spark_session():
     return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
+
+
+def test_nonexistent_column_normalization(spark_session: SparkSession):
+    input_df = spark_session.createDataFrame(
+        [
+            (1.0,),
+            (2.0,),
+        ],
+        ["Value"],
+    )
+
+    with pytest.raises(ValueError):
+        NormalizationMean(input_df, column_names=["NonexistingColumn"], in_place=True)
+
+
+def test_non_inplace_normalization(spark_session: SparkSession):
+    input_df = spark_session.createDataFrame(
+        [
+            (1.0,),
+            (2.0,),
+        ],
+        ["Value"],
+    )
+
+    expected_normalised_df = spark_session.createDataFrame(
+        [
+            (1.0, 0.0),
+            (2.0, 1.0),
+        ],
+        ["Value", "Value_minmax_normalization"],
+    )
+
+    normalization_component = NormalizationMinMax(
+        input_df, column_names=["Value"], in_place=False
+    )
+    normalised_df = normalization_component.filter()
+
+    assert isinstance(normalised_df, DataFrame)
+
+    assert expected_normalised_df.columns == normalised_df.columns
+    assert expected_normalised_df.schema == normalised_df.schema
+    assert expected_normalised_df.collect() == normalised_df.collect()
+
+    denormalization_component = Denormalization(normalised_df, normalization_component)
+    reverted_df = denormalization_component.filter()
+
+    assert isinstance(reverted_df, DataFrame)
+
+    assert input_df.columns == reverted_df.columns
+    assert input_df.schema == reverted_df.schema
+    assert input_df.collect() == reverted_df.collect()
 
 
 @pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
@@ -45,7 +97,9 @@ def test_idempotence_with_positive_values(
     )
 
     expected_df = input_df.alias("input_df")
-    helper_assert_idempotence(spark_session, class_to_test, input_df, expected_df)
+    helper_assert_idempotence(class_to_test, input_df, expected_df)
+
+    class_to_test(input_df, column_names=["Value"], in_place=True)
 
 
 @pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
@@ -64,11 +118,10 @@ def test_idempotence_with_zero_values(
     )
 
     expected_df = input_df.alias("input_df")
-    helper_assert_idempotence(spark_session, class_to_test, input_df, expected_df)
+    helper_assert_idempotence(class_to_test, input_df, expected_df)
 
 
 def helper_assert_idempotence(
-    spark_session: SparkSession,
     class_to_test: NormalizationBaseClass,
     input_df: DataFrame,
     expected_df: DataFrame,
