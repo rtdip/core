@@ -15,6 +15,7 @@ from datetime import timedelta
 
 import pandas as pd
 from databricks.sqlalchemy.test_local.conftest import schema
+from exceptiongroup import catch
 from pyspark.sql import functions as F
 from pyspark.sql import  SparkSession
 from pyspark.sql import DataFrame
@@ -87,7 +88,10 @@ class IntervalFiltering(WranglerBaseInterface):
             raise ValueError("interval_unit must be either 'seconds' or 'milliseconds'")
 
     def format_date_time_to_string(self, time_stamp: pd.Timestamp) -> str:
-        return time_stamp.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        try:
+            return time_stamp.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        except Exception as e:
+            raise ValueError(f"Error converting timestamp to string: {e}")
 
     def filter(self) -> DataFrame:
         """
