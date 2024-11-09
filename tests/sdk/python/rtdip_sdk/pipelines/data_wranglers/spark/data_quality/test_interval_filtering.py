@@ -249,3 +249,34 @@ def test_interval_detection_faulty_time_stamp(spark_session: SparkSession):
     with pytest.raises(ValueError):
         interval_filtering_wrangler.filter()
 
+def test_interval_tolerance(spark_session: SparkSession):
+    expected_df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:47.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:50.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:52.000", "Good", "0.129999995"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
+    df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:46.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:47.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:50.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:51.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:52.000", "Good", "0.129999995"),
+
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
+    interval_filtering_wrangler = IntervalFiltering(spark_session, df, 3, "seconds", "EventTime", 1)
+    actual_df = interval_filtering_wrangler.filter()
+
+    assert expected_df.columns == actual_df.columns
+    assert expected_df.schema == actual_df.schema
+    assert expected_df.collect() == actual_df.collect()
+
