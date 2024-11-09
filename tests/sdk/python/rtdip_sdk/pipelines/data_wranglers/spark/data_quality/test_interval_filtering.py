@@ -169,6 +169,35 @@ def test_interval_detection_hours(spark_session: SparkSession):
     assert expected_df.schema == actual_df.schema
     assert expected_df.collect() == actual_df.collect()
 
+def test_interval_detection_days(spark_session: SparkSession):
+    expected_df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0JR", "2024-01-02 20:03:46.000"),
+            ("A2PS64asd.:ZUX09R", "2024-01-03 21:03:46.000"),
+            ("A2PS64asd.:ZUX09R", "2024-01-04 21:12:46.030"),
+            ("A2PS64V0J.:ZUasdX09R", "2028-01-01 23:03:46.035"),
+        ],
+        ["TagName", "EventTime"],
+    )
+
+    df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0JR", "2024-01-02 20:03:46.000"),
+            ("A2PS64asd.:ZUX09R", "2024-01-03 21:03:46.000"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-04 21:03:45.999"),
+            ("A2PS64asd.:ZUX09R", "2024-01-04 21:12:46.030"),
+            ("A2PS64V0J.:ZUasdX09R", "2028-01-01 23:03:46.035"),
+        ],
+        ["TagName", "EventTime"],
+    )
+
+    interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "days" )
+    actual_df = interval_filtering_wrangler.filter()
+
+    assert expected_df.columns == actual_df.columns
+    assert expected_df.schema == actual_df.schema
+    assert expected_df.collect() == actual_df.collect()
+
 def test_interval_detection_wrong_time_stamp_column_name(spark_session: SparkSession):
     df = spark_session.createDataFrame(
         [
