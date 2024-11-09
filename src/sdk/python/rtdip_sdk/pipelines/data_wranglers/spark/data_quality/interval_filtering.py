@@ -14,33 +14,39 @@
 from datetime import timedelta
 
 import pandas as pd
-from databricks.sqlalchemy.test_local.conftest import schema
-from exceptiongroup import catch
 from pyspark.sql import functions as F
-from pyspark.sql import  SparkSession
+from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 
 from ...._pipeline_utils.models import Libraries, SystemType
 from ...interfaces import WranglerBaseInterface
 
+
 class IntervalFiltering(WranglerBaseInterface):
     """
-       Cleanses a DataFrame by removing rows outside a specified interval window.
-       Example:
+    Cleanses a DataFrame by removing rows outside a specified interval window.
+    Example:
 
 
-       Parameters:
-           spark (SparkSession): A SparkSession object.
-           df (DataFrame): PySpark DataFrame to be converted
-           interval (int): The interval length for cleansing.
-            interval_unit (str): 'hours', 'minutes', 'seconds' or 'milliseconds' to specify the unit of the interval.
-       """
+    Parameters:
+        spark (SparkSession): A SparkSession object.
+        df (DataFrame): PySpark DataFrame to be converted
+        interval (int): The interval length for cleansing.
+         interval_unit (str): 'hours', 'minutes', 'seconds' or 'milliseconds' to specify the unit of the interval.
+    """
 
     """ Default time stamp column name if not set in the constructor """
     DEFAULT_TIME_STAMP_COLUMN_NAME: str = "EventTime"
 
-
-    def __init__(self, spark: SparkSession,  df: DataFrame, interval: int, interval_unit: str, time_stamp_column_name: str = None, tolerance: int = None) -> None:
+    def __init__(
+        self,
+        spark: SparkSession,
+        df: DataFrame,
+        interval: int,
+        interval_unit: str,
+        time_stamp_column_name: str = None,
+        tolerance: int = None,
+    ) -> None:
         self.spark = spark
         self.df = df
         self.interval = interval
@@ -48,7 +54,8 @@ class IntervalFiltering(WranglerBaseInterface):
         self.tolerance = tolerance
         if time_stamp_column_name is None:
             self.time_stamp_column_name = self.DEFAULT_TIME_STAMP_COLUMN_NAME
-        else: self.time_stamp_column_name = time_stamp_column_name
+        else:
+            self.time_stamp_column_name = time_stamp_column_name
 
     @staticmethod
     def system_type():
@@ -67,36 +74,51 @@ class IntervalFiltering(WranglerBaseInterface):
     def settings() -> dict:
         return {}
 
-
     def convert_column_to_timestamp(self) -> DataFrame:
         try:
-            return self.df.withColumn(self.time_stamp_column_name, F.to_timestamp(self.time_stamp_column_name))
+            return self.df.withColumn(
+                self.time_stamp_column_name, F.to_timestamp(self.time_stamp_column_name)
+            )
         except Exception as e:
-            raise ValueError(f"Error converting column {self.time_stamp_column_name} to timestamp: {e}")
+            raise ValueError(
+                f"Error converting column {self.time_stamp_column_name} to timestamp: {e}"
+            )
 
     def get_time_delta(self, value: int) -> timedelta:
-        if self.interval_unit ==  'minutes':
-            return timedelta(minutes = value)
-        elif self.interval_unit == 'days':
-            return timedelta(days = value)
-        elif self.interval_unit == 'hours':
-            return timedelta(hours = value)
-        elif self.interval_unit == 'seconds':
-            return timedelta(seconds = value)
-        elif self.interval_unit == 'milliseconds':
-            return timedelta(milliseconds = value)
+        if self.interval_unit == "minutes":
+            return timedelta(minutes=value)
+        elif self.interval_unit == "days":
+            return timedelta(days=value)
+        elif self.interval_unit == "hours":
+            return timedelta(hours=value)
+        elif self.interval_unit == "seconds":
+            return timedelta(seconds=value)
+        elif self.interval_unit == "milliseconds":
+            return timedelta(milliseconds=value)
         else:
-            raise ValueError("interval_unit must be either 'days', 'hours', 'minutes', 'seconds' or 'milliseconds'")
+            raise ValueError(
+                "interval_unit must be either 'days', 'hours', 'minutes', 'seconds' or 'milliseconds'"
+            )
 
-    def check_if_outside_of_interval(self, current_time_stamp: pd.Timestamp, last_time_stamp: pd.Timestamp, time_delta_in_ms: float, tolerance_in_ms: float) -> bool:
+    def check_if_outside_of_interval(
+        self,
+        current_time_stamp: pd.Timestamp,
+        last_time_stamp: pd.Timestamp,
+        time_delta_in_ms: float,
+        tolerance_in_ms: float,
+    ) -> bool:
         if tolerance_in_ms is None:
-            return ((current_time_stamp - last_time_stamp).total_seconds() * 1000) >= time_delta_in_ms
+            return (
+                (current_time_stamp - last_time_stamp).total_seconds() * 1000
+            ) >= time_delta_in_ms
         else:
-            return ((current_time_stamp - last_time_stamp).total_seconds() * 1000) + tolerance_in_ms >= time_delta_in_ms
+            return (
+                (current_time_stamp - last_time_stamp).total_seconds() * 1000
+            ) + tolerance_in_ms >= time_delta_in_ms
 
     def format_date_time_to_string(self, time_stamp: pd.Timestamp) -> str:
         try:
-            return time_stamp.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+            return time_stamp.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
         except Exception as e:
             raise ValueError(f"Error converting timestamp to string: {e}")
 
@@ -106,23 +128,28 @@ class IntervalFiltering(WranglerBaseInterface):
         """
 
         if self.time_stamp_column_name not in self.df.columns:
-            raise ValueError(f"Column {self.time_stamp_column_name} not found in the DataFrame.")
+            raise ValueError(
+                f"Column {self.time_stamp_column_name} not found in the DataFrame."
+            )
 
         original_schema = self.df.schema
-        self.df = self.convert_column_to_timestamp().orderBy(self.time_stamp_column_name)
+        self.df = self.convert_column_to_timestamp().orderBy(
+            self.time_stamp_column_name
+        )
 
         tolerance_in_ms = None
         if self.tolerance is not None:
             tolerance_in_ms = self.get_time_delta(self.tolerance).total_seconds() * 1000
         print(tolerance_in_ms)
 
-
         time_delta_in_ms = self.get_time_delta(self.interval).total_seconds() * 1000
 
         rows = self.df.collect()
         last_time_stamp = rows[0][self.time_stamp_column_name]
         first_row = rows[0].asDict()
-        first_row[self.time_stamp_column_name] = self.format_date_time_to_string(first_row[self.time_stamp_column_name])
+        first_row[self.time_stamp_column_name] = self.format_date_time_to_string(
+            first_row[self.time_stamp_column_name]
+        )
 
         cleansed_df = [first_row]
 
@@ -130,21 +157,18 @@ class IntervalFiltering(WranglerBaseInterface):
             current_row = rows[i]
             current_time_stamp = current_row[self.time_stamp_column_name]
 
-            if self.check_if_outside_of_interval(current_time_stamp, last_time_stamp, time_delta_in_ms, tolerance_in_ms):
+            if self.check_if_outside_of_interval(
+                current_time_stamp, last_time_stamp, time_delta_in_ms, tolerance_in_ms
+            ):
                 current_row_dict = current_row.asDict()
-                current_row_dict[self.time_stamp_column_name] = self.format_date_time_to_string(current_row_dict[self.time_stamp_column_name])
+                current_row_dict[self.time_stamp_column_name] = (
+                    self.format_date_time_to_string(
+                        current_row_dict[self.time_stamp_column_name]
+                    )
+                )
                 cleansed_df.append(current_row_dict)
                 last_time_stamp = current_time_stamp
 
-        result_df = self.spark.createDataFrame(cleansed_df, schema= original_schema)
+        result_df = self.spark.createDataFrame(cleansed_df, schema=original_schema)
 
         return result_df
-
-
-
-
-
-
-
-
-
