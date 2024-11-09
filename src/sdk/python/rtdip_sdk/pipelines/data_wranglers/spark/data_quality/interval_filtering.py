@@ -85,7 +85,7 @@ class IntervalFiltering(WranglerBaseInterface):
         elif self.interval_unit == 'milliseconds':
             return timedelta(milliseconds = self.interval)
         else:
-            raise ValueError("interval_unit must be either 'seconds' or 'milliseconds'")
+            raise ValueError("interval_unit must be either 'days', 'hours', 'minutes', 'seconds' or 'milliseconds'")
 
     def format_date_time_to_string(self, time_stamp: pd.Timestamp) -> str:
         try:
