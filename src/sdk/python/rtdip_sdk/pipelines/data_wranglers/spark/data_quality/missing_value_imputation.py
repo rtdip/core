@@ -12,10 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql import DataFrame as PySparkDataFrame, functions as F
+from pyspark.sql import DataFrame as PySparkDataFrame, functions as F, Row
 from pyspark.sql.functions import col, udf
 from pyspark.sql.types import StringType, TimestampType, FloatType, ArrayType
 from pyspark.sql.window import Window
+from scipy.interpolate import UnivariateSpline
+from systemds.context import SystemDSContext
+from systemds.operator.algorithm import imputeByFD, imputeByMean
+import numpy as np
 from datetime import timedelta
 from typing import List
 from ...interfaces import WranglerBaseInterface
@@ -36,7 +40,6 @@ class MissingValueImputation(WranglerBaseInterface):
     --------
     TODO
     """
-
 
     df: PySparkDataFrame
 
@@ -72,25 +75,109 @@ class MissingValueImputation(WranglerBaseInterface):
         if not all(col_ in self.df.columns for col_ in ["TagName", "EventTime", "Value"]):
             raise ValueError("Columns not as expected")
 
-        if self._is_column_type(self.df, "EventTime", StringType):
-            self.df = self.df.withColumn("EventTime", F.to_timestamp("EventTime"))
-        if self._is_column_type(self.df, "Value", StringType):
+        if not self._is_column_type(self.df, "EventTime", TimestampType):
+            format_1 = "yyyy-MM-dd HH:mm:ss.SSS"
+            format_2 = "dd.MM.yyyy HH:mm"
+            if self._is_column_type(self.df, "EventTime", StringType):
+                # Attempt to parse the first format, then fallback to the second
+                self.df = self.df.withColumn(
+                    "EventTime",
+                    F.coalesce(
+                        F.to_timestamp("EventTime", "yyyy-MM-dd HH:mm:ss.SSS"),
+                        F.to_timestamp("EventTime", "dd.MM.yyyy HH:mm:ss")
+                    )
+                )
+        if not self._is_column_type(self.df, "Value", FloatType):
             self.df = self.df.withColumn("Value", self.df["Value"].cast(FloatType()))
 
         dfs_by_source = self._split_by_source()
 
-        flagged_dfs: List[PySparkDataFrame] = []
+        imputed_dfs: List[PySparkDataFrame] = []
 
         for source, df in dfs_by_source.items():
+            # Compute, insert and flag all the missing entries
             flagged_df = self._flag_missing_values(df)
 
-            print(flagged_df.show(truncate=False)) # Current testing
-            flagged_dfs.append(flagged_df)
+            #print(flagged_df.show(flagged_df.count(), False)) # Current testing
+
+            # Impute the missing values of flagged entries
+            #imputed_df_DS = self._impute_missing_values_DS(flagged_df)
+            imputed_df_SP = self._impute_missing_values_SP(flagged_df)
+            # TODO
+            #imputed_dfs.append(imputed_df)
 
         return self.df
 
 
+    def _impute_missing_values_SP(self, df) -> PySparkDataFrame:
+        # Imputes missing values by Spline Interpolation
+        data = np.array(df.select("Value").rdd.flatMap(lambda x: x).collect(), dtype=float)
+
+        mask = np.isnan(data)
+
+        x_data = np.arange(len(data))
+        y_data = data[~mask]
+
+        # Spline interpolation (cubic smoothing spline)
+        spline = UnivariateSpline(x_data[~mask], y_data, s=0)
+
+        # Impute missing values
+        data_imputed = data.copy()
+        data_imputed[mask] = spline(x_data[mask])
+
+        data_imputed_list = data_imputed.tolist()
+
+        imputed_rdd = df.rdd.zipWithIndex().map(lambda row: Row(
+            TagName=row[0][0],
+            EventTime=row[0][1],
+            Status=row[0][2],
+            Value=float(data_imputed_list[row[1]])
+        ))
+        imputed_df = imputed_rdd.toDF(df.schema)
+
+        #print("Imputed DataFrame:")
+        #print(imputed_df.show(imputed_df.count(), False))
+
+        return imputed_df
+
+
+    def _impute_missing_values_DS(self, df) -> PySparkDataFrame:
+        # Impute missing values with Apache SystemDS functions: TODO
+        value_array = np.array(df.select("Value").rdd.flatMap(lambda x: x).collect()).reshape(-1, 1)
+        mask_array = np.array([0])
+
+        with SystemDSContext() as sds_context:
+
+            X = sds_context.from_numpy(value_array)
+            mask = sds_context.from_numpy(mask_array)
+
+            imputed_matrix_result = imputeByMean(X, mask)
+
+            imputed_values: np.array(None)
+
+            for node in imputed_matrix_result:
+                try:
+                    imputed_values = node.compute()
+                except Exception as e:
+                    print(e)
+                    break
+
+        imputed_values_list = imputed_values.tolist()
+
+        imputed_rdd = df.rdd.zipWithIndex().map(lambda row: Row(
+            TagName=row[0][0],
+            EventTime=row[0][1],
+            Status=row[0][2],
+            Value=float(imputed_values_list[row[1]])
+        ))
+
+        imputed_df = imputed_rdd.toDF(df.schema)
+
+        return imputed_df
+
+
     def _flag_missing_values(self, df) -> PySparkDataFrame:
+
         window_spec = Window.partitionBy("TagName").orderBy("EventTime")
 
         df = df.withColumn("prev_event_time", F.lag("EventTime").over(window_spec))
@@ -102,7 +189,7 @@ class MissingValueImputation(WranglerBaseInterface):
         most_frequent_interval = interval_counts.orderBy(F.desc("count")).first()
         expected_interval = most_frequent_interval["time_diff_seconds"] if most_frequent_interval else None
 
-        tolerance_percentage = 15
+        tolerance_percentage = 5
         tolerance = (expected_interval * tolerance_percentage) / 100 if expected_interval else 0
 
         existing_timestamps = df.select("TagName", "EventTime").rdd \

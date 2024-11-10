@@ -86,3 +86,4 @@ dependencies:
           - pandas>=1.5.2,<2.2.0
           - moto[s3]>=5.0.16,<6.0.0
           - pyarrow>=14.0.1,<17.0.0
+          - systemds>=3.0.0,<3.3.0
