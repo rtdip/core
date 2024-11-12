@@ -1,3 +1,16 @@
+# Copyright 2022 RTDIP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 from pyspark.sql import DataFrame
 import pyspark.ml as ml
 from pyspark.ml.evaluation import RegressionEvaluator
@@ -101,10 +114,20 @@ class LinearRegression(MachineLearningInterface):
             print(f"Error: '{self.prediction_col}' column is missing in the test DataFrame.")
             return None
 
-        evaluator = RegressionEvaluator(
+        # Evaluator for RMSE
+        evaluator_rmse = RegressionEvaluator(
             labelCol=self.label_col,
             predictionCol=self.prediction_col,
             metricName="rmse"
         )
-        rmse = evaluator.evaluate(test_df)
-        return rmse
+        rmse = evaluator_rmse.evaluate(test_df)
+
+        # Evaluator for R²
+        evaluator_r2 = RegressionEvaluator(
+           labelCol=self.label_col,
+           predictionCol=self.prediction_col,
+           metricName="r2"
+        )
+        r2 = evaluator_r2.evaluate(test_df)
+
+        return rmse, r2
