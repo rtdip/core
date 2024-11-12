@@ -50,10 +50,9 @@ def test_nonexistent_column_arima(spark_session: SparkSession):
         ArimaPrediction(input_df, column_name="NonexistingColumn")
 
 
-# PySpark Version <3.4 is skipped since there is a compatability issue between pandas & pyspark forcing this test
-# to fail
 @pytest.mark.skipif(
-    StrictVersion(pyspark.version) < StrictVersion("3.4.0"),
+    StrictVersion(pyspark.version.__version__) < StrictVersion("3.4.0"),
+    reason="Compatability issue between pandas & older pyspark",
 )
 def test_single_column_prediction_arima(spark_session: SparkSession):
     df = pandas.DataFrame()
