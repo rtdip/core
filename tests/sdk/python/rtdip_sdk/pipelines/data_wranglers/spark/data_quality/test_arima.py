@@ -16,10 +16,12 @@ from abc import ABCMeta
 import numpy as np
 import pandas
 import pandas as pd
+import pyspark
 import pytest
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
+from distutils.version import StrictVersion
 
 from src.sdk.python.rtdip_sdk.pipelines.data_wranglers import ArimaPrediction
 
@@ -48,6 +50,11 @@ def test_nonexistent_column_arima(spark_session: SparkSession):
         ArimaPrediction(input_df, column_name="NonexistingColumn")
 
 
+# PySpark Version <3.4 is skipped since there is a compatability issue between pandas & pyspark forcing this test
+# to fail
+@pytest.mark.skipif(
+    StrictVersion(pyspark.version) < StrictVersion("3.4.0"),
+)
 def test_single_column_prediction_arima(spark_session: SparkSession):
     df = pandas.DataFrame()
 
@@ -66,10 +73,6 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
     df = df.set_index(pd.DatetimeIndex(df["index"]))
 
     learn_df = df.head(h_a_l)
-
-    # Workaround needed for PySpark versions <3.4
-    if not hasattr(learn_df, "iteritems"):
-        learn_df.iteritems = learn_df.items
 
     input_df = spark_session.createDataFrame(
         learn_df,
