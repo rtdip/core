@@ -26,7 +26,13 @@ from src.sdk.python.rtdip_sdk.pipelines.data_wranglers import ArimaPrediction
 
 @pytest.fixture(scope="session")
 def spark_session():
-    return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
+    # Additional config needed since older PySpark <3.5 have troubles converting data with timestamps to pandas Dataframes
+    return (
+        SparkSession.builder.master("local[2]")
+        .appName("test")
+        .config("spark.sql.execution.arrow.pyspark.enabled", "true")
+        .getOrCreate()
+    )
 
 
 def test_nonexistent_column_arima(spark_session: SparkSession):
