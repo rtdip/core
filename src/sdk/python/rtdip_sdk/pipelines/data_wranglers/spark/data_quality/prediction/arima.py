@@ -167,4 +167,7 @@ class ArimaPrediction(WranglerBaseInterface):
             start=prediction_start, end=prediction_end
         ).rename(self.column_to_predict)
         extended_df = pd.concat([self.df, prediction_series.to_frame()])
+        # Workaround needed for PySpark versions <3.4
+        if not hasattr(extended_df, "iteritems"):
+            extended_df.iteritems = extended_df.items
         return self.spark_session.createDataFrame(extended_df)
