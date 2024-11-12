@@ -14,11 +14,8 @@
 from typing import List
 
 import pandas as pd
-import pyspark.pandas
 from pandas import DataFrame
-from pyspark.sql.functions import desc
 from pyspark.sql import DataFrame as PySparkDataFrame, SparkSession
-import statsmodels.api as sm
 from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
 
 from ....interfaces import WranglerBaseInterface
@@ -90,6 +87,9 @@ class ArimaPrediction(WranglerBaseInterface):
                  order: tuple = (0,0,0), seasonal_order: tuple = (0,0,0,0), trend = "c", enforce_stationarity: bool = True,
                  enforce_invertibility: bool = True, concentrate_scale: bool = False, trend_offset: int = 1,
                  missing: str = "None") -> None:
+        if not column_name in past_data.columns:
+            raise ValueError("{} not found in the DataFrame.".format(column_name))
+
         self.df = past_data.toPandas()
         self.spark_session = past_data.sparkSession
         self.column_to_predict = column_name
