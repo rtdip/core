@@ -27,16 +27,53 @@ from ....._pipeline_utils.models import Libraries, SystemType
 
 class ArimaPrediction(WranglerBaseInterface):
     """
-    Oneliner.
+    Extends a column in given DataFrame with a ARIMA model.
+
+    ARIMA-Specific parameters can be viewed at the following statsmodels documentation page:
+        https://www.statsmodels.org/dev/generated/statsmodels.tsa.arima.model.ARIMA.html
 
     Example
-    --------
+    -------
     ```python
+        df = pandas.DataFrame()
 
+    numpy.random.seed(0)
+    arr_len = 250
+    h_a_l = int(arr_len / 2)
+    df['Value'] = np.random.rand(arr_len) + np.sin(np.linspace(0, arr_len / 10, num=arr_len))
+    df['Value2'] = np.random.rand(arr_len) + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
+    df['index'] = np.asarray(pandas.date_range(start='1/1/2024', end='2/1/2024', periods=arr_len))
+    df = df.set_index(pd.DatetimeIndex(df['index']))
+
+    learn_df = df.head(h_a_l)
+
+    # plt.plot(df['Value'])
+    # plt.show()
+
+    input_df = spark_session.createDataFrame(
+            learn_df,
+            ['Value', 'Value2', 'index'],
+    )
+    arima_comp = ArimaPrediction(input_df, column_name='Value', number_of_data_points_to_analyze=h_a_l, number_of_data_points_to_predict=h_a_l,
+                         order=(3,0,0), seasonal_order=(3,0,0,62))
+    forecasted_df = arima_comp.filter()
     ```
 
     Parameters:
-        df (DataFrame): PySpark DataFrame to be converted
+        past_data (DataFrame): PySpark DataFrame to extend
+        column_name (str): Name of the column to be extended
+        timestamp_column_name (str): Name of the column containing timestamps
+        external_regressor_column_names (List[str]): Names of the columns with data to use for prediction, but not extend
+        number_of_data_points_to_predict (int): Amount of most recent rows used to create the model
+        number_of_data_points_to_analyze (int): Amount of rows to predict with the model
+        order (tuple): ARIMA-Specific setting
+        seasonal_order (tuple): ARIMA-Specific setting
+        trend (str): ARIMA-Specific setting
+        enforce_stationarity (bool): ARIMA-Specific setting
+        enforce_invertibility (bool): ARIMA-Specific setting
+        concentrate_scale (bool): ARIMA-Specific setting
+        trend_offset (int): ARIMA-Specific setting
+        missing (str): ARIMA-Specific setting
     """
 
     model: ARIMA
@@ -48,23 +85,28 @@ class ArimaPrediction(WranglerBaseInterface):
     rows_to_predict : int
     rows_to_analyze : int
 
-    def __init__(self, past_data: PySparkDataFrame, column_name: str,
+    def __init__(self, past_data: PySparkDataFrame, column_name: str, timestamp_column_name: str = None, external_regressor_column_names: List[str] = None,
                  number_of_data_points_to_predict: int = 50, number_of_data_points_to_analyze: int = None,
                  order: tuple = (0,0,0), seasonal_order: tuple = (0,0,0,0), trend = "c", enforce_stationarity: bool = True,
                  enforce_invertibility: bool = True, concentrate_scale: bool = False, trend_offset: int = 1,
-                 dates = None, freq=None, missing: str = "None") -> None:
-        #TODO: Adds support for datetime
-        #TODO: exog
+                 missing: str = "None") -> None:
         self.df = past_data.toPandas()
         self.spark_session = past_data.sparkSession
         self.column_to_predict = column_name
         self.rows_to_predict = number_of_data_points_to_predict
         self.rows_to_analyze = number_of_data_points_to_analyze or past_data.count()
         input_data = self.df.loc[:, column_name].sort_index(ascending=True).tail(number_of_data_points_to_analyze)
-        #TODO: How to choose parameters better?
+        if external_regressor_column_names is not None:
+            # TODO: exog, e.g. external regressors / exogenic variables
+            raise NotImplementedError("Handling of external regressors is not implemented")
+        if timestamp_column_name is not None:
+            # TODO: Adds support for datetime
+            raise NotImplementedError("Timestamp Indexing not implemented")
+            # input_data.index = self.df.loc[:, timestamp_column_name].sort_index(ascending=True).tail(number_of_data_points_to_analyze)
+            # input_data.index = pd.DatetimeIndex(input_data.index).to_period()
         self.model = ARIMA(endog=input_data, order=order, seasonal_order=seasonal_order, trend=trend, enforce_stationarity=enforce_stationarity,
                            enforce_invertibility=enforce_invertibility, concentrate_scale=concentrate_scale, trend_offset=trend_offset,
-                           dates=dates, freq=freq, missing=missing)
+                           missing=missing)
         self.result = self.model.fit()
 
 
@@ -88,14 +130,15 @@ class ArimaPrediction(WranglerBaseInterface):
 
     def filter(self) -> PySparkDataFrame:
         """
+        Predicts value to predict and extends the in the constructor inputted Dataframe.
+
+        Other columns will be filled with NaN other similar None values.
+
         Returns:
-            DataFrame: A cleansed PySpark DataFrame from all the duplicates.
+            DataFrame: A PySpark DataFrame with extended index and filled column_to_predict.
         """
         prediction_start = self.df.index.max() + 1
         prediction_end = self.df.index.max() + self.rows_to_predict
         prediction_series = self.result.predict(start=prediction_start, end=prediction_end).rename(self.column_to_predict)
-        # extended_pydf = self.df.alias("extended_pydf")
         extended_df = pd.concat([self.df, prediction_series.to_frame()])
-        # extended_df[self.column_to_predict] = pd.concat([self.df[self.column_to_predict], prediction_series], axis=0)
         return self.spark_session.createDataFrame(extended_df)
-        #TODO: Conversion from Dataframe to PySparkDataframe
