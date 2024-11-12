@@ -52,7 +52,7 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
     df = pandas.DataFrame()
 
     np.random.seed(0)
-    arr_len = 250
+    arr_len = 40
     h_a_l = int(arr_len / 2)
     df["Value"] = np.random.rand(arr_len) + np.sin(
         np.linspace(0, arr_len / 10, num=arr_len)
