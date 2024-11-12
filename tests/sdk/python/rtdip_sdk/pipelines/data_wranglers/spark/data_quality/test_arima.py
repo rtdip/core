@@ -68,8 +68,8 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
     learn_df = df.head(h_a_l)
 
     # Workaround needed for PySpark versions <3.4
-    if learn_df.iteritems is None:
-        df.iteritems = df.items
+    if not hasattr(learn_df, "iteritems"):
+        learn_df.iteritems = learn_df.items
 
     input_df = spark_session.createDataFrame(
         learn_df,
