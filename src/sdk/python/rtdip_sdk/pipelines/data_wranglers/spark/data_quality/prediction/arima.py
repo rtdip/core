@@ -60,7 +60,7 @@ class ArimaPrediction(WranglerBaseInterface):
         past_data (DataFrame): PySpark DataFrame to extend
         column_name (str): Name of the column to be extended
         timestamp_column_name (str): Name of the column containing timestamps
-        external_regressor_column_names (List[str]): Names of the columns with data to use for prediction, but not extend
+            external_regressor_column_names (List[str]): Names of the columns with data to use for prediction, but not extend
         number_of_data_points_to_predict (int): Amount of most recent rows used to create the model
         number_of_data_points_to_analyze (int): Amount of rows to predict with the model
         order (tuple): ARIMA-Specific setting
@@ -78,15 +78,27 @@ class ArimaPrediction(WranglerBaseInterface):
     df: DataFrame
     spark_session: SparkSession
 
-    column_to_predict : str
-    rows_to_predict : int
-    rows_to_analyze : int
+    column_to_predict: str
+    rows_to_predict: int
+    rows_to_analyze: int
 
-    def __init__(self, past_data: PySparkDataFrame, column_name: str, timestamp_column_name: str = None, external_regressor_column_names: List[str] = None,
-                 number_of_data_points_to_predict: int = 50, number_of_data_points_to_analyze: int = None,
-                 order: tuple = (0,0,0), seasonal_order: tuple = (0,0,0,0), trend = "c", enforce_stationarity: bool = True,
-                 enforce_invertibility: bool = True, concentrate_scale: bool = False, trend_offset: int = 1,
-                 missing: str = "None") -> None:
+    def __init__(
+        self,
+        past_data: PySparkDataFrame,
+        column_name: str,
+        timestamp_column_name: str = None,
+        external_regressor_column_names: List[str] = None,
+        number_of_data_points_to_predict: int = 50,
+        number_of_data_points_to_analyze: int = None,
+        order: tuple = (0, 0, 0),
+        seasonal_order: tuple = (0, 0, 0, 0),
+        trend="c",
+        enforce_stationarity: bool = True,
+        enforce_invertibility: bool = True,
+        concentrate_scale: bool = False,
+        trend_offset: int = 1,
+        missing: str = "None",
+    ) -> None:
         if not column_name in past_data.columns:
             raise ValueError("{} not found in the DataFrame.".format(column_name))
 
@@ -95,21 +107,33 @@ class ArimaPrediction(WranglerBaseInterface):
         self.column_to_predict = column_name
         self.rows_to_predict = number_of_data_points_to_predict
         self.rows_to_analyze = number_of_data_points_to_analyze or past_data.count()
-        input_data = self.df.loc[:, column_name].sort_index(ascending=True).tail(number_of_data_points_to_analyze)
+        input_data = (
+            self.df.loc[:, column_name]
+            .sort_index(ascending=True)
+            .tail(number_of_data_points_to_analyze)
+        )
         if external_regressor_column_names is not None:
             # TODO: exog, e.g. external regressors / exogenic variables
-            raise NotImplementedError("Handling of external regressors is not implemented")
+            raise NotImplementedError(
+                "Handling of external regressors is not implemented"
+            )
         if timestamp_column_name is not None:
             # TODO: Adds support for datetime
             raise NotImplementedError("Timestamp Indexing not implemented")
             # input_data.index = self.df.loc[:, timestamp_column_name].sort_index(ascending=True).tail(number_of_data_points_to_analyze)
             # input_data.index = pd.DatetimeIndex(input_data.index).to_period()
-        self.model = ARIMA(endog=input_data, order=order, seasonal_order=seasonal_order, trend=trend, enforce_stationarity=enforce_stationarity,
-                           enforce_invertibility=enforce_invertibility, concentrate_scale=concentrate_scale, trend_offset=trend_offset,
-                           missing=missing)
+        self.model = ARIMA(
+            endog=input_data,
+            order=order,
+            seasonal_order=seasonal_order,
+            trend=trend,
+            enforce_stationarity=enforce_stationarity,
+            enforce_invertibility=enforce_invertibility,
+            concentrate_scale=concentrate_scale,
+            trend_offset=trend_offset,
+            missing=missing,
+        )
         self.result = self.model.fit()
-
-
 
     @staticmethod
     def system_type():
@@ -139,6 +163,8 @@ class ArimaPrediction(WranglerBaseInterface):
         """
         prediction_start = self.df.index.max() + 1
         prediction_end = self.df.index.max() + self.rows_to_predict
-        prediction_series = self.result.predict(start=prediction_start, end=prediction_end).rename(self.column_to_predict)
+        prediction_series = self.result.predict(
+            start=prediction_start, end=prediction_end
+        ).rename(self.column_to_predict)
         extended_df = pd.concat([self.df, prediction_series.to_frame()])
         return self.spark_session.createDataFrame(extended_df)
