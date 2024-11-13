@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
@@ -21,6 +19,10 @@ from pyspark.sql.window import Window
 from ...interfaces import MonitoringBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 from ....utilities.spark.time_string_parsing import parse_time_string_to_ms
+
+from src.sdk.python.rtdip_sdk.pipelines.logging.pipeline_logger import PipelineLogger
+
+
 
 
 class IdentifyMissingDataInterval(MonitoringBaseInterface):
@@ -73,17 +75,9 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         self.mad_multiplier = mad_multiplier
         self.min_tolerance = min_tolerance
 
-        # Configure logging
-        self.logger = logging.getLogger(self.__class__.__name__)
-        if not self.logger.handlers:
-            # Prevent adding multiple handlers in interactive environments
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.INFO)
+        # Use global pipeline logger
+        self.logger = PipelineLogger.get_logger()
+
 
     @staticmethod
     def system_type():
