@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
 from src.sdk.python.rtdip_sdk.pipelines.logging.pipeline_logger import (PipelineLogger)
-
-
 
 def test_singleton_instance():
     logger_instance1 = PipelineLogger.get_logger()
