@@ -97,7 +97,7 @@ setup(
     package_dir={"": "src/sdk/python"},
     include_package_data=True,
     packages=find_packages(where="src/sdk/python"),
-    python_requires=">=3.9, <3.12",
+    python_requires=">=3.9, <3.13",
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_DEPENDENCIES,
     setup_requires=["pytest-runner", "setuptools_scm"],
