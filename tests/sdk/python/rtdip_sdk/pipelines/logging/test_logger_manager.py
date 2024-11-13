@@ -12,10 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from src.sdk.python.rtdip_sdk.pipelines.logging.pipeline_logger import (PipelineLogger)
+import pytest
+from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import (LoggerManager)
 
-def test_singleton_instance():
-    logger_instance1 = PipelineLogger.get_logger()
-    logger_instance2 = PipelineLogger.get_logger()
-    assert logger_instance1 is logger_instance1, "Logger instances are not the same"
+def test_logger_manager_basic_function():
+    logger_manager = LoggerManager()
+    assert logger_manager is not None
+
+    logger1 = logger_manager.create_logger("logger1")
+    assert logger1 is logger_manager.get_logger("logger1")
+
+    assert logger_manager.get_logger("logger2") is None
+
+
 
