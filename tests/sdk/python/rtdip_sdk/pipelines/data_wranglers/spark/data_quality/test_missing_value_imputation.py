@@ -115,7 +115,7 @@ def test_missing_value_imputation(spark_session: SparkSession):
 
     df = spark_session.createDataFrame(data, schema=schema)
 
-    missing_value_imputation = MissingValueImputation(df)
+    missing_value_imputation = MissingValueImputation(spark_session, df)
     imputed_df = missing_value_imputation.filter()
 
     assert isinstance(imputed_df, DataFrame)

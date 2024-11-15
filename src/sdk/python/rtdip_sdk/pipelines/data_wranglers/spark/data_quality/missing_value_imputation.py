@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyspark.sql import DataFrame as PySparkDataFrame, functions as F, Row
+from pyspark.sql import SparkSession, DataFrame as PySparkDataFrame, functions as F, Row
 from pyspark.sql.functions import col, udf
 from pyspark.sql.types import StringType, TimestampType, FloatType, ArrayType
 from pyspark.sql.window import Window
@@ -28,25 +28,81 @@ from ...._pipeline_utils.models import Libraries, SystemType
 
 class MissingValueImputation(WranglerBaseInterface):
     """
-    TODO
-
-    Args:
-        TODO
-
-    Returns:
-        TODO
+    Imputes missing values in a univariate time series creating a continuous curve of data points. For that, the
+    time intervals of each individual source is calculated, to then insert empty records at the missing timestamps with
+    NaN values. Through spline interpolation the missing NaN values are calculated resulting in a consistent data set
+    and thus enhance your data quality.
 
     Example
     --------
-    TODO
+    from pyspark.sql import SparkSession
+    from pyspark.sql.dataframe import DataFrame
+    from pyspark.sql.types import StructType, StructField, StringType
+    from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.missing_value_imputation import (
+        MissingValueImputation,
+    )
+
+    @pytest.fixture(scope="session")
+    def spark_session():
+        return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
+
+    spark = spark_session()
+
+    schema = StructType([
+        StructField("TagName", StringType(), True),
+        StructField("EventTime", StringType(), True),
+        StructField("Status", StringType(), True),
+        StructField("Value", StringType(), True)
+    ])
+
+    data = [
+        # Setup controlled Test
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 03:29:21.000", "Good", "1.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 07:32:55.000", "Good", "2.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 11:36:29.000", "Good", "3.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 15:39:03.000", "Good", "4.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 19:42:37.000", "Good", "5.0"),
+        #("A2PS64V0J.:ZUX09R", "2024-01-01 23:46:11.000", "Good", "6.0"), # Test values
+        #("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "7.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "8.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 11:56:42.000", "Good", "9.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "10.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:13:46.000", "Good", "11.0"), # Tolerance Test
+        ("A2PS64V0J.:ZUX09R", "2024-01-03 00:07:20.000", "Good", "10.0"),
+        #("A2PS64V0J.:ZUX09R", "2024-01-03 04:10:54.000", "Good", "9.0"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-03 08:14:28.000", "Good", "8.0"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:01:43", "Good", "4686.259766"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:02:44", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:04:44", "Good", "4686.259766"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:05:44", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:11:46", "Good", "4686.259766"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:13:46", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:16:47", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:19:48", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:20:48", "Good", "4691.161621"),
+    ]
+
+    df = spark.createDataFrame(data, schema=schema)
+
+    missing_value_imputation = MissingValueImputation(spark, df)
+    imputed_df = missing_value_imputation.filter()
+
+    print(imputed_df.show(imputed_df.count(), False))
+
+    ```
+
+    Parameters:
+        df (DataFrame): Dataframe containing the raw data.
     """
 
     df: PySparkDataFrame
 
     def __init__(
         self,
+        spark: SparkSession,
         df: PySparkDataFrame
     ) -> None:
+        self.spark = spark
         self.df = df
 
     @staticmethod
@@ -67,49 +123,8 @@ class MissingValueImputation(WranglerBaseInterface):
         return {}
 
 
-    def filter(self) -> PySparkDataFrame:
-        """
-        Imputate missing values based on []
-        """
-
-        if not all(col_ in self.df.columns for col_ in ["TagName", "EventTime", "Value"]):
-            raise ValueError("Columns not as expected")
-
-        if not self._is_column_type(self.df, "EventTime", TimestampType):
-            format_1 = "yyyy-MM-dd HH:mm:ss.SSS"
-            format_2 = "dd.MM.yyyy HH:mm"
-            if self._is_column_type(self.df, "EventTime", StringType):
-                # Attempt to parse the first format, then fallback to the second
-                self.df = self.df.withColumn(
-                    "EventTime",
-                    F.coalesce(
-                        F.to_timestamp("EventTime", "yyyy-MM-dd HH:mm:ss.SSS"),
-                        F.to_timestamp("EventTime", "dd.MM.yyyy HH:mm:ss")
-                    )
-                )
-        if not self._is_column_type(self.df, "Value", FloatType):
-            self.df = self.df.withColumn("Value", self.df["Value"].cast(FloatType()))
-
-        dfs_by_source = self._split_by_source()
-
-        imputed_dfs: List[PySparkDataFrame] = []
-
-        for source, df in dfs_by_source.items():
-            # Compute, insert and flag all the missing entries
-            flagged_df = self._flag_missing_values(df)
-
-            #print(flagged_df.show(flagged_df.count(), False)) # Current testing
-
-            # Impute the missing values of flagged entries
-            #imputed_df_DS = self._impute_missing_values_DS(flagged_df)
-            imputed_df_SP = self._impute_missing_values_SP(flagged_df)
-            # TODO
-            #imputed_dfs.append(imputed_df)
-
-        return self.df
-
-
-    def _impute_missing_values_SP(self, df) -> PySparkDataFrame:
+    @staticmethod
+    def _impute_missing_values_sp(df) -> PySparkDataFrame:
         # Imputes missing values by Spline Interpolation
         data = np.array(df.select("Value").rdd.flatMap(lambda x: x).collect(), dtype=float)
 
@@ -141,7 +156,8 @@ class MissingValueImputation(WranglerBaseInterface):
         return imputed_df
 
 
-    def _impute_missing_values_DS(self, df) -> PySparkDataFrame:
+    @staticmethod
+    def _impute_missing_values_ds(df) -> PySparkDataFrame:
         # Impute missing values with Apache SystemDS functions: TODO
         value_array = np.array(df.select("Value").rdd.flatMap(lambda x: x).collect()).reshape(-1, 1)
         mask_array = np.array([0])
@@ -176,8 +192,9 @@ class MissingValueImputation(WranglerBaseInterface):
         return imputed_df
 
 
-    def _flag_missing_values(self, df) -> PySparkDataFrame:
-
+    @staticmethod
+    def _flag_missing_values(df) -> PySparkDataFrame:
+        # Calculates interval and inserts empty records at missing timestamps with NaN values
         window_spec = Window.partitionBy("TagName").orderBy("EventTime")
 
         df = df.withColumn("prev_event_time", F.lag("EventTime").over(window_spec))
@@ -236,8 +253,55 @@ class MissingValueImputation(WranglerBaseInterface):
         return df_combined
 
 
+    @staticmethod
+    def _is_column_type(df, column_name, data_type):
+        # Helper method for data type checking
+        type_ = df.schema[column_name]
+
+        return isinstance(type_.dataType, data_type)
+
+
+    def filter(self) -> PySparkDataFrame:
+        """
+        Imputate missing values based on [Spline Interpolation, ]
+        """
+        if not all(col_ in self.df.columns for col_ in ["TagName", "EventTime", "Value"]):
+            raise ValueError("Columns not as expected")
+
+        if not self._is_column_type(self.df, "EventTime", TimestampType):
+            if self._is_column_type(self.df, "EventTime", StringType):
+                # Attempt to parse the first format, then fallback to the second
+                self.df = self.df.withColumn(
+                    "EventTime",
+                    F.coalesce(
+                        F.to_timestamp("EventTime", "yyyy-MM-dd HH:mm:ss.SSS"),
+                        F.to_timestamp("EventTime", "dd.MM.yyyy HH:mm:ss")
+                    )
+                )
+        if not self._is_column_type(self.df, "Value", FloatType):
+            self.df = self.df.withColumn("Value", self.df["Value"].cast(FloatType()))
+
+        dfs_by_source = self._split_by_source()
+
+        imputed_dfs: List[PySparkDataFrame] = []
+
+        for source, df in dfs_by_source.items():
+            # Compute, insert and flag all the missing entries
+            flagged_df = self._flag_missing_values(df)
+
+            #print(flagged_df.show(flagged_df.count(), False)) # Current testing
+
+            # Impute the missing values of flagged entries
+            #imputed_df_DS = self._impute_missing_values_ds(flagged_df)
+            imputed_df_SP = self._impute_missing_values_sp(flagged_df)
+            # TODO
+            #imputed_dfs.append(imputed_df)
+
+        return self.df
+
+
     def _split_by_source(self) -> dict:
-        #
+        # Helper method to separate individual time series based on their source
         tag_names = self.df.select("TagName").distinct().collect()
         tag_names = [row["TagName"] for row in tag_names]
         source_dict = {tag: self.df.filter(col("TagName") == tag).orderBy("EventTime") for tag in tag_names}
@@ -245,8 +309,4 @@ class MissingValueImputation(WranglerBaseInterface):
         return source_dict
 
 
-    def _is_column_type(self, df, column_name, data_type):
-        #
-        type_ = df.schema[column_name]
 
-        return isinstance(type_.dataType, data_type)
