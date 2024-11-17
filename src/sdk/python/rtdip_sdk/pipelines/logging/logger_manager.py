@@ -65,3 +65,8 @@ class LoggerManager:
             return None
         return cls.get_instance().loggers[name]
 
+    @classmethod
+    def get_all_loggers(cls):
+        return cls.get_instance().loggers
+
+
