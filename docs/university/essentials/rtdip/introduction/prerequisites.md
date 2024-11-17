@@ -3,7 +3,7 @@
 Before you begin the course, ensure you obtain the following prerequisites(from your istructor or from your environment if you are doing this on your own):
 
 ## Development Environment
-- Python >=3.9,<=3.11
+- Python >=3.9,<=3.12
 - An IDE such as Visual Studio Code or PyCharm
 - Postman via the app, web browser or as an extension on Visual Studio Code
 
