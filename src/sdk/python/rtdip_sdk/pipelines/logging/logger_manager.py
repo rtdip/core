@@ -14,19 +14,32 @@
 
 import logging
 
+
 from pyspark.pandas.usage_logging.usage_logger import get_logger
+
+
+
 
 
 class LoggerManager:
     """
-    Manages the creation of loggers. Stores all loggers in a dictionary.
+    Singleton that manages the creation of loggers. Stores all loggers in a dictionary.
     """
+
+    __instance = None
 
     # dictionary to store all loggers
     loggers = {}
 
+    @staticmethod
+    def get_instance():
+        if LoggerManager.__instance is None:
+            return LoggerManager()
+        return LoggerManager.__instance
+
+
     def __init__(self):
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     @classmethod
     def create_logger(cls, name: str):
@@ -39,16 +52,16 @@ class LoggerManager:
         Returns:
             logging.Logger: Configured logger instance.
         """
-        if name not in cls.loggers:
+        if name not in cls.get_instance().loggers:
             logger = logging.getLogger(name)
-            cls.loggers[name] = logger
+            cls.get_instance().loggers[name] = logger
             return logger
 
         return get_logger(cls, name)
 
     @classmethod
     def get_logger(cls, name:str):
-        if name not in cls.loggers:
+        if name not in cls.get_instance().loggers:
             return None
-        return cls.loggers[name]
+        return cls.get_instance().loggers[name]
 
