@@ -292,12 +292,22 @@ class MissingValueImputation(WranglerBaseInterface):
             #print(flagged_df.show(flagged_df.count(), False)) # Current testing
 
             # Impute the missing values of flagged entries
-            #imputed_df_DS = self._impute_missing_values_ds(flagged_df)
-            imputed_df_SP = self._impute_missing_values_sp(flagged_df)
             # TODO
-            #imputed_dfs.append(imputed_df)
+            #imputed_df_DS = self._impute_missing_values_ds(flagged_df)
+            imputed_df_sp = self._impute_missing_values_sp(flagged_df)
 
-        return self.df
+            imputed_df_sp = imputed_df_sp.withColumn("EventTime", col("EventTime").cast("string")) \
+                .withColumn("Value", col("Value").cast("string"))
+
+            #print(imputed_df_sp.show(imputed_df_sp.count(), False))
+
+            imputed_dfs.append(imputed_df_sp)
+
+        result_df = imputed_dfs[0]
+        for df in imputed_dfs[1:]:
+            result_df = result_df.unionByName(df)
+
+        return result_df
 
 
     def _split_by_source(self) -> dict:
