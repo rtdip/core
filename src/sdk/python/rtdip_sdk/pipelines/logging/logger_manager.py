@@ -34,7 +34,7 @@ class LoggerManager:
     @staticmethod
     def get_instance():
         if LoggerManager.__instance is None:
-            return LoggerManager()
+            LoggerManager.__instance = LoggerManager()
         return LoggerManager.__instance
 
 
@@ -53,20 +53,26 @@ class LoggerManager:
             logging.Logger: Configured logger instance.
         """
         if name not in cls.get_instance().loggers:
+
             logger = logging.getLogger(name)
-            cls.get_instance().loggers[name] = logger
+            cls.loggers[name] = logger
+            print("Created logger with name: " + name)
+            print("Loggers after creation: ", cls.loggers)
             return logger
 
         return get_logger(cls, name)
 
     @classmethod
     def get_logger(cls, name:str):
+        print("Getting logger with name: " + name)
+
         if name not in cls.get_instance().loggers:
             return None
         return cls.get_instance().loggers[name]
 
     @classmethod
-    def get_all_loggers(cls):
-        return cls.get_instance().loggers
+    def get_all_loggers(cls) -> dict:
+        print("Get all Loggers: ", cls.get_instance().loggers)
+        return LoggerManager.get_instance().loggers
 
 

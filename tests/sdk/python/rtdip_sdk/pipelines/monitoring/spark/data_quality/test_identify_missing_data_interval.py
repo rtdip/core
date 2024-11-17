@@ -1,5 +1,7 @@
 import pytest
 from pyspark.sql import SparkSession
+
+from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import (LoggerManager)
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.identify_missing_data_interval import (
     IdentifyMissingDataInterval,
 )
@@ -22,8 +24,9 @@ def spark():
 @pytest.fixture
 def log_capture():
     log_stream = StringIO()
-    logger = logging.getLogger("IdentifyMissingDataInterval")
-    logger.setLevel(logging.INFO)
+    logger_manager = LoggerManager.get_instance()
+    logger = logger_manager.get_instance().create_logger("IdentifyMissingDataInterval")
+
     handler = logging.StreamHandler(log_stream)
     formatter = logging.Formatter("%(message)s")
     handler.setFormatter(formatter)

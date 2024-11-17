@@ -16,7 +16,7 @@ import pytest
 from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import (LoggerManager)
 
 def test_logger_manager_basic_function():
-    logger_manager = LoggerManager()
+    logger_manager = LoggerManager.get_instance()
     assert logger_manager is not None
 
     logger1 = logger_manager.create_logger("logger1")
@@ -24,5 +24,9 @@ def test_logger_manager_basic_function():
 
     assert logger_manager.get_logger("logger2") is None
 
+def test_singleton_functionality():
+    logger_manager = LoggerManager.get_instance()
+    logger_manager2 = LoggerManager.get_instance()
 
+    assert logger_manager is logger_manager2
 

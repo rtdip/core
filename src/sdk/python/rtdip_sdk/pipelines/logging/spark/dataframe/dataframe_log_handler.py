@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-from abc import abstractmethod, ABC
 
 from pandas import DataFrame
 from datetime import datetime
+
+
 
 class DataFrameLogHandler(logging.Handler):
 
@@ -29,6 +30,8 @@ class DataFrameLogHandler(logging.Handler):
 
     def emit(self, record: logging.LogRecord) -> None:
         """Process and store a log record"""
+        print("EMITTING")
+
         log_entry = {
             'timestamp': datetime.fromtimestamp(record.created),
             'name': record.name,
@@ -36,7 +39,12 @@ class DataFrameLogHandler(logging.Handler):
             'message': record.message
         }
 
+        print(log_entry)
+
+
         self.logs_df = self.logs_df.append(log_entry, ignore_index=True)
+
+
 
 
 

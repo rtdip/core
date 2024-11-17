@@ -20,7 +20,7 @@ from ...interfaces import MonitoringBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 from ....utilities.spark.time_string_parsing import parse_time_string_to_ms
 
-from src.sdk.python.rtdip_sdk.pipelines.logging.pipeline_logger import PipelineLogger
+from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
 
 
 
@@ -76,7 +76,9 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         self.min_tolerance = min_tolerance
 
         # Use global pipeline logger
-        self.logger = PipelineLogger.get_logger()
+        logger_manager = LoggerManager.get_instance()
+        self.logger_manager = logger_manager
+        self.logger = logger_manager.create_logger("IdentifyMissingDataInterval")
 
 
     @staticmethod

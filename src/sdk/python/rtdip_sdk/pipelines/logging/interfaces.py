@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2024 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,5 +19,6 @@ from ..interfaces import PipelineComponentBaseInterface
 
 class LoggingBaseInterface(PipelineComponentBaseInterface):
     @abstractmethod
-    def log(self) -> DataFrame:
+    def get_logs_as_df(self) -> DataFrame:
         pass
+
