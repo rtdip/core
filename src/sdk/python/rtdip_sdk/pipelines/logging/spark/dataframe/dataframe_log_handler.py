@@ -17,13 +17,14 @@ from abc import abstractmethod, ABC
 from pandas import DataFrame
 from datetime import datetime
 
-class LoggingCollectorDataframe:
+class DataFrameLogHandler(logging.Handler):
 
     """
     Collect logs from loggers contained in LoggerManager and stores them in a DataFrame at runtime
     """
     logs_df: DataFrame = None
     def __init__(self):
+        super().__init__()
         self.logs_df = DataFrame(columns = ['timestamp', 'name', 'level', 'message'])
 
     def emit(self, record: logging.LogRecord) -> None:
