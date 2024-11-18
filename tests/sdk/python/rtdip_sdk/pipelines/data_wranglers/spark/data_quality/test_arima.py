@@ -76,8 +76,6 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
         ["Value", "Value2", "index"],
     )
 
-    # input_df.show(n=50)
-
     arima_comp = ArimaPrediction(
         input_df,
         column_name="Value",
@@ -90,5 +88,5 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
 
     assert isinstance(forecasted_df, DataFrame)
 
-    assert forecasted_df.columns == forecasted_df.columns
+    assert input_df.columns == forecasted_df.columns
     assert forecasted_df.count() == arr_len
