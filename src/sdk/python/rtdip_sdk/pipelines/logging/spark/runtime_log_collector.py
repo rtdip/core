@@ -5,22 +5,23 @@ from pandas import DataFrame
 
 from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
 from rtdip_sdk.pipelines.logging.interfaces import LoggingBaseInterface
-from rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
-from rtdip_sdk.pipelines.logging.spark.dataframe.dataframe_log_handler import DataFrameLogHandler
+from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
+from  src.sdk.python.rtdip_sdk.pipelines.logging.spark.dataframe.dataframe_log_handler import DataFrameLogHandler
 
 
 class RuntimeLogCollector(LoggingBaseInterface):
     """Collects logs from all loggers in the LoggerManager at runtime."""
 
     logger_manager: LoggerManager = LoggerManager()
-    df_handler: DataFrameLogHandler = None
+    df_handler: DataFrameLogHandler = DataFrameLogHandler()
 
     def __init__(self):
-        self.df_handler = DataFrameLogHandler()
+      pass
 
-    def get_logs_as_df(self) -> DataFrame:
+    @classmethod
+    def get_logs_as_df(cls) -> DataFrame:
         """Return the DataFrame containing the logs"""
-        return self.df_handler.logs_df.copy()
+        return cls.df_handler.get_logs_as_df()
 
     @staticmethod
     def libraries():
@@ -38,12 +39,13 @@ class RuntimeLogCollector(LoggingBaseInterface):
     @classmethod
     def _attach_handler_to_loggers(cls) -> None:
         """Attaches the DataFrameLogHandler to the logger."""
+
         loggers = cls.logger_manager.get_all_loggers()
-        print("ALL Loggers collector: ", loggers)
 
         for logger in loggers.values():
             # avoid duplicate handlers
             if cls.df_handler not in logger.handlers:
+                print("Attaching handler to logger: ", logger)
                 logger.addHandler(cls.df_handler)
 
 

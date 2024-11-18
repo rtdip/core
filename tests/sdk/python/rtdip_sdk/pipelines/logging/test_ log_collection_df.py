@@ -14,10 +14,10 @@
 from logging import Logger
 
 import pytest
+from pandas import DataFrame
 from pyspark.sql import SparkSession
 
-from rtdip_sdk.pipelines.logging.spark.runtime_log_collector import RuntimeLogCollector
-from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import (LoggerManager)
+from src.sdk.python.rtdip_sdk.pipelines.logging.spark.runtime_log_collector import (RuntimeLogCollector)
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.identify_missing_data_interval import (
     IdentifyMissingDataInterval,
 )
@@ -39,7 +39,16 @@ def spark():
 
 
 
+def test_logger_manager_basic_function():
+    df = DataFrame()
+    monitor = IdentifyMissingDataInterval(
+        df=df,
+        interval="10s",
+        tolerance="500ms",
+    )
+    log_collector = RuntimeLogCollector()
 
+    assert (monitor.logger_manager is log_collector.logger_manager)
 
 def test_df_output(spark, caplog):
     log_collector = RuntimeLogCollector()
@@ -63,8 +72,10 @@ def test_df_output(spark, caplog):
         tolerance="500ms",
     )
 
-    print("IDFMD in Log Collector", log_collector.logger_manager.get_logger("IdentifyMissingDataInterval"))
-    assert (monitor.logger_manager is log_collector.logger_manager)
+
+
+
+
 
     log_collector._attach_handler_to_loggers()
 

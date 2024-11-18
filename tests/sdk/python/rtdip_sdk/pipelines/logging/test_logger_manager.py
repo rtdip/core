@@ -16,7 +16,7 @@ import pytest
 from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import (LoggerManager)
 
 def test_logger_manager_basic_function():
-    logger_manager = LoggerManager.get_instance()
+    logger_manager = LoggerManager()
     assert logger_manager is not None
 
     logger1 = logger_manager.create_logger("logger1")

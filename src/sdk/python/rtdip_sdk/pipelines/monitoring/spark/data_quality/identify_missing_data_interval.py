@@ -76,9 +76,9 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         self.min_tolerance = min_tolerance
 
         # Use global pipeline logger
-        logger_manager = LoggerManager()
-        self.logger_manager = logger_manager
-        self.logger = logger_manager.create_logger("IdentifyMissingDataInterval")
+
+        self.logger_manager = LoggerManager()
+        self.logger = self.logger_manager.create_logger("IdentifyMissingDataInterval")
 
 
     @staticmethod

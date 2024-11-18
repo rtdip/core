@@ -13,6 +13,7 @@
 # limitations under the License.
 import logging
 
+import pandas
 from pandas import DataFrame
 from datetime import datetime
 
@@ -23,38 +24,29 @@ class DataFrameLogHandler(logging.Handler):
     """
     Collect logs from loggers contained in LoggerManager and stores them in a DataFrame at runtime
     """
-    logs_df: DataFrame = None
+    logs_df: DataFrame = DataFrame(columns = ['timestamp', 'name', 'level', 'message'])
+
     def __init__(self):
-        super().__init__()
-        self.logs_df = DataFrame(columns = ['timestamp', 'name', 'level', 'message'])
+      super().__init__()
+
+
 
     def emit(self, record: logging.LogRecord) -> None:
         """Process and store a log record"""
-        print("EMITTING")
-
         log_entry = {
             'timestamp': datetime.fromtimestamp(record.created),
             'name': record.name,
             'level': record.levelname,
-            'message': record.message
+            'message': record.msg
         }
 
-        print(log_entry)
+        new_log_df_row = pandas.DataFrame(log_entry, columns = ['timestamp', 'name', 'level', 'message'], index=[0])
+        self.logs_df = pandas.concat([self.logs_df, new_log_df_row], ignore_index=True)
 
-
-        self.logs_df = self.logs_df.append(log_entry, ignore_index=True)
-
-
-
-
-
-
-
-
-
-
-
-
+    @classmethod
+    def get_logs_as_df(cls) -> DataFrame:
+        print("RETURNED LOGS DF: ", cls.logs_df)
+        return cls.logs_df
 
 
 
