@@ -17,3 +17,5 @@ from .spark.data_quality.normalization.normalization_mean import *
 from .spark.data_quality.normalization.normalization_minmax import *
 from .spark.data_quality.normalization.normalization_zscore import *
 from .spark.data_quality.normalization.denormalization import *
+from .spark.data_quality.k_sigma_anomaly_detection import *
+from .spark.data_quality.interval_filtering import *
