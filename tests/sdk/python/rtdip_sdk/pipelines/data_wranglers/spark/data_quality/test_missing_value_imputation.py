@@ -30,12 +30,14 @@ def spark_session():
 
 def test_missing_value_imputation(spark_session: SparkSession):
 
-    schema = StructType([
-        StructField("TagName", StringType(), True),
-        StructField("EventTime", StringType(), True),
-        StructField("Status", StringType(), True),
-        StructField("Value", StringType(), True)
-    ])
+    schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", StringType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", StringType(), True),
+        ]
+    )
 
     test_data = [
         ("A2PS64V0J.:ZUX09R", "2024-01-01 03:29:21.000", "Good", "1.0"),
@@ -43,17 +45,22 @@ def test_missing_value_imputation(spark_session: SparkSession):
         ("A2PS64V0J.:ZUX09R", "2024-01-01 11:36:29.000", "Good", "3.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-01 15:39:03.000", "Good", "4.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-01 19:42:37.000", "Good", "5.0"),
-        #("A2PS64V0J.:ZUX09R", "2024-01-01 23:46:11.000", "Good", "6.0"), # Test values
+        # ("A2PS64V0J.:ZUX09R", "2024-01-01 23:46:11.000", "Good", "6.0"), # Test values
         ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "7.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "8.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-02 11:56:42.000", "Good", "9.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "10.0"),
-        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:13:46.000", "Good", "11.0"), # Tolerance Test
+        (
+            "A2PS64V0J.:ZUX09R",
+            "2024-01-02 20:13:46.000",
+            "Good",
+            "11.0",
+        ),  # Tolerance Test
         ("A2PS64V0J.:ZUX09R", "2024-01-03 00:07:20.000", "Good", "12.0"),
-        #("A2PS64V0J.:ZUX09R", "2024-01-03 04:10:54.000", "Good", "13.0"),
-        #("A2PS64V0J.:ZUX09R", "2024-01-03 08:14:28.000", "Good", "14.0"),
+        # ("A2PS64V0J.:ZUX09R", "2024-01-03 04:10:54.000", "Good", "13.0"),
+        # ("A2PS64V0J.:ZUX09R", "2024-01-03 08:14:28.000", "Good", "14.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-03 12:18:02.000", "Good", "15.0"),
-        #("A2PS64V0J.:ZUX09R", "2024-01-03 16:21:36.000", "Good", "16.0"),
+        # ("A2PS64V0J.:ZUX09R", "2024-01-03 16:21:36.000", "Good", "16.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-03 20:25:10.000", "Good", "17.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-04 00:28:44.000", "Good", "18.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-04 04:32:18.000", "Good", "19.0"),
@@ -262,7 +269,9 @@ def test_missing_value_imputation(spark_session: SparkSession):
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
 
-    def assert_dataframe_similar(expected_df, actual_df, tolerance=1e-4, time_tolerance_seconds=5):
+    def assert_dataframe_similar(
+        expected_df, actual_df, tolerance=1e-4, time_tolerance_seconds=5
+    ):
 
         expected_df = expected_df.orderBy(["TagName", "EventTime"])
         actual_df = actual_df.orderBy(["TagName", "EventTime"])
@@ -271,21 +280,37 @@ def test_missing_value_imputation(spark_session: SparkSession):
         actual_df = actual_df.withColumn("Value", col("Value").cast("float"))
 
         for expected_row, actual_row in zip(expected_df.collect(), actual_df.collect()):
-            for expected_val, actual_val, column_name in zip(expected_row, actual_row, expected_df.columns):
+            for expected_val, actual_val, column_name in zip(
+                expected_row, actual_row, expected_df.columns
+            ):
                 if column_name == "Value":
-                    assert abs(expected_val - actual_val) < tolerance, f"Value mismatch: {expected_val} != {actual_val}"
+                    assert (
+                        abs(expected_val - actual_val) < tolerance
+                    ), f"Value mismatch: {expected_val} != {actual_val}"
                 elif column_name == "EventTime":
-                    expected_event_time = unix_timestamp(col("EventTime")).cast("timestamp")
-                    actual_event_time = unix_timestamp(col("EventTime")).cast("timestamp")
+                    expected_event_time = unix_timestamp(col("EventTime")).cast(
+                        "timestamp"
+                    )
+                    actual_event_time = unix_timestamp(col("EventTime")).cast(
+                        "timestamp"
+                    )
 
-                    time_diff = A(expected_event_time.cast("long") - actual_event_time.cast("long"))
+                    time_diff = A(
+                        expected_event_time.cast("long")
+                        - actual_event_time.cast("long")
+                    )
                     condition = time_diff <= time_tolerance_seconds
 
-                    mismatched_rows = expected_df.join(actual_df, on=["TagName", "EventTime"], how="inner") \
-                        .filter(~condition)
+                    mismatched_rows = expected_df.join(
+                        actual_df, on=["TagName", "EventTime"], how="inner"
+                    ).filter(~condition)
 
-                    assert mismatched_rows.count() == 0, f"EventTime mismatch: {expected_val} != {actual_val} (tolerance: {time_tolerance_seconds}s)"
+                    assert (
+                        mismatched_rows.count() == 0
+                    ), f"EventTime mismatch: {expected_val} != {actual_val} (tolerance: {time_tolerance_seconds}s)"
                 else:
-                    assert expected_val == actual_val, f"Mismatch in column '{column_name}': {expected_val} != {actual_val}"
+                    assert (
+                        expected_val == actual_val
+                    ), f"Mismatch in column '{column_name}': {expected_val} != {actual_val}"
 
     assert_dataframe_similar(expected_df, actual_df, tolerance=1e-4)
