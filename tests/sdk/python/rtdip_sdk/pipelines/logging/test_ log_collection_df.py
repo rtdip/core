@@ -62,16 +62,15 @@ def test_df_output(spark, caplog):
         interval="10s",
         tolerance="500ms",
     )
+
+    print("IDFMD in Log Collector", log_collector.logger_manager.get_logger("IdentifyMissingDataInterval"))
     assert (monitor.logger_manager is log_collector.logger_manager)
+
     log_collector._attach_handler_to_loggers()
 
 
     with caplog.at_level(logging.INFO, logger="IdentifyMissingDataInterval"):
         monitor.check()
-
-
-
-
 
 
     result_df = log_collector.get_logs_as_df()

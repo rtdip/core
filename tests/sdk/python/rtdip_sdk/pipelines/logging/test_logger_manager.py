@@ -25,8 +25,8 @@ def test_logger_manager_basic_function():
     assert logger_manager.get_logger("logger2") is None
 
 def test_singleton_functionality():
-    logger_manager = LoggerManager.get_instance()
-    logger_manager2 = LoggerManager.get_instance()
+    logger_manager = LoggerManager()
+    logger_manager2 = LoggerManager()
 
     assert logger_manager is logger_manager2
 

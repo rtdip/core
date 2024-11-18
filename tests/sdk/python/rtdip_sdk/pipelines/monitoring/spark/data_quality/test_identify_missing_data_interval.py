@@ -24,8 +24,8 @@ def spark():
 @pytest.fixture
 def log_capture():
     log_stream = StringIO()
-    logger_manager = LoggerManager.get_instance()
-    logger = logger_manager.get_instance().create_logger("IdentifyMissingDataInterval")
+    logger_manager = LoggerManager()
+    logger = logger_manager.create_logger("IdentifyMissingDataInterval")
 
     handler = logging.StreamHandler(log_stream)
     formatter = logging.Formatter("%(message)s")

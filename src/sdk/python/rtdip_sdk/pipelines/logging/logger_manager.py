@@ -26,20 +26,25 @@ class LoggerManager:
     Singleton that manages the creation of loggers. Stores all loggers in a dictionary.
     """
 
-    __instance = None
+    _instance = None
 
     # dictionary to store all loggers
     loggers = {}
 
-    @staticmethod
-    def get_instance():
-        if LoggerManager.__instance is None:
-            LoggerManager.__instance = LoggerManager()
-        return LoggerManager.__instance
-
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(LoggerManager, cls).__new__(cls)
+        return cls._instance
 
     def __init__(self):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+
+
+
+
+
+
 
     @classmethod
     def create_logger(cls, name: str):
@@ -52,7 +57,7 @@ class LoggerManager:
         Returns:
             logging.Logger: Configured logger instance.
         """
-        if name not in cls.get_instance().loggers:
+        if name not in cls.loggers:
 
             logger = logging.getLogger(name)
             cls.loggers[name] = logger
@@ -66,13 +71,13 @@ class LoggerManager:
     def get_logger(cls, name:str):
         print("Getting logger with name: " + name)
 
-        if name not in cls.get_instance().loggers:
+        if name not in cls.loggers:
             return None
-        return cls.get_instance().loggers[name]
+        return cls.loggers[name]
 
     @classmethod
     def get_all_loggers(cls) -> dict:
-        print("Get all Loggers: ", cls.get_instance().loggers)
-        return LoggerManager.get_instance().loggers
+        print("Get all Loggers: ", cls.loggers)
+        return LoggerManager.loggers
 
 

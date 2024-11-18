@@ -12,27 +12,11 @@ from rtdip_sdk.pipelines.logging.spark.dataframe.dataframe_log_handler import Da
 class RuntimeLogCollector(LoggingBaseInterface):
     """Collects logs from all loggers in the LoggerManager at runtime."""
 
-    @staticmethod
-    def system_type() -> SystemType:
-        pass
-    logger_manager: LoggerManager = LoggerManager.get_instance()
+    logger_manager: LoggerManager = LoggerManager()
     df_handler: DataFrameLogHandler = None
 
     def __init__(self):
         self.df_handler = DataFrameLogHandler()
-
-    @classmethod
-    def _attach_handler_to_loggers(cls) -> None:
-        """Attaches the DataFrameLogHandler to the logger."""
-
-
-        loggers = cls.logger_manager.get_all_loggers()
-        print("ALL Loggers collector: ", loggers)
-
-        for logger in loggers.values():
-            # avoid duplicate handlers
-            if cls.df_handler not in logger.handlers:
-                logger.addHandler(cls.df_handler)
 
     def get_logs_as_df(self) -> DataFrame:
         """Return the DataFrame containing the logs"""
@@ -46,6 +30,23 @@ class RuntimeLogCollector(LoggingBaseInterface):
     @staticmethod
     def settings() -> dict:
         return {}
+
+    @staticmethod
+    def system_type() -> SystemType:
+        pass
+
+    @classmethod
+    def _attach_handler_to_loggers(cls) -> None:
+        """Attaches the DataFrameLogHandler to the logger."""
+        loggers = cls.logger_manager.get_all_loggers()
+        print("ALL Loggers collector: ", loggers)
+
+        for logger in loggers.values():
+            # avoid duplicate handlers
+            if cls.df_handler not in logger.handlers:
+                logger.addHandler(cls.df_handler)
+
+
 
 
 
