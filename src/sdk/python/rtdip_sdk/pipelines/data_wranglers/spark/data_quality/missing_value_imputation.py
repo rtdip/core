@@ -17,8 +17,6 @@ from pyspark.sql.functions import col, udf
 from pyspark.sql.types import StringType, TimestampType, FloatType, ArrayType
 from pyspark.sql.window import Window
 from scipy.interpolate import UnivariateSpline
-from systemds.context import SystemDSContext
-from systemds.operator.algorithm import imputeByFD, imputeByMean
 import numpy as np
 from datetime import timedelta
 from typing import List
@@ -93,6 +91,8 @@ class MissingValueImputation(WranglerBaseInterface):
 
     Parameters:
         df (DataFrame): Dataframe containing the raw data.
+        tolerance_percentage (int): Percentage value that indicates how much the time series data points may vary
+            in each interval
     """
 
     df: PySparkDataFrame
@@ -100,10 +100,12 @@ class MissingValueImputation(WranglerBaseInterface):
     def __init__(
         self,
         spark: SparkSession,
-        df: PySparkDataFrame
+        df: PySparkDataFrame,
+        tolerance_percentage: int = 5,
     ) -> None:
         self.spark = spark
         self.df = df
+        self.tolerance_percentage = tolerance_percentage
 
     @staticmethod
     def system_type():
@@ -125,21 +127,19 @@ class MissingValueImputation(WranglerBaseInterface):
 
     @staticmethod
     def _impute_missing_values_sp(df) -> PySparkDataFrame:
-        # Imputes missing values by Spline Interpolation
+        """
+        Imputes missing values by Spline Interpolation
+        """
         data = np.array(df.select("Value").rdd.flatMap(lambda x: x).collect(), dtype=float)
-
         mask = np.isnan(data)
 
         x_data = np.arange(len(data))
         y_data = data[~mask]
 
-        # Spline interpolation (cubic smoothing spline)
         spline = UnivariateSpline(x_data[~mask], y_data, s=0)
 
-        # Impute missing values
         data_imputed = data.copy()
         data_imputed[mask] = spline(x_data[mask])
-
         data_imputed_list = data_imputed.tolist()
 
         imputed_rdd = df.rdd.zipWithIndex().map(lambda row: Row(
@@ -150,51 +150,15 @@ class MissingValueImputation(WranglerBaseInterface):
         ))
         imputed_df = imputed_rdd.toDF(df.schema)
 
-        #print("Imputed DataFrame:")
-        #print(imputed_df.show(imputed_df.count(), False))
-
         return imputed_df
 
 
     @staticmethod
-    def _impute_missing_values_ds(df) -> PySparkDataFrame:
-        # Impute missing values with Apache SystemDS functions: TODO
-        value_array = np.array(df.select("Value").rdd.flatMap(lambda x: x).collect()).reshape(-1, 1)
-        mask_array = np.array([0])
-
-        with SystemDSContext() as sds_context:
-
-            X = sds_context.from_numpy(value_array)
-            mask = sds_context.from_numpy(mask_array)
-
-            imputed_matrix_result = imputeByMean(X, mask)
-
-            imputed_values: np.array(None)
-
-            for node in imputed_matrix_result:
-                try:
-                    imputed_values = node.compute()
-                except Exception as e:
-                    print(e)
-                    break
-
-        imputed_values_list = imputed_values.tolist()
-
-        imputed_rdd = df.rdd.zipWithIndex().map(lambda row: Row(
-            TagName=row[0][0],
-            EventTime=row[0][1],
-            Status=row[0][2],
-            Value=float(imputed_values_list[row[1]])
-        ))
-
-        imputed_df = imputed_rdd.toDF(df.schema)
-
-        return imputed_df
-
-
-    @staticmethod
-    def _flag_missing_values(df) -> PySparkDataFrame:
-        # Calculates interval and inserts empty records at missing timestamps with NaN values
+    def _flag_missing_values(df, tolerance_percentage) -> PySparkDataFrame:
+        """
+        Determines intervals of each respective source time series and inserts empty records at missing timestamps
+        with NaN values
+        """
         window_spec = Window.partitionBy("TagName").orderBy("EventTime")
 
         df = df.withColumn("prev_event_time", F.lag("EventTime").over(window_spec))
@@ -206,7 +170,6 @@ class MissingValueImputation(WranglerBaseInterface):
         most_frequent_interval = interval_counts.orderBy(F.desc("count")).first()
         expected_interval = most_frequent_interval["time_diff_seconds"] if most_frequent_interval else None
 
-        tolerance_percentage = 5
         tolerance = (expected_interval * tolerance_percentage) / 100 if expected_interval else 0
 
         existing_timestamps = df.select("TagName", "EventTime").rdd \
@@ -255,7 +218,9 @@ class MissingValueImputation(WranglerBaseInterface):
 
     @staticmethod
     def _is_column_type(df, column_name, data_type):
-        # Helper method for data type checking
+        """
+        Helper method for data type checking
+        """
         type_ = df.schema[column_name]
 
         return isinstance(type_.dataType, data_type)
@@ -286,20 +251,14 @@ class MissingValueImputation(WranglerBaseInterface):
         imputed_dfs: List[PySparkDataFrame] = []
 
         for source, df in dfs_by_source.items():
-            # Compute, insert and flag all the missing entries
-            flagged_df = self._flag_missing_values(df)
-
-            #print(flagged_df.show(flagged_df.count(), False)) # Current testing
+            # Determine, insert and flag all the missing entries
+            flagged_df = self._flag_missing_values(df, self.tolerance_percentage)
 
             # Impute the missing values of flagged entries
-            # TODO
-            #imputed_df_DS = self._impute_missing_values_ds(flagged_df)
             imputed_df_sp = self._impute_missing_values_sp(flagged_df)
 
             imputed_df_sp = imputed_df_sp.withColumn("EventTime", col("EventTime").cast("string")) \
                 .withColumn("Value", col("Value").cast("string"))
-
-            #print(imputed_df_sp.show(imputed_df_sp.count(), False))
 
             imputed_dfs.append(imputed_df_sp)
 
@@ -311,12 +270,11 @@ class MissingValueImputation(WranglerBaseInterface):
 
 
     def _split_by_source(self) -> dict:
-        # Helper method to separate individual time series based on their source
+        """
+        Helper method to separate individual time series based on their source
+        """
         tag_names = self.df.select("TagName").distinct().collect()
         tag_names = [row["TagName"] for row in tag_names]
         source_dict = {tag: self.df.filter(col("TagName") == tag).orderBy("EventTime") for tag in tag_names}
 
         return source_dict
-
-
-

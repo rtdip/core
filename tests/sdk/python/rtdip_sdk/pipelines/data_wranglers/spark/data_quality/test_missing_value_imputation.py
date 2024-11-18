@@ -18,7 +18,6 @@ from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import col, unix_timestamp, abs as A
 from pyspark.sql.types import StructType, StructField, StringType
 
-
 from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.missing_value_imputation import (
     MissingValueImputation,
 )
@@ -258,8 +257,6 @@ def test_missing_value_imputation(spark_session: SparkSession):
     missing_value_imputation = MissingValueImputation(spark_session, test_df)
     actual_df = missing_value_imputation.filter()
 
-    #print(actual_df.show(actual_df.count(), False))
-
     assert isinstance(actual_df, DataFrame)
 
     assert expected_df.columns == actual_df.columns
@@ -292,6 +289,3 @@ def test_missing_value_imputation(spark_session: SparkSession):
                     assert expected_val == actual_val, f"Mismatch in column '{column_name}': {expected_val} != {actual_val}"
 
     assert_dataframe_similar(expected_df, actual_df, tolerance=1e-4)
-
-
-
