@@ -11,11 +11,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .spark.data_quality.duplicate_detection import *
-from .spark.data_quality.normalization.normalization import *
-from .spark.data_quality.normalization.normalization_mean import *
-from .spark.data_quality.normalization.normalization_minmax import *
-from .spark.data_quality.normalization.normalization_zscore import *
-from .spark.data_quality.normalization.denormalization import *
-from .spark.data_quality.prediction.arima import *
-from .spark.data_quality.missing_value_imputation import *
+
+from .spark.linear_regression import *
