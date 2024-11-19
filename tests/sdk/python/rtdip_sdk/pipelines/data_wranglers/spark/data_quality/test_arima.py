@@ -48,7 +48,7 @@ def test_nonexistent_column_arima(spark_session: SparkSession):
 
 
 def test_single_column_prediction_arima(spark_session: SparkSession):
-    df = pandas.DataFrame()
+    df = pd.DataFrame()
 
     np.random.seed(0)
     arr_len = 40
@@ -60,7 +60,7 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
         np.random.rand(arr_len) + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
     )
     df["index"] = np.asarray(
-        pandas.date_range(start="1/1/2024", end="2/1/2024", periods=arr_len)
+        pd.date_range(start="1/1/2024", end="2/1/2024", periods=arr_len)
     )
     df = df.set_index(pd.DatetimeIndex(df["index"]))
 
