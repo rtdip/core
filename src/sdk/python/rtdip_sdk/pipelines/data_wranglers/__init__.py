@@ -17,3 +17,4 @@ from .spark.data_quality.normalization.normalization_mean import *
 from .spark.data_quality.normalization.normalization_minmax import *
 from .spark.data_quality.normalization.normalization_zscore import *
 from .spark.data_quality.normalization.denormalization import *
+from .spark.data_quality.missing_value_imputation import *
