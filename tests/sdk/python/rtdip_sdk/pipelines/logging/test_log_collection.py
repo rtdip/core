@@ -27,7 +27,6 @@ from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.identify_m
 import logging
 
 
-
 def test_logger_manager_basic_function():
     df = DataFrame()
     monitor = IdentifyMissingDataInterval(
@@ -69,7 +68,6 @@ def test_df_output(spark, caplog):
     result_df = log_collector.get_logs_as_df()
 
     assert result_df.shape[0] == 6
-
 
 
 def test_file_logging(spark, caplog):
