@@ -80,6 +80,7 @@ def test_df_output(spark, caplog):
 
     assert result_df.shape[0] == 6
 
+
 # ONLY WORKS ON LOCAL MACHINE
 # def test_file_logging(spark, caplog):
 #
