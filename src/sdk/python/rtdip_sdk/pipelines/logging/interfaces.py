@@ -17,8 +17,8 @@ from abc import abstractmethod
 from pyspark.sql import DataFrame
 from ..interfaces import PipelineComponentBaseInterface
 
+
 class LoggingBaseInterface(PipelineComponentBaseInterface):
     @abstractmethod
     def get_logs_as_df(self) -> DataFrame:
         pass
-

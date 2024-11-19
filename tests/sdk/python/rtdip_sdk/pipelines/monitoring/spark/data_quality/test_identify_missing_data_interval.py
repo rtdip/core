@@ -1,7 +1,7 @@
 import pytest
 from pyspark.sql import SparkSession
 
-from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import (LoggerManager)
+from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.identify_missing_data_interval import (
     IdentifyMissingDataInterval,
 )

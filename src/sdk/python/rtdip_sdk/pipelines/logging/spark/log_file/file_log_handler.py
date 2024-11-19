@@ -18,29 +18,29 @@ from pandas import DataFrame
 from datetime import datetime
 
 
-
 class FileLogHandler(logging.Handler):
     """
-        Handles logs from attached logger and stores them in a .log file
+    Handles logs from attached logger and stores them in a .log file
 
-        Args:
-            logging.Handler: Inherits from logging.Handler
-            filename (str): Name of the log file to write to
-            mode (str): File opening mode ('a' for append, 'w' for write)
+    Args:
+        logging.Handler: Inherits from logging.Handler
+        filename (str): Name of the log file to write to
+        mode (str): File opening mode ('a' for append, 'w' for write)
 
-        Example
-        --------
-        ```python
-        import logging
+    Example
+    --------
+    ```python
+    import logging
 
-        log_manager = logging.getLogger('log_manager')
-        handler = FileLogHandler('my_logs.log')
-        log_manager.addHandler(handler)
-        ```
-        """
+    log_manager = logging.getLogger('log_manager')
+    handler = FileLogHandler('my_logs.log')
+    log_manager.addHandler(handler)
+    ```
+    """
+
     logs_df: DataFrame = None
 
-    def __init__(self, file_path:str, mode:str='a'):
+    def __init__(self, file_path: str, mode: str = "a"):
         super().__init__()
         self.mode = mode
         self.file_path = file_path
@@ -54,8 +54,8 @@ class FileLogHandler(logging.Handler):
                 f"{record.levelname} | "
                 f"{record.msg}\n"
             }
-            with open(self.file_path, self.mode, encoding='utf-8') as log_file:
-                log_file.write(str(log_entry) + '\n')
+            with open(self.file_path, self.mode, encoding="utf-8") as log_file:
+                log_file.write(str(log_entry) + "\n")
 
         except Exception as e:
             print(f"Error writing log entry to file: {e}")

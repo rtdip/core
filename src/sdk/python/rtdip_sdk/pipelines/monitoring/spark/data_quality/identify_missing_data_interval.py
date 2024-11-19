@@ -23,8 +23,6 @@ from ....utilities.spark.time_string_parsing import parse_time_string_to_ms
 from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
 
 
-
-
 class IdentifyMissingDataInterval(MonitoringBaseInterface):
     """
     Detects missing data intervals in a DataFrame by identifying time differences between consecutive
@@ -79,7 +77,6 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
 
         self.logger_manager = LoggerManager()
         self.logger = self.logger_manager.create_logger("IdentifyMissingDataInterval")
-
 
     @staticmethod
     def system_type():

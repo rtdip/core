@@ -17,7 +17,9 @@ import pytest
 from pandas import DataFrame
 from pyspark.sql import SparkSession
 
-from src.sdk.python.rtdip_sdk.pipelines.logging.spark.runtime_log_collector import (RuntimeLogCollector)
+from src.sdk.python.rtdip_sdk.pipelines.logging.spark.runtime_log_collector import (
+    RuntimeLogCollector,
+)
 from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.identify_missing_data_interval import (
     IdentifyMissingDataInterval,
 )
@@ -36,8 +38,6 @@ def spark():
     spark.stop()
 
 
-
-
 def test_logger_manager_basic_function():
     df = DataFrame()
     monitor = IdentifyMissingDataInterval(
@@ -47,7 +47,8 @@ def test_logger_manager_basic_function():
     )
     log_collector = RuntimeLogCollector()
 
-    assert (monitor.logger_manager is log_collector.logger_manager)
+    assert monitor.logger_manager is log_collector.logger_manager
+
 
 def test_df_output(spark, caplog):
     log_collector = RuntimeLogCollector()
@@ -77,10 +78,10 @@ def test_df_output(spark, caplog):
 
     result_df = log_collector.get_logs_as_df()
 
-    assert (result_df.shape[0] == 6)
+    assert result_df.shape[0] == 6
+
 
 def test_file_logging(spark, caplog):
-
 
     log_collector = RuntimeLogCollector()
     data = [
@@ -110,6 +111,6 @@ def test_file_logging(spark, caplog):
     with open("./logs.log", "r") as f:
         logs = f.readlines()
 
-    assert (len(logs) == 6)
+    assert len(logs) == 6
     if os.path.exists("./logs.log"):
         os.remove("./logs.log")

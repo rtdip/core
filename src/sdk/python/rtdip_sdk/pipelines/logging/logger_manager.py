@@ -47,7 +47,10 @@ class LoggerManager:
 
     def __init__(self):
         if not LoggerManager._initialized:
-            logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            )
             LoggerManager._initialized = True
 
     @classmethod
@@ -69,7 +72,7 @@ class LoggerManager:
         return cls.get_logger(name)
 
     @classmethod
-    def get_logger(cls, name:str):
+    def get_logger(cls, name: str):
         if name not in cls.loggers:
             return None
         return cls.loggers[name]
@@ -77,5 +80,3 @@ class LoggerManager:
     @classmethod
     def get_all_loggers(cls) -> dict:
         return cls.loggers
-
-
