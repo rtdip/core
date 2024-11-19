@@ -14,3 +14,4 @@
 from .spark.data_quality.great_expectations_data_quality import *
 from .spark.data_quality.identify_missing_data_interval import *
 from .spark.data_quality.identify_missing_data_pattern import *
+from .spark.data_quality.flatline_detection import *
