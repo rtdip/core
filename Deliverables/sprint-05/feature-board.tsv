@@ -1,13 +1,13 @@
 Title	URL	Assignees	Status	Estimated size	Real size	Labels
-Time Series prediction using ARIMA	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/29	Timm638	Feature Archive	13	8	component
 Time series prediction with linear regression	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/28	FelipeTrost, kristen149	Awaiting Review	8		component
 Missing value imputation	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/36	chris-1187	Awaiting Review	13		component
 Validation of value ranges	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/31	mollle	Awaiting Review	3		component
-Store monitoring outputs in a standardized format	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/26	dh1542	Awaiting Review	13		enhancement
+Time Series prediction using ARIMA	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/29	Timm638	Awaiting Review	13	8	component
+Flatline detection	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/44	mollle	Awaiting Review			component
 Advanced Duplicate Detection	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/30	mollle	In Progress			component
-Flatline detection	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/44	mollle	In Progress			component
 One-Hot Encoding	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/45	kristen149	In Progress			component
 Prepare RTDIP demo	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/43	Timm638	In Progress	8		
+Store monitoring outputs in a standardized format	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/26	dh1542	In Progress	13		enhancement
 Finish integrating ARIMA functionality of statsmodels into RTDIP	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/40		Sprint Backlog	5		component
 Reduce number of parameters needed to use ArimaPrediction effectively	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/41	chris-1187	Sprint Backlog	8		component
 Normalization of Data	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/18	kristen149, Timm638	Feature Archive	8	8	component
