@@ -27,6 +27,17 @@ from src.sdk.python.rtdip_sdk.pipelines.monitoring.spark.data_quality.identify_m
 import logging
 
 
+@pytest.fixture(scope="session")
+def spark():
+    spark = (
+        SparkSession.builder.master("local[2]")
+        .appName("LogCollectionTest")
+        .getOrCreate()
+    )
+    yield spark
+    spark.stop()
+
+
 def test_logger_manager_basic_function():
     df = DataFrame()
     monitor = IdentifyMissingDataInterval(
