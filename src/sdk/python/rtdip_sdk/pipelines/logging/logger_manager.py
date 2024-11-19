@@ -20,7 +20,18 @@ from pyspark.pandas.usage_logging.usage_logger import get_logger
 
 class LoggerManager:
     """
-    Singleton that manages the creation of loggers. Stores all loggers in a dictionary.
+    Manages creation and storage of all loggers in the application. This is a singleton class.
+    Please create loggers with the LoggerManager if you want your logs to be handled and stored properly.
+
+
+    Example Usage
+    --------
+    ```python
+    logger_manager = LoggerManager()
+    logger = logger_manager.create_logger("my_logger")
+    logger.info("This is a log message")
+    my_logger = logger_manager.get_logger("my_logger")
+    ```
     """
 
     _instance = None

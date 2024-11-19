@@ -22,15 +22,27 @@ from datetime import datetime
 class DataFrameLogHandler(logging.Handler):
 
     """
-    Collect logs from loggers contained in LoggerManager and stores them in a DataFrame at runtime
+    Handles logs from attached logger and stores them in a DataFrame at runtime
+
+     Args:
+        logging.Handler: Inherits from logging.Handler
+
+    Returns:
+        returns a DataFrame with logs stored in it
+
+    Example
+    --------
+    ```python
+    import logging
+
+    log_manager = logging.getLogger('log_manager')
+
     """
     logs_df: DataFrame = None
 
     def __init__(self):
         self.logs_df = DataFrame(columns = ['timestamp', 'name', 'level', 'message'])
         super().__init__()
-
-
 
     def emit(self, record: logging.LogRecord) -> None:
         """Process and store a log record"""
