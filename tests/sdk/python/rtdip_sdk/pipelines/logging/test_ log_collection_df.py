@@ -72,20 +72,12 @@ def test_df_output(spark, caplog):
         tolerance="500ms",
     )
 
-
-
-
-
-
     log_collector._attach_handler_to_loggers()
-
 
     with caplog.at_level(logging.INFO, logger="IdentifyMissingDataInterval"):
         monitor.check()
 
-
     result_df = log_collector.get_logs_as_df()
-    print(result_df)
 
-    assert (2 == 2)
+    assert (result_df.shape[0] == 6)
 

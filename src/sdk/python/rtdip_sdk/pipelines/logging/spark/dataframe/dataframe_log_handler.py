@@ -24,10 +24,11 @@ class DataFrameLogHandler(logging.Handler):
     """
     Collect logs from loggers contained in LoggerManager and stores them in a DataFrame at runtime
     """
-    logs_df: DataFrame = DataFrame(columns = ['timestamp', 'name', 'level', 'message'])
+    logs_df: DataFrame = None
 
     def __init__(self):
-      super().__init__()
+        self.logs_df = DataFrame(columns = ['timestamp', 'name', 'level', 'message'])
+        super().__init__()
 
 
 
@@ -43,10 +44,8 @@ class DataFrameLogHandler(logging.Handler):
         new_log_df_row = pandas.DataFrame(log_entry, columns = ['timestamp', 'name', 'level', 'message'], index=[0])
         self.logs_df = pandas.concat([self.logs_df, new_log_df_row], ignore_index=True)
 
-    @classmethod
-    def get_logs_as_df(cls) -> DataFrame:
-        print("RETURNED LOGS DF: ", cls.logs_df)
-        return cls.logs_df
+    def get_logs_as_df(self) -> DataFrame:
+        return self.logs_df
 
 
 

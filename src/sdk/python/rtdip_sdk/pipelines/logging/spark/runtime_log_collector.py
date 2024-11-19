@@ -3,8 +3,8 @@ from logging import Logger
 
 from pandas import DataFrame
 
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
-from rtdip_sdk.pipelines.logging.interfaces import LoggingBaseInterface
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from src.sdk.python.rtdip_sdk.pipelines.logging.interfaces import LoggingBaseInterface
 from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
 from  src.sdk.python.rtdip_sdk.pipelines.logging.spark.dataframe.dataframe_log_handler import DataFrameLogHandler
 
@@ -45,7 +45,6 @@ class RuntimeLogCollector(LoggingBaseInterface):
         for logger in loggers.values():
             # avoid duplicate handlers
             if cls.df_handler not in logger.handlers:
-                print("Attaching handler to logger: ", logger)
                 logger.addHandler(cls.df_handler)
 
 
