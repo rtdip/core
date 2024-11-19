@@ -1,8 +1,5 @@
 import os
-from abc import ABC
-from logging import Logger
 
-from jsonschema_path.handlers import file_handler
 from pandas import DataFrame
 from pandas.io.common import file_path_to_url
 
