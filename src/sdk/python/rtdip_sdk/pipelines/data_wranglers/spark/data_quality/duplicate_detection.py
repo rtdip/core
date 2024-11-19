@@ -28,21 +28,27 @@ class DuplicateDetection(WranglerBaseInterface):
     from rtdip_sdk.pipelines.monitoring.spark.data_quality.duplicate_detection import DuplicateDetection
     from pyspark.sql import SparkSession
     from pyspark.sql.dataframe import DataFrame
-    from pyspark.sql.functions import desc
 
-    duplicate_detection_monitor = DuplicateDetection(df)
+    duplicate_detection_monitor = DuplicateDetection(df, primary_key_columns=["TagName", "EventTime"])
 
     result = duplicate_detection_monitor.filter()
     ```
 
     Parameters:
-        df (DataFrame): PySpark DataFrame to be converted
+        df (DataFrame): PySpark DataFrame to be cleansed.
+        primary_key_columns (list): List of column names that serve as primary key for duplicate detection.
     """
 
     df: PySparkDataFrame
+    primary_key_columns: list
 
-    def __init__(self, df: PySparkDataFrame) -> None:
+    def __init__(self, df: PySparkDataFrame, primary_key_columns: list) -> None:
+        if not primary_key_columns or not isinstance(primary_key_columns, list):
+            raise ValueError(
+                "primary_key_columns must be a non-empty list of column names."
+            )
         self.df = df
+        self.primary_key_columns = primary_key_columns
 
     @staticmethod
     def system_type():
@@ -64,10 +70,9 @@ class DuplicateDetection(WranglerBaseInterface):
     def filter(self) -> PySparkDataFrame:
         """
         Returns:
-            DataFrame: A cleansed PySpark DataFrame from all the duplicates.
+            DataFrame: A cleansed PySpark DataFrame from all duplicates based on primary key columns.
         """
-
-        cleansed_df = self.df.dropDuplicates(["TagName", "EventTime"]).orderBy(
+        cleansed_df = self.df.dropDuplicates(self.primary_key_columns).orderBy(
             desc("EventTime")
         )
         return cleansed_df
