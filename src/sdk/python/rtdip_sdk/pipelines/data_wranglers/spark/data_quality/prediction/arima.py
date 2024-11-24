@@ -197,6 +197,8 @@ class ArimaPrediction(WranglerBaseInterface):
 
             base_df = df.toPandas()
             base_df["EventTime"] = pd.to_datetime(base_df["EventTime"])
+            base_df["Value"] = base_df["Value"].astype("float64")
+            base_df["EventTime"] = base_df["EventTime"].astype("datetime64[ns]")
             last_event_time = base_df["EventTime"].iloc[-1]
             second_last_event_time = base_df["EventTime"].iloc[-2]
 
@@ -224,6 +226,10 @@ class ArimaPrediction(WranglerBaseInterface):
                     "Value": prediction_series.values,
                 }
             )
+            predicted_df["EventTime"] = predicted_df["EventTime"].astype(
+                "datetime64[ns]"
+            )
+
             extended_df = pd.concat([base_df, predicted_df], ignore_index=True)
 
             # Workaround needed for PySpark versions <3.4
