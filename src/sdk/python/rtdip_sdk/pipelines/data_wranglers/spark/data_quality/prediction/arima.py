@@ -211,11 +211,16 @@ class ArimaPrediction(WranglerBaseInterface):
             forecast = source_model.get_forecast(steps=self.rows_to_predict)
             prediction_series = forecast.predicted_mean
 
+            if len(prediction_series) != len(new_event_times):
+                min_length = min(len(prediction_series), len(new_event_times))
+                prediction_series = prediction_series[:min_length]
+                new_event_times = new_event_times[:min_length]
+
             predicted_df = pd.DataFrame(
                 {
-                    "TagName": base_df["TagName"].iloc[0],
+                    "TagName": [base_df["TagName"].iloc[0]] * len(new_event_times),
                     "EventTime": new_event_times,
-                    "Status": "Predicted",
+                    "Status": ["Predicted"] * len(new_event_times),
                     "Value": prediction_series.values,
                 }
             )
