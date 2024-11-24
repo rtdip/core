@@ -43,6 +43,7 @@ INSTALL_REQUIRES = [
     "langchain-community>=0.2.0,<0.3.0",
     "openai>=1.13.3,<2.0.0",
     "pydantic>=2.6.0,<3.0.0",
+    "statsmodels>=0.14.1,<0.15.0",
 ]
 
 PYSPARK_PACKAGES = [
@@ -68,6 +69,7 @@ PIPELINE_PACKAGES = [
     "joblib>=1.3.2,<2.0.0",
     "sqlparams>=5.1.0,<6.0.0",
     "entsoe-py>=0.5.10,<1.0.0",
+    "numpy>=1.23.4,<2.0.0",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
