@@ -161,9 +161,9 @@ def test_special_characters(spark_session):
             ), f"Expected {expected_value} for {column_name}."
 
 
-def test_one_hot_encoding_full_dataset(spark_session):
+def test_distinct_value(spark_session):
     """Dataset with Multiple TagName Values"""
-    # Define the full dataset
+
     data = [
         ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46", "Good", 0.3400000035762787),
         ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12", "Good", 0.15000000596046448),
@@ -182,29 +182,20 @@ def test_one_hot_encoding_full_dataset(spark_session):
     encoder = OneHotEncoding(df, "TagName")
     result_df = encoder.filter()
 
-    expected_columns = [
-        "TagName",
-        "EventTime",
-        "Status",
-        "Value",
-        "TagName_A2PS64V0J.:ZUX09R",
-        "TagName_-4O7LSSAM_3EA02:2GT7E02I_R_MP",
-        "TagName__LT2EPL-9PM0.OROTENV3:",
-        "TagName_1N325T3MTOR-P0L29:9.T0",
-    ]
-    assert (
-        set(result_df.columns) == expected_columns
-    ), f"Columns do not match. Expected {expected_columns}."
+    result = result_df.collect()
 
-    for row in result_df.collect():
-        for tag in [
-            "A2PS64V0J.:ZUX09R",
-            "-4O7LSSAM_3EA02:2GT7E02I_R_MP",
-            "_LT2EPL-9PM0.OROTENV3:",
-            "1N325T3MTOR-P0L29:9.T0",
-        ]:
-            expected_value = 1 if row["TagName"] == tag else 0
-            column_name = f"TagName_{tag}"
-            assert (
-                row[column_name] == expected_value
-            ), f"Expected {expected_value} for {column_name}."
+    expected_columns = df.columns + [
+        f"TagName_{row['TagName']}" for row in df.select("TagName").distinct().collect()
+    ]
+
+    assert set(result_df.columns) == set(expected_columns)
+
+    tag_names = df.select("TagName").distinct().collect()
+    for row in result:
+        tag_name = row["TagName"]
+        for tag in tag_names:
+            column_name = f"TagName_{tag['TagName']}"
+            if tag["TagName"] == tag_name:
+                assert row[column_name] == 1.0
+            else:
+                assert row[column_name] == 0.0
