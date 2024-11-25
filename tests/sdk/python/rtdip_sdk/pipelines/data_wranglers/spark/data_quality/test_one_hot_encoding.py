@@ -193,7 +193,7 @@ def test_one_hot_encoding_full_dataset(spark_session):
         "TagName_1N325T3MTOR-P0L29:9.T0",
     ]
     assert (
-        result_df.columns == expected_columns
+        set(result_df.columns) == expected_columns
     ), f"Columns do not match. Expected {expected_columns}."
 
     for row in result_df.collect():
