@@ -15,5 +15,5 @@ class MachineLearningInterface(PipelineComponentBaseInterface):
         return self
 
     @abstractmethod
-    def predict(self, *args, **kwargs):
+    def predict(self, *args, **kwargs) -> DataFrame:
         pass
