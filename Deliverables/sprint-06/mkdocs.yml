@@ -1,0 +1,19 @@
+---
+# Project information
+site_name: Real Time Data Ingestion Platform
+site_url: https://github.com/rtdip/core/
+site_author: Real Time Data Ingestion Platform
+
+docs_dir: ./mkdocs
+
+plugins:
+  - with-pdf:
+      output_path: ../pdfs/user-documentation.pdf
+      cover_subtitle: User Documentation
+      copyright: AMOS Group 1
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../..]
+          options:
+            show_source: false
