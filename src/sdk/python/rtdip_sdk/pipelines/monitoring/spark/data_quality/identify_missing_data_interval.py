@@ -37,22 +37,19 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         mad_multiplier (float, optional): Multiplier for MAD to calculate tolerance. Default is 3.
         min_tolerance (str, optional): Minimum tolerance for pattern-based detection (e.g., '100ms'). Default is '10ms'.
 
-    Returns:
-        df (pyspark.sql.Dataframe): Returns the original PySparkDataFrame without changes.
+    Example:
+        ```python
+        from rtdip_sdk.pipelines.monitoring.spark.data_quality import IdentifyMissingDataInterval
+        from pyspark.sql import SparkSession
 
-    Example
-    --------
-    ```python
-      from rtdip_sdk.pipelines.monitoring.spark.data_quality import IdentifyMissingDataInterval
-    from pyspark.sql import SparkSession
+        missing_data_monitor = IdentifyMissingDataInterval(
+            df=df,
+            interval='100ms',
+            tolerance='10ms',
+        )
 
-    missing_data_monitor = IdentifyMissingDataInterval(
-        df=df,
-        interval='100ms',
-        tolerance='10ms',
-    )
-
-    df_result = missing_data_monitor.check()
+        df_result = missing_data_monitor.check()
+        ```
 
     """
 
@@ -103,6 +100,13 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         return {}
 
     def check(self) -> PySparkDataFrame:
+        """
+        Executes the identify missing data logic.
+
+        Returns:
+            pyspark.sql.DataFrame:
+                Returns the original PySpark DataFrame without changes.
+        """
         if "EventTime" not in self.df.columns:
             self.logger.error("The DataFrame must contain an 'EventTime' column.")
             raise ValueError("The DataFrame must contain an 'EventTime' column.")

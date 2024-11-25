@@ -30,8 +30,38 @@ class CheckValueRanges(MonitoringBaseInterface):
             - 'left': min <= value < max
             - 'right': min < value <= max
 
-    Returns:
-        PySparkDataFrame: Returns the original PySpark DataFrame without changes.
+    Example:
+        ```python
+        from pyspark.sql import SparkSession
+        from rtdip_sdk.pipelines.monitoring.spark.data_quality.check_value_ranges import CheckValueRanges
+
+        spark = SparkSession.builder.master("local[1]").appName("CheckValueRangesExample").getOrCreate()
+
+        data = [
+            (1, 25, 100),
+            (2, -5, 150),
+            (3, 50, 250),
+            (4, 80, 300),
+            (5, 100, 50),
+        ]
+
+        columns = ["ID", "temperature", "pressure"]
+
+        df = spark.createDataFrame(data, columns)
+
+        columns_ranges = {
+            "temperature": {"min": 0, "max": 100, "inclusive": "both"},
+            "pressure": {"min": 50, "max": 200, "inclusive": "left"},
+        }
+
+        check_value_ranges = CheckValueRanges(
+            df=df,
+            columns_ranges=columns_ranges,
+            default_inclusive="both",
+        )
+
+        result_df = check_value_ranges.check()
+        ```
     """
 
     df: PySparkDataFrame

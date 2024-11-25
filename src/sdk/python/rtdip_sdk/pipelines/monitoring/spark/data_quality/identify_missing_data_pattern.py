@@ -27,8 +27,30 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
         tolerance (str, optional): Maximum allowed deviation from the pattern (e.g., '1s', '500ms').
             Default is '10ms'.
 
-    Returns:
-        PySparkDataFrame: Returns the original PySpark DataFrame without changes.
+    Example:
+        ```python
+        from pyspark.sql import SparkSession
+
+        spark = SparkSession.builder.master("local[1]").appName("IdentifyMissingDataPatternExample").getOrCreate()
+
+        patterns = [
+            {"second": 0},
+            {"second": 20},
+        ]
+
+        frequency = "minutely"
+        tolerance = "1s"
+
+        identify_missing_data = IdentifyMissingDataPattern(
+            df=df,
+            patterns=patterns,
+            frequency=frequency,
+            tolerance=tolerance,
+        )
+
+        identify_missing_data.check()
+        ```
+
     """
 
     df: PySparkDataFrame
