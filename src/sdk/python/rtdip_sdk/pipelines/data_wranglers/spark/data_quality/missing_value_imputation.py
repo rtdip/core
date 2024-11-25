@@ -252,7 +252,8 @@ class MissingValueImputation(WranglerBaseInterface):
         Imputate missing values based on [Spline Interpolation, ]
         """
         if not all(
-            col_ in self.df.columns for col_ in ["TagName", "EventTime", "Value", "Status"]
+            col_ in self.df.columns
+            for col_ in ["TagName", "EventTime", "Value", "Status"]
         ):
             raise ValueError("Columns not as expected")
 
