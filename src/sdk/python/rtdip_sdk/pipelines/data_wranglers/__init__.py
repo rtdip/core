@@ -21,3 +21,4 @@ from .spark.data_quality.prediction.arima import *
 from .spark.data_quality.missing_value_imputation import *
 from .spark.data_quality.k_sigma_anomaly_detection import *
 from .spark.data_quality.interval_filtering import *
+from .spark.data_quality.prediction.arima import *
