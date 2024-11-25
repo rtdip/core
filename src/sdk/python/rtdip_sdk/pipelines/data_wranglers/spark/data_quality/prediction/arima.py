@@ -257,22 +257,8 @@ class ArimaPrediction(WranglerBaseInterface):
             .tail(self.rows_to_analyze)
         )
 
-        if not self.arima_auto:
+        if self.arima_auto:
             # Default case: False
-            model = ARIMA(
-                endog=input_data,
-                order=self.order,
-                seasonal_order=self.seasonal_order,
-                trend=self.trend,
-                enforce_stationarity=self.enforce_stationarity,
-                enforce_invertibility=self.enforce_invertibility,
-                concentrate_scale=self.concentrate_scale,
-                trend_offset=self.trend_offset,
-                missing=self.missing,
-            )
-            return model.fit()
-
-        else:
             auto_model = auto_arima(
                 y=input_data,
                 seasonal=any(self.seasonal_order),
@@ -283,23 +269,28 @@ class ArimaPrediction(WranglerBaseInterface):
                 max_order=None,
             )
 
-            auto_source_order = auto_model.order
-            auto_source_seasonal_order = auto_model.seasonal_order
+            order = auto_model.order
+            seasonal_order = auto_model.seasonal_order
+            trend = "c" if order[1] == 0 else "t"
 
-            trend = "c" if auto_source_order[1] == 0 else "t"
+        else:
+            order = self.order
+            seasonal_order = self.seasonal_order
+            trend = self.trend
 
-            model = ARIMA(
-                endog=input_data,
-                order=auto_source_order,
-                seasonal_order=auto_source_seasonal_order,
-                trend=trend,
-                enforce_stationarity=self.enforce_stationarity,
-                enforce_invertibility=self.enforce_invertibility,
-                concentrate_scale=self.concentrate_scale,
-                trend_offset=self.trend_offset,
-                missing=self.missing,
-            )
-            return model.fit()
+        model = ARIMA(
+            endog=input_data,
+            order=order,
+            seasonal_order=seasonal_order,
+            trend=trend,
+            enforce_stationarity=self.enforce_stationarity,
+            enforce_invertibility=self.enforce_invertibility,
+            concentrate_scale=self.concentrate_scale,
+            trend_offset=self.trend_offset,
+            missing=self.missing,
+        )
+
+        return model.fit()
 
     def _split_by_source(self) -> dict:
         """
