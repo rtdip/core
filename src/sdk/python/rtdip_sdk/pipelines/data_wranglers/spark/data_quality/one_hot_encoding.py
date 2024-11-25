@@ -27,7 +27,7 @@ class OneHotEncoding(WranglerBaseInterface):
     ```python
     from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.one_hot_encoding import OneHotEncoding
     from pyspark.sql import SparkSession
-    
+
 
     spark = ... # SparkSession
     df = ... # Get a PySpark DataFrame
@@ -72,11 +72,14 @@ class OneHotEncoding(WranglerBaseInterface):
 
     def filter(self) -> PySparkDataFrame:
         if not self.values:
-            self.values = [row[self.column] for row in self.df.select(self.column).distinct().collect()]
+            self.values = [
+                row[self.column]
+                for row in self.df.select(self.column).distinct().collect()
+            ]
 
         for value in self.values:
             self.df = self.df.withColumn(
-                f"{self.column}_{value}",
-                F.when(F.col(self.column) == value, 1).otherwise(0)
+                f"{self.column}_{value if value is not None else 'None'}",
+                F.when(F.col(self.column) == value, 1).otherwise(0),
             )
         return self.df
