@@ -44,6 +44,7 @@ INSTALL_REQUIRES = [
     "openai>=1.13.3,<2.0.0",
     "pydantic>=2.6.0,<3.0.0",
     "statsmodels>=0.14.1,<0.15.0",
+    "pmdarima>=2.0.4",
 ]
 
 PYSPARK_PACKAGES = [
