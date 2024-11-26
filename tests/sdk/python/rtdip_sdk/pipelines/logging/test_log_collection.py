@@ -14,7 +14,7 @@
 import os
 
 import pytest
-from pandas import DataFrame
+from pyspark.sql import DataFrame
 from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines.logging.spark.runtime_log_collector import (
@@ -38,8 +38,8 @@ def spark():
     spark.stop()
 
 
-def test_logger_manager_basic_function():
-    df = DataFrame()
+def test_logger_manager_basic_function(spark):
+    df = spark.createDataFrame([(1, "2024-02-11 00:00:00.000")], ["Index", "EventTime"])
     monitor = IdentifyMissingDataInterval(
         df=df,
         interval="10s",
@@ -78,7 +78,7 @@ def test_df_output(spark, caplog):
 
     result_df = log_collector.get_logs_as_df()
 
-    assert result_df.shape[0] == 6
+    assert result_df.count() == 6
 
 
 def test_file_logging(spark, caplog):
