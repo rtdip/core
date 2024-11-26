@@ -40,7 +40,7 @@ def test_empty_df(spark_session):
     empty_data = []
     empty_df = spark_session.createDataFrame(empty_data, SCHEMA)
     encoder = OneHotEncoding(empty_df, "TagName")
-    result_df = encoder.filter()
+    result_df = encoder.transform()
 
     assert (
         result_df.count() == 0
@@ -61,7 +61,7 @@ def test_single_unique_value(spark_session):
     ]
     df = spark_session.createDataFrame(data, SCHEMA)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter()
+    result_df = encoder.transform()
 
     expected_columns = [
         "TagName",
@@ -87,7 +87,7 @@ def test_null_values(spark_session):
     ]
     df = spark_session.createDataFrame(data, SCHEMA)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter()
+    result_df = encoder.transform()
 
     expected_columns = [
         "TagName",
@@ -124,7 +124,7 @@ def test_large_unique_values(spark_session):
     ]
     df = spark_session.createDataFrame(data, SCHEMA)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter()
+    result_df = encoder.transform()
 
     assert (
         len(result_df.columns) == len(SCHEMA.fields) + 1000
@@ -139,7 +139,7 @@ def test_special_characters(spark_session):
     ]
     df = spark_session.createDataFrame(data, SCHEMA)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter()
+    result_df = encoder.transform()
 
     expected_columns = [
         "TagName",
@@ -180,7 +180,7 @@ def test_distinct_value(spark_session):
     df = spark_session.createDataFrame(data, SCHEMA)
 
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter()
+    result_df = encoder.transform()
 
     result = result_df.collect()
 

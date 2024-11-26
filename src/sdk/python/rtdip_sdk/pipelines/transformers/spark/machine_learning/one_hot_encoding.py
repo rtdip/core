@@ -69,7 +69,7 @@ class OneHotEncoding(TransformerInterface):
     @staticmethod
     def settings() -> dict:
         return {}
-    
+
     def pre_transform_validation(self):
         """
         Validate the input data before transformation.
@@ -79,12 +79,15 @@ class OneHotEncoding(TransformerInterface):
         """
         if self.df is None or self.df.count() == 0:
             raise ValueError("The DataFrame is empty.")
-        
+
         if self.column not in self.df.columns:
             raise ValueError(f"Column '{self.column}' does not exist in the DataFrame.")
-        
+
         if not self.values:
-            distinct_values = [row[self.column] for row in self.df.select(self.column).distinct().collect()]
+            distinct_values = [
+                row[self.column]
+                for row in self.df.select(self.column).distinct().collect()
+            ]
             if not distinct_values:
                 raise ValueError(f"No distinct values found in column '{self.column}'.")
             self.values = distinct_values
@@ -95,12 +98,19 @@ class OneHotEncoding(TransformerInterface):
         - Ensure that new columns have been added based on the distinct values.
         - Verify the transformed DataFrame contains the expected number of columns.
         """
-        expected_columns = [f"{self.column}_{value if value is not None else 'None'}" for value in self.values]
-        missing_columns = [col for col in expected_columns if col not in self.df.columns]
-        
+        expected_columns = [
+            f"{self.column}_{value if value is not None else 'None'}"
+            for value in self.values
+        ]
+        missing_columns = [
+            col for col in expected_columns if col not in self.df.columns
+        ]
+
         if missing_columns:
-            raise ValueError(f"Missing columns in the transformed DataFrame: {missing_columns}")
-        
+            raise ValueError(
+                f"Missing columns in the transformed DataFrame: {missing_columns}"
+            )
+
         if self.df.count() == 0:
             raise ValueError("The transformed DataFrame is empty.")
 
