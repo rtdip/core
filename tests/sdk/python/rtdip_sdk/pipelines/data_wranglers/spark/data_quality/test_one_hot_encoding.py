@@ -15,7 +15,7 @@ import pytest
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, FloatType
-from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.one_hot_encoding import (
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.machine_learning.one_hot_encoding import (
     OneHotEncoding,
 )
 
