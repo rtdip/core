@@ -14,9 +14,11 @@
 from datetime import timedelta
 
 import pandas as pd
+from pyspark.sql.types import StringType
 from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
+
 
 from ...._pipeline_utils.models import Libraries, SystemType
 from ...interfaces import WranglerBaseInterface
@@ -24,15 +26,15 @@ from ...interfaces import WranglerBaseInterface
 
 class IntervalFiltering(WranglerBaseInterface):
     """
-    Cleanses a DataFrame by removing rows outside a specified interval window.
-    Example:
-
+    Cleanses a DataFrame by removing rows outside a specified interval window. Supported time stamp columns are DateType and StringType.
 
     Parameters:
         spark (SparkSession): A SparkSession object.
         df (DataFrame): PySpark DataFrame to be converted
         interval (int): The interval length for cleansing.
-         interval_unit (str): 'hours', 'minutes', 'seconds' or 'milliseconds' to specify the unit of the interval.
+        interval_unit (str): 'hours', 'minutes', 'seconds' or 'milliseconds' to specify the unit of the interval.
+        time_stamp_column_name (str): The name of the column containing the time stamps. Default is 'EventTime'.
+        tolerance (int): The tolerance for the interval. Default is None.
     """
 
     """ Default time stamp column name if not set in the constructor """
@@ -56,6 +58,68 @@ class IntervalFiltering(WranglerBaseInterface):
             self.time_stamp_column_name = self.DEFAULT_TIME_STAMP_COLUMN_NAME
         else:
             self.time_stamp_column_name = time_stamp_column_name
+
+    def filter(self) -> DataFrame:
+        """
+        Filters the DataFrame based on the interval
+        """
+
+        if self.time_stamp_column_name not in self.df.columns:
+            raise ValueError(
+                f"Column {self.time_stamp_column_name} not found in the DataFrame."
+            )
+        is_string_time_stamp = isinstance(
+            self.df.schema[self.time_stamp_column_name].dataType, StringType
+        )
+
+        original_schema = self.df.schema
+        self.df = self.convert_column_to_timestamp().orderBy(
+            self.time_stamp_column_name
+        )
+
+        self.df.show()
+
+        tolerance_in_ms = None
+        if self.tolerance is not None:
+            tolerance_in_ms = self.get_time_delta(self.tolerance).total_seconds() * 1000
+        print(tolerance_in_ms)
+
+        time_delta_in_ms = self.get_time_delta(self.interval).total_seconds() * 1000
+
+        rows = self.df.collect()
+        last_time_stamp = rows[0][self.time_stamp_column_name]
+        first_row = rows[0].asDict()
+
+        first_row[self.time_stamp_column_name] = (
+            self.format_date_time_to_string(first_row[self.time_stamp_column_name])
+            if is_string_time_stamp
+            else first_row[self.time_stamp_column_name]
+        )
+
+        cleansed_df = [first_row]
+
+        for i in range(1, len(rows)):
+            current_row = rows[i]
+            current_time_stamp = current_row[self.time_stamp_column_name]
+
+            if self.check_if_outside_of_interval(
+                current_time_stamp, last_time_stamp, time_delta_in_ms, tolerance_in_ms
+            ):
+                current_row_dict = current_row.asDict()
+                current_row_dict[self.time_stamp_column_name] = (
+                    self.format_date_time_to_string(
+                        current_row_dict[self.time_stamp_column_name]
+                    )
+                    if is_string_time_stamp
+                    else current_row_dict[self.time_stamp_column_name]
+                )
+
+                cleansed_df.append(current_row_dict)
+                last_time_stamp = current_time_stamp
+
+        result_df = self.spark.createDataFrame(cleansed_df, schema=original_schema)
+
+        return result_df
 
     @staticmethod
     def system_type():
@@ -82,6 +146,7 @@ class IntervalFiltering(WranglerBaseInterface):
         except Exception as e:
             raise ValueError(
                 f"Error converting column {self.time_stamp_column_name} to timestamp: {e}"
+                f"{self.df.schema[self.time_stamp_column_name].dataType} might be unsupported!"
             )
 
     def get_time_delta(self, value: int) -> timedelta:
@@ -121,54 +186,3 @@ class IntervalFiltering(WranglerBaseInterface):
             return time_stamp.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
         except Exception as e:
             raise ValueError(f"Error converting timestamp to string: {e}")
-
-    def filter(self) -> DataFrame:
-        """
-        Filters the DataFrame based on the interval
-        """
-
-        if self.time_stamp_column_name not in self.df.columns:
-            raise ValueError(
-                f"Column {self.time_stamp_column_name} not found in the DataFrame."
-            )
-
-        original_schema = self.df.schema
-        self.df = self.convert_column_to_timestamp().orderBy(
-            self.time_stamp_column_name
-        )
-
-        tolerance_in_ms = None
-        if self.tolerance is not None:
-            tolerance_in_ms = self.get_time_delta(self.tolerance).total_seconds() * 1000
-        print(tolerance_in_ms)
-
-        time_delta_in_ms = self.get_time_delta(self.interval).total_seconds() * 1000
-
-        rows = self.df.collect()
-        last_time_stamp = rows[0][self.time_stamp_column_name]
-        first_row = rows[0].asDict()
-        first_row[self.time_stamp_column_name] = self.format_date_time_to_string(
-            first_row[self.time_stamp_column_name]
-        )
-
-        cleansed_df = [first_row]
-
-        for i in range(1, len(rows)):
-            current_row = rows[i]
-            current_time_stamp = current_row[self.time_stamp_column_name]
-
-            if self.check_if_outside_of_interval(
-                current_time_stamp, last_time_stamp, time_delta_in_ms, tolerance_in_ms
-            ):
-                current_row_dict = current_row.asDict()
-                current_row_dict[self.time_stamp_column_name] = (
-                    self.format_date_time_to_string(
-                        current_row_dict[self.time_stamp_column_name]
-                    )
-                )
-                cleansed_df.append(current_row_dict)
-                last_time_stamp = current_time_stamp
-
-        result_df = self.spark.createDataFrame(cleansed_df, schema=original_schema)
-
-        return result_df
