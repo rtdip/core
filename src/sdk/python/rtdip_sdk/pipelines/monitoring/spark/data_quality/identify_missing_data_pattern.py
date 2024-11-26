@@ -6,6 +6,7 @@ from pyspark.sql import functions as F
 
 from ...interfaces import MonitoringBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
+from ....logging.logger_manager import LoggerManager
 from ....utilities.spark.time_string_parsing import parse_time_string_to_ms
 
 
@@ -27,8 +28,30 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
         tolerance (str, optional): Maximum allowed deviation from the pattern (e.g., '1s', '500ms').
             Default is '10ms'.
 
-    Returns:
-        PySparkDataFrame: Returns the original PySpark DataFrame without changes.
+    Example:
+        ```python
+        from pyspark.sql import SparkSession
+
+        spark = SparkSession.builder.master("local[1]").appName("IdentifyMissingDataPatternExample").getOrCreate()
+
+        patterns = [
+            {"second": 0},
+            {"second": 20},
+        ]
+
+        frequency = "minutely"
+        tolerance = "1s"
+
+        identify_missing_data = IdentifyMissingDataPattern(
+            df=df,
+            patterns=patterns,
+            frequency=frequency,
+            tolerance=tolerance,
+        )
+
+        identify_missing_data.check()
+        ```
+
     """
 
     df: PySparkDataFrame
@@ -47,16 +70,8 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
         self.tolerance = tolerance
 
         # Configure logging
-        self.logger = logging.getLogger(self.__class__.__name__)
-        if not self.logger.handlers:
-            # Prevent adding multiple handlers in interactive environments
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.INFO)
+
+        self.logger = LoggerManager().create_logger(self.__class__.__name__)
 
     @staticmethod
     def system_type():

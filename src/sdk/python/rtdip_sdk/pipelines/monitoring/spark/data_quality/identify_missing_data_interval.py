@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
@@ -21,6 +19,8 @@ from pyspark.sql.window import Window
 from ...interfaces import MonitoringBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 from ....utilities.spark.time_string_parsing import parse_time_string_to_ms
+
+from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
 
 
 class IdentifyMissingDataInterval(MonitoringBaseInterface):
@@ -37,22 +37,19 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         mad_multiplier (float, optional): Multiplier for MAD to calculate tolerance. Default is 3.
         min_tolerance (str, optional): Minimum tolerance for pattern-based detection (e.g., '100ms'). Default is '10ms'.
 
-    Returns:
-        df (pyspark.sql.Dataframe): Returns the original PySparkDataFrame without changes.
+    Example:
+        ```python
+        from rtdip_sdk.pipelines.monitoring.spark.data_quality import IdentifyMissingDataInterval
+        from pyspark.sql import SparkSession
 
-    Example
-    --------
-    ```python
-      from rtdip_sdk.pipelines.monitoring.spark.data_quality import IdentifyMissingDataInterval
-    from pyspark.sql import SparkSession
+        missing_data_monitor = IdentifyMissingDataInterval(
+            df=df,
+            interval='100ms',
+            tolerance='10ms',
+        )
 
-    missing_data_monitor = IdentifyMissingDataInterval(
-        df=df,
-        interval='100ms',
-        tolerance='10ms',
-    )
-
-    df_result = missing_data_monitor.check()
+        df_result = missing_data_monitor.check()
+        ```
 
     """
 
@@ -73,17 +70,10 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         self.mad_multiplier = mad_multiplier
         self.min_tolerance = min_tolerance
 
-        # Configure logging
-        self.logger = logging.getLogger(self.__class__.__name__)
-        if not self.logger.handlers:
-            # Prevent adding multiple handlers in interactive environments
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.INFO)
+        # Use global pipeline logger
+
+        self.logger_manager = LoggerManager()
+        self.logger = self.logger_manager.create_logger("IdentifyMissingDataInterval")
 
     @staticmethod
     def system_type():
@@ -103,6 +93,13 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface):
         return {}
 
     def check(self) -> PySparkDataFrame:
+        """
+        Executes the identify missing data logic.
+
+        Returns:
+            pyspark.sql.DataFrame:
+                Returns the original PySpark DataFrame without changes.
+        """
         if "EventTime" not in self.df.columns:
             self.logger.error("The DataFrame must contain an 'EventTime' column.")
             raise ValueError("The DataFrame must contain an 'EventTime' column.")

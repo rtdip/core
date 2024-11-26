@@ -33,9 +33,6 @@ class FlatlineDetection(MonitoringBaseInterface):
         watch_columns (list): List of column names to monitor for flatlining (null or zero values).
         tolerance_timespan (int): Maximum allowed consecutive flatlining period. If exceeded, a warning is logged.
 
-    Returns:
-        pyspark.sql.DataFrame: The original PySpark DataFrame without any modifications.
-
     Example:
         ```python
         from rtdip_sdk.pipelines.monitoring.spark.data_quality.flatline_detection import FlatlineDetection
@@ -62,7 +59,7 @@ class FlatlineDetection(MonitoringBaseInterface):
         )
 
         # Detect flatlining
-        flatline_detection.detect()
+        flatline_detection.check()
         ```
     """
 
@@ -94,6 +91,10 @@ class FlatlineDetection(MonitoringBaseInterface):
 
     @staticmethod
     def system_type():
+        """
+        Attributes:
+            SystemType (Environment): Requires PYSPARK
+        """
         return SystemType.PYSPARK
 
     @staticmethod
