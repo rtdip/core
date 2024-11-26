@@ -25,8 +25,10 @@ from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.interv
 def spark_session():
     return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
 
+
 def convert_to_datetime(date_time: str):
     return datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S.%f")
+
 
 def test_interval_detection_easy(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame(
@@ -307,12 +309,13 @@ def test_interval_tolerance(spark_session: SparkSession):
     assert expected_df.schema == actual_df.schema
     assert expected_df.collect() == actual_df.collect()
 
+
 def test_interval_detection_date_time_columns(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame(
         [
             ("A2PS64V0JR", convert_to_datetime("2024-01-02 20:03:46.000")),
             ("A2PS64asd.:ZUX09R", convert_to_datetime("2024-01-02 21:06:46.000")),
-            ("A2PS64V0J.:ZUasdX09R",convert_to_datetime("2024-01-02 23:03:46.035")),
+            ("A2PS64V0J.:ZUasdX09R", convert_to_datetime("2024-01-02 23:03:46.035")),
         ],
         ["TagName", "EventTime"],
     )
@@ -333,5 +336,3 @@ def test_interval_detection_date_time_columns(spark_session: SparkSession):
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
     assert expected_df.collect() == actual_df.collect()
-
-

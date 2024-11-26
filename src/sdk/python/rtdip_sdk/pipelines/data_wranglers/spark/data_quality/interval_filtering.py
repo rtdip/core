@@ -14,7 +14,7 @@
 from datetime import timedelta
 
 import pandas as pd
-from  pyspark.sql.types import StringType
+from pyspark.sql.types import StringType
 from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
@@ -68,7 +68,9 @@ class IntervalFiltering(WranglerBaseInterface):
             raise ValueError(
                 f"Column {self.time_stamp_column_name} not found in the DataFrame."
             )
-        is_string_time_stamp = isinstance(self.df.schema[self.time_stamp_column_name].dataType, StringType)
+        is_string_time_stamp = isinstance(
+            self.df.schema[self.time_stamp_column_name].dataType, StringType
+        )
 
         original_schema = self.df.schema
         self.df = self.convert_column_to_timestamp().orderBy(
@@ -88,7 +90,6 @@ class IntervalFiltering(WranglerBaseInterface):
         last_time_stamp = rows[0][self.time_stamp_column_name]
         first_row = rows[0].asDict()
 
-
         first_row[self.time_stamp_column_name] = (
             self.format_date_time_to_string(first_row[self.time_stamp_column_name])
             if is_string_time_stamp
@@ -106,7 +107,9 @@ class IntervalFiltering(WranglerBaseInterface):
             ):
                 current_row_dict = current_row.asDict()
                 current_row_dict[self.time_stamp_column_name] = (
-                    self.format_date_time_to_string(current_row_dict[self.time_stamp_column_name])
+                    self.format_date_time_to_string(
+                        current_row_dict[self.time_stamp_column_name]
+                    )
                     if is_string_time_stamp
                     else current_row_dict[self.time_stamp_column_name]
                 )
@@ -117,6 +120,7 @@ class IntervalFiltering(WranglerBaseInterface):
         result_df = self.spark.createDataFrame(cleansed_df, schema=original_schema)
 
         return result_df
+
     @staticmethod
     def system_type():
         """
@@ -133,7 +137,6 @@ class IntervalFiltering(WranglerBaseInterface):
     @staticmethod
     def settings() -> dict:
         return {}
-
 
     def convert_column_to_timestamp(self) -> DataFrame:
         try:
@@ -183,5 +186,3 @@ class IntervalFiltering(WranglerBaseInterface):
             return time_stamp.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
         except Exception as e:
             raise ValueError(f"Error converting timestamp to string: {e}")
-
-
