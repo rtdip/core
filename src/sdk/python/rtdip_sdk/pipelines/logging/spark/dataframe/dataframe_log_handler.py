@@ -14,11 +14,8 @@
 import logging
 
 import pandas
-
+from pandas import DataFrame
 from datetime import datetime
-
-from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, DateType
 
 
 class DataFrameLogHandler(logging.Handler):
@@ -41,19 +38,9 @@ class DataFrameLogHandler(logging.Handler):
     """
 
     logs_df: DataFrame = None
-    spark = None
 
     def __init__(self):
-        self.spark = SparkSession.builder.appName("Dataframe Log Handler").getOrCreate()
-        df_schema = StructType(
-            [
-                StructField("timestamp", DateType(), True),
-                StructField("name", StringType(), True),
-                StructField("level", StringType(), True),
-                StructField("message", StringType(), True),
-            ]
-        )
-        self.logs_df = self.spark.createDataFrame([], schema=df_schema)
+        self.logs_df = DataFrame(columns=["timestamp", "name", "level", "message"])
         super().__init__()
 
     def emit(self, record: logging.LogRecord) -> None:
@@ -65,8 +52,10 @@ class DataFrameLogHandler(logging.Handler):
             "message": record.msg,
         }
 
-        new_log_df_row = self.spark.createDataFrame([log_entry])
-        self.logs_df = self.logs_df.union(new_log_df_row)
+        new_log_df_row = pandas.DataFrame(
+            log_entry, columns=["timestamp", "name", "level", "message"], index=[0]
+        )
+        self.logs_df = pandas.concat([self.logs_df, new_log_df_row], ignore_index=True)
 
     def get_logs_as_df(self) -> DataFrame:
         return self.logs_df
