@@ -238,7 +238,7 @@ nav:
               - Monitoring:
                   - Data Quality: 
                       - Great Expectations: 
-                        - Data Quality Monitoring: sdk/code-reference/pipelines/monitoring/spark/data_quality/great_expectations.md
+                        - Data Quality Monitoring: sdk/code-reference/pipelines/monitoring/spark/data_manipulation/great_expectations.md
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md
