@@ -16,7 +16,7 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 
-from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.duplicate_detection import (
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.duplicate_detection import (
     DuplicateDetection,
 )
 

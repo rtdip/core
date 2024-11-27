@@ -14,7 +14,7 @@
 import pytest
 
 from pyspark.sql import SparkSession
-from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.interval_filtering import (
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.interval_filtering import (
     IntervalFiltering,
 )
 
