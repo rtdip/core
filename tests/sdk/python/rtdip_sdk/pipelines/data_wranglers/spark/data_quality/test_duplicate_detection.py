@@ -11,11 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import pytest
-
 from pyspark.sql import SparkSession
-from pyspark.sql.dataframe import DataFrame
-
 from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.duplicate_detection import (
     DuplicateDetection,
 )
@@ -26,37 +24,62 @@ def spark_session():
     return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
 
 
-def test_duplicate_detection(spark_session: SparkSession):
-    expected_df = spark_session.createDataFrame(
-        [
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "0.340000004"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "0.150000006"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 11:56:42.000", "Good", "0.129999995"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "0.119999997"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "0.129999995"),
-        ],
-        ["TagName", "EventTime", "Status", "Value"],
+@pytest.fixture
+def test_data(spark_session):
+    data = [
+        ("key1", "time1", "value1"),
+        ("key2", "time2", "value2"),
+        ("key2", "time3", "value2"),
+        ("key1", "time1", "value3"),
+        ("key4", "time4", "value4"),
+        ("key5", "time4", "value5"),
+    ]
+    columns = ["TagName", "EventTime", "Value"]
+    return spark_session.createDataFrame(data, columns)
+
+
+def test_duplicate_detection_two_columns(spark_session, test_data):
+    expected_data = [
+        ("key1", "time1", "value1"),
+        ("key2", "time2", "value2"),
+        ("key2", "time3", "value2"),
+        ("key4", "time4", "value4"),
+        ("key5", "time4", "value5"),
+    ]
+    columns = ["TagName", "EventTime", "Value"]
+    expected_df = spark_session.createDataFrame(expected_data, columns)
+
+    duplicate_detection = DuplicateDetection(
+        test_data, primary_key_columns=["TagName", "EventTime"]
     )
+    result_df = duplicate_detection.filter()
+    result_df.show()
 
-    df = spark_session.createDataFrame(
-        [
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "0.340000004"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "0.340000004"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "0.150000006"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 11:56:42.000", "Good", "0.129999995"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "0.119999997"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "0.119999997"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "0.119999997"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "0.129999995"),
-        ],
-        ["TagName", "EventTime", "Status", "Value"],
-    )
+    assert (
+        result_df.count() == expected_df.count()
+    ), "Row count does not match expected result"
+    assert sorted(result_df.collect()) == sorted(
+        expected_df.collect()
+    ), "Data does not match expected result"
 
-    duplicate_detection_monitor = DuplicateDetection(df)
-    actual_df = duplicate_detection_monitor.filter()
 
-    assert isinstance(actual_df, DataFrame)
+def test_duplicate_detection_one_column(spark_session, test_data):
+    expected_data = [
+        ("key1", "time1", "value1"),
+        ("key2", "time2", "value2"),
+        ("key4", "time4", "value4"),
+        ("key5", "time4", "value5"),
+    ]
+    columns = ["TagName", "EventTime", "Value"]
+    expected_df = spark_session.createDataFrame(expected_data, columns)
 
-    assert expected_df.columns == actual_df.columns
-    assert expected_df.schema == actual_df.schema
-    assert expected_df.collect() == actual_df.collect()
+    duplicate_detection = DuplicateDetection(test_data, primary_key_columns=["TagName"])
+    result_df = duplicate_detection.filter()
+    result_df.show()
+
+    assert (
+        result_df.count() == expected_df.count()
+    ), "Row count does not match expected result"
+    assert sorted(result_df.collect()) == sorted(
+        expected_df.collect()
+    ), "Data does not match expected result"
