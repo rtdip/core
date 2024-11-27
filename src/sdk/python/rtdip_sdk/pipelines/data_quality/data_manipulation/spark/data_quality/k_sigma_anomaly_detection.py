@@ -15,7 +15,10 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import mean, stddev, abs, col
 from ...interfaces import DataManipulationBaseInterface
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    SystemType,
+)
 
 
 class KSigmaAnomalyDetection(DataManipulationBaseInterface):

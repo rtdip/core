@@ -8,7 +8,7 @@ from pyspark.sql import Row
 from pyspark.sql.types import StructType, StructField, StringType
 
 
-from rtdip_sdk.pipelines.data_quality.monitoring.spark.identify_missing_data_pattern import (
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.identify_missing_data_pattern import (
     IdentifyMissingDataPattern,
 )
 

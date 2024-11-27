@@ -17,14 +17,18 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.normalization.denormalization import \
-    Denormalization
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.normalization.normalization import \
-    NormalizationBaseClass
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.normalization.normalization_mean import \
-    NormalizationMean
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.normalization.normalization_minmax import \
-    NormalizationMinMax
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.normalization.denormalization import (
+    Denormalization,
+)
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.normalization.normalization import (
+    NormalizationBaseClass,
+)
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.normalization.normalization_mean import (
+    NormalizationMean,
+)
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.normalization.normalization_minmax import (
+    NormalizationMinMax,
+)
 
 
 @pytest.fixture(scope="session")

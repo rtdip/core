@@ -1,7 +1,8 @@
 from pyspark.sql import SparkSession
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.k_sigma_anomaly_detection import \
-    KSigmaAnomalyDetection
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.k_sigma_anomaly_detection import (
+    KSigmaAnomalyDetection,
+)
 
 # Normal data mean=10 stddev=5 + 3 anomalies
 # fmt: off

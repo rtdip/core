@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 from pyspark.sql import SparkSession
 
-from rtdip_sdk.pipelines.data_quality.monitoring.spark.great_expectations_data_quality import (
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.great_expectations_data_quality import (
     GreatExpectationsDataQuality,
 )
 

@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 from io import StringIO
 import logging
 
-from rtdip_sdk.pipelines.data_quality.monitoring.spark.check_value_ranges import (
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.check_value_ranges import (
     CheckValueRanges,
 )
 

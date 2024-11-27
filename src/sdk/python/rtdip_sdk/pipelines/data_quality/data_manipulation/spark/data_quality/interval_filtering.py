@@ -18,11 +18,14 @@ from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    SystemType,
+)
 from ...interfaces import DataManipulationBaseInterface
 
 
-class IntervalFiltering (DataManipulationBaseInterface):
+class IntervalFiltering(DataManipulationBaseInterface):
     """
     Cleanses a DataFrame by removing rows outside a specified interval window.
     Example:

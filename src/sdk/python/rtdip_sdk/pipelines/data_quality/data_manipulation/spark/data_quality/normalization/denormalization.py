@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from pyspark.sql import DataFrame as PySparkDataFrame
-from rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import DataManipulationBaseInterface
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import (
+    DataManipulationBaseInterface,
+)
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    SystemType,
+)
 from .normalization import (
     NormalizationBaseClass,
 )

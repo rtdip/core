@@ -14,8 +14,13 @@
 
 import great_expectations as gx
 from pyspark.sql import DataFrame, SparkSession
-from rtdip_sdk.pipelines.data_quality.monitoring.interfaces import MonitoringBaseInterface
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.interfaces import (
+    MonitoringBaseInterface,
+)
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    SystemType,
+)
 from great_expectations.checkpoint import (
     Checkpoint,
 )

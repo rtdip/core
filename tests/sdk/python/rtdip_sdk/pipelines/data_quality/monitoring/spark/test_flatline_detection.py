@@ -1,6 +1,6 @@
 import pytest
 from pyspark.sql import SparkSession
-from rtdip_sdk.pipelines.data_quality.monitoring.spark.flatline_detection import (
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.flatline_detection import (
     FlatlineDetection,
 )
 

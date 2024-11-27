@@ -19,7 +19,9 @@ import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.prediction.arima import ArimaPrediction
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.prediction.arima import (
+    ArimaPrediction,
+)
 
 
 @pytest.fixture(scope="session")

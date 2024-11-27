@@ -19,7 +19,10 @@ from pyspark.sql import DataFrame as PySparkDataFrame, SparkSession
 from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
 
 from ....interfaces import DataManipulationBaseInterface
-from rtdip_sdk.pipelines._pipeline_utils.models import Libraries, SystemType
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    Libraries,
+    SystemType,
+)
 
 
 class ArimaPrediction(DataManipulationBaseInterface):
