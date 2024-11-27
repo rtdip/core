@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .cols_to_vector import *
+from .columns_to_vector import *
 from .polynomial_features import *

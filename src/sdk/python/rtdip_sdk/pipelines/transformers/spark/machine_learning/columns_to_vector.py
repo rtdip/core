@@ -18,7 +18,7 @@ from ...._pipeline_utils.models import Libraries, SystemType
 from ...interfaces import TransformerInterface
 
 
-class ColsToVector(TransformerInterface):
+class ColumnsToVector(TransformerInterface):
     """
     Converts columns containing numbers to a column containing a vector.
 
