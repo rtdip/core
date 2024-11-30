@@ -1,4 +1,4 @@
-# Copyright 2024 RTDIP
+# Copyright 2022 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,5 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .columns_to_vector import *
-from .polynomial_features import *
+from abc import abstractmethod
+
+from pyspark.sql import DataFrame
+
+from src.sdk.python.rtdip_sdk.pipelines.interfaces import PipelineComponentBaseInterface
+
+
+class MonitoringBaseInterface(PipelineComponentBaseInterface):
+    @abstractmethod
+    def check(self) -> DataFrame:
+        pass

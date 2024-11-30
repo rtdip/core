@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# AMOS project specific folders
+Deliverables/
+amos_feature_request.md
+
 # C extensions
 *.so
 
