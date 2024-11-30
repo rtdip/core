@@ -1,1 +1,1 @@
-::: src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.data_quality.flatline_detection
+::: src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.flatline_detection

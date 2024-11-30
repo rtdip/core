@@ -1,1 +1,1 @@
-::: src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.data_quality.check_value_ranges
+::: src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.check_value_ranges
