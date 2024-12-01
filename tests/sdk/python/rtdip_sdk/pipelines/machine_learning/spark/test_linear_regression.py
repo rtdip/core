@@ -25,8 +25,8 @@ from datetime import datetime
 from src.sdk.python.rtdip_sdk.pipelines.machine_learning.spark.linear_regression import (
     LinearRegression,
 )
-from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.machine_learning.cols_to_vector import (
-    ColsToVector,
+from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.machine_learning.columns_to_vector import (
+    ColumnsToVector,
 )
 from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.machine_learning.polynomial_features import (
     PolynomialFeatures,
@@ -170,8 +170,8 @@ def sample_data(spark):
 # Test cases
 def test_cols_to_vector(sample_data):
     df = sample_data
-    # Pass the DataFrame to ColsToVector
-    cols_to_vector = ColsToVector(df=df, input_cols=["Value"], output_col="features")
+    # Pass the DataFrame to ColumnsToVector
+    cols_to_vector = ColumnsToVector(df=df, input_cols=["Value"], output_col="features")
     transformed_df = cols_to_vector.transform()
 
     assert "features" in transformed_df.columns
@@ -180,8 +180,8 @@ def test_cols_to_vector(sample_data):
 
 def test_polynomial_features(sample_data):
     df = sample_data
-    # Convert 'Value' to a vector using ColsToVector
-    cols_to_vector = ColsToVector(df=df, input_cols=["Value"], output_col="features")
+    # Convert 'Value' to a vector using ColumnsToVector
+    cols_to_vector = ColumnsToVector(df=df, input_cols=["Value"], output_col="features")
     vectorized_df = cols_to_vector.transform()
 
     polynomial_features = PolynomialFeatures(
@@ -197,8 +197,8 @@ def test_polynomial_features(sample_data):
 
 def test_linear_regression(sample_data):
     df = sample_data
-    # Use ColsToVector to assemble features into a single vector column
-    cols_to_vector = ColsToVector(df=df, input_cols=["Value"], output_col="features")
+    # Use ColumnsToVector to assemble features into a single vector column
+    cols_to_vector = ColumnsToVector(df=df, input_cols=["Value"], output_col="features")
     df = cols_to_vector.transform()
     linear_regression = LinearRegression(
         df, features_col="features", label_col="Value", prediction_col="prediction"
