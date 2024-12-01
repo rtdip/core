@@ -18,7 +18,7 @@ from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import col, unix_timestamp, abs as A
 from pyspark.sql.types import StructType, StructField, StringType
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.missing_value_imputation import (
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.missing_value_imputation import (
     MissingValueImputation,
 )
 

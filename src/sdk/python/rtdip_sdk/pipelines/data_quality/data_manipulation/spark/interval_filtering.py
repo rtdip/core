@@ -23,7 +23,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
-from ...interfaces import DataManipulationBaseInterface
+from ..interfaces import DataManipulationBaseInterface
 
 
 class IntervalFiltering(DataManipulationBaseInterface):

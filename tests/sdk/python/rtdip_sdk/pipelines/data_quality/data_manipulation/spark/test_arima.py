@@ -20,7 +20,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.types import StructType, StructField, StringType
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.data_quality.prediction.arima import (
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import (
     ArimaPrediction,
 )
 

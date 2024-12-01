@@ -21,7 +21,7 @@ from pyspark.sql.functions import col
 from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
 from pmdarima import auto_arima
 
-from ....interfaces import DataManipulationBaseInterface
+from ...interfaces import DataManipulationBaseInterface
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,

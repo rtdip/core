@@ -20,7 +20,7 @@ from scipy.interpolate import UnivariateSpline
 import numpy as np
 from datetime import timedelta
 from typing import List
-from ...interfaces import DataManipulationBaseInterface
+from ..interfaces import DataManipulationBaseInterface
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
