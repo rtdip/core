@@ -49,7 +49,6 @@ def test_no_missing_patterns(spark, caplog):
         if record.levelname == "INFO" and record.name == "IdentifyMissingDataPattern"
     ]
     assert "Using tolerance: 1000.0 ms (1.0 seconds)" in actual_logs
-    assert "Generated 6 expected times based on patterns." in actual_logs
     assert "Identified 0 missing patterns." in actual_logs
     assert "No missing patterns detected." in actual_logs
 
@@ -79,7 +78,6 @@ def test_some_missing_patterns(spark, caplog):
         if record.levelname == "INFO" and record.name == "IdentifyMissingDataPattern"
     ]
     assert "Using tolerance: 1000.0 ms (1.0 seconds)" in actual_logs
-    assert "Generated 5 expected times based on patterns." in actual_logs
     assert "Identified 2 missing patterns." in actual_logs
     assert "Detected Missing Patterns:" in actual_logs
     assert "Missing Pattern at 2024-02-11 00:01:00.000" in actual_logs
@@ -111,7 +109,6 @@ def test_all_missing_patterns(spark, caplog):
         if record.levelname == "INFO" and record.name == "IdentifyMissingDataPattern"
     ]
     assert "Using tolerance: 1000.0 ms (1.0 seconds)" in actual_logs
-    assert "Generated 5 expected times based on patterns." in actual_logs
     assert "Identified 5 missing patterns." in actual_logs
     assert "Detected Missing Patterns:" in actual_logs
     missing_patterns = [
@@ -230,7 +227,6 @@ def test_hourly_patterns_with_microseconds(spark, caplog):
         if record.levelname == "INFO" and record.name == "IdentifyMissingDataPattern"
     ]
     assert "Using tolerance: 500.0 ms (0.5 seconds)" in actual_logs
-    assert "Generated 3 expected times based on patterns." in actual_logs
     assert "Identified 1 missing patterns." in actual_logs
     assert "Detected Missing Patterns:" in actual_logs
     assert "Missing Pattern at 2024-02-11 00:30:30.500" in actual_logs

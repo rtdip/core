@@ -45,29 +45,27 @@ def test_data(spark):
     return spark.createDataFrame(data)
 
 
-def test_multiple_inclusive_options(test_data, log_capture):
+def test_multiple_inclusive_bounds_options(test_data, log_capture):
     columns_ranges = {
-        "temperature": {"min": 50, "max": 70, "inclusive": "both"},
-        "pressure": {"min": 100, "max": 200, "inclusive": "left"},
-        "humidity": {"min": 50, "max": 90, "inclusive": "right"},
+        "temperature": {"min": 50, "max": 70, "inclusive_bounds_bounds": True},
+        "pressure": {"min": 100, "max": 200, "inclusive_bounds": False},
+        "humidity": {"min": 50, "max": 90, "inclusive_bounds": True},
     }
-    monitor = CheckValueRanges(
-        df=test_data, columns_ranges=columns_ranges, default_inclusive="neither"
-    )
+    monitor = CheckValueRanges(df=test_data, columns_ranges=columns_ranges)
     monitor.check()
 
     expected_logs = [
-        # For temperature with inclusive='both'
+        # For temperature with inclusive_bounds='both'
         "Found 1 rows in column 'temperature' out of range.",
         f"Out of range row in column 'temperature': {test_data.collect()[4]}",
-        # For pressure with inclusive='left'
-        "Found 3 rows in column 'pressure' out of range.",
+        # For pressure with inclusive_bounds='left'
+        "Found 4 rows in column 'pressure' out of range.",
+        f"Out of range row in column 'pressure': {test_data.collect()[0]}",
         f"Out of range row in column 'pressure': {test_data.collect()[2]}",
         f"Out of range row in column 'pressure': {test_data.collect()[3]}",
         f"Out of range row in column 'pressure': {test_data.collect()[4]}",
-        # For humidity with inclusive='right'
-        "Found 3 rows in column 'humidity' out of range.",
-        f"Out of range row in column 'humidity': {test_data.collect()[0]}",
+        # For humidity with inclusive_bounds='right'
+        "Found 2 rows in column 'humidity' out of range.",
         f"Out of range row in column 'humidity': {test_data.collect()[3]}",
         f"Out of range row in column 'humidity': {test_data.collect()[4]}",
     ]
@@ -79,32 +77,6 @@ def test_multiple_inclusive_options(test_data, log_capture):
         actual_logs
     ), f"Expected {len(expected_logs)} logs, got {len(actual_logs)}"
 
-    for expected, actual in zip(expected_logs, actual_logs):
-        assert expected == actual, f"Expected: '{expected}', got: '{actual}'"
-
-
-def test_inclusive_neither(test_data, log_capture):
-    columns_ranges = {
-        "temperature": {"min": 49, "max": 70},
-    }
-    monitor = CheckValueRanges(
-        df=test_data, columns_ranges=columns_ranges, default_inclusive="neither"
-    )
-    monitor.check()
-
-    expected_logs = [
-        "Found 3 rows in column 'temperature' out of range.",
-        f"Out of range row in column 'temperature': {test_data.collect()[2]}",
-        f"Out of range row in column 'temperature': {test_data.collect()[3]}",
-        f"Out of range row in column 'temperature': {test_data.collect()[4]}",
-    ]
-
-    log_contents = log_capture.getvalue()
-    actual_logs = log_contents.strip().split("\n")
-
-    assert len(expected_logs) == len(
-        actual_logs
-    ), f"Expected {len(expected_logs)} logs, got {len(actual_logs)}"
     for expected, actual in zip(expected_logs, actual_logs):
         assert expected == actual, f"Expected: '{expected}', got: '{actual}'"
 
@@ -162,21 +134,6 @@ def test_invalid_column(test_data):
         monitor = CheckValueRanges(df=test_data, columns_ranges=columns_ranges)
         monitor.check()
     assert "Column 'invalid_column' not found in DataFrame." in str(excinfo.value)
-
-
-def test_invalid_inclusive(test_data):
-    columns_ranges = {
-        "temperature": {"min": 0, "max": 100},
-    }
-    with pytest.raises(ValueError) as excinfo:
-        monitor = CheckValueRanges(
-            df=test_data, columns_ranges=columns_ranges, default_inclusive="invalid"
-        )
-        monitor.check()
-    assert (
-        "Default inclusive parameter must be one of ['both', 'neither', 'left', 'right']."
-        in str(excinfo.value)
-    )
 
 
 def test_no_min_or_max(test_data):

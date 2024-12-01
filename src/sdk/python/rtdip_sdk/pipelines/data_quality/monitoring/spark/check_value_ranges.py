@@ -21,19 +21,13 @@ class CheckValueRanges(MonitoringBaseInterface):
     Args:
         df (pyspark.sql.DataFrame): The DataFrame to monitor.
         columns_ranges (dict): A dictionary where keys are column names and values are dictionaries specifying 'min' and/or
-            'max', and optionally 'inclusive' values.
+            'max', and optionally 'inclusive_bounds' values.
             Example:
                 {
-                    'temperature': {'min': 0, 'max': 100, 'inclusive': 'both'},
-                    'pressure': {'min': 10, 'max': 200, 'inclusive': 'left'},
-                    'humidity': {'min': 30}  # Uses default inclusive
+                    'temperature': {'min': 0, 'max': 100, 'inclusive_bounds': True},
+                    'pressure': {'min': 10, 'max': 200, 'inclusive_bounds': False},
+                    'humidity': {'min': 30}  # Defaults to inclusive_bounds = True
                 }
-        default_inclusive (str, optional): Default inclusivity setting if not specified per column.
-            Can be 'both', 'neither', 'left', or 'right'. Default is 'both'.
-            - 'both': min <= value <= max
-            - 'neither': min < value < max
-            - 'left': min <= value < max
-            - 'right': min < value <= max
 
     Example:
         ```python
@@ -55,14 +49,13 @@ class CheckValueRanges(MonitoringBaseInterface):
         df = spark.createDataFrame(data, columns)
 
         columns_ranges = {
-            "temperature": {"min": 0, "max": 100, "inclusive": "both"},
-            "pressure": {"min": 50, "max": 200, "inclusive": "left"},
+            "temperature": {"min": 0, "max": 100, "inclusive_bounds": False},
+            "pressure": {"min": 50, "max": 200},
         }
 
         check_value_ranges = CheckValueRanges(
             df=df,
             columns_ranges=columns_ranges,
-            default_inclusive="both",
         )
 
         result_df = check_value_ranges.check()
@@ -75,17 +68,14 @@ class CheckValueRanges(MonitoringBaseInterface):
         self,
         df: PySparkDataFrame,
         columns_ranges: dict,
-        default_inclusive: str = "both",
     ) -> None:
 
         self.df = df
         self.columns_ranges = columns_ranges
-        self.default_inclusive = default_inclusive.lower()
 
         # Configure logging
         self.logger = logging.getLogger(self.__class__.__name__)
         if not self.logger.handlers:
-            # Prevent adding multiple handlers in interactive environments
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
                 "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -123,46 +113,33 @@ class CheckValueRanges(MonitoringBaseInterface):
         self._validate_inputs()
         df = self.df
 
-        # For each column and its range, check for out-of-range values
         for column, range_dict in self.columns_ranges.items():
             min_value = range_dict.get("min", None)
             max_value = range_dict.get("max", None)
-            inclusive = range_dict.get("inclusive", self.default_inclusive).lower()
+            inclusive_bounds = range_dict.get("inclusive_bounds", True)
 
             conditions = []
 
             # Build minimum value condition
             if min_value is not None:
-                if inclusive in ["both", "left"]:
+                if inclusive_bounds:
                     min_condition = col(column) < min_value
-                elif inclusive in ["neither", "right"]:
-                    min_condition = col(column) <= min_value
                 else:
-                    raise ValueError(
-                        "Invalid value for 'inclusive' parameter. Must be 'both', 'neither', 'left', or 'right'."
-                    )
+                    min_condition = col(column) <= min_value
                 conditions.append(min_condition)
 
             # Build maximum value condition
             if max_value is not None:
-                if inclusive in ["both", "right"]:
+                if inclusive_bounds:
                     max_condition = col(column) > max_value
-                elif inclusive in ["neither", "left"]:
-                    max_condition = col(column) >= max_value
                 else:
-                    raise ValueError(
-                        "Invalid value for 'inclusive' parameter. Must be 'both', 'neither', 'left', or 'right'."
-                    )
+                    max_condition = col(column) >= max_value
                 conditions.append(max_condition)
 
             if not conditions:
-                # Should not happen, as at least 'min' or 'max' must be provided
                 continue
 
-            # Combine all conditions with a logical OR
             condition = reduce(or_, conditions)
-
-            # Filter out-of-range rows
             out_of_range_df = df.filter(condition)
 
             count = out_of_range_df.count()
@@ -179,27 +156,17 @@ class CheckValueRanges(MonitoringBaseInterface):
         return self.df
 
     def _validate_inputs(self):
-        # Validate that columns_ranges is a dictionary
         if not isinstance(self.columns_ranges, dict):
             raise TypeError("columns_ranges must be a dictionary.")
 
-        valid_inclusive = ["both", "neither", "left", "right"]
-
-        # Validate default_inclusive parameter
-        if self.default_inclusive not in valid_inclusive:
-            raise ValueError(
-                f"Default inclusive parameter must be one of {valid_inclusive}."
-            )
-
-        # Validate that columns exist in DataFrame and parameters are correct
         for column, range_dict in self.columns_ranges.items():
             if column not in self.df.columns:
                 raise ValueError(f"Column '{column}' not found in DataFrame.")
 
-            inclusive = range_dict.get("inclusive", self.default_inclusive).lower()
-            if inclusive not in valid_inclusive:
+            inclusive_bounds = range_dict.get("inclusive_bounds", True)
+            if not isinstance(inclusive_bounds, bool):
                 raise ValueError(
-                    f"Inclusive parameter for column '{column}' must be one of {valid_inclusive}."
+                    f"Inclusive_bounds for column '{column}' must be a boolean."
                 )
 
             if "min" not in range_dict and "max" not in range_dict:

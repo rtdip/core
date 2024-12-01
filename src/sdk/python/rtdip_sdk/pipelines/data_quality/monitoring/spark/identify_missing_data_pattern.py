@@ -175,35 +175,107 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
             self.logger.error(error_msg)
             raise ValueError(error_msg) from e
 
+    # def _generate_expected_times(self, min_time, max_time) -> PySparkDataFrame:
+    #     """
+    #     Generates all expected times based on the patterns and frequency within the time range.
+
+    #     Args:
+    #         min_time (Timestamp): Start of the time range.
+    #         max_time (Timestamp): End of the time range.
+
+    #     Returns:
+    #         PySparkDataFrame: DataFrame containing all expected 'ExpectedTime'.
+    #     """
+    #     # Floor min_time to the nearest frequency step
+    #     if self.frequency == "minutely":
+    #         floor_min_time = min_time.replace(second=0, microsecond=0)
+    #         step = F.expr("INTERVAL 1 MINUTE")
+    #     elif self.frequency == "hourly":
+    #         floor_min_time = min_time.replace(minute=0, second=0, microsecond=0)
+    #         step = F.expr("INTERVAL 1 HOUR")
+    #     # Ceil max_time to include the last interval
+    #     if self.frequency == "minutely":
+    #         ceil_max_time = (max_time + pd.Timedelta(minutes=1)).replace(
+    #             second=0, microsecond=0
+    #         )
+    #     elif self.frequency == "hourly":
+    #         ceil_max_time = (max_time + pd.Timedelta(hours=1)).replace(
+    #             minute=0, second=0, microsecond=0
+    #         )
+    #     # Create a DataFrame with a sequence of base times
+    #     base_times_df = self.df.sparkSession.createDataFrame(
+    #         [(floor_min_time, ceil_max_time)], ["start", "end"]
+    #     ).select(
+    #         F.explode(
+    #             F.sequence(
+    #                 F.col("start").cast("timestamp"),
+    #                 F.col("end").cast("timestamp"),
+    #                 step,
+    #             )
+    #         ).alias("BaseTime")
+    #     )
+    #     # Generate expected times based on patterns
+    #     expected_times = []
+    #     for pattern in self.patterns:
+    #         if self.frequency == "minutely":
+    #             seconds = pattern.get("second", 0)
+    #             milliseconds = pattern.get("millisecond", 0)
+    #             expected_time = (
+    #                 F.col("BaseTime")
+    #                 + F.expr(f"INTERVAL {seconds} SECOND")
+    #                 + F.expr(f"INTERVAL {milliseconds} MILLISECOND")
+    #             )
+    #         elif self.frequency == "hourly":
+    #             minutes = pattern.get("minute", 0)
+    #             seconds = pattern.get("second", 0)
+    #             milliseconds = pattern.get("millisecond", 0)
+    #             expected_time = (
+    #                 F.col("BaseTime")
+    #                 + F.expr(f"INTERVAL {minutes} MINUTE")
+    #                 + F.expr(f"INTERVAL {seconds} SECOND")
+    #                 + F.expr(f"INTERVAL {milliseconds} MILLISECOND")
+    #             )
+    #         expected_times.append(expected_time)
+    #     # Combine all expected times into one DataFrame
+    #     expected_times_df = base_times_df.withColumn(
+    #         "ExpectedTime", F.explode(F.array(*expected_times))
+    #     ).select("ExpectedTime")
+    #     # Remove duplicates and filter within the time range
+    #     expected_times_df = expected_times_df.distinct().filter(
+    #         (F.col("ExpectedTime") >= F.lit(floor_min_time))
+    #         & (F.col("ExpectedTime") <= F.lit(max_time))
+    #     )
+    #     self.logger.info(
+    #         f"Generated {expected_times_df.count()} expected times based on patterns."
+    #     )
+    #     return expected_times_df
+
     def _generate_expected_times(self, min_time, max_time) -> PySparkDataFrame:
-        """
-        Generates all expected times based on the patterns and frequency within the time range.
+        floor_min_time = self._get_floor_min_time(min_time)
+        ceil_max_time = self._get_ceil_max_time(max_time)
+        base_times_df = self._create_base_times_df(floor_min_time, ceil_max_time)
+        expected_times_df = self._apply_patterns(
+            base_times_df, floor_min_time, max_time
+        )
+        return expected_times_df
 
-        Args:
-            min_time (Timestamp): Start of the time range.
-            max_time (Timestamp): End of the time range.
+    def _get_floor_min_time(self, min_time):
+        if self.frequency == "minutely":
+            return min_time.replace(second=0, microsecond=0)
+        elif self.frequency == "hourly":
+            return min_time.replace(minute=0, second=0, microsecond=0)
 
-        Returns:
-            PySparkDataFrame: DataFrame containing all expected 'ExpectedTime'.
-        """
-        # Floor min_time to the nearest frequency step
+    def _get_ceil_max_time(self, max_time):
         if self.frequency == "minutely":
-            floor_min_time = min_time.replace(second=0, microsecond=0)
-            step = F.expr("INTERVAL 1 MINUTE")
+            return (max_time + pd.Timedelta(minutes=1)).replace(second=0, microsecond=0)
         elif self.frequency == "hourly":
-            floor_min_time = min_time.replace(minute=0, second=0, microsecond=0)
-            step = F.expr("INTERVAL 1 HOUR")
-        # Ceil max_time to include the last interval
-        if self.frequency == "minutely":
-            ceil_max_time = (max_time + pd.Timedelta(minutes=1)).replace(
-                second=0, microsecond=0
-            )
-        elif self.frequency == "hourly":
-            ceil_max_time = (max_time + pd.Timedelta(hours=1)).replace(
+            return (max_time + pd.Timedelta(hours=1)).replace(
                 minute=0, second=0, microsecond=0
             )
-        # Create a DataFrame with a sequence of base times
-        base_times_df = self.df.sparkSession.createDataFrame(
+
+    def _create_base_times_df(self, floor_min_time, ceil_max_time):
+        step = F.expr(f"INTERVAL 1 {self.frequency.upper()[:-2]}")
+        return self.df.sparkSession.createDataFrame(
             [(floor_min_time, ceil_max_time)], ["start", "end"]
         ).select(
             F.explode(
@@ -214,41 +286,44 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface):
                 )
             ).alias("BaseTime")
         )
-        # Generate expected times based on patterns
+
+    def _apply_patterns(self, base_times_df, floor_min_time, max_time):
         expected_times = []
         for pattern in self.patterns:
-            if self.frequency == "minutely":
-                seconds = pattern.get("second", 0)
-                milliseconds = pattern.get("millisecond", 0)
-                expected_time = (
-                    F.col("BaseTime")
-                    + F.expr(f"INTERVAL {seconds} SECOND")
-                    + F.expr(f"INTERVAL {milliseconds} MILLISECOND")
-                )
-            elif self.frequency == "hourly":
-                minutes = pattern.get("minute", 0)
-                seconds = pattern.get("second", 0)
-                milliseconds = pattern.get("millisecond", 0)
-                expected_time = (
-                    F.col("BaseTime")
-                    + F.expr(f"INTERVAL {minutes} MINUTE")
-                    + F.expr(f"INTERVAL {seconds} SECOND")
-                    + F.expr(f"INTERVAL {milliseconds} MILLISECOND")
-                )
+            expected_time = self._calculate_expected_time(base_times_df, pattern)
             expected_times.append(expected_time)
-        # Combine all expected times into one DataFrame
-        expected_times_df = base_times_df.withColumn(
-            "ExpectedTime", F.explode(F.array(*expected_times))
-        ).select("ExpectedTime")
-        # Remove duplicates and filter within the time range
-        expected_times_df = expected_times_df.distinct().filter(
-            (F.col("ExpectedTime") >= F.lit(floor_min_time))
-            & (F.col("ExpectedTime") <= F.lit(max_time))
-        )
-        self.logger.info(
-            f"Generated {expected_times_df.count()} expected times based on patterns."
+        expected_times_df = (
+            base_times_df.withColumn(
+                "ExpectedTime", F.explode(F.array(*expected_times))
+            )
+            .select("ExpectedTime")
+            .distinct()
+            .filter(
+                (F.col("ExpectedTime") >= F.lit(floor_min_time))
+                & (F.col("ExpectedTime") <= F.lit(max_time))
+            )
         )
         return expected_times_df
+
+    def _calculate_expected_time(self, base_times_df, pattern):
+        if self.frequency == "minutely":
+            seconds = pattern.get("second", 0)
+            milliseconds = pattern.get("millisecond", 0)
+            return (
+                F.col("BaseTime")
+                + F.expr(f"INTERVAL {seconds} SECOND")
+                + F.expr(f"INTERVAL {milliseconds} MILLISECOND")
+            )
+        elif self.frequency == "hourly":
+            minutes = pattern.get("minute", 0)
+            seconds = pattern.get("second", 0)
+            milliseconds = pattern.get("millisecond", 0)
+            return (
+                F.col("BaseTime")
+                + F.expr(f"INTERVAL {minutes} MINUTE")
+                + F.expr(f"INTERVAL {seconds} SECOND")
+                + F.expr(f"INTERVAL {milliseconds} MILLISECOND")
+            )
 
     def _find_missing_patterns(
         self, expected_times_df: PySparkDataFrame, actual_df: PySparkDataFrame
