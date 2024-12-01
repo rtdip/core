@@ -104,7 +104,7 @@ class IntervalFiltering(DataManipulationBaseInterface):
             current_row = rows[i]
             current_time_stamp = current_row[self.time_stamp_column_name]
 
-            if self.check_if_outside_of_interval(
+            if self.check_outside_of_interval(
                 current_time_stamp, last_time_stamp, time_delta_in_ms, tolerance_in_ms
             ):
                 current_row_dict = current_row.asDict()
@@ -167,21 +167,17 @@ class IntervalFiltering(DataManipulationBaseInterface):
                 "interval_unit must be either 'days', 'hours', 'minutes', 'seconds' or 'milliseconds'"
             )
 
-    def check_if_outside_of_interval(
+    def check_outside_of_interval(
         self,
         current_time_stamp: pd.Timestamp,
         last_time_stamp: pd.Timestamp,
         time_delta_in_ms: float,
         tolerance_in_ms: float,
     ) -> bool:
-        if tolerance_in_ms is None:
-            return (
-                (current_time_stamp - last_time_stamp).total_seconds() * 1000
-            ) >= time_delta_in_ms
-        else:
-            return (
-                (current_time_stamp - last_time_stamp).total_seconds() * 1000
-            ) + tolerance_in_ms >= time_delta_in_ms
+        time_difference = (current_time_stamp - last_time_stamp).total_seconds() * 1000
+        if not tolerance_in_ms is None:
+            time_difference += tolerance_in_ms
+        return time_difference >= time_delta_in_ms
 
     def format_date_time_to_string(self, time_stamp: pd.Timestamp) -> str:
         try:
