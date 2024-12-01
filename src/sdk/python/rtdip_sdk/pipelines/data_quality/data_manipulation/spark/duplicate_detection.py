@@ -75,7 +75,5 @@ class DuplicateDetection(DataManipulationBaseInterface):
         Returns:
             DataFrame: A cleansed PySpark DataFrame from all duplicates based on primary key columns.
         """
-        cleansed_df = self.df.dropDuplicates(self.primary_key_columns).orderBy(
-            desc("EventTime")
-        )
+        cleansed_df = self.df.dropDuplicates(self.primary_key_columns)
         return cleansed_df
