@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import (
     StructType,
     StructField,
@@ -28,6 +28,7 @@ from pyspark.sql.types import (
     DoubleType,
     FloatType,
 )
+from pyspark.sql.functions import col
 
 from .models import Libraries
 from ..._sdk_utils.compare_versions import _package_version_meets_minimum
@@ -116,6 +117,63 @@ def get_dbutils(
 
 #     def onQueryTerminated(self, event):
 #         logging.info("Query terminated: {} {}".format(event.id, event.name))
+
+def is_dataframe_partially_conformed_in_schema(dataframe: DataFrame, schema: StructType, throw_error: bool = True) -> bool:
+    """
+    Returns true if all columns in the dataframe are contained in the scheme with appropriate type
+    """
+    for column in dataframe.schema:
+        if column.name in schema.names:
+            schema_field = schema[column.name]
+            if isinstance(column.dataType, type(schema_field.dataType)):
+                continue
+            else:
+                # column of wrong type
+                if not throw_error:
+                    return False
+                else:
+                    raise ValueError("Column {0} is of Type {1}, expected Type {2}".format(column, column.dataType, schema_field.dataType))
+
+        else:
+            # dataframe contains column not expected ins schema
+            if not throw_error:
+                return False
+            else:
+                raise ValueError("Column {0} is not expected in dataframe".format(column))
+    return True
+
+
+def conform_dataframe_to_schema(dataframe: DataFrame, schema: StructType, throw_error: bool = True) -> DataFrame:
+    """
+    Tries to convert all commong to the given scheme
+    Raises Exception on non-conforming dataframe
+    """
+    for column in dataframe.schema:
+        c_name = column.name
+        if c_name in schema.names:
+            schema_field = schema[c_name]
+            if isinstance(column.dataType, type(schema_field.dataType)):
+                # column is of right type, skip it
+                continue
+            dataframe = dataframe.withColumn(c_name, dataframe[c_name].cast(schema_field.dataType))
+        else:
+            raise ValueError("Column {0} is not expected in dataframe".format(column))
+    return dataframe
+
+
+def split_by_source(df: DataFrame, split_by_col: str, timestamp_col: str) -> dict:
+    """
+    Helper method to separate individual time series based on their source
+    """
+    tag_names = df.select(split_by_col).distinct().collect()
+    tag_names = [row[split_by_col] for row in tag_names]
+    source_dict = {
+        tag: df.filter(col(split_by_col) == tag).orderBy(timestamp_col)
+        for tag in tag_names
+    }
+
+    return source_dict
+
 
 EVENTHUB_SCHEMA = StructType(
     [
@@ -466,6 +524,15 @@ PROCESS_DATA_MODEL_SCHEMA = StructType(
         StructField("Value", StringType(), True),
         StructField("ValueType", StringType(), True),
         StructField("ChangeType", StringType(), True),
+    ]
+)
+
+PROCESS_DATA_MODEL_EVENT_SCHEMA = StructType(
+    [
+        StructField("TagName", StringType(), True),
+        StructField("EventTime", TimestampType(), True),
+        StructField("Status", StringType(), True),
+        StructField("Value", StringType(), True),
     ]
 )
 
