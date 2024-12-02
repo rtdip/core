@@ -14,6 +14,7 @@
 from abc import abstractmethod
 from pyspark.sql import DataFrame as PySparkDataFrame
 from typing import List
+from ....input_validator import InputValidator
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import (
     DataManipulationBaseInterface,
 )
@@ -23,7 +24,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 
 
-class NormalizationBaseClass(DataManipulationBaseInterface):
+class NormalizationBaseClass(DataManipulationBaseInterface, InputValidator):
     """
     A base class for applying normalization techniques to multiple columns in a PySpark DataFrame.
     This class serves as a framework to support various normalization methods (e.g., Z-Score, Min-Max, and Mean),

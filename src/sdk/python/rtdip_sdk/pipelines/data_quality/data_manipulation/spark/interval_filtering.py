@@ -24,9 +24,10 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     SystemType,
 )
 from ..interfaces import DataManipulationBaseInterface
+from ...input_validator import InputValidator
 
 
-class IntervalFiltering(DataManipulationBaseInterface):
+class IntervalFiltering(DataManipulationBaseInterface, InputValidator):
     """
     Cleanses a DataFrame by removing rows outside a specified interval window. Supported time stamp columns are DateType and StringType.
 

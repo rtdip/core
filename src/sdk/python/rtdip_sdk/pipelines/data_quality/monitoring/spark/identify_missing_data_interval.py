@@ -26,11 +26,11 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.time_string_parsing import (
     parse_time_string_to_ms,
 )
-
+from ...input_validator import InputValidator
 from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
 
 
-class IdentifyMissingDataInterval(MonitoringBaseInterface):
+class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
     """
     Detects missing data intervals in a DataFrame by identifying time differences between consecutive
     measurements that exceed a specified tolerance or a multiple of the Median Absolute Deviation (MAD).
