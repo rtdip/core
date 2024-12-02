@@ -55,7 +55,6 @@ class DataFrameLogHandler(logging.Handler):
         )
 
         self.logs_df = self.spark.createDataFrame([], schema)
-        print(self.logs_df)
         super().__init__()
 
     def emit(self, record: logging.LogRecord) -> None:

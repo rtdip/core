@@ -14,6 +14,7 @@
 import os
 
 import pytest
+
 from pandas import DataFrame
 from pyspark.sql import SparkSession
 
@@ -67,17 +68,20 @@ def test_df_output(spark, caplog):
     ]
     columns = ["Index", "EventTime"]
     df = spark.createDataFrame(data, schema=columns)
+
     monitor = IdentifyMissingDataInterval(
         df=df,
         interval="10s",
         tolerance="500ms",
     )
-    log_collector._attach_dataframe_handler_to_loggers()
+    log_handler = log_collector._attach_dataframe_handler_to_logger(
+        "IdentifyMissingDataInterval"
+    )
 
     with caplog.at_level(logging.INFO, logger="IdentifyMissingDataInterval"):
         monitor.check()
 
-    result_df = log_collector.get_logs_as_df()
+    result_df = log_handler.get_logs_as_df()
 
     assert result_df.count() == 6
 

@@ -17,18 +17,15 @@ from src.sdk.python.rtdip_sdk.pipelines.logging.spark.log_file.file_log_handler 
 )
 
 
-class RuntimeLogCollector(LoggingBaseInterface):
+class RuntimeLogCollector:
     """Collects logs from all loggers in the LoggerManager at runtime."""
 
     logger_manager: LoggerManager = LoggerManager()
-    df_handler: DataFrameLogHandler
+
+    spark: SparkSession
 
     def __init__(self, spark: SparkSession):
-        self.df_handler = DataFrameLogHandler(spark)
-
-    def get_logs_as_df(self) -> PySparkDataFrame:
-        """Return the DataFrame containing the logs"""
-        return self.df_handler.get_logs_as_df()
+        self.spark = spark
 
     @staticmethod
     def libraries():
@@ -43,14 +40,16 @@ class RuntimeLogCollector(LoggingBaseInterface):
     def system_type() -> SystemType:
         pass
 
-    def _attach_dataframe_handler_to_loggers(self) -> None:
-        """Attaches the DataFrameLogHandler to the logger."""
-        loggers = self.logger_manager.get_all_loggers()
-
-        for logger in loggers.values():
-            # avoid duplicate handlers
-            if self.df_handler not in logger.handlers:
-                logger.addHandler(self.df_handler)
+    def _attach_dataframe_handler_to_logger(
+        self, logger_name: str
+    ) -> DataFrameLogHandler:
+        """Attaches the DataFrameLogHandler to the logger. Returns True if the handler was attached, False otherwise."""
+        logger = self.logger_manager.get_logger(logger_name)
+        df_log_handler = DataFrameLogHandler(self.spark)
+        if logger is not None:
+            if df_log_handler not in logger.handlers:
+                logger.addHandler(df_log_handler)
+        return df_log_handler
 
     def _attach_file_handler_to_loggers(
         self, filename: str, path: str = ".", mode: str = "a"
