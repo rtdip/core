@@ -13,14 +13,17 @@
 # limitations under the License.
 import logging
 
-import pandas
-from pandas import DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from datetime import datetime
+
+from pyspark.sql.connect.session import SparkSession
+from pyspark.sql.types import StructField, TimestampType, StringType, StructType, Row
 
 
 class DataFrameLogHandler(logging.Handler):
     """
     Handles logs from attached logger and stores them in a DataFrame at runtime
+    Uses the following format: {Timestamp, Logger Name, Logging Level, Log Message}
 
      Args:
         logging.Handler: Inherits from logging.Handler
@@ -37,25 +40,34 @@ class DataFrameLogHandler(logging.Handler):
 
     """
 
-    logs_df: DataFrame = None
+    logs_df: PySparkDataFrame = None
+    spark: SparkSession
 
-    def __init__(self):
-        self.logs_df = DataFrame(columns=["timestamp", "name", "level", "message"])
+    def __init__(self, spark: SparkSession):
+        self.spark = spark
+        schema = StructType(
+            [
+                StructField("timestamp", TimestampType(), True),
+                StructField("name", StringType(), True),
+                StructField("level", StringType(), True),
+                StructField("message", StringType(), True),
+            ]
+        )
+
+        self.logs_df = self.spark.createDataFrame([], schema)
+        print(self.logs_df)
         super().__init__()
 
     def emit(self, record: logging.LogRecord) -> None:
         """Process and store a log record"""
-        log_entry = {
-            "timestamp": datetime.fromtimestamp(record.created),
-            "name": record.name,
-            "level": record.levelname,
-            "message": record.msg,
-        }
-
-        new_log_df_row = pandas.DataFrame(
-            log_entry, columns=["timestamp", "name", "level", "message"], index=[0]
+        new_log_entry = Row(
+            timestamp=datetime.fromtimestamp(record.created),
+            name=record.name,
+            level=record.levelname,
+            message=record.msg,
         )
-        self.logs_df = pandas.concat([self.logs_df, new_log_df_row], ignore_index=True)
 
-    def get_logs_as_df(self) -> DataFrame:
+        self.logs_df = self.logs_df.union(self.spark.createDataFrame([new_log_entry]))
+
+    def get_logs_as_df(self) -> PySparkDataFrame:
         return self.logs_df

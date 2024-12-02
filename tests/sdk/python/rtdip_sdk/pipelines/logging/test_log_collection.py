@@ -38,20 +38,21 @@ def spark():
     spark.stop()
 
 
-def test_logger_manager_basic_function():
+def test_logger_manager_basic_function(spark):
     df = DataFrame()
     monitor = IdentifyMissingDataInterval(
         df=df,
         interval="10s",
         tolerance="500ms",
     )
-    log_collector = RuntimeLogCollector()
+    log_collector = RuntimeLogCollector(spark)
 
     assert monitor.logger_manager is log_collector.logger_manager
 
 
 def test_df_output(spark, caplog):
-    log_collector = RuntimeLogCollector()
+
+    log_collector = RuntimeLogCollector(spark)
     data = [
         (1, "2024-02-11 00:00:00.000"),
         (2, "2024-02-11 00:00:10.000"),
@@ -78,12 +79,12 @@ def test_df_output(spark, caplog):
 
     result_df = log_collector.get_logs_as_df()
 
-    assert result_df.shape[0] == 6
+    assert result_df.count() == 6
 
 
 def test_file_logging(spark, caplog):
 
-    log_collector = RuntimeLogCollector()
+    log_collector = RuntimeLogCollector(spark)
     data = [
         (1, "2024-02-11 00:00:00.000"),
         (2, "2024-02-11 00:00:10.000"),
