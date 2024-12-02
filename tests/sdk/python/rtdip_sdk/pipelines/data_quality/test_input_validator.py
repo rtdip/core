@@ -15,7 +15,13 @@
 import pytest
 
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, TimestampType, FloatType
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    FloatType,
+)
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.missing_value_imputation import (
     MissingValueImputation,
@@ -90,12 +96,18 @@ def test_input_validator(spark_session: SparkSession):
     # Check for pyspark Datatypes
     with pytest.raises(TypeError) as e:
         test_component.validate(pyspark_type_schema)
-    assert "Expected and actual types must be instances of pyspark.sql.types.DataType." in str(e.value)
+    assert (
+        "Expected and actual types must be instances of pyspark.sql.types.DataType."
+        in str(e.value)
+    )
 
     # Check for casting failures
     with pytest.raises(ValueError) as e:
         dirty_component.validate(expected_schema)
-    assert "Error during casting column 'Value' to FloatType(): Column 'Value' cannot be cast to FloatType()." in str(e.value)
+    assert (
+        "Error during casting column 'Value' to FloatType(): Column 'Value' cannot be cast to FloatType()."
+        in str(e.value)
+    )
 
     # Check for success
     assert test_component.validate(expected_schema) == True

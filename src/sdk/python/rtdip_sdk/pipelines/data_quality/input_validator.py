@@ -103,17 +103,18 @@ class InputValidator(PipelineComponentBaseInterface):
     def settings() -> dict:
         return {}
 
-
     def validate(self, schema_dict):
         """
         Used by child data quality utility classes to validate the input data.
         """
-        dataframe = getattr(self, 'df', None)
+        dataframe = getattr(self, "df", None)
 
         if isinstance(schema_dict, StructType):
             schema_dict = {field.name: field.dataType for field in schema_dict.fields}
 
-        dataframe_schema = {field.name: field.dataType for field in dataframe.schema.fields}
+        dataframe_schema = {
+            field.name: field.dataType for field in dataframe.schema.fields
+        }
 
         for column, expected_type in schema_dict.items():
             # Check if the column exists
@@ -122,15 +123,25 @@ class InputValidator(PipelineComponentBaseInterface):
 
             # Check if both types are of a pyspark data type
             actual_type = dataframe_schema[column]
-            if not isinstance(actual_type, DataType) or not isinstance(expected_type, DataType):
-                raise TypeError("Expected and actual types must be instances of pyspark.sql.types.DataType.")
+            if not isinstance(actual_type, DataType) or not isinstance(
+                expected_type, DataType
+            ):
+                raise TypeError(
+                    "Expected and actual types must be instances of pyspark.sql.types.DataType."
+                )
 
             # Check if actual type is expected type, try to cast else
             if not isinstance(actual_type, type(expected_type)):
                 try:
-                    original_null_count = dataframe.filter(F.col(column).isNull()).count()
-                    casted_column = dataframe.withColumn(column, F.col(column).cast(expected_type))
-                    new_null_count = casted_column.filter(F.col(column).isNull()).count()
+                    original_null_count = dataframe.filter(
+                        F.col(column).isNull()
+                    ).count()
+                    casted_column = dataframe.withColumn(
+                        column, F.col(column).cast(expected_type)
+                    )
+                    new_null_count = casted_column.filter(
+                        F.col(column).isNull()
+                    ).count()
 
                     if new_null_count > original_null_count:
                         raise ValueError(
@@ -138,7 +149,9 @@ class InputValidator(PipelineComponentBaseInterface):
                         )
                     dataframe = casted_column
                 except Exception as e:
-                    raise ValueError(f"Error during casting column '{column}' to {expected_type}: {str(e)}")
+                    raise ValueError(
+                        f"Error during casting column '{column}' to {expected_type}: {str(e)}"
+                    )
 
         self.df = dataframe
         return True
