@@ -13,10 +13,10 @@
 # limitations under the License.
 import logging
 
-from pyspark.sql import DataFrame as PySparkDataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame, SparkSession
 from datetime import datetime
 
-from pyspark.sql.connect.session import SparkSession
+
 from pyspark.sql.types import StructField, TimestampType, StringType, StructType, Row
 
 

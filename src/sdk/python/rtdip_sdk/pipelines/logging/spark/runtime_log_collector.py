@@ -1,13 +1,12 @@
 import os
 
-from pyspark.sql import DataFrame as PySparkDataFrame
-from pyspark.sql.connect.session import SparkSession
+from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
-from src.sdk.python.rtdip_sdk.pipelines.logging.interfaces import LoggingBaseInterface
+
 from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
 from src.sdk.python.rtdip_sdk.pipelines.logging.spark.dataframe.dataframe_log_handler import (
     DataFrameLogHandler,
