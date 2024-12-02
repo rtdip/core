@@ -95,13 +95,10 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
         column_name = self.column_names[0]
         mean_value, deviation = 0, 0
 
-        if mean_value is None:
-            raise Exception("Couldn't calculate mean value")
-
         if self.use_median:
             mean_value = self.df.approxQuantile(column_name, [0.5], 0.0)[0]
             if mean_value is None:
-                raise Exception("Couldn't calculate median value")
+                raise Exception("Failed to calculate the mean value")
 
             df_with_deviation = self.df.withColumn(
                 "absolute_deviation", abs(col(column_name) - mean_value)
@@ -110,13 +107,15 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
                 "absolute_deviation", [0.5], 0.0
             )[0]
             if deviation is None:
-                raise Exception("Couldn't calculate mean value")
+                raise Exception("Failed to calculate the deviation value")
         else:
             stats = self.df.select(
                 mean(column_name), stddev(self.column_names[0])
             ).first()
             if stats is None:
-                raise Exception("Couldn't calculate mean value and standard deviation")
+                raise Exception(
+                    "Failed to calculate the mean value and the standard deviation value"
+                )
 
             mean_value = stats[0]
             deviation = stats[1]
