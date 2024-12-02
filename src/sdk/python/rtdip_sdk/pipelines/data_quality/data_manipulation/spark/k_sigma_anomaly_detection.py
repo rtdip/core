@@ -15,13 +15,14 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import mean, stddev, abs, col
 from ..interfaces import DataManipulationBaseInterface
+from ...input_validator import InputValidator
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
 
 
-class KSigmaAnomalyDetection(DataManipulationBaseInterface):
+class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
     """
     Anomaly detection with the k-sigma method. This method either computes the mean and standard deviation, or the median and the median absolute deviation (MAD) of the data.
     The k-sigma method then filters out all data points that are k times the standard deviation away from the mean, or k times the MAD away from the median.

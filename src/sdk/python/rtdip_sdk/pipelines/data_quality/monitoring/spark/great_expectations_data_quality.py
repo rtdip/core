@@ -27,10 +27,11 @@ from great_expectations.checkpoint import (
 from great_expectations.expectations.expectation import (
     ExpectationConfiguration,
 )
+from ...input_validator import InputValidator
 
 
 # Create a new context
-class GreatExpectationsDataQuality(MonitoringBaseInterface):
+class GreatExpectationsDataQuality(MonitoringBaseInterface, InputValidator):
     """
     Data Quality Monitoring using Great Expectations allowing you to create and check your data quality expectations.
 

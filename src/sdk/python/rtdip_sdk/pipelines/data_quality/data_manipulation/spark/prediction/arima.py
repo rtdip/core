@@ -22,13 +22,14 @@ from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
 from pmdarima import auto_arima
 
 from ...interfaces import DataManipulationBaseInterface
+from ....input_validator import InputValidator
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
 
 
-class ArimaPrediction(DataManipulationBaseInterface):
+class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     """
     Extends the timeseries data in given DataFrame with forecasted values from an ARIMA model. Can be optionally set
     to use auto_arima, which operates a bit like a grid search, in that it tries various sets of p and q (also P and Q

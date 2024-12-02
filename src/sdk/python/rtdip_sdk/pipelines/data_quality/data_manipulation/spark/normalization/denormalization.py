@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from pyspark.sql import DataFrame as PySparkDataFrame
+from ....input_validator import InputValidator
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import (
     DataManipulationBaseInterface,
 )
@@ -24,7 +25,7 @@ from .normalization import (
 )
 
 
-class Denormalization(DataManipulationBaseInterface):
+class Denormalization(DataManipulationBaseInterface, InputValidator):
     """
     #TODO
     Applies the appropriate denormalization method to revert values to their original scale.

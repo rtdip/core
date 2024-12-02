@@ -21,13 +21,14 @@ import numpy as np
 from datetime import timedelta
 from typing import List
 from ..interfaces import DataManipulationBaseInterface
+from ...input_validator import InputValidator
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
 
 
-class MissingValueImputation(DataManipulationBaseInterface):
+class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
     """
     Imputes missing values in a univariate time series creating a continuous curve of data points. For that, the
     time intervals of each individual source is calculated, to then insert empty records at the missing timestamps with
