@@ -33,8 +33,7 @@ def spark_session():
     return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
 
 
-def test_input_validator(spark_session: SparkSession):
-
+def test_input_validator_basic(spark_session: SparkSession):
     test_schema = StructType(
         [
             StructField("TagName", StringType(), True),
@@ -112,3 +111,50 @@ def test_input_validator(spark_session: SparkSession):
     # Check for success
     assert test_component.validate(expected_schema) == True
     assert test_component.df.schema == expected_schema
+
+
+def test_input_validator_with_null_strings(spark_session: SparkSession):
+    # Schema und Testdaten
+    test_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", StringType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", StringType(), True),
+        ]
+    )
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    test_data_with_null_strings = [
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 03:29:21.000", "Good", "None"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 07:32:55.000", "Good", "none"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 11:36:29.000", "Good", "Null"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 15:40:00.000", "Good", "null"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-01 19:50:00.000", "Good", ""),
+    ]
+
+    test_df = spark_session.createDataFrame(
+        test_data_with_null_strings, schema=test_schema
+    )
+
+    test_component = MissingValueImputation(spark_session, test_df)
+
+    # Validate the DataFrame
+    assert test_component.validate(expected_schema) == True
+    processed_df = test_component.df
+
+    # Prüfen, ob alle Werte in "Value" None sind
+    value_column = processed_df.select("Value").collect()
+
+    for row in value_column:
+        assert (
+            row["Value"] is None
+        ), f"Value {row['Value']} wurde nicht korrekt zu None konvertiert."

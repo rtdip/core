@@ -25,7 +25,7 @@ class InputValidator(PipelineComponentBaseInterface):
     """
     Validates the PySpark DataFrame of the respective child class instance against a schema dictionary or pyspark
     StructType. Checks for column availability and column data types. If data types differ, it tries to cast the
-    column into the expected data type. Raises Errors if some step fails.
+    column into the expected data type. Casts "None", "none", "Null", "null" and "" to None. Raises Errors if some step fails.
 
     Example:
     --------
@@ -115,6 +115,15 @@ class InputValidator(PipelineComponentBaseInterface):
         dataframe_schema = {
             field.name: field.dataType for field in dataframe.schema.fields
         }
+
+        for column, expected_type in schema_dict.items():
+            if column in dataframe.columns:
+                dataframe = dataframe.withColumn(
+                    column,
+                    F.when(
+                        F.col(column).isin("None", "none", "null", "Null", ""), None
+                    ).otherwise(F.col(column)),
+                )
 
         for column, expected_type in schema_dict.items():
             # Check if the column exists
