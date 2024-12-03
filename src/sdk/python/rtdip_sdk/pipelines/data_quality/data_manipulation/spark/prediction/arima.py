@@ -23,6 +23,7 @@ from pmdarima import auto_arima
 from ...interfaces import DataManipulationBaseInterface
 from ....input_validator import InputValidator
 from ....._pipeline_utils.spark import split_by_source, PROCESS_DATA_MODEL_EVENT_SCHEMA
+from ......_sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
@@ -188,21 +189,14 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         self.validate(expected_scheme)
 
         dfs_by_source = split_by_source(self.df, "TagName", "EventTime")
-
         predicted_dfs: List[PySparkDataFrame] = []
 
         for source, df in dfs_by_source.items():
-            if len(dfs_by_source) > 1:
-                self.rows_to_analyze = df.count()
-                self.rows_to_predict = int(df.count() / 2)
-
             base_df = df.toPandas()
-            base_df["EventTime"] = pd.to_datetime(base_df["EventTime"])
+            base_df["EventTime"] = pd.to_datetime(base_df["EventTime"]).astype("datetime64[ns]")
             base_df["Value"] = base_df["Value"].astype("float64")
-            base_df["EventTime"] = base_df["EventTime"].astype("datetime64[ns]")
             last_event_time = base_df["EventTime"].iloc[-1]
             second_last_event_time = base_df["EventTime"].iloc[-2]
-
             interval = last_event_time - second_last_event_time
             new_event_times = [
                 last_event_time + (i * interval)
@@ -234,8 +228,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             extended_df = pd.concat([base_df, predicted_df], ignore_index=True)
 
             # Workaround needed for PySpark versions <3.4
-            if not hasattr(extended_df, "iteritems"):
-                extended_df.iteritems = extended_df.items
+            extended_df = _prepare_pandas_to_convert_to_spark(extended_df)
 
             predicted_source_pyspark_dataframe = self.spark_session.createDataFrame(
                 extended_df
