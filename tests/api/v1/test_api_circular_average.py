@@ -43,13 +43,11 @@ pytestmark = pytest.mark.anyio
 async def test_api_circular_average_get_success(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
-
     async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
             params=CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT,
-
         )
     actual = response.text
 
