@@ -15,13 +15,14 @@ from pyspark.sql.functions import desc
 from pyspark.sql import DataFrame as PySparkDataFrame
 
 from ..interfaces import DataManipulationBaseInterface
+from ...input_validator import InputValidator
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
 
 
-class DuplicateDetection(DataManipulationBaseInterface):
+class DuplicateDetection(DataManipulationBaseInterface, InputValidator):
     """
     Cleanses a PySpark DataFrame from duplicates.
 
@@ -75,7 +76,5 @@ class DuplicateDetection(DataManipulationBaseInterface):
         Returns:
             DataFrame: A cleansed PySpark DataFrame from all duplicates based on primary key columns.
         """
-        cleansed_df = self.df.dropDuplicates(self.primary_key_columns).orderBy(
-            desc("EventTime")
-        )
+        cleansed_df = self.df.dropDuplicates(self.primary_key_columns)
         return cleansed_df

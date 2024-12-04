@@ -15,13 +15,14 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import mean, stddev, abs, col
 from ..interfaces import DataManipulationBaseInterface
+from ...input_validator import InputValidator
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
 
 
-class KSigmaAnomalyDetection(DataManipulationBaseInterface):
+class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
     """
     Anomaly detection with the k-sigma method. This method either computes the mean and standard deviation, or the median and the median absolute deviation (MAD) of the data.
     The k-sigma method then filters out all data points that are k times the standard deviation away from the mean, or k times the MAD away from the median.
@@ -94,13 +95,10 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface):
         column_name = self.column_names[0]
         mean_value, deviation = 0, 0
 
-        if mean_value is None:
-            raise Exception("Couldn't calculate mean value")
-
         if self.use_median:
             mean_value = self.df.approxQuantile(column_name, [0.5], 0.0)[0]
             if mean_value is None:
-                raise Exception("Couldn't calculate median value")
+                raise Exception("Failed to calculate the mean value")
 
             df_with_deviation = self.df.withColumn(
                 "absolute_deviation", abs(col(column_name) - mean_value)
@@ -109,13 +107,15 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface):
                 "absolute_deviation", [0.5], 0.0
             )[0]
             if deviation is None:
-                raise Exception("Couldn't calculate mean value")
+                raise Exception("Failed to calculate the deviation value")
         else:
             stats = self.df.select(
                 mean(column_name), stddev(self.column_names[0])
             ).first()
             if stats is None:
-                raise Exception("Couldn't calculate mean value and standard deviation")
+                raise Exception(
+                    "Failed to calculate the mean value and the standard deviation value"
+                )
 
             mean_value = stats[0]
             deviation = stats[1]

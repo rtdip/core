@@ -24,9 +24,10 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
+from ...input_validator import InputValidator
 
 
-class FlatlineDetection(MonitoringBaseInterface):
+class FlatlineDetection(MonitoringBaseInterface, InputValidator):
     """
     Detects flatlining in specified columns of a PySpark DataFrame and logs warnings.
 
