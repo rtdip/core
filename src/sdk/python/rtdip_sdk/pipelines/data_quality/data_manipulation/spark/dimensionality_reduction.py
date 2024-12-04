@@ -51,9 +51,9 @@ class DimensionalityReduction(DataManipulationBaseInterface):
         threshold (float, optional): Correlation threshold for column combination [0-1]. If the absolute value of the correlation is equal or bigger, than the columns are combined. Defaults to 0.9.
         combination_method (str, optional): Method to combine correlated columns.
             Supported methods:
-            - 'mean': Average the values of both columns
+            - 'mean': Average the values of both columns and write the result to the first column
               (New value = (column1 + column2) / 2)
-            - 'sum': Sum the values of both columns
+            - 'sum': Sum the values of both columns and write the result to the first column
               (New value = column1 + column2)
             - 'first': Keep the first column, drop the second column
             - 'second': Keep the second column, drop the first column
