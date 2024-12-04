@@ -14,7 +14,7 @@
 
 import pytest
 from pytest_mock import MockerFixture
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from tests.api.v1.api_test_objects import BASE_URL
 from src.api.v1 import app
 
@@ -22,7 +22,7 @@ pytestmark = pytest.mark.anyio
 
 
 async def test_api_home(mocker: MockerFixture):
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get("/")
 
     assert response.status_code == 307
@@ -30,14 +30,14 @@ async def test_api_home(mocker: MockerFixture):
 
 
 async def test_api_docs(mocker: MockerFixture):
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get("/docs")
 
     assert response.status_code == 200
 
 
 async def test_api_redoc(mocker: MockerFixture):
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get("/redoc")
 
     assert response.status_code == 200
