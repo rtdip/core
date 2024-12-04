@@ -90,7 +90,7 @@ To use RTDIP Pipelines components in your own environment that leverages [pyspar
         - conda-forge
         - defaults
     dependencies:
-        - python==3.11
+        - python==3.12
         - pip
         - openjdk==11.0.15
         - pip:
@@ -182,7 +182,7 @@ The following provides examples of how to install the RTDIP SDK package with Pip
         - conda-forge
         - defaults
     dependencies:
-        - python==3.11
+        - python==3.12
         - pip
         - pip:
             - rtdip-sdk
