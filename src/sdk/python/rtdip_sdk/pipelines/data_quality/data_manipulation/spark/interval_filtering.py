@@ -85,7 +85,7 @@ class IntervalFiltering(DataManipulationBaseInterface, InputValidator):
         tolerance_in_ms = None
         if self.tolerance is not None:
             tolerance_in_ms = self.get_time_delta(self.tolerance).total_seconds() * 1000
-        print(tolerance_in_ms)
+
 
         time_delta_in_ms = self.get_time_delta(self.interval).total_seconds() * 1000
 
