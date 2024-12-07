@@ -24,7 +24,7 @@ from tests.api.v1.api_test_objects import (
     TEST_HEADERS,
     BASE_URL,
 )
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from src.api.v1 import app
 
 MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.interpolation_at_time.get"
@@ -38,7 +38,7 @@ async def test_api_interpolation_at_time_get_success(
 ):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -57,7 +57,7 @@ async def test_api_interpolation_at_time_get_success(
 #     )
 #     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
-#     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+#     async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
 #         response = await ac.get(
 #             MOCK_API_NAME,
 #             headers=TEST_HEADERS,
@@ -82,7 +82,7 @@ async def test_api_interpolation_at_time_get_error(
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -99,7 +99,7 @@ async def test_api_interpolation_at_time_post_success(
 ):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -119,7 +119,7 @@ async def test_api_interpolation_at_time_post_success(
 #     )
 #     mocker = mocker_setup(mocker, MOCK_METHOD, test_data)
 
-#     async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+#     async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
 #         response = await ac.post(
 #             MOCK_API_NAME,
 #             headers=TEST_HEADERS,
@@ -145,7 +145,7 @@ async def test_api_interpolation_at_time_post_error(
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
