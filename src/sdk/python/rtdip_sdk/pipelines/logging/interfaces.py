@@ -20,5 +20,5 @@ from ..interfaces import PipelineComponentBaseInterface
 
 class LoggingBaseInterface(PipelineComponentBaseInterface):
     @abstractmethod
-    def get_logs_as_df(self) -> DataFrame:
+    def get_logs_as_df(self, logger_name: str) -> DataFrame:
         pass

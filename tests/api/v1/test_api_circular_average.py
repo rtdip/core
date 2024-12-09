@@ -15,6 +15,7 @@
 
 import os
 import pytest
+from fastapi import FastAPI
 from pytest_mock import MockerFixture
 import pandas as pd
 from datetime import datetime, timezone
@@ -30,7 +31,7 @@ from tests.api.v1.api_test_objects import (
     MOCK_TAG_MAPPING_EMPTY,
     MOCK_MAPPING_ENDPOINT_URL,
 )
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport, ASGITransport
 from src.api.v1 import app
 
 MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.circular_average.get"
@@ -42,7 +43,7 @@ pytestmark = pytest.mark.anyio
 async def test_api_circular_average_get_success(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -59,7 +60,7 @@ async def test_api_circular_average_get_validation_error(
 ):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -82,7 +83,7 @@ async def test_api_circular_average_get_error(mocker: MockerFixture, api_test_da
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -97,7 +98,7 @@ async def test_api_circular_average_get_error(mocker: MockerFixture, api_test_da
 async def test_api_circular_average_post_success(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -115,7 +116,7 @@ async def test_api_circular_average_post_validation_error(
 ):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_agg"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -139,7 +140,7 @@ async def test_api_circular_average_post_error(mocker: MockerFixture, api_test_d
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -182,7 +183,7 @@ async def test_api_circular_average_get_lookup_success(mocker: MockerFixture):
     modified_param_dict = CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT.copy()
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=modified_param_dict
         )
@@ -228,7 +229,7 @@ async def test_api_circular_average_post_lookup_success(mocker: MockerFixture):
     modified_param_dict = CIRCULAR_AVERAGE_MOCKED_PARAMETER_DICT.copy()
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -278,7 +279,7 @@ async def test_api_circular_average_get_lookup_no_tag_map_error(mocker: MockerFi
     modified_param_dict["tagname"] = ["NonExistentTag"]
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=modified_param_dict
         )

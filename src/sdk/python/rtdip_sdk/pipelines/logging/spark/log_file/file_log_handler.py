@@ -13,7 +13,7 @@
 # limitations under the License.
 import logging
 
-import pandas
+
 from pandas import DataFrame
 from datetime import datetime
 

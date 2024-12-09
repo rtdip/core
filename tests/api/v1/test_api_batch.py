@@ -38,7 +38,7 @@ from src.api.v1.models import (
     RawResponse,
 )
 from pandas.io.json import build_table_schema
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport, ASGITransport
 from src.api.v1 import app
 from src.api.v1.common import json_response_batch
 from src.sdk.python.rtdip_sdk.queries.time_series import batch
@@ -87,7 +87,7 @@ async def test_api_batch_single_get_success(mocker: MockerFixture):
     mock_lookup = "src.api.v1.batch.lookup_before_get"
     mocked_lookup_before_get = mocker.patch(mock_lookup, return_value=None)
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -175,7 +175,7 @@ async def test_api_batch_single_get_success_with_lookup(mocker: MockerFixture):
     mock_lookup = "src.api.v1.batch.lookup_before_get"
     mocked_lookup_before_get = mocker.patch(mock_lookup, return_value=test_data)
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -255,7 +255,7 @@ async def test_api_batch_single_post_success(mocker: MockerFixture):
     # Make a surveillance batch method reference to check if called and what args with
     surveillance_batch = mocker.patch(mock_method, return_value=mock_method_return_data)
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -300,7 +300,7 @@ async def test_api_batch_single_get_unsupported_route_error(mocker: MockerFixtur
         os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -343,7 +343,7 @@ async def test_api_batch_single_post_missing_body_error(mocker: MockerFixture):
         os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -406,7 +406,7 @@ async def test_api_batch_multiple_success(mocker: MockerFixture):
     # Make a surveillance batch method reference to check if called and what args with
     surveillance_batch = mocker.patch(mock_method, side_effect=mock_patch_side_effect)
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -464,7 +464,7 @@ async def test_api_batch_one_success_one_fail(mocker: MockerFixture):
         os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -515,7 +515,7 @@ async def test_api_batch_one_success_one_fail(mocker: MockerFixture):
         os.environ, {"DATABRICKS_SERVING_ENDPOINT": MOCK_MAPPING_ENDPOINT_URL}
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
