@@ -1,4 +1,5 @@
 import pytest
+import os
 from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
@@ -36,21 +37,33 @@ def log_capture():
     handler.close()
 
 
-def test_missing_intervals_with_given_interval(spark, caplog):
-    data = [
-        (1, "2024-02-11 00:00:00.000"),
-        (2, "2024-02-11 00:00:10.000"),
-        (3, "2024-02-11 00:00:20.000"),
-        (4, "2024-02-11 00:00:36.000"),  # Missing interval (20s to 36s)
-        (5, "2024-02-11 00:00:45.000"),
-        (6, "2024-02-11 00:00:55.000"),
-        (7, "2024-02-11 00:01:05.000"),
-        (8, "2024-02-11 00:01:15.000"),
-        (9, "2024-02-11 00:01:25.000"),
-        (10, "2024-02-11 00:01:41.000"),  # Missing interval (25s to 41s)
-    ]
-    columns = ["Index", "EventTime"]
-    df = spark.createDataFrame(data, schema=columns)
+def test_missing_intervals_with_given_interval_multiple_tags(spark, caplog):
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:10.000", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:20.000", "Good", "0.129999995"),
+            (
+                "A2PS64V0J.:ZUX09R",
+                "2024-01-02 00:00:36.000",
+                "Good",
+                "0.150000006",
+            ),  # Missing interval (20s to 36s)
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:45.000", "Good", "0.340000004"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:55.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:05.000", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:15.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:25.000", "Good", "0.150000006"),
+            (
+                "A2PS64V0J.:ZUX09R",
+                "2024-01-02 00:01:41.000",
+                "Good",
+                "0.340000004",
+            ),  # Missing interval (25s to 41s)
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
     monitor = IdentifyMissingDataInterval(
         df=df,
         interval="10s",
@@ -64,8 +77,8 @@ def test_missing_intervals_with_given_interval(spark, caplog):
         "Using provided tolerance: 500.0 ms",
         "Maximum acceptable interval with tolerance: 10500.0 ms",
         "Detected Missing Intervals:",
-        "Missing Interval from 2024-02-11 00:00:20 to 2024-02-11 00:00:36 Duration: 0h 0m 16s",
-        "Missing Interval from 2024-02-11 00:01:25 to 2024-02-11 00:01:41 Duration: 0h 0m 16s",
+        "Tag: A2PS64V0J.:ZUX09R Missing Interval from 2024-01-02 00:00:20 to 2024-01-02 00:00:36 Duration: 0h 0m 16s",
+        "Tag: A2PS64V0J.:ZUX09R Missing Interval from 2024-01-02 00:01:25 to 2024-01-02 00:01:41 Duration: 0h 0m 16s",
     ]
     actual_logs = [
         record.message
@@ -81,20 +94,27 @@ def test_missing_intervals_with_given_interval(spark, caplog):
 
 
 def test_missing_intervals_with_calculated_interval(spark, caplog):
-    data = [
-        (1, "2024-02-11 00:00:00.000"),
-        (2, "2024-02-11 00:00:10.000"),
-        (3, "2024-02-11 00:00:20.000"),
-        (4, "2024-02-11 00:00:36.000"),  # Missing interval (20s to 36s)
-        (5, "2024-02-11 00:00:45.000"),
-        (6, "2024-02-11 00:00:55.000"),
-        (7, "2024-02-11 00:01:05.000"),
-        (8, "2024-02-11 00:01:15.000"),
-        (9, "2024-02-11 00:01:25.000"),
-        (10, "2024-02-11 00:01:30.000"),
-    ]
-    columns = ["Index", "EventTime"]
-    df = spark.createDataFrame(data, schema=columns)
+
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:10.000", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:20.000", "Good", "0.129999995"),
+            (
+                "A2PS64V0J.:ZUX09R",
+                "2024-01-02 00:00:36.000",
+                "Good",
+                "0.150000006",
+            ),  # Missing interval (20s to 36s)
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:45.000", "Good", "0.340000004"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:55.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:05.000", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:15.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:25.000", "Good", "0.150000006"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:30.000", "Good", "0.340000004"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     monitor = IdentifyMissingDataInterval(
         df=df,
     )
@@ -106,7 +126,7 @@ def test_missing_intervals_with_calculated_interval(spark, caplog):
         "Calculated tolerance: 10.0 ms (MAD-based)",
         "Maximum acceptable interval with tolerance: 10010.0 ms",
         "Detected Missing Intervals:",
-        "Missing Interval from 2024-02-11 00:00:20 to 2024-02-11 00:00:36 Duration: 0h 0m 16s",
+        "Tag: A2PS64V0J.:ZUX09R Missing Interval from 2024-01-02 00:00:20 to 2024-01-02 00:00:36 Duration: 0h 0m 16s",
     ]
     actual_logs = [
         record.message
@@ -122,20 +142,22 @@ def test_missing_intervals_with_calculated_interval(spark, caplog):
 
 
 def test_no_missing_intervals(spark, caplog):
-    data = [
-        (1, "2024-02-11 00:00:00.000"),
-        (2, "2024-02-11 00:00:10.000"),
-        (3, "2024-02-11 00:00:20.000"),
-        (4, "2024-02-11 00:00:30.000"),
-        (5, "2024-02-11 00:00:40.000"),
-        (6, "2024-02-11 00:00:50.000"),
-        (7, "2024-02-11 00:01:00.000"),
-        (8, "2024-02-11 00:01:10.000"),
-        (9, "2024-02-11 00:01:20.000"),
-        (10, "2024-02-11 00:01:30.000"),
-    ]
-    columns = ["Index", "EventTime"]
-    df = spark.createDataFrame(data, schema=columns)
+
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:10.000", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:20.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:30.000", "Good", "0.150000006"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:40.000", "Good", "0.340000004"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:50.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:00.000", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:10.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:20.000", "Good", "0.150000006"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:30.000", "Good", "0.340000004"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     monitor = IdentifyMissingDataInterval(
         df=df,
         interval="10s",
@@ -164,12 +186,13 @@ def test_no_missing_intervals(spark, caplog):
 
 
 def test_invalid_timedelta_format(spark, caplog):
-    data = [
-        (1, "2024-02-11 00:00:00.000"),
-        (2, "2024-02-11 00:00:10.000"),
-    ]
-    columns = ["Index", "EventTime"]
-    df = spark.createDataFrame(data, schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "0.150000006"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "0.340000004"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     monitor = IdentifyMissingDataInterval(
         df=df,
         interval="10seconds",  # should be '10s'
@@ -181,3 +204,31 @@ def test_invalid_timedelta_format(spark, caplog):
 
     assert "Invalid time format: 10seconds" in str(exc_info.value)
     assert "Invalid time format: 10seconds" in caplog.text
+
+
+def test_large_data_set(spark, caplog):
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../test_data.csv")
+    df = spark.read.option("header", "true").csv(file_path)
+    assert df.count() > 0, "Dataframe was not loaded correct"
+    monitor = IdentifyMissingDataInterval(
+        df=df,
+        interval="1s",
+        tolerance="10ms",
+    )
+    with caplog.at_level(logging.INFO, logger="IdentifyMissingDataInterval"):
+        monitor.check()
+    expected_logs = [
+        "Tag: MISSING_DATA Missing Interval from 2024-01-02 00:08:11 to 2024-01-02 00:08:13 Duration: 0h 0m 2s"
+    ]
+    actual_logs = [
+        record.message
+        for record in caplog.records
+        if record.levelname == "INFO"
+        and record.name == "IdentifyMissingDataInterval"
+        and "MISSING_DATA" in record.message
+    ]
+
+    assert any(
+        expected in actual for expected in expected_logs for actual in actual_logs
+    ), "Expected logs not found in actual logs"

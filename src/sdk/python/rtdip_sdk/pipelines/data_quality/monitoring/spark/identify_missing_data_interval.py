@@ -15,6 +15,13 @@
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    FloatType,
+)
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.interfaces import (
     MonitoringBaseInterface,
@@ -65,6 +72,14 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
     """
 
     df: PySparkDataFrame
+    EXPECTED_SCHEMA = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
 
     def __init__(
         self,
@@ -80,9 +95,9 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
         self.tolerance = tolerance
         self.mad_multiplier = mad_multiplier
         self.min_tolerance = min_tolerance
+        self.validate(self.EXPECTED_SCHEMA)
 
         # Use global pipeline logger
-
         self.logger_manager = LoggerManager()
         self.logger = self.logger_manager.create_logger("IdentifyMissingDataInterval")
 
@@ -173,7 +188,12 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
         missing_intervals_df = df_with_diff.filter(
             (F.col("TimeDeltaMs") > max_interval_with_tolerance_ms)
             & (F.col("StartMissing").isNotNull())
-        ).select("StartMissing", F.col("EventTime").alias("EndMissing"), "TimeDeltaMs")
+        ).select(
+            "TagName",
+            "StartMissing",
+            F.col("EventTime").alias("EndMissing"),
+            "TimeDeltaMs",
+        )
         # Convert time delta to readable format
         missing_intervals_df = missing_intervals_df.withColumn(
             "DurationMissing",
@@ -187,13 +207,13 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
                 ),
                 F.lit("s"),
             ),
-        ).select("StartMissing", "EndMissing", "DurationMissing")
+        ).select("TagName", "StartMissing", "EndMissing", "DurationMissing")
         missing_intervals = missing_intervals_df.collect()
         if missing_intervals:
             self.logger.info("Detected Missing Intervals:")
             for row in missing_intervals:
                 self.logger.info(
-                    f"Missing Interval from {row['StartMissing']} to {row['EndMissing']} "
+                    f"Tag: {row['TagName']} Missing Interval from {row['StartMissing']} to {row['EndMissing']} "
                     f"Duration: {row['DurationMissing']}"
                 )
         else:

@@ -14,8 +14,15 @@
 
 import logging
 from pyspark.sql import DataFrame as PySparkDataFrame
-from pyspark.sql.functions import col, when, lag, count, sum
+from pyspark.sql.functions import col, when, lag, sum, abs
 from pyspark.sql.window import Window
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    FloatType,
+)
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.interfaces import (
     MonitoringBaseInterface,
@@ -72,6 +79,14 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
     df: PySparkDataFrame
     watch_columns: list
     tolerance_timespan: int
+    EXPECTED_SCHEMA = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
 
     def __init__(
         self, df: PySparkDataFrame, watch_columns: list, tolerance_timespan: int
@@ -82,6 +97,7 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
             raise ValueError("tolerance_timespan must be a positive integer.")
 
         self.df = df
+        self.validate(self.EXPECTED_SCHEMA)
         self.watch_columns = watch_columns
         self.tolerance_timespan = tolerance_timespan
 
@@ -113,58 +129,37 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
         return {}
 
     def check(self) -> PySparkDataFrame:
-        """
-        Detects flatlining in the specified columns and logs warnings if detected.
-
-        Returns:
-            pyspark.sql.DataFrame: The original PySpark DataFrame unchanged.
-        """
-        sort_column = self.df.columns[0]
-
+        partition_column = "TagName"
+        sort_column = "EventTime"
+        window_spec = Window.partitionBy(partition_column).orderBy(sort_column)
         for column in self.watch_columns:
-            # Flag null or zero values
             flagged_column = f"{column}_flatline_flag"
-            flagged_df = self.df.withColumn(
+            self.df = self.df.withColumn(
                 flagged_column,
-                when((col(column).isNull()) | (col(column) == 0), 1).otherwise(0),
+                when((col(column).isNull()) | (col(column) == 0.0), 1).otherwise(0),
             )
-
-            # Create a group for consecutive flatline streaks
             group_column = f"{column}_group"
-            flagged_df = flagged_df.withColumn(
+            self.df = self.df.withColumn(
                 group_column,
-                (
-                    col(flagged_column)
-                    != lag(col(flagged_column), 1, 0).over(Window.orderBy(sort_column))
-                ).cast("int"),
+                sum(
+                    when(
+                        col(flagged_column)
+                        != lag(col(flagged_column), 1, 0).over(window_spec),
+                        1,
+                    ).otherwise(0)
+                ).over(window_spec),
             )
-            flagged_df = flagged_df.withColumn(
-                group_column, sum(col(group_column)).over(Window.orderBy(sort_column))
-            )
-
-            # Count rows in each group
             group_counts = (
-                flagged_df.filter(col(flagged_column) == 1)
-                .groupBy(group_column)
-                .count()
+                self.df.filter(col(flagged_column) == 1).groupBy(group_column).count()
             )
-
-            # Filter groups that exceed the tolerance
             large_groups = group_counts.filter(col("count") > self.tolerance_timespan)
-
-            # Log all rows in groups exceeding tolerance
-            if large_groups.count() > 0:
-                large_group_ids = [row[group_column] for row in large_groups.collect()]
-                relevant_rows = (
-                    flagged_df.filter(col(group_column).isin(large_group_ids))
-                    .select(*self.df.columns)
-                    .collect()
-                )
-                for row in relevant_rows:
+            large_group_ids = [row[group_column] for row in large_groups.collect()]
+            if large_group_ids:
+                relevant_rows = self.df.filter(col(group_column).isin(large_group_ids))
+                for row in relevant_rows.collect():
                     self.logger.warning(
                         f"Flatlining detected in column '{column}' at row: {row}."
                     )
             else:
                 self.logger.info(f"No flatlining detected in column '{column}'.")
-
         return self.df
