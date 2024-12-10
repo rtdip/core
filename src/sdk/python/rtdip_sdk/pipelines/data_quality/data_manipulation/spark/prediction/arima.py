@@ -88,10 +88,9 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         concentrate_scale (bool): ARIMA-Specific setting
         trend_offset (int): ARIMA-Specific setting
         missing (str): ARIMA-Specific setting
-        arima_auto (bool) pmdarima-specific setting to enable auto_arima
     """
 
-    df: PySparkDataFrame
+    df: PySparkDataFrame = None
     spark_session: SparkSession
 
     column_to_predict: str
@@ -126,8 +125,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         enforce_invertibility: bool = True,
         concentrate_scale: bool = False,
         trend_offset: int = 1,
-        missing: str = "None",
-        arima_auto: bool = False,
+        missing: str = "None"
     ) -> None:
         if not value_name in past_data.columns:
             raise ValueError("{} not found in the DataFrame.".format(value_name))
@@ -135,16 +133,16 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         self.past_data = past_data
         self.past_data_style = past_data_style
         # Convert source-based datafram to column-based
-        if past_data_style == self.InputStyle.COLUMN_BASED:
-            self.df = past_data
-        elif past_data_style == self.InputStyle.SOURCE_BASED:
-            self.df = past_data.groupby(timestamp_name).pivot(source_name).agg(F.first(value_name))
+        if self.df is None:
+            if past_data_style == self.InputStyle.COLUMN_BASED:
+                self.df = past_data
+            elif past_data_style == self.InputStyle.SOURCE_BASED:
+                self.df = past_data.groupby(timestamp_name).pivot(source_name).agg(F.first(value_name))
 
         self.spark_session = past_data.sparkSession
         self.column_to_predict = to_extend_name
         self.rows_to_predict = number_of_data_points_to_predict
         self.rows_to_analyze = number_of_data_points_to_analyze or past_data.count()
-        self.arima_auto = arima_auto
         self.order = order
         self.seasonal_order = seasonal_order
         self.trend = trend
@@ -223,32 +221,11 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
 
         input_data = main_signal_df[self.column_to_predict].sort_index(ascending=True).tail(self.rows_to_analyze)
 
-        if self.arima_auto:
-            # Default case: False
-            auto_model = auto_arima(
-                y=input_data,
-                seasonal=any(self.seasonal_order),
-                stepwise=True,
-                suppress_warnings=True,
-                trace=True,
-                error_action="ignore",
-                max_order=None,
-            )
-
-            order = auto_model.order
-            seasonal_order = auto_model.seasonal_order
-            trend = "c" if order[1] == 0 else "t"
-
-        else:
-            order = self.order
-            seasonal_order = self.seasonal_order
-            trend = self.trend
-
         source_model = ARIMA(
             endog=input_data,
-            order=order,
-            seasonal_order=seasonal_order,
-            trend=trend,
+            order=self.order,
+            seasonal_order=self.seasonal_order,
+            trend=self.trend,
             enforce_stationarity=self.enforce_stationarity,
             enforce_invertibility=self.enforce_invertibility,
             concentrate_scale=self.concentrate_scale,
@@ -303,4 +280,66 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         """
         pass
 
+
+class ArimaAutoPrediction(ArimaPrediction):
+    def __init__(
+        self,
+        past_data: PySparkDataFrame,
+        past_data_style : ArimaPrediction.InputStyle = ArimaPrediction.InputStyle.COLUMN_BASED,
+        to_extend_name: str = None, #either source or column
+        value_name: str = None,
+        timestamp_name: str = None,
+        source_name: str = None,
+        status_name: str = None,
+        external_regressor_names: List[str] = None,
+        number_of_data_points_to_predict: int = 50,
+        number_of_data_points_to_analyze: int = None,
+        seasonal: bool = False,
+        enforce_stationarity: bool = True,
+        enforce_invertibility: bool = True,
+        concentrate_scale: bool = False,
+        trend_offset: int = 1,
+        missing: str = "None",
+    ) -> None:
+        # Convert source-based datafram to column-based
+        if self.df is None:
+            if past_data_style == past_data_style.COLUMN_BASED:
+                self.df = past_data
+            elif past_data_style == past_data_style.SOURCE_BASED:
+                self.df = past_data.groupby(timestamp_name).pivot(source_name).agg(F.first(value_name))
+
+        # Prepare Input data
+        input_data = self.df.toPandas()
+        input_data = input_data[input_data[to_extend_name].notna()].tail(number_of_data_points_to_analyze)[to_extend_name]
+
+        auto_model = auto_arima(
+            y=input_data,
+            seasonal=seasonal,
+            stepwise=True,
+            suppress_warnings=True,
+            trace=True,
+            error_action="ignore",
+            max_order=None,
+        )
+
+        super().__init__(
+            past_data=past_data,
+            past_data_style=past_data_style,
+            to_extend_name=to_extend_name,
+            value_name=value_name,
+            timestamp_name=timestamp_name,
+            source_name=source_name,
+            status_name=status_name,
+            external_regressor_names=external_regressor_names,
+            number_of_data_points_to_predict=number_of_data_points_to_predict,
+            number_of_data_points_to_analyze=number_of_data_points_to_analyze,
+            order=auto_model.order,
+            seasonal_order=auto_model.seasonal_order,
+            trend = "c" if auto_model.order[1] == 0 else "t",
+            enforce_stationarity=enforce_stationarity,
+            enforce_invertibility=enforce_invertibility,
+            concentrate_scale=concentrate_scale,
+            trend_offset=trend_offset,
+            missing=missing
+        )
 

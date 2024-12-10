@@ -21,7 +21,7 @@ from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, FloatType
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import (
-    ArimaPrediction,
+    ArimaPrediction, ArimaAutoPrediction
 )
 
 
@@ -389,17 +389,17 @@ def test_single_column_prediction_auto_arima(spark_session: SparkSession):
 
     h_a_l = int(input_df.count() / 2)
 
-    arima_comp = ArimaPrediction(
-        input_df,
+    arima_comp = ArimaAutoPrediction(
+        past_data=input_df,
         past_data_style=ArimaPrediction.InputStyle.SOURCE_BASED,
         value_name="Value",
         to_extend_name="-4O7LSSAM_3EA02:2GT7E02I_R_MP",
         number_of_data_points_to_analyze=input_df.count(),
         number_of_data_points_to_predict=h_a_l,
-        arima_auto=True,
         timestamp_name="EventTime",
         source_name="TagName",
-        status_name="Status"
+        status_name="Status",
+        seasonal=True
     )
     forecasted_df = arima_comp.filter()
     # print(forecasted_df.show(forecasted_df.count(), False))
