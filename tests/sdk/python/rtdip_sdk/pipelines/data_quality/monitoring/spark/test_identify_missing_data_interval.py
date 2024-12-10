@@ -1,4 +1,5 @@
 import pytest
+import os
 from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
@@ -206,8 +207,9 @@ def test_invalid_timedelta_format(spark, caplog):
 
 
 def test_large_data_set(spark, caplog):
-    csv_file = "../../test_data.csv"
-    df = spark.read.option("header", "true").csv(csv_file)
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../test_data.csv")
+    df = spark.read.option("header", "true").csv(file_path)
     assert df.count() > 0, "Dataframe was not loaded correct"
     monitor = IdentifyMissingDataInterval(
         df=df,

@@ -1,4 +1,5 @@
 import pytest
+import os
 from pyspark.sql import SparkSession
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.flatline_detection import (
     FlatlineDetection,
@@ -117,8 +118,10 @@ def test_flatline_detection_with_tolerance(spark, log_capture):
 
 
 def test_large_dataset(spark, log_capture):
-    csv_file = "../../test_data.csv"
-    df = spark.read.option("header", "true").csv(csv_file)
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../test_data.csv")
+    df = spark.read.option("header", "true").csv(file_path)
+
     print(df.count)
     assert df.count() > 0, "Dataframe was not loaded correct"
 

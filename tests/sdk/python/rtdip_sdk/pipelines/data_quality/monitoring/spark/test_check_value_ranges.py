@@ -2,6 +2,8 @@ import pytest
 from pyspark.sql import SparkSession
 from io import StringIO
 import logging
+import os
+
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.check_value_ranges import (
     CheckValueRanges,
@@ -100,8 +102,9 @@ def test_no_min_or_max(test_data):
 
 
 def test_large_dataset(spark, log_capture):
-    csv_file = "../../test_data.csv"
-    df = spark.read.option("header", "true").csv(csv_file)
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../test_data.csv")
+    df = spark.read.option("header", "true").csv(file_path)
     assert df.count() > 0, "Dataframe was not loaded correct"
 
     tag_ranges = {

@@ -2,10 +2,9 @@
 
 import pytest
 import logging
+import os
 
 from pyspark.sql import SparkSession
-from pyspark.sql import Row
-from pyspark.sql.types import StructType, StructField, StringType
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.identify_missing_data_pattern import (
     IdentifyMissingDataPattern,
@@ -221,8 +220,9 @@ def test_hourly_patterns_with_microseconds(spark, caplog):
 
 
 def test_large_data_set(spark, caplog):
-    csv_file = "../../test_data.csv"
-    df = spark.read.option("header", "true").csv(csv_file)
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../test_data.csv")
+    df = spark.read.option("header", "true").csv(file_path)
     assert df.count() > 0, "Dataframe was not loaded correct"
     patterns = [{"second": 0}, {"second": 13}, {"second": 49}]
     monitor = IdentifyMissingDataPattern(
