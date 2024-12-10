@@ -18,7 +18,7 @@ import pytest
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
-from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql.types import StructType, StructField, StringType, FloatType
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import (
     ArimaPrediction,
@@ -46,7 +46,7 @@ def test_nonexistent_column_arima(spark_session: SparkSession):
     )
 
     with pytest.raises(ValueError):
-        ArimaPrediction(input_df, column_name="NonexistingColumn")
+        ArimaPrediction(input_df, value_name="NonexistingColumn")
 
 
 def test_single_column_prediction_arima(spark_session: SparkSession):
@@ -56,7 +56,7 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
             StructField("TagName", StringType(), True),
             StructField("EventTime", StringType(), True),
             StructField("Status", StringType(), True),
-            StructField("Value", StringType(), True),
+            StructField("Value", FloatType(), True),
         ]
     )
 
@@ -199,6 +199,10 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
         ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:55:13", "Good", "4686.26"),
         ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:56:13", "Good", "4700.966"),
     ]
+    # convert last column to float
+    for idx, item in enumerate(historic_data):
+        historic_data[idx] = item[0:3] + (float(item[3]),)
+
 
     input_df = spark_session.createDataFrame(historic_data, schema=schema)
 
@@ -206,11 +210,16 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
 
     arima_comp = ArimaPrediction(
         input_df,
-        column_name="Value",
+        value_name="Value",
+        past_data_style=ArimaPrediction.InputStyle.SOURCE_BASED,
+        to_extend_name="-4O7LSSAM_3EA02:2GT7E02I_R_MP",
         number_of_data_points_to_analyze=input_df.count(),
         number_of_data_points_to_predict=h_a_l,
         order=(3, 0, 0),
         seasonal_order=(3, 0, 0, 62),
+        timestamp_name="EventTime",
+        source_name="TagName",
+        status_name="Status"
     )
     forecasted_df = arima_comp.filter()
     # print(forecasted_df.show(forecasted_df.count(), False))
@@ -228,7 +237,7 @@ def test_single_column_prediction_auto_arima(spark_session: SparkSession):
             StructField("TagName", StringType(), True),
             StructField("EventTime", StringType(), True),
             StructField("Status", StringType(), True),
-            StructField("Value", StringType(), True),
+            StructField("Value", FloatType(), True),
         ]
     )
 
@@ -372,16 +381,25 @@ def test_single_column_prediction_auto_arima(spark_session: SparkSession):
         ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:56:13", "Good", "4700.966"),
     ]
 
+    # convert last column to float
+    for idx, item in enumerate(historic_data):
+        historic_data[idx] = item[0:3] + (float(item[3]),)
+
     input_df = spark_session.createDataFrame(historic_data, schema=schema)
 
     h_a_l = int(input_df.count() / 2)
 
     arima_comp = ArimaPrediction(
         input_df,
-        column_name="Value",
+        past_data_style=ArimaPrediction.InputStyle.SOURCE_BASED,
+        value_name="Value",
+        to_extend_name="-4O7LSSAM_3EA02:2GT7E02I_R_MP",
         number_of_data_points_to_analyze=input_df.count(),
         number_of_data_points_to_predict=h_a_l,
         arima_auto=True,
+        timestamp_name="EventTime",
+        source_name="TagName",
+        status_name="Status"
     )
     forecasted_df = arima_comp.filter()
     # print(forecasted_df.show(forecasted_df.count(), False))
