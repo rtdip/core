@@ -219,7 +219,7 @@ def test_hourly_patterns_with_microseconds(spark, caplog):
     assert "Missing Pattern at 2024-02-11 00:30:30.500" in actual_logs
 
 
-def test_large_data_set(spark, caplog):
+def test_large_data_set(spark):
     base_path = os.path.dirname(__file__)
     file_path = os.path.join(base_path, "../../test_data.csv")
     df = spark.read.option("header", "true").csv(file_path)
@@ -228,3 +228,4 @@ def test_large_data_set(spark, caplog):
     monitor = IdentifyMissingDataPattern(
         df=df, patterns=patterns, frequency="minutely", tolerance="1s"
     )
+    monitor.check()

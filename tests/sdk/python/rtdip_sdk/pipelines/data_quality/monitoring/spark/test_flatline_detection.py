@@ -129,9 +129,9 @@ def test_large_dataset(spark, log_capture):
     detector.check()
 
     expected_logs = [
-        "Flatlining detected in column 'Value' at row: Row(TagName='TEST', EventTime=datetime.datetime(2024, 1, 2, 2, 35, 10, 511000), Status='Good', Value=0.0, Value_flatline_flag=1, Value_group=1).",
-        "Flatlining detected in column 'Value' at row: Row(TagName='TEST', EventTime=datetime.datetime(2024, 1, 2, 2, 49, 10, 408000), Status='Good', Value=0.0, Value_flatline_flag=1, Value_group=1).",
-        "Flatlining detected in column 'Value' at row: Row(TagName='TEST', EventTime=datetime.datetime(2024, 1, 2, 14, 57, 10, 372000), Status='Good', Value=0.0, Value_flatline_flag=1, Value_group=1).",
+        "Flatlining detected in column 'Value' at row: Row(TagName='FLATLINE_TEST', EventTime=datetime.datetime(2024, 1, 2, 2, 35, 10, 511000), Status='Good', Value=0.0, Value_flatline_flag=1, Value_group=1).",
+        "Flatlining detected in column 'Value' at row: Row(TagName='FLATLINE_TEST', EventTime=datetime.datetime(2024, 1, 2, 2, 49, 10, 408000), Status='Good', Value=0.0, Value_flatline_flag=1, Value_group=1).",
+        "Flatlining detected in column 'Value' at row: Row(TagName='FLATLINE_TEST', EventTime=datetime.datetime(2024, 1, 2, 14, 57, 10, 372000), Status='Good', Value=0.0, Value_flatline_flag=1, Value_group=1).",
     ]
     actual_logs = log_capture.getvalue().strip().split("\n")
 
