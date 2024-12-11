@@ -391,14 +391,14 @@ def test_single_column_prediction_auto_arima(spark_session: SparkSession):
 
     arima_comp = ArimaAutoPrediction(
         past_data=input_df,
-        past_data_style=ArimaPrediction.InputStyle.SOURCE_BASED,
-        value_name="Value",
+        #past_data_style=ArimaPrediction.InputStyle.SOURCE_BASED,
+        #value_name="Value",
         to_extend_name="-4O7LSSAM_3EA02:2GT7E02I_R_MP",
         number_of_data_points_to_analyze=input_df.count(),
         number_of_data_points_to_predict=h_a_l,
-        timestamp_name="EventTime",
-        source_name="TagName",
-        status_name="Status",
+        #timestamp_name="EventTime",
+        #source_name="TagName",
+        #status_name="Status",
         seasonal=True
     )
     forecasted_df = arima_comp.filter()

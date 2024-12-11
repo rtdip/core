@@ -13,13 +13,14 @@
 # limitations under the License.
 import statistics
 from enum import Enum
-from typing import List
+from typing import List, Tuple
 
 import pandas as pd
 from pandas import DataFrame
 from pyspark.sql import DataFrame as PySparkDataFrame, SparkSession, functions as F
 from pyspark.sql.functions import col, lit
 from pyspark.sql.types import StringType, TimestampType, FloatType, NumericType, StructField, StructType
+from regex import regex
 from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
 from pmdarima import auto_arima
 import numpy as np
@@ -109,7 +110,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     def __init__(
         self,
         past_data: PySparkDataFrame,
-        past_data_style : InputStyle = InputStyle.COLUMN_BASED,
+        past_data_style : InputStyle = None,
         to_extend_name: str = None, #either source or column
         value_name: str = None,
         timestamp_name: str = None,
@@ -131,12 +132,13 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             raise ValueError("{} not found in the DataFrame.".format(value_name))
 
         self.past_data = past_data
-        self.past_data_style = past_data_style
         # Convert source-based datafram to column-based
         if self.df is None:
-            if past_data_style == self.InputStyle.COLUMN_BASED:
+            self.past_data_style, self.value_name, self.timestamp_name, self.source_name, self.status_name = self._constructor_handle_input_metadata(
+                past_data, past_data_style, value_name, timestamp_name, source_name, status_name)
+            if self.past_data_style == self.InputStyle.COLUMN_BASED:
                 self.df = past_data
-            elif past_data_style == self.InputStyle.SOURCE_BASED:
+            elif self.past_data_style == self.InputStyle.SOURCE_BASED:
                 self.df = past_data.groupby(timestamp_name).pivot(source_name).agg(F.first(value_name))
 
         self.spark_session = past_data.sparkSession
@@ -151,11 +153,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         self.concentrate_scale = concentrate_scale
         self.trend_offset = trend_offset
         self.missing = missing
-        self.value_name = value_name
-        self.timestamp_name = timestamp_name
-        self.source_name = source_name
         self.external_regressor_names = external_regressor_names
-        self.status_name = status_name
 
         if external_regressor_names is not None:
             # TODO: exog, e.g. external regressors / exogenic variables
@@ -190,6 +188,46 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         type_ = df.schema[column_name]
 
         return isinstance(type_.dataType, data_type)
+
+    def _constructor_handle_input_metadata(self, past_data: PySparkDataFrame, past_data_style: InputStyle, value_name: str, timestamp_name: str, source_name:str, status_name: str) -> Tuple[InputStyle, str, str, str, str]:
+        if past_data_style is not None:
+            return past_data_style, value_name, timestamp_name, source_name, status_name
+        # Automatic calculation part
+        schema = past_data.schema
+        schema_names = schema.names
+
+        assumed_past_data_style = None
+        value_name = None
+        timestamp_name = None
+        source_name = None
+        status_name = None
+
+        def pickout_column(rem_columns: List[str], regex_string: str) -> (str, List[str]):
+            rgx = regex.compile(regex_string)
+            sus_columns = list(filter(rgx.match, rem_columns))
+            found_column = sus_columns[0] if len(sus_columns) == 1 else None
+            if found_column is not None:
+                rem_columns.remove(found_column)
+            return found_column, rem_columns
+
+        # Is there a status column?
+        status_name, remaining_columns = pickout_column(schema_names, r"[sS][tT][aA][tT][uU][sS]")
+        # Is there a source name / tag
+        source_name, remaining_columns = pickout_column(schema_names, r"[tT][aA][gG]")
+        # Is there a timestamp column?
+        timestamp_name, remaining_columns = pickout_column(schema_names, r"[tT][iI][mM][eE]")
+        # Is there a value column?
+        value_name, remaining_columns = pickout_column(schema_names, r"[VV][aA][lL][uU][eE]")
+
+        if source_name is not None:
+            assumed_past_data_style = self.InputStyle.SOURCE_BASED
+        else:
+            assumed_past_data_style = self.InputStyle.COLUMN_BASED
+
+        #if self.past_data_style is None:
+        #    raise ValueError(
+        #        "Automatic determination of past_data_style failed, must be specified in parameter instead.")
+        return assumed_past_data_style, value_name, timestamp_name, source_name, status_name
 
     def filter(self) -> PySparkDataFrame:
         """
@@ -285,8 +323,8 @@ class ArimaAutoPrediction(ArimaPrediction):
     def __init__(
         self,
         past_data: PySparkDataFrame,
-        past_data_style : ArimaPrediction.InputStyle = ArimaPrediction.InputStyle.COLUMN_BASED,
-        to_extend_name: str = None, #either source or column
+        past_data_style : ArimaPrediction.InputStyle = None,
+        to_extend_name: str = None,
         value_name: str = None,
         timestamp_name: str = None,
         source_name: str = None,
@@ -303,14 +341,16 @@ class ArimaAutoPrediction(ArimaPrediction):
     ) -> None:
         # Convert source-based datafram to column-based
         if self.df is None:
-            if past_data_style == past_data_style.COLUMN_BASED:
+            self.past_data_style, self.value_name, self.timestamp_name, self.source_name, self.status_name = self._constructor_handle_input_metadata(
+                past_data, past_data_style, value_name, timestamp_name, source_name, status_name)
+            if self.past_data_style == self.InputStyle.COLUMN_BASED:
                 self.df = past_data
-            elif past_data_style == past_data_style.SOURCE_BASED:
-                self.df = past_data.groupby(timestamp_name).pivot(source_name).agg(F.first(value_name))
+            elif self.past_data_style == self.InputStyle.SOURCE_BASED:
+                self.df = past_data.groupby(self.timestamp_name).pivot(self.source_name).agg(F.first(self.value_name))
 
         # Prepare Input data
         input_data = self.df.toPandas()
-        input_data = input_data[input_data[to_extend_name].notna()].tail(number_of_data_points_to_analyze)[to_extend_name]
+        input_data = input_data[input_data[self.to_extend_name].notna()].tail(number_of_data_points_to_analyze)[self.to_extend_name]
 
         auto_model = auto_arima(
             y=input_data,
