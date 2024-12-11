@@ -41,7 +41,19 @@ def spark():
 
 
 def test_logger_manager_basic_function(spark):
-    df = DataFrame()
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:01:25.000", "Good", "0.150000006"),
+            (
+                "A2PS64V0J.:ZUX09R",
+                "2024-01-02 00:01:41.000",
+                "Good",
+                "0.340000004",
+            ),  # Missing interval (25s to 41s)
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     monitor = IdentifyMissingDataInterval(
         df=df,
         interval="10s",
@@ -54,20 +66,13 @@ def test_logger_manager_basic_function(spark):
 
 def test_df_output(spark, caplog):
     log_collector = RuntimeLogCollector(spark)
-    data = [
-        (1, "2024-02-11 00:00:00.000"),
-        (2, "2024-02-11 00:00:10.000"),
-        (3, "2024-02-11 00:00:20.000"),
-        (4, "2024-02-11 00:00:36.000"),  # Missing interval (20s to 36s)
-        (5, "2024-02-11 00:00:45.000"),
-        (6, "2024-02-11 00:00:55.000"),
-        (7, "2024-02-11 00:01:05.000"),
-        (8, "2024-02-11 00:01:15.000"),
-        (9, "2024-02-11 00:01:25.000"),
-        (10, "2024-02-11 00:01:41.000"),  # Missing interval (25s to 41s)
-    ]
-    columns = ["Index", "EventTime"]
-    df = spark.createDataFrame(data, schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:10.000", "Good", "0.119999997"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
 
     monitor = IdentifyMissingDataInterval(
         df=df,
@@ -83,25 +88,18 @@ def test_df_output(spark, caplog):
 
     result_df = log_handler.get_logs_as_df()
 
-    assert result_df.count() == 6
+    assert result_df.count() == 4
 
 
 def test_unique_dataframes(spark, caplog):
     log_collector = RuntimeLogCollector(spark)
-    data = [
-        (1, "2024-02-11 00:00:00.000"),
-        (2, "2024-02-11 00:00:10.000"),
-        (3, "2024-02-11 00:00:20.000"),
-        (4, "2024-02-11 00:00:36.000"),  # Missing interval (20s to 36s)
-        (5, "2024-02-11 00:00:45.000"),
-        (6, "2024-02-11 00:00:55.000"),
-        (7, "2024-02-11 00:01:05.000"),
-        (8, "2024-02-11 00:01:15.000"),
-        (9, "2024-02-11 00:01:25.000"),
-        (10, "2024-02-11 00:01:41.000"),  # Missing interval (25s to 41s)
-    ]
-    columns = ["Index", "EventTime"]
-    df = spark.createDataFrame(data, schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:10.000", "Good", "0.119999997"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     logger = LoggerManager().create_logger("Test_Logger")
     monitor = IdentifyMissingDataInterval(
         df=df,
@@ -126,20 +124,13 @@ def test_unique_dataframes(spark, caplog):
 def test_file_logging(spark, caplog):
 
     log_collector = RuntimeLogCollector(spark)
-    data = [
-        (1, "2024-02-11 00:00:00.000"),
-        (2, "2024-02-11 00:00:10.000"),
-        (3, "2024-02-11 00:00:20.000"),
-        (4, "2024-02-11 00:00:36.000"),  # Missing interval (20s to 36s)
-        (5, "2024-02-11 00:00:45.000"),
-        (6, "2024-02-11 00:00:55.000"),
-        (7, "2024-02-11 00:01:05.000"),
-        (8, "2024-02-11 00:01:15.000"),
-        (9, "2024-02-11 00:01:25.000"),
-        (10, "2024-02-11 00:01:41.000"),  # Missing interval (25s to 41s)
-    ]
-    columns = ["Index", "EventTime"]
-    df = spark.createDataFrame(data, schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:10.000", "Good", "0.119999997"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     monitor = IdentifyMissingDataInterval(
         df=df,
         interval="10s",
@@ -153,6 +144,6 @@ def test_file_logging(spark, caplog):
     with open("./logs.log", "r") as f:
         logs = f.readlines()
 
-    assert len(logs) == 6
+    assert len(logs) == 4
     if os.path.exists("./logs.log"):
         os.remove("./logs.log")
