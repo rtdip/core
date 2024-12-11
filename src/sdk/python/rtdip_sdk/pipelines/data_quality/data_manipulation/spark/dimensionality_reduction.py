@@ -22,7 +22,6 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
-from matplotlib import pyplot as plt
 
 
 class DimensionalityReduction(DataManipulationBaseInterface):
