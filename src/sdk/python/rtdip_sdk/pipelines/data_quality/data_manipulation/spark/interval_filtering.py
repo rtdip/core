@@ -80,8 +80,6 @@ class IntervalFiltering(DataManipulationBaseInterface, InputValidator):
             self.time_stamp_column_name
         )
 
-        self.df.show()
-
         tolerance_in_ms = None
         if self.tolerance is not None:
             tolerance_in_ms = self.get_time_delta(self.tolerance).total_seconds() * 1000
