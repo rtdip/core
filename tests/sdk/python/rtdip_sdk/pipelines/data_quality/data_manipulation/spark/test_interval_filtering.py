@@ -21,6 +21,7 @@ from pyspark.sql import SparkSession
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.interval_filtering import (
     IntervalFiltering,
 )
+from tests.sdk.python.rtdip_sdk.pipelines.logging.test_log_collection import spark
 
 
 @pytest.fixture(scope="session")
@@ -359,6 +360,20 @@ def test_interval_detection_large_data_set(spark_session: SparkSession):
     actual_df = interval_filtering_wrangler.filter()
     assert(actual_df.count()  == 25)
 
+def test_interval_detection_wrong_datatype(spark_session: SparkSession):
+    df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0JR", "invalid_data_type"),
+            ("A2PS64asd.:ZUX09R", "invalid_data_type"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type"),
+            ("A2PS64asd.:ZUX09R", "invalid_data_type"),
+            ("A2PS64V0J.:ZUasdX09R", "invalid_data_type"),
+        ],
+        ["TagName", "EventTime"],
+    )
 
+    interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1,  "hours")
 
+    with pytest.raises(ValueError):
+        interval_filtering_wrangler.filter()
 
