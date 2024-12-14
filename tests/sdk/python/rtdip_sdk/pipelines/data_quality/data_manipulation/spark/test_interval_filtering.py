@@ -349,16 +349,15 @@ def test_interval_detection_date_time_columns(spark_session: SparkSession):
 
 def test_interval_detection_large_data_set(spark_session: SparkSession):
     base_path = os.path.dirname(__file__)
-    file_path = os.path.join(base_path,  "../../test_data.csv")
+    file_path = os.path.join(base_path, "../../test_data.csv")
 
     df = spark_session.read.option("header", "true").csv(file_path)
-
-
 
     interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "hours")
 
     actual_df = interval_filtering_wrangler.filter()
-    assert(actual_df.count()  == 25)
+    assert actual_df.count() == 25
+
 
 def test_interval_detection_wrong_datatype(spark_session: SparkSession):
     df = spark_session.createDataFrame(
@@ -372,8 +371,7 @@ def test_interval_detection_wrong_datatype(spark_session: SparkSession):
         ["TagName", "EventTime"],
     )
 
-    interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1,  "hours")
+    interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "hours")
 
     with pytest.raises(ValueError):
         interval_filtering_wrangler.filter()
-
