@@ -204,20 +204,20 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
 
         def pickout_column(rem_columns: List[str], regex_string: str) -> (str, List[str]):
             rgx = regex.compile(regex_string)
-            sus_columns = list(filter(rgx.match, rem_columns))
+            sus_columns = list(filter(rgx.search, rem_columns))
             found_column = sus_columns[0] if len(sus_columns) == 1 else None
             if found_column is not None:
                 rem_columns.remove(found_column)
             return found_column, rem_columns
 
         # Is there a status column?
-        status_name, remaining_columns = pickout_column(schema_names, r"[sS][tT][aA][tT][uU][sS]")
+        status_name, remaining_columns = pickout_column(schema_names, r"(?i)status")
         # Is there a source name / tag
-        source_name, remaining_columns = pickout_column(schema_names, r"[tT][aA][gG]")
+        source_name, remaining_columns = pickout_column(schema_names, r"(?i)tag")
         # Is there a timestamp column?
-        timestamp_name, remaining_columns = pickout_column(schema_names, r"[tT][iI][mM][eE]")
+        timestamp_name, remaining_columns = pickout_column(schema_names, r"(?i)time")
         # Is there a value column?
-        value_name, remaining_columns = pickout_column(schema_names, r"[VV][aA][lL][uU][eE]")
+        value_name, remaining_columns = pickout_column(schema_names, r"(?i)value")
 
         if source_name is not None:
             assumed_past_data_style = self.InputStyle.SOURCE_BASED
@@ -350,7 +350,7 @@ class ArimaAutoPrediction(ArimaPrediction):
 
         # Prepare Input data
         input_data = self.df.toPandas()
-        input_data = input_data[input_data[self.to_extend_name].notna()].tail(number_of_data_points_to_analyze)[self.to_extend_name]
+        input_data = input_data[input_data[to_extend_name].notna()].tail(number_of_data_points_to_analyze)[to_extend_name]
 
         auto_model = auto_arima(
             y=input_data,
@@ -364,12 +364,12 @@ class ArimaAutoPrediction(ArimaPrediction):
 
         super().__init__(
             past_data=past_data,
-            past_data_style=past_data_style,
+            past_data_style=self.past_data_style,
             to_extend_name=to_extend_name,
-            value_name=value_name,
-            timestamp_name=timestamp_name,
-            source_name=source_name,
-            status_name=status_name,
+            value_name=self.value_name,
+            timestamp_name=self.timestamp_name,
+            source_name=self.source_name,
+            status_name=self.status_name,
             external_regressor_names=external_regressor_names,
             number_of_data_points_to_predict=number_of_data_points_to_predict,
             number_of_data_points_to_analyze=number_of_data_points_to_analyze,
