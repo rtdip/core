@@ -145,9 +145,27 @@ class InputValidator(PipelineComponentBaseInterface):
                     original_null_count = dataframe.filter(
                         F.col(column).isNull()
                     ).count()
-                    casted_column = dataframe.withColumn(
-                        column, F.col(column).cast(expected_type)
-                    )
+                    if column == "EventTime":
+                        try:
+                            casted_column = dataframe.withColumn(
+                                "EventTime",
+                                F.coalesce(
+                                    F.to_timestamp(
+                                        F.trim("EventTime"), "yyyy-MM-dd HH:mm:ss.SSS"
+                                    ),
+                                    F.to_timestamp(
+                                        F.trim("EventTime"), "dd.MM.yyyy HH:mm:ss"
+                                    ),
+                                ),
+                            )
+                        except Exception as e:
+                            casted_column = dataframe.withColumn(
+                                column, F.col(column).cast(expected_type)
+                            )
+                    else:
+                        casted_column = dataframe.withColumn(
+                            column, F.col(column).cast(expected_type)
+                        )
                     new_null_count = casted_column.filter(
                         F.col(column).isNull()
                     ).count()

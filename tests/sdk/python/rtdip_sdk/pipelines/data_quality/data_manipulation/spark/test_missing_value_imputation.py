@@ -12,11 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import col, unix_timestamp, abs as A
-from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    FloatType,
+)
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.missing_value_imputation import (
     MissingValueImputation,
@@ -36,6 +43,15 @@ def test_missing_value_imputation(spark_session: SparkSession):
             StructField("EventTime", StringType(), True),
             StructField("Status", StringType(), True),
             StructField("Value", StringType(), True),
+        ]
+    )
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
         ]
     )
 
@@ -262,12 +278,18 @@ def test_missing_value_imputation(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame(expected_data, schema=schema)
 
     missing_value_imputation = MissingValueImputation(spark_session, test_df)
-    actual_df = missing_value_imputation.filter()
+    actual_df = DataFrame
+
+    try:
+        if missing_value_imputation.validate(expected_schema):
+            actual_df = missing_value_imputation.filter()
+    except Exception as e:
+        print(repr(e))
 
     assert isinstance(actual_df, DataFrame)
 
     assert expected_df.columns == actual_df.columns
-    assert expected_df.schema == actual_df.schema
+    assert expected_schema == actual_df.schema
 
     def assert_dataframe_similar(
         expected_df, actual_df, tolerance=1e-4, time_tolerance_seconds=5
@@ -314,3 +336,68 @@ def test_missing_value_imputation(spark_session: SparkSession):
                     ), f"Mismatch in column '{column_name}': {expected_val} != {actual_val}"
 
     assert_dataframe_similar(expected_df, actual_df, tolerance=1e-4)
+
+
+def test_missing_value_imputation_large_data_set(spark_session: SparkSession):
+    test_path = os.path.dirname(__file__)
+    data_path = os.path.join(test_path, "../../test_data.csv")
+
+    actual_df = spark_session.read.option("header", "true").csv(data_path)
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    missing_value_imputation_component = MissingValueImputation(
+        spark_session, actual_df
+    )
+    result_df = DataFrame
+
+    try:
+        if missing_value_imputation_component.validate(expected_schema):
+            result_df = missing_value_imputation_component.filter()
+    except Exception as e:
+        print(repr(e))
+
+    assert isinstance(actual_df, DataFrame)
+
+    assert result_df.schema == expected_schema
+    assert result_df.count() > actual_df.count()
+
+
+def test_missing_value_imputation_wrong_datatype(spark_session: SparkSession):
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    test_df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "1.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "2.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "3.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "4.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "5.0"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
+    missing_value_imputation_component = MissingValueImputation(spark_session, test_df)
+
+    with pytest.raises(ValueError) as exc_info:
+        missing_value_imputation_component.validate(expected_schema)
+
+    assert (
+        "Error during casting column 'EventTime' to TimestampType(): Column 'EventTime' cannot be cast to TimestampType()."
+        in str(exc_info.value)
+    )
