@@ -52,7 +52,7 @@ class ArimaAutoPrediction(ArimaPrediction):
             seasonal=seasonal,
             stepwise=True,
             suppress_warnings=True,
-            trace=True,
+            trace=False, # Set to true if to debug
             error_action="ignore",
             max_order=None,
         )

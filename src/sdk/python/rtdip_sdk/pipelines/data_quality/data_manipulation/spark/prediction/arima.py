@@ -135,6 +135,9 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         self._initialize_self_df(past_data, past_data_style, source_name, status_name, timestamp_name, to_extend_name,
                                  value_name)
 
+        if number_of_data_points_to_analyze > self.df.count():
+            raise ValueError("Number of data points to analyze exceeds the number of rows present")
+
         self.spark_session = past_data.sparkSession
         self.column_to_predict = to_extend_name
         self.rows_to_predict = number_of_data_points_to_predict
