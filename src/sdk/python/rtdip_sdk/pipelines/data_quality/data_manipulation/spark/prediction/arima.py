@@ -204,8 +204,10 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             base_df["Value"] = base_df["Value"].astype("float64")
             base_df["EventTime"] = base_df["EventTime"].astype("datetime64[ns]")
             last_event_time = base_df["EventTime"].iloc[-1]
-            second_last_event_time = base_df["EventTime"].iloc[-2]
-
+            try:
+                second_last_event_time = base_df["EventTime"].iloc[-2]
+            except Exception as e:
+                continue
             interval = last_event_time - second_last_event_time
             new_event_times = [
                 last_event_time + (i * interval)
