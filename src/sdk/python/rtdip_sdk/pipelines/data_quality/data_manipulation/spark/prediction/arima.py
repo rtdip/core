@@ -121,25 +121,26 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         number_of_data_points_to_analyze: int = None,
         order: tuple = (0, 0, 0),
         seasonal_order: tuple = (0, 0, 0, 0),
-        trend="c",
+        trend= None,
         enforce_stationarity: bool = True,
         enforce_invertibility: bool = True,
         concentrate_scale: bool = False,
         trend_offset: int = 1,
         missing: str = "None"
     ) -> None:
-        if not value_name in past_data.columns:
-            raise ValueError("{} not found in the DataFrame.".format(value_name))
-
         self.past_data = past_data
         # Convert source-based datafram to column-based
         if self.df is None:
             self.past_data_style, self.value_name, self.timestamp_name, self.source_name, self.status_name = self._constructor_handle_input_metadata(
                 past_data, past_data_style, value_name, timestamp_name, source_name, status_name)
+
             if self.past_data_style == self.InputStyle.COLUMN_BASED:
                 self.df = past_data
             elif self.past_data_style == self.InputStyle.SOURCE_BASED:
-                self.df = past_data.groupby(timestamp_name).pivot(source_name).agg(F.first(value_name))
+                self.df = past_data.groupby(self.timestamp_name).pivot(self.source_name).agg(F.first(self.value_name))
+
+        if not to_extend_name in self.df.columns:
+            raise ValueError("{} not found in the DataFrame.".format(value_name))
 
         self.spark_session = past_data.sparkSession
         self.column_to_predict = to_extend_name
@@ -154,12 +155,6 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         self.trend_offset = trend_offset
         self.missing = missing
         self.external_regressor_names = external_regressor_names
-
-        if external_regressor_names is not None:
-            # TODO: exog, e.g. external regressors / exogenic variables
-            raise NotImplementedError(
-                "Handling of external regressors is not implemented"
-            )
         # input_data.index = self.df.loc[:, timestamp_column_name].sort_index(ascending=True).tail(number_of_data_points_to_analyze)
         # input_data.index = pd.DatetimeIndex(input_data.index).to_period()
 
@@ -251,16 +246,30 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         # self.validate(expected_scheme)
 
         pd_df = self.df.toPandas()
+        pd_df.sort_values(self.timestamp_name, inplace=True)
+        pd_df.reset_index(drop=True, inplace=True)
+        pd_df.loc[:, self.timestamp_name] = pd.to_datetime(pd_df[self.timestamp_name]).astype(
+            "datetime64[ns]")
+
+        # limit df
+        pd_to_train_on = pd_df[pd_df[self.column_to_predict].notna()].tail(self.rows_to_analyze)
+        pd_to_predict_on = pd_df[pd_df[self.column_to_predict].isna()].head(self.rows_to_predict)
+        pd_df = pd.concat([pd_to_train_on, pd_to_predict_on])
+
         main_signal_df = pd_df[pd_df[self.column_to_predict].notna()]
 
-        main_signal_df[self.timestamp_name] = pd.to_datetime(main_signal_df[self.timestamp_name]).astype("datetime64[ns]")
-        #main_signal_df["Value"] = main_signal_df["Value"].astype("float64")
-        #main_signal_df = main_signal_df.set_index("EventTime")
+        input_data = pd_to_train_on.to_numpy()
+        exog_data = None
+        if self.external_regressor_names is not None:
+            exog_data = []
+            for column_name in self.external_regressor_names:
+                signal_df = pd.concat([pd_to_train_on[column_name], pd_to_predict_on[column_name]])
+                exog_data.append(signal_df)
 
-        input_data = main_signal_df[self.column_to_predict].sort_index(ascending=True).tail(self.rows_to_analyze)
 
         source_model = ARIMA(
             endog=input_data,
+            exog=exog_data,
             order=self.order,
             seasonal_order=self.seasonal_order,
             trend=self.trend,
@@ -291,9 +300,10 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
                 "Column-based export"
             )
         elif self.past_data_style == self.InputStyle.SOURCE_BASED:
-            data_to_add = pd_forecast_df[[self.timestamp_name, self.column_to_predict]]
+            data_to_add = pd_forecast_df[[self.column_to_predict ,self.timestamp_name]]
             data_to_add = data_to_add.rename(columns={self.timestamp_name: self.timestamp_name, self.column_to_predict: self.value_name})
             data_to_add[self.source_name] = self.column_to_predict
+            data_to_add[self.timestamp_name] = data_to_add[self.timestamp_name].dt.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
             pd_df_schema = StructType(
                [
