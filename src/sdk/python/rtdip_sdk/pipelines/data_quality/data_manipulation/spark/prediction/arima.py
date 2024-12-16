@@ -21,7 +21,7 @@ from pyspark.sql import DataFrame as PySparkDataFrame, SparkSession, functions a
 from pyspark.sql.functions import col, lit
 from pyspark.sql.types import StringType, TimestampType, FloatType, NumericType, StructField, StructType
 from regex import regex
-from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
+from statsmodels.tsa.arima.model import ARIMA
 from pmdarima import auto_arima
 import numpy as np
 
@@ -130,17 +130,8 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     ) -> None:
         self.past_data = past_data
         # Convert source-based datafram to column-based
-        if self.df is None:
-            self.past_data_style, self.value_name, self.timestamp_name, self.source_name, self.status_name = self._constructor_handle_input_metadata(
-                past_data, past_data_style, value_name, timestamp_name, source_name, status_name)
-
-            if self.past_data_style == self.InputStyle.COLUMN_BASED:
-                self.df = past_data
-            elif self.past_data_style == self.InputStyle.SOURCE_BASED:
-                self.df = past_data.groupby(self.timestamp_name).pivot(self.source_name).agg(F.first(self.value_name))
-
-        if not to_extend_name in self.df.columns:
-            raise ValueError("{} not found in the DataFrame.".format(value_name))
+        self._initialize_self_df(past_data, past_data_style, source_name, status_name, timestamp_name, to_extend_name,
+                                 value_name)
 
         self.spark_session = past_data.sparkSession
         self.column_to_predict = to_extend_name
@@ -183,6 +174,19 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         type_ = df.schema[column_name]
 
         return isinstance(type_.dataType, data_type)
+
+    def _initialize_self_df(self, past_data, past_data_style, source_name, status_name, timestamp_name, to_extend_name,
+                            value_name):
+        if self.df is None:
+            self.past_data_style, self.value_name, self.timestamp_name, self.source_name, self.status_name = self._constructor_handle_input_metadata(
+                past_data, past_data_style, value_name, timestamp_name, source_name, status_name)
+
+            if self.past_data_style == self.InputStyle.COLUMN_BASED:
+                self.df = past_data
+            elif self.past_data_style == self.InputStyle.SOURCE_BASED:
+                self.df = past_data.groupby(self.timestamp_name).pivot(self.source_name).agg(F.first(self.value_name))
+        if not to_extend_name in self.df.columns:
+            raise ValueError("{} not found in the DataFrame.".format(value_name))
 
     def _constructor_handle_input_metadata(self, past_data: PySparkDataFrame, past_data_style: InputStyle, value_name: str, timestamp_name: str, source_name:str, status_name: str) -> Tuple[InputStyle, str, str, str, str]:
         if past_data_style is not None:
@@ -258,13 +262,13 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
 
         main_signal_df = pd_df[pd_df[self.column_to_predict].notna()]
 
-        input_data = pd_to_train_on.to_numpy()
+        input_data = main_signal_df[self.column_to_predict]
         exog_data = None
-        if self.external_regressor_names is not None:
-            exog_data = []
-            for column_name in self.external_regressor_names:
-                signal_df = pd.concat([pd_to_train_on[column_name], pd_to_predict_on[column_name]])
-                exog_data.append(signal_df)
+        # if self.external_regressor_names is not None:
+        #     exog_data = []
+        #     for column_name in self.external_regressor_names:
+        #         signal_df = pd.concat([pd_to_train_on[column_name], pd_to_predict_on[column_name]])
+        #         exog_data.append(signal_df)
 
 
         source_model = ARIMA(
@@ -321,75 +325,3 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
                 predicted_source_pyspark_dataframe = predicted_source_pyspark_dataframe.withColumn(self.status_name, lit("Predicted"))
 
             return self.past_data.union(predicted_source_pyspark_dataframe)
-
-    def _get_source_model(self, source_df) -> ARIMAResults:
-        """
-        Helper method to get the ARIMA model and calculate the best fitting model if auto_arima is enabled
-        """
-        pass
-
-
-class ArimaAutoPrediction(ArimaPrediction):
-    def __init__(
-        self,
-        past_data: PySparkDataFrame,
-        past_data_style : ArimaPrediction.InputStyle = None,
-        to_extend_name: str = None,
-        value_name: str = None,
-        timestamp_name: str = None,
-        source_name: str = None,
-        status_name: str = None,
-        external_regressor_names: List[str] = None,
-        number_of_data_points_to_predict: int = 50,
-        number_of_data_points_to_analyze: int = None,
-        seasonal: bool = False,
-        enforce_stationarity: bool = True,
-        enforce_invertibility: bool = True,
-        concentrate_scale: bool = False,
-        trend_offset: int = 1,
-        missing: str = "None",
-    ) -> None:
-        # Convert source-based datafram to column-based
-        if self.df is None:
-            self.past_data_style, self.value_name, self.timestamp_name, self.source_name, self.status_name = self._constructor_handle_input_metadata(
-                past_data, past_data_style, value_name, timestamp_name, source_name, status_name)
-            if self.past_data_style == self.InputStyle.COLUMN_BASED:
-                self.df = past_data
-            elif self.past_data_style == self.InputStyle.SOURCE_BASED:
-                self.df = past_data.groupby(self.timestamp_name).pivot(self.source_name).agg(F.first(self.value_name))
-
-        # Prepare Input data
-        input_data = self.df.toPandas()
-        input_data = input_data[input_data[to_extend_name].notna()].tail(number_of_data_points_to_analyze)[to_extend_name]
-
-        auto_model = auto_arima(
-            y=input_data,
-            seasonal=seasonal,
-            stepwise=True,
-            suppress_warnings=True,
-            trace=True,
-            error_action="ignore",
-            max_order=None,
-        )
-
-        super().__init__(
-            past_data=past_data,
-            past_data_style=self.past_data_style,
-            to_extend_name=to_extend_name,
-            value_name=self.value_name,
-            timestamp_name=self.timestamp_name,
-            source_name=self.source_name,
-            status_name=self.status_name,
-            external_regressor_names=external_regressor_names,
-            number_of_data_points_to_predict=number_of_data_points_to_predict,
-            number_of_data_points_to_analyze=number_of_data_points_to_analyze,
-            order=auto_model.order,
-            seasonal_order=auto_model.seasonal_order,
-            trend = "c" if auto_model.order[1] == 0 else "t",
-            enforce_stationarity=enforce_stationarity,
-            enforce_invertibility=enforce_invertibility,
-            concentrate_scale=concentrate_scale,
-            trend_offset=trend_offset,
-            missing=missing
-        )
-

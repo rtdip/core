@@ -21,7 +21,10 @@ from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, FloatType
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import (
-    ArimaPrediction, ArimaAutoPrediction
+    ArimaPrediction
+)
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.auto_arima import (
+    ArimaAutoPrediction
 )
 
 
