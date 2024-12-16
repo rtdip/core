@@ -219,16 +219,23 @@ def test_dataframe_validation(sample_data):
 
 def test_invalid_data_handling(spark):
 
-    invalid_df = spark.createDataFrame(
+    data = [
+        ("A2PS64V0J.:ZUX09R", "invalid_date", "Good", "invalid_value"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "NaN"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", None, 123.45),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", 123.45),
+    ]
+
+    schema = StructType(
         [
-            ("A2PS64V0J.:ZUX09R", "invalid_date", "Good", "invalid_value"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "NaN"),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", None, 123.45),
-            ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", 123.45),
-        ],
-        ["TagName", "EventTime", "Status", "Value"],
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", StringType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", StringType(), True),
+        ]
     )
 
+    invalid_df = spark.createDataFrame(data, schema=schema)
     try:
         invalid_df = invalid_df.withColumn(
             "EventTime", invalid_df["EventTime"].cast("timestamp")
