@@ -1,9 +1,0 @@
-Title	URL	Assignees	Status	Estimated size	Real size
-Please adopt the Deliverables folder structure from https://github.com/amosproj/amos202Xss0Y-projname to your repo / branch	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/7		Product Backlog		
-Set up a development environment	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/1		Product Backlog		
-[Component] Identify missing data	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/2		Product Backlog		
-[Component] Outlier detection	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/3		Product Backlog		
-[Component] Duplicate detection	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/4		Product Backlog		
-[Component] Trend identification	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/5		Product Backlog		
-[Component] Anomaly detection	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/6		Product Backlog		
-Fix broken virtual environment	https://github.com/amosproj/amos2024ws01-rtdip-data-quality-checker/issues/8		Product Backlog		
