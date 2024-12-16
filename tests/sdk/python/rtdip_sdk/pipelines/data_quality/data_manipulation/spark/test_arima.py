@@ -27,6 +27,22 @@ from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.pre
     ArimaAutoPrediction
 )
 
+# Testcases to add:
+
+# = TEST COLUMN NAME FINDER =
+# Non-existing columns
+# Wrong columns given
+# correct columns given
+
+# = COLUMN-BASED =
+
+# = SOURCE-BASED =
+# Pass additional future data -> should not be discarded
+
+# = PMD-Arima =
+# Column-based
+# Source-based
+
 
 @pytest.fixture(scope="session")
 def spark_session():
@@ -38,32 +54,9 @@ def spark_session():
         .getOrCreate()
     )
 
-
-def test_nonexistent_column_arima(spark_session: SparkSession):
-    input_df = spark_session.createDataFrame(
-        [
-            (1.0,),
-            (2.0,),
-        ],
-        ["Value"],
-    )
-
-    with pytest.raises(ValueError):
-        ArimaPrediction(input_df, value_name="NonexistingColumn")
-
-
-def test_single_column_prediction_arima(spark_session: SparkSession):
-
-    schema = StructType(
-        [
-            StructField("TagName", StringType(), True),
-            StructField("EventTime", StringType(), True),
-            StructField("Status", StringType(), True),
-            StructField("Value", FloatType(), True),
-        ]
-    )
-
-    historic_data = [
+@pytest.fixture(scope="session")
+def historic_data():
+    hist_data = [
         ("A2PS64V0J.:ZUX09R", "2024-01-01 03:29:21", "Good", "1.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-01 07:32:55", "Good", "2.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-01 11:36:29", "Good", "3.0"),
@@ -202,12 +195,95 @@ def test_single_column_prediction_arima(spark_session: SparkSession):
         ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:55:13", "Good", "4686.26"),
         ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:56:13", "Good", "4700.966"),
     ]
+    return hist_data
+
+@pytest.fixture(scope="session")
+def source_based_synthetic_data():
+    output_object = {}
+
+    df1 = pd.DataFrame()
+    df2 = pd.DataFrame()
+    np.random.seed(0)
+
+    arr_len = 100
+    h_a_l = int(arr_len / 2)
+    df1['Value'] = np.random.rand(arr_len) + np.sin(np.linspace(0, arr_len / 2, num=arr_len))
+    df2['Value'] = df1['Value'] * 2 + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
+    df1['index'] = np.asarray(pd.date_range(start='1/1/2024', end='2/1/2024', periods=arr_len)).astype(str)
+    df2['index'] = np.asarray(pd.date_range(start='1/1/2024', end='2/1/2024', periods=arr_len)).astype(str)
+    df1['TagName'] = 'PrimarySensor'
+    df2['TagName'] = 'SecondarySensor'
+    df1['Status'] = 'Good'
+    df2['Status'] = 'Good'
+
+    output_object['df1'] = df1
+    output_object['df2'] = df2
+    output_object['arr_len'] = arr_len
+    output_object['h_a_l'] = h_a_l
+    output_object['half_df1_full_df2'] = pd.concat([df1.head(h_a_l), df2])
+    output_object['full_df1_full_df2'] = pd.concat([df1, df2])
+    output_object['full_df1_half_df2'] = pd.concat([df1, df2.head(h_a_l)])
+    output_object['half_df1_half_df2'] = pd.concat([df1.head(h_a_l), df2.head(h_a_l)])
+    return output_object
+
+@pytest.fixture(scope="session")
+def column_based_synthetic_data():
+    output_object = {}
+
+    df1 = pd.DataFrame()
+    np.random.seed(0)
+
+    arr_len = 100
+    h_a_l = int(arr_len / 2)
+    idx_start = '1/1/2024'
+    idx_end = '2/1/2024'
+
+    df1['PrimarySensor'] = np.random.rand(arr_len) + np.sin(np.linspace(0, arr_len / 2, num=arr_len))
+    df1['SecondarySensor'] = df1['PrimarySensor'] * 2 + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
+    df1['index'] = np.asarray(pd.date_range(start=idx_start, end=idx_end, periods=arr_len)).astype(str)
+
+    output_object['df'] = df1
+    output_object['arr_len'] = arr_len
+    output_object['h_a_l'] = h_a_l
+    output_object['half_df1_full_df2'] = df1.copy()
+    output_object['half_df1_full_df2'].loc[h_a_l:, 'PrimarySensor'] = None
+    output_object['full_df1_full_df2'] = df1.copy()
+    output_object['full_df1_half_df2'] = df1.copy()
+    output_object['full_df1_half_df2'].loc[h_a_l:, 'SecondarySensor'] = None
+    output_object['half_df1_half_df2'] = df1.copy().head(h_a_l)
+    return output_object
+
+def test_nonexistent_column_arima(spark_session: SparkSession):
+    input_df = spark_session.createDataFrame(
+        [
+            (1.0,),
+            (2.0,),
+        ],
+        ["Value"],
+    )
+
+    with pytest.raises(ValueError):
+        ArimaPrediction(input_df, value_name="NonexistingColumn")
+
+
+def test_single_column_prediction_arima(spark_session: SparkSession, column_based_synthetic_data):
+
+    schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", StringType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+
     # convert last column to float
-    for idx, item in enumerate(historic_data):
-        historic_data[idx] = item[0:3] + (float(item[3]),)
+    for idx, item in enumerate(column_based_synthetic_data):
+        column_based_synthetic_data[idx] = item[0:3] + (float(item[3]),)
 
 
-    input_df = spark_session.createDataFrame(historic_data, schema=schema)
+    input_df = spark_session.createDataFrame(column_based_synthetic_data, schema=schema)
 
     h_a_l = int(input_df.count() / 2)
 

@@ -110,12 +110,14 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     def __init__(
         self,
         past_data: PySparkDataFrame,
+        to_extend_name: str,  # either source or column
+        # Metadata about past_date
         past_data_style : InputStyle = None,
-        to_extend_name: str = None, #either source or column
         value_name: str = None,
         timestamp_name: str = None,
         source_name: str = None,
         status_name: str = None,
+        # Options for ARIMA
         external_regressor_names: List[str] = None,
         number_of_data_points_to_predict: int = 50,
         number_of_data_points_to_analyze: int = None,
@@ -146,8 +148,6 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         self.trend_offset = trend_offset
         self.missing = missing
         self.external_regressor_names = external_regressor_names
-        # input_data.index = self.df.loc[:, timestamp_column_name].sort_index(ascending=True).tail(number_of_data_points_to_analyze)
-        # input_data.index = pd.DatetimeIndex(input_data.index).to_period()
 
     @staticmethod
     def system_type():
