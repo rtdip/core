@@ -27,7 +27,9 @@ from pyspark.sql.types import (
     FloatType,
 )
 
-from rtdip_sdk._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
+from src.sdk.python.rtdip_sdk._sdk_utils.pandas import (
+    _prepare_pandas_to_convert_to_spark,
+)
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import (
     ArimaPrediction,
 )
@@ -238,10 +240,18 @@ def source_based_synthetic_data():
     output_object["df2"] = df2
     output_object["arr_len"] = arr_len
     output_object["h_a_l"] = h_a_l
-    output_object["half_df1_full_df2"] = _prepare_pandas_to_convert_to_spark(pd.concat([df1.head(h_a_l), df2]))
-    output_object["full_df1_full_df2"] = _prepare_pandas_to_convert_to_spark(pd.concat([df1, df2]))
-    output_object["full_df1_half_df2"] = _prepare_pandas_to_convert_to_spark(pd.concat([df1, df2.head(h_a_l)]))
-    output_object["half_df1_half_df2"] = _prepare_pandas_to_convert_to_spark(pd.concat([df1.head(h_a_l), df2.head(h_a_l)]))
+    output_object["half_df1_full_df2"] = _prepare_pandas_to_convert_to_spark(
+        pd.concat([df1.head(h_a_l), df2])
+    )
+    output_object["full_df1_full_df2"] = _prepare_pandas_to_convert_to_spark(
+        pd.concat([df1, df2])
+    )
+    output_object["full_df1_half_df2"] = _prepare_pandas_to_convert_to_spark(
+        pd.concat([df1, df2.head(h_a_l)])
+    )
+    output_object["half_df1_half_df2"] = _prepare_pandas_to_convert_to_spark(
+        pd.concat([df1.head(h_a_l), df2.head(h_a_l)])
+    )
     return output_object
 
 
@@ -275,7 +285,9 @@ def column_based_synthetic_data():
     output_object["full_df1_full_df2"] = _prepare_pandas_to_convert_to_spark(df1.copy())
     output_object["full_df1_half_df2"] = _prepare_pandas_to_convert_to_spark(df1.copy())
     output_object["full_df1_half_df2"].loc[h_a_l:, "SecondarySensor"] = None
-    output_object["half_df1_half_df2"] = _prepare_pandas_to_convert_to_spark(df1.copy().head(h_a_l))
+    output_object["half_df1_half_df2"] = _prepare_pandas_to_convert_to_spark(
+        df1.copy().head(h_a_l)
+    )
     return output_object
 
 
