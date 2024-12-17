@@ -28,10 +28,10 @@ from pyspark.sql.types import (
 )
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import (
-    ArimaPrediction
+    ArimaPrediction,
 )
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.auto_arima import (
-    ArimaAutoPrediction
+    ArimaAutoPrediction,
 )
 
 # Testcases to add:
@@ -60,6 +60,7 @@ def spark_session():
         .config("spark.sql.execution.arrow.pyspark.enabled", "true")
         .getOrCreate()
     )
+
 
 @pytest.fixture(scope="session")
 def historic_data():
@@ -204,6 +205,7 @@ def historic_data():
     ]
     return hist_data
 
+
 @pytest.fixture(scope="session")
 def source_based_synthetic_data():
     output_object = {}
@@ -214,24 +216,33 @@ def source_based_synthetic_data():
 
     arr_len = 100
     h_a_l = int(arr_len / 2)
-    df1['Value'] = np.random.rand(arr_len) + np.sin(np.linspace(0, arr_len / 2, num=arr_len))
-    df2['Value'] = df1['Value'] * 2 + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
-    df1['index'] = np.asarray(pd.date_range(start='1/1/2024', end='2/1/2024', periods=arr_len)).astype(str)
-    df2['index'] = np.asarray(pd.date_range(start='1/1/2024', end='2/1/2024', periods=arr_len)).astype(str)
-    df1['TagName'] = 'PrimarySensor'
-    df2['TagName'] = 'SecondarySensor'
-    df1['Status'] = 'Good'
-    df2['Status'] = 'Good'
+    df1["Value"] = np.random.rand(arr_len) + np.sin(
+        np.linspace(0, arr_len / 2, num=arr_len)
+    )
+    df2["Value"] = (
+        df1["Value"] * 2 + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
+    )
+    df1["index"] = np.asarray(
+        pd.date_range(start="1/1/2024", end="2/1/2024", periods=arr_len)
+    ).astype(str)
+    df2["index"] = np.asarray(
+        pd.date_range(start="1/1/2024", end="2/1/2024", periods=arr_len)
+    ).astype(str)
+    df1["TagName"] = "PrimarySensor"
+    df2["TagName"] = "SecondarySensor"
+    df1["Status"] = "Good"
+    df2["Status"] = "Good"
 
-    output_object['df1'] = df1
-    output_object['df2'] = df2
-    output_object['arr_len'] = arr_len
-    output_object['h_a_l'] = h_a_l
-    output_object['half_df1_full_df2'] = pd.concat([df1.head(h_a_l), df2])
-    output_object['full_df1_full_df2'] = pd.concat([df1, df2])
-    output_object['full_df1_half_df2'] = pd.concat([df1, df2.head(h_a_l)])
-    output_object['half_df1_half_df2'] = pd.concat([df1.head(h_a_l), df2.head(h_a_l)])
+    output_object["df1"] = df1
+    output_object["df2"] = df2
+    output_object["arr_len"] = arr_len
+    output_object["h_a_l"] = h_a_l
+    output_object["half_df1_full_df2"] = pd.concat([df1.head(h_a_l), df2])
+    output_object["full_df1_full_df2"] = pd.concat([df1, df2])
+    output_object["full_df1_half_df2"] = pd.concat([df1, df2.head(h_a_l)])
+    output_object["half_df1_half_df2"] = pd.concat([df1.head(h_a_l), df2.head(h_a_l)])
     return output_object
+
 
 @pytest.fixture(scope="session")
 def column_based_synthetic_data():
@@ -242,23 +253,30 @@ def column_based_synthetic_data():
 
     arr_len = 100
     h_a_l = int(arr_len / 2)
-    idx_start = '1/1/2024'
-    idx_end = '2/1/2024'
+    idx_start = "1/1/2024"
+    idx_end = "2/1/2024"
 
-    df1['PrimarySensor'] = np.random.rand(arr_len) + np.sin(np.linspace(0, arr_len / 2, num=arr_len))
-    df1['SecondarySensor'] = df1['PrimarySensor'] * 2 + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
-    df1['index'] = np.asarray(pd.date_range(start=idx_start, end=idx_end, periods=arr_len)).astype(str)
+    df1["PrimarySensor"] = np.random.rand(arr_len) + np.sin(
+        np.linspace(0, arr_len / 2, num=arr_len)
+    )
+    df1["SecondarySensor"] = (
+        df1["PrimarySensor"] * 2 + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
+    )
+    df1["index"] = np.asarray(
+        pd.date_range(start=idx_start, end=idx_end, periods=arr_len)
+    ).astype(str)
 
-    output_object['df'] = df1
-    output_object['arr_len'] = arr_len
-    output_object['h_a_l'] = h_a_l
-    output_object['half_df1_full_df2'] = df1.copy()
-    output_object['half_df1_full_df2'].loc[h_a_l:, 'PrimarySensor'] = None
-    output_object['full_df1_full_df2'] = df1.copy()
-    output_object['full_df1_half_df2'] = df1.copy()
-    output_object['full_df1_half_df2'].loc[h_a_l:, 'SecondarySensor'] = None
-    output_object['half_df1_half_df2'] = df1.copy().head(h_a_l)
+    output_object["df"] = df1
+    output_object["arr_len"] = arr_len
+    output_object["h_a_l"] = h_a_l
+    output_object["half_df1_full_df2"] = df1.copy()
+    output_object["half_df1_full_df2"].loc[h_a_l:, "PrimarySensor"] = None
+    output_object["full_df1_full_df2"] = df1.copy()
+    output_object["full_df1_half_df2"] = df1.copy()
+    output_object["full_df1_half_df2"].loc[h_a_l:, "SecondarySensor"] = None
+    output_object["half_df1_half_df2"] = df1.copy().head(h_a_l)
     return output_object
+
 
 def test_nonexistent_column_arima(spark_session: SparkSession):
     input_df = spark_session.createDataFrame(
@@ -272,6 +290,7 @@ def test_nonexistent_column_arima(spark_session: SparkSession):
     with pytest.raises(ValueError):
         ArimaPrediction(input_df, to_extend_name="NonexistingColumn")
 
+
 def test_invalid_size_arima(spark_session: SparkSession):
     input_df = spark_session.createDataFrame(
         [
@@ -282,7 +301,13 @@ def test_invalid_size_arima(spark_session: SparkSession):
     )
 
     with pytest.raises(ValueError):
-        ArimaPrediction(input_df, to_extend_name="Value", order=(3, 0, 0), seasonal_order=(3, 0, 0, 62), number_of_data_points_to_analyze=62)
+        ArimaPrediction(
+            input_df,
+            to_extend_name="Value",
+            order=(3, 0, 0),
+            seasonal_order=(3, 0, 0, 62),
+            number_of_data_points_to_analyze=62,
+        )
 
 
 def test_single_column_prediction_arima(spark_session: SparkSession, historic_data):
@@ -314,7 +339,7 @@ def test_single_column_prediction_arima(spark_session: SparkSession, historic_da
         seasonal_order=(3, 0, 0, 62),
         timestamp_name="EventTime",
         source_name="TagName",
-        status_name="Status"
+        status_name="Status",
     )
     forecasted_df = arima_comp.filter()
     # print(forecasted_df.show(forecasted_df.count(), False))
@@ -325,7 +350,9 @@ def test_single_column_prediction_arima(spark_session: SparkSession, historic_da
     assert forecasted_df.count() == (input_df.count() + h_a_l)
 
 
-def test_single_column_prediction_auto_arima(spark_session: SparkSession, historic_data):
+def test_single_column_prediction_auto_arima(
+    spark_session: SparkSession, historic_data
+):
 
     schema = StructType(
         [
@@ -346,15 +373,15 @@ def test_single_column_prediction_auto_arima(spark_session: SparkSession, histor
 
     arima_comp = ArimaAutoPrediction(
         past_data=input_df,
-        #past_data_style=ArimaPrediction.InputStyle.SOURCE_BASED,
-        #value_name="Value",
+        # past_data_style=ArimaPrediction.InputStyle.SOURCE_BASED,
+        # value_name="Value",
         to_extend_name="-4O7LSSAM_3EA02:2GT7E02I_R_MP",
         number_of_data_points_to_analyze=input_df.count(),
         number_of_data_points_to_predict=h_a_l,
-        #timestamp_name="EventTime",
-        #source_name="TagName",
-        #status_name="Status",
-        seasonal=True
+        # timestamp_name="EventTime",
+        # source_name="TagName",
+        # status_name="Status",
+        seasonal=True,
     )
     forecasted_df = arima_comp.filter()
     # print(forecasted_df.show(forecasted_df.count(), False))
@@ -369,7 +396,10 @@ def test_single_column_prediction_auto_arima(spark_session: SparkSession, histor
     assert arima_comp.source_name == "TagName"
     assert arima_comp.status_name == "Status"
 
-def test_column_based_prediction_arima(spark_session: SparkSession, column_based_synthetic_data):
+
+def test_column_based_prediction_arima(
+    spark_session: SparkSession, column_based_synthetic_data
+):
 
     schema = StructType(
         [
@@ -388,11 +418,11 @@ def test_column_based_prediction_arima(spark_session: SparkSession, column_based
         to_extend_name="PrimarySource",
         number_of_data_points_to_analyze=input_df.count(),
         number_of_data_points_to_predict=input_df.count(),
-        seasonal=True
+        seasonal=True,
     )
     forecasted_df = arima_comp.filter()
 
-    #forecasted_df.show()
+    # forecasted_df.show()
 
     assert isinstance(forecasted_df, DataFrame)
 
@@ -422,14 +452,14 @@ def test_arima_large_data_set(spark_session: SparkSession):
 
     print((input_df.count(), len(input_df.columns)))
 
-    count_signal = input_df.filter("TagName = \"R0:Z24WVP.0S10L\"").count()
+    count_signal = input_df.filter('TagName = "R0:Z24WVP.0S10L"').count()
     h_a_l = int(count_signal / 2)
 
     arima_comp = ArimaAutoPrediction(
         input_df,
         to_extend_name="R0:Z24WVP.0S10L",
         number_of_data_points_to_analyze=count_signal,
-        number_of_data_points_to_predict=h_a_l
+        number_of_data_points_to_predict=h_a_l,
     )
 
     result_df = arima_comp.filter()
@@ -438,9 +468,7 @@ def test_arima_large_data_set(spark_session: SparkSession):
 
     assert isinstance(result_df, DataFrame)
 
-    assert result_df.count() == pytest.approx(
-        (input_df.count() + h_a_l), rel=tolerance
-    )
+    assert result_df.count() == pytest.approx((input_df.count() + h_a_l), rel=tolerance)
 
 
 def test_arima_wrong_datatype(spark_session: SparkSession):
@@ -473,8 +501,7 @@ def test_arima_wrong_datatype(spark_session: SparkSession):
             test_df,
             to_extend_name="A2PS64V0J.:ZUX09R",
             number_of_data_points_to_analyze=count_signal,
-            number_of_data_points_to_predict=h_a_l
+            number_of_data_points_to_predict=h_a_l,
         )
 
         arima_comp.validate(expected_schema)
-

@@ -85,10 +85,11 @@ class ArimaAutoPrediction(ArimaPrediction):
         trend_offset (int): ARIMA-Specific setting
         missing (str): ARIMA-Specific setting
     """
+
     def __init__(
         self,
         past_data: PySparkDataFrame,
-        past_data_style : ArimaPrediction.InputStyle = None,
+        past_data_style: ArimaPrediction.InputStyle = None,
         to_extend_name: str = None,
         value_name: str = None,
         timestamp_name: str = None,
@@ -105,18 +106,27 @@ class ArimaAutoPrediction(ArimaPrediction):
         missing: str = "None",
     ) -> None:
         # Convert source-based dataframe to column-based if necessary
-        self._initialize_self_df(past_data, past_data_style, source_name, status_name, timestamp_name, to_extend_name,
-                                 value_name)
+        self._initialize_self_df(
+            past_data,
+            past_data_style,
+            source_name,
+            status_name,
+            timestamp_name,
+            to_extend_name,
+            value_name,
+        )
         # Prepare Input data
         input_data = self.df.toPandas()
-        input_data = input_data[input_data[to_extend_name].notna()].tail(number_of_data_points_to_analyze)[to_extend_name]
+        input_data = input_data[input_data[to_extend_name].notna()].tail(
+            number_of_data_points_to_analyze
+        )[to_extend_name]
 
         auto_model = auto_arima(
             y=input_data,
             seasonal=seasonal,
             stepwise=True,
             suppress_warnings=True,
-            trace=False, # Set to true if to debug
+            trace=False,  # Set to true if to debug
             error_action="ignore",
             max_order=None,
         )
@@ -134,11 +144,10 @@ class ArimaAutoPrediction(ArimaPrediction):
             number_of_data_points_to_analyze=number_of_data_points_to_analyze,
             order=auto_model.order,
             seasonal_order=auto_model.seasonal_order,
-            trend = "c" if auto_model.order[1] == 0 else "t",
+            trend="c" if auto_model.order[1] == 0 else "t",
             enforce_stationarity=enforce_stationarity,
             enforce_invertibility=enforce_invertibility,
             concentrate_scale=concentrate_scale,
             trend_offset=trend_offset,
-            missing=missing
+            missing=missing,
         )
-
