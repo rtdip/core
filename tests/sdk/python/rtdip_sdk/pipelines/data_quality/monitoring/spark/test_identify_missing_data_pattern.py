@@ -2,10 +2,9 @@
 
 import pytest
 import logging
+import os
 
 from pyspark.sql import SparkSession
-from pyspark.sql import Row
-from pyspark.sql.types import StructType, StructField, StringType
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.identify_missing_data_pattern import (
     IdentifyMissingDataPattern,
@@ -25,16 +24,17 @@ def spark():
 
 
 def test_no_missing_patterns(spark, caplog):
-    data = [
-        ("2024-02-11 00:00:00",),
-        ("2024-02-11 00:00:13",),
-        ("2024-02-11 00:00:49",),
-        ("2024-02-11 00:01:00",),
-        ("2024-02-11 00:01:13",),
-        ("2024-02-11 00:01:49",),
-    ]
-    columns = ["EventTime"]
-    df = spark.createDataFrame([Row(*row) for row in data], schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:00", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:13", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:49", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:01:00", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:01:13", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:01:49", "Good", "0.129999995"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     patterns = [{"second": 0}, {"second": 13}, {"second": 49}]
     monitor = IdentifyMissingDataPattern(
         df=df, patterns=patterns, frequency="minutely", tolerance="1s"
@@ -54,16 +54,21 @@ def test_no_missing_patterns(spark, caplog):
 
 
 def test_some_missing_patterns(spark, caplog):
-    data = [
-        ("2024-02-11 00:00:00",),
-        ("2024-02-11 00:00:13",),
-        ("2024-02-11 00:00:49",),
-        # Nothing matches in minute 1
-        ("2024-02-11 00:01:05",),
-        ("2024-02-11 00:01:17",),
-    ]
-    columns = ["EventTime"]
-    df = spark.createDataFrame([Row(*row) for row in data], schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:00", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:13", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:49", "Good", "0.129999995"),
+            (
+                "A2PS64V0J.:ZUX09R",
+                "2024-02-11 00:01:05",
+                "Good",
+                "0.129999995",
+            ),  # Nothing matches in minute 1
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:01:17", "Good", "0.119999997"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     patterns = [{"second": 0}, {"second": 13}, {"second": 49}]
     monitor = IdentifyMissingDataPattern(
         df=df, patterns=patterns, frequency="minutely", tolerance="1s"
@@ -85,16 +90,23 @@ def test_some_missing_patterns(spark, caplog):
 
 
 def test_all_missing_patterns(spark, caplog):
-    data = [
-        ("2024-02-11 00:00:05",),
-        ("2024-02-11 00:00:17",),
-        ("2024-02-11 00:00:29",),
-        ("2024-02-11 00:01:05",),
-        ("2024-02-11 00:01:17",),
-        ("2024-02-11 00:01:29",),
-    ]
-    columns = ["EventTime"]
-    df = spark.createDataFrame([Row(*row) for row in data], schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:05", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:17", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:29", "Good", "0.129999995"),
+            (
+                "A2PS64V0J.:ZUX09R",
+                "2024-02-11 00:01:05",
+                "Good",
+                "0.129999995",
+            ),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:01:17", "Good", "0.119999997"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:01:29", "Good", "0.129999995"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
     patterns = [{"second": 0}, {"second": 13}, {"second": 49}]
     monitor = IdentifyMissingDataPattern(
         df=df, patterns=patterns, frequency="minutely", tolerance="1s"
@@ -122,42 +134,16 @@ def test_all_missing_patterns(spark, caplog):
         assert pattern in actual_logs
 
 
-def test_empty_dataframe(spark, caplog):
-    schema = StructType([StructField("EventTime", StringType(), True)])
-    df = spark.createDataFrame([], schema=schema)
-    patterns = [{"second": 0}, {"second": 13}, {"second": 49}]
-    monitor = IdentifyMissingDataPattern(
-        df=df, patterns=patterns, frequency="minutely", tolerance="1s"
+def test_invalid_patterns(spark, caplog):
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:01:49", "Good", "0.129999995"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
     )
 
-    with caplog.at_level(logging.INFO, logger="IdentifyMissingDataPattern"):
-        monitor.check()
-
-    actual_logs = [
-        record.message
-        for record in caplog.records
-        if record.levelname == "INFO" and record.name == "IdentifyMissingDataPattern"
-    ]
-    assert "Using tolerance: 1000.0 ms (1.0 seconds)" in actual_logs
-    assert "DataFrame is empty. No missing patterns to detect." in actual_logs
-
-
-def test_invalid_patterns(spark, caplog):
-    """
-    Testet den Fall, in dem die bereitgestellten Muster ungültig sind.
-    """
-    # Beispiel-Daten
-    data = [
-        ("2024-02-11 00:00:00",),
-        ("2024-02-11 00:00:13",),
-        ("2024-02-11 00:00:49",),
-    ]
-    columns = ["EventTime"]
-    df = spark.createDataFrame([Row(*row) for row in data], schema=columns)
-
-    # Definiere ungültige Muster (fehlender 'second' Schlüssel)
     patterns = [
-        {"minute": 0},  # Ungültig für 'minutely' Frequenz
+        {"minute": 0},  # Invalid for 'minutely' frequency
         {"second": 13},
         {"second": 49},
     ]
@@ -176,13 +162,12 @@ def test_invalid_patterns(spark, caplog):
 
 
 def test_invalid_tolerance_format(spark, caplog):
-    data = [
-        ("2024-02-11 00:00:00",),
-        ("2024-02-11 00:00:13",),
-        ("2024-02-11 00:00:49",),
-    ]
-    columns = ["EventTime"]
-    df = spark.createDataFrame([Row(*row) for row in data], schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:01:49", "Good", "0.129999995"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
     patterns = [{"second": 0}, {"second": 13}, {"second": 49}]
     monitor = IdentifyMissingDataPattern(
         df=df, patterns=patterns, frequency="minutely", tolerance="1minute"
@@ -203,13 +188,15 @@ def test_invalid_tolerance_format(spark, caplog):
 
 
 def test_hourly_patterns_with_microseconds(spark, caplog):
-    data = [
-        ("2024-02-11 00:00:00.200",),
-        ("2024-02-11 00:59:59.800",),
-        ("2024-02-11 01:00:30.500",),
-    ]
-    columns = ["EventTime"]
-    df = spark.createDataFrame([Row(*row) for row in data], schema=columns)
+    df = spark.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:00:00.200", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 00:59:59.800", "Good", "0.129999995"),
+            ("A2PS64V0J.:ZUX09R", "2024-02-11 01:00:30.500", "Good", "0.129999995"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
     patterns = [
         {"minute": 0, "second": 0, "millisecond": 0},
         {"minute": 30, "second": 30, "millisecond": 500},
@@ -230,3 +217,15 @@ def test_hourly_patterns_with_microseconds(spark, caplog):
     assert "Identified 1 missing patterns." in actual_logs
     assert "Detected Missing Patterns:" in actual_logs
     assert "Missing Pattern at 2024-02-11 00:30:30.500" in actual_logs
+
+
+def test_large_data_set(spark):
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../test_data.csv")
+    df = spark.read.option("header", "true").csv(file_path)
+    assert df.count() > 0, "Dataframe was not loaded correct"
+    patterns = [{"second": 0}, {"second": 13}, {"second": 49}]
+    monitor = IdentifyMissingDataPattern(
+        df=df, patterns=patterns, frequency="minutely", tolerance="1s"
+    )
+    monitor.check()

@@ -15,10 +15,17 @@
 import numpy as np
 import pandas as pd
 import pytest
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
-from pyspark.sql.types import StructType, StructField, StringType, FloatType
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    FloatType,
+)
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import (
     ArimaPrediction
@@ -396,3 +403,85 @@ def test_column_based_prediction_arima(spark_session: SparkSession, column_based
     assert arima_comp.timestamp_name == "EventTime"
     assert arima_comp.source_name is None
     assert arima_comp.status_name is None
+
+
+def test_arima_large_data_set(spark_session: SparkSession):
+    test_path = os.path.dirname(__file__)
+    data_path = os.path.join(test_path, "../../test_data.csv")
+
+    input_df = spark_session.read.option("header", "true").csv(data_path)
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    h_a_l = int(input_df.count() / 2)
+
+    arima_comp = ArimaPrediction(
+        input_df,
+        column_name="Value",
+        number_of_data_points_to_analyze=input_df.count(),
+        number_of_data_points_to_predict=h_a_l,
+        arima_auto=True,
+    )
+
+    result_df = DataFrame
+    try:
+        if arima_comp.validate(expected_schema):
+            result_df = arima_comp.filter()
+    except Exception as e:
+        print(repr(e))
+
+    tolerance = 0.01
+
+    assert isinstance(result_df, DataFrame)
+
+    assert result_df.count() == pytest.approx(
+        (input_df.count() + (input_df.count() / 2)), rel=tolerance
+    )
+
+
+def test_arima_wrong_datatype(spark_session: SparkSession):
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    test_df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "1.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "2.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "3.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "4.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "5.0"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
+    h_a_l = int(test_df.count() / 2)
+
+    arima_comp = ArimaPrediction(
+        test_df,
+        column_name="Value",
+        number_of_data_points_to_analyze=test_df.count(),
+        number_of_data_points_to_predict=h_a_l,
+        arima_auto=True,
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        arima_comp.validate(expected_schema)
+
+    assert (
+        "Error during casting column 'EventTime' to TimestampType(): Column 'EventTime' cannot be cast to TimestampType()."
+        in str(exc_info.value)
+    )
