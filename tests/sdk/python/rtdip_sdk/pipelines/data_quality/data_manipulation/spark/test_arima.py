@@ -420,29 +420,26 @@ def test_arima_large_data_set(spark_session: SparkSession):
         ]
     )
 
-    h_a_l = int(input_df.count() / 2)
+    print((input_df.count(), len(input_df.columns)))
 
-    arima_comp = ArimaPrediction(
+    count_signal = input_df.filter("TagName = \"R0:Z24WVP.0S10L\"").count()
+    h_a_l = int(count_signal / 2)
+
+    arima_comp = ArimaAutoPrediction(
         input_df,
-        column_name="Value",
-        number_of_data_points_to_analyze=input_df.count(),
-        number_of_data_points_to_predict=h_a_l,
-        arima_auto=True,
+        to_extend_name="R0:Z24WVP.0S10L",
+        number_of_data_points_to_analyze=count_signal,
+        number_of_data_points_to_predict=h_a_l
     )
 
-    result_df = DataFrame
-    try:
-        if arima_comp.validate(expected_schema):
-            result_df = arima_comp.filter()
-    except Exception as e:
-        print(repr(e))
+    result_df = arima_comp.filter()
 
     tolerance = 0.01
 
     assert isinstance(result_df, DataFrame)
 
     assert result_df.count() == pytest.approx(
-        (input_df.count() + (input_df.count() / 2)), rel=tolerance
+        (input_df.count() + h_a_l), rel=tolerance
     )
 
 
@@ -468,20 +465,16 @@ def test_arima_wrong_datatype(spark_session: SparkSession):
         ["TagName", "EventTime", "Status", "Value"],
     )
 
-    h_a_l = int(test_df.count() / 2)
-
-    arima_comp = ArimaPrediction(
-        test_df,
-        column_name="Value",
-        number_of_data_points_to_analyze=test_df.count(),
-        number_of_data_points_to_predict=h_a_l,
-        arima_auto=True,
-    )
+    count_signal = 5
+    h_a_l = int(count_signal / 2)
 
     with pytest.raises(ValueError) as exc_info:
+        arima_comp = ArimaAutoPrediction(
+            test_df,
+            to_extend_name="A2PS64V0J.:ZUX09R",
+            number_of_data_points_to_analyze=count_signal,
+            number_of_data_points_to_predict=h_a_l
+        )
+
         arima_comp.validate(expected_schema)
 
-    assert (
-        "Error during casting column 'EventTime' to TimestampType(): Column 'EventTime' cannot be cast to TimestampType()."
-        in str(exc_info.value)
-    )

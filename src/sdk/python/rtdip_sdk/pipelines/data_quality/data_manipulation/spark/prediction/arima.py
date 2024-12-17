@@ -17,7 +17,7 @@ from typing import List, Tuple
 
 import pandas as pd
 from pandas import DataFrame
-from pyspark.sql import DataFrame as PySparkDataFrame, SparkSession, functions as F
+from pyspark.sql import DataFrame as PySparkDataFrame, SparkSession, functions as F, DataFrame as SparkDataFrame
 from pyspark.sql.functions import col, lit
 from pyspark.sql.types import StringType, StructField, StructType
 from regex import regex
@@ -109,6 +109,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     """
 
     df: PySparkDataFrame = None
+    pd_df: DataFrame = None
     spark_session: SparkSession
 
     column_to_predict: str
@@ -212,6 +213,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         if not to_extend_name in self.df.columns:
             raise ValueError("{} not found in the DataFrame.".format(value_name))
 
+
     def _constructor_handle_input_metadata(self, past_data: PySparkDataFrame, past_data_style: InputStyle, value_name: str, timestamp_name: str, source_name:str, status_name: str) -> Tuple[InputStyle, str, str, str, str]:
         # Infer names of columns from past_data schema. If nothing is found, leave self parameters at None.
         if past_data_style is not None:
@@ -271,15 +273,13 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         #        StructField("Value", NumericType(), True),
         #    ]
         #)
-
-        # self.validate(expected_scheme)
-
         pd_df = self.df.toPandas()
-        pd_df.sort_values(self.timestamp_name, inplace=True)
-        pd_df.reset_index(drop=True, inplace=True)
-        pd_df.loc[:, self.timestamp_name] = pd.to_datetime(pd_df[self.timestamp_name]).astype(
+        pd_df.loc[:, self.timestamp_name] = pd.to_datetime(pd_df[self.timestamp_name], format="mixed").astype(
             "datetime64[ns]")
         pd_df.loc[:, self.column_to_predict] = pd_df.loc[:, self.column_to_predict].astype(float)
+        pd_df.sort_values(self.timestamp_name, inplace=True)
+        pd_df.reset_index(drop=True, inplace=True)
+        # self.validate(expected_scheme)
 
         # limit df to specific data points
         pd_to_train_on = pd_df[pd_df[self.column_to_predict].notna()].tail(self.rows_to_analyze)
@@ -361,3 +361,6 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
                 predicted_source_pyspark_dataframe = predicted_source_pyspark_dataframe.withColumn(self.status_name, lit("Predicted"))
 
             return self.past_data.union(predicted_source_pyspark_dataframe)
+
+    def validate(self, schema_dict):
+        return super().validate(schema_dict, self.past_data)
