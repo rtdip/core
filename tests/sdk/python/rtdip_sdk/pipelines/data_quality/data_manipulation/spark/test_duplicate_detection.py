@@ -13,8 +13,16 @@
 # limitations under the License.
 
 import pytest
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    FloatType,
+)
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.duplicate_detection import (
     DuplicateDetection,
@@ -85,3 +93,71 @@ def test_duplicate_detection_one_column(spark_session, test_data):
     assert sorted(result_df.collect()) == sorted(
         expected_df.collect()
     ), "Data does not match expected result"
+
+
+def test_duplicate_detection_large_data_set(spark_session: SparkSession):
+    test_path = os.path.dirname(__file__)
+    data_path = os.path.join(test_path, "../../test_data.csv")
+
+    actual_df = spark_session.read.option("header", "true").csv(data_path)
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    duplicate_detection_component = DuplicateDetection(
+        actual_df, primary_key_columns=["TagName", "EventTime"]
+    )
+    result_df = DataFrame
+
+    try:
+        if duplicate_detection_component.validate(expected_schema):
+            result_df = duplicate_detection_component.filter()
+    except Exception as e:
+        print(repr(e))
+
+    assert isinstance(actual_df, DataFrame)
+
+    assert result_df.schema == expected_schema
+    assert result_df.count() < actual_df.count()
+    assert result_df.count() == (actual_df.count() - 4)
+
+
+def test_duplicate_detection_wrong_datatype(spark_session: SparkSession):
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    test_df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "1.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "2.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "3.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "4.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "5.0"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
+    duplicate_detection_component = DuplicateDetection(
+        test_df, primary_key_columns=["TagName", "EventTime"]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        duplicate_detection_component.validate(expected_schema)
+
+    assert (
+        "Error during casting column 'EventTime' to TimestampType(): Column 'EventTime' cannot be cast to TimestampType()."
+        in str(exc_info.value)
+    )
