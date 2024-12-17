@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-import logging
 import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
@@ -235,29 +234,26 @@ def test_invalid_data_handling(spark):
         ]
     )
 
-    invalid_df = spark.createDataFrame(data, schema=schema)
-    try:
-        invalid_df = invalid_df.withColumn(
-            "EventTime", invalid_df["EventTime"].cast("timestamp")
-        )
-        invalid_df.show()
-    except Exception as e:
-        assert "cannot be cast to TimestampType" in str(e), f"Unexpected error: {e}"
+    df = spark.createDataFrame(data, schema=schema)
 
     try:
-        invalid_df = invalid_df.withColumn("Value", invalid_df["Value"].cast("float"))
-        invalid_df.show()
+        df = df.withColumn("Value", df["Value"].cast(FloatType()))
     except Exception as e:
-        assert "cannot be cast to FloatType" in str(e), f"Unexpected error: {e}"
+        pytest.fail(f"Unexpected error during casting: {e}")
 
-    try:
-        columns_to_vector = ColumnsToVector(
-            df=invalid_df, input_cols=["Value"], output_col="features"
-        )
-        transformed_df = columns_to_vector.transform()
-        transformed_df.show()
-    except Exception as e:
-        assert "[FAILED_EXECUTE_UDF]" in str(e), f"Unexpected error: {e}"
+    invalid_rows = df.filter(df["Value"].isNull())
+    valid_rows = df.filter(df["Value"].isNotNull())
+
+    assert invalid_rows.count() > 0, "No invalid rows detected when expected"
+    assert valid_rows.count() > 0, "All rows were invalid, which is unexpected"
+
+    if valid_rows.count() > 0:
+        vectorized_df = ColumnsToVector(
+            df=valid_rows, input_cols=["Value"], output_col="features"
+        ).transform()
+        assert (
+            "features" in vectorized_df.columns
+        ), "Vectorized column 'features' not created"
 
 
 def test_invalid_prediction_without_training(sample_data):
