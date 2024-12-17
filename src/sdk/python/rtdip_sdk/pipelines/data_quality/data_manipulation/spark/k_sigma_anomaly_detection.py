@@ -20,6 +20,11 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
+from pyspark.sql.types import (
+    DoubleType,
+    StructType,
+    StructField,
+)
 
 
 class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
@@ -63,12 +68,18 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
             raise Exception("You must provide at least one column name")
         if len(column_names) > 1:
             raise NotImplemented("Multiple columns are not supported yet")
-        self.column_names = column_names
 
+        self.column_names = column_names
         self.use_median = use_median
         self.spark = spark
         self.df = df
         self.k_value = k_value
+
+        self.validate(
+            StructType(
+                [StructField(column, DoubleType(), True) for column in column_names]
+            )
+        )
 
     @staticmethod
     def system_type():
