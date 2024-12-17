@@ -14,6 +14,7 @@
 
 from pyspark.sql.types import DataType, StructType
 from pyspark.sql import functions as F
+from pyspark.sql import DataFrame as SparkDataFrame
 from ..interfaces import PipelineComponentBaseInterface
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
@@ -103,11 +104,12 @@ class InputValidator(PipelineComponentBaseInterface):
     def settings() -> dict:
         return {}
 
-    def validate(self, schema_dict):
+    def validate(self, schema_dict, df: SparkDataFrame = None):
         """
         Used by child data quality utility classes to validate the input data.
         """
-        dataframe = getattr(self, "df", None)
+        if df is None:
+            dataframe = getattr(self, "df", None)
 
         if isinstance(schema_dict, StructType):
             schema_dict = {field.name: field.dataType for field in schema_dict.fields}
