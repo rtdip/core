@@ -19,15 +19,13 @@ import pandas as pd
 from pandas import DataFrame
 from pyspark.sql import DataFrame as PySparkDataFrame, SparkSession, functions as F
 from pyspark.sql.functions import col, lit
-from pyspark.sql.types import StringType, TimestampType, FloatType, NumericType, StructField, StructType
+from pyspark.sql.types import StringType, StructField, StructType
 from regex import regex
 from statsmodels.tsa.arima.model import ARIMA
-from pmdarima import auto_arima
 import numpy as np
 
 from ...interfaces import DataManipulationBaseInterface
 from ....input_validator import InputValidator
-from ....._pipeline_utils.spark import split_by_source, PROCESS_DATA_MODEL_EVENT_SCHEMA
 from ......_sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
@@ -37,12 +35,14 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 
 class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     """
-    Extends the timeseries data in given DataFrame with forecasted values from an ARIMA model. Can be optionally set
-    to use auto_arima, which operates a bit like a grid search, in that it tries various sets of p and q (also P and Q
-    for seasonal models) parameters, selecting the model that minimizes the AIC.
+    Extends the timeseries data in given DataFrame with forecasted values from an ARIMA model.
     It forecasts a value column of the given time series dataframe based on the historical data points and constructs
     full entries based on the preceding timestamps. It is advised to place this step after the missing value imputation
     to prevent learning on dirty data.
+
+    It supports dataframes in a source-based format (where each row is an event by a single sensor) and column-based format (where each row is a point in time).
+
+    The similar component AutoArimaPrediction wraps around this component and needs less manual parameters set.
 
     ARIMA-Specific parameters can be viewed at the following statsmodels documentation page:
         https://www.statsmodels.org/dev/generated/statsmodels.tsa.arima.model.ARIMA.html
@@ -50,7 +50,18 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     Example
     -------
     ```python
-        df = pandas.DataFrame()
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import numpy.random
+    import pandas
+    from pyspark.sql import SparkSession
+
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import ArimaPrediction
+
+    import rtdip_sdk.pipelines._pipeline_utils.spark as spark_utils
+
+    spark_session = SparkSession.builder.master("local[2]").appName("test").getOrCreate()
+    df = pandas.DataFrame()
 
     numpy.random.seed(0)
     arr_len = 250
@@ -58,7 +69,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     df['Value'] = np.random.rand(arr_len) + np.sin(np.linspace(0, arr_len / 10, num=arr_len))
     df['Value2'] = np.random.rand(arr_len) + np.cos(np.linspace(0, arr_len / 2, num=arr_len)) + 5
     df['index'] = np.asarray(pandas.date_range(start='1/1/2024', end='2/1/2024', periods=arr_len))
-    df = df.set_index(pd.DatetimeIndex(df['index']))
+    df = df.set_index(pandas.DatetimeIndex(df['index']))
 
     learn_df = df.head(h_a_l)
 
@@ -69,18 +80,24 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             learn_df,
             ['Value', 'Value2', 'index'],
     )
-    arima_comp = ArimaPrediction(input_df, column_name='Value', number_of_data_points_to_analyze=h_a_l, number_of_data_points_to_predict=h_a_l,
+    arima_comp = ArimaPrediction(input_df, to_extend_name='Value', number_of_data_points_to_analyze=h_a_l, number_of_data_points_to_predict=h_a_l,
                          order=(3,0,0), seasonal_order=(3,0,0,62))
-    forecasted_df = arima_comp.filter()
+    forecasted_df = arima_comp.filter().toPandas()
+    print('Done')
     ```
 
     Parameters:
-        past_data (DataFrame): PySpark DataFrame to extend
-        column_name (str): Name of the column to be extended
-        timestamp_column_name (str): Name of the column containing timestamps
-            external_regressor_column_names (List[str]): Names of the columns with data to use for prediction, but not extend
-        number_of_data_points_to_predict (int): Amount of most recent rows used to create the model
-        number_of_data_points_to_analyze (int): Amount of rows to predict with the model
+        past_data (PySparkDataFrame): PySpark DataFrame which contains training data
+        to_extend_name (str): Column or source to forecast on
+        past_data_style (InputStyle): In which format is past_data formatted
+        value_name (str): Name of column in source-based format, where values are stored
+        timestamp_name (str): Name of column, where event timestamps are stored
+        source_name (str): Name of column in source-based format, where source of events are stored
+        status_name (str): Name of column in source-based format, where status of events are stored
+        # Options for ARIMA
+        external_regressor_names (List[str]): Currently not working. Names of the columns with data to use for prediction, but not extend
+        number_of_data_points_to_predict (int): Amount of points to forecast
+        number_of_data_points_to_analyze (int): Amount of most recent points to train on
         order (tuple): ARIMA-Specific setting
         seasonal_order (tuple): ARIMA-Specific setting
         trend (str): ARIMA-Specific setting
@@ -104,8 +121,11 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     external_regressor_names: List[str]
 
     class InputStyle(Enum):
-        COLUMN_BASED = 1
-        SOURCE_BASED = 2
+        """
+        Used to describe style of a dataframe
+        """
+        COLUMN_BASED = 1 # Schema: [EventTime, FirstSource, SecondSource, ...]
+        SOURCE_BASED = 2 # Schema: [EventTime, NameSource, Value, OptionalStatus]
 
     def __init__(
         self,
@@ -131,7 +151,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         missing: str = "None"
     ) -> None:
         self.past_data = past_data
-        # Convert source-based datafram to column-based
+        # Convert dataframe to general column-based format for internal processing
         self._initialize_self_df(past_data, past_data_style, source_name, status_name, timestamp_name, to_extend_name,
                                  value_name)
 
@@ -180,6 +200,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
 
     def _initialize_self_df(self, past_data, past_data_style, source_name, status_name, timestamp_name, to_extend_name,
                             value_name):
+        #Initialize self.df with meta parameters if not already done by previous constructor
         if self.df is None:
             self.past_data_style, self.value_name, self.timestamp_name, self.source_name, self.status_name = self._constructor_handle_input_metadata(
                 past_data, past_data_style, value_name, timestamp_name, source_name, status_name)
@@ -192,6 +213,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             raise ValueError("{} not found in the DataFrame.".format(value_name))
 
     def _constructor_handle_input_metadata(self, past_data: PySparkDataFrame, past_data_style: InputStyle, value_name: str, timestamp_name: str, source_name:str, status_name: str) -> Tuple[InputStyle, str, str, str, str]:
+        # Infer names of columns from past_data schema. If nothing is found, leave self parameters at None.
         if past_data_style is not None:
             return past_data_style, value_name, timestamp_name, source_name, status_name
         # Automatic calculation part
@@ -217,7 +239,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         # Is there a source name / tag
         source_name, remaining_columns = pickout_column(schema_names, r"(?i)tag")
         # Is there a timestamp column?
-        timestamp_name, remaining_columns = pickout_column(schema_names, r"(?i)time")
+        timestamp_name, remaining_columns = pickout_column(schema_names, r"(?i)time|index")
         # Is there a value column?
         value_name, remaining_columns = pickout_column(schema_names, r"(?i)value")
 
@@ -239,7 +261,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         value imputation to prevent learning on dirty data.
 
         Returns:
-            DataFrame: A PySpark DataFrame with forcasted value entries on each source.
+            DataFrame: A PySpark DataFrame with forcasted value entries depending on constructor parameters.
         """
         # expected_scheme = StructType(
         #    [
@@ -257,15 +279,16 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         pd_df.reset_index(drop=True, inplace=True)
         pd_df.loc[:, self.timestamp_name] = pd.to_datetime(pd_df[self.timestamp_name]).astype(
             "datetime64[ns]")
+        pd_df.loc[:, self.column_to_predict] = pd_df.loc[:, self.column_to_predict].astype(float)
 
-        # limit df
+        # limit df to specific data points
         pd_to_train_on = pd_df[pd_df[self.column_to_predict].notna()].tail(self.rows_to_analyze)
         pd_to_predict_on = pd_df[pd_df[self.column_to_predict].isna()].head(self.rows_to_predict)
         pd_df = pd.concat([pd_to_train_on, pd_to_predict_on])
 
         main_signal_df = pd_df[pd_df[self.column_to_predict].notna()]
 
-        input_data = main_signal_df[self.column_to_predict]
+        input_data = main_signal_df[self.column_to_predict].astype(float)
         exog_data = None
         # if self.external_regressor_names is not None:
         #     exog_data = []
@@ -299,13 +322,20 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
 
         pd_df = pd.concat([pd_df, pd_forecast_df])
 
-        # Workaround needed for PySpark versions <3.4
-        pd_df = _prepare_pandas_to_convert_to_spark(pd_df)
+
 
         if self.past_data_style == self.InputStyle.COLUMN_BASED:
-            raise NotImplementedError(
-                "Column-based export"
+            for obj in self.past_data.schema:
+                simple_string_type = obj.dataType.simpleString()
+                if simple_string_type == 'timestamp':
+                    continue
+                pd_df.loc[:, obj.name] = pd_df.loc[:, obj.name].astype(simple_string_type)
+            # Workaround needed for PySpark versions <3.4
+            pd_df = _prepare_pandas_to_convert_to_spark(pd_df)
+            predicted_source_pyspark_dataframe = self.spark_session.createDataFrame(
+                pd_df, schema=self.past_data.schema
             )
+            return predicted_source_pyspark_dataframe
         elif self.past_data_style == self.InputStyle.SOURCE_BASED:
             data_to_add = pd_forecast_df[[self.column_to_predict ,self.timestamp_name]]
             data_to_add = data_to_add.rename(columns={self.timestamp_name: self.timestamp_name, self.column_to_predict: self.value_name})
@@ -319,6 +349,9 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
                     StructField(self.value_name, StringType(), True)
                 ]
             )
+
+            # Workaround needed for PySpark versions <3.4
+            data_to_add = _prepare_pandas_to_convert_to_spark(data_to_add)
 
             predicted_source_pyspark_dataframe = self.spark_session.createDataFrame(
                 data_to_add, schema=pd_df_schema

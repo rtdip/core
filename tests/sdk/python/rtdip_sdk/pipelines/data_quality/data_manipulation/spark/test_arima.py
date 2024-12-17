@@ -361,3 +361,38 @@ def test_single_column_prediction_auto_arima(spark_session: SparkSession, histor
     assert arima_comp.timestamp_name == "EventTime"
     assert arima_comp.source_name == "TagName"
     assert arima_comp.status_name == "Status"
+
+def test_column_based_prediction_arima(spark_session: SparkSession, column_based_synthetic_data):
+
+    schema = StructType(
+        [
+            StructField("PrimarySource", StringType(), True),
+            StructField("SecondarySource", StringType(), True),
+            StructField("EventTime", StringType(), True),
+        ]
+    )
+
+    data = column_based_synthetic_data["half_df1_half_df2"]
+
+    input_df = spark_session.createDataFrame(data, schema=schema)
+
+    arima_comp = ArimaAutoPrediction(
+        past_data=input_df,
+        to_extend_name="PrimarySource",
+        number_of_data_points_to_analyze=input_df.count(),
+        number_of_data_points_to_predict=input_df.count(),
+        seasonal=True
+    )
+    forecasted_df = arima_comp.filter()
+
+    #forecasted_df.show()
+
+    assert isinstance(forecasted_df, DataFrame)
+
+    assert input_df.columns == forecasted_df.columns
+    assert forecasted_df.count() == (input_df.count() + input_df.count())
+    assert arima_comp.value_name == None
+    assert arima_comp.past_data_style == ArimaPrediction.InputStyle.COLUMN_BASED
+    assert arima_comp.timestamp_name == "EventTime"
+    assert arima_comp.source_name is None
+    assert arima_comp.status_name is None
