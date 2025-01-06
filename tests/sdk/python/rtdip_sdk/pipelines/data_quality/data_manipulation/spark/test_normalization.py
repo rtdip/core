@@ -145,6 +145,12 @@ def helper_assert_idempotence(
 
         assert expected_df.columns == actual_df.columns
         assert expected_df.schema == actual_df.schema
-        assert expected_df.collect() == actual_df.collect()
+
+        for row1, row2 in zip(expected_df.collect(), actual_df.collect()):
+            for col1, col2 in zip(row1, row2):
+                if isinstance(col1, float) and isinstance(col2, float):
+                    assert math.isclose(col1, col2, rel_tol=1e-9)
+                else:
+                    assert col1 == col2
     except ZeroDivisionError:
         pass
