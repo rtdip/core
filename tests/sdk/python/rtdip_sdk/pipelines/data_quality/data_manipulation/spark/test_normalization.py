@@ -51,6 +51,19 @@ def test_nonexistent_column_normalization(spark_session: SparkSession):
         NormalizationMean(input_df, column_names=["NonexistingColumn"], in_place=True)
 
 
+def test_wrong_column_type_normalization(spark_session: SparkSession):
+    input_df = spark_session.createDataFrame(
+        [
+            ("a",),
+            ("b",),
+        ],
+        ["Value"],
+    )
+
+    with pytest.raises(ValueError):
+        NormalizationMean(input_df, column_names=["Value"])
+
+
 def test_non_inplace_normalization(spark_session: SparkSession):
     input_df = spark_session.createDataFrame(
         [
