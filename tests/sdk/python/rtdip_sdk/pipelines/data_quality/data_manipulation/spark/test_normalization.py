@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pandas.io.formats.format import math
 import pytest
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
@@ -105,8 +107,6 @@ def test_idempotence_with_positive_values(
     expected_df = input_df.alias("input_df")
     helper_assert_idempotence(class_to_test, input_df, expected_df)
 
-    class_to_test(input_df, column_names=["Value"], in_place=True)
-
 
 @pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
 def test_idempotence_with_zero_values(
@@ -122,6 +122,21 @@ def test_idempotence_with_zero_values(
         ],
         ["Value"],
     )
+
+    expected_df = input_df.alias("input_df")
+    helper_assert_idempotence(class_to_test, input_df, expected_df)
+
+
+@pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
+def test_idempotence_with_large_data_set(
+    spark_session: SparkSession, class_to_test: NormalizationBaseClass
+):
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../test_data.csv")
+    input_df = spark_session.read.option("header", "true").csv(file_path)
+    input_df = input_df.withColumn("Value", input_df["Value"].cast("double"))
+    assert input_df.count() > 0, "Dataframe was not loaded correct"
+    input_df.show()
 
     expected_df = input_df.alias("input_df")
     helper_assert_idempotence(class_to_test, input_df, expected_df)
