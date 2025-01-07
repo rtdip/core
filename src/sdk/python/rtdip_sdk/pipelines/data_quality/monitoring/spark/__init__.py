@@ -15,7 +15,8 @@ import sys
 
 from .check_value_ranges import CheckValueRanges
 from .flatline_detection import FlatlineDetection
-if 'great_expectations' in sys.modules:
+
+if "great_expectations" in sys.modules:
     from .great_expectations_data_quality import GreatExpectationsDataQuality
 from .identify_missing_data_interval import IdentifyMissingDataInterval
 from .identify_missing_data_pattern import IdentifyMissingDataPattern
