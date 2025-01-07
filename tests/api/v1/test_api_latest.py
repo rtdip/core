@@ -29,7 +29,7 @@ from tests.api.v1.api_test_objects import (
     MOCK_TAG_MAPPING_EMPTY,
     MOCK_MAPPING_ENDPOINT_URL,
 )
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from src.api.v1 import app
 
 MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.latest.get"
@@ -43,7 +43,7 @@ async def test_api_latest_get_tags_provided_success(
 ):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
         )
@@ -58,7 +58,7 @@ async def test_api_latest_get_no_good_values_tags_provided_success(
 ):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
         )
@@ -75,7 +75,7 @@ async def test_api_latest_get_no_tags_provided_success(
 
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT = METADATA_MOCKED_PARAMETER_DICT.copy()
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT.pop("tag_name")
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -90,7 +90,7 @@ async def test_api_latest_get_no_tags_provided_success(
 async def test_api_latest_get_validation_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -113,7 +113,7 @@ async def test_api_latest_get_error(mocker: MockerFixture, api_test_data):
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=METADATA_MOCKED_PARAMETER_DICT
         )
@@ -128,7 +128,7 @@ async def test_api_latest_post_tags_provided_success(
 ):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -148,7 +148,7 @@ async def test_api_latest_post_no_tags_provided_error(
 
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT = METADATA_MOCKED_PARAMETER_DICT.copy()
     METADATA_MOCKED_PARAMETER_NO_TAG_DICT.pop("tag_name")
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -166,7 +166,7 @@ async def test_api_latest_post_no_tags_provided_error(
 async def test_api_latest_post_validation_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_latest"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -190,7 +190,7 @@ async def test_api_raw_post_error(mocker: MockerFixture, api_test_data):
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -238,7 +238,7 @@ async def test_api_latest_get_lookup_success(mocker: MockerFixture):
     modified_param_dict = METADATA_MOCKED_PARAMETER_DICT.copy()
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=modified_param_dict
         )
@@ -288,7 +288,7 @@ async def test_api_latest_post_lookup_success(mocker: MockerFixture):
     modified_param_dict = METADATA_MOCKED_PARAMETER_DICT.copy()
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -342,7 +342,7 @@ async def test_api_latest_get_lookup_no_tag_map_error(mocker: MockerFixture):
     modified_param_dict["tagname"] = ["NonExistentTag"]
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=modified_param_dict
         )

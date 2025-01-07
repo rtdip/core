@@ -29,7 +29,7 @@ from tests.api.v1.api_test_objects import (
 )
 from pandas.io.json import build_table_schema
 import pandas as pd
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from src.api.v1 import app
 
 MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.raw.get"
@@ -41,7 +41,7 @@ pytestmark = pytest.mark.anyio
 async def test_api_raw_get_success(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_raw"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_DICT
         )
@@ -54,7 +54,7 @@ async def test_api_raw_get_success(mocker: MockerFixture, api_test_data):
 async def test_api_raw_get_validation_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_raw"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_ERROR_DICT
         )
@@ -75,7 +75,7 @@ async def test_api_raw_get_error(mocker: MockerFixture, api_test_data):
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=RAW_MOCKED_PARAMETER_DICT
         )
@@ -88,7 +88,7 @@ async def test_api_raw_get_error(mocker: MockerFixture, api_test_data):
 async def test_api_raw_post_success(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_raw"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -104,7 +104,7 @@ async def test_api_raw_post_success(mocker: MockerFixture, api_test_data):
 async def test_api_raw_post_validation_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_raw"])
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -128,7 +128,7 @@ async def test_api_raw_post_error(mocker: MockerFixture, api_test_data):
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -172,7 +172,7 @@ async def test_api_raw_get_lookup_success(mocker: MockerFixture, api_test_data):
     modified_param_dict = RAW_MOCKED_PARAMETER_DICT.copy()
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=modified_param_dict
         )
@@ -217,7 +217,7 @@ async def test_api_raw_post_lookup_success(mocker: MockerFixture):
     modified_param_dict = RAW_POST_MOCKED_PARAMETER_DICT.copy()
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -267,7 +267,7 @@ async def test_api_raw_get_lookup_no_tag_map_error(mocker: MockerFixture):
     modified_param_dict["tagname"] = ["NonExistentTag"]
     del modified_param_dict["business_unit"]
 
-    async with AsyncClient(app=app, base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
         actual = await ac.get(
             MOCK_API_NAME, headers=TEST_HEADERS, params=modified_param_dict
         )

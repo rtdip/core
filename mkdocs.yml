@@ -237,8 +237,13 @@ nav:
                   - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
               - Monitoring:
                   - Data Quality: 
+                      - Check Value Ranges: sdk/code-reference/pipelines/data_quality/monitoring/spark/check_value_ranges.md
                       - Great Expectations: 
-                        - Data Quality Monitoring: sdk/code-reference/pipelines/monitoring/spark/data_quality/great_expectations.md
+                        - Data Quality Monitoring: sdk/code-reference/pipelines/data_quality/monitoring/spark/great_expectations.md
+                      - Flatline Detection: sdk/code-reference/pipelines/data_quality/monitoring/spark/flatline_detection.md
+                      - Identify Missing Data:
+                        - Interval Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_interval.md
+                        - Pattern Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_pattern.md
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md
