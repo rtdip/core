@@ -114,12 +114,12 @@ class DeleteOutOfRangeValues(DataManipulationBaseInterface):
 
     def filter(self) -> PySparkDataFrame:
         """
-        Executes the value range checking logic for the specified TagNames. Identifies and logs any rows
+        Executes the value range checking logic for the specified TagNames. Identifies, logs and deletes any rows
         where 'Value' exceeds the defined ranges for each TagName.
 
         Returns:
             pyspark.sql.DataFrame:
-                Returns the original PySpark DataFrame without changes.
+                Returns a PySpark DataFrame without the rows that were out of range.
         """
         out_of_range_df = self.check_value_ranges.check_for_out_of_range()
 
