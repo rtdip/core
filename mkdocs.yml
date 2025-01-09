@@ -244,10 +244,10 @@ nav:
                       - Identify Missing Data:
                         - Interval Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_interval.md
                         - Pattern Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_pattern.md
-                 - Data Manipulation: 
-                    - Duplicate Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
-                    - Filter Out of Range Values: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/delete_out_of_range_values.md
-                    - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
+                  - Data Manipulation: 
+                      - Duplicate Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
+                      - Filter Out of Range Values: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/delete_out_of_range_values.md
+                      - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md
