@@ -143,7 +143,7 @@ class CheckValueRanges(MonitoringBaseInterface, InputValidator):
         out_of_range_df = self.check_for_out_of_range()
 
         if out_of_range_df.count() > 0:
-            self._log_out_of_range_values(out_of_range_df)
+            self.log_out_of_range_values(out_of_range_df)
         else:
             self.logger.info(f"No out of range values found in 'Value' column.")
 
