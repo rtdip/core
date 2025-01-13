@@ -1,6 +1,6 @@
 # Do not include azure-functions-worker as it may conflict with the Azure Functions platform
 azure-functions==1.18.0
-fastapi==0.110.0
+fastapi==0.115.6
 pydantic==2.6.0
 # turbodbc==4.11.0
 pyodbc==4.0.39
