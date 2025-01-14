@@ -16,6 +16,7 @@ import pyspark.ml as ml
 from pyspark.ml.evaluation import RegressionEvaluator
 from ..interfaces import MachineLearningInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from typing import Optional
 
 
 class LinearRegression(MachineLearningInterface):
@@ -96,7 +97,7 @@ class LinearRegression(MachineLearningInterface):
             prediction_df,
         )
 
-    def evaluate(self, test_df: DataFrame) -> float | None:
+    def evaluate(self, test_df: DataFrame) -> Optional[float]:
         """
         Evaluates the trained model using RMSE.
 
@@ -104,7 +105,7 @@ class LinearRegression(MachineLearningInterface):
             test_df (DataFrame): The testing dataset to evaluate the model.
 
         Returns:
-            float | None: The Root Mean Squared Error (RMSE) of the model or None if the prediction columnd doesn't exist.
+            Optional[float]: The Root Mean Squared Error (RMSE) of the model or None if the prediction columnd doesn't exist.
         """
         # Check the columns of the test DataFrame
         test_df.show(5)
