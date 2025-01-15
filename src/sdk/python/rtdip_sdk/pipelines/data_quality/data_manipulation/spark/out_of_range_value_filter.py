@@ -26,7 +26,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 
 
-class DeleteOutOfRangeValues(DataManipulationBaseInterface):
+class OutOfRangeValueFilter(DataManipulationBaseInterface):
     """
     Filters data in a DataFrame by checking the 'Value' column against expected ranges for specified TagNames.
     Logs events when 'Value' exceeds the defined ranges for any TagName and deletes the rows.

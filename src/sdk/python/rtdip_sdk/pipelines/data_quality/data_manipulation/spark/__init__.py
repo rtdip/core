@@ -19,5 +19,5 @@ from .duplicate_detection import DuplicateDetection
 from .interval_filtering import IntervalFiltering
 from .k_sigma_anomaly_detection import KSigmaAnomalyDetection
 from .missing_value_imputation import MissingValueImputation
-from .delete_out_of_range_values import DeleteOutOfRangeValues
+from .delete_out_of_range_values import FilterOutOfRangeValues
 from .flatline_filter import FlatlineFilter

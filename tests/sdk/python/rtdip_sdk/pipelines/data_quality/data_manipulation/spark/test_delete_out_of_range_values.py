@@ -4,7 +4,7 @@ import os
 
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.delete_out_of_range_values import (
-    DeleteOutOfRangeValues,
+    FilterOutOfRangeValues,
 )
 
 
@@ -41,7 +41,7 @@ def test_basic(spark, test_data):
         "A2PS64V0J.:ZUX09R": {"min": 2, "max": 4, "inclusive_bounds": True},
         "Tag2": {"min": 1, "max": 5, "inclusive_bounds": False},
     }
-    manipulator = DeleteOutOfRangeValues(test_data, tag_ranges)
+    manipulator = FilterOutOfRangeValues(test_data, tag_ranges)
 
     rows_to_remove = [
         {
@@ -74,7 +74,7 @@ def test_large_dataset(spark):
     tag_ranges = {
         "value_range": {"min": 2, "max": 4, "inclusive_bounds": True},
     }
-    manipulator = DeleteOutOfRangeValues(df, tag_ranges)
+    manipulator = FilterOutOfRangeValues(df, tag_ranges)
 
     rows_to_remove = [
         {
