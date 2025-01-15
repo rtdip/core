@@ -16,6 +16,7 @@ import pyspark.ml as ml
 from pyspark.ml.evaluation import RegressionEvaluator
 from ..interfaces import MachineLearningInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from typing import Optional
 
 
 class LinearRegression(MachineLearningInterface):
@@ -61,7 +62,7 @@ class LinearRegression(MachineLearningInterface):
     def settings() -> dict:
         return {}
 
-    def split_data(self, train_ratio: float = 0.8):
+    def split_data(self, train_ratio: float = 0.8) -> tuple[DataFrame, DataFrame]:
         """
         Splits the dataset into training and testing sets.
 
@@ -69,7 +70,7 @@ class LinearRegression(MachineLearningInterface):
             train_ratio (float): The ratio of the data to be used for training. Default is 0.8 (80% for training).
 
         Returns:
-            DataFrame: Returns the training and testing datasets.
+            tuple[DataFrame, DataFrame]: Returns the training and testing datasets.
         """
         train_df, test_df = self.df.randomSplit([train_ratio, 1 - train_ratio], seed=42)
         return train_df, test_df
@@ -96,7 +97,7 @@ class LinearRegression(MachineLearningInterface):
             prediction_df,
         )
 
-    def evaluate(self, test_df: DataFrame):
+    def evaluate(self, test_df: DataFrame) -> Optional[float]:
         """
         Evaluates the trained model using RMSE.
 
@@ -104,10 +105,9 @@ class LinearRegression(MachineLearningInterface):
             test_df (DataFrame): The testing dataset to evaluate the model.
 
         Returns:
-            float: The Root Mean Squared Error (RMSE) of the model.
+            Optional[float]: The Root Mean Squared Error (RMSE) of the model or None if the prediction columnd doesn't exist.
         """
         # Check the columns of the test DataFrame
-        print(f"Columns in test_df: {test_df.columns}")
         test_df.show(5)
 
         if self.prediction_col not in test_df.columns:
