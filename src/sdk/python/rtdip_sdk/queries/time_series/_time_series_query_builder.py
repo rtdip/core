@@ -153,7 +153,7 @@ def _sample_query(parameters_dict: dict) -> tuple:
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
         ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
         ",window_buckets AS (SELECT timestamp_array AS window_start, window(timestamp_array, '{{ time_interval_rate + ' ' + time_interval_unit }}') FROM date_array) "
-        ",project AS (SELECT d.window_start AS `{{ timestamp_column }}`, e.`{{ tagname_column }}`, {{ agg_method }}(e.`{{ value_column }}`) AS `{{ value_column }}` FROM window_buckets d INNER JOIN raw_events e ON d.window.start = e.window.start AND d.window.end = e.window.end) GROUP BY d.window_start, e.`{{ tagname_column }}` "
+        ",project AS (SELECT d.window_start AS `{{ timestamp_column }}`, e.`{{ tagname_column }}`, {{ agg_method }}(e.`{{ value_column }}`) AS `{{ value_column }}` FROM window_buckets d INNER JOIN raw_events e ON d.window.start = e.window.start AND d.window.end = e.window.end GROUP BY d.window_start, e.`{{ tagname_column }}` "
         "{% if is_resample is defined and is_resample == true %}"
         "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% endif %}"
