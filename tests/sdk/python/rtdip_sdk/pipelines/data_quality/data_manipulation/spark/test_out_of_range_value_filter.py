@@ -3,8 +3,8 @@ from pyspark.sql import SparkSession
 import os
 
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.delete_out_of_range_values import (
-    FilterOutOfRangeValues,
+from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.out_of_range_value_filter import (
+    OutOfRangeValueFilter,
 )
 
 
@@ -41,7 +41,7 @@ def test_basic(spark, test_data):
         "A2PS64V0J.:ZUX09R": {"min": 2, "max": 4, "inclusive_bounds": True},
         "Tag2": {"min": 1, "max": 5, "inclusive_bounds": False},
     }
-    manipulator = FilterOutOfRangeValues(test_data, tag_ranges)
+    manipulator = OutOfRangeValueFilter(test_data, tag_ranges)
 
     rows_to_remove = [
         {
@@ -74,7 +74,7 @@ def test_large_dataset(spark):
     tag_ranges = {
         "value_range": {"min": 2, "max": 4, "inclusive_bounds": True},
     }
-    manipulator = FilterOutOfRangeValues(df, tag_ranges)
+    manipulator = OutOfRangeValueFilter(df, tag_ranges)
 
     rows_to_remove = [
         {
