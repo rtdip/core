@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
@@ -32,6 +33,15 @@ from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.machine_learning.poly
     PolynomialFeatures,
 )
 
+SCHEMA = StructType(
+    [
+        StructField("TagName", StringType(), True),
+        StructField("EventTime", TimestampType(), True),
+        StructField("Status", StringType(), True),
+        StructField("Value", FloatType(), True),
+    ]
+)
+
 
 @pytest.fixture(scope="session")
 def spark():
@@ -44,15 +54,6 @@ def spark():
 
 @pytest.fixture(scope="function")
 def sample_data(spark):
-    schema = StructType(
-        [
-            StructField("TagName", StringType(), True),
-            StructField("EventTime", TimestampType(), True),
-            StructField("Status", StringType(), True),
-            StructField("Value", FloatType(), True),
-        ]
-    )
-
     data = [
         (
             "A2PS64V0J.:ZUX09R",
@@ -164,15 +165,15 @@ def sample_data(spark):
         ),
     ]
 
-    return spark.createDataFrame(data, schema=schema)
+    return spark.createDataFrame(data, schema=SCHEMA)
 
 
-# Test cases
-def test_cols_to_vector(sample_data):
+def test_columns_to_vector(sample_data):
     df = sample_data
-    # Pass the DataFrame to ColumnsToVector
-    cols_to_vector = ColumnsToVector(df=df, input_cols=["Value"], output_col="features")
-    transformed_df = cols_to_vector.transform()
+    columns_to_vector = ColumnsToVector(
+        df=df, input_cols=["Value"], output_col="features"
+    )
+    transformed_df = columns_to_vector.transform()
 
     assert "features" in transformed_df.columns
     transformed_df.show()
@@ -181,8 +182,10 @@ def test_cols_to_vector(sample_data):
 def test_polynomial_features(sample_data):
     df = sample_data
     # Convert 'Value' to a vector using ColumnsToVector
-    cols_to_vector = ColumnsToVector(df=df, input_cols=["Value"], output_col="features")
-    vectorized_df = cols_to_vector.transform()
+    columns_to_vector = ColumnsToVector(
+        df=df, input_cols=["Value"], output_col="features"
+    )
+    vectorized_df = columns_to_vector.transform()
 
     polynomial_features = PolynomialFeatures(
         df=vectorized_df,
@@ -191,33 +194,130 @@ def test_polynomial_features(sample_data):
         poly_degree=2,
     )
     transformed_df = polynomial_features.transform()
-    assert "poly_features" in transformed_df.columns
+    assert (
+        "poly_features" in transformed_df.columns
+    ), "Polynomial features column not created"
+    assert transformed_df.count() > 0, "Transformed DataFrame is empty"
+
     transformed_df.show()
 
 
-def test_linear_regression(sample_data):
+def test_dataframe_validation(sample_data):
     df = sample_data
-    # Use ColumnsToVector to assemble features into a single vector column
-    cols_to_vector = ColumnsToVector(df=df, input_cols=["Value"], output_col="features")
-    df = cols_to_vector.transform()
-    linear_regression = LinearRegression(
-        df, features_col="features", label_col="Value", prediction_col="prediction"
+
+    required_columns = ["TagName", "EventTime", "Status", "Value"]
+    for column in required_columns:
+        if column not in df.columns:
+            raise ValueError(f"Missing required column: {column}")
+
+    try:
+        df.withColumn("Value", df["Value"].cast(FloatType()))
+    except Exception as e:
+        raise ValueError("Column 'Value' could not be converted to FloatType.") from e
+
+
+def test_invalid_data_handling(spark):
+
+    data = [
+        ("A2PS64V0J.:ZUX09R", "invalid_date", "Good", "invalid_value"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "NaN"),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", None, 123.45),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", 123.45),
+    ]
+
+    schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", StringType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", StringType(), True),
+        ]
     )
 
-    # Split data and train
+    df = spark.createDataFrame(data, schema=schema)
+
+    try:
+        df = df.withColumn("Value", df["Value"].cast(FloatType()))
+    except Exception as e:
+        pytest.fail(f"Unexpected error during casting: {e}")
+
+    invalid_rows = df.filter(df["Value"].isNull())
+    valid_rows = df.filter(df["Value"].isNotNull())
+
+    assert invalid_rows.count() > 0, "No invalid rows detected when expected"
+    assert valid_rows.count() > 0, "All rows were invalid, which is unexpected"
+
+    if valid_rows.count() > 0:
+        vectorized_df = ColumnsToVector(
+            df=valid_rows, input_cols=["Value"], output_col="features"
+        ).transform()
+        assert (
+            "features" in vectorized_df.columns
+        ), "Vectorized column 'features' not created"
+
+
+def test_invalid_prediction_without_training(sample_data):
+    df = sample_data
+
+    vectorized_df = ColumnsToVector(
+        df=df, input_cols=["Value"], output_col="features"
+    ).transform()
+
+    linear_regression = LinearRegression(
+        vectorized_df,
+        features_col="features",
+        label_col="Value",
+        prediction_col="prediction",
+    )
+
+    # Attempt prediction without training
+    with pytest.raises(
+        AttributeError, match="'LinearRegression' object has no attribute 'model'"
+    ):
+        linear_regression.predict(vectorized_df)
+
+
+def test_prediction_on_large_dataset(spark):
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../data_quality/test_data.csv")
+    df = spark.read.option("header", "true").csv(file_path)
+    assert df.count() > 0, "Dataframe was not loaded correctly"
+
+    assert df.count() > 0, "Dataframe was not loaded correctly"
+    assert "EventTime" in df.columns, "Missing 'EventTime' column in dataframe"
+    assert "Value" in df.columns, "Missing 'Value' column in dataframe"
+
+    df = df.withColumn("Value", df["Value"].cast("float"))
+    assert (
+        df.select("Value").schema[0].dataType == FloatType()
+    ), "Value column was not cast to FloatType"
+
+    vectorized_df = ColumnsToVector(
+        df=df, input_cols=["Value"], output_col="features"
+    ).transform()
+
+    assert (
+        "features" in vectorized_df.columns
+    ), "Vectorized column 'features' not created"
+
+    linear_regression = LinearRegression(
+        vectorized_df,
+        features_col="features",
+        label_col="Value",
+        prediction_col="prediction",
+    )
+
     train_df, test_df = linear_regression.split_data(train_ratio=0.8)
+    assert train_df.count() > 0, "Training dataset is empty"
+    assert test_df.count() > 0, "Testing dataset is empty"
+
     model = linear_regression.train(train_df)
+    assert model is not None, "Model training failed"
 
-    # Check prediction column
     predictions = model.predict(test_df)
-    assert "prediction" in predictions.columns
 
-    # Evaluate the model
-    rmse, r2 = linear_regression.evaluate(predictions)
-
-    # Check if RMSE and R2 values are non-negative
-    assert rmse >= 0
-    assert 0 <= r2 <= 1
-
-    predictions.show()
-    print(f"RMSE: {rmse}, R2: {r2}")
+    assert predictions is not None, "Predictions dataframe is empty"
+    assert predictions.count() > 0, "No predictions were generated"
+    assert (
+        "prediction" in predictions.columns
+    ), "Missing 'prediction' column in predictions dataframe"

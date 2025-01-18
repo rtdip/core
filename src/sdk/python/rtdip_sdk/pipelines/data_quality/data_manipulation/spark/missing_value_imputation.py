@@ -282,11 +282,13 @@ class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
             flagged_df = self._flag_missing_values(df, self.tolerance_percentage)
 
             # Impute the missing values of flagged entries
-            imputed_df_sp = self._impute_missing_values_sp(flagged_df)
-
-            imputed_df_sp = imputed_df_sp.withColumn(
-                "EventTime", col("EventTime").cast("string")
-            ).withColumn("Value", col("Value").cast("string"))
+            try:
+                imputed_df_sp = self._impute_missing_values_sp(flagged_df)
+            except Exception as e:
+                if flagged_df.count() != 1:  # Account for single entries
+                    raise Exception(
+                        "Something went wrong while imputing missing values"
+                    )
 
             imputed_dfs.append(imputed_df_sp)
 

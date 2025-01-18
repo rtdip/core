@@ -140,7 +140,26 @@ class CheckValueRanges(MonitoringBaseInterface, InputValidator):
             pyspark.sql.DataFrame:
                 Returns the original PySpark DataFrame without changes.
         """
+        out_of_range_df = self.check_for_out_of_range()
+
+        if out_of_range_df.count() > 0:
+            self.log_out_of_range_values(out_of_range_df)
+        else:
+            self.logger.info(f"No out of range values found in 'Value' column.")
+
+        return self.df
+
+    def check_for_out_of_range(self) -> PySparkDataFrame:
+        """
+        Identifies rows where 'Value' exceeds defined ranges.
+
+        Returns:
+        pyspark.sql.DataFrame: A DataFrame containing rows with out-of-range values.
+        """
+
         self._validate_inputs()
+
+        out_of_range_df = self.df.filter("1=0")
 
         for tag_name, range_dict in self.tag_ranges.items():
             df = self.df.filter(col("TagName") == tag_name)
@@ -171,61 +190,57 @@ class CheckValueRanges(MonitoringBaseInterface, InputValidator):
                     max_condition = col("Value") >= max_value
                 conditions.append(max_condition)
 
-            if not conditions:
-                continue
+            if conditions:
+                condition = reduce(or_, conditions)
+                tag_out_of_range_df = df.filter(condition)
+                out_of_range_df = out_of_range_df.union(tag_out_of_range_df)
 
-            condition = reduce(or_, conditions)
-            out_of_range_df = df.filter(condition)
+        return out_of_range_df
 
-            count = out_of_range_df.count()
-            if count > 0:
-                self.logger.info(
-                    f"Found {count} rows in 'Value' column for TagName '{tag_name}' out of range."
-                )
-                out_of_range_rows = out_of_range_df.collect()
-                for row in out_of_range_rows:
-                    self.logger.info(
-                        f"Out of range row for TagName '{tag_name}': {row}"
-                    )
-            else:
-                self.logger.info(
-                    f"No out of range values found in 'Value' column for TagName '{tag_name}'."
-                )
-
-        return self.df
+    def log_out_of_range_values(self, out_of_range_df: PySparkDataFrame):
+        """
+        Logs out-of-range values for all TagNames.
+        """
+        for tag_name in (
+            out_of_range_df.select("TagName")
+            .distinct()
+            .rdd.map(lambda row: row[0])
+            .collect()
+        ):
+            tag_out_of_range_df = out_of_range_df.filter(col("TagName") == tag_name)
+            count = tag_out_of_range_df.count()
+            self.logger.info(
+                f"Found {count} rows in 'Value' column for TagName '{tag_name}' out of range."
+            )
+            for row in tag_out_of_range_df.collect():
+                self.logger.info(f"Out of range row for TagName '{tag_name}': {row}")
 
     def _validate_inputs(self):
         if not isinstance(self.tag_ranges, dict):
             raise TypeError("tag_ranges must be a dictionary.")
 
-        # Erstelle eine Liste aller verfügbaren TagNames im DataFrame
         available_tags = (
             self.df.select("TagName").distinct().rdd.map(lambda row: row[0]).collect()
         )
 
         for tag_name, range_dict in self.tag_ranges.items():
-            # Überprüfung, ob der TagName ein gültiger String ist
             if not isinstance(tag_name, str):
                 raise ValueError(f"TagName '{tag_name}' must be a string.")
 
-            # Überprüfung, ob der TagName im DataFrame existiert
             if tag_name not in available_tags:
                 raise ValueError(f"TagName '{tag_name}' not found in DataFrame.")
 
-            # Überprüfung, ob min und/oder max angegeben sind
             if "min" not in range_dict and "max" not in range_dict:
                 raise ValueError(
                     f"TagName '{tag_name}' must have at least 'min' or 'max' specified."
                 )
 
-            # Überprüfung, ob inclusive_bounds ein boolescher Wert ist
             inclusive_bounds = range_dict.get("inclusive_bounds", True)
             if not isinstance(inclusive_bounds, bool):
                 raise ValueError(
                     f"Inclusive_bounds for TagName '{tag_name}' must be a boolean."
                 )
 
-            # Optionale Überprüfung, ob min und max numerisch sind
             min_value = range_dict.get("min", None)
             max_value = range_dict.get("max", None)
             if min_value is not None and not isinstance(min_value, (int, float)):

@@ -14,7 +14,7 @@
 
 import logging
 from pyspark.sql import DataFrame as PySparkDataFrame
-from pyspark.sql.functions import col, when, lag, sum, abs
+from pyspark.sql.functions import col, when, lag, sum, lit
 from pyspark.sql.window import Window
 from pyspark.sql.types import (
     StructType,
@@ -129,17 +129,45 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
         return {}
 
     def check(self) -> PySparkDataFrame:
+        """
+        Detects flatlining and logs relevant rows.
+
+        Returns:
+            pyspark.sql.DataFrame: The original DataFrame with additional flatline detection metadata.
+        """
+        flatlined_rows = self.check_for_flatlining()
+        print("Flatlined Rows:")
+        flatlined_rows.show(truncate=False)
+        self.log_flatlining_rows(flatlined_rows)
+        return self.df
+
+    def check_for_flatlining(self) -> PySparkDataFrame:
+        """
+        Identifies rows with flatlining based on the specified columns and tolerance.
+
+        Returns:
+            pyspark.sql.DataFrame: A DataFrame containing rows with flatlining detected.
+        """
         partition_column = "TagName"
         sort_column = "EventTime"
         window_spec = Window.partitionBy(partition_column).orderBy(sort_column)
+
+        # Start with an empty DataFrame, ensure it has the required schema
+        flatlined_rows = (
+            self.df.withColumn("Value_flatline_flag", lit(None).cast("int"))
+            .withColumn("Value_group", lit(None).cast("bigint"))
+            .filter("1=0")
+        )
+
         for column in self.watch_columns:
             flagged_column = f"{column}_flatline_flag"
-            self.df = self.df.withColumn(
+            group_column = f"{column}_group"
+
+            # Add flag and group columns
+            df_with_flags = self.df.withColumn(
                 flagged_column,
                 when((col(column).isNull()) | (col(column) == 0.0), 1).otherwise(0),
-            )
-            group_column = f"{column}_group"
-            self.df = self.df.withColumn(
+            ).withColumn(
                 group_column,
                 sum(
                     when(
@@ -149,17 +177,56 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
                     ).otherwise(0)
                 ).over(window_spec),
             )
+
+            # Identify flatlining groups
             group_counts = (
-                self.df.filter(col(flagged_column) == 1).groupBy(group_column).count()
+                df_with_flags.filter(col(flagged_column) == 1)
+                .groupBy(group_column)
+                .count()
             )
             large_groups = group_counts.filter(col("count") > self.tolerance_timespan)
             large_group_ids = [row[group_column] for row in large_groups.collect()]
+
             if large_group_ids:
-                relevant_rows = self.df.filter(col(group_column).isin(large_group_ids))
-                for row in relevant_rows.collect():
+                relevant_rows = df_with_flags.filter(
+                    col(group_column).isin(large_group_ids)
+                )
+
+                # Ensure both DataFrames have the same columns
+                for col_name in flatlined_rows.columns:
+                    if col_name not in relevant_rows.columns:
+                        relevant_rows = relevant_rows.withColumn(col_name, lit(None))
+
+                flatlined_rows = flatlined_rows.union(relevant_rows)
+
+        return flatlined_rows
+
+    def log_flatlining_rows(self, flatlined_rows: PySparkDataFrame):
+        """
+        Logs flatlining rows for all monitored columns.
+
+        Args:
+            flatlined_rows (pyspark.sql.DataFrame): The DataFrame containing rows with flatlining detected.
+        """
+        if flatlined_rows.count() == 0:
+            self.logger.info("No flatlining detected.")
+            return
+
+        for column in self.watch_columns:
+            flagged_column = f"{column}_flatline_flag"
+
+            if flagged_column not in flatlined_rows.columns:
+                self.logger.warning(
+                    f"Expected column '{flagged_column}' not found in DataFrame."
+                )
+                continue
+
+            relevant_rows = flatlined_rows.filter(col(flagged_column) == 1).collect()
+
+            if relevant_rows:
+                for row in relevant_rows:
                     self.logger.warning(
                         f"Flatlining detected in column '{column}' at row: {row}."
                     )
             else:
                 self.logger.info(f"No flatlining detected in column '{column}'.")
-        return self.df
