@@ -37,7 +37,7 @@ pytestmark = pytest.mark.anyio
 async def test_api_sql_post_success(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_raw"])
 
-    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -53,7 +53,7 @@ async def test_api_sql_post_success(mocker: MockerFixture, api_test_data):
 async def test_api_sql_post_validation_error(mocker: MockerFixture, api_test_data):
     mocker = mocker_setup(mocker, MOCK_METHOD, api_test_data["mock_data_raw"])
 
-    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
@@ -77,7 +77,7 @@ async def test_api_sql_post_error(mocker: MockerFixture, api_test_data):
         Exception("Error Connecting to Database"),
     )
 
-    async with AsyncClient(transport=ASGITransport(app), base_url=BASE_URL) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE_URL) as ac:
         response = await ac.post(
             MOCK_API_NAME,
             headers=TEST_HEADERS,
