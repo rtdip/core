@@ -249,7 +249,7 @@ nav:
 
                   - Data Manipulation: 
                       - Duplicate Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
-                      - Filter Out of Range Values: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/filter_out_of_range_values.md
+                      - Filter Out of Range Values: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
                       - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
