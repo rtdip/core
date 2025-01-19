@@ -257,6 +257,9 @@ nav:
                           - Normalization Mean: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_mean.md
                           - Normalization MinMax: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_minmax.md
                           - Normalization ZScore: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_zscore.md
+                      - Prediction:
+                          - Arima: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/prediction/arima.md
+                          - Auto Arima: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/prediction/auto_arima.md
               - Machine Learning:
                   - Data Binning: sdk/code-reference/pipelines/machine_learning/spark/data_binning.md
                   - Linear Regression: sdk/code-reference/pipelines/machine_learning/spark/linear_regression.md
