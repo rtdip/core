@@ -236,18 +236,34 @@ nav:
               - Deploy:
                   - Databricks: sdk/code-reference/pipelines/deploy/databricks.md
               - Data Quality:
-                  - Monitoring: 
+                  - Monitoring:
                       - Check Value Ranges: sdk/code-reference/pipelines/data_quality/monitoring/spark/check_value_ranges.md
-                      - Great Expectations: 
-                        - Data Quality Monitoring: sdk/code-reference/pipelines/data_quality/monitoring/spark/great_expectations.md
+                      - Great Expectations:
+                          - Data Quality Monitoring: sdk/code-reference/pipelines/data_quality/monitoring/spark/great_expectations.md
                       - Flatline Detection: sdk/code-reference/pipelines/data_quality/monitoring/spark/flatline_detection.md
                       - Identify Missing Data:
                         - Interval Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_interval.md
                         - Pattern Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_pattern.md
-                  - Data Manipulation: 
+                  - Data Manipulation:
                       - Duplicate Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
-                      - Filter Out of Range Values: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/delete_out_of_range_values.md
+                      - Filter Out of Range Values: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
                       - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
+                      - Dimensionality Reduction: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/dimensionality_reduction.md
+                      - Interval Filtering: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/interval_filtering.md
+                      - K-Sigma Anomaly Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/k_sigma_anomaly_detection.md
+                      - Missing Value Imputation: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/missing_value_imputation.md
+                      - Normalization:
+                          - Normalization: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization.md
+                          - Normalization Mean: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_mean.md
+                          - Normalization MinMax: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_minmax.md
+                          - Normalization ZScore: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_zscore.md
+                      - Prediction:
+                          - Arima: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/prediction/arima.md
+                          - Auto Arima: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/prediction/auto_arima.md
+              - Machine Learning:
+                  - Data Binning: sdk/code-reference/pipelines/machine_learning/spark/data_binning.md
+                  - Linear Regression: sdk/code-reference/pipelines/machine_learning/spark/linear_regression.md
+
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md
