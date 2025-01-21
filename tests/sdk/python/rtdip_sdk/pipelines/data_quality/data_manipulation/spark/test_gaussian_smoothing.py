@@ -16,7 +16,7 @@ import pytest
 from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.gaussian_smoothing import (
-    GaussianSmoothing
+    GaussianSmoothing,
 )
 
 
@@ -40,7 +40,7 @@ def test_gaussian_smoothing_temporal(spark_session: SparkSession):
             ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "0.150000006"),
             ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "0.340000004"),
         ],
-        ["TagName", "EventTime", "Status", "Value"]
+        ["TagName", "EventTime", "Status", "Value"],
     )
 
     # Apply smoothing
@@ -50,13 +50,15 @@ def test_gaussian_smoothing_temporal(spark_session: SparkSession):
         id_col="TagName",
         mode="temporal",
         timestamp_col="EventTime",
-        value_col="Value"
+        value_col="Value",
     )
     result_df = smoother.filter()
     result_pdf = result_df.toPandas()
     original_pdf = df.toPandas()
 
-    assert not result_pdf["Value"].equals(original_pdf["Value"]), "Values should be smoothed and not identical"
+    assert not result_pdf["Value"].equals(
+        original_pdf["Value"]
+    ), "Values should be smoothed and not identical"
 
 
 def test_gaussian_smoothing_spatial(spark_session: SparkSession):
@@ -68,7 +70,7 @@ def test_gaussian_smoothing_spatial(spark_session: SparkSession):
             ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "0.150000006"),
             ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "0.340000004"),
         ],
-        ["TagName", "EventTime", "Status", "Value"]
+        ["TagName", "EventTime", "Status", "Value"],
     )
 
     # Apply smoothing
@@ -78,13 +80,15 @@ def test_gaussian_smoothing_spatial(spark_session: SparkSession):
         id_col="TagName",
         mode="spatial",
         timestamp_col="EventTime",
-        value_col="Value"
+        value_col="Value",
     )
     result_df = smoother.filter()
     result_pdf = result_df.toPandas()
     original_pdf = df.toPandas()
 
-    assert not result_pdf["Value"].equals(original_pdf["Value"]), "Values should be smoothed and not identical"
+    assert not result_pdf["Value"].equals(
+        original_pdf["Value"]
+    ), "Values should be smoothed and not identical"
 
 
 def test_interval_detection_large_data_set(spark_session: SparkSession):
@@ -94,17 +98,17 @@ def test_interval_detection_large_data_set(spark_session: SparkSession):
 
     df = spark_session.read.option("header", "true").csv(file_path)
 
-
     smoother = GaussianSmoothing(
         df=df,
         sigma=1,
         id_col="TagName",
         mode="temporal",
         timestamp_col="EventTime",
-        value_col="Value"
+        value_col="Value",
     )
 
     actual_df = smoother.filter()
+
 
 def test_gaussian_smoothing_invalid_mode(spark_session: SparkSession):
     # Create test data
@@ -116,7 +120,7 @@ def test_gaussian_smoothing_invalid_mode(spark_session: SparkSession):
             ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "0.150000006"),
             ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "0.340000004"),
         ],
-        ["TagName", "EventTime", "Status", "Value"]
+        ["TagName", "EventTime", "Status", "Value"],
     )
 
     # Attempt to initialize with an invalid mode
@@ -127,8 +131,5 @@ def test_gaussian_smoothing_invalid_mode(spark_session: SparkSession):
             id_col="TagName",
             mode="invalid_mode",  # Invalid mode
             timestamp_col="EventTime",
-            value_col="Value"
+            value_col="Value",
         )
-
-
-

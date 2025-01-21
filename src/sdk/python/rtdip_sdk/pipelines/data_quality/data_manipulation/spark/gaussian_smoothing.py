@@ -10,6 +10,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 from ..interfaces import DataManipulationBaseInterface
 
+
 class GaussianSmoothing(DataManipulationBaseInterface):
     """
     Applies Gaussian smoothing to specified columns of a PySpark DataFrame.
@@ -59,13 +60,13 @@ class GaussianSmoothing(DataManipulationBaseInterface):
     """
 
     def __init__(
-            self,
-            df: PySparkDataFrame,
-            sigma: float,
-            mode: str = "temporal",
-            id_col: str = "id",
-            timestamp_col: str = "timestamp",
-            value_col: str = "value",
+        self,
+        df: PySparkDataFrame,
+        sigma: float,
+        mode: str = "temporal",
+        id_col: str = "id",
+        timestamp_col: str = "timestamp",
+        value_col: str = "value",
     ) -> None:
 
         if not isinstance(df, PySparkDataFrame):
@@ -128,7 +129,6 @@ class GaussianSmoothing(DataManipulationBaseInterface):
                 values_sorted = values[sorted_indices]
 
                 smoothed_values = gaussian_filter1d(values_sorted, sigma=self.sigma)
-
 
                 reverse_indices = np.argsort(sorted_indices)
                 pdf.loc[mask, self.value_col] = smoothed_values[reverse_indices]
