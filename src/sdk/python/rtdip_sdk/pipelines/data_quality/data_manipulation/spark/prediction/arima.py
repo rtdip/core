@@ -99,7 +99,6 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         timestamp_name (str): Name of column, where event timestamps are stored
         source_name (str): Name of column in source-based format, where source of events are stored
         status_name (str): Name of column in source-based format, where status of events are stored
-        # Options for ARIMA
         external_regressor_names (List[str]): Currently not working. Names of the columns with data to use for prediction, but not extend
         number_of_data_points_to_predict (int): Amount of points to forecast
         number_of_data_points_to_analyze (int): Amount of most recent points to train on
@@ -319,7 +318,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         value imputation to prevent learning on dirty data.
 
         Returns:
-            DataFrame: A PySpark DataFrame with forcasted value entries depending on constructor parameters.
+            DataFrame: A PySpark DataFrame with forecasted value entries depending on constructor parameters.
         """
         # expected_scheme = StructType(
         #    [
