@@ -450,7 +450,7 @@ def test_column_based_prediction_arima(
 
 def test_arima_large_data_set(spark_session: SparkSession):
     test_path = os.path.dirname(__file__)
-    data_path = os.path.join(test_path, "../../../data_quality/test_data.csv")
+    data_path = os.path.join(test_path, "../../data_quality/test_data.csv")
 
     input_df = spark_session.read.option("header", "true").csv(data_path)
 
