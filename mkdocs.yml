@@ -238,6 +238,7 @@ nav:
               - Data Quality:
                   - Monitoring:
                       - Check Value Ranges: sdk/code-reference/pipelines/data_quality/monitoring/spark/check_value_ranges.md
+                      - Duplicate Detetection: sdk/code-reference/pipelines/data_quality/monitoring/spark/duplicate_detection.md
                       - Great Expectations:
                           - Data Quality Monitoring: sdk/code-reference/pipelines/data_quality/monitoring/spark/great_expectations.md
                       - Flatline Detection: sdk/code-reference/pipelines/data_quality/monitoring/spark/flatline_detection.md
@@ -247,7 +248,7 @@ nav:
                       - Moving Average: sdk/code-reference/pipelines/data_quality/monitoring/spark/moving_average.md
                   - Data Manipulation: 
                       - Duplicate Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
-                      - Filter Out of Range Values: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
+                      - Out of Range Value Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
                       - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
                       - Dimensionality Reduction: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/dimensionality_reduction.md
                       - Interval Filtering: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/interval_filtering.md
@@ -258,6 +259,7 @@ nav:
                           - Normalization Mean: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_mean.md
                           - Normalization MinMax: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_minmax.md
                           - Normalization ZScore: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_zscore.md
+                          - Denormalization: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/denormalization.md
                       - Prediction:
                           - Arima: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/prediction/arima.md
                           - Auto Arima: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/prediction/auto_arima.md
