@@ -1,4 +1,4 @@
-# Copyright 2025 RTDIP
+# Copyright 2022 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,5 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .arima import ArimaPrediction
-from .auto_arima import ArimaAutoPrediction
+from .spark.linear_regression import *
+from .spark.arima import ArimaPrediction
+from spark.auto_arima import ArimaAutoPrediction

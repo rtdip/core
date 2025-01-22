@@ -30,8 +30,8 @@ from statsmodels.tsa.arima.model import ARIMA
 import numpy as np
 
 from ...interfaces import DataManipulationBaseInterface
-from ....input_validator import InputValidator
-from ......_sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
+from ...data_quality.input_validator import InputValidator
+from ...._sdk_utils import _prepare_pandas_to_convert_to_spark
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
@@ -50,7 +50,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     The similar component AutoArimaPrediction wraps around this component and needs less manual parameters set.
 
     ARIMA-Specific parameters can be viewed at the following statsmodels documentation page:
-        https://www.statsmodels.org/dev/generated/statsmodels.tsa.arima.model.ARIMA.html
+    [ARIMA Documentation](https://www.statsmodels.org/dev/generated/statsmodels.tsa.arima.model.ARIMA.html)
 
     Example
     -------

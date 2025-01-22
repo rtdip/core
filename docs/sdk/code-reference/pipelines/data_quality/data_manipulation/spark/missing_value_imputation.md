@@ -1,2 +1,2 @@
-::: src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.missingvalueimputation
+::: src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.missing_value_imputation
 
