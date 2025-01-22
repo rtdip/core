@@ -30,10 +30,10 @@ from pyspark.sql.types import (
 from src.sdk.python.rtdip_sdk._sdk_utils.pandas import (
     _prepare_pandas_to_convert_to_spark,
 )
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import (
+from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.arima import (
     ArimaPrediction,
 )
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.auto_arima import (
+from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.auto_arima import (
     ArimaAutoPrediction,
 )
 
@@ -450,7 +450,7 @@ def test_column_based_prediction_arima(
 
 def test_arima_large_data_set(spark_session: SparkSession):
     test_path = os.path.dirname(__file__)
-    data_path = os.path.join(test_path, "../../test_data.csv")
+    data_path = os.path.join(test_path, "../../../data_quality/test_data.csv")
 
     input_df = spark_session.read.option("header", "true").csv(data_path)
 

@@ -13,5 +13,6 @@
 # limitations under the License.
 
 from .spark.linear_regression import *
-from .spark.arima import ArimaPrediction
-from spark.auto_arima import ArimaAutoPrediction
+from .spark.arima import *
+from .spark.auto_arima import *
+from .spark.data_binning import *
