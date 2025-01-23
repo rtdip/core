@@ -34,10 +34,10 @@ class ArimaAutoPrediction(ArimaPrediction):
     import pandas
     from pyspark.sql import SparkSession
 
-    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import ArimaPrediction
+    from rtdip_sdk.pipelines.data_quality.forecasting.spark.arima import ArimaPrediction
 
     import rtdip_sdk.pipelines._pipeline_utils.spark as spark_utils
-    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.auto_arima import ArimaAutoPrediction
+    from rtdip_sdk.pipelines.data_quality.forecasting.spark.auto_arima import ArimaAutoPrediction
 
     spark_session = SparkSession.builder.master("local[2]").appName("test").getOrCreate()
     df = pandas.DataFrame()
@@ -77,8 +77,6 @@ class ArimaAutoPrediction(ArimaPrediction):
         number_of_data_points_to_predict (int): Amount of points to forecast
         number_of_data_points_to_analyze (int): Amount of most recent points to train on
         seasonal (bool): Setting for AutoArima, is past_data seasonal?
-        # Options for ARIMA
-        trend (str): ARIMA-Specific setting
         enforce_stationarity (bool): ARIMA-Specific setting
         enforce_invertibility (bool): ARIMA-Specific setting
         concentrate_scale (bool): ARIMA-Specific setting
