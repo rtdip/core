@@ -14,9 +14,7 @@
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, udf
 from pyspark.sql.types import DoubleType
-from src.sdk.python.rtdip_sdk.pipelines.machine_learning.interfaces import (
-    MachineLearningInterface,
-)
+from ..interfaces import MachineLearningInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 import numpy as np
 
