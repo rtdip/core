@@ -22,9 +22,7 @@ from pyspark.sql.types import (
     FloatType,
 )
 from datetime import datetime
-from src.sdk.python.rtdip_sdk.pipelines.machine_learning.spark.k_nearest_neighbors import (
-    KNearestNeighbors,
-)
+from src.sdk.python.rtdip_sdk.pipelines.machine_learning.spark.k_nearest_neighbors import KNearestNeighbors
 from pyspark.ml.feature import VectorAssembler, StandardScaler, StringIndexer
 from pyspark.sql.functions import col
 
