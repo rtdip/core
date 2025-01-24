@@ -118,7 +118,7 @@ def test_interpolate_offset_limit(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         TEST_PARAMETERS,
-        INTERPOLATE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
+        INTERPOLATE_MOCKED_QUERY + " " + MOCKED_QUERY_OFFSET_LIMIT.strip(),
         interpolate_get,
     )
 
