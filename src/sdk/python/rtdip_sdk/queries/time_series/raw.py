@@ -44,6 +44,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
         display_uom (optional bool): Display the unit of measure with True or False. Defaults to False
+        sort (optional bool): Sort the data in ascending order by the TagName and Timestamp columns
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
 
     Returns:
