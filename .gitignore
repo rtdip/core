@@ -140,3 +140,4 @@ config.share
 
 # JetBrains
 .idea/
+/ShellData/

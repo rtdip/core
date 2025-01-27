@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from .normalization import *
-from .prediction import *
 from .dimensionality_reduction import DimensionalityReduction
 from .duplicate_detection import DuplicateDetection
 from .interval_filtering import IntervalFiltering
