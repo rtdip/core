@@ -32,7 +32,7 @@ import numpy as np
 from ...data_quality.data_manipulation.interfaces import DataManipulationBaseInterface
 from ...data_quality.input_validator import InputValidator
 from ...._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ..._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
