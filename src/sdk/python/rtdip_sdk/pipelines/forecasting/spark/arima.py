@@ -30,9 +30,9 @@ from regex import regex
 from statsmodels.tsa.arima.model import ARIMA
 import numpy as np
 
-from ...interfaces import DataManipulationBaseInterface
-from ....input_validator import InputValidator
-from ......_sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
+from ...data_quality.data_manipulation.interfaces import DataManipulationBaseInterface
+from ...data_quality.input_validator import InputValidator
+from ...._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
@@ -51,7 +51,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     The similar component AutoArimaPrediction wraps around this component and needs less manual parameters set.
 
     ARIMA-Specific parameters can be viewed at the following statsmodels documentation page:
-        https://www.statsmodels.org/dev/generated/statsmodels.tsa.arima.model.ARIMA.html
+    [ARIMA Documentation](https://www.statsmodels.org/dev/generated/statsmodels.tsa.arima.model.ARIMA.html)
 
     Example
     -------
@@ -62,7 +62,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     import pandas
     from pyspark.sql import SparkSession
 
-    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import ArimaPrediction
+    from rtdip_sdk.pipelines.data_quality.forecasting.spark.arima import ArimaPrediction
 
     import rtdip_sdk.pipelines._pipeline_utils.spark as spark_utils
 
@@ -100,7 +100,6 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         timestamp_name (str): Name of column, where event timestamps are stored
         source_name (str): Name of column in source-based format, where source of events are stored
         status_name (str): Name of column in source-based format, where status of events are stored
-        # Options for ARIMA
         external_regressor_names (List[str]): Currently not working. Names of the columns with data to use for prediction, but not extend
         number_of_data_points_to_predict (int): Amount of points to forecast
         number_of_data_points_to_analyze (int): Amount of most recent points to train on
@@ -317,7 +316,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         value imputation to prevent learning on dirty data.
 
         Returns:
-            DataFrame: A PySpark DataFrame with forcasted value entries depending on constructor parameters.
+            DataFrame: A PySpark DataFrame with forecasted value entries depending on constructor parameters.
         """
         # expected_scheme = StructType(
         #    [

@@ -27,7 +27,6 @@ from .normalization import (
 
 class Denormalization(DataManipulationBaseInterface, InputValidator):
     """
-    #TODO
     Applies the appropriate denormalization method to revert values to their original scale.
 
     Example
