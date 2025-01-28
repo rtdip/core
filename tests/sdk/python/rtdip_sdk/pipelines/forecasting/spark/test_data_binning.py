@@ -14,7 +14,7 @@
 import pytest
 from pyspark.sql import SparkSession
 from pyspark.ml.linalg import Vectors
-from src.sdk.python.rtdip_sdk.pipelines.machine_learning.spark.data_binning import (
+from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.data_binning import (
     DataBinning,
 )
 

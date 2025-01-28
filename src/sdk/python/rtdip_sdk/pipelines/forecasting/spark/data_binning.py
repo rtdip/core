@@ -14,7 +14,7 @@
 
 import pyspark.ml.clustering as clustering
 from pyspark.sql import DataFrame
-from src.sdk.python.rtdip_sdk.pipelines.machine_learning.interfaces import (
+from src.sdk.python.rtdip_sdk.pipelines.forecasting import (
     MachineLearningInterface,
 )
 from ..._pipeline_utils.models import Libraries, SystemType
