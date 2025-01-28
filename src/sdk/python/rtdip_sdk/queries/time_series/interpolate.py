@@ -49,6 +49,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
+        sort (optional bool): Sort the data in ascending order by the TagName and Timestamp columns or, if pivot is True, by the Timestamp column
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
 
     Returns:
