@@ -4,7 +4,9 @@ from scipy.ndimage import gaussian_filter1d
 from pyspark.sql import DataFrame as PySparkDataFrame, Window
 from pyspark.sql import functions as F
 
-from rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import DataManipulationBaseInterface
+from rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import (
+    DataManipulationBaseInterface,
+)
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
@@ -55,21 +57,20 @@ class GaussianSmoothing(DataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
+    @staticmethod
+    def create_gaussian_smoother(sigma_value):
+        def apply_gaussian(values):
+            if not values:
+                return None
+            values_array = np.array([float(v) for v in values])
+            smoothed = gaussian_filter1d(values_array, sigma=sigma_value)
+            return float(smoothed[-1])
+
+        return apply_gaussian
+
     def filter(self) -> PySparkDataFrame:
 
-
-
-        def create_gaussian_smoother(sigma_value):
-            def apply_gaussian(values):
-                if not values:
-                    return None
-                values_array = np.array([float(v) for v in values])
-                smoothed = gaussian_filter1d(values_array, sigma=self.sigma)
-                return float(smoothed[-1])
-
-            return apply_gaussian
-
-        smooth_udf = F.udf(create_gaussian_smoother(self.sigma), FloatType())
+        smooth_udf = F.udf(self.create_gaussian_smoother(self.sigma), FloatType())
 
         if self.mode == "temporal":
             window = (
