@@ -4,13 +4,11 @@ from scipy.ndimage import gaussian_filter1d
 from pyspark.sql import DataFrame as PySparkDataFrame, Window
 from pyspark.sql import functions as F
 
-from rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import (
-    DataManipulationBaseInterface,
-)
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
+from ..interfaces import DataManipulationBaseInterface
 
 
 class GaussianSmoothing(DataManipulationBaseInterface):
