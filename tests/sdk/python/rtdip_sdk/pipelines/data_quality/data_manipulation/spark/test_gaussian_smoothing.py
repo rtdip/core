@@ -43,7 +43,6 @@ def test_gaussian_smoothing_temporal(spark_session: SparkSession):
         ["TagName", "EventTime", "Status", "Value"],
     )
 
-    # Apply smoothing
     smoother = GaussianSmoothing(
         df=df,
         sigma=2.0,
@@ -53,12 +52,15 @@ def test_gaussian_smoothing_temporal(spark_session: SparkSession):
         value_col="Value",
     )
     result_df = smoother.filter()
-    result_pdf = result_df.toPandas()
-    original_pdf = df.toPandas()
 
-    assert not result_pdf["Value"].equals(
-        original_pdf["Value"]
-    ), "Values should be smoothed and not identical"
+    original_values = df.select("Value").collect()
+    smoothed_values = result_df.select("Value").collect()
+
+    assert original_values != smoothed_values, "Values should be smoothed and not identical"
+
+    assert result_df.count() == df.count(), "Result should have same number of rows"
+
+
 
 
 def test_gaussian_smoothing_spatial(spark_session: SparkSession):
@@ -83,13 +85,12 @@ def test_gaussian_smoothing_spatial(spark_session: SparkSession):
         value_col="Value",
     )
     result_df = smoother.filter()
-    result_pdf = result_df.toPandas()
-    original_pdf = df.toPandas()
 
-    assert not result_pdf["Value"].equals(
-        original_pdf["Value"]
-    ), "Values should be smoothed and not identical"
+    original_values = df.select("Value").collect()
+    smoothed_values = result_df.select("Value").collect()
 
+    assert original_values != smoothed_values, "Values should be smoothed and not identical"
+    assert result_df.count() == df.count(), "Result should have same number of rows"
 
 def test_interval_detection_large_data_set(spark_session: SparkSession):
     # Should not timeout
@@ -108,6 +109,7 @@ def test_interval_detection_large_data_set(spark_session: SparkSession):
     )
 
     actual_df = smoother.filter()
+    assert actual_df.count() == df.count(), "Output should have same number of rows as input"
 
 
 def test_gaussian_smoothing_invalid_mode(spark_session: SparkSession):
