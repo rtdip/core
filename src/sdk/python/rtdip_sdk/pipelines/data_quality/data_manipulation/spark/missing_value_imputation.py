@@ -37,16 +37,13 @@ class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
 
     Example
     --------
+    ```python
     from pyspark.sql import SparkSession
     from pyspark.sql.dataframe import DataFrame
     from pyspark.sql.types import StructType, StructField, StringType
     from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_manipulation.missing_value_imputation import (
         MissingValueImputation,
     )
-
-    @pytest.fixture(scope="session")
-    def spark_session():
-        return SparkSession.builder.master("local[2]").appName("test").getOrCreate()
 
     spark = spark_session()
 
@@ -58,7 +55,6 @@ class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
     ])
 
     data = [
-        # Setup controlled Test
         ("A2PS64V0J.:ZUX09R", "2024-01-01 03:29:21.000", "Good", "1.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-01 07:32:55.000", "Good", "2.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-01 11:36:29.000", "Good", "3.0"),
@@ -67,30 +63,11 @@ class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
         #("A2PS64V0J.:ZUX09R", "2024-01-01 23:46:11.000", "Good", "6.0"), # Test values
         #("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", "7.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", "8.0"),
-        ("A2PS64V0J.:ZUX09R", "2024-01-02 11:56:42.000", "Good", "9.0"),
-        ("A2PS64V0J.:ZUX09R", "2024-01-02 16:00:12.000", "Good", "10.0"),
-        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:13:46.000", "Good", "11.0"), # Tolerance Test
-        ("A2PS64V0J.:ZUX09R", "2024-01-03 00:07:20.000", "Good", "10.0"),
-        #("A2PS64V0J.:ZUX09R", "2024-01-03 04:10:54.000", "Good", "9.0"),
-        ("A2PS64V0J.:ZUX09R", "2024-01-03 08:14:28.000", "Good", "8.0"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:01:43", "Good", "4686.259766"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:02:44", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:04:44", "Good", "4686.259766"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:05:44", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:11:46", "Good", "4686.259766"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:13:46", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:16:47", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:19:48", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:20:48", "Good", "4691.161621"),
     ]
-
     df = spark.createDataFrame(data, schema=schema)
 
     missing_value_imputation = MissingValueImputation(spark, df)
-    imputed_df = missing_value_imputation.filter()
-
-    print(imputed_df.show(imputed_df.count(), False))
-
+    result = missing_value_imputation.filter()
     ```
 
     Parameters:

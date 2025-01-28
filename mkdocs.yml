@@ -246,8 +246,8 @@ nav:
                         - Pattern Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_pattern.md
                       - Moving Average: sdk/code-reference/pipelines/data_quality/monitoring/spark/moving_average.md
                   - Data Manipulation: 
-                      - Duplicate Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
-                      - Filter Out of Range Values: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
+                      - Duplicate Detetection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
+                      - Out of Range Value Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
                       - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
                       - Gaussian Smoothing: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/gaussian_smoothing.md
                       - Dimensionality Reduction: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/dimensionality_reduction.md
@@ -259,12 +259,12 @@ nav:
                           - Normalization Mean: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_mean.md
                           - Normalization MinMax: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_minmax.md
                           - Normalization ZScore: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_zscore.md
-                      - Prediction:
-                          - Arima: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/prediction/arima.md
-                          - Auto Arima: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/prediction/auto_arima.md
-              - Machine Learning:
-                  - Data Binning: sdk/code-reference/pipelines/machine_learning/spark/data_binning.md
-                  - Linear Regression: sdk/code-reference/pipelines/machine_learning/spark/linear_regression.md
+                          - Denormalization: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/denormalization.md
+              - Forecasting:
+                  - Data Binning: sdk/code-reference/pipelines/forecasting/spark/data_binning.md
+                  - Linear Regression: sdk/code-reference/pipelines/forecasting/spark/linear_regression.md
+                  - Arima: sdk/code-reference/pipelines/forecasting/spark/arima.md
+                  - Auto Arima: sdk/code-reference/pipelines/forecasting/spark/auto_arima.md
 
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:

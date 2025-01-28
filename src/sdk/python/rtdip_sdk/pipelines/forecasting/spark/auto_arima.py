@@ -34,10 +34,10 @@ class ArimaAutoPrediction(ArimaPrediction):
     import pandas
     from pyspark.sql import SparkSession
 
-    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.arima import ArimaPrediction
+    from rtdip_sdk.pipelines.data_quality.forecasting.spark.arima import ArimaPrediction
 
     import rtdip_sdk.pipelines._pipeline_utils.spark as spark_utils
-    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.prediction.auto_arima import ArimaAutoPrediction
+    from rtdip_sdk.pipelines.data_quality.forecasting.spark.auto_arima import ArimaAutoPrediction
 
     spark_session = SparkSession.builder.master("local[2]").appName("test").getOrCreate()
     df = pandas.DataFrame()
