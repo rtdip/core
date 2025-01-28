@@ -424,7 +424,11 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             data_to_add = _prepare_pandas_to_convert_to_spark(data_to_add)
 
             predicted_source_pyspark_dataframe = self.spark_session.createDataFrame(
-                _prepare_pandas_to_convert_to_spark(data_to_add[[self.source_name, self.timestamp_name, self.value_name]]),
+                _prepare_pandas_to_convert_to_spark(
+                    data_to_add[
+                        [self.source_name, self.timestamp_name, self.value_name]
+                    ]
+                ),
                 schema=pd_df_schema,
             )
 
