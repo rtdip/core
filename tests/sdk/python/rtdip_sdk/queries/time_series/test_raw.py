@@ -56,7 +56,7 @@ def test_raw_offset_limit(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_RAW_DICT,
-        RAW_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
+        RAW_MOCKED_QUERY + " " + MOCKED_QUERY_OFFSET_LIMIT.strip(),
         raw_get,
     )
 

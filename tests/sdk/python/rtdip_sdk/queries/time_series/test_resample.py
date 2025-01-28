@@ -97,7 +97,7 @@ def test_resample_offset_limit(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_RESAMPLED_PARAMETER_DICT,
-        (RESAMPLE_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT),
+        (RESAMPLE_MOCKED_QUERY + " " + MOCKED_QUERY_OFFSET_LIMIT.strip()),
         resample_get,
     )
 
