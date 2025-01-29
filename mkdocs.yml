@@ -249,6 +249,7 @@ nav:
                       - Duplicate Detetection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
                       - Out of Range Value Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
                       - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
+                      - Gaussian Smoothing: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/gaussian_smoothing.md
                       - Dimensionality Reduction: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/dimensionality_reduction.md
                       - Interval Filtering: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/interval_filtering.md
                       - K-Sigma Anomaly Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/k_sigma_anomaly_detection.md
