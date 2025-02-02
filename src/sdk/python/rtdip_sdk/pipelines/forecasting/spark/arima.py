@@ -249,7 +249,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
                     .agg(F.first(self.value_name))
                 )
         if not to_extend_name in self.df.columns:
-            raise ValueError("{} not found in the DataFrame.".format(value_name))
+            raise ValueError("{} not found in the DataFrame.".format(to_extend_name))
 
     def _constructor_handle_input_metadata(
         self,
