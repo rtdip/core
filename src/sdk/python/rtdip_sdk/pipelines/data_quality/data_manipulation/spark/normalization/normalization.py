@@ -16,10 +16,10 @@ from pyspark.sql import DataFrame as PySparkDataFrame
 from typing import List
 from pyspark.sql.types import DoubleType, StructField, StructType
 from ....input_validator import InputValidator
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import (
+from ...interfaces import (
     DataManipulationBaseInterface,
 )
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ....._pipeline_utils.models import (
     Libraries,
     SystemType,
 )

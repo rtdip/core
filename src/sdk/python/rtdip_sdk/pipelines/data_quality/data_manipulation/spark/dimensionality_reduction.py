@@ -18,7 +18,7 @@ from pyspark.sql.functions import col
 from pyspark.ml.feature import VectorAssembler
 
 from ..interfaces import DataManipulationBaseInterface
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ...._pipeline_utils.models import (
     Libraries,
     SystemType,
 )

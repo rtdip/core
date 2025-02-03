@@ -33,7 +33,7 @@ import numpy as np
 from ...data_quality.data_manipulation.interfaces import DataManipulationBaseInterface
 from ...data_quality.input_validator import InputValidator
 from ...._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ..._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
@@ -250,7 +250,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
                     .agg(F.first(self.value_name))
                 )
         if not to_extend_name in self.df.columns:
-            raise ValueError("{} not found in the DataFrame.".format(value_name))
+            raise ValueError("{} not found in the DataFrame.".format(to_extend_name))
 
     def _constructor_handle_input_metadata(
         self,
