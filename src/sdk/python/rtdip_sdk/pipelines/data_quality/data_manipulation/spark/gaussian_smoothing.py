@@ -12,6 +12,53 @@ from ..interfaces import DataManipulationBaseInterface
 
 
 class GaussianSmoothing(DataManipulationBaseInterface):
+    """
+    Applies Gaussian smoothing to a PySpark DataFrame. This method smooths the values in a specified column
+    using a Gaussian filter, which helps reduce noise and fluctuations in time-series or spatial data.
+
+    The smoothing can be performed in two modes:
+    - **Temporal mode**: Applies smoothing along the time axis within each unique ID.
+    - **Spatial mode**: Applies smoothing across different IDs for the same timestamp.
+
+    Example
+    --------
+    ```python
+    from pyspark.sql import SparkSession
+    from some_module import GaussianSmoothing
+
+    spark = SparkSession.builder.getOrCreate()
+    df = ...  # Load your PySpark DataFrame
+
+    smoothed_df = GaussianSmoothing(
+        df=df,
+        sigma=2.0,
+        mode="temporal",
+        id_col="sensor_id",
+        timestamp_col="timestamp",
+        value_col="measurement"
+    ).filter()
+
+    smoothed_df.show()
+    ```
+
+    Parameters:
+        df (PySparkDataFrame): The input PySpark DataFrame.
+        sigma (float): The standard deviation for the Gaussian kernel, controlling the amount of smoothing.
+        mode (str, optional): The smoothing mode, either `"temporal"` (default) or `"spatial"`.
+        id_col (str, optional): The name of the column representing unique entity IDs (default: `"id"`).
+        timestamp_col (str, optional): The name of the column representing timestamps (default: `"timestamp"`).
+        value_col (str, optional): The name of the column containing the values to be smoothed (default: `"value"`).
+
+    Raises:
+        TypeError: If `df` is not a PySpark DataFrame.
+        ValueError: If `sigma` is not a positive number.
+        ValueError: If `mode` is not `"temporal"` or `"spatial"`.
+        ValueError: If `id_col`, `timestamp_col`, or `value_col` are not found in the DataFrame.
+
+    Returns:
+        PySparkDataFrame: A new DataFrame with the smoothed values in the specified column.
+    """
+
     def __init__(
         self,
         df: PySparkDataFrame,
