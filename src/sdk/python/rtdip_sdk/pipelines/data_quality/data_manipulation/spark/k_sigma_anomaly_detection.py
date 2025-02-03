@@ -16,7 +16,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import mean, stddev, abs, col
 from ..interfaces import DataManipulationBaseInterface
 from ...input_validator import InputValidator
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ...._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
