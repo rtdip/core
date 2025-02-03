@@ -24,10 +24,8 @@ from pyspark.sql.types import (
     FloatType,
 )
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.interfaces import (
-    MonitoringBaseInterface,
-)
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ..interfaces import MonitoringBaseInterface
+from ...._pipeline_utils.models import (
     Libraries,
     SystemType,
 )

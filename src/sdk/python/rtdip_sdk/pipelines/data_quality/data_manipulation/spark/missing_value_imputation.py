@@ -22,7 +22,7 @@ from datetime import timedelta
 from typing import List
 from ..interfaces import DataManipulationBaseInterface
 from ...input_validator import InputValidator
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ...._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
@@ -233,7 +233,8 @@ class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
         Imputate missing values based on [Spline Interpolation, ]
         """
         if not all(
-            col_ in self.df.columns for col_ in ["TagName", "EventTime", "Value"]
+            col_ in self.df.columns
+            for col_ in ["TagName", "EventTime", "Value", "Status"]
         ):
             raise ValueError("Columns not as expected")
 

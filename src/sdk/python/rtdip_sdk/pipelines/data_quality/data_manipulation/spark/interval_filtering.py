@@ -19,7 +19,7 @@ from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ...._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
