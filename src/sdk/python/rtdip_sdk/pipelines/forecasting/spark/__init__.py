@@ -16,3 +16,4 @@ from .data_binning import DataBinning
 from .linear_regression import LinearRegression
 from .arima import ArimaPrediction
 from .auto_arima import ArimaAutoPrediction
+from .k_nearest_neighbors import KNearestNeighbors

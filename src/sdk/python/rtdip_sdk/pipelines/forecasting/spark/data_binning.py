@@ -14,7 +14,7 @@
 
 import pyspark.ml.clustering as clustering
 from pyspark.sql import DataFrame
-from .. import MachineLearningInterface
+from ..interfaces import MachineLearningInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 
 
