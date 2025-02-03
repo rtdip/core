@@ -1,12 +1,8 @@
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.spark.flatline_detection import (
-    FlatlineDetection,
-)
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import (
-    DataManipulationBaseInterface,
-)
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ...monitoring.spark.flatline_detection import FlatlineDetection
+from ..interfaces import DataManipulationBaseInterface
+from ...._pipeline_utils.models import (
     Libraries,
     SystemType,
 )

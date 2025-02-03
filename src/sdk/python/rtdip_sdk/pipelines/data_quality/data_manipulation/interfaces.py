@@ -15,8 +15,7 @@
 from abc import abstractmethod
 
 from pyspark.sql import DataFrame
-
-from src.sdk.python.rtdip_sdk.pipelines.interfaces import PipelineComponentBaseInterface
+from ...interfaces import PipelineComponentBaseInterface
 
 
 class DataManipulationBaseInterface(PipelineComponentBaseInterface):
