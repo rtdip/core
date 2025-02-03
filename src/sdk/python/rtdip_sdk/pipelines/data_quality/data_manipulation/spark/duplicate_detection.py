@@ -21,6 +21,7 @@ from ...._pipeline_utils.models import (
     SystemType,
 )
 
+
 class DuplicateDetection(DataManipulationBaseInterface, InputValidator):
     """
     Cleanses a PySpark DataFrame from duplicates.

@@ -21,6 +21,7 @@ from .._pipeline_utils.models import (
     SystemType,
 )
 
+
 class InputValidator(PipelineComponentBaseInterface):
     """
     Validates the PySpark DataFrame of the respective child class instance against a schema dictionary or pyspark
