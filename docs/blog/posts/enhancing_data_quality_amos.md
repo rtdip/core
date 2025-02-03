@@ -4,13 +4,13 @@ authors:
   - TUBCM
 ---
 
-# Ensuring Data Quality at Speed with Real Time Data
+# Enhancing Data Quality in Real-Time: Our Experience with RTDIP and the AMOS Project
 
 <center>
-<img src="../images/agile.svg" alt="agile" width="60%">
+
+![blog](../images/agile.svg){width=60%}
 <small>1</small>
 </center>
-
 
 Real-time data integration and preparation are crucial in today's data-driven world, especially when dealing with time series data from often distributed heterogeneous data sources. As data scientists often spend no less than 80%<sup>2</sup> of their time finding, integrating, and cleaning datasets, the importance of automated ingestion pipelines rises inevitably. Building such ingestion and integration frameworks can be challenging and can entail all sorts of technical debt like glue code, pipeline jungles, or dead code paths, which calls for precise conception and development of such systems. Modern software development approaches try to mitigate technical debts and enhance quality results by introducing and utilizing agile and more iterative methodologies, which are designed to foster rapid feedback and continuous progress.
 
