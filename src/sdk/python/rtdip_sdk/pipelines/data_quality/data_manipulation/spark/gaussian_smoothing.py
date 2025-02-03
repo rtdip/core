@@ -54,9 +54,6 @@ class GaussianSmoothing(DataManipulationBaseInterface):
         ValueError: If `sigma` is not a positive number.
         ValueError: If `mode` is not `"temporal"` or `"spatial"`.
         ValueError: If `id_col`, `timestamp_col`, or `value_col` are not found in the DataFrame.
-
-    Returns:
-        PySparkDataFrame: A new DataFrame with the smoothed values in the specified column.
     """
 
     def __init__(
