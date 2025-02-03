@@ -265,6 +265,7 @@ nav:
                   - Linear Regression: sdk/code-reference/pipelines/forecasting/spark/linear_regression.md
                   - Arima: sdk/code-reference/pipelines/forecasting/spark/arima.md
                   - Auto Arima: sdk/code-reference/pipelines/forecasting/spark/auto_arima.md
+                  - K Nearest Neighbors: sdk/code-reference/pipelines/forecasting/spark/k_nearest_neighbors.md
 
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
