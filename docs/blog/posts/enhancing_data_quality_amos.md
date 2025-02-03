@@ -37,6 +37,36 @@ Data cleansing is a vital process in enhancing the quality of data within a data
 ### Missing Value Imputation
 
 With a dataset refined to exclude unwanted data points and accounting for potential sensor failures, the next step toward ensuring high-quality data is to address any missing values through imputation. The component we developed first identifies and flags missing values by leveraging PySpark’s capabilities in windowing and UDF operations. With these techniques, we are able to dynamically determine the expected interval for each sensor by analyzing historical data patterns within defined partitions. Spline interpolation allows us to estimate missing values in time series data, seamlessly filling gaps with plausible and mathematically derived substitutes. By doing so, data scientists can not only improve the consistency of integrated datasets but also prevent errors or biases in analytics and machine learning models.
+To actually show how this is realized with this new RTDIP component, let me show you a short example on how a few lines of code can enhance an exemplary time series load profile:
+```python
+from rtdip_sdk.pipelines.data_quality import MissingValueImputation
+from pyspark.sql import SparkSession
+import pandas as pd
+
+spark_session = SparkSession.builder.master("local[2]").appName("test").getOrCreate()
+
+source_df = pd.read_csv('./solar_energy_production_germany_April02.csv')
+incomplete_spark_df = spark_session.createDataFrame(vi_april_df, ['Value', 'EventTime', 'TagName', 'Status'])
+
+#Before Missing Value Imputation
+spark_df.show()
+
+#Execute RTDIP Pipeline component
+clean_df = MissingValueImputation(spark_session, df=incomplete_spark_df).filter()
+
+#After Missing Value Imputation
+clean_df.show()
+```
+To illustrate this visually, plotting the before-and-after DataFrames reveals that all gaps have been successfully filled with meaningful data.
+
+<center>
+
+![blog](../images/amos_mvi_raw.png){width=70%}
+
+![blog](../images/amos_mvi.png){width=70%}
+
+</center>
+
 
 ### Normalization
 
@@ -56,7 +86,7 @@ Working on the RTDIP Project within AMOS has been a fantastic journey, highlight
 
 To look back, our regular team meetings were the key to our success. Through open communication and collaboration, we tackled challenges and kept improving our processes. This showed us the power of working together in an agile framework and growing as a dedicated SCRUM team.
 
-We’re excited about the future and how these advancements will help data scientists and engineers make better decisions. ((Thank you for joining us on this journey.))
+We’re excited about the future and how these advancements will help data scientists and engineers make better decisions.
 
 <br>
 
