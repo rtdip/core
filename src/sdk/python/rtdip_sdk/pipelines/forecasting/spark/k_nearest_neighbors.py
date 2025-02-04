@@ -57,7 +57,7 @@ class KNearestNeighbors(MachineLearningInterface):
     knn.train(train_df)
     predictions = knn.predict(test_df)
     ```
-    
+
     Parameters:
         df (pyspark.sql.Dataframe): DataFrame containing the features and labels
         features_col (str): Name of the column containing the features (the input). Default is 'features'
