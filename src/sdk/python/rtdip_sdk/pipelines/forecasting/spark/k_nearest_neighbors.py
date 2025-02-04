@@ -25,13 +25,20 @@ class KNearestNeighbors(MachineLearningInterface):
     This component is compatible with time series data and supports customizable weighted or unweighted averaging for predictions.
 
     Example:
-    --------
     ```python
-    from src.sdk.python.rtdip_sdk.pipelines.machine_learning.spark.k_nearest_neighbors import KNearestNeighbors
     from pyspark.ml.feature import StandardScaler, VectorAssembler
     from pyspark.sql import SparkSession
-    spark = ... # SparkSession
-    raw_df = ... # Get a PySpark DataFrame
+    from src.sdk.python.rtdip_sdk.pipelines.machine_learning.spark.k_nearest_neighbors import KNearestNeighbors
+    spark_session = SparkSession.builder.master("local[2]").appName("KNN").getOrCreate()
+    data = [
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", 25.0),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 07:53:11.000", "Good", -5.0),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 11:56:42.000", "Good", 50.0),
+        ("B3TS64V0K.:ZUX09R", "2024-01-02 16:00:12.000", "Good", 80.0),
+        ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", 100.0),
+    ]
+    columns = ["TagName", "EventTime", "Status", "Value"]
+    raw_df = = spark.createDataFrame(data, columns)
     assembler = VectorAssembler(inputCols=["feature1", "feature2"], outputCol="assembled_features")
     df = assembler.transform(raw_df)
     scaler = StandardScaler(inputCol="assembled_features", outputCol="features", withStd=True, withMean=True)
@@ -50,8 +57,8 @@ class KNearestNeighbors(MachineLearningInterface):
     knn.train(train_df)
     predictions = knn.predict(test_df)
     ```
+    
     Parameters:
-    --------
         df (pyspark.sql.Dataframe): DataFrame containing the features and labels
         features_col (str): Name of the column containing the features (the input). Default is 'features'
         label_col (str): Name of the column containing the label (the input). Default is 'label'
