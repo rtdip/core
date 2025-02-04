@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import copy
 import statistics
 from enum import Enum
 from typing import List, Tuple
@@ -32,7 +33,7 @@ import numpy as np
 from ...data_quality.data_manipulation.interfaces import DataManipulationBaseInterface
 from ...data_quality.input_validator import InputValidator
 from ...._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ..._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
@@ -249,7 +250,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
                     .agg(F.first(self.value_name))
                 )
         if not to_extend_name in self.df.columns:
-            raise ValueError("{} not found in the DataFrame.".format(value_name))
+            raise ValueError("{} not found in the DataFrame.".format(to_extend_name))
 
     def _constructor_handle_input_metadata(
         self,
@@ -264,8 +265,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
         if past_data_style is not None:
             return past_data_style, value_name, timestamp_name, source_name, status_name
         # Automatic calculation part
-        schema = past_data.schema
-        schema_names = schema.names
+        schema_names = past_data.schema.names.copy()
 
         assumed_past_data_style = None
         value_name = None
@@ -279,20 +279,16 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             rgx = regex.compile(regex_string)
             sus_columns = list(filter(rgx.search, rem_columns))
             found_column = sus_columns[0] if len(sus_columns) == 1 else None
-            if found_column is not None:
-                rem_columns.remove(found_column)
-            return found_column, rem_columns
+            return found_column
 
         # Is there a status column?
-        status_name, remaining_columns = pickout_column(schema_names, r"(?i)status")
+        status_name = pickout_column(schema_names, r"(?i)status")
         # Is there a source name / tag
-        source_name, remaining_columns = pickout_column(schema_names, r"(?i)tag")
+        source_name = pickout_column(schema_names, r"(?i)tag")
         # Is there a timestamp column?
-        timestamp_name, remaining_columns = pickout_column(
-            schema_names, r"(?i)time|index"
-        )
+        timestamp_name = pickout_column(schema_names, r"(?i)time|index")
         # Is there a value column?
-        value_name, remaining_columns = pickout_column(schema_names, r"(?i)value")
+        value_name = pickout_column(schema_names, r"(?i)value")
 
         if source_name is not None:
             assumed_past_data_style = self.InputStyle.SOURCE_BASED
@@ -400,7 +396,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             # Workaround needed for PySpark versions <3.4
             pd_df = _prepare_pandas_to_convert_to_spark(pd_df)
             predicted_source_pyspark_dataframe = self.spark_session.createDataFrame(
-                pd_df, schema=self.past_data.schema
+                pd_df, schema=copy.deepcopy(self.past_data.schema)
             )
             return predicted_source_pyspark_dataframe
         elif self.past_data_style == self.InputStyle.SOURCE_BASED:
@@ -428,7 +424,12 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             data_to_add = _prepare_pandas_to_convert_to_spark(data_to_add)
 
             predicted_source_pyspark_dataframe = self.spark_session.createDataFrame(
-                data_to_add, schema=pd_df_schema
+                _prepare_pandas_to_convert_to_spark(
+                    data_to_add[
+                        [self.source_name, self.timestamp_name, self.value_name]
+                    ]
+                ),
+                schema=pd_df_schema,
             )
 
             if self.status_name is not None:
@@ -438,7 +439,8 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
                     )
                 )
 
-            return self.past_data.union(predicted_source_pyspark_dataframe)
+            to_return = self.past_data.unionByName(predicted_source_pyspark_dataframe)
+            return to_return
 
     def validate(self, schema_dict):
         return super().validate(schema_dict, self.past_data)
