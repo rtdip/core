@@ -14,10 +14,8 @@
 
 import great_expectations as gx
 from pyspark.sql import DataFrame, SparkSession
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.interfaces import (
-    MonitoringBaseInterface,
-)
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ..interfaces import MonitoringBaseInterface
+from ...._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
@@ -80,7 +78,7 @@ class GreatExpectationsDataQuality(MonitoringBaseInterface, InputValidator):
 
     GX.display_expectations(suite)
 
-    #Run the Data Quality Check by Validating your data against set expecations in the suite
+    #Run the Data Quality Check by Validating your data against set expectations in the suite
 
     checkpoint_name = "checkpoint_name"
     run_name_template = "run_name_template"
@@ -221,7 +219,7 @@ class GreatExpectationsDataQuality(MonitoringBaseInterface, InputValidator):
         action_list: list,
     ):
         """
-        Validate your data against set expecations in the suite
+        Validate your data against set expectations in the suite
         Args:
             checkpoint_name (str): The name of the checkpoint.
             run_name_template (str): The name of the run.
