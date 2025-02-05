@@ -14,11 +14,12 @@
 from abc import abstractmethod
 from pyspark.sql import DataFrame as PySparkDataFrame
 from typing import List
+from pyspark.sql.types import DoubleType, StructField, StructType
 from ....input_validator import InputValidator
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.interfaces import (
+from ...interfaces import (
     DataManipulationBaseInterface,
 )
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ....._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
@@ -67,14 +68,14 @@ class NormalizationBaseClass(DataManipulationBaseInterface, InputValidator):
     def __init__(
         self, df: PySparkDataFrame, column_names: List[str], in_place: bool = False
     ) -> None:
-
-        for column_name in column_names:
-            if not column_name in df.columns:
-                raise ValueError("{} not found in the DataFrame.".format(column_name))
-
         self.df = df
         self.column_names = column_names
         self.in_place = in_place
+
+        EXPECTED_SCHEMA = StructType(
+            [StructField(column_name, DoubleType()) for column_name in column_names]
+        )
+        self.validate(EXPECTED_SCHEMA)
 
     @staticmethod
     def system_type():

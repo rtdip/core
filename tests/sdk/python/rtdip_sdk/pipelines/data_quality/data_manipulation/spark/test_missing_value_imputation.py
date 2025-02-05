@@ -12,11 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import col, unix_timestamp, abs as A
-from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    TimestampType,
+    FloatType,
+)
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.missing_value_imputation import (
     MissingValueImputation,
@@ -36,6 +43,15 @@ def test_missing_value_imputation(spark_session: SparkSession):
             StructField("EventTime", StringType(), True),
             StructField("Status", StringType(), True),
             StructField("Value", StringType(), True),
+        ]
+    )
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
         ]
     )
 
@@ -65,58 +81,58 @@ def test_missing_value_imputation(spark_session: SparkSession):
         ("A2PS64V0J.:ZUX09R", "2024-01-04 00:28:44.000", "Good", "18.0"),
         ("A2PS64V0J.:ZUX09R", "2024-01-04 04:32:18.000", "Good", "19.0"),
         # Real missing values
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:01:43", "Good", "4686.259766"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:02:44", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:04:44", "Good", "4686.259766"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:05:44", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:11:46", "Good", "4686.259766"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:13:46", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:16:47", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:19:48", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:20:48", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:25:50", "Good", "4681.35791"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:26:50", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:27:50", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:28:50", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:31:51", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:32:52", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:42:52", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:42:54", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:43:54", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:44:54", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:45:54", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:46:55", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:47:55", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:51:56", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:52:56", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:55:57", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:56:58", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:57:58", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 00:59:59", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:00:59", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:05:01", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:10:02", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:11:03", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:13:06", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:17:07", "Good", "4691.161621"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:18:07", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:20:07", "Good", "4686.259766"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:21:07", "Good", "4700.96582"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:25:09", "Good", "4676.456055"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:26:09", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:30:09", "Good", "4700.96582"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:35:10", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:36:10", "Good", "4700.96582"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:40:11", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:42:11", "Good", "4700.96582"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:43:11", "Good", "4705.867676"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:44:11", "Good", "4700.96582"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:46:11", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:47:11", "Good", "4700.96582"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:53:13", "Good", "4696.063477"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:54:13", "Good", "4700.96582"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:55:13", "Good", "4686.259766"),
-        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "31.12.2023 01:56:13", "Good", "4700.96582"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:01:43", "Good", "4686.259766"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:02:44", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:04:44", "Good", "4686.259766"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:05:44", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:11:46", "Good", "4686.259766"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:13:46", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:16:47", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:19:48", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:20:48", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:25:50", "Good", "4681.35791"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:26:50", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:27:50", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:28:50", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:31:51", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:32:52", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:42:52", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:42:54", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:43:54", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:44:54", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:45:54", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:46:55", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:47:55", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:51:56", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:52:56", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:55:57", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:56:58", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:57:58", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 00:59:59", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:00:59", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:05:01", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:10:02", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:11:03", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:13:06", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:17:07", "Good", "4691.161621"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:18:07", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:20:07", "Good", "4686.259766"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:21:07", "Good", "4700.96582"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:25:09", "Good", "4676.456055"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:26:09", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:30:09", "Good", "4700.96582"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:35:10", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:36:10", "Good", "4700.96582"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:40:11", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:42:11", "Good", "4700.96582"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:43:11", "Good", "4705.867676"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:44:11", "Good", "4700.96582"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:46:11", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:47:11", "Good", "4700.96582"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:53:13", "Good", "4696.063477"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:54:13", "Good", "4700.96582"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:55:13", "Good", "4686.259766"),
+        ("-4O7LSSAM_3EA02:2GT7E02I_R_MP", "2023-12-31 01:56:13", "Good", "4700.96582"),
     ]
 
     expected_data = [
@@ -262,12 +278,18 @@ def test_missing_value_imputation(spark_session: SparkSession):
     expected_df = spark_session.createDataFrame(expected_data, schema=schema)
 
     missing_value_imputation = MissingValueImputation(spark_session, test_df)
-    actual_df = missing_value_imputation.filter()
+    actual_df = DataFrame
+
+    try:
+        if missing_value_imputation.validate(expected_schema):
+            actual_df = missing_value_imputation.filter()
+    except Exception as e:
+        print(repr(e))
 
     assert isinstance(actual_df, DataFrame)
 
     assert expected_df.columns == actual_df.columns
-    assert expected_df.schema == actual_df.schema
+    assert expected_schema == actual_df.schema
 
     def assert_dataframe_similar(
         expected_df, actual_df, tolerance=1e-4, time_tolerance_seconds=5
@@ -314,3 +336,68 @@ def test_missing_value_imputation(spark_session: SparkSession):
                     ), f"Mismatch in column '{column_name}': {expected_val} != {actual_val}"
 
     assert_dataframe_similar(expected_df, actual_df, tolerance=1e-4)
+
+
+def test_missing_value_imputation_large_data_set(spark_session: SparkSession):
+    test_path = os.path.dirname(__file__)
+    data_path = os.path.join(test_path, "../../test_data.csv")
+
+    actual_df = spark_session.read.option("header", "true").csv(data_path)
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    missing_value_imputation_component = MissingValueImputation(
+        spark_session, actual_df
+    )
+    result_df = DataFrame
+
+    try:
+        if missing_value_imputation_component.validate(expected_schema):
+            result_df = missing_value_imputation_component.filter()
+    except Exception as e:
+        print(repr(e))
+
+    assert isinstance(actual_df, DataFrame)
+
+    assert result_df.schema == expected_schema
+    assert result_df.count() > actual_df.count()
+
+
+def test_missing_value_imputation_wrong_datatype(spark_session: SparkSession):
+
+    expected_schema = StructType(
+        [
+            StructField("TagName", StringType(), True),
+            StructField("EventTime", TimestampType(), True),
+            StructField("Status", StringType(), True),
+            StructField("Value", FloatType(), True),
+        ]
+    )
+
+    test_df = spark_session.createDataFrame(
+        [
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "1.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "2.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "3.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "4.0"),
+            ("A2PS64V0J.:ZUX09R", "invalid_data_type", "Good", "5.0"),
+        ],
+        ["TagName", "EventTime", "Status", "Value"],
+    )
+
+    missing_value_imputation_component = MissingValueImputation(spark_session, test_df)
+
+    with pytest.raises(ValueError) as exc_info:
+        missing_value_imputation_component.validate(expected_schema)
+
+    assert (
+        "Error during casting column 'EventTime' to TimestampType(): Column 'EventTime' cannot be cast to TimestampType()."
+        in str(exc_info.value)
+    )

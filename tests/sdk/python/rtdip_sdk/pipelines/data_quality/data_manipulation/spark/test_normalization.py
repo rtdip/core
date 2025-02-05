@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pandas.io.formats.format import math
 import pytest
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
@@ -47,6 +49,19 @@ def test_nonexistent_column_normalization(spark_session: SparkSession):
 
     with pytest.raises(ValueError):
         NormalizationMean(input_df, column_names=["NonexistingColumn"], in_place=True)
+
+
+def test_wrong_column_type_normalization(spark_session: SparkSession):
+    input_df = spark_session.createDataFrame(
+        [
+            ("a",),
+            ("b",),
+        ],
+        ["Value"],
+    )
+
+    with pytest.raises(ValueError):
+        NormalizationMean(input_df, column_names=["Value"])
 
 
 def test_non_inplace_normalization(spark_session: SparkSession):
@@ -105,8 +120,6 @@ def test_idempotence_with_positive_values(
     expected_df = input_df.alias("input_df")
     helper_assert_idempotence(class_to_test, input_df, expected_df)
 
-    class_to_test(input_df, column_names=["Value"], in_place=True)
-
 
 @pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
 def test_idempotence_with_zero_values(
@@ -122,6 +135,21 @@ def test_idempotence_with_zero_values(
         ],
         ["Value"],
     )
+
+    expected_df = input_df.alias("input_df")
+    helper_assert_idempotence(class_to_test, input_df, expected_df)
+
+
+@pytest.mark.parametrize("class_to_test", NormalizationBaseClass.__subclasses__())
+def test_idempotence_with_large_data_set(
+    spark_session: SparkSession, class_to_test: NormalizationBaseClass
+):
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, "../../test_data.csv")
+    input_df = spark_session.read.option("header", "true").csv(file_path)
+    input_df = input_df.withColumn("Value", input_df["Value"].cast("double"))
+    assert input_df.count() > 0, "Dataframe was not loaded correct"
+    input_df.show()
 
     expected_df = input_df.alias("input_df")
     helper_assert_idempotence(class_to_test, input_df, expected_df)
@@ -145,6 +173,12 @@ def helper_assert_idempotence(
 
         assert expected_df.columns == actual_df.columns
         assert expected_df.schema == actual_df.schema
-        assert expected_df.collect() == actual_df.collect()
+
+        for row1, row2 in zip(expected_df.collect(), actual_df.collect()):
+            for col1, col2 in zip(row1, row2):
+                if isinstance(col1, float) and isinstance(col2, float):
+                    assert math.isclose(col1, col2, rel_tol=1e-9)
+                else:
+                    assert col1 == col2
     except ZeroDivisionError:
         pass

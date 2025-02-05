@@ -11,3 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from .data_binning import DataBinning
+from .linear_regression import LinearRegression
+from .arima import ArimaPrediction
+from .auto_arima import ArimaAutoPrediction
+from .k_nearest_neighbors import KNearestNeighbors

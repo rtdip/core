@@ -23,18 +23,14 @@ from pyspark.sql.types import (
     FloatType,
 )
 
-from src.sdk.python.rtdip_sdk.pipelines.data_quality.monitoring.interfaces import (
-    MonitoringBaseInterface,
-)
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from ..interfaces import MonitoringBaseInterface
+from ...._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
-from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.time_string_parsing import (
-    parse_time_string_to_ms,
-)
+from ....utilities.spark.time_string_parsing import parse_time_string_to_ms
 from ...input_validator import InputValidator
-from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerManager
+from ....logging.logger_manager import LoggerManager
 
 
 class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
@@ -168,7 +164,7 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
                 self.logger.error(e)
                 raise
         else:
-            # Calulate tolerance based on MAD
+            # Calculate tolerance based on MAD
             mad_expr = F.expr(
                 f"percentile_approx(abs(TimeDeltaMs - {interval_ms}), 0.5)"
             )

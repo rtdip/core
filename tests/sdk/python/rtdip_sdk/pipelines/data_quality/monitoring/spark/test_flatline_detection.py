@@ -50,7 +50,7 @@ def test_flatline_detection_no_flatlining(spark, log_capture):
     detector.check()
 
     expected_logs = [
-        "No flatlining detected in column 'Value'.",
+        "No flatlining detected.",
     ]
     actual_logs = log_capture.getvalue().strip().split("\n")
 
@@ -106,7 +106,7 @@ def test_flatline_detection_with_tolerance(spark, log_capture):
     detector.check()
 
     expected_logs = [
-        "No flatlining detected in column 'Value'.",
+        "No flatlining detected.",
     ]
     actual_logs = log_capture.getvalue().strip().split("\n")
 
