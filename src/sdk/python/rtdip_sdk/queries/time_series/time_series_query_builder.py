@@ -227,7 +227,7 @@ class TimeSeriesQueryBuilder:
             "end_date": end_date,
             "include_bad_data": include_bad_data,
             "display_uom": display_uom,
-            "sirt": sort,
+            "sort": sort,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
