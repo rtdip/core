@@ -32,7 +32,7 @@ INSTALL_REQUIRES = [
     "pyarrow>=14.0.1,<17.0.0",
     "azure-identity>=1.12.0,<2.0.0",
     "pandas<3.0.0",
-    "jinja2>=3.1.2,<4.0.0",
+    "jinja2>=3.1.5,<4.0.0",
     "importlib_metadata>=7.0.0,<8.0.0",
     "semver>=3.0.0,<4.0.0",
     "xlrd>=2.0.1,<3.0.0",
