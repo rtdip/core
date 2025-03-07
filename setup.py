@@ -31,7 +31,7 @@ INSTALL_REQUIRES = [
     "databricks-sql-connector>=3.1.0,<4.0.0",
     "pyarrow>=14.0.1,<17.0.0",
     "azure-identity>=1.12.0,<2.0.0",
-    "pandas>=1.5.2,<2.2.0",
+    "pandas<3.0.0",
     "jinja2>=3.1.5,<4.0.0",
     "importlib_metadata>=7.0.0,<8.0.0",
     "semver>=3.0.0,<4.0.0",
@@ -39,10 +39,13 @@ INSTALL_REQUIRES = [
     "grpcio>=1.48.1",
     "grpcio-status>=1.48.1",
     "googleapis-common-protos>=1.56.4",
+    "pydantic>=2.6.0,<3.0.0",
+]
+
+LANGCHAIN_PACKAGES = [
     "langchain>=0.2.0,<0.3.0",
     "langchain-community>=0.2.0,<0.3.0",
     "openai>=1.13.3,<2.0.0",
-    "pydantic>=2.6.0,<3.0.0",
 ]
 
 PYSPARK_PACKAGES = [
@@ -61,7 +64,7 @@ PIPELINE_PACKAGES = [
     "azure-keyvault-secrets>=4.7.0,<5.0.0",
     "web3>=6.18.0,<7.0.0",
     "polars[deltalake]>=0.18.8,<1.0.0",
-    "delta-sharing>=1.0.0,<2.0.0",
+    "delta-sharing>=1.0.0,<1.1.0",
     "xarray>=2023.1.0,<2023.8.0",
     "ecmwf-api-client>=1.6.3,<2.0.0",
     "netCDF4>=1.6.4,<2.0.0",
@@ -71,6 +74,7 @@ PIPELINE_PACKAGES = [
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
+    "langchain": LANGCHAIN_PACKAGES,
     "pipelines": PIPELINE_PACKAGES,
     "pyspark": PYSPARK_PACKAGES,
 }
