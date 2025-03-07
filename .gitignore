@@ -137,3 +137,6 @@ spark-checkpoints/
 
 # Delta Sharing
 config.share
+
+# JetBrains
+.idea/
