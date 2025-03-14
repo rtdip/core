@@ -1,4 +1,4 @@
-# Copyright 2024 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,11 +65,13 @@ class PolynomialFeatures(TransformerInterface):
         return {}
 
     def pre_transform_validation(self):
-        if not (self.input_col in self.df.columns):
-            return False
-        if self.output_col not in self.df.columns and not self.override_col:
-            return False
-        return isinstance(self.df.schema[self.input_col].dataType, ml.linalg.VectorUDT)
+        if not (self.input_col in self.df.columns):  
+            raise ValueError(f"Input column '{self.input_col}' does not exist in the DataFrame.")  
+        if self.output_col in self.df.columns and not self.override_col:  
+            raise ValueError(f"Output column '{self.output_col}' already exists in the DataFrame and override_col is set to False.")  
+        if not isinstance(self.df.schema[self.input_col].dataType, ml.linalg.VectorUDT):  
+            raise ValueError(f"Input column '{self.input_col}' is not of type VectorUDT.")  
+        return True  
 
     def post_transform_validation(self):
         return True
