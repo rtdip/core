@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ class DuplicateDetection(DataManipulationBaseInterface, InputValidator):
     Example
     --------
     ```python
-    from rtdip_sdk.pipelines.monitoring.spark.data_manipulation.duplicate_detection import DuplicateDetection
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.duplicate_detection import DuplicateDetection
+
     from pyspark.sql import SparkSession
     from pyspark.sql.dataframe import DataFrame
 
@@ -74,7 +75,7 @@ class DuplicateDetection(DataManipulationBaseInterface, InputValidator):
     def filter(self) -> PySparkDataFrame:
         """
         Returns:
-            DataFrame: A cleansed PySpark DataFrame from all duplicates based on primary key columns.
+            PySparkDataFrame: A cleansed PySpark DataFrame from all duplicates based on primary key columns.
         """
         cleansed_df = self.df.dropDuplicates(self.primary_key_columns)
         return cleansed_df

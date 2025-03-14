@@ -1,4 +1,4 @@
-# Copyright 2024 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,8 @@ class NormalizationBaseClass(DataManipulationBaseInterface, InputValidator):
     Example
     --------
     ```python
-    from src.sdk.python.rtdip_sdk.pipelines.data_wranglers import NormalizationZScore
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.normalization.normalization import NormalizationZScore
+
     from pyspark.sql import SparkSession
     from pyspark.sql.dataframe import DataFrame
 

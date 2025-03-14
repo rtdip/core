@@ -1,4 +1,4 @@
-# Copyright 2024 Project Team
+# Copyright 2025 Project Team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,17 +31,18 @@ class DimensionalityReduction(DataManipulationBaseInterface):
     Example
     --------
     ```python
-    from rtdip_sdk.pipelines.monitoring.spark.data_manipulation.column_correlation import ColumnCorrelationDetection
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.dimensionality_reduction import DimensionalityReduction
+
     from pyspark.sql import SparkSession
 
-    column_correlation_monitor = ColumnCorrelationDetection(
+    column_correlation_monitor = DimensionalityReduction(
         df,
-        columns_to_check=['column1', 'column2'],
+        columns=['column1', 'column2'],
         threshold=0.95,
         combination_method='mean'
     )
 
-    result = column_correlation_monitor.process()
+    result = column_correlation_monitor.filter()
     ```
 
     Parameters:
@@ -114,7 +115,7 @@ class DimensionalityReduction(DataManipulationBaseInterface):
         Calculate correlation between specified columns.
 
         Returns:
-            dict: Correlation matrix between columns
+            float: Correlation matrix between columns
         """
         assembler = VectorAssembler(
             inputCols=self.columns_to_check, outputCol="features"
@@ -133,7 +134,7 @@ class DimensionalityReduction(DataManipulationBaseInterface):
         Process DataFrame by detecting and combining correlated columns.
 
         Returns:
-            DataFrame: Transformed PySpark DataFrame
+            PySparkDataFrame: Transformed PySpark DataFrame
         """
         correlation = self._calculate_correlation()
 

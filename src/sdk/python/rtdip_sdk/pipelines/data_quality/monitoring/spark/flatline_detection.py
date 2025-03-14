@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,7 +46,8 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
 
     Example:
         ```python
-        from rtdip_sdk.pipelines.monitoring.spark.data_manipulation.flatline_detection import FlatlineDetection
+        from rtdip_sdk.pipelines.data_quality.monitoring.spark.flatline_detection import FlatlineDetection
+
         from pyspark.sql import SparkSession
 
         spark = SparkSession.builder.master("local[1]").appName("FlatlineDetectionExample").getOrCreate()

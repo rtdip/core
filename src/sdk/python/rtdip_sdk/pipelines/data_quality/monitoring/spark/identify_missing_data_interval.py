@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
     Example
     --------
     ```python
-      from rtdip_sdk.pipelines.monitoring.spark.data_manipulation import IdentifyMissingDataInterval
+    from rtdip_sdk.pipelines.data_quality.monitoring.spark.identify_missing_data_interval import IdentifyMissingDataInterval
+
     from pyspark.sql import SparkSession
 
         missing_data_monitor = IdentifyMissingDataInterval(

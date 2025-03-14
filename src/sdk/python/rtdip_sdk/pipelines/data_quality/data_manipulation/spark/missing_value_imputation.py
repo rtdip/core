@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
     from pyspark.sql import SparkSession
     from pyspark.sql.dataframe import DataFrame
     from pyspark.sql.types import StructType, StructField, StringType
-    from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_manipulation.missing_value_imputation import (
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.missing_value_imputation import (
         MissingValueImputation,
     )
 

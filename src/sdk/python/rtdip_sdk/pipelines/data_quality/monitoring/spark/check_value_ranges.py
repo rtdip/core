@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,7 +50,8 @@ class CheckValueRanges(MonitoringBaseInterface, InputValidator):
     Example:
         ```python
         from pyspark.sql import SparkSession
-        from rtdip_sdk.pipelines.monitoring.spark.data_quality.check_value_ranges import CheckValueRanges
+        from rtdip_sdk.pipelines.data_quality.monitoring.spark.check_value_ranges import CheckValueRanges
+
 
         spark = SparkSession.builder.master("local[1]").appName("CheckValueRangesExample").getOrCreate()
 

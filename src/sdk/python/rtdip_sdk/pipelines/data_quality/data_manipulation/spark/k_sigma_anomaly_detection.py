@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
     Example
     --------
     ```python
-    from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_manipulation.k_sigma_anomaly_detection import KSigmaAnomalyDetection
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.k_sigma_anomaly_detection import KSigmaAnomalyDetection
+
 
     spark = ... # SparkSession
     df = ... # Get a PySpark DataFrame
