@@ -20,18 +20,49 @@ from typing import Optional
 
 
 class LinearRegression(MachineLearningInterface):
-    """
-    This function uses pyspark.ml.LinearRegression to train a linear regression model on time data.
-    And the uses the model to predict next values in the time series.
+    """  
+    This class uses pyspark.ml.LinearRegression to train a linear regression model on time data  
+    and then uses the model to predict next values in the time series.  
 
-    Args:
-        df (pyspark.sql.Dataframe): DataFrame containing the features and labels.
-        features_col (str): Name of the column containing the features (the input). Default is 'features'.
-        label_col (str): Name of the column containing the label (the input). Default is 'label'.
-        prediction_col (str): Name of the column to which the prediction will be written. Default is 'prediction'.
-    Returns:
-        PySparkDataFrame: Returns the original PySpark DataFrame without changes.
-    """
+    Args:  
+        df (pyspark.sql.Dataframe): DataFrame containing the features and labels.  
+        features_col (str): Name of the column containing the features (the input). Default is 'features'.  
+        label_col (str): Name of the column containing the label (the input). Default is 'label'.  
+        prediction_col (str): Name of the column to which the prediction will be written. Default is 'prediction'.  
+
+    Example:  
+    --------  
+    ```python  
+    from pyspark.sql import SparkSession  
+    from pyspark.ml.feature import VectorAssembler  
+    from rtdip_sdk.pipelines.forecasting.spark.linear_regression import LinearRegression  
+
+    spark = SparkSession.builder.master("local[2]").appName("LinearRegressionExample").getOrCreate()  
+
+    data = [  
+        (1, 2.0, 3.0),  
+        (2, 3.0, 4.0),  
+        (3, 4.0, 5.0),  
+        (4, 5.0, 6.0),  
+        (5, 6.0, 7.0),  
+    ]  
+    columns = ["id", "feature1", "label"]  
+    df = spark.createDataFrame(data, columns)  
+
+    assembler = VectorAssembler(inputCols=["feature1"], outputCol="features")  
+    df = assembler.transform(df)  
+
+    lr = LinearRegression(df=df, features_col="features", label_col="label", prediction_col="prediction")  
+    train_df, test_df = lr.split_data(train_ratio=0.8)  
+    lr.train(train_df)  
+    predictions = lr.predict(test_df)  
+    rmse, r2 = lr.evaluate(predictions)  
+    print(f"RMSE: {rmse}, R²: {r2}")  
+    ```  
+
+    Returns:  
+        PySparkDataFrame: Returns the original PySpark DataFrame without changes.  
+    """  
 
     def __init__(
         self,
@@ -107,8 +138,6 @@ class LinearRegression(MachineLearningInterface):
         Returns:
             Optional[float]: The Root Mean Squared Error (RMSE) of the model or None if the prediction columnd doesn't exist.
         """
-        # Check the columns of the test DataFrame
-        test_df.show(5)
 
         if self.prediction_col not in test_df.columns:
             print(
