@@ -66,7 +66,8 @@ class DataBinning(MachineLearningInterface):
                 featuresCol=column_name, predictionCol=output_column_name, k=bins
             )
         else:
-            raise Exception("Unknown method")
+            raise ValueError("Unknown method: {}".format(method))
+
 
     @staticmethod
     def system_type():
