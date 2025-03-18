@@ -60,8 +60,6 @@ class LinearRegression(MachineLearningInterface):
     print(f"RMSE: {rmse}, R²: {r2}")
     ```
 
-    Returns:
-        PySparkDataFrame: Returns the original PySpark DataFrame without changes.
     """
 
     def __init__(
