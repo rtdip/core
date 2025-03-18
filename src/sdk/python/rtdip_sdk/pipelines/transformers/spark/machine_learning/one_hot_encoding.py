@@ -25,7 +25,7 @@ class OneHotEncoding(TransformerInterface):
     Example
     --------
     ```python
-    from src.sdk.python.rtdip_sdk.pipelines.data_wranglers.spark.data_quality.one_hot_encoding import OneHotEncoding
+    from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.machine_learning.one_hot_encoding import OneHotEncoding
     from pyspark.sql import SparkSession
 
 

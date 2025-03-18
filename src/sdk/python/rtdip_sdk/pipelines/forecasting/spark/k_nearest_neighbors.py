@@ -28,7 +28,7 @@ class KNearestNeighbors(MachineLearningInterface):
     ```python
     from pyspark.ml.feature import StandardScaler, VectorAssembler
     from pyspark.sql import SparkSession
-    from src.sdk.python.rtdip_sdk.pipelines.machine_learning.spark.k_nearest_neighbors import KNearestNeighbors
+    from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.k_nearest_neighbors import KNearestNeighbors
     spark_session = SparkSession.builder.master("local[2]").appName("KNN").getOrCreate()
     data = [
         ("A2PS64V0J.:ZUX09R", "2024-01-02 03:49:45.000", "Good", 25.0),
