@@ -42,7 +42,7 @@ class MovingAverage(MonitoringBaseInterface, InputValidator):
     Example:
         ```python
         from pyspark.sql import SparkSession
-        from rtdip_sdk.pipelines.monitoring.spark.data_quality.moving_average import MovingAverage
+        from rtdip_sdk.pipelines.data_quality.monitoring.spark.data_quality.moving_average import MovingAverage
 
         spark = SparkSession.builder.master("local[1]").appName("MovingAverageExample").getOrCreate()
 

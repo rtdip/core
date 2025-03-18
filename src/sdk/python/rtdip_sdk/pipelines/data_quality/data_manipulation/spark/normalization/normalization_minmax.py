@@ -19,25 +19,26 @@ from pyspark.sql import functions as F
 
 
 class NormalizationMinMax(NormalizationBaseClass):
-    """  
-    Implements Min-Max normalization for specified columns in a PySpark DataFrame.  
+    """
+    Implements Min-Max normalization for specified columns in a PySpark DataFrame.
 
-    Example  
-    --------  
-    ```python  
-    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.normalization.normalization_minmax import NormalizationMinMax  
-    from pyspark.sql import SparkSession  
-    from pyspark.sql.dataframe import DataFrame  
+    Example
+    --------
+    ```python
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.normalization.normalization_minmax import NormalizationMinMax
+    from pyspark.sql import SparkSession
+    from pyspark.sql.dataframe import DataFrame
 
-    normalization = NormalizationMinMax(df, column_names=["value_column_1", "value_column_2"], in_place=False)  
-    normalized_df = normalization.filter()  
-    ```  
+    normalization = NormalizationMinMax(df, column_names=["value_column_1", "value_column_2"], in_place=False)
+    normalized_df = normalization.filter()
+    ```
 
-    Parameters:  
-        df (DataFrame): PySpark DataFrame to be normalized.  
-        column_names (List[str]): List of columns in the DataFrame to be normalized.  
-        in_place (bool): If true, then result of normalization is stored in the same column.  
-    """  
+    Parameters:
+        df (DataFrame): PySpark DataFrame to be normalized.
+        column_names (List[str]): List of columns in the DataFrame to be normalized.
+        in_place (bool): If true, then result of normalization is stored in the same column.
+    """
+
     NORMALIZED_COLUMN_NAME = "minmax"
 
     def _normalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:

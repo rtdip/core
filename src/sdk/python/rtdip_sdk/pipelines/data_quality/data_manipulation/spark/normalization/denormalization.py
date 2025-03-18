@@ -27,22 +27,22 @@ from .normalization import (
 
 class Denormalization(DataManipulationBaseInterface, InputValidator):
     """
-    Applies the appropriate denormalization method to revert values to their original scale.
+     Applies the appropriate denormalization method to revert values to their original scale.
 
-    Example
-    --------
-    ```python
-   from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.normalization.denormalization import Denormalization
-    from pyspark.sql import SparkSession
-    from pyspark.sql.dataframe import DataFrame
+     Example
+     --------
+     ```python
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.spark.normalization.denormalization import Denormalization
+     from pyspark.sql import SparkSession
+     from pyspark.sql.dataframe import DataFrame
 
-    denormalization = Denormalization(normalized_df, normalization)
-    denormalized_df = denormalization.filter()
-    ```
+     denormalization = Denormalization(normalized_df, normalization)
+     denormalized_df = denormalization.filter()
+     ```
 
-    Parameters:
-        df (DataFrame): PySpark DataFrame to be reverted to its original scale.
-        normalization_to_revert (NormalizationBaseClass): An instance of the specific normalization subclass (NormalizationZScore, NormalizationMinMax, NormalizationMean) that was originally used to normalize the data.
+     Parameters:
+         df (DataFrame): PySpark DataFrame to be reverted to its original scale.
+         normalization_to_revert (NormalizationBaseClass): An instance of the specific normalization subclass (NormalizationZScore, NormalizationMinMax, NormalizationMean) that was originally used to normalize the data.
     """
 
     df: PySparkDataFrame

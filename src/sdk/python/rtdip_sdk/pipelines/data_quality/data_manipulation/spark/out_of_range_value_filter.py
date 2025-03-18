@@ -62,12 +62,12 @@ class OutOfRangeValueFilter(DataManipulationBaseInterface):
             "B3TS64V0K.:ZUX09R": {"min": 50, "max": 100, "inclusive_bounds": False},
         }
 
-        out_of_range_value_filter = OutOfRangeValueFilter(  
-            df=df,  
-            tag_ranges=tag_ranges,  
-        )  
+        out_of_range_value_filter = OutOfRangeValueFilter(
+            df=df,
+            tag_ranges=tag_ranges,
+        )
 
-        result_df = out_of_range_value_filter.filter() 
+        result_df = out_of_range_value_filter.filter()
         ```
     """
 

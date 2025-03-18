@@ -26,7 +26,7 @@ class DataBinning(MachineLearningInterface):
     Example
     --------
     ```python
-    from src.sdk.python.rtdip_sdk.pipelines.machine_learning.spark.data_binning import DataBinning
+    from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.data_binning import DataBinning
 
     df = ... # Get a PySpark DataFrame with features column
 
@@ -67,7 +67,6 @@ class DataBinning(MachineLearningInterface):
             )
         else:
             raise ValueError("Unknown method: {}".format(method))
-
 
     @staticmethod
     def system_type():

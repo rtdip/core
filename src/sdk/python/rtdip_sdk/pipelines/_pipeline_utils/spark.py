@@ -125,25 +125,25 @@ def is_dataframe_partially_conformed_in_schema(
     """
     Checks if all columns in the dataframe are contained in the schema with appropriate types.
 
-    Parameters:  
-    dataframe (DataFrame): The dataframe to check.  
-    schema (StructType): The schema to conform to.  
-    throw_error (bool): If True, raises an error on non-conformance. Defaults to True.  
+    Parameters:
+    dataframe (DataFrame): The dataframe to check.
+    schema (StructType): The schema to conform to.
+    throw_error (bool): If True, raises an error on non-conformance. Defaults to True.
 
-    Returns:  
-    bool: True if the dataframe conforms to the schema, False otherwise.  
+    Returns:
+    bool: True if the dataframe conforms to the schema, False otherwise.
     """
-    for column in dataframe.schema:  
-        if column.name in schema.names:  
-            schema_field = schema[column.name]  
-            if not isinstance(column.dataType, type(schema_field.dataType)):  
-                if throw_error:  
-                    raise ValueError(  
-                        "Column {0} is of Type {1}, expected Type {2}".format(  
-                            column, column.dataType, schema_field.dataType  
-                        )  
-                    )  
-                return False  
+    for column in dataframe.schema:
+        if column.name in schema.names:
+            schema_field = schema[column.name]
+            if not isinstance(column.dataType, type(schema_field.dataType)):
+                if throw_error:
+                    raise ValueError(
+                        "Column {0} is of Type {1}, expected Type {2}".format(
+                            column, column.dataType, schema_field.dataType
+                        )
+                    )
+                return False
         else:
             # dataframe contains column not expected ins schema
             if not throw_error:
@@ -159,44 +159,45 @@ def conform_dataframe_to_schema(
     dataframe: DataFrame, schema: StructType, throw_error: bool = True
 ) -> DataFrame:
     """
-    Tries to convert all columns to the given schema.  
+    Tries to convert all columns to the given schema.
 
-    Parameters:  
-    dataframe (DataFrame): The dataframe to conform.  
-    schema (StructType): The schema to conform to.  
-    throw_error (bool): If True, raises an error on non-conformance. Defaults to True.  
+    Parameters:
+    dataframe (DataFrame): The dataframe to conform.
+    schema (StructType): The schema to conform to.
+    throw_error (bool): If True, raises an error on non-conformance. Defaults to True.
 
-    Returns:  
-    DataFrame: The conformed dataframe. 
+    Returns:
+    DataFrame: The conformed dataframe.
     """
-    for column in dataframe.schema:  
-        c_name = column.name  
-        if c_name in schema.names:  
-            schema_field = schema[c_name]  
-            if not isinstance(column.dataType, type(schema_field.dataType)):  
-                dataframe = dataframe.withColumn(  
-                    c_name, dataframe[c_name].cast(schema_field.dataType)  
-                )  
-        else:  
-            if throw_error:  
-                raise ValueError(f"Column '{c_name}' is not expected in the dataframe")  
-            else:  
-                dataframe = dataframe.drop(c_name)  
-    return dataframe 
+    for column in dataframe.schema:
+        c_name = column.name
+        if c_name in schema.names:
+            schema_field = schema[c_name]
+            if not isinstance(column.dataType, type(schema_field.dataType)):
+                dataframe = dataframe.withColumn(
+                    c_name, dataframe[c_name].cast(schema_field.dataType)
+                )
+        else:
+            if throw_error:
+                raise ValueError(f"Column '{c_name}' is not expected in the dataframe")
+            else:
+                dataframe = dataframe.drop(c_name)
+    return dataframe
 
 
 def split_by_source(df: DataFrame, split_by_col: str, timestamp_col: str) -> dict:
     """
 
-    Helper method to separate individual time series based on their source.  
+    Helper method to separate individual time series based on their source.
 
-    Parameters:  
-    df (DataFrame): The input DataFrame.  
-    split_by_col (str): The column name to split the DataFrame by.  
-    timestamp_col (str): The column name to order the DataFrame by.  
+    Parameters:
+    df (DataFrame): The input DataFrame.
+    split_by_col (str): The column name to split the DataFrame by.
+    timestamp_col (str): The column name to order the DataFrame by.
 
-    Returns:  
-    dict: A dictionary where keys are distinct values from split_by_col and values are DataFrames filtered and ordered by timestamp_col.     """
+    Returns:
+    dict: A dictionary where keys are distinct values from split_by_col and values are DataFrames filtered and ordered by timestamp_col.
+    """
     tag_names = df.select(split_by_col).distinct().collect()
     tag_names = [row[split_by_col] for row in tag_names]
     source_dict = {
