@@ -109,7 +109,6 @@ def test_knn_initialization(prepared_data):
         weighted=True,
         distance_metric="combined",
     )
-    assert knn is not None
     assert knn.k == 3
     assert knn.weighted is True
 

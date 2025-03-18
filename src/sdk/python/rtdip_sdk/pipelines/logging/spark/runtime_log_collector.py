@@ -48,10 +48,6 @@ class RuntimeLogCollector:
     def settings() -> dict:
         return {}
 
-    @staticmethod
-    def system_type() -> SystemType:
-        pass
-
     def _attach_dataframe_handler_to_logger(
         self, logger_name: str
     ) -> DataFrameLogHandler:

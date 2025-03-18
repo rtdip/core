@@ -18,8 +18,6 @@ from src.sdk.python.rtdip_sdk.pipelines.logging.logger_manager import LoggerMana
 
 def test_logger_manager_basic_function():
     logger_manager = LoggerManager()
-    assert logger_manager is not None
-
     logger1 = logger_manager.create_logger("logger1")
     assert logger1 is logger_manager.get_logger("logger1")
 
