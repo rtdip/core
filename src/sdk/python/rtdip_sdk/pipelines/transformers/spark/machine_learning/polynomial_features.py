@@ -104,6 +104,7 @@ class PolynomialFeatures(TransformerInterface):
                 temp_col, self.output_col
             )
 
+        self.df = transformed_df
         self.post_transform_validation()
 
         return transformed_df

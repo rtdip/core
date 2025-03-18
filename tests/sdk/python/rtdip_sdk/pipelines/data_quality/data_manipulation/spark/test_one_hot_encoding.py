@@ -37,20 +37,12 @@ def spark_session():
 
 def test_empty_df(spark_session):
     """Empty DataFrame"""
-    empty_data = []
-    empty_df = spark_session.createDataFrame(empty_data, SCHEMA)
+    empty_df = spark_session.createDataFrame([], SCHEMA)
     encoder = OneHotEncoding(empty_df, "TagName")
-    result_df = encoder.transform()
 
-    assert (
-        result_df.count() == 0
-    ), "Expected no rows in the result DataFrame for empty input."
-    assert result_df.columns == [
-        "TagName",
-        "EventTime",
-        "Status",
-        "Value",
-    ], "Expected no new columns for empty DataFrame."
+    with pytest.raises(ValueError, match="The DataFrame is empty."):
+        encoder = OneHotEncoding(empty_df, "TagName")
+        encoder.transform()
 
 
 def test_single_unique_value(spark_session):
