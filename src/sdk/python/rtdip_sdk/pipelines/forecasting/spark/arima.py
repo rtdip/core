@@ -62,7 +62,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     import pandas
     from pyspark.sql import SparkSession
 
-    from rtdip_sdk.pipelines.data_quality.forecasting.spark.arima import ArimaPrediction
+    from rtdip_sdk.pipelines.forecasting.spark.arima import ArimaPrediction
 
     import rtdip_sdk.pipelines._pipeline_utils.spark as spark_utils
 
