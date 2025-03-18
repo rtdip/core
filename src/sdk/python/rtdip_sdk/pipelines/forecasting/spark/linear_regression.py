@@ -52,7 +52,7 @@ class LinearRegression(MachineLearningInterface):
     assembler = VectorAssembler(inputCols=["feature1"], outputCol="features")
     df = assembler.transform(df)
 
-    lr = LinearRegression(df=df, features_col="features", label_col="label", prediction_col="prediction")
+    lr = LinearRegression(features_col="features", label_col="label", prediction_col="prediction")
     train_df, test_df = lr.split_data(train_ratio=0.8)
     lr.train(train_df)
     predictions = lr.predict(test_df)
@@ -64,12 +64,10 @@ class LinearRegression(MachineLearningInterface):
 
     def __init__(
         self,
-        df: DataFrame,
         features_col: str = "features",
         label_col: str = "label",
         prediction_col: str = "prediction",
     ) -> None:
-        self.df = df
         self.features_col = features_col
         self.label_col = label_col
         self.prediction_col = prediction_col
@@ -91,7 +89,9 @@ class LinearRegression(MachineLearningInterface):
     def settings() -> dict:
         return {}
 
-    def split_data(self, train_ratio: float = 0.8) -> tuple[DataFrame, DataFrame]:
+    def split_data(
+        self, df: DataFrame, train_ratio: float = 0.8
+    ) -> tuple[DataFrame, DataFrame]:
         """
         Splits the dataset into training and testing sets.
 
@@ -101,7 +101,7 @@ class LinearRegression(MachineLearningInterface):
         Returns:
             tuple[DataFrame, DataFrame]: Returns the training and testing datasets.
         """
-        train_df, test_df = self.df.randomSplit([train_ratio, 1 - train_ratio], seed=42)
+        train_df, test_df = df.randomSplit([train_ratio, 1 - train_ratio], seed=42)
         return train_df, test_df
 
     def train(self, train_df: DataFrame):

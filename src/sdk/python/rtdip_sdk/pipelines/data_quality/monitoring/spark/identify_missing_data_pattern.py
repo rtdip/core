@@ -164,31 +164,9 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface, InputValidator):
             raise ValueError(error_msg)
         for pattern in self.patterns:
             if self.frequency == "minutely":
-                if "second" not in pattern:
-                    raise ValueError(
-                        "Each pattern must have a 'second' key for 'minutely' frequency."
-                    )
-                if pattern.get("second", 0) >= 60:
-                    raise ValueError(
-                        "For 'minutely' frequency, 'second' must be less than 60."
-                    )
-                if "minute" in pattern or "hour" in pattern:
-                    raise ValueError(
-                        "For 'minutely' frequency, pattern should not contain 'minute' or 'hour'."
-                    )
+                self.validate_minutely_pattern(pattern)
             elif self.frequency == "hourly":
-                if "minute" not in pattern or "second" not in pattern:
-                    raise ValueError(
-                        "Each pattern must have 'minute' and 'second' keys for 'hourly' frequency."
-                    )
-                if pattern.get("minute", 0) >= 60:
-                    raise ValueError(
-                        "For 'hourly' frequency, 'minute' must be less than 60."
-                    )
-                if "hour" in pattern:
-                    raise ValueError(
-                        "For 'hourly' frequency, pattern should not contain 'hour'."
-                    )
+                self.validate_hourly_patterns(pattern)
         try:
             self.tolerance_ms = parse_time_string_to_ms(self.tolerance)
             self.tolerance_seconds = self.tolerance_ms / 1000
@@ -199,6 +177,30 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface, InputValidator):
             error_msg = f"Invalid tolerance format: {self.tolerance}"
             self.logger.error(error_msg)
             raise ValueError(error_msg) from e
+
+    def validate_hourly_patterns(self, pattern):
+        if "minute" not in pattern or "second" not in pattern:
+            raise ValueError(
+                "Each pattern must have 'minute' and 'second' keys for 'hourly' frequency."
+            )
+        if pattern.get("minute", 0) >= 60:
+            raise ValueError("For 'hourly' frequency, 'minute' must be less than 60.")
+        if "hour" in pattern:
+            raise ValueError(
+                "For 'hourly' frequency, pattern should not contain 'hour'."
+            )
+
+    def validate_minutely_pattern(self, pattern):
+        if "second" not in pattern:
+            raise ValueError(
+                "Each pattern must have a 'second' key for 'minutely' frequency."
+            )
+        if pattern.get("second", 0) >= 60:
+            raise ValueError("For 'minutely' frequency, 'second' must be less than 60.")
+        if "minute" in pattern or "hour" in pattern:
+            raise ValueError(
+                "For 'minutely' frequency, pattern should not contain 'minute' or 'hour'."
+            )
 
     def _generate_expected_times(self, min_time, max_time) -> PySparkDataFrame:
         floor_min_time = self._get_floor_min_time(min_time)
@@ -291,21 +293,22 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface, InputValidator):
         # Format tolerance for SQL INTERVAL
         tolerance_str = self._format_timedelta_for_sql(self.tolerance_ms)
         # Perform left join with tolerance window
+        actual_event_time = "at.EventTime"
         missing_patterns_df = (
             expected_times_df.alias("et")
             .join(
                 actual_df.alias("at"),
                 (
-                    F.col("at.EventTime")
+                    F.col(actual_event_time)
                     >= F.expr(f"et.ExpectedTime - INTERVAL {tolerance_str}")
                 )
                 & (
-                    F.col("at.EventTime")
+                    F.col(actual_event_time)
                     <= F.expr(f"et.ExpectedTime + INTERVAL {tolerance_str}")
                 ),
                 how="left",
             )
-            .filter(F.col("at.EventTime").isNull())
+            .filter(F.col(actual_event_time).isNull())
             .select(F.col("et.ExpectedTime"))
         )
         self.logger.info(f"Identified {missing_patterns_df.count()} missing patterns.")

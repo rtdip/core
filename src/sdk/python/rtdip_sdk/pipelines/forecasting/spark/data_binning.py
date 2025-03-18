@@ -31,18 +31,16 @@ class DataBinning(MachineLearningInterface):
     df = ... # Get a PySpark DataFrame with features column
 
     binning = DataBinning(
-        df=df,
         column_name="features",
         bins=3,
         output_column_name="bin",
         method="kmeans"
     )
-    binned_df = binning.train().predict()
+    binned_df = binning.train(df).predict(df)
     binned_df.show()
     ```
 
     Parameters:
-        df (DataFrame): Dataframe containing the input data.
         column_name (str): The name of the input column to be binned (default: "features").
         bins (int): The number of bins/clusters to create (default: 2).
         output_column_name (str): The name of the output column containing bin assignments (default: "bin").
@@ -51,15 +49,12 @@ class DataBinning(MachineLearningInterface):
 
     def __init__(
         self,
-        df: DataFrame,
         column_name: str = "features",
         bins: int = 2,
         output_column_name: str = "bin",
         method: str = "kmeans",
     ) -> None:
         self.column_name = column_name
-
-        self.df = df
 
         if method == "kmeans":
             self.method = clustering.KMeans(
@@ -85,12 +80,12 @@ class DataBinning(MachineLearningInterface):
     def settings() -> dict:
         return {}
 
-    def train(self):
+    def train(self, train_df):
         """
         Filter anomalies based on the k-sigma rule
         """
-        self.model = self.method.fit(self.df)
+        self.model = self.method.fit(train_df)
         return self
 
-    def predict(self):
-        return self.model.transform(self.df)
+    def predict(self, predict_df):
+        return self.model.transform(predict_df)

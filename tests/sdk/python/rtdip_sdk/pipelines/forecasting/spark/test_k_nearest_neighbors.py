@@ -102,7 +102,6 @@ def test_knn_initialization(prepared_data):
     """Test KNN initialization with various parameters"""
     # Test valid initialization
     knn = KNearestNeighbors(
-        df=prepared_data,
         features_col="features",
         label_col="Value",
         timestamp_col="EventTime",
@@ -117,7 +116,6 @@ def test_knn_initialization(prepared_data):
     # Test invalid distance metric
     with pytest.raises(ValueError):
         KNearestNeighbors(
-            df=prepared_data,
             features_col="features",
             label_col="Value",
             distance_metric="invalid_metric",
@@ -126,7 +124,6 @@ def test_knn_initialization(prepared_data):
     # Test missing timestamp column for temporal distance
     with pytest.raises(ValueError):
         KNearestNeighbors(
-            df=prepared_data,
             features_col="features",
             label_col="Value",
             # timestamp_col is compulsory for temporal distance
@@ -137,7 +134,6 @@ def test_knn_initialization(prepared_data):
 def test_data_splitting(prepared_data):
     """Test the data splitting functionality"""
     knn = KNearestNeighbors(
-        df=prepared_data,
         features_col="features",
         label_col="Value",
         timestamp_col="EventTime",
@@ -153,7 +149,6 @@ def test_data_splitting(prepared_data):
 def test_model_training(prepared_data):
     """Test model training functionality"""
     knn = KNearestNeighbors(
-        df=prepared_data,
         features_col="features",
         label_col="Value",
         timestamp_col="EventTime",
@@ -170,7 +165,6 @@ def test_model_training(prepared_data):
 def test_predictions(prepared_data):
     """Test prediction functionality"""
     knn = KNearestNeighbors(
-        df=prepared_data,
         features_col="features",
         label_col="Value",
         timestamp_col="EventTime",
@@ -189,7 +183,6 @@ def test_predictions(prepared_data):
 def test_temporal_distance(prepared_data):
     """Test temporal distance calculation"""
     knn = KNearestNeighbors(
-        df=prepared_data,
         features_col="features",
         label_col="Value",
         timestamp_col="EventTime",
@@ -207,7 +200,6 @@ def test_temporal_distance(prepared_data):
 def test_combined_distance(prepared_data):
     """Test combined distance calculation"""
     knn = KNearestNeighbors(
-        df=prepared_data,
         features_col="features",
         label_col="Value",
         timestamp_col="EventTime",
@@ -266,7 +258,6 @@ def test_large_dataset(spark):
         prepared_df = prepare_data_for_knn(df)
 
         knn = KNearestNeighbors(
-            df=prepared_df,
             features_col="features",
             label_col="Value",
             timestamp_col="EventTime",

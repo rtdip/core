@@ -45,11 +45,9 @@ def sample_data(spark):
 
 
 def test_data_binning_kmeans(sample_data):
-    binning = DataBinning(
-        df=sample_data, column_name="features", bins=3, output_column_name="bin"
-    )
+    binning = DataBinning(column_name="features", bins=3, output_column_name="bin")
 
-    result_df = binning.train().predict()
+    result_df = binning.train(sample_data).predict(sample_data)
 
     assert "bin" in result_df.columns
     assert result_df.count() == sample_data.count()

@@ -264,7 +264,6 @@ def test_invalid_prediction_without_training(sample_data):
     ).transform()
 
     linear_regression = LinearRegression(
-        vectorized_df,
         features_col="features",
         label_col="Value",
         prediction_col="prediction",
@@ -301,7 +300,6 @@ def test_prediction_on_large_dataset(spark):
     ), "Vectorized column 'features' not created"
 
     linear_regression = LinearRegression(
-        vectorized_df,
         features_col="features",
         label_col="Value",
         prediction_col="prediction",

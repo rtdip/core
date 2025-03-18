@@ -20,13 +20,13 @@ from ..interfaces import PipelineComponentBaseInterface
 
 class MachineLearningInterface(PipelineComponentBaseInterface):
     @abstractmethod
-    def __init__(self, df: DataFrame):
+    def __init__(self):
         pass
 
     @abstractmethod
-    def train(self):
+    def train(self, train_df: DataFrame):
         return self
 
     @abstractmethod
-    def predict(self, *args, **kwargs) -> DataFrame:
+    def predict(self, predict_df: DataFrame, *args, **kwargs) -> DataFrame:
         pass

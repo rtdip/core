@@ -44,7 +44,6 @@ class KNearestNeighbors(MachineLearningInterface):
     scaler = StandardScaler(inputCol="assembled_features", outputCol="features", withStd=True, withMean=True)
     scaled_df = scaler.fit(df).transform(df)
     knn = KNearestNeighbors(
-        df=scaled_df,
         features_col="features",
         label_col="label",
         timestamp_col="timestamp",
@@ -71,7 +70,6 @@ class KNearestNeighbors(MachineLearningInterface):
 
     def __init__(
         self,
-        df: DataFrame,
         features_col,
         label_col,
         timestamp_col=None,
@@ -80,7 +78,6 @@ class KNearestNeighbors(MachineLearningInterface):
         distance_metric="euclidean",
         temporal_weight=0.5,
     ):
-        self.df = df
         self.features_col = features_col
         self.label_col = label_col
         self.timestamp_col = timestamp_col

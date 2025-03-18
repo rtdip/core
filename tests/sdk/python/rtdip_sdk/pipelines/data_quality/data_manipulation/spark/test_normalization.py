@@ -164,7 +164,7 @@ def helper_assert_idempotence(
         normalization_component = class_to_test(
             input_df, column_names=["Value"], in_place=True
         )
-        actual_df = normalization_component.filter()
+        actual_df = normalization_component.filter_data()
 
         denormalization_component = Denormalization(actual_df, normalization_component)
         actual_df = denormalization_component.filter_data()

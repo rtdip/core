@@ -173,20 +173,10 @@ class CheckValueRanges(MonitoringBaseInterface, InputValidator):
             conditions = []
 
             # Build minimum value condition
-            if min_value is not None:
-                if inclusive_bounds:
-                    min_condition = col("Value") < min_value
-                else:
-                    min_condition = col("Value") <= min_value
-                conditions.append(min_condition)
+            self.add_min_value_condition(min_value, inclusive_bounds, conditions)
 
             # Build maximum value condition
-            if max_value is not None:
-                if inclusive_bounds:
-                    max_condition = col("Value") > max_value
-                else:
-                    max_condition = col("Value") >= max_value
-                conditions.append(max_condition)
+            self.add_max_value_condition(max_value, inclusive_bounds, conditions)
 
             if conditions:
                 condition = reduce(or_, conditions)
@@ -194,6 +184,22 @@ class CheckValueRanges(MonitoringBaseInterface, InputValidator):
                 out_of_range_df = out_of_range_df.union(tag_out_of_range_df)
 
         return out_of_range_df
+
+    def add_min_value_condition(self, min_value, inclusive_bounds, conditions):
+        if min_value is not None:
+            if inclusive_bounds:
+                min_condition = col("Value") < min_value
+            else:
+                min_condition = col("Value") <= min_value
+            conditions.append(min_condition)
+
+    def add_max_value_condition(self, max_value, inclusive_bounds, conditions):
+        if max_value is not None:
+            if inclusive_bounds:
+                max_condition = col("Value") > max_value
+            else:
+                max_condition = col("Value") >= max_value
+            conditions.append(max_condition)
 
     def log_out_of_range_values(self, out_of_range_df: PySparkDataFrame):
         """

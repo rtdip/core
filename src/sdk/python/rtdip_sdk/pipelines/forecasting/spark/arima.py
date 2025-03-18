@@ -442,5 +442,5 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
             to_return = self.past_data.unionByName(predicted_source_pyspark_dataframe)
             return to_return
 
-    def validate(self, schema_dict):
+    def validate(self, schema_dict, df: SparkDataFrame = None):
         return super().validate(schema_dict, self.past_data)

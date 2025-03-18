@@ -142,27 +142,30 @@ class InputValidator(PipelineComponentBaseInterface):
                 )
 
             # Check if actual type is expected type, try to cast else
-            if not isinstance(actual_type, type(expected_type)):
-                try:
-                    original_null_count = dataframe.filter(
-                        F.col(column).isNull()
-                    ).count()
-                    casted_column = dataframe.withColumn(
-                        column, F.col(column).cast(expected_type)
-                    )
-                    new_null_count = casted_column.filter(
-                        F.col(column).isNull()
-                    ).count()
-
-                    if new_null_count > original_null_count:
-                        raise ValueError(
-                            f"Column '{column}' cannot be cast to {expected_type}."
-                        )
-                    dataframe = casted_column
-                except Exception as e:
-                    raise ValueError(
-                        f"Error during casting column '{column}' to {expected_type}: {str(e)}"
-                    )
+            dataframe = self.cast_column_if_needed(
+                dataframe, column, expected_type, actual_type
+            )
 
         self.df = dataframe
         return True
+
+    def cast_column_if_needed(self, dataframe, column, expected_type, actual_type):
+        if not isinstance(actual_type, type(expected_type)):
+            try:
+                original_null_count = dataframe.filter(F.col(column).isNull()).count()
+                casted_column = dataframe.withColumn(
+                    column, F.col(column).cast(expected_type)
+                )
+                new_null_count = casted_column.filter(F.col(column).isNull()).count()
+
+                if new_null_count > original_null_count:
+                    raise ValueError(
+                        f"Column '{column}' cannot be cast to {expected_type}."
+                    )
+                dataframe = casted_column
+            except Exception as e:
+                raise ValueError(
+                    f"Error during casting column '{column}' to {expected_type}: {str(e)}"
+                )
+
+        return dataframe
