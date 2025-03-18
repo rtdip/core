@@ -354,7 +354,7 @@ def test_single_column_prediction_arima(spark_session: SparkSession, historic_da
         source_name="TagName",
         status_name="Status",
     )
-    forecasted_df = arima_comp.filter()
+    forecasted_df = arima_comp.filter_data()
     # print(forecasted_df.show(forecasted_df.count(), False))
 
     assert isinstance(forecasted_df, DataFrame)
@@ -396,7 +396,7 @@ def test_single_column_prediction_auto_arima(
         # status_name="Status",
         seasonal=True,
     )
-    forecasted_df = arima_comp.filter()
+    forecasted_df = arima_comp.filter_data()
     # print(forecasted_df.show(forecasted_df.count(), False))
 
     assert isinstance(forecasted_df, DataFrame)
@@ -433,7 +433,7 @@ def test_column_based_prediction_arima(
         number_of_data_points_to_predict=input_df.count(),
         seasonal=True,
     )
-    forecasted_df = arima_comp.filter()
+    forecasted_df = arima_comp.filter_data()
 
     # forecasted_df.show()
 
@@ -475,7 +475,7 @@ def test_arima_large_data_set(spark_session: SparkSession):
         number_of_data_points_to_predict=h_a_l,
     )
 
-    result_df = arima_comp.filter()
+    result_df = arima_comp.filter_data()
 
     tolerance = 0.01
 

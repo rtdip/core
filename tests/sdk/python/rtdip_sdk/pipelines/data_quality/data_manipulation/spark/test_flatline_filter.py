@@ -43,7 +43,7 @@ def test_flatline_filter_no_flatlining(spark):
     )
 
     detector = FlatlineFilter(df, watch_columns=["Value"], tolerance_timespan=2)
-    result = detector.filter()
+    result = detector.filter_data()
 
     assert sorted(result.collect()) == sorted(df.collect())
 
@@ -61,7 +61,7 @@ def test_flatline_detection_with_flatlining(spark):
     )
 
     detector = FlatlineFilter(df, watch_columns=["Value"], tolerance_timespan=2)
-    result = detector.filter()
+    result = detector.filter_data()
 
     rows_to_remove = [
         {
@@ -102,7 +102,7 @@ def test_large_dataset(spark):
     assert df.count() > 0, "Dataframe was not loaded correctly"
 
     detector = FlatlineFilter(df, watch_columns=["Value"], tolerance_timespan=2)
-    result = detector.filter()
+    result = detector.filter_data()
 
     rows_to_remove = [
         {

@@ -67,7 +67,7 @@ class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
     df = spark.createDataFrame(data, schema=schema)
 
     missing_value_imputation = MissingValueImputation(spark, df)
-    result = missing_value_imputation.filter()
+    result = missing_value_imputation.filter_data()
     ```
 
     Parameters:
@@ -228,7 +228,7 @@ class MissingValueImputation(DataManipulationBaseInterface, InputValidator):
 
         return isinstance(type_.dataType, data_type)
 
-    def filter(self) -> PySparkDataFrame:
+    def filter_data(self) -> PySparkDataFrame:
         """
         Imputate missing values based on [Spline Interpolation, ]
         """

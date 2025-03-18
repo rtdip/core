@@ -30,7 +30,7 @@ class NormalizationMinMax(NormalizationBaseClass):
     from pyspark.sql.dataframe import DataFrame
 
     normalization = NormalizationMinMax(df, column_names=["value_column_1", "value_column_2"], in_place=False)
-    normalized_df = normalization.filter()
+    normalized_df = normalization.filter_data()
     ```
 
     Parameters:

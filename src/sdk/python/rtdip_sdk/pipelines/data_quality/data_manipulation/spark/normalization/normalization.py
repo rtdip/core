@@ -43,7 +43,7 @@ class NormalizationBaseClass(DataManipulationBaseInterface, InputValidator):
     from pyspark.sql.dataframe import DataFrame
 
     normalization = NormalizationZScore(df, column_names=["value_column_1", "value_column_2"], in_place=False)
-    normalized_df = normalization.filter()
+    normalized_df = normalization.filter_data()
     ```
 
     Parameters:
@@ -95,7 +95,7 @@ class NormalizationBaseClass(DataManipulationBaseInterface, InputValidator):
     def settings() -> dict:
         return {}
 
-    def filter(self):
+    def filter_data(self):
         return self.normalize()
 
     def normalize(self) -> PySparkDataFrame:

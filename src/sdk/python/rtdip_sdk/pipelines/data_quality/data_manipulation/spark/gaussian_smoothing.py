@@ -50,7 +50,7 @@ class GaussianSmoothing(DataManipulationBaseInterface):
         id_col="sensor_id",
         timestamp_col="timestamp",
         value_col="measurement"
-    ).filter()
+    ).filter_data()
 
     smoothed_df.show()
     ```
@@ -124,7 +124,7 @@ class GaussianSmoothing(DataManipulationBaseInterface):
 
         return apply_gaussian
 
-    def filter(self) -> PySparkDataFrame:
+    def filter_data(self) -> PySparkDataFrame:
 
         smooth_udf = F.udf(self.create_gaussian_smoother(self.sigma), FloatType())
 

@@ -44,7 +44,7 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
 
     filtered_df = KSigmaAnomalyDetection(
         spark, df, ["<column to filter>"]
-    ).filter()
+    ).filter_data()
 
     filtered_df.show()
     ```
@@ -68,7 +68,7 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
         if len(column_names) == 0:
             raise Exception("You must provide at least one column name")
         if len(column_names) > 1:
-            raise NotImplemented("Multiple columns are not supported yet")
+            raise NotImplementedError("Multiple columns are not supported yet")
 
         self.column_names = column_names
         self.use_median = use_median
@@ -99,7 +99,7 @@ class KSigmaAnomalyDetection(DataManipulationBaseInterface, InputValidator):
     def settings() -> dict:
         return {}
 
-    def filter(self) -> DataFrame:
+    def filter_data(self) -> DataFrame:
         """
         Filter anomalies based on the k-sigma rule
         """

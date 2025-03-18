@@ -62,7 +62,7 @@ def test_duplicate_detection_two_columns(spark_session, test_data):
     duplicate_detection = DuplicateDetection(
         test_data, primary_key_columns=["TagName", "EventTime"]
     )
-    result_df = duplicate_detection.filter()
+    result_df = duplicate_detection.filter_data()
     result_df.show()
 
     assert (
@@ -84,7 +84,7 @@ def test_duplicate_detection_one_column(spark_session, test_data):
     expected_df = spark_session.createDataFrame(expected_data, columns)
 
     duplicate_detection = DuplicateDetection(test_data, primary_key_columns=["TagName"])
-    result_df = duplicate_detection.filter()
+    result_df = duplicate_detection.filter_data()
     result_df.show()
 
     assert (
@@ -117,7 +117,7 @@ def test_duplicate_detection_large_data_set(spark_session: SparkSession):
 
     try:
         if duplicate_detection_component.validate(expected_schema):
-            result_df = duplicate_detection_component.filter()
+            result_df = duplicate_detection_component.filter_data()
     except Exception as e:
         print(repr(e))
 

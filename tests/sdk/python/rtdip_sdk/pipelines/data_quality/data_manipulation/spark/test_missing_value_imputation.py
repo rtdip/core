@@ -282,7 +282,7 @@ def test_missing_value_imputation(spark_session: SparkSession):
 
     try:
         if missing_value_imputation.validate(expected_schema):
-            actual_df = missing_value_imputation.filter()
+            actual_df = missing_value_imputation.filter_data()
     except Exception as e:
         print(repr(e))
 
@@ -360,7 +360,7 @@ def test_missing_value_imputation_large_data_set(spark_session: SparkSession):
 
     try:
         if missing_value_imputation_component.validate(expected_schema):
-            result_df = missing_value_imputation_component.filter()
+            result_df = missing_value_imputation_component.filter_data()
     except Exception as e:
         print(repr(e))
 

@@ -84,7 +84,7 @@ def test_non_inplace_normalization(spark_session: SparkSession):
     normalization_component = NormalizationMinMax(
         input_df, column_names=["Value"], in_place=False
     )
-    normalised_df = normalization_component.filter()
+    normalised_df = normalization_component.filter_data()
 
     assert isinstance(normalised_df, DataFrame)
 
@@ -93,7 +93,7 @@ def test_non_inplace_normalization(spark_session: SparkSession):
     assert expected_normalised_df.collect() == normalised_df.collect()
 
     denormalization_component = Denormalization(normalised_df, normalization_component)
-    reverted_df = denormalization_component.filter()
+    reverted_df = denormalization_component.filter_data()
 
     assert isinstance(reverted_df, DataFrame)
 
@@ -167,7 +167,7 @@ def helper_assert_idempotence(
         actual_df = normalization_component.filter()
 
         denormalization_component = Denormalization(actual_df, normalization_component)
-        actual_df = denormalization_component.filter()
+        actual_df = denormalization_component.filter_data()
 
         assert isinstance(actual_df, DataFrame)
 

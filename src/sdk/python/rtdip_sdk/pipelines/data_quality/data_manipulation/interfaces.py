@@ -20,5 +20,5 @@ from ...interfaces import PipelineComponentBaseInterface
 
 class DataManipulationBaseInterface(PipelineComponentBaseInterface):
     @abstractmethod
-    def filter(self) -> DataFrame:
+    def filter_data(self) -> DataFrame:
         pass

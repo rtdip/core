@@ -42,7 +42,7 @@ class DimensionalityReduction(DataManipulationBaseInterface):
         combination_method='mean'
     )
 
-    result = column_correlation_monitor.filter()
+    result = column_correlation_monitor.filter_data()
     ```
 
     Parameters:
@@ -129,7 +129,7 @@ class DimensionalityReduction(DataManipulationBaseInterface):
         # Correlation between first and second column
         return correlation_matrix.toArray()[0][1]
 
-    def filter(self) -> PySparkDataFrame:
+    def filter_data(self) -> PySparkDataFrame:
         """
         Process DataFrame by detecting and combining correlated columns.
 

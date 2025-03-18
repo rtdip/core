@@ -65,7 +65,7 @@ def test_interval_detection_easy(spark_session: SparkSession):
     interval_filtering_wrangler = IntervalFiltering(
         spark_session, df, 1, "seconds", "EventTime"
     )
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
 
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
@@ -98,7 +98,7 @@ def test_interval_detection_easy_unordered(spark_session: SparkSession):
     interval_filtering_wrangler = IntervalFiltering(
         spark_session, df, 1, "seconds", "EventTime"
     )
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
 
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
@@ -129,7 +129,7 @@ def test_interval_detection_milliseconds(spark_session: SparkSession):
     interval_filtering_wrangler = IntervalFiltering(
         spark_session, df, 10, "milliseconds", "Time"
     )
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
 
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
@@ -160,7 +160,7 @@ def test_interval_detection_minutes(spark_session: SparkSession):
     interval_filtering_wrangler = IntervalFiltering(
         spark_session, df, 3, "minutes", "Time"
     )
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
 
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
@@ -189,7 +189,7 @@ def test_interval_detection_hours(spark_session: SparkSession):
     )
 
     interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "hours")
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
 
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
@@ -219,7 +219,7 @@ def test_interval_detection_days(spark_session: SparkSession):
     )
 
     interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "days")
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
 
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
@@ -243,7 +243,7 @@ def test_interval_detection_wrong_time_stamp_column_name(spark_session: SparkSes
     )
 
     with pytest.raises(ValueError):
-        interval_filtering_wrangler.filter()
+        interval_filtering_wrangler.filter_data()
 
 
 def test_interval_detection_wrong_interval_unit_pass(spark_session: SparkSession):
@@ -263,7 +263,7 @@ def test_interval_detection_wrong_interval_unit_pass(spark_session: SparkSession
     )
 
     with pytest.raises(ValueError):
-        interval_filtering_wrangler.filter()
+        interval_filtering_wrangler.filter_data()
 
 
 def test_interval_detection_faulty_time_stamp(spark_session: SparkSession):
@@ -283,7 +283,7 @@ def test_interval_detection_faulty_time_stamp(spark_session: SparkSession):
     )
 
     with pytest.raises(ValueError):
-        interval_filtering_wrangler.filter()
+        interval_filtering_wrangler.filter_data()
 
 
 def test_interval_tolerance(spark_session: SparkSession):
@@ -312,7 +312,7 @@ def test_interval_tolerance(spark_session: SparkSession):
     interval_filtering_wrangler = IntervalFiltering(
         spark_session, df, 3, "seconds", "EventTime", 1
     )
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
 
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
@@ -340,7 +340,7 @@ def test_interval_detection_date_time_columns(spark_session: SparkSession):
     )
 
     interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "hours")
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
 
     assert expected_df.columns == actual_df.columns
     assert expected_df.schema == actual_df.schema
@@ -355,7 +355,7 @@ def test_interval_detection_large_data_set(spark_session: SparkSession):
 
     interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "hours")
 
-    actual_df = interval_filtering_wrangler.filter()
+    actual_df = interval_filtering_wrangler.filter_data()
     assert actual_df.count() == 25
 
 
@@ -374,4 +374,4 @@ def test_interval_detection_wrong_datatype(spark_session: SparkSession):
     interval_filtering_wrangler = IntervalFiltering(spark_session, df, 1, "hours")
 
     with pytest.raises(ValueError):
-        interval_filtering_wrangler.filter()
+        interval_filtering_wrangler.filter_data()

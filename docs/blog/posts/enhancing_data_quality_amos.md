@@ -52,7 +52,7 @@ incomplete_spark_df = spark_session.createDataFrame(vi_april_df, ['Value', 'Even
 spark_df.show()
 
 #Execute RTDIP Pipeline component
-clean_df = MissingValueImputation(spark_session, df=incomplete_spark_df).filter()
+clean_df = MissingValueImputation(spark_session, df=incomplete_spark_df).filter_data()
 
 #After Missing Value Imputation
 clean_df.show()

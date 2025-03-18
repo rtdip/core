@@ -54,7 +54,7 @@ class FlatlineFilter(DataManipulationBaseInterface):
             tolerance_timespan=2,
         )
 
-        result_df = filter_flatlining_rows.filter()
+        result_df = filter_flatlining_rows.filter_data()
         result_df.show()
         ```
     """
@@ -80,7 +80,7 @@ class FlatlineFilter(DataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
-    def filter(self) -> PySparkDataFrame:
+    def filter_data(self) -> PySparkDataFrame:
         """
         Removes rows with flatlining detected.
 

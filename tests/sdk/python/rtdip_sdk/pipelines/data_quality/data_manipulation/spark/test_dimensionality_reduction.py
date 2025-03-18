@@ -95,7 +95,7 @@ def test_with_correlated_data(spark_session, test_data):
     dimensionality_reduction = DimensionalityReduction(
         identical_data, ["Value1", "Value2"]
     )
-    result_df = dimensionality_reduction.filter()
+    result_df = dimensionality_reduction.filter_data()
 
     assert (
         result_df.count() == identical_data.count()
@@ -110,7 +110,7 @@ def test_with_uncorrelated_data(spark_session, test_data):
     dimensionality_reduction = DimensionalityReduction(
         uncorrelated_data, ["Value1", "Value2"]
     )
-    result_df = dimensionality_reduction.filter()
+    result_df = dimensionality_reduction.filter_data()
 
     assert (
         result_df.count() == uncorrelated_data.count()

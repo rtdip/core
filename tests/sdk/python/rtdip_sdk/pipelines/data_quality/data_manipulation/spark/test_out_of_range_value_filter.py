@@ -73,7 +73,7 @@ def test_basic(spark, test_data):
     rows_to_remove_df = spark.createDataFrame(rows_to_remove)
     expected = test_data.subtract(rows_to_remove_df)
 
-    result = manipulator.filter()
+    result = manipulator.filter_data()
 
     assert sorted(result.collect()) == sorted(expected.collect())
 
@@ -106,6 +106,6 @@ def test_large_dataset(spark):
     rows_to_remove_df = spark.createDataFrame(rows_to_remove)
     expected = df.subtract(rows_to_remove_df)
 
-    result = manipulator.filter()
+    result = manipulator.filter_data()
 
     assert sorted(result.collect()) == sorted(expected.collect())

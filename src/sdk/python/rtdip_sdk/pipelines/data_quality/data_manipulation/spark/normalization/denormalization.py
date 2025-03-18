@@ -37,7 +37,7 @@ class Denormalization(DataManipulationBaseInterface, InputValidator):
      from pyspark.sql.dataframe import DataFrame
 
      denormalization = Denormalization(normalized_df, normalization)
-     denormalized_df = denormalization.filter()
+     denormalized_df = denormalization.filter_data()
      ```
 
      Parameters:
@@ -71,5 +71,5 @@ class Denormalization(DataManipulationBaseInterface, InputValidator):
     def settings() -> dict:
         return {}
 
-    def filter(self) -> PySparkDataFrame:
+    def filter_data(self) -> PySparkDataFrame:
         return self.normalization_to_revert.denormalize(self.df)

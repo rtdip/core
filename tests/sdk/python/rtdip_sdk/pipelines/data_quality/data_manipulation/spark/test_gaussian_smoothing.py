@@ -51,7 +51,7 @@ def test_gaussian_smoothing_temporal(spark_session: SparkSession):
         timestamp_col="EventTime",
         value_col="Value",
     )
-    result_df = smoother.filter()
+    result_df = smoother.filter_data()
 
     original_values = df.select("Value").collect()
     smoothed_values = result_df.select("Value").collect()
@@ -84,7 +84,7 @@ def test_gaussian_smoothing_spatial(spark_session: SparkSession):
         timestamp_col="EventTime",
         value_col="Value",
     )
-    result_df = smoother.filter()
+    result_df = smoother.filter_data()
 
     original_values = df.select("Value").collect()
     smoothed_values = result_df.select("Value").collect()
@@ -111,7 +111,7 @@ def test_interval_detection_large_data_set(spark_session: SparkSession):
         value_col="Value",
     )
 
-    actual_df = smoother.filter()
+    actual_df = smoother.filter_data()
     assert (
         actual_df.count() == df.count()
     ), "Output should have same number of rows as input"

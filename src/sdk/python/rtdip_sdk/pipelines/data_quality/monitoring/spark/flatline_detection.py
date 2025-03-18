@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import math
 import logging
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql.functions import col, when, lag, sum, lit
@@ -165,7 +165,11 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
             # Add flag and group columns
             df_with_flags = self.df.withColumn(
                 flagged_column,
-                when((col(column).isNull()) | (col(column) == 0.0), 1).otherwise(0),
+                when(
+                    (col(column).isNull())
+                    | (math.isclose(col(column), 0.0, rel_tol=1e-09, abs_tol=1e-09)),
+                    1,
+                ).otherwise(0),
             ).withColumn(
                 group_column,
                 sum(

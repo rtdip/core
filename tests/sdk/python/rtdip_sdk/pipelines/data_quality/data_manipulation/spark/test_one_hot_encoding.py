@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
+import math
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, FloatType
@@ -188,6 +189,6 @@ def test_distinct_value(spark_session):
         for tag in tag_names:
             column_name = f"TagName_{tag['TagName']}"
             if tag["TagName"] == tag_name:
-                assert row[column_name] == 1.0
+                assert math.isclose(row[column_name], 1.0, rel_tol=1e-09, abs_tol=1e-09)
             else:
-                assert row[column_name] == 0.0
+                assert math.isclose(row[column_name], 0.0, rel_tol=1e-09, abs_tol=1e-09)

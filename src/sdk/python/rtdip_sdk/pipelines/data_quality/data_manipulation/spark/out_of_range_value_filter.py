@@ -67,7 +67,7 @@ class OutOfRangeValueFilter(DataManipulationBaseInterface):
             tag_ranges=tag_ranges,
         )
 
-        result_df = out_of_range_value_filter.filter()
+        result_df = out_of_range_value_filter.filter_data()
         ```
     """
 
@@ -109,7 +109,7 @@ class OutOfRangeValueFilter(DataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
-    def filter(self) -> PySparkDataFrame:
+    def filter_data(self) -> PySparkDataFrame:
         """
         Executes the value range checking logic for the specified TagNames. Identifies, logs and deletes any rows
         where 'Value' exceeds the defined ranges for each TagName.

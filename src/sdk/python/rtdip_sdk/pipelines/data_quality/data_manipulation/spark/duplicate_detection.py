@@ -36,7 +36,7 @@ class DuplicateDetection(DataManipulationBaseInterface, InputValidator):
 
     duplicate_detection_monitor = DuplicateDetection(df, primary_key_columns=["TagName", "EventTime"])
 
-    result = duplicate_detection_monitor.filter()
+    result = duplicate_detection_monitor.filter_data()
     ```
 
     Parameters:
@@ -72,7 +72,7 @@ class DuplicateDetection(DataManipulationBaseInterface, InputValidator):
     def settings() -> dict:
         return {}
 
-    def filter(self) -> PySparkDataFrame:
+    def filter_data(self) -> PySparkDataFrame:
         """
         Returns:
             PySparkDataFrame: A cleansed PySpark DataFrame from all duplicates based on primary key columns.

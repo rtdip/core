@@ -51,7 +51,7 @@ def test_filter_with_mean(spark_session: SparkSession):
         column_names=["value"],
         k_value=3,
         use_median=False,
-    ).filter()
+    ).filter_data()
 
     assert normal_expected_df.collect() == normal_filtered_df.collect()
 
@@ -65,7 +65,7 @@ def test_filter_with_mean(spark_session: SparkSession):
 
     filtered_df = KSigmaAnomalyDetection(
         spark_session, input_df, column_names=["value"], k_value=3, use_median=False
-    ).filter()
+    ).filter_data()
 
     assert expected_df.collect() != filtered_df.collect()
 
@@ -85,7 +85,7 @@ def test_filter_with_median(spark_session: SparkSession):
         column_names=["value"],
         k_value=3,
         use_median=True,
-    ).filter()
+    ).filter_data()
 
     assert normal_expected_df.collect() == normal_filtered_df.collect()
 
@@ -99,7 +99,7 @@ def test_filter_with_median(spark_session: SparkSession):
 
     filtered_df = KSigmaAnomalyDetection(
         spark_session, input_df, column_names=["value"], k_value=3, use_median=True
-    ).filter()
+    ).filter_data()
 
     assert expected_df.collect() == filtered_df.collect()
 
@@ -117,7 +117,7 @@ def test_filter_with_wrong_types(spark_session: SparkSession):
             column_names=["value"],
             k_value=3,
             use_median=True,
-        ).filter()
+        ).filter_data()
 
     # missing column
     with pytest.raises(ValueError):
@@ -127,7 +127,7 @@ def test_filter_with_wrong_types(spark_session: SparkSession):
             column_names=["$value"],
             k_value=3,
             use_median=True,
-        ).filter()
+        ).filter_data()
 
 
 def test_large_dataset(spark_session):
@@ -137,4 +137,4 @@ def test_large_dataset(spark_session):
 
     assert df.count() > 0, "Dataframe was not loaded correct"
 
-    KSigmaAnomalyDetection(spark_session, df, column_names=["Value"]).filter()
+    KSigmaAnomalyDetection(spark_session, df, column_names=["Value"]).filter_data()

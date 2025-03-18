@@ -62,7 +62,7 @@ class IntervalFiltering(DataManipulationBaseInterface, InputValidator):
         else:
             self.time_stamp_column_name = time_stamp_column_name
 
-    def filter(self) -> DataFrame:
+    def filter_data(self) -> DataFrame:
         """
         Filters the DataFrame based on the interval
         """

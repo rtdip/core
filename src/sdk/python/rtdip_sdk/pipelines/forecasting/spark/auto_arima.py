@@ -61,7 +61,7 @@ class ArimaAutoPrediction(ArimaPrediction):
     )
     arima_comp = ArimaAutoPrediction(input_df, to_extend_name='Value', number_of_data_points_to_analyze=h_a_l, number_of_data_points_to_predict=h_a_l,
                          seasonal=True)
-    forecasted_df = arima_comp.filter().toPandas()
+    forecasted_df = arima_comp.filter_data().toPandas()
     print('Done')
     ```
 
