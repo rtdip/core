@@ -87,6 +87,9 @@ class PolynomialFeatures(TransformerInterface):
         return True
 
     def transform(self):
+
+        self.pre_transform_validation()
+
         temp_col = (
             f"{self.output_col}_temp" if self.output_col in self.df.columns else None
         )
@@ -100,4 +103,7 @@ class PolynomialFeatures(TransformerInterface):
             return transformed_df.drop(self.output_col).withColumnRenamed(
                 temp_col, self.output_col
             )
+
+        self.post_transform_validation()
+
         return transformed_df
