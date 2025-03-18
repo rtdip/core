@@ -58,7 +58,6 @@ class KNearestNeighbors(MachineLearningInterface):
     ```
 
     Parameters:
-        df (pyspark.sql.Dataframe): DataFrame containing the features and labels
         features_col (str): Name of the column containing the features (the input). Default is 'features'
         label_col (str): Name of the column containing the label (the input). Default is 'label'
         timestamp_col (str, optional): Name of the column containing timestamps
