@@ -67,7 +67,5 @@ def test_data_binning_kmeans(sample_data):
 
 def test_data_binning_invalid_method(sample_data):
     with pytest.raises(Exception) as exc_info:
-        DataBinning(
-            df=sample_data, column_name="features", bins=3, method="invalid_method"
-        )
+        DataBinning(column_name="features", bins=3, method="invalid_method")
     assert "Unknown method" in str(exc_info.value)

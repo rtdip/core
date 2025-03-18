@@ -52,7 +52,7 @@ class LinearRegression(MachineLearningInterface):
     df = assembler.transform(df)
 
     lr = LinearRegression(features_col="features", label_col="label", prediction_col="prediction")
-    train_df, test_df = lr.split_data(train_ratio=0.8)
+    train_df, test_df = lr.split_data(df, train_ratio=0.8)
     lr.train(train_df)
     predictions = lr.predict(test_df)
     rmse, r2 = lr.evaluate(predictions)
