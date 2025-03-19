@@ -166,8 +166,7 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
             df_with_flags = self.df.withColumn(
                 flagged_column,
                 when(
-                    (col(column).isNull())
-                    | (math.isclose(col(column), 0.0, rel_tol=1e-09, abs_tol=1e-09)),
+                    (col(column).isNull()) | (abs(col(column) - 0.0) <= 1e-09),
                     1,
                 ).otherwise(0),
             ).withColumn(

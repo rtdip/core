@@ -305,7 +305,7 @@ def test_prediction_on_large_dataset(spark):
         prediction_col="prediction",
     )
 
-    train_df, test_df = linear_regression.split_data(df, train_ratio=0.8)
+    train_df, test_df = linear_regression.split_data(vectorized_df, train_ratio=0.8)
     assert train_df.count() > 0, "Training dataset is empty"
     assert test_df.count() > 0, "Testing dataset is empty"
 
