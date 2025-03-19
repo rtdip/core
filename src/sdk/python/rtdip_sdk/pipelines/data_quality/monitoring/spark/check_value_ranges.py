@@ -228,16 +228,7 @@ class CheckValueRanges(MonitoringBaseInterface, InputValidator):
         )
 
         for tag_name, range_dict in self.tag_ranges.items():
-            if not isinstance(tag_name, str):
-                raise ValueError(f"TagName '{tag_name}' must be a string.")
-
-            if tag_name not in available_tags:
-                raise ValueError(f"TagName '{tag_name}' not found in DataFrame.")
-
-            if "min" not in range_dict and "max" not in range_dict:
-                raise ValueError(
-                    f"TagName '{tag_name}' must have at least 'min' or 'max' specified."
-                )
+            self.validate_tag_name(available_tags, tag_name, range_dict)
 
             inclusive_bounds = range_dict.get("inclusive_bounds", True)
             if not isinstance(inclusive_bounds, bool):
@@ -255,3 +246,15 @@ class CheckValueRanges(MonitoringBaseInterface, InputValidator):
                 raise ValueError(
                     f"Maximum value for TagName '{tag_name}' must be a number."
                 )
+
+    def validate_tag_name(self, available_tags, tag_name, range_dict):
+        if not isinstance(tag_name, str):
+            raise ValueError(f"TagName '{tag_name}' must be a string.")
+
+        if tag_name not in available_tags:
+            raise ValueError(f"TagName '{tag_name}' not found in DataFrame.")
+
+        if "min" not in range_dict and "max" not in range_dict:
+            raise ValueError(
+                f"TagName '{tag_name}' must have at least 'min' or 'max' specified."
+            )

@@ -28,7 +28,7 @@ def parse_time_string_to_ms(time_str: str) -> float:
     Raises:
         ValueError: If the format is invalid.
     """
-    pattern = re.compile(r"^(\d+\.?\d*)(ms|s|m|h)$")
+    pattern = re.compile(r"^(\d+(?:\.\d+)?)(ms|s|m|h)$")
     match = pattern.match(time_str)
     if not match:
         raise ValueError(f"Invalid time format: {time_str}")
