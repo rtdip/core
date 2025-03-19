@@ -14,7 +14,7 @@
 import math
 import logging
 from pyspark.sql import DataFrame as PySparkDataFrame
-from pyspark.sql.functions import col, when, lag, sum, lit
+from pyspark.sql.functions import col, when, lag, sum, lit, abs
 from pyspark.sql.window import Window
 from pyspark.sql.types import (
     StructType,
