@@ -323,7 +323,7 @@ class TimeSeriesQueryBuilder:
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
             "agg_method": agg_method,
-            ":fill": fill,
+            "fill": fill,
             "pivot": pivot,
             "display_uom": display_uom,
             "sort": sort,
