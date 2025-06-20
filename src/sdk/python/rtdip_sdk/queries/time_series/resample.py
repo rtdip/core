@@ -46,10 +46,12 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
         agg_method (str): Aggregation Method (first, last, avg, min, max)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
+        fill (optional bool): Fill the data with intervals where no data exists. The Value column will be filled with Null
         pivot (optional bool): Pivot the data on timestamp column with True or do not pivot the data with False
         display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
         limit (optional int): The number of rows to be returned
         offset (optional int): The number of rows to skip before returning rows
+        sort (optional bool): Sort the data in ascending order by the TagName and Timestamp columns or, if pivot is True, by the Timestamp column
         case_insensitivity_tag_search (optional bool): Search for tags using case insensitivity with True or case sensitivity with False
 
 
