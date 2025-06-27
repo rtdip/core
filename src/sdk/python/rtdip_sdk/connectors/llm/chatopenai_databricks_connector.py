@@ -31,6 +31,11 @@ class ChatOpenAIDatabricksConnection(ConnectionInterface):
     The connection class represents a connection to a database and uses the Databricks SQL Connector API's for Python to interact with cluster/jobs and langchain to connect to Chat Open AI(Chat GPT) LLM.
     To find details for SQL warehouses server_hostname and http_path location to the SQL Warehouse tab in the documentation.
 
+    Ensure that you install the langchain packages by running the following command:
+    ```
+    pip install rtdip-sdk[langchain]
+    ```
+
     Args:
         catalog: Catalog name in Databricks
         schema: Schema name in Databricks
