@@ -601,6 +601,7 @@ def _sql_query(parameters_dict: dict) -> str:
     sql_template = Template(sql_query)
     return sql_template.render(sql_parameters)
 
+
 def _sample_query_parameters(parameters_dict: dict) -> dict:
     sample_parameters = {
         "source": parameters_dict.get("source", None),
