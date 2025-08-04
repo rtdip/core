@@ -295,6 +295,7 @@ class DatabricksSDKDeploy(DeployInterface):
 
     All options available in the [Databricks Jobs REST API v2.1](https://docs.databricks.com/dev-tools/api/latest/jobs.html) can be configured in the Databricks classes that have been defined in `rtdip_sdk.pipelines.deploy.models.databricks`, enabling full control of the configuration of the Databricks Workflow :
 
+    - `CreateJob`
     - `Task`
 
     RTDIP Pipeline Components provide Databricks with all the required Python packages and JARs to execute each component and these will be setup on the Workflow automatically during the Databricks Workflow creation.
@@ -303,7 +304,7 @@ class DatabricksSDKDeploy(DeployInterface):
         This example assumes that a PipelineJob has already been defined by a variable called `pipeline_job`
 
         ```python
-        from rtdip_sdk.pipelines.deploy import DatabricksSDKDeploy, JobCluster, ClusterSpec, Task, NotebookTask, ComputeSpecKind, AutoScale, RuntimeEngine, DataSecurityMode
+        from rtdip_sdk.pipelines.deploy import DatabricksSDKDeploy, CreateJob, JobCluster, ClusterSpec, Task, NotebookTask, ComputeSpecKind, AutoScale, RuntimeEngine, DataSecurityMode
 
         cluster_list = []
         cluster_list.append(JobCluster(
