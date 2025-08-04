@@ -71,7 +71,7 @@ dependencies:
     - statsmodels>=0.14.1,<0.15.0
     - pmdarima>=2.0.4
     - pip:
-          - databricks-sdk>=0.20.0,<1.0.0
+          - databricks-sdk>=0.59.0,<1.0.0
           - dependency-injector>=4.41.0,<5.0.0
           - azure-functions>=1.15.0,<2.0.0
           - azure-mgmt-eventgrid>=10.2.0
