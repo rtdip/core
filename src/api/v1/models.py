@@ -431,13 +431,25 @@ class LimitOffsetQueryParams:
 class InterpolateQueryParams:
     def __init__(
         self,
-        interpolation_method: str = Query(
+        sample_rate: str = Query(
             ...,
-            description="Interpolation Method can e one of the following [forward_fill, backward_fill, linear]",
-            examples=["forward_fill", "backward_fill", "linear"],
+            description="sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.",
+            examples=[5],
+            deprecated=True,
         ),
+        sample_unit: str = Query(
+            ...,
+            description="sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.",
+            examples=["second", "minute", "hour", "day"],
+            deprecated=True,
+        ),
+        time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
+        time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
     ):
-        self.interpolation_method = interpolation_method
+        self.sample_rate = sample_rate
+        self.sample_unit = sample_unit
+        self.time_interval_rate = time_interval_rate
+        self.time_interval_unit = time_interval_unit
 
 
 class InterpolationAtTimeQueryParams:

@@ -160,8 +160,6 @@ parameters = {
     "end_date": "2022-03-10", #end_date can be a date in the format "YYYY-MM-DD" or a datetime in the format "YYYY-MM-DDTHH:MM:SS"
     "time_interval_rate": "1", #numeric input
     "time_interval_unit": "hour", #options are second, minute, day or hour
-    "agg_method": "first", #options are first, last, avg, min, max
-    "interpolation_method": "forward_fill", #options are forward_fill, backward_fill or linear
     "include_bad_data": True #boolean options are True or False
 }
 

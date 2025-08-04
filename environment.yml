@@ -87,4 +87,3 @@ dependencies:
           - eth-typing>=4.2.3,<5.0.0
           - pandas<3.0.0
           - moto[s3]>=5.0.16,<6.0.0
-          #   - pyarrow>=14.0.1,<17.0.0

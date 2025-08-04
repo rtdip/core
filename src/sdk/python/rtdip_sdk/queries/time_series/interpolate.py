@@ -42,8 +42,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         sample_unit (str): (deprecated) Please use time_interval_unit instead. See below.
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
-        agg_method (str): Aggregation Method (first, last, avg, min, max)
-        interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
         display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
