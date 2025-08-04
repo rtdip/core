@@ -36,7 +36,6 @@ HTTP_PATH = "sql/mock/mock-test"
 ACCESS_TOKEN = "mock_databricks_token"
 DATABRICKS_SQL_CONNECT = "databricks.sql.connect"
 DATABRICKS_SQL_CONNECT_CURSOR = "databricks.sql.connect.cursor"
-INTERPOLATION_METHOD = "test/test/test"
 MOCKED_QUERY_GRID = 'SELECT * FROM `forecast`.`weather`.`mock_region_mock_security_events_mock_data_type` WHERE (`EventTime` BETWEEN to_timestamp("2024-01-01") AND to_timestamp("2024-01-03")) AND (`EnqueuedTime` BETWEEN to_timestamp("2023-12-28") AND to_timestamp("2023-12-31")) AND `Latitude` > 36 AND `Latitude` < 38 AND `Longitude` > -109.1 AND `Longitude` < -107.1 ORDER BY `TagName` '
 MOCKED_QUERY_POINT = 'SELECT * FROM `forecast`.`weather`.`mock_region_mock_security_events_mock_data_type` WHERE (`EventTime` BETWEEN to_timestamp("2024-01-01") AND to_timestamp("2024-01-03")) AND (`EnqueuedTime` BETWEEN to_timestamp("2023-12-28") AND to_timestamp("2023-12-31")) AND `Latitude` == 37 AND `Longitude` == -108.1 ORDER BY `TagName` '
 MOCKED_QUERY_OFFSET_LIMIT = "LIMIT 10 OFFSET 10 "

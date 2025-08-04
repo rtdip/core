@@ -98,8 +98,6 @@ def test_query_builder_interpolate(mocker: MockerFixture):
             end_date="2021-01-02",
             time_interval_rate="1",
             time_interval_unit="hour",
-            agg_method="avg",
-            interpolation_method="linear",
         )
     )
     assert data == {"test": "data"}

@@ -239,45 +239,56 @@ def _build_resample_query(
     return resample_query_sql + ")"
 
 
+def _build_fill_intervals_query(
+    sql_query_list,
+    sql_query_name,
+    timestamp_column,
+    tagname_column,
+    value_column,
+    tag_names,
+    start_date,
+    end_date,
+    time_zone,
+    time_interval_rate,
+    time_interval_unit,
+    case_insensitivity_tag_search,
+):
+    parent_sql_query_name = sql_query_list[-1]["query_name"]
+    quoted_tag_names = (
+        "', '".join([tag.upper() for tag in tag_names])
+        if case_insensitivity_tag_search == True
+        else "', '".join(tag_names)
+    )
+    intervals_query = f"intervals AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp('{start_date}'), '{time_zone}'), from_utc_timestamp(to_timestamp('{end_date}'), '{time_zone}'), INTERVAL '{time_interval_rate} {time_interval_unit}')) AS `{timestamp_column}`, explode(array('{quoted_tag_names}')) AS `{tagname_column}`), "
+    fill_intervals_query = f"{sql_query_name} as (SELECT intervals.`{tagname_column}`, intervals.`{timestamp_column}` as `{timestamp_column}`, raw. `{timestamp_column}` as `Original{timestamp_column}`, raw.`{value_column}`, CASE WHEN raw.`{value_column}` IS NULL THEN NULL ELSE struct(raw.`{timestamp_column}`, raw.`{value_column}`) END AS `{timestamp_column}_{value_column}` "
+    from_sql = f"FROM intervals LEFT OUTER JOIN {parent_sql_query_name} ON intervals.`{timestamp_column}` = {parent_sql_query_name}.`window`.start AND intervals.`{tagname_column}` = {parent_sql_query_name}.`{tagname_column}`"
+
+    return intervals_query + fill_intervals_query + from_sql + ")"
+
+
 def _build_interpolate_query(
     sql_query_list,
     sql_query_name,
     tagname_column,
     timestamp_column,
     value_column,
-    interpolation_method,
     sort=True,
 ):
     parent_sql_query_name = sql_query_list[-1]["query_name"]
 
+    interpolate_calc_query_sql = f"{sql_query_name}_calculate AS (SELECT `Original{timestamp_column}`, `{timestamp_column}`, `{tagname_column}`, "
+    lag_value_query_sql = f"CASE WHEN `{value_column}` IS NOT NULL THEN NULL ELSE LAG(`{timestamp_column}_{value_column}`) IGNORE NULLS OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}`) END AS Prev{timestamp_column}{value_column}, "
+    lead_value_query_sql = f"CASE WHEN `{value_column}` IS NOT NULL THEN NULL ELSE LEAD(`{timestamp_column}_{value_column}`) IGNORE NULLS OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}`) END AS Next{timestamp_column}{value_column}, "
+    value_query_sql = f"CASE WHEN `Original{timestamp_column}` = `{timestamp_column}` THEN `{value_column}` WHEN `Prev{timestamp_column}{value_column}` IS NOT NULL AND `Next{timestamp_column}{value_column}` IS NOT NULL THEN `Prev{timestamp_column}{value_column}`.`{value_column}` + ((`Next{timestamp_column}{value_column}`.`{value_column}` - `Prev{timestamp_column}{value_column}`.`{value_column}`) * (unix_timestamp(`{timestamp_column}`) - unix_timestamp(`Prev{timestamp_column}{value_column}`.`{timestamp_column}`)) / (unix_timestamp(`Next{timestamp_column}{value_column}`.`{timestamp_column}`) - unix_timestamp(`Prev{timestamp_column}{value_column}`.`{timestamp_column}`))) WHEN `Prev{timestamp_column}{value_column}` IS NOT NULL THEN `Prev{timestamp_column}{value_column}`.`{value_column}` ELSE NULL END as `{value_column}` FROM {parent_sql_query_name} "
+    interpolate_project_query_sql = f"), {sql_query_name} AS (SELECT `{timestamp_column}`, `{tagname_column}`, `{value_column}` FROM {sql_query_name}_calculate WHERE `Original{timestamp_column}` IS NULL OR `Original{timestamp_column}` = `{timestamp_column}` "
+
     interpolate_query_sql = (
-        f"{sql_query_name} AS (SELECT a.`{timestamp_column}`, a.`{tagname_column}`,"
+        interpolate_calc_query_sql
+        + lag_value_query_sql
+        + lead_value_query_sql
+        + value_query_sql
+        + interpolate_project_query_sql
     )
-
-    if interpolation_method == "forward_fill":
-        interpolate_query_sql = f"{sql_query_name} AS (SELECT `{timestamp_column}`, `{tagname_column}`, last_value(`{value_column}`, true) OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `{value_column}` FROM {parent_sql_query_name}"
-    elif interpolation_method == "backward_fill":
-        interpolate_query_sql = f"{sql_query_name} AS (SELECT `{timestamp_column}`, `{tagname_column}`, first_value(`{value_column}`, true) OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}` ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS `{value_column}` FROM {parent_sql_query_name}"
-    elif interpolation_method == "linear":
-        linear_interpolate_query_sql = " ".join(
-            [
-                f"linear_interpolation_calculations AS (SELECT coalesce(`{tagname_column}`, `{tagname_column}`) AS `{tagname_column}`, coalesce(`{timestamp_column}`, `{timestamp_column}`) AS `{timestamp_column}`, `{timestamp_column}` AS `Requested_{timestamp_column}`, `{timestamp_column}` AS `Found_{timestamp_column}`, `{value_column}`,",
-                f"last_value(`{timestamp_column}`, true) OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Last_{timestamp_column}`, last_value(`{value_column}`, true) OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Last_{value_column}`,",
-                f"first_value(`{timestamp_column}`, true) OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}` ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS `Next_{timestamp_column}`, first_value(`{value_column}`, true) OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}` ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS `Next_{value_column}`,",
-                f"CASE WHEN `{value_column}` is NULL THEN `Last_{value_column}` + (unix_timestamp(`{timestamp_column}`) - unix_timestamp(`Last_{timestamp_column}`)) * ((`Next_{value_column}` - `Last_{value_column}`)) / ((unix_timestamp(`Next_{timestamp_column}`) - unix_timestamp(`Last_{timestamp_column}`))) ELSE `{value_column}` END AS `linear_interpolated_{value_column}` from {parent_sql_query_name}",
-            ]
-        )
-
-        interpolate_query_sql = (
-            linear_interpolate_query_sql
-            + ", "
-            + interpolate_query_sql
-            + f" `linear_interpolated_{value_column}` AS `{value_column}` FROM linear_interpolation_calculations)"
-        )
-    else:
-        interpolate_query_sql = (
-            f"{sql_query_name} AS (SELECT * FROM {parent_sql_query_name}"
-        )
 
     if sort == True:
         interpolate_query_sql = " ".join(
@@ -493,86 +504,6 @@ def _raw_query(parameters_dict: dict) -> str:
 
     return sql_query
 
-    # raw_query = (
-    #     'WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% endif %} `{{ value_column }}` FROM '
-    #     "{% if source is defined and source is not none %}"
-    #     "`{{ source|lower }}` "
-    #     "{% else %}"
-    #     "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
-    #     "{% endif %}"
-    #     "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
-    #     "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
-    #     "{% else %}"
-    #     "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
-    #     "{% endif %}"
-    #     "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
-    #     "AND `{{ status_column }}` <> 'Bad'"
-    #     "{% endif %}"
-    #     "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
-    #     ") "
-    #     "{% if display_uom is defined and display_uom == true %}"
-    #     'SELECT {% if to_json is defined and to_json == true %}to_json(struct(e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}e.`EventTime`, e.`TagName`, e.`Status`, e.`Value`, m.`UOM`{% endif %} FROM raw_events e '
-    #     "LEFT OUTER JOIN "
-    #     "{% if metadata_source is defined and metadata_source is not none %}"
-    #     "`{{ metadata_source|lower }}` m ON e.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` "
-    #     "{% else %}"
-    #     "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON e.`{{ tagname_column }}` = m.`{{ tagname_column }}` "
-    #     "{% endif %}"
-    #     "{% else %}"
-    #     'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM raw_events '
-    #     "{% endif %}"
-    #     "{% if limit is defined and limit is not none %}"
-    #     "LIMIT {{ limit }} "
-    #     "{% endif %}"
-    #     "{% if offset is defined and offset is not none %}"
-    #     "OFFSET {{ offset }} "
-    #     "{% endif %}"
-    # )
-
-    # raw_parameters = {
-    #     "source": parameters_dict.get("source", None),
-    #     "metadata_source": parameters_dict.get("metadata_source", None),
-    #     "business_unit": parameters_dict.get("business_unit"),
-    #     "region": parameters_dict.get("region"),
-    #     "asset": parameters_dict.get("asset"),
-    #     "data_security_level": parameters_dict.get("data_security_level"),
-    #     "data_type": parameters_dict.get("data_type"),
-    #     "start_date": parameters_dict["start_date"],
-    #     "end_date": parameters_dict["end_date"],
-    #     "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
-    #     "include_bad_data": parameters_dict["include_bad_data"],
-    #     "limit": parameters_dict.get("limit", None),
-    #     "offset": parameters_dict.get("offset", None),
-    #     "display_uom": parameters_dict.get("display_uom", False),
-    #     "time_zone": parameters_dict["time_zone"],
-    #     "tagname_column": parameters_dict.get("tagname_column", "TagName"),
-    #     "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-    #     "include_status": (
-    #         False
-    #         if "status_column" in parameters_dict
-    #         and parameters_dict.get("status_column") is None
-    #         else True
-    #     ),
-    #     "status_column": (
-    #         "Status"
-    #         if "status_column" in parameters_dict
-    #         and parameters_dict.get("status_column") is None
-    #         else parameters_dict.get("status_column", "Status")
-    #     ),
-    #     "value_column": parameters_dict.get("value_column", "Value"),
-    #     "case_insensitivity_tag_search": parameters_dict.get(
-    #         "case_insensitivity_tag_search", False
-    #     ),
-    #     "metadata_tagname_column": parameters_dict.get(
-    #         "metadata_tagname_column", "TagName"
-    #     ),
-    #     "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
-    #     "to_json": parameters_dict.get("to_json", False),
-    # }
-
-    # sql_template = Template(raw_query)
-    # return sql_template.render(raw_parameters)
-
 
 def _sql_query(parameters_dict: dict) -> str:
     sql_query = (
@@ -755,72 +686,12 @@ def _sample_query(parameters_dict: dict) -> str:
 
     return sql_query
 
-    # sample_query = (
-    #     "WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(date_trunc(\"millisecond\",`{{ timestamp_column }}`), \"{{ time_zone }}\") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} 'Good' AS `Status`, {% endif %} `{{ value_column }}`, window(`{{ timestamp_column }}`, '{{ time_interval_rate + ' ' + time_interval_unit }}') FROM "
-    #     "{% if source is defined and source is not none %}"
-    #     "`{{ source|lower }}` "
-    #     "{% else %}"
-    #     "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
-    #     "{% endif %}"
-    #     "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
-    #     "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND timestampadd({{ time_interval_unit }}, {{ time_interval_rate }}, to_timestamp(\"{{ end_date }}\")) AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
-    #     "{% else %}"
-    #     "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND timestampadd({{ time_interval_unit }}, {{ time_interval_rate }}, to_timestamp(\"{{ end_date }}\")) AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
-    #     "{% endif %}"
-    #     "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
-    #     ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
-    #     ",window_buckets AS (SELECT timestamp_array AS window_start, window(timestamp_array, '{{ time_interval_rate + ' ' + time_interval_unit }}') FROM date_array) "
-    #     ",project AS (SELECT d.window_start AS `{{ timestamp_column }}`, e.`{{ tagname_column }}`, {{ agg_method }}(e.`{{ value_column }}`) AS `{{ value_column }}` FROM window_buckets d INNER JOIN raw_events e ON d.window.start = e.window.start AND d.window.end = e.window.end GROUP BY d.window_start, e.`{{ tagname_column }}` "
-    #     "{% if is_resample is defined and is_resample == true %}"
-    #     "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
-    #     "{% endif %}"
-    #     ") "
-    #     "{% if is_resample is defined and is_resample == true and pivot is defined and pivot == true %}"
-    #     "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
-    #     ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
-    #     "{% for i in range(tag_names | length) %}"
-    #     "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
-    #     "{% endfor %}"
-    #     "{% else %}"
-    #     ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
-    #     "{% for i in range(tag_names | length) %}"
-    #     "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
-    #     "{% endfor %}"
-    #     "{% endif %}"
-    #     '))) SELECT {% if to_json_resample is defined and to_json_resample == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
-    #     "{% else %}"
-    #     "{% if display_uom is defined and display_uom == true %}"
-    #     'SELECT {% if to_json_resample is defined and to_json_resample == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
-    #     "LEFT OUTER JOIN "
-    #     "{% if metadata_source is defined and metadata_source is not none %}"
-    #     "`{{ metadata_source|lower }}` m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` "
-    #     "{% else %}"
-    #     "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`{{ tagname_column }}` = m.`{{ tagname_column }}` "
-    #     "{% endif %}"
-    #     "{% else %}"
-    #     'SELECT {% if to_json_resample is defined and to_json_resample == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
-    #     "{% endif %}"
-    #     "{% endif %}"
-    #     "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
-    #     "LIMIT {{ limit }} "
-    #     "{% endif %}"
-    #     "{% if is_resample is defined and is_resample == true and offset is defined and offset is not none %}"
-    #     "OFFSET {{ offset }} "
-    #     "{% endif %}"
-    # )
-
-    # sql_template = Template(sample_query)
-    # sql_query = sql_template.render(sample_parameters)
-    # return sql_query, sample_query, sample_parameters
-
 
 def _interpolation_query(parameters_dict: dict) -> str:
 
-    interpolate_parameters = _sample_query_parameters(parameters_dict)
+    parameters_dict["agg_method"] = None
 
-    interpolate_parameters["interpolation_method"] = parameters_dict[
-        "interpolation_method"
-    ]
+    interpolate_parameters = _sample_query_parameters(parameters_dict)
 
     sql_query_list = []
 
@@ -834,7 +705,7 @@ def _interpolation_query(parameters_dict: dict) -> str:
         end_date=interpolate_parameters["end_date"],
         time_interval_rate=interpolate_parameters["time_interval_rate"],
         time_interval_unit=interpolate_parameters["time_interval_unit"],
-        agg_method=interpolate_parameters["agg_method"],
+        agg_method=None,
         time_zone=interpolate_parameters["time_zone"],
         source=interpolate_parameters["source"],
         business_unit=interpolate_parameters["business_unit"],
@@ -851,9 +722,30 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
     sql_query_list.append({"query_name": "raw", "sql_query": raw_query})
 
-    resample_query = _build_resample_query(
+    # resample_query = _build_resample_query(
+    #     sql_query_list=sql_query_list,
+    #     sql_query_name="resample",
+    #     timestamp_column=interpolate_parameters["timestamp_column"],
+    #     tagname_column=interpolate_parameters["tagname_column"],
+    #     value_column=interpolate_parameters["value_column"],
+    #     tag_names=interpolate_parameters["tag_names"],
+    #     start_date=interpolate_parameters["start_date"],
+    #     end_date=interpolate_parameters["end_date"],
+    #     time_zone=interpolate_parameters["time_zone"],
+    #     time_interval_rate=interpolate_parameters["time_interval_rate"],
+    #     time_interval_unit=interpolate_parameters["time_interval_unit"],
+    #     agg_method=interpolate_parameters["agg_method"],
+    #     case_insensitivity_tag_search=interpolate_parameters[
+    #         "case_insensitivity_tag_search"
+    #     ],
+    #     fill=True,
+    #     sort=False,
+    # )
+
+    # sql_query_list.append({"query_name": "resample", "sql_query": resample_query})
+    fill_intervals_query = _build_fill_intervals_query(
         sql_query_list=sql_query_list,
-        sql_query_name="resample",
+        sql_query_name="fill_intervals",
         timestamp_column=interpolate_parameters["timestamp_column"],
         tagname_column=interpolate_parameters["tagname_column"],
         value_column=interpolate_parameters["value_column"],
@@ -863,15 +755,14 @@ def _interpolation_query(parameters_dict: dict) -> str:
         time_zone=interpolate_parameters["time_zone"],
         time_interval_rate=interpolate_parameters["time_interval_rate"],
         time_interval_unit=interpolate_parameters["time_interval_unit"],
-        agg_method=interpolate_parameters["agg_method"],
         case_insensitivity_tag_search=interpolate_parameters[
             "case_insensitivity_tag_search"
         ],
-        fill=True,
-        sort=False,
     )
 
-    sql_query_list.append({"query_name": "resample", "sql_query": resample_query})
+    sql_query_list.append(
+        {"query_name": "fill_intervals", "sql_query": fill_intervals_query}
+    )
 
     interpolate_query = _build_interpolate_query(
         sql_query_list=sql_query_list,
@@ -879,7 +770,6 @@ def _interpolation_query(parameters_dict: dict) -> str:
         timestamp_column=interpolate_parameters["timestamp_column"],
         tagname_column=interpolate_parameters["tagname_column"],
         value_column=interpolate_parameters["value_column"],
-        interpolation_method=interpolate_parameters["interpolation_method"],
         sort=(
             interpolate_parameters["sort"]
             if interpolate_parameters["pivot"] == False
@@ -932,80 +822,6 @@ def _interpolation_query(parameters_dict: dict) -> str:
     sql_query = _build_sql_cte_statement(sql_query_list)
 
     return sql_query
-
-    # if parameters_dict["interpolation_method"] == "forward_fill":
-    #     interpolation_methods = "last_value/UNBOUNDED PRECEDING/CURRENT ROW"
-
-    # if parameters_dict["interpolation_method"] == "backward_fill":
-    #     interpolation_methods = "first_value/CURRENT ROW/UNBOUNDED FOLLOWING"
-
-    # if (
-    #     parameters_dict["interpolation_method"] == "forward_fill"
-    #     or parameters_dict["interpolation_method"] == "backward_fill"
-    # ):
-    #     interpolation_options = interpolation_methods.split("/")
-
-    # interpolate_query = (
-    #     f"WITH resample AS ({sample_query})"
-    #     '{% if (interpolation_method is defined) and (interpolation_method == "forward_fill" or interpolation_method == "backward_fill") %}'
-    #     ",project AS (SELECT a.`{{ timestamp_column }}`, a.`{{ tagname_column }}`, {{ interpolation_options_0 }}(a.`{{ value_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN {{ interpolation_options_1 }} AND {{ interpolation_options_2 }}) AS `{{ value_column }}` FROM resample a "
-    #     '{% elif (interpolation_method is defined) and (interpolation_method == "linear") %}'
-    #     ",linear_interpolation_calculations AS (SELECT coalesce(a.`{{ tagname_column }}`, a.`{{ tagname_column }}`) AS `{{ tagname_column }}`, coalesce(a.`{{ timestamp_column }}`, a.`{{ timestamp_column }}`) AS `{{ timestamp_column }}`, a.`{{ timestamp_column }}` AS `Requested_{{ timestamp_column }}`, a.`{{ timestamp_column }}` AS `Found_{{ timestamp_column }}`, a.`{{ value_column }}`, "
-    #     "last_value(a.`{{ timestamp_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Last_{{ timestamp_column }}`, last_value(a.`{{ value_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Last_{{ value_column }}`, "
-    #     "first_value(a.`{{ timestamp_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS `Next_{{ timestamp_column }}`, first_value(a.`{{ value_column }}`, true) OVER (PARTITION BY a.`{{ tagname_column }}` ORDER BY a.`{{ timestamp_column }}` ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS `Next_{{ value_column }}`, "
-    #     "CASE WHEN a.`{{ value_column }}` is NULL THEN `Last_{{ value_column }}` + (unix_timestamp(a.`{{ timestamp_column }}`) - unix_timestamp(`Last_{{ timestamp_column }}`)) * ((`Next_{{ value_column }}` - `Last_{{ value_column }}`)) / ((unix_timestamp(`Next_{{ timestamp_column }}`) - unix_timestamp(`Last_{{ timestamp_column }}`))) ELSE a.`{{ value_column }}` END AS `linear_interpolated_{{ value_column }}` FROM resample a "
-    #     ",project AS (SELECT `{{ timestamp_column }}`, `{{ tagname_column }}`, `linear_interpolated_{{ value_column }}` AS `{{ value_column }}` FROM linear_interpolation_calculations) "
-    #     "{% else %}"
-    #     ",project AS (SELECT * FROM resample) "
-    #     "{% endif %}"
-    #     "{% if pivot is defined and pivot == true %}"
-    #     "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
-    #     ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
-    #     "{% for i in range(tag_names | length) %}"
-    #     "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
-    #     "{% endfor %}"
-    #     "{% else %}"
-    #     ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
-    #     "{% for i in range(tag_names | length) %}"
-    #     "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
-    #     "{% endfor %}"
-    #     "{% endif %}"
-    #     '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
-    #     "{% else %}"
-    #     "{% if display_uom is defined and display_uom == true %}"
-    #     'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
-    #     "LEFT OUTER JOIN "
-    #     "{% if metadata_source is defined and metadata_source is not none %}"
-    #     "`{{ metadata_source|lower }}` m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
-    #     "{% else %}"
-    #     "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`{{ tagname_column }}` = m.`{{ tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
-    #     "{% endif %}"
-    #     "{% else%}"
-    #     'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
-    #     "{% endif %}"
-    #     "{% endif %}"
-    #     "{% if limit is defined and limit is not none %}"
-    #     "LIMIT {{ limit }} "
-    #     "{% endif %}"
-    #     "{% if offset is defined and offset is not none %}"
-    #     "OFFSET {{ offset }} "
-    #     "{% endif %}"
-    # )
-
-    # interpolate_parameters = sample_parameters.copy()
-    # interpolate_parameters["interpolation_method"] = parameters_dict[
-    #     "interpolation_method"
-    # ]
-    # if (
-    #     parameters_dict["interpolation_method"] == "forward_fill"
-    #     or parameters_dict["interpolation_method"] == "backward_fill"
-    # ):
-    #     interpolate_parameters["interpolation_options_0"] = interpolation_options[0]
-    #     interpolate_parameters["interpolation_options_1"] = interpolation_options[1]
-    #     interpolate_parameters["interpolation_options_2"] = interpolation_options[2]
-
-    # sql_template = Template(interpolate_query)
-    # return sql_template.render(interpolate_parameters)
 
 
 def _plot_query(parameters_dict: dict) -> tuple:

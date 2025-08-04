@@ -448,8 +448,6 @@ class TimeSeriesQueryBuilder:
         end_date: str,
         time_interval_rate: str,
         time_interval_unit: str,
-        agg_method: str,
-        interpolation_method: str,
         include_bad_data: bool = False,
         pivot: bool = False,
         display_uom: bool = False,
@@ -480,8 +478,6 @@ class TimeSeriesQueryBuilder:
                 end_date="2023-01-31",
                 time_interval_rate="15",
                 time_interval_unit="minute",
-                agg_method="first",
-                interpolation_method="forward_fill",
             )
         )
 
@@ -495,8 +491,6 @@ class TimeSeriesQueryBuilder:
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             time_interval_rate (str): The time interval rate (numeric input)
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
-            agg_method (str): Aggregation Method (first, last, avg, min, max)
-            interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
@@ -516,8 +510,6 @@ class TimeSeriesQueryBuilder:
             "include_bad_data": include_bad_data,
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
-            "agg_method": agg_method,
-            "interpolation_method": interpolation_method,
             "pivot": pivot,
             "display_uom": display_uom,
             "sort": sort,
