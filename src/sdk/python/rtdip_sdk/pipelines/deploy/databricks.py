@@ -20,7 +20,7 @@ from io import BytesIO
 
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.config import Config
-from databricks.sdk.service.jobs import CreateJob, JobSettings
+from databricks.sdk.service.jobs import CreateResponse, JobSettings
 from databricks.sdk.service.compute import Library, PythonPyPiLibrary, MavenLibrary
 from .interfaces import DeployInterface
 from ..utilities.pipeline_components import PipelineComponentsGetUtility
@@ -73,11 +73,11 @@ class DatabricksSDKDeploy(DeployInterface):
             )
         ))
 
-        job = CreateJob(
-            name="test_job_rtdip",
-            job_clusters=cluster_list,
-            tasks=task_list
-        )
+        job = {
+            "name": "test_job_rtdip",
+            "job_clusters": cluster_list,
+            "tasks": task_list
+        }
 
         databricks_job = DatabricksSDKDeploy(databricks_job=job, host="https://test.databricks.net", token="test_token")
 
@@ -97,12 +97,12 @@ class DatabricksSDKDeploy(DeployInterface):
 
     def __init__(
         self,
-        databricks_job: CreateJob,
+        databricks_job: dict,
         host: str,
         token: str,
         workspace_directory: str = "/rtdip",
     ) -> None:
-        if databricks_job.name is None or databricks_job.name == "":
+        if databricks_job.get("name") is None or databricks_job.get("name") == "":
             raise ValueError("databricks_job.name cannot be empty")
         self.databricks_job = databricks_job
         self.host = host
@@ -133,7 +133,7 @@ class DatabricksSDKDeploy(DeployInterface):
                 auth_type="pat",
             )
         )
-        for task in self.databricks_job.tasks:
+        for task in self.databricks_job.get("tasks", []):
             if task.notebook_task is None and task.spark_python_task is None:
                 return ValueError(
                     "A Notebook or Spark Python Task must be populated for each task in the Databricks Job"
@@ -230,7 +230,7 @@ class DatabricksSDKDeploy(DeployInterface):
                         task.new_cluster.spark_conf = {}
                     task.new_cluster.spark_conf.update(spark_configuration)
             elif task.job_cluster_key is not None:
-                for job_cluster in self.databricks_job.job_clusters:
+                for job_cluster in self.databricks_job.get("job_clusters", []):
                     if job_cluster.job_cluster_key == task.job_cluster_key:
                         if spark_configuration is not None:
                             if job_cluster.new_cluster.spark_conf is None:
@@ -240,7 +240,7 @@ class DatabricksSDKDeploy(DeployInterface):
                             )
                         break
             elif task.compute_key is not None:
-                for compute in self.databricks_job.compute:
+                for compute in self.databricks_job.get("compute"):
                     if compute.compute_key == task.compute_key:
                         # TODO : Add spark config for compute. Does not seem to be currently available in the Databricks SDK # NOSONAR
                         # compute.spark_conf.update(spark_configuration)
@@ -248,9 +248,11 @@ class DatabricksSDKDeploy(DeployInterface):
 
         # Create Databricks Job
         job_found = False
-        for existing_job in workspace_client.jobs.list(name=self.databricks_job.name):
+        for existing_job in workspace_client.jobs.list(
+            name=self.databricks_job.get("name")
+        ):
             new_settings = JobSettings()
-            for key, value in self.databricks_job.__dict__.items():
+            for key, value in self.databricks_job.items():
                 if key in new_settings.__dict__:
                     setattr(new_settings, key, value)
             workspace_client.jobs.reset(
@@ -260,7 +262,7 @@ class DatabricksSDKDeploy(DeployInterface):
             break
 
         if job_found == False:
-            workspace_client.jobs.create(**self.databricks_job.__dict__)
+            workspace_client.jobs.create(**self.databricks_job)
 
         return True
 
@@ -277,7 +279,9 @@ class DatabricksSDKDeploy(DeployInterface):
             )
         )
         job_found = False
-        for existing_job in workspace_client.jobs.list(name=self.databricks_job.name):
+        for existing_job in workspace_client.jobs.list(
+            name=self.databricks_job.get("name")
+        ):
             workspace_client.jobs.run_now(job_id=existing_job.job_id)
             job_found = True
             break
@@ -300,7 +304,9 @@ class DatabricksSDKDeploy(DeployInterface):
             )
         )
         job_found = False
-        for existing_job in workspace_client.jobs.list(name=self.databricks_job.name):
+        for existing_job in workspace_client.jobs.list(
+            name=self.databricks_job.get("name")
+        ):
             workspace_client.jobs.cancel_all_runs(job_id=existing_job.job_id)
             job_found = True
             break
