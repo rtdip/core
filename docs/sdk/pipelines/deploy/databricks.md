@@ -57,7 +57,7 @@ Parameters for a Databricks Job can be managed using the following Classes:
 |ClusterSpec| Provides Parameters for setting up a Databricks Cluster|
 |JobCluster| Sets up a Jobs Cluster as defined by the provided `DatabricksCluster`|
 |Task| Defines the setup of the Task at the Databricks Task level including Task specific Clusters, Libraries, Schedules, Notifications and Timeouts |
-<!-- |CreateJob| Defines the setup at the Job level including Clusters, Libraries, Schedules, Notifications, Access Controls, Timeouts and Tags | -->
+|CreateJob| Defines the setup at the Job level including Clusters, Libraries, Schedules, Notifications, Access Controls, Timeouts and Tags |
 |NotebookTask| Provides the Notebook information to the `Task`|
 |DatabricksSDKDeploy|Leverages the Databricks SDK to deploy the job to Databricks Workflows|
 
@@ -95,11 +95,11 @@ task_list.append(Task(
 ))
 
 # Create a Databricks Job for the Task
-job = {
-    "name": "test_job_rtdip",
-    "job_clusters": cluster_list,
-    "tasks": task_list
-}
+job = CreateJob(
+    name="test_job_rtdip",
+    job_clusters=cluster_list,
+    tasks=task_list
+)
 
 # Deploy to Databricks
 databricks_job = DatabricksSDKDeploy(databricks_job=job, host=databricks_host_name, token=access_token)
