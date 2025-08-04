@@ -20,7 +20,6 @@ import pytest
 
 from src.sdk.python.rtdip_sdk.pipelines.deploy import (
     DatabricksSDKDeploy,
-    CreateJob,
     JobCluster,
     ClusterSpec,
     Task,
@@ -124,7 +123,9 @@ def test_pipeline_job_deploy(mocker: MockerFixture):
         )
     )
 
-    job = CreateJob(name="test_job_rtdip", job_clusters=cluster_list, tasks=task_list)
+    job = {"name": "test_job_rtdip", "job_clusters": cluster_list, "tasks": task_list}
+
+    # job = CreateJob(name="test_job_rtdip", job_clusters=cluster_list, tasks=task_list)
 
     databricks_job = DatabricksSDKDeploy(
         databricks_job=job, host="https://test.databricks.net", token="test_token"
@@ -207,7 +208,9 @@ def test_pipeline_job_deploy_fails(mocker: MockerFixture):
         )
     )
 
-    job = CreateJob(name="test_job_rtdip", job_clusters=cluster_list, tasks=task_list)
+    job = {"name": "test_job_rtdip", "job_clusters": cluster_list, "tasks": task_list}
+
+    # job = CreateJob(name="test_job_rtdip", job_clusters=cluster_list, tasks=task_list)
 
     databricks_job = DatabricksSDKDeploy(
         databricks_job=job, host="https://test.databricks.net", token="test_token"
