@@ -26,7 +26,6 @@ from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
 from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
     INTERPOLATE_MOCKED_QUERY,
-    INTERPOLATE_MOCKED_QUERY_BACKWARD_FILL,
     INTERPOLATE_MOCKED_QUERY_CHECK_TAGS,
     MOCKED_QUERY_OFFSET_LIMIT,
     INTERPOLATE_MOCKED_QUERY_PIVOT,
@@ -36,16 +35,16 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
 MOCKED_INTERPOLATE_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
 MOCKED_INTERPOLATE_PARAMETER_DICT["time_interval_rate"] = "15"
 MOCKED_INTERPOLATE_PARAMETER_DICT["time_interval_unit"] = "minute"
-MOCKED_INTERPOLATE_PARAMETER_DICT["agg_method"] = "avg"
-MOCKED_INTERPOLATE_PARAMETER_DICT["interpolation_method"] = "backward_fill"
 MOCKED_INTERPOLATE_PARAMETER_DICT["pivot"] = False
 
 
-def test_interpolate_backward_fill(mocker: MockerFixture):
+def test_interpolate(mocker: MockerFixture):
+    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    TEST_PARAMETERS["display_uom"] = False
     _test_base_succeed(
         mocker,
-        MOCKED_INTERPOLATE_PARAMETER_DICT,
-        INTERPOLATE_MOCKED_QUERY_BACKWARD_FILL,
+        TEST_PARAMETERS,
+        INTERPOLATE_MOCKED_QUERY,
         interpolate_get,
     )
 
@@ -57,18 +56,6 @@ def test_interpolate_uom(mocker: MockerFixture):
         mocker,
         TEST_PARAMETERS,
         INTERPOLATE_MOCKED_QUERY_UOM,
-        interpolate_get,
-    )
-
-
-def test_interpolate_forward_fill(mocker: MockerFixture):
-    TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
-    TEST_PARAMETERS["interpolation_method"] = "forward_fill"
-    TEST_PARAMETERS["display_uom"] = False
-    _test_base_succeed(
-        mocker,
-        TEST_PARAMETERS,
-        INTERPOLATE_MOCKED_QUERY,
         interpolate_get,
     )
 
@@ -86,7 +73,6 @@ def test_interpolate_check_tags(mocker: MockerFixture):
 
 def test_interpolate_sample_rate_unit(mocker: MockerFixture):
     TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
-    TEST_PARAMETERS["interpolation_method"] = "forward_fill"
     TEST_PARAMETERS["case_insensitivity_tag_search"] = False
     TEST_PARAMETERS["sample_rate"] = "15"
     TEST_PARAMETERS["sample_unit"] = "minute"
@@ -111,7 +97,6 @@ def test_interpolate_pivot(mocker: MockerFixture):
 
 def test_interpolate_offset_limit(mocker: MockerFixture):
     TEST_PARAMETERS = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
-    TEST_PARAMETERS["interpolation_method"] = "forward_fill"
     TEST_PARAMETERS["pivot"] = False
     TEST_PARAMETERS["offset"] = 10
     TEST_PARAMETERS["limit"] = 10
