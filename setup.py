@@ -57,7 +57,7 @@ PYSPARK_PACKAGES = [
 
 PIPELINE_PACKAGES = [
     "dependency-injector>=4.41.0,<5.0.0",
-    "databricks-sdk>=0.20.0,<1.0.0",
+    "databricks-sdk>=0.20.0,<0.58.0",
     "azure-storage-file-datalake>=12.12.0,<13.0.0",
     "azure-mgmt-storage>=21.0.0",
     "azure-mgmt-eventgrid>=10.2.0",
