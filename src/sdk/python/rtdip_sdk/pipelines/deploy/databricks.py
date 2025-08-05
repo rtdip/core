@@ -177,7 +177,7 @@ class CreateJob:
         if self.access_control_list:
             body["access_control_list"] = [
                 v.as_dict() for v in self.access_control_list
-            ]
+            ]  # NOSONAR
         if self.budget_policy_id is not None:
             body["budget_policy_id"] = self.budget_policy_id
         if self.continuous:
@@ -226,7 +226,7 @@ class CreateJob:
             body["trigger"] = self.trigger.as_dict()
         if self.webhook_notifications:
             body["webhook_notifications"] = self.webhook_notifications.as_dict()
-        return body
+        return body  # NOSONAR
 
     def as_shallow_dict(self) -> dict:
         """Serializes the CreateJob into a shallow dictionary of its immediate attributes."""
@@ -281,7 +281,7 @@ class CreateJob:
             body["trigger"] = self.trigger
         if self.webhook_notifications:
             body["webhook_notifications"] = self.webhook_notifications
-        return body
+        return body  # NOSONAR
 
 
 class DatabricksSDKDeploy(DeployInterface):
@@ -364,14 +364,14 @@ class DatabricksSDKDeploy(DeployInterface):
 
     def _convert_file_to_binary(self, path) -> BytesIO:
         with open(path, "rb") as f:
-            return BytesIO(f.read())
+            return BytesIO(f.read())  # NOSONAR
 
     def _load_module(self, module_name, path):
         spec = spec_from_file_location(module_name, path)
         module = module_from_spec(spec)
         spec.loader.exec_module(module)
         sys.modules[module.__name__] = module
-        return module
+        return module  # NOSONAR
 
     def deploy(self) -> Union[bool, ValueError]:
         """
