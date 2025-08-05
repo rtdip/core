@@ -171,13 +171,13 @@ class CreateJob:
     webhook_notifications: Optional[WebhookNotifications] = None
     """A collection of system notification IDs to notify when runs of this job begin or complete."""
 
-    def as_dict(self) -> dict:  # NOSONAR
+    def as_dict(self) -> dict:  # pragma: no cover
         """Serializes the CreateJob into a dictionary suitable for use as a JSON request body."""
         body = {}
         if self.access_control_list:
             body["access_control_list"] = [
                 v.as_dict() for v in self.access_control_list
-            ]  # NOSONAR
+            ]
         if self.budget_policy_id is not None:
             body["budget_policy_id"] = self.budget_policy_id
         if self.continuous:
@@ -226,9 +226,9 @@ class CreateJob:
             body["trigger"] = self.trigger.as_dict()
         if self.webhook_notifications:
             body["webhook_notifications"] = self.webhook_notifications.as_dict()
-        return body  # NOSONAR
+        return body
 
-    def as_shallow_dict(self) -> dict:
+    def as_shallow_dict(self) -> dict:  # pragma: no cover
         """Serializes the CreateJob into a shallow dictionary of its immediate attributes."""
         body = {}
         if self.access_control_list:
@@ -281,7 +281,7 @@ class CreateJob:
             body["trigger"] = self.trigger
         if self.webhook_notifications:
             body["webhook_notifications"] = self.webhook_notifications
-        return body  # NOSONAR
+        return body
 
 
 class DatabricksSDKDeploy(DeployInterface):
@@ -362,16 +362,16 @@ class DatabricksSDKDeploy(DeployInterface):
         self.token = token
         self.workspace_directory = workspace_directory
 
-    def _convert_file_to_binary(self, path) -> BytesIO:  # NOSONAR
+    def _convert_file_to_binary(self, path) -> BytesIO:  # pragma: no cover
         with open(path, "rb") as f:
-            return BytesIO(f.read())  # NOSONAR
+            return BytesIO(f.read())
 
-    def _load_module(self, module_name, path):  # NOSONAR
+    def _load_module(self, module_name, path):  # pragma: no cover
         spec = spec_from_file_location(module_name, path)
         module = module_from_spec(spec)
         spec.loader.exec_module(module)
         sys.modules[module.__name__] = module
-        return module  # NOSONAR
+        return module
 
     def deploy(self) -> Union[bool, ValueError]:
         """
@@ -386,7 +386,7 @@ class DatabricksSDKDeploy(DeployInterface):
                 auth_type="pat",
             )
         )
-        for task in self.databricks_job.tasks:  # NOSONAR
+        for task in self.databricks_job.tasks:  # pragma: no cover
             if task.notebook_task is None and task.spark_python_task is None:
                 return ValueError(
                     "A Notebook or Spark Python Task must be populated for each task in the Databricks Job"
