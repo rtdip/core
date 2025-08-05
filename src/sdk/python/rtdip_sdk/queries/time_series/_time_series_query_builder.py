@@ -301,6 +301,87 @@ def _build_interpolate_query(
     return interpolate_query_sql + ")"
 
 
+def _build_summary_query(
+    sql_query_name,
+    timestamp_column,
+    tagname_column,
+    status_column,
+    value_column,
+    start_date,
+    end_date,
+    source=None,
+    business_unit=None,
+    asset=None,
+    data_security_level=None,
+    data_type=None,
+    tag_names=None,
+    include_status=None,
+    include_bad_data=None,
+    case_insensitivity_tag_search=None,
+):
+
+    # Select
+    summary_query_sql = f"{sql_query_name} AS (SELECT `{tagname_column}`, "
+    summary_query_sql = " ".join(
+        [
+            summary_query_sql,
+            f"count(`{value_column}`) as Count,",
+            f"CAST(Avg(`{value_column}`) as decimal(10, 2)) as Avg,",
+            f"CAST(Min(`{value_column}`) as decimal(10, 2)) as Min,",
+            f"CAST(Max(`{value_column}`) as decimal(10, 2)) as Max,",
+            f"CAST(stddev(`{value_column}`) as decimal(10, 2)) as StDev,",
+            f"CAST(sum(`{value_column}`) as decimal(10, 2)) as Sum,",
+            f"CAST(variance(`{value_column}`) as decimal(10, 2)) as Var FROM",
+        ]
+    )
+
+    # From
+    if source is not None:
+        summary_query_sql = " ".join([summary_query_sql, f"`{source.lower()}`"])
+    else:
+        summary_query_sql = " ".join(
+            [
+                summary_query_sql,
+                f"`{business_unit.lower()}`.`sensors`.`{asset.lower()}_{data_security_level.lower()}_events_{data_type.lower()}`",
+            ]
+        )
+
+    # Where EventTime
+    summary_query_sql = " ".join(
+        [
+            summary_query_sql,
+            f"WHERE `{timestamp_column}` BETWEEN to_timestamp('{start_date}') AND to_timestamp('{end_date}') AND",
+        ]
+    )
+
+    # TagName
+    if case_insensitivity_tag_search == True:
+        quoted_tag_names = "', '".join([tag.upper() for tag in tag_names])
+        summary_query_sql = " ".join(
+            [
+                summary_query_sql,
+                f"UPPER(`{tagname_column}`) IN ('{quoted_tag_names}')",
+            ]
+        )
+    else:
+        quoted_tag_names = "', '".join(tag_names)
+        summary_query_sql = " ".join(
+            [summary_query_sql, f"`{tagname_column}` IN ('{quoted_tag_names}')"]
+        )
+
+    # Optional bad data filtering
+    if include_status == True and include_bad_data == False:
+        summary_query_sql = " ".join(
+            [summary_query_sql, f"AND `{status_column}` <> 'Bad'"]
+        )
+
+    # Group by
+    summary_query_sql = " ".join([summary_query_sql, f"GROUP BY `{tagname_column}`"])
+    summary_query_sql += ")"
+
+    return summary_query_sql
+
+
 def _build_pivot_query(
     sql_query_list,
     sql_query_name,
@@ -1470,47 +1551,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
 
 
 def _summary_query(parameters_dict: dict) -> str:
-    summary_query = (
-        "WITH summary AS (SELECT `{{ tagname_column }}`, "
-        "count(`{{ value_column }}`) as Count, "
-        "CAST(Avg(`{{ value_column }}`) as decimal(10, 2)) as Avg, "
-        "CAST(Min(`{{ value_column }}`) as decimal(10, 2)) as Min, "
-        "CAST(Max(`{{ value_column }}`) as decimal(10, 2)) as Max, "
-        "CAST(stddev(`{{ value_column }}`) as decimal(10, 2)) as StDev, "
-        "CAST(sum(`{{ value_column }}`) as decimal(10, 2)) as Sum, "
-        "CAST(variance(`{{ value_column }}`) as decimal(10, 2)) as Var FROM "
-        "{% if source is defined and source is not none %}"
-        "`{{ source|lower }}` "
-        "{% else %}"
-        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
-        "{% endif %}"
-        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
-        "{% else %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
-        "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %}"
-        "AND `{{ status_column }}` <> 'Bad'"
-        "{% endif %}"
-        "GROUP BY `{{ tagname_column }}`) "
-        "{% if display_uom is defined and display_uom == true %}"
-        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(s.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}s.*, m.`UoM`{% endif %} FROM summary s '
-        "LEFT OUTER JOIN "
-        "{% if metadata_source is defined and metadata_source is not none %}"
-        "`{{ metadata_source|lower }}` m ON s.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` "
-        "{% else %}"
-        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON s.`{{ tagname_column }}` = m.`{{ tagname_column }}` "
-        "{% endif %}"
-        "{% else%}"
-        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM summary '
-        "{% endif %}"
-        "{% if limit is defined and limit is not none %}"
-        "LIMIT {{ limit }} "
-        "{% endif %}"
-        "{% if offset is defined and offset is not none %}"
-        "OFFSET {{ offset }} "
-        "{% endif %}"
-    )
+    sql_query_list = []
 
     summary_parameters = {
         "source": parameters_dict.get("source", None),
@@ -1553,8 +1594,55 @@ def _summary_query(parameters_dict: dict) -> str:
         "to_json": parameters_dict.get("to_json", False),
     }
 
-    sql_template = Template(summary_query)
-    return sql_template.render(summary_parameters)
+    summary_query = _build_summary_query(
+        sql_query_name="summary",
+        timestamp_column=summary_parameters["timestamp_column"],
+        tagname_column=summary_parameters["tagname_column"],
+        status_column=summary_parameters["status_column"],
+        value_column=summary_parameters["value_column"],
+        start_date=summary_parameters["start_date"],
+        end_date=summary_parameters["end_date"],
+        source=summary_parameters["source"],
+        business_unit=summary_parameters["business_unit"],
+        asset=summary_parameters["asset"],
+        data_security_level=summary_parameters["data_security_level"],
+        data_type=summary_parameters["data_type"],
+        tag_names=summary_parameters["tag_names"],
+        include_status=summary_parameters["include_status"],
+        include_bad_data=summary_parameters["include_bad_data"],
+        case_insensitivity_tag_search=summary_parameters[
+            "case_insensitivity_tag_search"
+        ],
+    )
+
+    sql_query_list.append({"query_name": "summary", "sql_query": summary_query})
+
+    if summary_parameters["display_uom"] == True:
+        uom_query = _build_uom_query(
+            sql_query_list=sql_query_list,
+            sql_query_name="uom",
+            metadata_source=summary_parameters["metadata_source"],
+            business_unit=summary_parameters["business_unit"],
+            asset=summary_parameters["asset"],
+            data_security_level=summary_parameters["data_security_level"],
+            tagname_column=summary_parameters["tagname_column"],
+            metadata_tagname_column=summary_parameters["metadata_tagname_column"],
+            metadata_uom_column=summary_parameters["metadata_uom_column"],
+        )
+        sql_query_list.append({"query_name": "uom", "sql_query": uom_query})
+
+    # Add output query
+    output_query = _build_output_query(
+        sql_query_list=sql_query_list,
+        to_json=summary_parameters["to_json"],
+        limit=summary_parameters["limit"],
+        offset=summary_parameters["offset"],
+    )
+    sql_query_list.append({"query_name": "output", "sql_query": output_query})
+    # Build final SQL using CTE statement builder
+    sql_query = _build_sql_cte_statement(sql_query_list)
+
+    return sql_query
 
 
 def _query_builder(parameters_dict: dict, query_type: str) -> str:

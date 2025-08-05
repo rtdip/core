@@ -19,8 +19,8 @@ from pytest_mock import MockerFixture
 import pytest
 
 from src.sdk.python.rtdip_sdk.pipelines.deploy import (
-    DatabricksSDKDeploy,
     CreateJob,
+    DatabricksSDKDeploy,
     JobCluster,
     ClusterSpec,
     Task,

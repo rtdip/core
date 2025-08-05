@@ -162,7 +162,7 @@ class TimeSeriesQueryBuilder:
             metadata_tagname_column (optional str): The column name in the source that contains the tagnames or series
             metadata_uom_column (optional str): The column name in the source that contains the unit of measure
         """
-        self.metadata_source = "`.`".join(metadata_source.split("."))
+        self.metadata_source = f"`{'`.`'.join(metadata_source.split('.'))}`"
         self.metadata_tagname_column = metadata_tagname_column
         self.metadata_uom_column = metadata_uom_column
         return self
