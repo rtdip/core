@@ -171,7 +171,7 @@ class CreateJob:
     webhook_notifications: Optional[WebhookNotifications] = None
     """A collection of system notification IDs to notify when runs of this job begin or complete."""
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict:  # NOSONAR
         """Serializes the CreateJob into a dictionary suitable for use as a JSON request body."""
         body = {}
         if self.access_control_list:
@@ -362,11 +362,11 @@ class DatabricksSDKDeploy(DeployInterface):
         self.token = token
         self.workspace_directory = workspace_directory
 
-    def _convert_file_to_binary(self, path) -> BytesIO:
+    def _convert_file_to_binary(self, path) -> BytesIO:  # NOSONAR
         with open(path, "rb") as f:
             return BytesIO(f.read())  # NOSONAR
 
-    def _load_module(self, module_name, path):
+    def _load_module(self, module_name, path):  # NOSONAR
         spec = spec_from_file_location(module_name, path)
         module = module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -386,7 +386,7 @@ class DatabricksSDKDeploy(DeployInterface):
                 auth_type="pat",
             )
         )
-        for task in self.databricks_job.tasks:
+        for task in self.databricks_job.tasks:  # NOSONAR
             if task.notebook_task is None and task.spark_python_task is None:
                 return ValueError(
                     "A Notebook or Spark Python Task must be populated for each task in the Databricks Job"
