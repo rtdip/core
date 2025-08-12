@@ -806,8 +806,15 @@ def _build_plot_aggregations(
 ):
     """Build plot aggregations with OHLC (open, high, low, close) calculations."""
     parent_sql_query_name = sql_query_list[-1]["query_name"]
-    raw_events_name = next((query["query_name"] for query in sql_query_list if query["query_name"] == "raw_events"), "raw_events")
-    
+    raw_events_name = next(
+        (
+            query["query_name"]
+            for query in sql_query_list
+            if query["query_name"] == "raw_events"
+        ),
+        "raw_events",
+    )
+
     plot_aggregations_query = f"{sql_query_name} AS (SELECT /*+ RANGE_JOIN(d, {range_join_seconds}) */ d.window_start, d.window_end, e.`{tagname_column}`, min(CASE WHEN `{status_column}` = 'Bad' THEN null ELSE struct(e.`{value_column}`, e.`{timestamp_column}`) END) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `min_{value_column}`, max(CASE WHEN `{status_column}` = 'Bad' THEN null ELSE struct(e.`{value_column}`, e.`{timestamp_column}`) END) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `max_{value_column}`, first(CASE WHEN `{status_column}` = 'Bad' THEN null ELSE struct(e.`{value_column}`, e.`{timestamp_column}`) END, True) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `first_{value_column}`, last(CASE WHEN `{status_column}` = 'Bad' THEN null ELSE struct(e.`{value_column}`, e.`{timestamp_column}`) END, True) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `last_{value_column}`, first(CASE WHEN `{status_column}` = 'Bad' THEN struct(e.`{value_column}`, e.`{timestamp_column}`) ELSE null END, True) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `excp_{value_column}` FROM {parent_sql_query_name} d INNER JOIN {raw_events_name} e ON d.window_start <= e.`{timestamp_column}` AND d.window_end > e.`{timestamp_column}`)"
     return plot_aggregations_query
 
@@ -835,12 +842,14 @@ def _build_unpivot_projection(
 ):
     """Build unpivot projection to transform aggregated values into rows."""
     parent_sql_query_name = sql_query_list[-1]["query_name"]
-    
+
     unpivot_query = f"{sql_query_name} AS (SELECT distinct Values.{timestamp_column}, `{tagname_column}`, Values.{value_column} FROM (SELECT * FROM {parent_sql_query_name} UNPIVOT (`Values` for `Aggregation` IN (`Min`, `Max`, `First`, `Last`, `Exception`)))"
-    
+
     if sort:
-        unpivot_query = " ".join([unpivot_query, f"ORDER BY `{tagname_column}`, `{timestamp_column}`"])
-    
+        unpivot_query = " ".join(
+            [unpivot_query, f"ORDER BY `{tagname_column}`, `{timestamp_column}`"]
+        )
+
     return unpivot_query + ")"
 
 
@@ -865,7 +874,6 @@ def _plot_query_parameters(parameters_dict: dict) -> dict:
         "display_uom": parameters_dict.get("display_uom", False),
         "limit": parameters_dict.get("limit", None),
         "offset": parameters_dict.get("offset", None),
-        "is_resample": True,
         "tagname_column": parameters_dict.get("tagname_column", "TagName"),
         "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
         "include_status": (
@@ -890,6 +898,7 @@ def _plot_query_parameters(parameters_dict: dict) -> dict:
         ),
         "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
         "to_json": parameters_dict.get("to_json", False),
+        "sort": parameters_dict.get("sort", True),
     }
     return plot_parameters
 
@@ -1032,9 +1041,9 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
 
 def _plot_query(parameters_dict: dict) -> str:
-    
+
     plot_parameters = _plot_query_parameters(parameters_dict)
-    
+
     sql_query_list = []
 
     # Build raw events query
@@ -1059,7 +1068,7 @@ def _plot_query(parameters_dict: dict) -> str:
         case_insensitivity_tag_search=plot_parameters["case_insensitivity_tag_search"],
         sort=False,
     )
-    
+
     sql_query_list.append({"query_name": "raw_events", "sql_query": raw_query})
 
     # Build time interval array
@@ -1072,8 +1081,10 @@ def _plot_query(parameters_dict: dict) -> str:
         time_interval_rate=plot_parameters["time_interval_rate"],
         time_interval_unit=plot_parameters["time_interval_unit"],
     )
-    
-    sql_query_list.append({"query_name": "date_array", "sql_query": time_interval_query})
+
+    sql_query_list.append(
+        {"query_name": "date_array", "sql_query": time_interval_query}
+    )
 
     # Build window buckets
     window_buckets_query = _build_window_buckets(
@@ -1083,8 +1094,10 @@ def _plot_query(parameters_dict: dict) -> str:
         time_interval_rate=plot_parameters["time_interval_rate"],
         time_interval_unit=plot_parameters["time_interval_unit"],
     )
-    
-    sql_query_list.append({"query_name": "window_buckets", "sql_query": window_buckets_query})
+
+    sql_query_list.append(
+        {"query_name": "window_buckets", "sql_query": window_buckets_query}
+    )
 
     # Build plot aggregations
     plot_aggregations_query = _build_plot_aggregations(
@@ -1096,7 +1109,7 @@ def _plot_query(parameters_dict: dict) -> str:
         status_column=plot_parameters["status_column"],
         range_join_seconds=plot_parameters["range_join_seconds"],
     )
-    
+
     sql_query_list.append({"query_name": "plot", "sql_query": plot_aggregations_query})
 
     # Build deduplication
@@ -1107,8 +1120,10 @@ def _plot_query(parameters_dict: dict) -> str:
         tagname_column=plot_parameters["tagname_column"],
         value_column=plot_parameters["value_column"],
     )
-    
-    sql_query_list.append({"query_name": "deduplicate", "sql_query": deduplication_query})
+
+    sql_query_list.append(
+        {"query_name": "deduplicate", "sql_query": deduplication_query}
+    )
 
     # Build unpivot projection
     unpivot_query = _build_unpivot_projection(
@@ -1117,13 +1132,9 @@ def _plot_query(parameters_dict: dict) -> str:
         timestamp_column=plot_parameters["timestamp_column"],
         tagname_column=plot_parameters["tagname_column"],
         value_column=plot_parameters["value_column"],
-        sort=(
-            plot_parameters["is_resample"]
-            if plot_parameters["pivot"] == False
-            else False
-        ),
+        sort=(plot_parameters["sort"] if plot_parameters["pivot"] == False else False),
     )
-    
+
     sql_query_list.append({"query_name": "project", "sql_query": unpivot_query})
 
     # Add pivot if requested
@@ -1135,10 +1146,12 @@ def _plot_query(parameters_dict: dict) -> str:
             timestamp_column=plot_parameters["timestamp_column"],
             value_column=plot_parameters["value_column"],
             tag_names=plot_parameters["tag_names"],
-            is_case_insensitive_tag_search=plot_parameters["case_insensitivity_tag_search"],
+            is_case_insensitive_tag_search=plot_parameters[
+                "case_insensitivity_tag_search"
+            ],
             sort=True,
         )
-        
+
         sql_query_list.append({"query_name": "pivot", "sql_query": pivot_query})
 
     # Add UOM if requested
@@ -1154,7 +1167,7 @@ def _plot_query(parameters_dict: dict) -> str:
             metadata_tagname_column=plot_parameters["metadata_tagname_column"],
             metadata_uom_column=plot_parameters["metadata_uom_column"],
         )
-        
+
         sql_query_list.append({"query_name": "uom", "sql_query": uom_query})
 
     # Build output query
@@ -1164,12 +1177,12 @@ def _plot_query(parameters_dict: dict) -> str:
         limit=plot_parameters["limit"],
         offset=plot_parameters["offset"],
     )
-    
+
     sql_query_list.append({"query_name": "output", "sql_query": output_query})
 
     # Build final SQL
     sql_query = _build_sql_cte_statement(sql_query_list)
-    
+
     return sql_query
 
 

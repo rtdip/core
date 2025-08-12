@@ -91,13 +91,13 @@ def test_plot_uom(mocker: MockerFixture):
 
 
 def test_plot_offset_limit(mocker: MockerFixture):
-    MOCKED_PLOT_PARAMETER_DICT["display_uom"] = False
     MOCKED_PLOT_PARAMETER_DICT["offset"] = 10
     MOCKED_PLOT_PARAMETER_DICT["limit"] = 10
+    MOCKED_PLOT_PARAMETER_DICT["display_uom"] = False
     _test_base_succeed(
         mocker,
         MOCKED_PLOT_PARAMETER_DICT,
-        (PLOT_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT),
+        (PLOT_MOCKED_QUERY + " " + MOCKED_QUERY_OFFSET_LIMIT.strip()),
         plot_get,
     )
 
