@@ -768,6 +768,141 @@ def _sample_query(parameters_dict: dict) -> str:
     return sql_query
 
 
+def _build_time_interval_array(
+    sql_query_name,
+    timestamp_column,
+    start_date,
+    end_date,
+    time_zone,
+    time_interval_rate,
+    time_interval_unit,
+):
+    """Build time interval array for windowing operations."""
+    time_interval_array_query = f"{sql_query_name} AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp('{start_date}'), '{time_zone}'), from_utc_timestamp(to_timestamp('{end_date}'), '{time_zone}'), INTERVAL '{time_interval_rate} {time_interval_unit}')) AS timestamp_array)"
+    return time_interval_array_query
+
+
+def _build_window_buckets(
+    sql_query_list,
+    sql_query_name,
+    timestamp_column,
+    time_interval_rate,
+    time_interval_unit,
+):
+    """Build window buckets for time-based aggregations."""
+    parent_sql_query_name = sql_query_list[-1]["query_name"]
+    window_buckets_query = f"{sql_query_name} AS (SELECT timestamp_array AS window_start, timestampadd({time_interval_unit}, {time_interval_rate}, timestamp_array) AS window_end FROM {parent_sql_query_name})"
+    return window_buckets_query
+
+
+def _build_plot_aggregations(
+    sql_query_list,
+    sql_query_name,
+    timestamp_column,
+    tagname_column,
+    value_column,
+    status_column,
+    range_join_seconds,
+):
+    """Build plot aggregations with OHLC (open, high, low, close) calculations."""
+    parent_sql_query_name = sql_query_list[-1]["query_name"]
+    raw_events_name = next(
+        (
+            query["query_name"]
+            for query in sql_query_list
+            if query["query_name"] == "raw_events"
+        ),
+        "raw_events",
+    )
+
+    plot_aggregations_query = f"{sql_query_name} AS (SELECT /*+ RANGE_JOIN(d, {range_join_seconds}) */ d.window_start, d.window_end, e.`{tagname_column}`, min(CASE WHEN `{status_column}` = 'Bad' THEN null ELSE struct(e.`{value_column}`, e.`{timestamp_column}`) END) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `min_{value_column}`, max(CASE WHEN `{status_column}` = 'Bad' THEN null ELSE struct(e.`{value_column}`, e.`{timestamp_column}`) END) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `max_{value_column}`, first(CASE WHEN `{status_column}` = 'Bad' THEN null ELSE struct(e.`{value_column}`, e.`{timestamp_column}`) END, True) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `first_{value_column}`, last(CASE WHEN `{status_column}` = 'Bad' THEN null ELSE struct(e.`{value_column}`, e.`{timestamp_column}`) END, True) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `last_{value_column}`, first(CASE WHEN `{status_column}` = 'Bad' THEN struct(e.`{value_column}`, e.`{timestamp_column}`) ELSE null END, True) OVER (PARTITION BY e.`{tagname_column}`, d.window_start ORDER BY e.`{timestamp_column}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `excp_{value_column}` FROM {parent_sql_query_name} d INNER JOIN {raw_events_name} e ON d.window_start <= e.`{timestamp_column}` AND d.window_end > e.`{timestamp_column}`)"
+    return plot_aggregations_query
+
+
+def _build_plot_deduplication(
+    sql_query_list,
+    sql_query_name,
+    timestamp_column,
+    tagname_column,
+    value_column,
+):
+    """Build deduplication step for plot aggregations."""
+    parent_sql_query_name = sql_query_list[-1]["query_name"]
+    deduplication_query = f"{sql_query_name} AS (SELECT window_start AS `{timestamp_column}`, `{tagname_column}`, `min_{value_column}` as `Min`, `max_{value_column}` as `Max`, `first_{value_column}` as `First`, `last_{value_column}` as `Last`, `excp_{value_column}` as `Exception` FROM {parent_sql_query_name} GROUP BY window_start, `{tagname_column}`, `min_{value_column}`, `max_{value_column}`, `first_{value_column}`, `last_{value_column}`, `excp_{value_column}`)"
+    return deduplication_query
+
+
+def _build_unpivot_projection(
+    sql_query_list,
+    sql_query_name,
+    timestamp_column,
+    tagname_column,
+    value_column,
+    sort=True,
+):
+    """Build unpivot projection to transform aggregated values into rows."""
+    parent_sql_query_name = sql_query_list[-1]["query_name"]
+
+    unpivot_query = f"{sql_query_name} AS (SELECT distinct Values.{timestamp_column}, `{tagname_column}`, Values.{value_column} FROM (SELECT * FROM {parent_sql_query_name} UNPIVOT (`Values` for `Aggregation` IN (`Min`, `Max`, `First`, `Last`, `Exception`)))"
+
+    if sort:
+        unpivot_query = " ".join(
+            [unpivot_query, f"ORDER BY `{tagname_column}`, `{timestamp_column}`"]
+        )
+
+    return unpivot_query + ")"
+
+
+def _plot_query_parameters(parameters_dict: dict) -> dict:
+    """Extract and validate parameters for plot query."""
+    plot_parameters = {
+        "source": parameters_dict.get("source", None),
+        "metadata_source": parameters_dict.get("metadata_source", None),
+        "business_unit": parameters_dict.get("business_unit"),
+        "region": parameters_dict.get("region"),
+        "asset": parameters_dict.get("asset"),
+        "data_security_level": parameters_dict.get("data_security_level"),
+        "data_type": parameters_dict.get("data_type"),
+        "start_date": parameters_dict["start_date"],
+        "end_date": parameters_dict["end_date"],
+        "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
+        "include_bad_data": True,
+        "time_interval_rate": parameters_dict["time_interval_rate"],
+        "time_interval_unit": parameters_dict["time_interval_unit"],
+        "time_zone": parameters_dict["time_zone"],
+        "pivot": parameters_dict.get("pivot", None),
+        "display_uom": parameters_dict.get("display_uom", False),
+        "limit": parameters_dict.get("limit", None),
+        "offset": parameters_dict.get("offset", None),
+        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
+        "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
+        "include_status": (
+            False
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else True
+        ),
+        "status_column": (
+            "Status"
+            if "status_column" in parameters_dict
+            and parameters_dict.get("status_column") is None
+            else parameters_dict.get("status_column", "Status")
+        ),
+        "value_column": parameters_dict.get("value_column", "Value"),
+        "range_join_seconds": parameters_dict["range_join_seconds"],
+        "case_insensitivity_tag_search": parameters_dict.get(
+            "case_insensitivity_tag_search", False
+        ),
+        "metadata_tagname_column": parameters_dict.get(
+            "metadata_tagname_column", "TagName"
+        ),
+        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
+        "to_json": parameters_dict.get("to_json", False),
+        "sort": parameters_dict.get("sort", True),
+    }
+    return plot_parameters
+
+
 def _interpolation_query(parameters_dict: dict) -> str:
 
     parameters_dict["agg_method"] = None
@@ -905,118 +1040,150 @@ def _interpolation_query(parameters_dict: dict) -> str:
     return sql_query
 
 
-def _plot_query(parameters_dict: dict) -> tuple:
-    plot_query = (
-        'WITH raw_events AS (SELECT DISTINCT from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, `{{ tagname_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} `{{ value_column }}` FROM '
-        "{% if source is defined and source is not none %}"
-        "`{{ source|lower }}` "
-        "{% else %}"
-        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` "
-        "{% endif %}"
-        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
-        "{% else %}"
-        "WHERE `{{ timestamp_column }}` BETWEEN to_timestamp(\"{{ start_date }}\") AND to_timestamp(\"{{ end_date }}\") AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
-        "{% endif %}"
-        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
-        ',date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS timestamp_array) '
-        ",window_buckets AS (SELECT timestamp_array AS window_start, timestampadd({{time_interval_unit }}, {{ time_interval_rate }}, timestamp_array) AS window_end FROM date_array) "
-        ",plot AS (SELECT /*+ RANGE_JOIN(d, {{ range_join_seconds }} ) */ d.window_start, d.window_end, e.`{{ tagname_column }}`"
-        ", min(CASE WHEN `{{ status_column }}` = 'Bad' THEN null ELSE struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) END) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `min_{{ value_column }}`"
-        ", max(CASE WHEN `{{ status_column }}` = 'Bad' THEN null ELSE struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) END) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `max_{{ value_column }}`"
-        ", first(CASE WHEN `{{ status_column }}` = 'Bad' THEN null ELSE struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) END, True) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `first_{{ value_column }}`"
-        ", last(CASE WHEN `{{ status_column }}` = 'Bad' THEN null ELSE struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) END, True) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `last_{{ value_column }}`"
-        ", first(CASE WHEN `{{ status_column }}` = 'Bad' THEN struct(e.`{{ value_column }}`, e.`{{ timestamp_column }}`) ELSE null END, True) OVER (PARTITION BY e.`{{ tagname_column }}`, d.window_start ORDER BY e.`{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS `excp_{{ value_column }}` "
-        "FROM window_buckets d INNER JOIN raw_events e ON d.window_start <= e.`{{ timestamp_column }}` AND d.window_end > e.`{{ timestamp_column }}`) "
-        ",deduplicate AS (SELECT window_start AS `{{ timestamp_column }}`, `{{ tagname_column }}`, `min_{{ value_column }}` as `Min`, `max_{{ value_column }}` as `Max`, `first_{{ value_column }}` as `First`, `last_{{ value_column }}` as `Last`, `excp_{{ value_column }}` as `Exception` FROM plot GROUP BY window_start, `{{ tagname_column }}`, `min_{{ value_column }}`, `max_{{ value_column }}`, `first_{{ value_column }}`, `last_{{ value_column }}`, `excp_{{ value_column }}`) "
-        ",project AS (SELECT distinct Values.{{ timestamp_column }}, `{{ tagname_column }}`, Values.{{ value_column }} FROM (SELECT * FROM deduplicate UNPIVOT (`Values` for `Aggregation` IN (`Min`, `Max`, `First`, `Last`, `Exception`))) "
-        "{% if is_resample is defined and is_resample == true %}"
-        "ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
-        "{% endif %}"
-        ") "
-        "{% if is_resample is defined and is_resample == true and pivot is defined and pivot == true %}"
-        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
-        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
-        "{% for i in range(tag_names | length) %}"
-        "'{{ tag_names[i] | upper }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
-        "{% endfor %}"
-        "{% else %}"
-        ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, `{{ tagname_column }}` AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
-        "{% for i in range(tag_names | length) %}"
-        "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
-        "{% endfor %}"
-        "{% endif %}"
-        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
-        "{% else %}"
-        "{% if display_uom is defined and display_uom == true %}"
-        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
-        "LEFT OUTER JOIN "
-        "{% if metadata_source is defined and metadata_source is not none %}"
-        "`{{ metadata_source|lower }}` m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` "
-        "{% else %}"
-        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`{{ tagname_column }}` = m.`{{ tagname_column }}` "
-        "{% endif %}"
-        "{% else %}"
-        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project '
-        "{% endif %}"
-        "{% endif %}"
-        "{% if is_resample is defined and is_resample == true and limit is defined and limit is not none %}"
-        "LIMIT {{ limit }} "
-        "{% endif %}"
-        "{% if is_resample is defined and is_resample == true and offset is defined and offset is not none %}"
-        "OFFSET {{ offset }} "
-        "{% endif %}"
+def _plot_query(parameters_dict: dict) -> str:
+
+    plot_parameters = _plot_query_parameters(parameters_dict)
+
+    sql_query_list = []
+
+    # Build raw events query
+    raw_query = _build_raw_query(
+        sql_query_name="raw_events",
+        timestamp_column=plot_parameters["timestamp_column"],
+        tagname_column=plot_parameters["tagname_column"],
+        status_column=plot_parameters["status_column"],
+        value_column=plot_parameters["value_column"],
+        start_date=plot_parameters["start_date"],
+        end_date=plot_parameters["end_date"],
+        time_zone=plot_parameters["time_zone"],
+        deduplicate=True,
+        source=plot_parameters["source"],
+        business_unit=plot_parameters["business_unit"],
+        asset=plot_parameters["asset"],
+        data_security_level=plot_parameters["data_security_level"],
+        data_type=plot_parameters["data_type"],
+        tag_names=plot_parameters["tag_names"],
+        include_status=plot_parameters["include_status"],
+        include_bad_data=plot_parameters["include_bad_data"],
+        case_insensitivity_tag_search=plot_parameters["case_insensitivity_tag_search"],
+        sort=False,
     )
 
-    plot_parameters = {
-        "source": parameters_dict.get("source", None),
-        "metadata_source": parameters_dict.get("metadata_source", None),
-        "business_unit": parameters_dict.get("business_unit"),
-        "region": parameters_dict.get("region"),
-        "asset": parameters_dict.get("asset"),
-        "data_security_level": parameters_dict.get("data_security_level"),
-        "data_type": parameters_dict.get("data_type"),
-        "start_date": parameters_dict["start_date"],
-        "end_date": parameters_dict["end_date"],
-        "tag_names": list(dict.fromkeys(parameters_dict["tag_names"])),
-        "include_bad_data": True,
-        "time_interval_rate": parameters_dict["time_interval_rate"],
-        "time_interval_unit": parameters_dict["time_interval_unit"],
-        "time_zone": parameters_dict["time_zone"],
-        "pivot": parameters_dict.get("pivot", None),
-        "display_uom": parameters_dict.get("display_uom", False),
-        "limit": parameters_dict.get("limit", None),
-        "offset": parameters_dict.get("offset", None),
-        "is_resample": True,
-        "tagname_column": parameters_dict.get("tagname_column", "TagName"),
-        "timestamp_column": parameters_dict.get("timestamp_column", "EventTime"),
-        "include_status": (
-            False
-            if "status_column" in parameters_dict
-            and parameters_dict.get("status_column") is None
-            else True
-        ),
-        "status_column": (
-            "Status"
-            if "status_column" in parameters_dict
-            and parameters_dict.get("status_column") is None
-            else parameters_dict.get("status_column", "Status")
-        ),
-        "value_column": parameters_dict.get("value_column", "Value"),
-        "range_join_seconds": parameters_dict["range_join_seconds"],
-        "case_insensitivity_tag_search": parameters_dict.get(
-            "case_insensitivity_tag_search", False
-        ),
-        "metadata_tagname_column": parameters_dict.get(
-            "metadata_tagname_column", "TagName"
-        ),
-        "metadata_uom_column": parameters_dict.get("metadata_uom_column", "UoM"),
-        "to_json": parameters_dict.get("to_json", False),
-    }
+    sql_query_list.append({"query_name": "raw_events", "sql_query": raw_query})
 
-    sql_template = Template(plot_query)
-    sql_query = sql_template.render(plot_parameters)
-    return sql_query, plot_query, plot_parameters
+    # Build time interval array
+    time_interval_query = _build_time_interval_array(
+        sql_query_name="date_array",
+        timestamp_column=plot_parameters["timestamp_column"],
+        start_date=plot_parameters["start_date"],
+        end_date=plot_parameters["end_date"],
+        time_zone=plot_parameters["time_zone"],
+        time_interval_rate=plot_parameters["time_interval_rate"],
+        time_interval_unit=plot_parameters["time_interval_unit"],
+    )
+
+    sql_query_list.append(
+        {"query_name": "date_array", "sql_query": time_interval_query}
+    )
+
+    # Build window buckets
+    window_buckets_query = _build_window_buckets(
+        sql_query_list=sql_query_list,
+        sql_query_name="window_buckets",
+        timestamp_column=plot_parameters["timestamp_column"],
+        time_interval_rate=plot_parameters["time_interval_rate"],
+        time_interval_unit=plot_parameters["time_interval_unit"],
+    )
+
+    sql_query_list.append(
+        {"query_name": "window_buckets", "sql_query": window_buckets_query}
+    )
+
+    # Build plot aggregations
+    plot_aggregations_query = _build_plot_aggregations(
+        sql_query_list=sql_query_list,
+        sql_query_name="plot",
+        timestamp_column=plot_parameters["timestamp_column"],
+        tagname_column=plot_parameters["tagname_column"],
+        value_column=plot_parameters["value_column"],
+        status_column=plot_parameters["status_column"],
+        range_join_seconds=plot_parameters["range_join_seconds"],
+    )
+
+    sql_query_list.append({"query_name": "plot", "sql_query": plot_aggregations_query})
+
+    # Build deduplication
+    deduplication_query = _build_plot_deduplication(
+        sql_query_list=sql_query_list,
+        sql_query_name="deduplicate",
+        timestamp_column=plot_parameters["timestamp_column"],
+        tagname_column=plot_parameters["tagname_column"],
+        value_column=plot_parameters["value_column"],
+    )
+
+    sql_query_list.append(
+        {"query_name": "deduplicate", "sql_query": deduplication_query}
+    )
+
+    # Build unpivot projection
+    unpivot_query = _build_unpivot_projection(
+        sql_query_list=sql_query_list,
+        sql_query_name="project",
+        timestamp_column=plot_parameters["timestamp_column"],
+        tagname_column=plot_parameters["tagname_column"],
+        value_column=plot_parameters["value_column"],
+        sort=(plot_parameters["sort"] if plot_parameters["pivot"] == False else False),
+    )
+
+    sql_query_list.append({"query_name": "project", "sql_query": unpivot_query})
+
+    # Add pivot if requested
+    if plot_parameters["pivot"] == True:
+        pivot_query = _build_pivot_query(
+            sql_query_list=sql_query_list,
+            sql_query_name="pivot",
+            tagname_column=plot_parameters["tagname_column"],
+            timestamp_column=plot_parameters["timestamp_column"],
+            value_column=plot_parameters["value_column"],
+            tag_names=plot_parameters["tag_names"],
+            is_case_insensitive_tag_search=plot_parameters[
+                "case_insensitivity_tag_search"
+            ],
+            sort=True,
+        )
+
+        sql_query_list.append({"query_name": "pivot", "sql_query": pivot_query})
+
+    # Add UOM if requested
+    if plot_parameters["display_uom"] == True:
+        uom_query = _build_uom_query(
+            sql_query_list=sql_query_list,
+            sql_query_name="uom",
+            metadata_source=plot_parameters["metadata_source"],
+            business_unit=plot_parameters["business_unit"],
+            asset=plot_parameters["asset"],
+            data_security_level=plot_parameters["data_security_level"],
+            tagname_column=plot_parameters["tagname_column"],
+            metadata_tagname_column=plot_parameters["metadata_tagname_column"],
+            metadata_uom_column=plot_parameters["metadata_uom_column"],
+        )
+
+        sql_query_list.append({"query_name": "uom", "sql_query": uom_query})
+
+    # Build output query
+    output_query = _build_output_query(
+        sql_query_list=sql_query_list,
+        to_json=plot_parameters["to_json"],
+        limit=plot_parameters["limit"],
+        offset=plot_parameters["offset"],
+    )
+
+    sql_query_list.append({"query_name": "output", "sql_query": output_query})
+
+    # Build final SQL
+    sql_query = _build_sql_cte_statement(sql_query_list)
+
+    return sql_query
 
 
 def _interpolation_at_time(parameters_dict: dict) -> str:
@@ -1699,7 +1866,7 @@ def _query_builder(parameters_dict: dict, query_type: str) -> str:
             + " "
             + parameters_dict["time_interval_unit"][0]
         )
-        plot_prepared_query, _, _ = _plot_query(parameters_dict)
+        plot_prepared_query = _plot_query(parameters_dict)
         return plot_prepared_query
 
     if query_type == "time_weighted_average":
