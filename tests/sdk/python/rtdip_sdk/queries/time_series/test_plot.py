@@ -34,6 +34,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
 MOCKED_PLOT_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
 MOCKED_PLOT_PARAMETER_DICT["time_interval_rate"] = "15"
 MOCKED_PLOT_PARAMETER_DICT["time_interval_unit"] = "minute"
+MOCKED_PLOT_PARAMETER_DICT["pivot"] = False
 
 
 def test_plot_success(mocker: MockerFixture):
