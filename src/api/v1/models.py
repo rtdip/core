@@ -487,7 +487,7 @@ class TimeWeightedAverageQueryParams:
     def __init__(
         self,
         window_size_mins: int = Query(
-            ...,
+            None,
             description="window_size_mins is deprecated and will be removed in v1.0.0. Please use time_interval_rate and time_interval_unit instead.",
             examples=[20],
             deprecated=True,
