@@ -61,7 +61,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         merge=True,
         try_broadcast_join=False,
         remove_nanoseconds=False,
-        remove_duplicates-True
+        remove_duplicates=True
     )
 
     pcdm_to_delta_destination.write_stream()
@@ -86,7 +86,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         merge=True,
         try_broadcast_join=False,
         remove_nanoseconds=False,
-        remove_duplicates-True
+        remove_duplicates=True
     )
 
     pcdm_to_delta_destination.write_batch()
@@ -105,7 +105,7 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
         merge (bool): Use Delta Merge to perform inserts, updates and deletes
         try_broadcast_join (bool): Attempts to perform a broadcast join in the merge which can leverage data skipping using partition pruning and file pruning automatically. Can fail if dataframe being merged is large and therefore more suitable for streaming merges than batch merges
         remove_nanoseconds (bool): Removes nanoseconds from the EventTime column and replaces with zeros
-        remove_duplicates (bool: Removes duplicates before writing the data
+        remove_duplicates (bool): Removes duplicates before writing the data
 
     Attributes:
         checkpointLocation (str): Path to checkpoint files. (Streaming)

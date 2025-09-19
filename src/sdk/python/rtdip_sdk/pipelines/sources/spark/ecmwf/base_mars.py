@@ -82,11 +82,9 @@ class SparkECMWFBaseMarsSource:
         Parameters:
             mars_dict (dict): Dictionary of mars parameters.
             n_jobs (int, optional): Download in parallel? by default None, i.e. no parallelization
-            backend (str, optional) : Specify the parallelization backend implementation in joblib, by default "loky"
+            backend (str, optional): Specify the parallelization backend implementation in joblib, by default "loky"
             tries (int, optional): Number of tries for each request if it fails, by default 5
-            cost (bool, optional):  Pass a cost request to mars to estimate the size and efficiency of your request,
-                but not actually download the data. Can be useful for defining requests,
-                by default False.
+            cost (bool, optional):  Pass a cost request to mars to estimate the size and efficiency of your request, but not actually download the data. Can be useful for defining requests, by default False.
         """
         chk = ["date", "target", "time", "format", "output"]
         for i in chk:
