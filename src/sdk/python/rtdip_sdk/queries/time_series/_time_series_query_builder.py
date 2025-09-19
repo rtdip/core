@@ -1451,7 +1451,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ',fill_status AS (SELECT *, last_value(`{{ status_column }}`, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Fill_{{ status_column }}`, CASE WHEN `Fill_{{ status_column }}` <> "Bad" THEN `{{ value_column }}` ELSE null END AS `Good_{{ value_column }}` FROM window_events) '
         ",fill_value AS (SELECT *, last_value(`Good_{{ value_column }}`, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS `Fill_{{ value_column }}` FROM fill_status) "
         '{% if step is defined and step == "metadata" %} '
-        ",fill_step AS (SELECT *, IFNULL(Step, false) AS Step FROM fill_value f "
+        ",fill_step AS (SELECT f.*, IFNULL(m.Step, false) AS Step FROM fill_value f "
         "LEFT JOIN "
         "{% if metadata_source is defined and metadata_source is not none %}"
         "`{{ metadata_source|lower }}` m ON f.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}`) "
