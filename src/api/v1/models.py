@@ -486,24 +486,17 @@ class InterpolationAtTimeQueryParams:
 class TimeWeightedAverageQueryParams:
     def __init__(
         self,
-        window_size_mins: int = Query(
-            None,
-            description="window_size_mins is deprecated and will be removed in v1.0.0. Please use time_interval_rate and time_interval_unit instead.",
-            examples=[20],
-            deprecated=True,
-        ),
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         window_length: int = Query(
             ..., description="Window Length in days", examples=[1]
         ),
         step: str = Query(
-            ...,
+            default="metadata",
             description='Step can be "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.',
             examples=["true", "false", "metadata"],
         ),
     ):
-        self.window_size_mins = window_size_mins
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
         self.window_length = window_length

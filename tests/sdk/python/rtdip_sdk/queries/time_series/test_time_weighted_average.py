@@ -60,18 +60,7 @@ def test_time_weighted_average_check_tags(mocker: MockerFixture):
         TWA_MOCKED_QUERY_CHECK_TAGS,
         time_weighted_average_get,
     )
-
-
-def test_time_weighted_average_with_window_size_mins(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["case_insensitivity_tag_search"] = False
-    MOCKED_TWA_PARAMETER_DICT["window_size_mins"] = 15
-
-    _test_base_succeed(
-        mocker,
-        MOCKED_TWA_PARAMETER_DICT,
-        TWA_MOCKED_QUERY,
-        time_weighted_average_get,
-    )
 
 
 def test_time_weighted_average_metadata_step(mocker: MockerFixture):
