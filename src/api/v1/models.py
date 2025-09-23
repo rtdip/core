@@ -492,7 +492,7 @@ class TimeWeightedAverageQueryParams:
             ..., description="Window Length in days", examples=[1]
         ),
         step: str = Query(
-            ...,
+            default="metadata",
             description='Step can be "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.',
             examples=["true", "false", "metadata"],
         ),

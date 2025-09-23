@@ -65,6 +65,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         if parameters_dict["pivot"] is True and parameters_dict["display_uom"] is True:
             raise ValueError("pivot True and display_uom True cannot be used together")
 
+    if "step" not in parameters_dict:  # default step to metadata if not provided
+        parameters_dict["step"] = "metadata"
+
     try:
         query = _query_builder(parameters_dict, "time_weighted_average")
 
