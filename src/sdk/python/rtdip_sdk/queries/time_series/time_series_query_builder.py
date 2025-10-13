@@ -162,7 +162,7 @@ class TimeSeriesQueryBuilder:
             metadata_tagname_column (optional str): The column name in the source that contains the tagnames or series
             metadata_uom_column (optional str): The column name in the source that contains the unit of measure
         """
-        self.metadata_source = "`.`".join(metadata_source.split("."))
+        self.metadata_source = f"`{'`.`'.join(metadata_source.split('.'))}`"
         self.metadata_tagname_column = metadata_tagname_column
         self.metadata_uom_column = metadata_uom_column
         return self
@@ -174,6 +174,7 @@ class TimeSeriesQueryBuilder:
         end_date: str,
         include_bad_data: bool = False,
         display_uom: bool = False,
+        sort: bool = True,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -211,6 +212,7 @@ class TimeSeriesQueryBuilder:
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
+            sort (optional bool): Sort the data in ascending order by the TagName and Timestamp columns
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -225,6 +227,7 @@ class TimeSeriesQueryBuilder:
             "end_date": end_date,
             "include_bad_data": include_bad_data,
             "display_uom": display_uom,
+            "sort": sort,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -253,8 +256,10 @@ class TimeSeriesQueryBuilder:
         time_interval_unit: str,
         agg_method: str,
         include_bad_data: bool = False,
+        fill: bool = False,
         pivot: bool = False,
         display_uom: bool = False,
+        sort: bool = True,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -297,8 +302,10 @@ class TimeSeriesQueryBuilder:
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
             agg_method (str): Aggregation Method (first, last, avg, min, max)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
+            fill (bool): Fill the data with intervals where no data exists. The Value column will be filled with Null
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
+            sort (optional bool): Sort the data in ascending order by the TagName and Timestamp columns or, if pivot is True, by the Timestamp column
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -316,8 +323,10 @@ class TimeSeriesQueryBuilder:
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
             "agg_method": agg_method,
+            "fill": fill,
             "pivot": pivot,
             "display_uom": display_uom,
+            "sort": sort,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -350,6 +359,7 @@ class TimeSeriesQueryBuilder:
         include_bad_data: bool = False,
         pivot: bool = False,
         display_uom: bool = False,
+        sort: bool = True,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -392,6 +402,7 @@ class TimeSeriesQueryBuilder:
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
+            sort (optional bool): Sort the data in ascending order by the TagName and Timestamp columns
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -410,6 +421,7 @@ class TimeSeriesQueryBuilder:
             "include_bad_data": include_bad_data,
             "pivot": pivot,
             "display_uom": display_uom,
+            "sort": sort,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,
@@ -436,11 +448,10 @@ class TimeSeriesQueryBuilder:
         end_date: str,
         time_interval_rate: str,
         time_interval_unit: str,
-        agg_method: str,
-        interpolation_method: str,
         include_bad_data: bool = False,
         pivot: bool = False,
         display_uom: bool = False,
+        sort: bool = True,
         limit: int = None,
         offset: int = None,
     ) -> DataFrame:
@@ -467,8 +478,6 @@ class TimeSeriesQueryBuilder:
                 end_date="2023-01-31",
                 time_interval_rate="15",
                 time_interval_unit="minute",
-                agg_method="first",
-                interpolation_method="forward_fill",
             )
         )
 
@@ -482,11 +491,10 @@ class TimeSeriesQueryBuilder:
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             time_interval_rate (str): The time interval rate (numeric input)
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
-            agg_method (str): Aggregation Method (first, last, avg, min, max)
-            interpolation_method (str): Interpolation method (forward_fill, backward_fill, linear)
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
+            sort (optional bool): Sort the data in ascending order by the TagName and Timestamp columns or, if pivot is True, by the Timestamp column
             limit (optional int): The number of rows to be returned
             offset (optional int): The number of rows to skip before returning rows
 
@@ -502,10 +510,9 @@ class TimeSeriesQueryBuilder:
             "include_bad_data": include_bad_data,
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
-            "agg_method": agg_method,
-            "interpolation_method": interpolation_method,
             "pivot": pivot,
             "display_uom": display_uom,
+            "sort": sort,
             "limit": limit,
             "offset": offset,
             "tagname_column": self.tagname_column,

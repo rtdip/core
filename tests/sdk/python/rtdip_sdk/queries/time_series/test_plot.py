@@ -34,6 +34,7 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
 MOCKED_PLOT_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
 MOCKED_PLOT_PARAMETER_DICT["time_interval_rate"] = "15"
 MOCKED_PLOT_PARAMETER_DICT["time_interval_unit"] = "minute"
+MOCKED_PLOT_PARAMETER_DICT["pivot"] = False
 
 
 def test_plot_success(mocker: MockerFixture):
@@ -91,13 +92,13 @@ def test_plot_uom(mocker: MockerFixture):
 
 
 def test_plot_offset_limit(mocker: MockerFixture):
-    MOCKED_PLOT_PARAMETER_DICT["display_uom"] = False
     MOCKED_PLOT_PARAMETER_DICT["offset"] = 10
     MOCKED_PLOT_PARAMETER_DICT["limit"] = 10
+    MOCKED_PLOT_PARAMETER_DICT["display_uom"] = False
     _test_base_succeed(
         mocker,
         MOCKED_PLOT_PARAMETER_DICT,
-        (PLOT_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT),
+        (PLOT_MOCKED_QUERY + " " + MOCKED_QUERY_OFFSET_LIMIT.strip()),
         plot_get,
     )
 

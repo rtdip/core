@@ -1,4 +1,4 @@
-# Copyright 2022 RTDIP
+# Copyright 2025 RTDIP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,6 +46,8 @@ LANGCHAIN_PACKAGES = [
     "langchain>=0.2.0,<0.3.0",
     "langchain-community>=0.2.0,<0.3.0",
     "openai>=1.13.3,<2.0.0",
+    "statsmodels>=0.14.1,<0.15.0",
+    "pmdarima>=2.0.4",
 ]
 
 PYSPARK_PACKAGES = [
@@ -55,7 +57,7 @@ PYSPARK_PACKAGES = [
 
 PIPELINE_PACKAGES = [
     "dependency-injector>=4.41.0,<5.0.0",
-    "databricks-sdk>=0.20.0,<1.0.0",
+    "databricks-sdk>=0.59.0,<1.0.0",
     "azure-storage-file-datalake>=12.12.0,<13.0.0",
     "azure-mgmt-storage>=21.0.0",
     "azure-mgmt-eventgrid>=10.2.0",
@@ -71,6 +73,7 @@ PIPELINE_PACKAGES = [
     "joblib>=1.3.2,<2.0.0",
     "sqlparams>=5.1.0,<6.0.0",
     "entsoe-py>=0.5.10,<1.0.0",
+    "numpy>=1.23.4,<2.0.0",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
