@@ -472,7 +472,7 @@ def _build_output_query(sql_query_list, to_json, limit, offset):
             [
                 output_sql_query,
                 "to_json(struct(*), map('timestampFormat', "
-                "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX"
+                "'yyyy-MM-dd\\'T\\'HH:mm:ss.SSSSSSSSSXXX'"
                 ")) AS Value",
             ]
         )
