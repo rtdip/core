@@ -14,15 +14,7 @@
 
 import logging
 import pandas as pd
-
-# from ._time_series_query_builder import _query_builder
-
-import sys
-
-sys.path.insert(0, ".")
-from src.sdk.python.rtdip_sdk.queries.time_series._time_series_query_builder import (
-    _query_builder,
-)
+from ._time_series_query_builder import _query_builder
 
 
 def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
