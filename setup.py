@@ -40,12 +40,15 @@ INSTALL_REQUIRES = [
     "grpcio-status>=1.48.1",
     "googleapis-common-protos>=1.56.4",
     "pydantic>=2.6.0,<3.0.0",
+    "protobuf>=5.29.2,<6.0.0",
 ]
 
 LANGCHAIN_PACKAGES = [
-    "langchain>=0.2.0,<0.3.0",
-    "langchain-community>=0.2.0,<0.3.0",
-    "openai>=1.13.3,<2.0.0",
+    "langchain>=0.3.27,<0.4.0",
+    "langchain-community>=0.3.27,<0.4.0",
+    "langchain-core>=0.3.27,<0.4.0",
+    "langchain-text-splitters>=0.3.4,<0.4.0",
+    "openai>=1.59.7,<2.0.0",
     "statsmodels>=0.14.1,<0.15.0",
     "pmdarima>=2.0.4",
 ]
@@ -62,9 +65,10 @@ PIPELINE_PACKAGES = [
     "azure-mgmt-storage>=21.0.0",
     "azure-mgmt-eventgrid>=10.2.0",
     "boto3>=1.28.2,<2.0.0",
-    "hvac>=1.1.1",
+    "hvac>=2.3.0",
     "azure-keyvault-secrets>=4.7.0,<5.0.0",
-    "web3>=6.18.0,<7.0.0",
+    "web3>=7.7.0,<8.0.0",
+    "eth-typing>=5.0.1,<6.0.0",
     "polars[deltalake]>=0.18.8,<1.0.0",
     "delta-sharing>=1.0.0,<1.1.0",
     "xarray>=2023.1.0,<2023.8.0",
