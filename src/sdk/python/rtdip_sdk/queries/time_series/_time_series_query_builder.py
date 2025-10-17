@@ -1253,7 +1253,7 @@ def _interpolation_at_time(parameters_dict: dict) -> str:
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
         "LEFT OUTER JOIN "
         "{% if metadata_source is defined and metadata_source is not none %}"
-        "`{{ metadata_source|lower }}` m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+        "{{ metadata_source|lower }} m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`{{ tagname_column }}` = m.`{{ tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% endif %}"
@@ -1380,7 +1380,7 @@ def _latest_query(parameters_dict: dict) -> str:
         'SELECT {% if to_json is defined and to_json == true %}to_json(struct(l.*, m.`UoM), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}l.*, m.`UoM`{% endif %} FROM latest l '
         "LEFT OUTER JOIN "
         "{% if metadata_source is defined and metadata_source is not none %}"
-        "`{{ metadata_source|lower }}` m ON l.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` "
+        "{{ metadata_source|lower }} m ON l.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` "
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON l.`{{ tagname_column }}` = m.`{{ tagname_column }}` "
         "{% endif %}"
@@ -1456,7 +1456,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ",fill_step AS (SELECT f.*, IFNULL(m.Step, false) AS Step FROM fill_value f "
         "LEFT JOIN "
         "{% if metadata_source is defined and metadata_source is not none %}"
-        "`{{ metadata_source|lower }}` m ON f.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}`) "
+        "{{ metadata_source|lower }} m ON f.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}`) "
         "{% else %}"
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON f.`{{ tagname_column }}` = m.`{{ tagname_column }}`) "
         "{% endif %}"
@@ -1614,7 +1614,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.*, m.`UoM`{% endif %} FROM project p '
             "LEFT OUTER JOIN "
             "{% if metadata_source is defined and metadata_source is not none %}"
-            "`{{ metadata_source|lower }}` m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{{ metadata_source|lower }} m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% else %}"
             "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`{{ tagname_column }}` = m.`{{ tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% endif %}"
@@ -1652,7 +1652,7 @@ def _circular_stats_query(parameters_dict: dict) -> str:
             'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.*, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.*, m.`UoM`{% endif %} FROM project p '
             "LEFT OUTER JOIN "
             "{% if metadata_source is defined and metadata_source is not none %}"
-            "`{{ metadata_source|lower }}` m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
+            "{{ metadata_source|lower }} m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% else %}"
             "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`{{ tagname_column }}` = m.`{{ tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
             "{% endif %}"
