@@ -40,8 +40,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         tag_names (list): List of tagname or tagnames ["tag_1", "tag_2"]
         start_date (str): Start date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
-        sample_rate (int): (deprecated) Please use time_interval_rate instead. See below.
-        sample_unit (str): (deprecated) Please use time_interval_unit instead. See below.
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
@@ -66,18 +64,6 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     if "pivot" in parameters_dict and "display_uom" in parameters_dict:
         if parameters_dict["pivot"] is True and parameters_dict["display_uom"] is True:
             raise ValueError("pivot True and display_uom True cannot be used together")
-
-    if "sample_rate" in parameters_dict:
-        logging.warning(
-            "Parameter sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead."
-        )
-        parameters_dict["time_interval_rate"] = parameters_dict["sample_rate"]
-
-    if "sample_unit" in parameters_dict:
-        logging.warning(
-            "Parameter sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead."
-        )
-        parameters_dict["time_interval_unit"] = parameters_dict["sample_unit"]
 
     try:
         query = _query_builder(parameters_dict, "plot")
