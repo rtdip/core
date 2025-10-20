@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ---
-name: rtdip-sdk-2
+name: rtdip-sdk
 channels:
     - conda-forge
     - defaults
