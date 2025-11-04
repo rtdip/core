@@ -350,23 +350,9 @@ class TagsBodyParams(BaseModel):
 class PlotQueryParams:
     def __init__(
         self,
-        sample_rate: str = Query(
-            ...,
-            description="sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.",
-            examples=[5],
-            deprecated=True,
-        ),
-        sample_unit: str = Query(
-            ...,
-            description="sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.",
-            examples=["second", "minute", "hour", "day"],
-            deprecated=True,
-        ),
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
     ):
-        self.sample_rate = sample_rate
-        self.sample_unit = sample_unit
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
 
@@ -374,18 +360,6 @@ class PlotQueryParams:
 class ResampleQueryParams:
     def __init__(
         self,
-        sample_rate: str = Query(
-            ...,
-            description="sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.",
-            examples=[5],
-            deprecated=True,
-        ),
-        sample_unit: str = Query(
-            ...,
-            description="sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.",
-            examples=["second", "minute", "hour", "day"],
-            deprecated=True,
-        ),
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         agg_method: str = Query(
@@ -394,8 +368,6 @@ class ResampleQueryParams:
             examples=["first", "last", "avg", "min", "max"],
         ),
     ):
-        self.sample_rate = sample_rate
-        self.sample_unit = sample_unit
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
         self.agg_method = agg_method
@@ -431,23 +403,9 @@ class LimitOffsetQueryParams:
 class InterpolateQueryParams:
     def __init__(
         self,
-        sample_rate: str = Query(
-            ...,
-            description="sample_rate is deprecated and will be removed in v1.0.0. Please use time_interval_rate instead.",
-            examples=[5],
-            deprecated=True,
-        ),
-        sample_unit: str = Query(
-            ...,
-            description="sample_unit is deprecated and will be removed in v1.0.0. Please use time_interval_unit instead.",
-            examples=["second", "minute", "hour", "day"],
-            deprecated=True,
-        ),
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
     ):
-        self.sample_rate = sample_rate
-        self.sample_unit = sample_unit
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
 
@@ -462,8 +420,8 @@ class InterpolationAtTimeQueryParams:
         ),
         timestamps: List[Union[date, datetime]] = Query(
             ...,
-            description="Timestamps in format YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
-            examples=[EXAMPLE_DATE, EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
+            description="Timestamps in format YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss+zz:zz",
+            examples=[EXAMPLE_DATETIME, EXAMPLE_DATETIME_TIMEZOME],
         ),
         window_length: int = Query(
             ..., description="Window Length in days", examples=[1]
