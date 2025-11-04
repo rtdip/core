@@ -117,4 +117,4 @@ Distributed under the Apache License Version 2.0. See [LICENSE.md](https://githu
 
 ### Community
 * Chat with other community members by joining the **#rtdip** Slack channel. [Click here to join our slack community](https://lfenergy.slack.com/archives/C0484R9Q6A0)
-
+.
