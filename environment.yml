@@ -19,8 +19,8 @@ channels:
     - defaults
 dependencies:
     - python>=3.9,<3.13
-    - importlib-metadata>=7.0.0
-    - jinja2>=3.1.5
+    - importlib-metadata>=7.0.0,<9.0.0
+    - jinja2>=3.1.5,<4.0.0
     - pytest==7.4.0
     - pytest-mock==3.11.1
     - pytest-cov==4.1.0
@@ -40,8 +40,10 @@ dependencies:
     - httpx>=0.24.1,<1.0.0
     - pyspark>=3.3.0,<3.6.0
     - delta-spark>=2.2.0,<3.3.0
-    - grpcio>=1.48.1
-    - grpcio-status>=1.48.1
+    - pyarrow>=14.0.1,<17.0.0
+    - libarrow>=14.0.1,<17.0.0
+    - grpcio>=1.48.1,<1.63.0
+    - grpcio-status>=1.48.1,<1.63.0
     - googleapis-common-protos>=1.56.4
     - openjdk>=11.0.15,<12.0.0
     - openai>=1.59.0,<2.0.0
@@ -70,8 +72,11 @@ dependencies:
     - great-expectations>=0.18.8,<1.0.0
     - statsmodels>=0.14.1,<0.15.0
     - pmdarima>=2.0.4
-    - protobuf>=5.28.2,<5.29.0
     - pip:
+          # protobuf installed via pip to avoid libabseil conflicts with conda libarrow
+          - protobuf>=5.29.0,<5.30.0
+          # pyarrow constraint must match conda version to avoid upgrades
+          - pyarrow>=14.0.1,<17.0.0
           - databricks-sdk>=0.59.0,<1.0.0
           - dependency-injector>=4.41.0,<5.0.0
           - azure-functions>=1.20.0,<2.0.0
