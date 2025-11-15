@@ -28,19 +28,19 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
-    "databricks-sql-connector>=3.1.0,<3.7.0",
+    "databricks-sql-connector>=3.6.0,<3.7.0",
     "pyarrow>=14.0.1,<17.0.0",
-    "azure-identity>=1.12.0,<2.0.0",
+    "azure-identity>=1.20.0,<2.0.0",
     "pandas>=2.0.1,<2.3.0",
     "jinja2>=3.1.5,<4.0.0",
-    "importlib_metadata>=7.0.0,<8.0.0",
+    "importlib_metadata>=7.0.0,<9.0.0",
     "semver>=3.0.0,<4.0.0",
     "xlrd>=2.0.1,<3.0.0",
-    "grpcio>=1.48.1",
-    "grpcio-status>=1.48.1",
+    "grpcio>=1.48.1,<1.63.0",
+    "grpcio-status>=1.48.1,<1.63.0",
     "googleapis-common-protos>=1.56.4",
-    "pydantic>=2.6.0,<3.0.0",
-    "protobuf>=5.28.2,<5.29.0",
+    "pydantic>=2.10.0,<3.0.0",
+    "protobuf>=5.29.0,<5.30.0",
 ]
 
 LANGCHAIN_PACKAGES = [
