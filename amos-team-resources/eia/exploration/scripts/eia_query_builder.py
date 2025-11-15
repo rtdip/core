@@ -21,6 +21,7 @@ BASE_OUTDIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 BASE_OUTDIR.mkdir(parents=True, exist_ok=True)
 CHUNK_YEARS = 1  # split per year
 
+
 # helpers
 def inject_api_key(url: str, api_key: str) -> str:
     parsed = urlparse(url)
@@ -29,6 +30,7 @@ def inject_api_key(url: str, api_key: str) -> str:
     new_query = urlencode(query, doseq=True)
     return urlunparse(parsed._replace(query=new_query))
 
+
 def download_json(full_url: str):
     print(f"→ Requesting {full_url}")
     resp = requests.get(full_url, timeout=60)
@@ -36,6 +38,7 @@ def download_json(full_url: str):
     if not resp.ok:
         raise RuntimeError(f"EIA API error: {resp.status_code} {resp.text[:200]}")
     return resp.json()
+
 
 def daterange_chunks(start, end, step_years=1):
     """Yield (start, end) date pairs split by year."""
@@ -50,6 +53,7 @@ def daterange_chunks(start, end, step_years=1):
         yield current, chunk_end
         current = chunk_end
 
+
 def parse_eia_date(s: str) -> datetime:
     """Parse EIA-style dates (YYYY-MM or YYYY-MM-DD)."""
     try:
@@ -57,13 +61,16 @@ def parse_eia_date(s: str) -> datetime:
     except ValueError:
         return datetime.fromisoformat(f"{s}-01")
 
+
 def main():
     api_key = os.getenv("EIA_API_KEY")
     if not api_key:
         print("Missing EIA_API_KEY - please export it first")
         sys.exit(1)
 
-    parser = argparse.ArgumentParser(description="EIA API query builder with chunked downloads")
+    parser = argparse.ArgumentParser(
+        description="EIA API query builder with chunked downloads"
+    )
     parser.add_argument("url", help="EIA API URL (without api_key parameter)")
     args = parser.parse_args()
 
@@ -93,7 +100,9 @@ def main():
         # modify URL for this chunk
         chunk_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}?{urlencode(query, doseq=True)}"
         chunk_url = inject_api_key(chunk_url, api_key)
-        chunk_url = chunk_url.replace(f"start={start_str}", f"start={s.date()}").replace(f"end={end_str}", f"end={e.date()}")
+        chunk_url = chunk_url.replace(
+            f"start={start_str}", f"start={s.date()}"
+        ).replace(f"end={end_str}", f"end={e.date()}")
 
         try:
             data = download_json(chunk_url)
@@ -116,6 +125,7 @@ def main():
         json.dump({"response": {"data": all_data}}, f)
     print(f"Saved merged file: {merged_file}")
     print(f"Total rows across chunks: {len(all_data)}")
+
 
 if __name__ == "__main__":
     main()

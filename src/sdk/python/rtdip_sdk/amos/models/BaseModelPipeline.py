@@ -3,24 +3,25 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import TimeSeriesSplit
 
+
 class BaseModelPipeline:
 
-    def train(self, dataframe:pd.DataFrame):
+    def train(self, dataframe: pd.DataFrame):
         print("Needs to be overwritten")
 
-    def predict(self, dataframe:pd.DataFrame):
+    def predict(self, dataframe: pd.DataFrame):
         print("Needs to be overwritten")
 
     def panel_time_series_holdout(
-            self,
-            df: pd.DataFrame,
-            *,
-            id_col: str,
-            time_col: str,
-            test_size: int = 24,
-            n_splits: int | None = None,  # if provided → rolling CV (multiple splits)
-            sort: bool = True,
-            random_state: int | None = None,  # seed for reproducibility (optional)
+        self,
+        df: pd.DataFrame,
+        *,
+        id_col: str,
+        time_col: str,
+        test_size: int = 24,
+        n_splits: int | None = None,  # if provided → rolling CV (multiple splits)
+        sort: bool = True,
+        random_state: int | None = None,  # seed for reproducibility (optional)
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         Splits a multi–time-series DataFrame (with multiple IDs) into train_df and test_df.
@@ -78,12 +79,21 @@ class BaseModelPipeline:
         test_df = pd.concat(test_parts, ignore_index=True)
         return train_df, test_df
 
-    def panel_time_series_train_val_test_split(self, df, id_col, time_col, val_size, test_size, random_state=None):
-        train_val_df, test_df = self.panel_time_series_holdout(df,
-                                                          id_col=id_col, time_col=time_col, test_size=test_size,
-                                                          random_state=random_state)
-        train_df, val_df = self.panel_time_series_holdout(train_val_df,
-                                                     id_col=id_col, time_col=time_col, test_size=val_size,
-                                                     random_state=random_state)
+    def panel_time_series_train_val_test_split(
+        self, df, id_col, time_col, val_size, test_size, random_state=None
+    ):
+        train_val_df, test_df = self.panel_time_series_holdout(
+            df,
+            id_col=id_col,
+            time_col=time_col,
+            test_size=test_size,
+            random_state=random_state,
+        )
+        train_df, val_df = self.panel_time_series_holdout(
+            train_val_df,
+            id_col=id_col,
+            time_col=time_col,
+            test_size=val_size,
+            random_state=random_state,
+        )
         return train_df, val_df, test_df
-

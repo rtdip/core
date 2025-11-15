@@ -13,12 +13,11 @@ def create_dummy_df():
         timestamps = pd.date_range("2024-01-01", periods=10, freq="D")
         y = np.random.randn(10)
         feat = np.random.randn(10)
-        data.append(pd.DataFrame({
-            "series_id": sid,
-            "timestamp": timestamps,
-            "y": y,
-            "feat": feat
-        }))
+        data.append(
+            pd.DataFrame(
+                {"series_id": sid, "timestamp": timestamps, "y": y, "feat": feat}
+            )
+        )
     return pd.concat(data, ignore_index=True)
 
 
@@ -27,10 +26,7 @@ def test_panel_time_series_holdout_basic():
     df = create_dummy_df()
     bmp = BaseModelPipeline()
     train_df, test_df = bmp.panel_time_series_holdout(
-        df,
-        id_col="series_id",
-        time_col="timestamp",
-        test_size=3
+        df, id_col="series_id", time_col="timestamp", test_size=3
     )
 
     # Train + Test roughly equals original size
@@ -48,11 +44,7 @@ def test_panel_time_series_train_val_test_split_basic():
     df = create_dummy_df()
     bmp = BaseModelPipeline()
     train_df, val_df, test_df = bmp.panel_time_series_train_val_test_split(
-        df,
-        id_col="series_id",
-        time_col="timestamp",
-        val_size=2,
-        test_size=3
+        df, id_col="series_id", time_col="timestamp", val_size=2, test_size=3
     )
 
     # Sizes add up correctly
@@ -64,7 +56,7 @@ def test_panel_time_series_train_val_test_split_basic():
         sets = [
             set(train_df.loc[train_df.series_id == sid, "timestamp"]),
             set(val_df.loc[val_df.series_id == sid, "timestamp"]),
-            set(test_df.loc[test_df.series_id == sid, "timestamp"])
+            set(test_df.loc[test_df.series_id == sid, "timestamp"]),
         ]
         assert sets[0].isdisjoint(sets[1])
         assert sets[0].isdisjoint(sets[2])
@@ -76,11 +68,7 @@ def test_holdout_is_chronologically_correct():
     df = create_dummy_df()
     bmp = BaseModelPipeline()
     train_df, test_df = bmp.panel_time_series_holdout(
-        df,
-        id_col="series_id",
-        time_col="timestamp",
-        test_size=3,
-        sort=True
+        df, id_col="series_id", time_col="timestamp", test_size=3, sort=True
     )
 
     # ensure per-ID chronological separation: max(train) < min(test)
@@ -97,16 +85,16 @@ def test_train_val_test_are_chronologically_correct():
     df = create_dummy_df()
     bmp = BaseModelPipeline()
     train_df, val_df, test_df = bmp.panel_time_series_train_val_test_split(
-        df,
-        id_col="series_id",
-        time_col="timestamp",
-        val_size=2,
-        test_size=3
+        df, id_col="series_id", time_col="timestamp", val_size=2, test_size=3
     )
 
     for sid in df["series_id"].unique():
         # skip IDs that might have been dropped by the splitter
-        if sid not in set(train_df.series_id) or sid not in set(val_df.series_id) or sid not in set(test_df.series_id):
+        if (
+            sid not in set(train_df.series_id)
+            or sid not in set(val_df.series_id)
+            or sid not in set(test_df.series_id)
+        ):
             continue
         tmax = train_df.loc[train_df.series_id == sid, "timestamp"].max()
         vmin = val_df.loc[val_df.series_id == sid, "timestamp"].min()
@@ -114,4 +102,3 @@ def test_train_val_test_are_chronologically_correct():
         smin = test_df.loc[test_df.series_id == sid, "timestamp"].min()
 
         assert tmax < vmin <= vmax < smin, f"Chronology broken for series {sid}"
-

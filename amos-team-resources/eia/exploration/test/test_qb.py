@@ -13,6 +13,7 @@ import scripts.eia_query_builder as qb
 # Shared pytest fixture
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(autouse=True)
 def setup_tmpdir(monkeypatch, tmp_path):
     """Redirect output dir to a temporary path."""
@@ -23,6 +24,7 @@ def setup_tmpdir(monkeypatch, tmp_path):
 # ---------------------------------------------------------------------------
 # Unit tests
 # ---------------------------------------------------------------------------
+
 
 def test_inject_api_key():
     url = "https://api.eia.gov/v2/series/?series_id=XYZ"
@@ -55,7 +57,9 @@ def test_main_creates_chunks_and_merged(monkeypatch, tmp_path):
         ok = True
         status_code = 200
         text = "OK"
-        def json(self): return fake_resp
+
+        def json(self):
+            return fake_resp
 
     monkeypatch.setattr(qb.requests, "get", lambda *a, **kw: DummyResponse())
     monkeypatch.setenv("EIA_API_KEY", "TEST_KEY")
@@ -82,6 +86,7 @@ def test_main_creates_chunks_and_merged(monkeypatch, tmp_path):
 # Integration test for period coverage
 # ---------------------------------------------------------------------------
 
+
 def make_fake_response(start="2000-01", end="2005-01"):
     """Generate synthetic monthly records between start and end (inclusive)."""
     start_dt = pd.to_datetime(start, format="%Y-%m")
@@ -89,6 +94,7 @@ def make_fake_response(start="2000-01", end="2005-01"):
     months = pd.date_range(start_dt, end_dt, freq="MS")
     data = [{"period": m.strftime("%Y-%m")} for m in months]
     return {"response": {"data": data}}
+
 
 def test_period_coverage_real_api():
     """Integration test: query real EIA API and verify period count."""
@@ -134,12 +140,12 @@ def test_period_coverage_real_api():
 
     df = pd.DataFrame(data)
     unique_months = df["period"].nunique()
-    
+
     # end date is exclusive
     expected_months = len(pd.date_range("2000-01", "2004-12", freq="MS"))
 
-    assert unique_months == expected_months, (
-        f"Expected {expected_months} months, got {unique_months}"
-    )
+    assert (
+        unique_months == expected_months
+    ), f"Expected {expected_months} months, got {unique_months}"
 
     print(f"Real EIA API returned {unique_months} monthly periods (2000-01 → 2005-01).")
