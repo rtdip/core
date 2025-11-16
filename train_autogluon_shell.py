@@ -224,11 +224,10 @@ def evaluate_model(predictor, test_df, freq='h'):
     test_data = create_timeseries_dataframe(test_df, freq=freq)
 
     print("Evaluating")
-    metrics = predictor.evaluate(test_data)
+    metrics = predictor.evaluate(test_data, metrics=["MAE", "RMSE", "MAPE", "MASE", "SMAPE"])
 
     # Display metrics
     print("\nEvaluation Metrics:")
-    print("-" * 80)
     for metric_name, metric_value in metrics.items():
         print(f"{metric_name:20s}: {metric_value:.4f}")
 

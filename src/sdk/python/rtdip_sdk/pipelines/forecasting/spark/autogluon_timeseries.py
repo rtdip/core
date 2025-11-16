@@ -244,7 +244,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
         try:
             test_data = self._prepare_timeseries_dataframe(test_df)
 
-            metrics = self.predictor.evaluate(test_data)
+            metrics = self.predictor.evaluate(test_data, metrics=["MAE", "RMSE", "MAPE", "MASE", "SMAPE"])
 
             return metrics
         except Exception as e:
