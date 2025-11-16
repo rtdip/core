@@ -18,9 +18,16 @@ assignees: ''
 * ...
 
 ## Definition of done (DoD)
-* Added only after week 5
-* The same for all features
-* Here goes the project specific part
+* Acceptance criteria are met.
+* Work are pushed to the Github repository.
+* Create a branch for each backlog items (coding)
+* A pull request is created for each related branch.
+* The work products in the pull requests are reviewed.
+* The corresponding branches are merged and closed.
+* The bill of materials section of the planning documents is updated.
+* Work needs to be documented in the corresponding wiki section
+* For new features unit test have to be written.
+* Update our forked repository with the latest RTDIP release.
 
 ## DoD general criteria
 * Feature has been fully implemented
