@@ -140,8 +140,9 @@ class AutoGluonTimeSeries(MachineLearningInterface):
 
         train_pdf = pdf.iloc[:split_idx]
         test_pdf = pdf.iloc[split_idx:]
-        
+
         from pyspark.sql import SparkSession
+
         spark = SparkSession.builder.getOrCreate()
 
         train_df = spark.createDataFrame(train_pdf)
@@ -217,8 +218,9 @@ class AutoGluonTimeSeries(MachineLearningInterface):
         pred_data = self._prepare_timeseries_dataframe(prediction_df)
 
         predictions = self.predictor.predict(pred_data)
-        
+
         from pyspark.sql import SparkSession
+
         spark = SparkSession.builder.getOrCreate()
 
         predictions_pdf = predictions.reset_index()
@@ -244,7 +246,9 @@ class AutoGluonTimeSeries(MachineLearningInterface):
         try:
             test_data = self._prepare_timeseries_dataframe(test_df)
 
-            metrics = self.predictor.evaluate(test_data, metrics=["MAE", "RMSE", "MAPE", "MASE", "SMAPE"])
+            metrics = self.predictor.evaluate(
+                test_data, metrics=["MAE", "RMSE", "MAPE", "MASE", "SMAPE"]
+            )
 
             return metrics
         except Exception as e:
@@ -278,7 +282,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
 
         leaderboard = self.get_leaderboard()
         if leaderboard is not None and len(leaderboard) > 0:
-            return leaderboard.iloc[0]['model']
+            return leaderboard.iloc[0]["model"]
 
         return None
 

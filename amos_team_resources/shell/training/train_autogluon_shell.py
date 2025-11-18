@@ -11,10 +11,7 @@ import numpy as np
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, os.path.join(
-    os.path.dirname(__file__),
-    'src', 'sdk', 'python'
-))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src", "sdk", "python"))
 
 from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
 
@@ -24,15 +21,15 @@ OUTPUT_DIR = "autogluon_results"
 MODEL_SAVE_PATH = os.path.join(OUTPUT_DIR, "autogluon_model")
 
 # Training Configuration
-TOP_N_SENSORS = 10  
-PREDICTION_LENGTH = 24  
-TRAIN_RATIO = 0.7  
-VAL_RATIO = 0.15   
-TEST_RATIO = 0.15  
-TIME_LIMIT = 600   
-EVAL_METRIC = "MAE"  
-PRESET = "medium_quality"  
-FREQ = "h"  
+TOP_N_SENSORS = 10
+PREDICTION_LENGTH = 24
+TRAIN_RATIO = 0.7
+VAL_RATIO = 0.15
+TEST_RATIO = 0.15
+TIME_LIMIT = 600
+EVAL_METRIC = "MAE"
+PRESET = "medium_quality"
+FREQ = "h"
 
 
 def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
@@ -52,44 +49,50 @@ def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
 
     df = pd.read_parquet(data_path)
     print(f"Loaded {len(df):,} rows, {len(df.columns)} columns")
-    
+
     if sample_ratio:
         original_len = len(df)
         df = df.sample(frac=sample_ratio, random_state=42)
         print(f"Sampled {sample_ratio*100}% of data: {len(df):,} rows")
 
     print(f"\nSelecting top {top_n_sensors} sensors by data volume")
-    sensor_counts = df['TagName'].value_counts()
+    sensor_counts = df["TagName"].value_counts()
     top_sensors = sensor_counts.head(top_n_sensors).index.tolist()
 
-    df_filtered = df[df['TagName'].isin(top_sensors)].copy()
+    df_filtered = df[df["TagName"].isin(top_sensors)].copy()
     print(f"Selected {len(df_filtered):,} rows from {top_n_sensors} sensors")
 
     print("\nTop sensors:")
     for i, (sensor, count) in enumerate(sensor_counts.head(top_n_sensors).items(), 1):
         print(f"  {i}. {sensor}: {count:,} data points")
-    ts_data = pd.DataFrame({
-        'item_id': df_filtered['TagName'],
-        'timestamp': df_filtered['EventTime'],
-        'target': df_filtered['Value']
-    })
+    ts_data = pd.DataFrame(
+        {
+            "item_id": df_filtered["TagName"],
+            "timestamp": df_filtered["EventTime"],
+            "target": df_filtered["Value"],
+        }
+    )
 
     # Remove any null values in target
     original_len = len(ts_data)
-    ts_data = ts_data.dropna(subset=['target'])
+    ts_data = ts_data.dropna(subset=["target"])
     if len(ts_data) < original_len:
         print(f"  Removed {original_len - len(ts_data):,} rows with null target values")
 
     original_len = len(ts_data)
-    ts_data = ts_data[ts_data['target'] != -1].copy()
+    ts_data = ts_data[ts_data["target"] != -1].copy()
     if len(ts_data) < original_len:
-        print(f"  Removed {original_len - len(ts_data):,} rows with error markers (Value = -1)")
+        print(
+            f"  Removed {original_len - len(ts_data):,} rows with error markers (Value = -1)"
+        )
 
-    ts_data = ts_data.sort_values(['item_id', 'timestamp']).reset_index(drop=True)
+    ts_data = ts_data.sort_values(["item_id", "timestamp"]).reset_index(drop=True)
 
     print(f"Final dataset: {len(ts_data):,} rows")
     print(f"Time range: {ts_data['timestamp'].min()} to {ts_data['timestamp'].max()}")
-    print(f"Target range: [{ts_data['target'].min():.2f}, {ts_data['target'].max():.2f}]")
+    print(
+        f"Target range: [{ts_data['target'].min():.2f}, {ts_data['target'].max():.2f}]"
+    )
 
     return ts_data
 
@@ -109,8 +112,9 @@ def split_timeseries_data(df, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
     """
     print("SPLITTING DATA")
 
-    assert abs(train_ratio + val_ratio + test_ratio - 1.0) < 0.001, \
-        "Split ratios must sum to 1.0"
+    assert (
+        abs(train_ratio + val_ratio + test_ratio - 1.0) < 0.001
+    ), "Split ratios must sum to 1.0"
 
     n = len(df)
     train_end = int(n * train_ratio)
@@ -122,7 +126,9 @@ def split_timeseries_data(df, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
 
     print(f"Split ratios: {train_ratio:.0%} / {val_ratio:.0%} / {test_ratio:.0%}")
     print(f"Train set: {len(train_df):,} rows ({len(train_df)/n:.1%})")
-    print(f"  Time range: {train_df['timestamp'].min()} to {train_df['timestamp'].max()}")
+    print(
+        f"  Time range: {train_df['timestamp'].min()} to {train_df['timestamp'].max()}"
+    )
     print(f"Val set:   {len(val_df):,} rows ({len(val_df)/n:.1%})")
     print(f"  Time range: {val_df['timestamp'].min()} to {val_df['timestamp'].max()}")
     print(f"Test set:  {len(test_df):,} rows ({len(test_df)/n:.1%})")
@@ -131,7 +137,7 @@ def split_timeseries_data(df, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
     return train_df, val_df, test_df
 
 
-def create_timeseries_dataframe(df, freq='h'):
+def create_timeseries_dataframe(df, freq="h"):
     """
     Convert pandas DataFrame to AutoGluon TimeSeriesDataFrame with regular frequency.
 
@@ -142,19 +148,19 @@ def create_timeseries_dataframe(df, freq='h'):
     Returns:
         TimeSeriesDataFrame with regular time index
     """
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
 
     ts_df = TimeSeriesDataFrame.from_data_frame(
-        df,
-        id_column='item_id',
-        timestamp_column='timestamp'
+        df, id_column="item_id", timestamp_column="timestamp"
     )
     ts_df = ts_df.convert_frequency(freq=freq)
 
     return ts_df
 
 
-def train_autogluon(train_df, prediction_length, eval_metric, time_limit, preset, freq='h', verbosity=2):
+def train_autogluon(
+    train_df, prediction_length, eval_metric, time_limit, preset, freq="h", verbosity=2
+):
     """
     Train AutoGluon time series predictor.
 
@@ -186,28 +192,26 @@ def train_autogluon(train_df, prediction_length, eval_metric, time_limit, preset
         prediction_length=prediction_length,
         eval_metric=eval_metric,
         freq=freq,
-        verbosity=verbosity
+        verbosity=verbosity,
     )
 
     # Train models
     print("\nStarting training")
     start_time = datetime.now()
 
-    predictor.fit(
-        train_data=train_data,
-        time_limit=time_limit,
-        presets=preset
-    )
+    predictor.fit(train_data=train_data, time_limit=time_limit, presets=preset)
 
     end_time = datetime.now()
     training_duration = (end_time - start_time).total_seconds()
 
-    print(f"Training completed in {training_duration:.1f} seconds ({training_duration/60:.1f} minutes)")
+    print(
+        f"Training completed in {training_duration:.1f} seconds ({training_duration/60:.1f} minutes)"
+    )
 
     return predictor
 
 
-def evaluate_model(predictor, test_df, freq='h'):
+def evaluate_model(predictor, test_df, freq="h"):
     """
     Evaluate trained model on test data.
 
@@ -224,7 +228,9 @@ def evaluate_model(predictor, test_df, freq='h'):
     test_data = create_timeseries_dataframe(test_df, freq=freq)
 
     print("Evaluating")
-    metrics = predictor.evaluate(test_data, metrics=["MAE", "RMSE", "MAPE", "MASE", "SMAPE"])
+    metrics = predictor.evaluate(
+        test_data, metrics=["MAE", "RMSE", "MAPE", "MASE", "SMAPE"]
+    )
 
     # Display metrics
     print("\nEvaluation Metrics:")
@@ -254,15 +260,15 @@ def get_leaderboard(predictor):
 
     print("\nBest Model:")
     print("-" * 80)
-    best_model = leaderboard.iloc[0]['model']
-    best_score = leaderboard.iloc[0]['score_val']
+    best_model = leaderboard.iloc[0]["model"]
+    best_score = leaderboard.iloc[0]["score_val"]
     print(f"Model: {best_model}")
     print(f"Validation Score: {best_score:.4f}")
 
     return leaderboard
 
 
-def generate_predictions(predictor, test_df, freq='h'):
+def generate_predictions(predictor, test_df, freq="h"):
     """
     Generate predictions on test data.
 
@@ -288,7 +294,9 @@ def generate_predictions(predictor, test_df, freq='h'):
     return predictions
 
 
-def save_results(predictor, predictions, metrics, leaderboard, output_dir, model_save_path):
+def save_results(
+    predictor, predictions, metrics, leaderboard, output_dir, model_save_path
+):
     """
     Save all results to disk.
 
@@ -331,18 +339,11 @@ def main():
 
     try:
         # 1. Load data
-        df = load_shell_data(
-            DATA_PATH,
-            top_n_sensors=TOP_N_SENSORS,
-            sample_ratio=None  
-        )
+        df = load_shell_data(DATA_PATH, top_n_sensors=TOP_N_SENSORS, sample_ratio=None)
 
         # 2. Split data
         train_df, val_df, test_df = split_timeseries_data(
-            df,
-            train_ratio=TRAIN_RATIO,
-            val_ratio=VAL_RATIO,
-            test_ratio=TEST_RATIO
+            df, train_ratio=TRAIN_RATIO, val_ratio=VAL_RATIO, test_ratio=TEST_RATIO
         )
 
         # 3. Train model
@@ -353,7 +354,7 @@ def main():
             time_limit=TIME_LIMIT,
             preset=PRESET,
             freq=FREQ,
-            verbosity=2
+            verbosity=2,
         )
 
         # 4. Get leaderboard
@@ -366,7 +367,9 @@ def main():
         predictions = generate_predictions(predictor, test_df, freq=FREQ)
 
         # 7. Save results
-        save_results(predictor, predictions, metrics, leaderboard, OUTPUT_DIR, MODEL_SAVE_PATH)
+        save_results(
+            predictor, predictions, metrics, leaderboard, OUTPUT_DIR, MODEL_SAVE_PATH
+        )
 
         print(f"End time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"\nResults saved to: {OUTPUT_DIR}")
@@ -378,6 +381,7 @@ def main():
     except Exception as e:
         print(f"\n✗ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

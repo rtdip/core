@@ -122,7 +122,7 @@ def test_split_data(sample_timeseries_data):
 
     assert train_count + test_count == total_count
     assert train_count > test_count
-    assert abs(train_count / total_count - 0.8) < 0.1  
+    assert abs(train_count / total_count - 0.8) < 0.1
 
 
 def test_train_and_predict(simple_timeseries_data):
@@ -134,7 +134,7 @@ def test_train_and_predict(simple_timeseries_data):
         timestamp_col="timestamp",
         item_id_col="item_id",
         prediction_length=2,
-        time_limit=60,  
+        time_limit=60,
         preset="fast_training",
         verbosity=0,
     )
