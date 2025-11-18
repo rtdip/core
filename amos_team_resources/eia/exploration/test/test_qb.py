@@ -6,7 +6,7 @@ import subprocess
 import pandas as pd
 import pytest
 
-import scripts.eia_query_builder as qb
+import amos_team_resources.eia.exploration.scripts.eia_query_builder as qb
 
 
 # ---------------------------------------------------------------------------
