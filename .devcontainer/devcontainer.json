@@ -49,7 +49,7 @@
 		}
 	},
 	
-	"postCreateCommand": "mamba env create -f environment.yml --yes && python -m venv src/api/.venv",
+	"postCreateCommand": "mamba env create -f environment.yml && python -m venv src/api/.venv",
 
 	"remoteUser": "vscode",
 	"features": {
