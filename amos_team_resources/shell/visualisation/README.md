@@ -24,7 +24,6 @@ Visualization/
 
 3. **Run the notebook:**
 ```bash
-cd Visualization
 jupyter notebook forecasting_visualization.ipynb
 ```
 
