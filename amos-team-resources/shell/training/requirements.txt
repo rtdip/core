@@ -1,0 +1,22 @@
+# RTDIP Time Series Forecasting - Training Requirements
+# Install with: pip install -r requirements.txt
+
+# Core ML Frameworks
+autogluon.timeseries>=0.8.0    # AutoGluon ensemble forecasting
+tensorflow>=2.10.0              # LSTM deep learning
+xgboost>=1.7.0                  # XGBoost gradient boosting
+
+# Data Processing
+pandas>=1.3.0                   # Data manipulation
+pyarrow>=10.0.0                 # Parquet file support
+numpy>=1.21.0                   # Numerical operations
+
+# Feature Engineering & ML Utilities
+scikit-learn>=1.0.0             # Preprocessing, metrics, MultiOutputRegressor
+
+# Distributed Computing
+pyspark>=3.0.0                  # Spark for data processing
+
+# Optional but Recommended
+matplotlib>=3.3.0               # Visualization (if extending scripts)
+seaborn>=0.11.0                 # Statistical visualization
