@@ -28,6 +28,7 @@ assignees: ''
 * Work needs to be documented in the corresponding wiki section
 * For new features unit test have to be written.
 * Update our forked repository with the latest RTDIP release.
+* If the task involves coding, the implementation is integrated into the RTDIP framework and verified to function correctly within it.
 
 ## DoD general criteria
 * Feature has been fully implemented
