@@ -22,7 +22,11 @@ import pandas as pd
 import numpy as np
 from pyspark.sql import DataFrame
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+    mean_absolute_percentage_error,
+)
 import xgboost as xgb
 from typing import Dict, List, Optional
 
@@ -58,14 +62,14 @@ class XGBoostTimeSeries(MachineLearningInterface):
 
     def __init__(
         self,
-        target_col: str = 'target',
-        timestamp_col: str = 'timestamp',
-        item_id_col: str = 'item_id',
+        target_col: str = "target",
+        timestamp_col: str = "timestamp",
+        item_id_col: str = "item_id",
         prediction_length: int = 24,
         max_depth: int = 6,
         learning_rate: float = 0.1,
         n_estimators: int = 100,
-        n_jobs: int = -1
+        n_jobs: int = -1,
     ):
         self.target_col = target_col
         self.timestamp_col = timestamp_col
@@ -104,10 +108,10 @@ class XGBoostTimeSeries(MachineLearningInterface):
         df = df.copy()
         df[self.timestamp_col] = pd.to_datetime(df[self.timestamp_col])
 
-        df['hour'] = df[self.timestamp_col].dt.hour
-        df['day_of_week'] = df[self.timestamp_col].dt.dayofweek
-        df['day_of_month'] = df[self.timestamp_col].dt.day
-        df['month'] = df[self.timestamp_col].dt.month
+        df["hour"] = df[self.timestamp_col].dt.hour
+        df["day_of_week"] = df[self.timestamp_col].dt.dayofweek
+        df["day_of_month"] = df[self.timestamp_col].dt.day
+        df["month"] = df[self.timestamp_col].dt.month
 
         return df
 
@@ -117,27 +121,27 @@ class XGBoostTimeSeries(MachineLearningInterface):
         df = df.sort_values([self.item_id_col, self.timestamp_col])
 
         for lag in lags:
-            df[f'lag_{lag}'] = df.groupby(self.item_id_col)[self.target_col].shift(lag)
+            df[f"lag_{lag}"] = df.groupby(self.item_id_col)[self.target_col].shift(lag)
 
         return df
 
-    def _create_rolling_features(self, df: pd.DataFrame, windows: List[int]) -> pd.DataFrame:
+    def _create_rolling_features(
+        self, df: pd.DataFrame, windows: List[int]
+    ) -> pd.DataFrame:
         """Create rolling statistics features for each sensor."""
         df = df.copy()
         df = df.sort_values([self.item_id_col, self.timestamp_col])
 
         for window in windows:
             # Rolling mean
-            df[f'rolling_mean_{window}'] = (
-                df.groupby(self.item_id_col)[self.target_col]
-                .transform(lambda x: x.rolling(window=window, min_periods=1).mean())
-            )
+            df[f"rolling_mean_{window}"] = df.groupby(self.item_id_col)[
+                self.target_col
+            ].transform(lambda x: x.rolling(window=window, min_periods=1).mean())
 
             # Rolling std
-            df[f'rolling_std_{window}'] = (
-                df.groupby(self.item_id_col)[self.target_col]
-                .transform(lambda x: x.rolling(window=window, min_periods=1).std())
-            )
+            df[f"rolling_std_{window}"] = df.groupby(self.item_id_col)[
+                self.target_col
+            ].transform(lambda x: x.rolling(window=window, min_periods=1).std())
 
         return df
 
@@ -148,7 +152,7 @@ class XGBoostTimeSeries(MachineLearningInterface):
         df = self._create_time_features(df)
         df = self._create_lag_features(df, lags=[1, 6, 12, 24, 48])
         df = self._create_rolling_features(df, windows=[12, 24])
-        df['sensor_encoded'] = self.label_encoder.fit_transform(df[self.item_id_col])
+        df["sensor_encoded"] = self.label_encoder.fit_transform(df[self.item_id_col])
 
         return df
 
@@ -162,22 +166,34 @@ class XGBoostTimeSeries(MachineLearningInterface):
         print("TRAINING XGBOOST MODEL")
 
         pdf = train_df.toPandas()
-        print(f"Training data: {len(pdf):,} rows, {pdf[self.item_id_col].nunique()} sensors")
-        
+        print(
+            f"Training data: {len(pdf):,} rows, {pdf[self.item_id_col].nunique()} sensors"
+        )
+
         pdf = self._engineer_features(pdf)
 
         self.item_ids = self.label_encoder.classes_.tolist()
 
         self.feature_cols = [
-            'sensor_encoded', 'hour', 'day_of_week', 'day_of_month', 'month',
-            'lag_1', 'lag_6', 'lag_12', 'lag_24', 'lag_48',
-            'rolling_mean_12', 'rolling_std_12',
-            'rolling_mean_24', 'rolling_std_24'
+            "sensor_encoded",
+            "hour",
+            "day_of_week",
+            "day_of_month",
+            "month",
+            "lag_1",
+            "lag_6",
+            "lag_12",
+            "lag_24",
+            "lag_48",
+            "rolling_mean_12",
+            "rolling_std_12",
+            "rolling_mean_24",
+            "rolling_std_24",
         ]
 
         pdf_clean = pdf.dropna(subset=self.feature_cols)
         print(f"After removing NaN rows: {len(pdf_clean):,} rows")
-        
+
         X_train = pdf_clean[self.feature_cols]
         y_train = pdf_clean[self.target_col]
 
@@ -194,19 +210,21 @@ class XGBoostTimeSeries(MachineLearningInterface):
             learning_rate=self.learning_rate,
             n_estimators=self.n_estimators,
             n_jobs=self.n_jobs,
-            tree_method='hist',  
+            tree_method="hist",
             random_state=42,
-            enable_categorical=True  
+            enable_categorical=True,
         )
 
         self.model.fit(X_train, y_train, verbose=False)
 
         print("\nTraining completed")
 
-        feature_importance = pd.DataFrame({
-            'feature': self.feature_cols,
-            'importance': self.model.feature_importances_
-        }).sort_values('importance', ascending=False)
+        feature_importance = pd.DataFrame(
+            {
+                "feature": self.feature_cols,
+                "importance": self.model.feature_importances_,
+            }
+        ).sort_values("importance", ascending=False)
 
         print("\nTop 5 Most Important Features:")
         print(feature_importance.head(5).to_string(index=False))
@@ -251,28 +269,34 @@ class XGBoostTimeSeries(MachineLearningInterface):
                 last_row = current_data.dropna(subset=self.feature_cols).iloc[-1:]
 
                 if len(last_row) == 0:
-                    print(f"Warning: No valid features for sensor {item_id} at step {step}")
+                    print(
+                        f"Warning: No valid features for sensor {item_id} at step {step}"
+                    )
                     break
 
                 X = last_row[self.feature_cols]
 
                 pred = self.model.predict(X)[0]
 
-                next_timestamp = last_timestamp + pd.Timedelta(hours=step+1)
+                next_timestamp = last_timestamp + pd.Timedelta(hours=step + 1)
 
-                predictions_list.append({
-                    self.item_id_col: item_id,
-                    self.timestamp_col: next_timestamp,
-                    'predicted': pred
-                })
+                predictions_list.append(
+                    {
+                        self.item_id_col: item_id,
+                        self.timestamp_col: next_timestamp,
+                        "predicted": pred,
+                    }
+                )
 
                 new_row = {
                     self.item_id_col: item_id,
                     self.timestamp_col: next_timestamp,
-                    self.target_col: pred  
+                    self.target_col: pred,
                 }
 
-                current_data = pd.concat([current_data, pd.DataFrame([new_row])], ignore_index=True)
+                current_data = pd.concat(
+                    [current_data, pd.DataFrame([new_row])], ignore_index=True
+                )
                 current_data = self._engineer_features(current_data)
 
         predictions_df = pd.DataFrame(predictions_list)
@@ -324,7 +348,9 @@ class XGBoostTimeSeries(MachineLearningInterface):
         # MAPE (filter near-zero values)
         non_zero_mask = np.abs(y_test) >= 0.1
         if np.sum(non_zero_mask) > 0:
-            mape = mean_absolute_percentage_error(y_test[non_zero_mask], y_pred[non_zero_mask])
+            mape = mean_absolute_percentage_error(
+                y_test[non_zero_mask], y_pred[non_zero_mask]
+            )
         else:
             mape = np.nan
 
@@ -337,15 +363,20 @@ class XGBoostTimeSeries(MachineLearningInterface):
             mase = np.nan
 
         # SMAPE (Symmetric Mean Absolute Percentage Error)
-        smape = 100 * (2 * np.abs(y_test - y_pred) / (np.abs(y_test) + np.abs(y_pred) + 1e-10)).mean()
+        smape = (
+            100
+            * (
+                2 * np.abs(y_test - y_pred) / (np.abs(y_test) + np.abs(y_pred) + 1e-10)
+            ).mean()
+        )
 
         # AutoGluon uses negative metrics (higher is better)
         metrics = {
-            'MAE': -mae,
-            'RMSE': -rmse,
-            'MAPE': -mape,
-            'MASE': -mase,
-            'SMAPE': -smape
+            "MAE": -mae,
+            "RMSE": -rmse,
+            "MAPE": -mape,
+            "MASE": -mase,
+            "SMAPE": -smape,
         }
 
         print("\nXGBoost Metrics:")

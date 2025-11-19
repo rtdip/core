@@ -126,10 +126,7 @@ def test_model_attributes(sample_timeseries_data):
     Test that model attributes are properly initialized after training.
     """
     lstm = LSTMTimeSeries(
-        lookback_window=24,
-        prediction_length=5,
-        epochs=1,
-        batch_size=32
+        lookback_window=24, prediction_length=5, epochs=1, batch_size=32
     )
 
     # Train to initialize attributes
@@ -226,9 +223,9 @@ def test_train_and_predict(sample_timeseries_data):
 
     # Check prediction columns
     pred_df = predictions.toPandas()
-    assert 'item_id' in pred_df.columns
-    assert 'timestamp' in pred_df.columns
-    assert 'mean' in pred_df.columns  # LSTM returns 'mean' column
+    assert "item_id" in pred_df.columns
+    assert "timestamp" in pred_df.columns
+    assert "mean" in pred_df.columns  # LSTM returns 'mean' column
 
 
 def test_train_and_evaluate(sample_timeseries_data):
@@ -249,12 +246,12 @@ def test_train_and_evaluate(sample_timeseries_data):
 
     # Split data per sensor to maintain enough data for evaluation
     df = sample_timeseries_data.toPandas()
-    df = df.sort_values(['item_id', 'timestamp'])
+    df = df.sort_values(["item_id", "timestamp"])
 
     train_dfs = []
     test_dfs = []
-    for item_id in df['item_id'].unique():
-        item_data = df[df['item_id'] == item_id]
+    for item_id in df["item_id"].unique():
+        item_data = df[df["item_id"] == item_id]
         # Use 70% for train, 30% for test (need more test data for evaluation)
         split_idx = int(len(item_data) * 0.7)
         train_dfs.append(item_data.iloc[:split_idx])
@@ -276,7 +273,7 @@ def test_train_and_evaluate(sample_timeseries_data):
     assert isinstance(metrics, dict)
 
     # Check expected metrics
-    expected_metrics = ['MAE', 'RMSE', 'MAPE', 'MASE', 'SMAPE']
+    expected_metrics = ["MAE", "RMSE", "MAPE", "MASE", "SMAPE"]
     for metric in expected_metrics:
         assert metric in metrics
         assert isinstance(metrics[metric], (int, float))
@@ -299,10 +296,10 @@ def test_early_stopping_callback(simple_timeseries_data):
 
     # Check that training history is stored
     assert lstm.training_history is not None
-    assert 'loss' in lstm.training_history
+    assert "loss" in lstm.training_history
 
     # Training should stop before max epochs due to early stopping on small dataset
-    assert len(lstm.training_history['loss']) <= 10
+    assert len(lstm.training_history["loss"]) <= 10
 
 
 def test_training_history_tracking(sample_timeseries_data):
@@ -330,12 +327,12 @@ def test_training_history_tracking(sample_timeseries_data):
     assert isinstance(lstm.training_history, dict)
 
     # Check expected keys in training history
-    assert 'loss' in lstm.training_history
-    assert 'val_loss' in lstm.training_history
+    assert "loss" in lstm.training_history
+    assert "val_loss" in lstm.training_history
 
     # Check that history has entries
-    assert len(lstm.training_history['loss']) > 0
-    assert len(lstm.training_history['val_loss']) > 0
+    assert len(lstm.training_history["loss"]) > 0
+    assert len(lstm.training_history["val_loss"]) > 0
 
 
 def test_multiple_sensors(sample_timeseries_data):
@@ -355,8 +352,8 @@ def test_multiple_sensors(sample_timeseries_data):
 
     # Check that multiple sensors were processed
     assert len(lstm.item_ids) == 2
-    assert 'sensor_A' in lstm.item_ids
-    assert 'sensor_B' in lstm.item_ids
+    assert "sensor_A" in lstm.item_ids
+    assert "sensor_B" in lstm.item_ids
 
 
 def test_system_type():
@@ -407,11 +404,13 @@ def test_insufficient_data():
     for i in range(10):  # Only 10 points, but lookback is 24
         data.append(("A", base_date + timedelta(hours=i), float(100 + i)))
 
-    schema = StructType([
-        StructField("item_id", StringType(), True),
-        StructField("timestamp", TimestampType(), True),
-        StructField("target", FloatType(), True),
-    ])
+    schema = StructType(
+        [
+            StructField("item_id", StringType(), True),
+            StructField("timestamp", TimestampType(), True),
+            StructField("target", FloatType(), True),
+        ]
+    )
 
     minimal_data = spark.createDataFrame(data, schema=schema)
 
