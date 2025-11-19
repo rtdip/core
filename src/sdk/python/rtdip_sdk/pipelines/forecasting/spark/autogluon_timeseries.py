@@ -240,8 +240,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
                                        or None if evaluation fails.
         """
         if self.predictor is None:
-            print("Error: Model has not been trained yet. Call train() first.")
-            return None
+            raise ValueError("Model has not been trained yet. Call train() first.")
 
         try:
             test_data = self._prepare_timeseries_dataframe(test_df)
@@ -264,8 +263,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
                                    or None if no models have been trained.
         """
         if self.predictor is None:
-            print("Error: Model has not been trained yet. Call train() first.")
-            return None
+            raise ValueError("Model has not been trained yet. Call train() first.")
 
         return self.predictor.leaderboard()
 
@@ -277,8 +275,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
             Optional[str]: Name of the best model or None if no models trained.
         """
         if self.predictor is None:
-            print("Error: Model has not been trained yet. Call train() first.")
-            return None
+            raise ValueError("Model has not been trained yet. Call train() first.")
 
         leaderboard = self.get_leaderboard()
         if leaderboard is not None and len(leaderboard) > 0:
@@ -288,21 +285,34 @@ class AutoGluonTimeSeries(MachineLearningInterface):
 
     def save_model(self, path: str = None) -> str:
         """
-        Returns the path where the model is saved (AutoGluon saves automatically during training).
+        Saves the model to the specified path.
 
         Args:
-            path (str): Optional - not used. AutoGluon manages model paths automatically.
+            path (str): Directory path where the model should be saved.
+                       If None, returns the auto-saved model path.
 
         Returns:
             str: Path where the model is saved.
         """
+        import shutil
+        import os
+
         if self.predictor is None:
             raise ValueError("Model has not been trained yet. Call train() first.")
 
-        model_path = self.predictor.path
+        # AutoGluon auto-saves during training
+        auto_save_path = self.predictor.path
+
         if path:
-            print(f"Note: AutoGluon models are auto-saved. Model is at: {model_path}")
-        return model_path
+            # Copy the auto-saved model to the specified path
+            if os.path.exists(path):
+                shutil.rmtree(path)
+            shutil.copytree(auto_save_path, path)
+            print(f"Model saved to {path}")
+            return path
+        else:
+            # Return the auto-saved model path
+            return auto_save_path
 
     def load_model(self, path: str):
         """
