@@ -24,7 +24,11 @@ import pandas as pd
 from typing import Dict, Optional, Any
 from pyspark.sql import DataFrame, SparkSession
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+    mean_absolute_percentage_error,
+)
 
 # TensorFlow imports
 import tensorflow as tf
@@ -96,7 +100,7 @@ class LSTMTimeSeries(MachineLearningInterface):
         self.label_encoder = LabelEncoder()
         self.item_ids = []
         self.num_sensors = 0
-        self.training_history = None  
+        self.training_history = None
         self.spark = SparkSession.builder.getOrCreate()
 
     @staticmethod
@@ -117,7 +121,13 @@ class LSTMTimeSeries(MachineLearningInterface):
     def settings() -> dict:
         return {}
 
-    def _create_sequences(self, data: np.ndarray, sensor_ids: np.ndarray, lookback: int, forecast_horizon: int):
+    def _create_sequences(
+        self,
+        data: np.ndarray,
+        sensor_ids: np.ndarray,
+        lookback: int,
+        forecast_horizon: int,
+    ):
         """Create sequences for LSTM training with sensor IDs."""
         X_values, X_sensors, y = [], [], []
 
@@ -128,28 +138,34 @@ class LSTMTimeSeries(MachineLearningInterface):
             sensor_data = data[sensor_mask]
 
             for i in range(len(sensor_data) - lookback - forecast_horizon + 1):
-                X_values.append(sensor_data[i:i + lookback])
+                X_values.append(sensor_data[i : i + lookback])
                 X_sensors.append(sensor_id)
-                y.append(sensor_data[i + lookback:i + lookback + forecast_horizon])
+                y.append(sensor_data[i + lookback : i + lookback + forecast_horizon])
 
         return np.array(X_values), np.array(X_sensors), np.array(y)
 
     def _build_model(self):
         """Build LSTM model with sensor embeddings."""
-        values_input = layers.Input(shape=(self.lookback_window, 1), name='values_input')
+        values_input = layers.Input(
+            shape=(self.lookback_window, 1), name="values_input"
+        )
 
-        sensor_input = layers.Input(shape=(1,), name='sensor_input')
+        sensor_input = layers.Input(shape=(1,), name="sensor_input")
 
         sensor_embedding = layers.Embedding(
             input_dim=self.num_sensors,
             output_dim=self.embedding_dim,
-            name='sensor_embedding'
+            name="sensor_embedding",
         )(sensor_input)
         sensor_embedding = layers.Flatten()(sensor_embedding)
 
-        sensor_embedding_repeated = layers.RepeatVector(self.lookback_window)(sensor_embedding)
+        sensor_embedding_repeated = layers.RepeatVector(self.lookback_window)(
+            sensor_embedding
+        )
 
-        combined = layers.Concatenate(axis=-1)([values_input, sensor_embedding_repeated])
+        combined = layers.Concatenate(axis=-1)(
+            [values_input, sensor_embedding_repeated]
+        )
         x = combined
         for i in range(self.num_lstm_layers):
             return_sequences = i < self.num_lstm_layers - 1
@@ -162,8 +178,8 @@ class LSTMTimeSeries(MachineLearningInterface):
 
         model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate),
-            loss='mse',
-            metrics=['mae']
+            loss="mse",
+            metrics=["mae"],
         )
 
         return model
@@ -182,26 +198,30 @@ class LSTMTimeSeries(MachineLearningInterface):
         pdf[self.timestamp_col] = pd.to_datetime(pdf[self.timestamp_col])
         pdf = pdf.sort_values([self.item_id_col, self.timestamp_col])
 
-        pdf['sensor_encoded'] = self.label_encoder.fit_transform(pdf[self.item_id_col])
+        pdf["sensor_encoded"] = self.label_encoder.fit_transform(pdf[self.item_id_col])
         self.item_ids = self.label_encoder.classes_.tolist()
         self.num_sensors = len(self.item_ids)
 
         print(f"Training single model for {self.num_sensors} sensors")
         print(f"Total training samples: {len(pdf)}")
-        print(f"Configuration: {self.num_lstm_layers} LSTM layers, {self.lstm_units} units each")
+        print(
+            f"Configuration: {self.num_lstm_layers} LSTM layers, {self.lstm_units} units each"
+        )
         print(f"Sensor embedding dimension: {self.embedding_dim}")
-        print(f"Lookback window: {self.lookback_window}, Forecast horizon: {self.prediction_length}")
+        print(
+            f"Lookback window: {self.lookback_window}, Forecast horizon: {self.prediction_length}"
+        )
 
         values = pdf[self.target_col].values.reshape(-1, 1)
         values_scaled = self.scaler.fit_transform(values)
-        sensor_ids = pdf['sensor_encoded'].values
+        sensor_ids = pdf["sensor_encoded"].values
 
         print("\nCreating training sequences")
         X_values, X_sensors, y = self._create_sequences(
             values_scaled.flatten(),
             sensor_ids,
             self.lookback_window,
-            self.prediction_length
+            self.prediction_length,
         )
 
         if len(X_values) == 0:
@@ -212,7 +232,9 @@ class LSTMTimeSeries(MachineLearningInterface):
         X_sensors = X_sensors.reshape(-1, 1)
 
         print(f"Created {len(X_values)} training sequences")
-        print(f"Input shape: {X_values.shape}, Sensor IDs shape: {X_sensors.shape}, Output shape: {y.shape}")
+        print(
+            f"Input shape: {X_values.shape}, Sensor IDs shape: {X_sensors.shape}, Output shape: {y.shape}"
+        )
 
         print("\nBuilding model")
         self.model = self._build_model()
@@ -220,18 +242,14 @@ class LSTMTimeSeries(MachineLearningInterface):
 
         callbacks = [
             EarlyStopping(
-                monitor='val_loss',
+                monitor="val_loss",
                 patience=self.patience,
                 restore_best_weights=True,
-                verbose=1
+                verbose=1,
             ),
             ReduceLROnPlateau(
-                monitor='val_loss',
-                factor=0.5,
-                patience=5,
-                min_lr=1e-6,
-                verbose=1
-            )
+                monitor="val_loss", factor=0.5, patience=5, min_lr=1e-6, verbose=1
+            ),
         ]
 
         print("\nTraining model")
@@ -242,13 +260,13 @@ class LSTMTimeSeries(MachineLearningInterface):
             epochs=self.epochs,
             validation_split=0.2,
             callbacks=callbacks,
-            verbose=1
+            verbose=1,
         )
 
         self.training_history = history.history
 
-        final_loss = history.history['val_loss'][-1]
-        final_mae = history.history['val_mae'][-1]
+        final_loss = history.history["val_loss"][-1]
+        final_mae = history.history["val_mae"][-1]
         print(f"\nTraining completed!")
         print(f"Final validation loss: {final_loss:.4f}")
         print(f"Final validation MAE: {final_mae:.4f}")
@@ -272,7 +290,7 @@ class LSTMTimeSeries(MachineLearningInterface):
 
         all_predictions = []
 
-        pdf['sensor_encoded'] = self.label_encoder.transform(pdf[self.item_id_col])
+        pdf["sensor_encoded"] = self.label_encoder.transform(pdf[self.item_id_col])
 
         for item_id in self.item_ids:
             item_data = pdf[pdf[self.item_id_col] == item_id].copy()
@@ -281,10 +299,14 @@ class LSTMTimeSeries(MachineLearningInterface):
                 print(f"Warning: Not enough data for {item_id} to generate predictions")
                 continue
 
-            values = item_data[self.target_col].values[-self.lookback_window:].reshape(-1, 1)
+            values = (
+                item_data[self.target_col]
+                .values[-self.lookback_window :]
+                .reshape(-1, 1)
+            )
             values_scaled = self.scaler.transform(values)
 
-            sensor_id = item_data['sensor_encoded'].iloc[0]
+            sensor_id = item_data["sensor_encoded"].iloc[0]
 
             X_values = values_scaled.reshape(1, self.lookback_window, 1)
             X_sensor = np.array([[sensor_id]])
@@ -296,21 +318,23 @@ class LSTMTimeSeries(MachineLearningInterface):
             pred_timestamps = pd.date_range(
                 start=last_timestamp + pd.Timedelta(hours=1),
                 periods=self.prediction_length,
-                freq='h'
+                freq="h",
             )
 
-            pred_df = pd.DataFrame({
-                self.item_id_col: item_id,
-                self.timestamp_col: pred_timestamps,
-                'mean': pred
-            })
+            pred_df = pd.DataFrame(
+                {
+                    self.item_id_col: item_id,
+                    self.timestamp_col: pred_timestamps,
+                    "mean": pred,
+                }
+            )
 
             all_predictions.append(pred_df)
 
         if not all_predictions:
             return self.spark.createDataFrame(
                 [],
-                schema=f"{self.item_id_col} string, {self.timestamp_col} timestamp, mean double"
+                schema=f"{self.item_id_col} string, {self.timestamp_col} timestamp, mean double",
             )
 
         result_pdf = pd.concat(all_predictions, ignore_index=True)
@@ -332,7 +356,7 @@ class LSTMTimeSeries(MachineLearningInterface):
         pdf = test_df.toPandas()
         pdf[self.timestamp_col] = pd.to_datetime(pdf[self.timestamp_col])
         pdf = pdf.sort_values([self.item_id_col, self.timestamp_col])
-        pdf['sensor_encoded'] = self.label_encoder.transform(pdf[self.item_id_col])
+        pdf["sensor_encoded"] = self.label_encoder.transform(pdf[self.item_id_col])
 
         all_predictions = []
         all_actuals = []
@@ -345,20 +369,35 @@ class LSTMTimeSeries(MachineLearningInterface):
 
         for item_id in self.item_ids:
             item_data = pdf[pdf[self.item_id_col] == item_id].copy()
-            sensor_id = item_data['sensor_encoded'].iloc[0]
+            sensor_id = item_data["sensor_encoded"].iloc[0]
 
             if len(item_data) < self.lookback_window + self.prediction_length:
                 continue
 
             # (sample every 24 hours to speed up)
             step_size = self.prediction_length
-            for i in range(0, len(item_data) - self.lookback_window - self.prediction_length + 1, step_size):
-                input_values = item_data[self.target_col].iloc[i:i+self.lookback_window].values.reshape(-1, 1)
+            for i in range(
+                0,
+                len(item_data) - self.lookback_window - self.prediction_length + 1,
+                step_size,
+            ):
+                input_values = (
+                    item_data[self.target_col]
+                    .iloc[i : i + self.lookback_window]
+                    .values.reshape(-1, 1)
+                )
                 input_scaled = self.scaler.transform(input_values)
 
-                actual_values = item_data[self.target_col].iloc[
-                    i+self.lookback_window:i+self.lookback_window+self.prediction_length
-                ].values
+                actual_values = (
+                    item_data[self.target_col]
+                    .iloc[
+                        i
+                        + self.lookback_window : i
+                        + self.lookback_window
+                        + self.prediction_length
+                    ]
+                    .values
+                )
 
                 batch_values.append(input_scaled.reshape(self.lookback_window, 1))
                 batch_sensors.append(sensor_id)
@@ -371,11 +410,13 @@ class LSTMTimeSeries(MachineLearningInterface):
         X_values_batch = np.array(batch_values)
         X_sensors_batch = np.array(batch_sensors).reshape(-1, 1)
 
-        pred_scaled_batch = self.model.predict([X_values_batch, X_sensors_batch], verbose=0, batch_size=256)
+        pred_scaled_batch = self.model.predict(
+            [X_values_batch, X_sensors_batch], verbose=0, batch_size=256
+        )
 
         for pred_scaled, actual_values in zip(pred_scaled_batch, batch_actuals):
             pred = self.scaler.inverse_transform(pred_scaled.reshape(-1, 1)).flatten()
-            all_predictions.extend(pred[:len(actual_values)])
+            all_predictions.extend(pred[: len(actual_values)])
             all_actuals.extend(actual_values)
 
         if len(all_predictions) == 0:
@@ -392,7 +433,9 @@ class LSTMTimeSeries(MachineLearningInterface):
         # MAPE with filtering
         non_zero_mask = np.abs(y_true) >= 0.1
         if np.sum(non_zero_mask) > 0:
-            mape = mean_absolute_percentage_error(y_true[non_zero_mask], y_pred[non_zero_mask])
+            mape = mean_absolute_percentage_error(
+                y_true[non_zero_mask], y_pred[non_zero_mask]
+            )
         else:
             mape = np.nan
 
@@ -410,7 +453,12 @@ class LSTMTimeSeries(MachineLearningInterface):
         mase = mae / mae_naive if mae_naive != 0 else mae
 
         # SMAPE
-        smape = 100 * (2 * np.abs(y_true - y_pred) / (np.abs(y_true) + np.abs(y_pred) + 1e-10)).mean()
+        smape = (
+            100
+            * (
+                2 * np.abs(y_true - y_pred) / (np.abs(y_true) + np.abs(y_pred) + 1e-10)
+            ).mean()
+        )
 
         # Return in AutoGluon format (negative is better)
         return {
@@ -418,7 +466,7 @@ class LSTMTimeSeries(MachineLearningInterface):
             "RMSE": -rmse,
             "MAPE": -mape,
             "MASE": -mase,
-            "SMAPE": -smape
+            "SMAPE": -smape,
         }
 
     def save(self, path: str):
@@ -438,15 +486,15 @@ class LSTMTimeSeries(MachineLearningInterface):
         joblib.dump(self.label_encoder, encoder_path)
 
         metadata = {
-            'item_ids': self.item_ids,
-            'num_sensors': self.num_sensors,
-            'config': {
-                'lookback_window': self.lookback_window,
-                'prediction_length': self.prediction_length,
-                'lstm_units': self.lstm_units,
-                'num_lstm_layers': self.num_lstm_layers,
-                'embedding_dim': self.embedding_dim,
-            }
+            "item_ids": self.item_ids,
+            "num_sensors": self.num_sensors,
+            "config": {
+                "lookback_window": self.lookback_window,
+                "prediction_length": self.prediction_length,
+                "lstm_units": self.lstm_units,
+                "num_lstm_layers": self.num_lstm_layers,
+                "embedding_dim": self.embedding_dim,
+            },
         }
         metadata_path = os.path.join(path, "metadata.pkl")
         joblib.dump(metadata, metadata_path)
@@ -467,19 +515,19 @@ class LSTMTimeSeries(MachineLearningInterface):
 
         metadata_path = os.path.join(path, "metadata.pkl")
         metadata = joblib.load(metadata_path)
-        self.item_ids = metadata['item_ids']
-        self.num_sensors = metadata['num_sensors']
+        self.item_ids = metadata["item_ids"]
+        self.num_sensors = metadata["num_sensors"]
 
     def get_model_info(self) -> Dict[str, Any]:
         """Get information about trained model."""
         return {
-            'model_type': 'Single LSTM with sensor embeddings',
-            'num_sensors': self.num_sensors,
-            'item_ids': self.item_ids,
-            'lookback_window': self.lookback_window,
-            'prediction_length': self.prediction_length,
-            'lstm_units': self.lstm_units,
-            'num_lstm_layers': self.num_lstm_layers,
-            'embedding_dim': self.embedding_dim,
-            'total_parameters': self.model.count_params() if self.model else 0,
+            "model_type": "Single LSTM with sensor embeddings",
+            "num_sensors": self.num_sensors,
+            "item_ids": self.item_ids,
+            "lookback_window": self.lookback_window,
+            "prediction_length": self.prediction_length,
+            "lstm_units": self.lstm_units,
+            "num_lstm_layers": self.num_lstm_layers,
+            "embedding_dim": self.embedding_dim,
+            "total_parameters": self.model.count_params() if self.model else 0,
         }

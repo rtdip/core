@@ -18,6 +18,7 @@ from .arima import ArimaPrediction
 from .auto_arima import ArimaAutoPrediction
 from .k_nearest_neighbors import KNearestNeighbors
 from .autogluon_timeseries import AutoGluonTimeSeries
+
 # from .prophet_timeseries import ProphetTimeSeries  # Commented out - file doesn't exist
 from .lstm_timeseries import LSTMTimeSeries
 from .xgboost_timeseries import XGBoostTimeSeries
