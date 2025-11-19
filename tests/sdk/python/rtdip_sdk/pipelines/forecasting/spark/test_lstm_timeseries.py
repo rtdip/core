@@ -17,11 +17,27 @@ from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.lstm_timeseries import
 
 @pytest.fixture(scope="session")
 def spark():
-    return (
+    import sys
+    import os
+
+    os.environ['PYSPARK_PYTHON'] = sys.executable
+    os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
+    existing_session = SparkSession.getActiveSession()
+    if existing_session:
+        existing_session.stop()
+
+    spark = (
         SparkSession.builder.master("local[*]")
         .appName("LSTM TimeSeries Unit Test")
+        .config("spark.executorEnv.PYSPARK_PYTHON", sys.executable)
+        .config("spark.executorEnv.PYSPARK_DRIVER_PYTHON", sys.executable)
+        .config("spark.pyspark.python", sys.executable)
+        .config("spark.pyspark.driver.python", sys.executable)
         .getOrCreate()
     )
+
+    yield spark
+    spark.stop()
 
 
 @pytest.fixture(scope="function")
@@ -33,11 +49,9 @@ def sample_timeseries_data(spark):
     base_date = datetime(2024, 1, 1)
     data = []
 
-    # Create data for two items with 100 time points each (enough for lookback window)
     for item_id in ["sensor_A", "sensor_B"]:
         for i in range(100):
             timestamp = base_date + timedelta(hours=i)
-            # Create a simple trend + noise pattern
             value = float(100 + i * 2 + np.sin(i / 10) * 10)
             data.append((item_id, timestamp, value))
 
@@ -61,7 +75,6 @@ def simple_timeseries_data(spark):
     base_date = datetime(2024, 1, 1)
     data = []
 
-    # Create 50 hourly data points for one sensor
     for i in range(50):
         timestamp = base_date + timedelta(hours=i)
         value = 100.0 + i * 2.0
@@ -87,7 +100,7 @@ def test_lstm_initialization():
     assert lstm.timestamp_col == "timestamp"
     assert lstm.item_id_col == "item_id"
     assert lstm.prediction_length == 24
-    assert lstm.lookback_window == 168  # Default is 168 (1 week)
+    assert lstm.lookback_window == 168  
     assert lstm.model is None
 
 
@@ -132,10 +145,8 @@ def test_model_attributes(sample_timeseries_data):
         batch_size=32
     )
 
-    # Train to initialize attributes
     lstm.train(sample_timeseries_data)
 
-    # Check attributes
     assert lstm.scaler is not None
     assert lstm.label_encoder is not None
     assert len(lstm.item_ids) > 0
@@ -152,10 +163,10 @@ def test_train_basic(simple_timeseries_data):
         item_id_col="item_id",
         prediction_length=2,
         lookback_window=12,
-        lstm_units=16,  # Small network for fast testing
+        lstm_units=16,  
         num_lstm_layers=1,
         batch_size=16,
-        epochs=2,  # Very few epochs for testing
+        epochs=2, 
         patience=1,
     )
 
@@ -228,7 +239,7 @@ def test_train_and_predict(sample_timeseries_data):
     pred_df = predictions.toPandas()
     assert 'item_id' in pred_df.columns
     assert 'timestamp' in pred_df.columns
-    assert 'mean' in pred_df.columns  # LSTM returns 'mean' column
+    assert 'mean' in pred_df.columns  
 
 
 def test_train_and_evaluate(sample_timeseries_data):
@@ -247,7 +258,6 @@ def test_train_and_evaluate(sample_timeseries_data):
         epochs=2,
     )
 
-    # Split data per sensor to maintain enough data for evaluation
     df = sample_timeseries_data.toPandas()
     df = df.sort_values(['item_id', 'timestamp'])
 
@@ -255,7 +265,6 @@ def test_train_and_evaluate(sample_timeseries_data):
     test_dfs = []
     for item_id in df['item_id'].unique():
         item_data = df[df['item_id'] == item_id]
-        # Use 70% for train, 30% for test (need more test data for evaluation)
         split_idx = int(len(item_data) * 0.7)
         train_dfs.append(item_data.iloc[:split_idx])
         test_dfs.append(item_data.iloc[split_idx:])
@@ -322,18 +331,14 @@ def test_training_history_tracking(sample_timeseries_data):
         patience=2,
     )
 
-    # Train model
     lstm.train(sample_timeseries_data)
 
-    # Check training history is available
     assert lstm.training_history is not None
     assert isinstance(lstm.training_history, dict)
 
-    # Check expected keys in training history
     assert 'loss' in lstm.training_history
     assert 'val_loss' in lstm.training_history
 
-    # Check that history has entries
     assert len(lstm.training_history['loss']) > 0
     assert len(lstm.training_history['val_loss']) > 0
 
@@ -401,10 +406,9 @@ def test_insufficient_data():
     """
     spark = SparkSession.builder.getOrCreate()
 
-    # Create minimal data (less than lookback window)
     data = []
     base_date = datetime(2024, 1, 1)
-    for i in range(10):  # Only 10 points, but lookback is 24
+    for i in range(10):  
         data.append(("A", base_date + timedelta(hours=i), float(100 + i)))
 
     schema = StructType([
@@ -421,10 +425,7 @@ def test_insufficient_data():
         epochs=1,
     )
 
-    # This should handle gracefully (either skip or raise informative error)
     try:
         lstm.train(minimal_data)
-        # If it succeeds, model should still be None or handle gracefully
     except (ValueError, Exception) as e:
-        # Should raise an informative error
         assert "insufficient" in str(e).lower() or "not enough" in str(e).lower()

@@ -17,11 +17,28 @@ from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.xgboost_timeseries imp
 
 @pytest.fixture(scope="session")
 def spark():
-    return (
+    import sys
+    import os
+
+    os.environ['PYSPARK_PYTHON'] = sys.executable
+    os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
+
+    existing_session = SparkSession.getActiveSession()
+    if existing_session:
+        existing_session.stop()
+
+    spark = (
         SparkSession.builder.master("local[*]")
         .appName("XGBoost TimeSeries Unit Test")
+        .config("spark.executorEnv.PYSPARK_PYTHON", sys.executable)
+        .config("spark.executorEnv.PYSPARK_DRIVER_PYTHON", sys.executable)
+        .config("spark.pyspark.python", sys.executable)
+        .config("spark.pyspark.driver.python", sys.executable)
         .getOrCreate()
     )
+
+    yield spark
+    spark.stop()
 
 
 @pytest.fixture(scope="function")
@@ -33,7 +50,6 @@ def sample_timeseries_data(spark):
     base_date = datetime(2024, 1, 1)
     data = []
 
-    # Create data for two items with 100 time points each (enough for lag features)
     for item_id in ["sensor_A", "sensor_B"]:
         for i in range(100):
             timestamp = base_date + timedelta(hours=i)
@@ -120,14 +136,11 @@ def test_engineer_features(sample_timeseries_data):
     """
     xgb = XGBoostTimeSeries(prediction_length=5)
 
-    # Convert to pandas for testing
     df = sample_timeseries_data.toPandas()
     df = df.sort_values(['item_id', 'timestamp'])
 
-    # Engineer features
     df_with_features = xgb._engineer_features(df)
-
-    # Check that features were created
+    # Check time-based features
     assert 'hour' in df_with_features.columns
     assert 'day_of_week' in df_with_features.columns
     assert 'day_of_month' in df_with_features.columns
@@ -147,6 +160,7 @@ def test_engineer_features(sample_timeseries_data):
     assert 'rolling_std_24' in df_with_features.columns
 
 
+@pytest.mark.slow
 def test_train_basic(simple_timeseries_data):
     """
     Test basic training workflow.
@@ -188,7 +202,6 @@ def test_evaluate_without_training(simple_timeseries_data):
     with pytest.raises(ValueError, match="Model not trained"):
         xgb.evaluate(simple_timeseries_data)
 
-
 def test_train_and_predict(sample_timeseries_data):
     """
     Test training and prediction workflow.
@@ -203,11 +216,9 @@ def test_train_and_predict(sample_timeseries_data):
         n_jobs=1,
     )
 
-    # Split data manually (80/20)
     df = sample_timeseries_data.toPandas()
     df = df.sort_values(['item_id', 'timestamp'])
 
-    # Split per sensor to maintain time order
     train_dfs = []
     test_dfs = []
     for item_id in df['item_id'].unique():
@@ -219,16 +230,13 @@ def test_train_and_predict(sample_timeseries_data):
     train_df = pd.concat(train_dfs, ignore_index=True)
     test_df = pd.concat(test_dfs, ignore_index=True)
 
-    # Convert back to Spark
     spark = SparkSession.builder.getOrCreate()
     train_spark = spark.createDataFrame(train_df)
     test_spark = spark.createDataFrame(test_df)
 
-    # Train
     xgb.train(train_spark)
     assert xgb.model is not None
 
-    # Predict - use train data since predict uses it to get historical values
     predictions = xgb.predict(train_spark)
     assert predictions is not None
     assert predictions.count() > 0
@@ -255,25 +263,18 @@ def test_train_and_evaluate(sample_timeseries_data):
         n_jobs=1,
     )
 
-    # Use all data for training to ensure evaluation has enough features
     xgb.train(sample_timeseries_data)
 
-    # Evaluate on training data (need enough data for lag features)
-    # Evaluation uses feature engineering which requires historical data
     metrics = xgb.evaluate(sample_timeseries_data)
 
-    # Metrics may be None if insufficient data after feature engineering
     if metrics is not None:
         assert isinstance(metrics, dict)
 
-        # Check expected metrics
         expected_metrics = ['MAE', 'RMSE', 'MAPE', 'MASE', 'SMAPE']
         for metric in expected_metrics:
             assert metric in metrics
             assert isinstance(metrics[metric], (int, float))
-            # Note: Some metrics might be NaN for certain data patterns
     else:
-        # If None, it means insufficient data - this is acceptable for test
         assert True
 
 
@@ -290,15 +291,14 @@ def test_recursive_forecasting(simple_timeseries_data):
 
     # Train on most of the data
     df = simple_timeseries_data.toPandas()
-    train_df = df.iloc[:-30]  # Leave 30 points for testing
+    train_df = df.iloc[:-30] 
 
     spark = SparkSession.builder.getOrCreate()
     train_spark = spark.createDataFrame(train_df)
 
     xgb.train(train_spark)
 
-    # Predict from the last training point
-    test_spark = spark.createDataFrame(train_df.tail(50))  # Need history for lags
+    test_spark = spark.createDataFrame(train_df.tail(50))  
     predictions = xgb.predict(test_spark)
 
     pred_df = predictions.toPandas()
@@ -325,11 +325,9 @@ def test_multiple_sensors(sample_timeseries_data):
     assert 'sensor_A' in xgb.item_ids
     assert 'sensor_B' in xgb.item_ids
 
-    # Predict for both sensors
     predictions = xgb.predict(sample_timeseries_data)
     pred_df = predictions.toPandas()
 
-    # Should have predictions for both sensors
     assert 'sensor_A' in pred_df['item_id'].values
     assert 'sensor_B' in pred_df['item_id'].values
 
@@ -347,12 +345,10 @@ def test_feature_importance(simple_timeseries_data):
 
     xgb.train(simple_timeseries_data)
 
-    # Get feature importance
     importance = xgb.model.feature_importances_
     assert importance is not None
     assert len(importance) == len(xgb.feature_cols)
-    assert np.sum(importance) > 0  # Should have some importance
-
+    assert np.sum(importance) > 0  
 
 def test_feature_columns_definition(sample_timeseries_data):
     """
@@ -424,10 +420,9 @@ def test_insufficient_data():
     """
     spark = SparkSession.builder.getOrCreate()
 
-    # Create minimal data (less than max lag of 48)
     data = []
     base_date = datetime(2024, 1, 1)
-    for i in range(30):  # Only 30 points, but max lag is 48
+    for i in range(30):  
         data.append(("A", base_date + timedelta(hours=i), float(100 + i)))
 
     schema = StructType([
@@ -444,14 +439,12 @@ def test_insufficient_data():
         n_estimators=10,
     )
 
-    # This should handle gracefully - may have fewer training samples after dropna
     try:
         xgb.train(minimal_data)
         # If it succeeds, should have a trained model
         if xgb.model is not None:
             assert True
     except (ValueError, Exception) as e:
-        # Should raise an informative error
         assert "insufficient" in str(e).lower() or "not enough" in str(e).lower() or "samples" in str(e).lower()
 
 
@@ -500,7 +493,6 @@ def test_sensor_encoding():
 
     spark = SparkSession.builder.getOrCreate()
 
-    # Create data with multiple sensors
     data = []
     base_date = datetime(2024, 1, 1)
     for sensor in ["sensor_A", "sensor_B", "sensor_C"]:
@@ -516,7 +508,6 @@ def test_sensor_encoding():
     multi_sensor_data = spark.createDataFrame(data, schema=schema)
     xgb.train(multi_sensor_data)
 
-    # Check that all sensors were encoded
     assert len(xgb.label_encoder.classes_) == 3
     assert 'sensor_A' in xgb.label_encoder.classes_
     assert 'sensor_B' in xgb.label_encoder.classes_
