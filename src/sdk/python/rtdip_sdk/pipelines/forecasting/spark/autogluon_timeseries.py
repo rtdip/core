@@ -126,7 +126,10 @@ class AutoGluonTimeSeries(MachineLearningInterface):
         self, df: DataFrame, train_ratio: float = 0.8
     ) -> Tuple[DataFrame, DataFrame]:
         """
-        Splits the dataset into training and testing sets based on time order.
+        Splits the dataset into training and testing sets using AutoGluon's recommended approach.
+
+        For time series forecasting, AutoGluon expects the test set to contain the full time series
+        (both history and forecast horizon), while the training set contains only the historical portion.
 
         Args:
             df (DataFrame): The PySpark DataFrame to split.
@@ -134,16 +137,20 @@ class AutoGluonTimeSeries(MachineLearningInterface):
 
         Returns:
             Tuple[DataFrame, DataFrame]: Returns the training and testing datasets.
+                                        Test dataset includes full time series for proper evaluation.
         """
-        pdf = df.orderBy(self.timestamp_col).toPandas()
-        split_idx = int(len(pdf) * train_ratio)
-
-        train_pdf = pdf.iloc[:split_idx]
-        test_pdf = pdf.iloc[split_idx:]
-
         from pyspark.sql import SparkSession
 
+        ts_df = self._prepare_timeseries_dataframe(df)
+        first_item = ts_df.item_ids[0]
+        total_length = len(ts_df.loc[first_item])
+        train_length = int(total_length * train_ratio)
+
+        train_ts_df, test_ts_df = ts_df.train_test_split(prediction_length=total_length - train_length)
         spark = SparkSession.builder.getOrCreate()
+
+        train_pdf = train_ts_df.reset_index()
+        test_pdf = test_ts_df.reset_index()
 
         train_df = spark.createDataFrame(train_pdf)
         test_df = spark.createDataFrame(test_pdf)
@@ -242,17 +249,27 @@ class AutoGluonTimeSeries(MachineLearningInterface):
         if self.predictor is None:
             raise ValueError("Model has not been trained yet. Call train() first.")
 
-        try:
-            test_data = self._prepare_timeseries_dataframe(test_df)
+        test_data = self._prepare_timeseries_dataframe(test_df)
 
-            metrics = self.predictor.evaluate(
-                test_data, metrics=["MAE", "RMSE", "MAPE", "MASE", "SMAPE"]
-            )
+        # Verify that test_data has sufficient length for evaluation
+        # Each time series needs at least prediction_length + 1 timesteps
+        min_required_length = self.prediction_length + 1
+        for item_id in test_data.item_ids:
+            item_length = len(test_data.loc[item_id])
+            if item_length < min_required_length:
+                raise ValueError(
+                    f"Time series for item '{item_id}' has only {item_length} timesteps, "
+                    f"but at least {min_required_length} timesteps are required for evaluation "
+                    f"(prediction_length={self.prediction_length} + 1)."
+                )
 
-            return metrics
-        except Exception as e:
-            print(f"Error during evaluation: {str(e)}")
-            return None
+        # Call evaluate with the metrics parameter
+        # Note: Metrics will be returned in 'higher is better' format (errors multiplied by -1)
+        metrics = self.predictor.evaluate(
+            test_data, metrics=["MAE", "RMSE", "MAPE", "MASE", "SMAPE"]
+        )
+
+        return metrics
 
     def get_leaderboard(self) -> Optional[pd.DataFrame]:
         """
@@ -263,7 +280,9 @@ class AutoGluonTimeSeries(MachineLearningInterface):
                                    or None if no models have been trained.
         """
         if self.predictor is None:
-            raise ValueError("Model has not been trained yet. Call train() first.")
+            raise ValueError(
+                "Error: Model has not been trained yet. Call train() first."
+            )
 
         return self.predictor.leaderboard()
 
@@ -279,40 +298,45 @@ class AutoGluonTimeSeries(MachineLearningInterface):
 
         leaderboard = self.get_leaderboard()
         if leaderboard is not None and len(leaderboard) > 0:
-            return leaderboard.iloc[0]["model"]
+            try:
+                if "model" in leaderboard.columns:
+                    return leaderboard.iloc[0]["model"]
+                elif leaderboard.index.name == "model" or isinstance(leaderboard.index[0], str):
+                    return leaderboard.index[0]
+                else:
+                    first_value = leaderboard.iloc[0, 0]
+                    if isinstance(first_value, str):
+                        return first_value
+            except (KeyError, IndexError) as e:
+                pass
 
         return None
 
     def save_model(self, path: str = None) -> str:
         """
-        Saves the model to the specified path.
+        Saves the trained model to the specified path by copying from AutoGluon's default location.
 
         Args:
             path (str): Directory path where the model should be saved.
-                       If None, returns the auto-saved model path.
+                       If None, returns the default AutoGluon save location.
 
         Returns:
             str: Path where the model is saved.
         """
-        import shutil
-        import os
-
         if self.predictor is None:
             raise ValueError("Model has not been trained yet. Call train() first.")
 
-        # AutoGluon auto-saves during training
-        auto_save_path = self.predictor.path
+        if path is None:
+            return self.predictor.path
 
-        if path:
-            # Copy the auto-saved model to the specified path
-            if os.path.exists(path):
-                shutil.rmtree(path)
-            shutil.copytree(auto_save_path, path)
-            print(f"Model saved to {path}")
-            return path
-        else:
-            # Return the auto-saved model path
-            return auto_save_path
+        import shutil
+        import os
+
+        source_path = self.predictor.path
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        shutil.copytree(source_path, path)
+        return path
 
     def load_model(self, path: str):
         """

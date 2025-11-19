@@ -16,28 +16,11 @@ from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.autogluon_timeseries i
 
 @pytest.fixture(scope="session")
 def spark():
-    import sys
-    import os
-
-    os.environ['PYSPARK_PYTHON'] = sys.executable
-    os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
-
-    existing_session = SparkSession.getActiveSession()
-    if existing_session:
-        existing_session.stop()
-
-    spark = (
+    return (
         SparkSession.builder.master("local[*]")
         .appName("AutoGluon TimeSeries Unit Test")
-        .config("spark.executorEnv.PYSPARK_PYTHON", sys.executable)
-        .config("spark.executorEnv.PYSPARK_DRIVER_PYTHON", sys.executable)
-        .config("spark.pyspark.python", sys.executable)
-        .config("spark.pyspark.driver.python", sys.executable)
         .getOrCreate()
     )
-
-    yield spark
-    spark.stop()
 
 
 @pytest.fixture(scope="function")
@@ -48,11 +31,9 @@ def sample_timeseries_data(spark):
     base_date = datetime(2024, 1, 1)
     data = []
 
-    # Create data for two items with 50 time points each
     for item_id in ["sensor_A", "sensor_B"]:
         for i in range(50):
             timestamp = base_date + timedelta(hours=i)
-            # Create a simple trend + noise pattern (use float)
             value = float(100 + i * 2 + (i % 10) * 5)
             data.append((item_id, timestamp, value))
 
@@ -128,7 +109,7 @@ def test_autogluon_custom_initialization():
 
 def test_split_data(sample_timeseries_data):
     """
-    Test that data splitting works correctly.
+    Test that data splitting works correctly using AutoGluon approach.
     """
     ag = AutoGluonTimeSeries()
     train_df, test_df = ag.split_data(sample_timeseries_data, train_ratio=0.8)
@@ -137,9 +118,9 @@ def test_split_data(sample_timeseries_data):
     train_count = train_df.count()
     test_count = test_df.count()
 
-    assert train_count + test_count == total_count
-    assert train_count > test_count
-    assert abs(train_count / total_count - 0.8) < 0.1
+    assert test_count == total_count, f"Test set should contain full time series: {test_count} vs {total_count}"
+    assert abs(train_count / total_count - 0.8) < 0.1, f"Train ratio should be ~0.8: {train_count / total_count}"
+    assert train_count < test_count, f"Train count {train_count} should be < test count {test_count}"
 
 
 def test_train_and_predict(simple_timeseries_data):

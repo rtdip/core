@@ -95,3 +95,7 @@ dependencies:
           - eth-typing>=5.0.1,<6.0.0
           - pandas>=2.0.1,<2.3.0
           - moto[s3]>=5.0.16,<6.0.0
+          - autogluon.timeseries>=1.1.1,<2.0.0
+          - scikit-learn>=1.3.0,<2.0.0
+          - xgboost>=2.0.0,<3.0.0
+          - tensorflow>=2.13.0,<3.0.0  
