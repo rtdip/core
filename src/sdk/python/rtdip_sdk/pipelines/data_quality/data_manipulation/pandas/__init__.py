@@ -12,19 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import abstractmethod
-
-from pyspark.sql import DataFrame
-from pandas import DataFrame as PandasDataFrame
-from ...interfaces import PipelineComponentBaseInterface
-
-
-class DataManipulationBaseInterface(PipelineComponentBaseInterface):
-    @abstractmethod
-    def filter_data(self) -> DataFrame:
-        pass
-
-class PandasDataManipulationBaseInterface(PipelineComponentBaseInterface):
-    @abstractmethod
-    def filter_data(self) -> PandasDataFrame:
-        pass
+from .one_hot_encoding import OneHotEncoding
