@@ -78,11 +78,7 @@ def step1_separate_mixed_types(df: pd.DataFrame) -> pd.DataFrame:
     print_step(1, "Separating text values from numeric Value column")
 
     separator = MixedTypeSeparation(
-        df,
-        column="Value",
-        placeholder=-1,
-        string_fill="NaN",
-        suffix="_str"
+        df, column="Value", placeholder=-1, string_fill="NaN", suffix="_str"
     )
     result = separator.apply()
 
@@ -102,7 +98,7 @@ def step2_convert_datetime(df: pd.DataFrame) -> pd.DataFrame:
         column="EventTime",
         output_column="EventTime_DT",
         strip_trailing_zeros=True,
-        keep_original=True
+        keep_original=True,
     )
     result = converter.apply()
 
@@ -116,11 +112,7 @@ def step3_one_hot_encode(df: pd.DataFrame) -> pd.DataFrame:
     """Step 3: One-hot encode Status column."""
     print_step(3, "One-hot encoding Status column")
 
-    encoder = OneHotEncoding(
-        df,
-        column="Status",
-        sparse=False
-    )
+    encoder = OneHotEncoding(df, column="Status", sparse=False)
     result = encoder.apply()
 
     status_cols = [col for col in result.columns if col.startswith("Status_")]
@@ -128,6 +120,7 @@ def step3_one_hot_encode(df: pd.DataFrame) -> pd.DataFrame:
 
     print_stats(result, "After one-hot encoding:")
     return result
+
 
 def step4_extract_datetime_features(df: pd.DataFrame) -> pd.DataFrame:
     """Step 4: Extract datetime features."""
@@ -137,14 +130,16 @@ def step4_extract_datetime_features(df: pd.DataFrame) -> pd.DataFrame:
         df,
         datetime_column="EventTime_DT",
         features=["day", "week", "weekday", "day_name"],
-        prefix="EventTime"
+        prefix="EventTime",
     )
     result = extractor.apply()
 
     result["EventTime_month"] = result["EventTime_DT"].dt.month_name()
 
     dt = result["EventTime_DT"].dt
-    result["EventTime_seconds"] = (dt.hour * 3600 + dt.minute * 60 + dt.second).astype("Int32")
+    result["EventTime_seconds"] = (dt.hour * 3600 + dt.minute * 60 + dt.second).astype(
+        "Int32"
+    )
 
     print(f"  Features added: day, week, weekday, day_name, month, seconds")
     print_stats(result, "After feature extraction:")
@@ -159,13 +154,17 @@ def step5_handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
 
     nat_count = df["EventTime_DT"].isna().sum()
     df_clean = df.dropna(subset=["EventTime_DT"]).copy()
-    print(f"  Dropped {nat_count:,} rows with NaT timestamps ({nat_count/initial_rows*100:.4f}%)")
+    print(
+        f"  Dropped {nat_count:,} rows with NaT timestamps ({nat_count/initial_rows*100:.4f}%)"
+    )
 
     value_missing = df_clean["Value"].isna().sum()
     if value_missing > 0:
         if value_missing / len(df_clean) < 0.001:
             df_clean = df_clean.dropna(subset=["Value"])
-            print(f"  Dropped {value_missing:,} rows with missing Value ({value_missing/initial_rows*100:.4f}%)")
+            print(
+                f"  Dropped {value_missing:,} rows with missing Value ({value_missing/initial_rows*100:.4f}%)"
+            )
         else:
             df_clean["Value"] = df_clean["Value"].fillna(-1)
             print(f"  Filled {value_missing:,} missing Values with -1")
@@ -189,11 +188,13 @@ def step6_sort_chronologically(df: pd.DataFrame) -> pd.DataFrame:
         datetime_column="EventTime_DT",
         ascending=True,
         na_position="last",
-        reset_index=True
+        reset_index=True,
     )
     result = sorter.apply()
 
-    print(f"  Date range: {result['EventTime_DT'].min()} to {result['EventTime_DT'].max()}")
+    print(
+        f"  Date range: {result['EventTime_DT'].min()} to {result['EventTime_DT'].max()}"
+    )
     print(f"  Is sorted: {result['EventTime_DT'].is_monotonic_increasing}")
 
     print_stats(result, "After sorting:")
@@ -210,7 +211,7 @@ def step7_detect_outliers(df: pd.DataFrame, n_sigma: float = 10.0) -> pd.DataFra
         n_sigma=n_sigma,
         action="replace",
         replacement_value=-1,
-        exclude_values=[-1]  # Exclude existing error values
+        exclude_values=[-1],  # Exclude existing error values
     )
     result = detector.apply()
 
@@ -218,7 +219,9 @@ def step7_detect_outliers(df: pd.DataFrame, n_sigma: float = 10.0) -> pd.DataFra
     new_errors = (result["Value"] == -1).sum()
     outliers_found = new_errors - original_errors
 
-    print(f"  Outliers detected and replaced: {outliers_found:,} ({outliers_found/len(df)*100:.4f}%)")
+    print(
+        f"  Outliers detected and replaced: {outliers_found:,} ({outliers_found/len(df)*100:.4f}%)"
+    )
 
     outlier_mask = (df["Value"] != -1) & (result["Value"] == -1)
     result.loc[outlier_mask, "Value_str"] = "Extreme Outlier"
@@ -237,7 +240,7 @@ def save_results(
     df: pd.DataFrame,
     output_path: str,
     save_sample: bool = True,
-    save_metadata: bool = True
+    save_metadata: bool = True,
 ) -> None:
     """Save the preprocessed data and optional metadata."""
     print_step(8, "Saving results")
@@ -245,7 +248,7 @@ def save_results(
     output_path = Path(output_path)
     output_dir = output_path.parent
     output_stem = output_path.stem
-    
+
     print(f"  Saving to {output_path}")
     df.to_parquet(output_path, index=False, compression="snappy")
     file_size = os.path.getsize(output_path) / 1024 / 1024
@@ -272,23 +275,32 @@ def save_results(
                 "date_range_start": str(df["EventTime_DT"].min()),
                 "date_range_end": str(df["EventTime_DT"].max()),
                 "unique_sensors": int(df["TagName"].nunique()),
-                "memory_usage_mb": float(df.memory_usage(deep=True).sum() / 1024 / 1024)
+                "memory_usage_mb": float(
+                    df.memory_usage(deep=True).sum() / 1024 / 1024
+                ),
             },
             "value_statistics": {
                 "valid_values_count": int((df["Value"] != -1).sum()),
-                "valid_values_percent": float((df["Value"] != -1).sum() / len(df) * 100),
+                "valid_values_percent": float(
+                    (df["Value"] != -1).sum() / len(df) * 100
+                ),
                 "error_values_count": int((df["Value"] == -1).sum()),
-                "error_values_percent": float((df["Value"] == -1).sum() / len(df) * 100),
+                "error_values_percent": float(
+                    (df["Value"] == -1).sum() / len(df) * 100
+                ),
                 "mean": float(valid_values.mean()) if len(valid_values) > 0 else None,
-                "median": float(valid_values.median()) if len(valid_values) > 0 else None,
+                "median": (
+                    float(valid_values.median()) if len(valid_values) > 0 else None
+                ),
                 "std": float(valid_values.std()) if len(valid_values) > 0 else None,
                 "min": float(valid_values.min()) if len(valid_values) > 0 else None,
-                "max": float(valid_values.max()) if len(valid_values) > 0 else None
+                "max": float(valid_values.max()) if len(valid_values) > 0 else None,
             },
             "error_breakdown": {str(k): int(v) for k, v in error_breakdown.items()},
             "status_distribution": {
                 col: int(df[col].sum())
-                for col in df.columns if col.startswith("Status_")
+                for col in df.columns
+                if col.startswith("Status_")
             },
             "columns": list(df.columns),
             "column_types": {col: str(dtype) for col, dtype in df.dtypes.items()},
@@ -299,8 +311,8 @@ def save_results(
                 "4. Extracted datetime features (DatetimeFeatures)",
                 "5. Handled missing values (dropped NaT timestamps and missing values)",
                 "6. Sorted chronologically (ChronologicalSort)",
-                "7. Detected and handled outliers using MAD (MADOutlierDetection)"
-            ]
+                "7. Detected and handled outliers using MAD (MADOutlierDetection)",
+            ],
         }
 
         with open(metadata_path, "w") as f:
@@ -313,7 +325,7 @@ def preprocess(
     output_path: str,
     n_sigma: float = 10.0,
     save_sample: bool = True,
-    save_metadata: bool = True
+    save_metadata: bool = True,
 ) -> pd.DataFrame:
     """
     Run the full preprocessing pipeline.
@@ -374,32 +386,30 @@ def main():
         description="Preprocess Shell sensor data using RTDIP pipeline components."
     )
     parser.add_argument(
-        "--input", "-i",
+        "--input",
+        "-i",
         type=str,
         default="ShellData.parquet",
-        help="Input file path, supports .parquet or .csv (default: ShellData.parquet)"
+        help="Input file path, supports .parquet or .csv (default: ShellData.parquet)",
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=str,
         default="ShellData_preprocessed.parquet",
-        help="Output parquet file path (default: ShellData_preprocessed.parquet)"
+        help="Output parquet file path (default: ShellData_preprocessed.parquet)",
     )
     parser.add_argument(
         "--n-sigma",
         type=float,
         default=10.0,
-        help="Number of MAD-based std deviations for outlier detection (default: 10.0)"
+        help="Number of MAD-based std deviations for outlier detection (default: 10.0)",
     )
     parser.add_argument(
-        "--no-sample",
-        action="store_true",
-        help="Skip saving CSV sample"
+        "--no-sample", action="store_true", help="Skip saving CSV sample"
     )
     parser.add_argument(
-        "--no-metadata",
-        action="store_true",
-        help="Skip saving metadata JSON"
+        "--no-metadata", action="store_true", help="Skip saving metadata JSON"
     )
 
     args = parser.parse_args()
@@ -409,7 +419,7 @@ def main():
         output_path=args.output,
         n_sigma=args.n_sigma,
         save_sample=not args.no_sample,
-        save_metadata=not args.no_metadata
+        save_metadata=not args.no_metadata,
     )
 
 
