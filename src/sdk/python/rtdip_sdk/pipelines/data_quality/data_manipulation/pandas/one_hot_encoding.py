@@ -38,7 +38,7 @@ class OneHotEncoding(PandasDataManipulationBaseInterface):
     })
 
     encoder = OneHotEncoding(df, column="color")
-    result_df = encoder.filter_data()
+    result_df = encoder.apply()
     # Result will have columns: size, color_red, color_blue, color_green
     ```
 
@@ -76,7 +76,7 @@ class OneHotEncoding(PandasDataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
-    def filter_data(self) -> PandasDataFrame:
+    def apply(self) -> PandasDataFrame:
         """
         Performs one-hot encoding on the specified column.
 

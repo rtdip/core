@@ -26,7 +26,7 @@ def test_empty_df():
 
     with pytest.raises(ValueError, match="The DataFrame is empty."):
         encoder = OneHotEncoding(empty_df, "TagName")
-        encoder.filter_data()
+        encoder.apply()
 
 
 def test_single_unique_value():
@@ -39,7 +39,7 @@ def test_single_unique_value():
     }
     df = pd.DataFrame(data)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter_data()
+    result_df = encoder.apply()
 
     assert "TagName_A2PS64V0J.:ZUX09R" in result_df.columns, (
         "Expected one-hot encoded column not found."
@@ -59,7 +59,7 @@ def test_null_values():
     }
     df = pd.DataFrame(data)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter_data()
+    result_df = encoder.apply()
 
     # pd.get_dummies creates columns for non-null values only by default
     assert "TagName_A2PS64V0J.:ZUX09R" in result_df.columns, (
@@ -77,7 +77,7 @@ def test_multiple_unique_values():
     }
     df = pd.DataFrame(data)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter_data()
+    result_df = encoder.apply()
 
     # Check all expected columns exist
     assert "TagName_Tag_A" in result_df.columns
@@ -100,7 +100,7 @@ def test_large_unique_values():
     }
     df = pd.DataFrame(data)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter_data()
+    result_df = encoder.apply()
 
     # Original columns (minus TagName) + 1000 one-hot columns
     expected_columns = 3 + 1000  # EventTime, Status, Value + 1000 tags
@@ -119,7 +119,7 @@ def test_special_characters():
     }
     df = pd.DataFrame(data)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter_data()
+    result_df = encoder.apply()
 
     assert "TagName_A2PS64V0J.:ZUX09R" in result_df.columns
     assert "TagName_@Special#Tag!" in result_df.columns
@@ -135,7 +135,7 @@ def test_column_not_exists():
 
     with pytest.raises(ValueError, match="Column 'NonExistent' does not exist"):
         encoder = OneHotEncoding(df, "NonExistent")
-        encoder.filter_data()
+        encoder.apply()
 
 
 def test_preserves_other_columns():
@@ -148,7 +148,7 @@ def test_preserves_other_columns():
     }
     df = pd.DataFrame(data)
     encoder = OneHotEncoding(df, "TagName")
-    result_df = encoder.filter_data()
+    result_df = encoder.apply()
 
     # Original columns except TagName should be preserved
     assert "EventTime" in result_df.columns
