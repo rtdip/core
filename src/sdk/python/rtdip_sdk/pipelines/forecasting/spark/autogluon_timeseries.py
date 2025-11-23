@@ -146,7 +146,9 @@ class AutoGluonTimeSeries(MachineLearningInterface):
         total_length = len(ts_df.loc[first_item])
         train_length = int(total_length * train_ratio)
 
-        train_ts_df, test_ts_df = ts_df.train_test_split(prediction_length=total_length - train_length)
+        train_ts_df, test_ts_df = ts_df.train_test_split(
+            prediction_length=total_length - train_length
+        )
         spark = SparkSession.builder.getOrCreate()
 
         train_pdf = train_ts_df.reset_index()
@@ -301,7 +303,9 @@ class AutoGluonTimeSeries(MachineLearningInterface):
             try:
                 if "model" in leaderboard.columns:
                     return leaderboard.iloc[0]["model"]
-                elif leaderboard.index.name == "model" or isinstance(leaderboard.index[0], str):
+                elif leaderboard.index.name == "model" or isinstance(
+                    leaderboard.index[0], str
+                ):
                     return leaderboard.index[0]
                 else:
                     first_value = leaderboard.iloc[0, 0]
