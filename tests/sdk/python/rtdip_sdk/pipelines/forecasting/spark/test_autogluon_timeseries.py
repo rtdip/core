@@ -118,9 +118,15 @@ def test_split_data(sample_timeseries_data):
     train_count = train_df.count()
     test_count = test_df.count()
 
-    assert test_count == total_count, f"Test set should contain full time series: {test_count} vs {total_count}"
-    assert abs(train_count / total_count - 0.8) < 0.1, f"Train ratio should be ~0.8: {train_count / total_count}"
-    assert train_count < test_count, f"Train count {train_count} should be < test count {test_count}"
+    assert (
+        test_count == total_count
+    ), f"Test set should contain full time series: {test_count} vs {total_count}"
+    assert (
+        abs(train_count / total_count - 0.8) < 0.1
+    ), f"Train ratio should be ~0.8: {train_count / total_count}"
+    assert (
+        train_count < test_count
+    ), f"Train count {train_count} should be < test count {test_count}"
 
 
 def test_train_and_predict(simple_timeseries_data):

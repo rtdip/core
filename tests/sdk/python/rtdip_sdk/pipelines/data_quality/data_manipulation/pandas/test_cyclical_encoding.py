@@ -123,11 +123,13 @@ def test_drop_original():
 
 def test_preserves_other_columns():
     """Other columns are preserved"""
-    df = pd.DataFrame({
-        "month": [1, 2, 3],
-        "value": [10, 20, 30],
-        "category": ["A", "B", "C"],
-    })
+    df = pd.DataFrame(
+        {
+            "month": [1, 2, 3],
+            "value": [10, 20, 30],
+            "category": ["A", "B", "C"],
+        }
+    )
 
     encoder = CyclicalEncoding(df, column="month", period=12)
     result = encoder.apply()

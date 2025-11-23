@@ -31,10 +31,12 @@ def test_empty_df():
 
 def test_column_not_exists():
     """Non-existent column raises error"""
-    df = pd.DataFrame({
-        "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
+            "value": [1, 2, 3],
+        }
+    )
 
     with pytest.raises(ValueError, match="Column 'nonexistent' does not exist"):
         extractor = DatetimeFeatures(df, "nonexistent")
@@ -43,10 +45,12 @@ def test_column_not_exists():
 
 def test_invalid_feature():
     """Invalid feature raises error"""
-    df = pd.DataFrame({
-        "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
+            "value": [1, 2, 3],
+        }
+    )
 
     with pytest.raises(ValueError, match="Invalid features"):
         extractor = DatetimeFeatures(df, "timestamp", features=["invalid_feature"])
@@ -55,10 +59,12 @@ def test_invalid_feature():
 
 def test_default_features():
     """Default features are year, month, day, weekday"""
-    df = pd.DataFrame({
-        "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
+            "value": [1, 2, 3],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp")
     result_df = extractor.apply()
@@ -74,10 +80,12 @@ def test_default_features():
 
 def test_year_month_extraction():
     """Year and month extraction"""
-    df = pd.DataFrame({
-        "timestamp": pd.to_datetime(["2024-03-15", "2023-12-25", "2025-06-01"]),
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.to_datetime(["2024-03-15", "2023-12-25", "2025-06-01"]),
+            "value": [1, 2, 3],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=["year", "month"])
     result_df = extractor.apply()
@@ -88,11 +96,13 @@ def test_year_month_extraction():
 
 def test_weekday_extraction():
     """Weekday extraction (0=Monday, 6=Sunday)"""
-    df = pd.DataFrame({
-        # Monday, Tuesday, Wednesday
-        "timestamp": pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-03"]),
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            # Monday, Tuesday, Wednesday
+            "timestamp": pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-03"]),
+            "value": [1, 2, 3],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=["weekday"])
     result_df = extractor.apply()
@@ -102,11 +112,15 @@ def test_weekday_extraction():
 
 def test_is_weekend():
     """Weekend detection"""
-    df = pd.DataFrame({
-        # Friday, Saturday, Sunday, Monday
-        "timestamp": pd.to_datetime(["2024-01-05", "2024-01-06", "2024-01-07", "2024-01-08"]),
-        "value": [1, 2, 3, 4],
-    })
+    df = pd.DataFrame(
+        {
+            # Friday, Saturday, Sunday, Monday
+            "timestamp": pd.to_datetime(
+                ["2024-01-05", "2024-01-06", "2024-01-07", "2024-01-08"]
+            ),
+            "value": [1, 2, 3, 4],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=["is_weekend"])
     result_df = extractor.apply()
@@ -116,10 +130,12 @@ def test_is_weekend():
 
 def test_hour_minute_second():
     """Hour, minute, second extraction"""
-    df = pd.DataFrame({
-        "timestamp": pd.to_datetime(["2024-01-01 14:30:45", "2024-01-01 08:15:30"]),
-        "value": [1, 2],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.to_datetime(["2024-01-01 14:30:45", "2024-01-01 08:15:30"]),
+            "value": [1, 2],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=["hour", "minute", "second"])
     result_df = extractor.apply()
@@ -131,10 +147,14 @@ def test_hour_minute_second():
 
 def test_quarter():
     """Quarter extraction"""
-    df = pd.DataFrame({
-        "timestamp": pd.to_datetime(["2024-01-15", "2024-04-15", "2024-07-15", "2024-10-15"]),
-        "value": [1, 2, 3, 4],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.to_datetime(
+                ["2024-01-15", "2024-04-15", "2024-07-15", "2024-10-15"]
+            ),
+            "value": [1, 2, 3, 4],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=["quarter"])
     result_df = extractor.apply()
@@ -144,10 +164,14 @@ def test_quarter():
 
 def test_day_name():
     """Day name extraction"""
-    df = pd.DataFrame({
-        "timestamp": pd.to_datetime(["2024-01-01", "2024-01-06"]),  # Monday, Saturday
-        "value": [1, 2],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.to_datetime(
+                ["2024-01-01", "2024-01-06"]
+            ),  # Monday, Saturday
+            "value": [1, 2],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=["day_name"])
     result_df = extractor.apply()
@@ -157,12 +181,16 @@ def test_day_name():
 
 def test_month_boundaries():
     """Month start/end detection"""
-    df = pd.DataFrame({
-        "timestamp": pd.to_datetime(["2024-01-01", "2024-01-15", "2024-01-31"]),
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.to_datetime(["2024-01-01", "2024-01-15", "2024-01-31"]),
+            "value": [1, 2, 3],
+        }
+    )
 
-    extractor = DatetimeFeatures(df, "timestamp", features=["is_month_start", "is_month_end"])
+    extractor = DatetimeFeatures(
+        df, "timestamp", features=["is_month_start", "is_month_end"]
+    )
     result_df = extractor.apply()
 
     assert list(result_df["is_month_start"]) == [True, False, False]
@@ -171,10 +199,12 @@ def test_month_boundaries():
 
 def test_string_datetime_column():
     """String datetime column is auto-converted"""
-    df = pd.DataFrame({
-        "timestamp": ["2024-01-01", "2024-02-01", "2024-03-01"],
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": ["2024-01-01", "2024-02-01", "2024-03-01"],
+            "value": [1, 2, 3],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=["year", "month"])
     result_df = extractor.apply()
@@ -185,12 +215,16 @@ def test_string_datetime_column():
 
 def test_prefix():
     """Prefix is added to column names"""
-    df = pd.DataFrame({
-        "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
+            "value": [1, 2, 3],
+        }
+    )
 
-    extractor = DatetimeFeatures(df, "timestamp", features=["year", "month"], prefix="ts")
+    extractor = DatetimeFeatures(
+        df, "timestamp", features=["year", "month"], prefix="ts"
+    )
     result_df = extractor.apply()
 
     assert "ts_year" in result_df.columns
@@ -201,11 +235,13 @@ def test_prefix():
 
 def test_preserves_original_columns():
     """Original columns are preserved"""
-    df = pd.DataFrame({
-        "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
-        "value": [1, 2, 3],
-        "category": ["A", "B", "C"],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
+            "value": [1, 2, 3],
+            "category": ["A", "B", "C"],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=["year"])
     result_df = extractor.apply()
@@ -218,10 +254,12 @@ def test_preserves_original_columns():
 
 def test_all_features():
     """All available features can be extracted"""
-    df = pd.DataFrame({
-        "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
-        "value": [1, 2, 3],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2024-01-01", periods=3, freq="D"),
+            "value": [1, 2, 3],
+        }
+    )
 
     extractor = DatetimeFeatures(df, "timestamp", features=AVAILABLE_FEATURES)
     result_df = extractor.apply()

@@ -96,12 +96,16 @@ def test_simple_lag():
 
 def test_lag_with_groups():
     """Lags are computed within groups"""
-    df = pd.DataFrame({
-        "group": ["A", "A", "A", "B", "B", "B"],
-        "value": [10, 20, 30, 100, 200, 300],
-    })
+    df = pd.DataFrame(
+        {
+            "group": ["A", "A", "A", "B", "B", "B"],
+            "value": [10, 20, 30, 100, 200, 300],
+        }
+    )
 
-    lag_creator = LagFeatures(df, value_column="value", group_columns=["group"], lags=[1])
+    lag_creator = LagFeatures(
+        df, value_column="value", group_columns=["group"], lags=[1]
+    )
     result = lag_creator.apply()
 
     # Group A: lag_1 should be [NaN, 10, 20]
@@ -119,11 +123,13 @@ def test_lag_with_groups():
 
 def test_multiple_group_columns():
     """Lags with multiple group columns"""
-    df = pd.DataFrame({
-        "region": ["R1", "R1", "R1", "R1"],
-        "product": ["A", "A", "B", "B"],
-        "value": [10, 20, 100, 200],
-    })
+    df = pd.DataFrame(
+        {
+            "region": ["R1", "R1", "R1", "R1"],
+            "product": ["A", "A", "B", "B"],
+            "value": [10, 20, 100, 200],
+        }
+    )
 
     lag_creator = LagFeatures(
         df, value_column="value", group_columns=["region", "product"], lags=[1]
@@ -154,11 +160,13 @@ def test_custom_prefix():
 
 def test_preserves_other_columns():
     """Other columns are preserved"""
-    df = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=3),
-        "category": ["A", "B", "C"],
-        "value": [10, 20, 30],
-    })
+    df = pd.DataFrame(
+        {
+            "date": pd.date_range("2024-01-01", periods=3),
+            "category": ["A", "B", "C"],
+            "value": [10, 20, 30],
+        }
+    )
 
     lag_creator = LagFeatures(df, value_column="value", lags=[1])
     result = lag_creator.apply()

@@ -24,6 +24,7 @@ class DataManipulationBaseInterface(PipelineComponentBaseInterface):
     def filter_data(self) -> DataFrame:
         pass
 
+
 class PandasDataManipulationBaseInterface(PipelineComponentBaseInterface):
     @abstractmethod
     def apply(self) -> PandasDataFrame:

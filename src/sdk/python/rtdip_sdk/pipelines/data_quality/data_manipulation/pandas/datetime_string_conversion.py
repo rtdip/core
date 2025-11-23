@@ -22,10 +22,10 @@ from ...._pipeline_utils.models import Libraries, SystemType
 # Default datetime formats to try when parsing
 DEFAULT_FORMATS = [
     "%Y-%m-%d %H:%M:%S.%f",  # With microseconds
-    "%Y-%m-%d %H:%M:%S",     # Without microseconds
-    "%Y/%m/%d %H:%M:%S",     # Slash separator
-    "%d-%m-%Y %H:%M:%S",     # DD-MM-YYYY format
-    "%Y-%m-%dT%H:%M:%S",     # ISO format without microseconds
+    "%Y-%m-%d %H:%M:%S",  # Without microseconds
+    "%Y/%m/%d %H:%M:%S",  # Slash separator
+    "%d-%m-%Y %H:%M:%S",  # DD-MM-YYYY format
+    "%Y-%m-%dT%H:%M:%S",  # ISO format without microseconds
     "%Y-%m-%dT%H:%M:%S.%f",  # ISO format with microseconds
 ]
 
@@ -128,9 +128,7 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
             raise ValueError("The DataFrame is empty.")
 
         if self.column not in self.df.columns:
-            raise ValueError(
-                f"Column '{self.column}' does not exist in the DataFrame."
-            )
+            raise ValueError(f"Column '{self.column}' does not exist in the DataFrame.")
 
         result_df = self.df.copy()
 
@@ -171,7 +169,10 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
                 )
                 # Update only successfully parsed values
                 successfully_parsed = ~parsed.isna()
-                result.loc[still_nat & successfully_parsed.reindex(still_nat.index, fill_value=False)] = parsed[successfully_parsed]
+                result.loc[
+                    still_nat
+                    & successfully_parsed.reindex(still_nat.index, fill_value=False)
+                ] = parsed[successfully_parsed]
             except Exception:
                 continue
 

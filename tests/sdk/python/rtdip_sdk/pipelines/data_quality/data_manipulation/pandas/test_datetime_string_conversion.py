@@ -109,9 +109,7 @@ def test_mixed_formats():
 
 def test_custom_output_column():
     """Custom output column name"""
-    data = {
-        "EventTime": ["2024-01-02 20:03:46"]
-    }
+    data = {"EventTime": ["2024-01-02 20:03:46"]}
     df = pd.DataFrame(data)
     converter = DatetimeStringConversion(df, "EventTime", output_column="Timestamp")
     result_df = converter.apply()
@@ -122,9 +120,7 @@ def test_custom_output_column():
 
 def test_keep_original_true():
     """Original column is kept by default"""
-    data = {
-        "EventTime": ["2024-01-02 20:03:46"]
-    }
+    data = {"EventTime": ["2024-01-02 20:03:46"]}
     df = pd.DataFrame(data)
     converter = DatetimeStringConversion(df, "EventTime", keep_original=True)
     result_df = converter.apply()
@@ -135,9 +131,7 @@ def test_keep_original_true():
 
 def test_keep_original_false():
     """Original column is dropped when keep_original=False"""
-    data = {
-        "EventTime": ["2024-01-02 20:03:46"]
-    }
+    data = {"EventTime": ["2024-01-02 20:03:46"]}
     df = pd.DataFrame(data)
     converter = DatetimeStringConversion(df, "EventTime", keep_original=False)
     result_df = converter.apply()
@@ -188,11 +182,7 @@ def test_custom_formats():
         ]
     }
     df = pd.DataFrame(data)
-    converter = DatetimeStringConversion(
-        df,
-        "EventTime",
-        formats=["%d/%m/%Y %H:%M:%S"]
-    )
+    converter = DatetimeStringConversion(df, "EventTime", formats=["%d/%m/%Y %H:%M:%S"])
     result_df = converter.apply()
 
     assert not result_df["EventTime_DT"].isna().any()
@@ -219,9 +209,7 @@ def test_preserves_other_columns():
 
 def test_does_not_modify_original():
     """Ensures original DataFrame is not modified"""
-    data = {
-        "EventTime": ["2024-01-02 20:03:46"]
-    }
+    data = {"EventTime": ["2024-01-02 20:03:46"]}
     df = pd.DataFrame(data)
     original_df = df.copy()
 
@@ -234,9 +222,7 @@ def test_does_not_modify_original():
 
 def test_null_values():
     """Null values in datetime column"""
-    data = {
-        "EventTime": ["2024-01-02 20:03:46", None, "2024-01-02 16:00:12"]
-    }
+    data = {"EventTime": ["2024-01-02 20:03:46", None, "2024-01-02 16:00:12"]}
     df = pd.DataFrame(data)
     converter = DatetimeStringConversion(df, "EventTime")
     result_df = converter.apply()
@@ -248,9 +234,7 @@ def test_null_values():
 
 def test_already_datetime():
     """Column already contains datetime objects (converted to string first)"""
-    data = {
-        "EventTime": pd.to_datetime(["2024-01-02 20:03:46", "2024-01-02 16:00:12"])
-    }
+    data = {"EventTime": pd.to_datetime(["2024-01-02 20:03:46", "2024-01-02 16:00:12"])}
     df = pd.DataFrame(data)
     # Convert to string to simulate the use case
     df["EventTime"] = df["EventTime"].astype(str)

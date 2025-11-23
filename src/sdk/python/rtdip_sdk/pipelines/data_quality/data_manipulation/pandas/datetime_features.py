@@ -112,7 +112,9 @@ class DatetimeFeatures(PandasDataManipulationBaseInterface):
     ) -> None:
         self.df = df
         self.datetime_column = datetime_column
-        self.features = features if features is not None else ["year", "month", "day", "weekday"]
+        self.features = (
+            features if features is not None else ["year", "month", "day", "weekday"]
+        )
         self.prefix = prefix
 
     @staticmethod

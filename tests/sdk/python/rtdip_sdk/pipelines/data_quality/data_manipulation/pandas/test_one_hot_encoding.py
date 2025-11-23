@@ -41,12 +41,12 @@ def test_single_unique_value():
     encoder = OneHotEncoding(df, "TagName")
     result_df = encoder.apply()
 
-    assert "TagName_A2PS64V0J.:ZUX09R" in result_df.columns, (
-        "Expected one-hot encoded column not found."
-    )
-    assert (result_df["TagName_A2PS64V0J.:ZUX09R"] == True).all(), (
-        "Expected all True for single unique value."
-    )
+    assert (
+        "TagName_A2PS64V0J.:ZUX09R" in result_df.columns
+    ), "Expected one-hot encoded column not found."
+    assert (
+        result_df["TagName_A2PS64V0J.:ZUX09R"] == True
+    ).all(), "Expected all True for single unique value."
 
 
 def test_null_values():
@@ -62,16 +62,21 @@ def test_null_values():
     result_df = encoder.apply()
 
     # pd.get_dummies creates columns for non-null values only by default
-    assert "TagName_A2PS64V0J.:ZUX09R" in result_df.columns, (
-        "Expected one-hot encoded column not found."
-    )
+    assert (
+        "TagName_A2PS64V0J.:ZUX09R" in result_df.columns
+    ), "Expected one-hot encoded column not found."
 
 
 def test_multiple_unique_values():
     """Multiple Unique Values"""
     data = {
         "TagName": ["Tag_A", "Tag_B", "Tag_C", "Tag_A"],
-        "EventTime": ["2024-01-02 20:03:46", "2024-01-02 16:00:12", "2024-01-02 12:00:00", "2024-01-02 08:00:00"],
+        "EventTime": [
+            "2024-01-02 20:03:46",
+            "2024-01-02 16:00:12",
+            "2024-01-02 12:00:00",
+            "2024-01-02 08:00:00",
+        ],
         "Status": ["Good", "Good", "Good", "Good"],
         "Value": [1.0, 2.0, 3.0, 4.0],
     }
@@ -104,9 +109,9 @@ def test_large_unique_values():
 
     # Original columns (minus TagName) + 1000 one-hot columns
     expected_columns = 3 + 1000  # EventTime, Status, Value + 1000 tags
-    assert len(result_df.columns) == expected_columns, (
-        f"Expected {expected_columns} columns, got {len(result_df.columns)}."
-    )
+    assert (
+        len(result_df.columns) == expected_columns
+    ), f"Expected {expected_columns} columns, got {len(result_df.columns)}."
 
 
 def test_special_characters():

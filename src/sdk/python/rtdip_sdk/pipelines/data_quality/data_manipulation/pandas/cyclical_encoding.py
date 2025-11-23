@@ -100,9 +100,7 @@ class CyclicalEncoding(PandasDataManipulationBaseInterface):
             raise ValueError("The DataFrame is empty.")
 
         if self.column not in self.df.columns:
-            raise ValueError(
-                f"Column '{self.column}' does not exist in the DataFrame."
-            )
+            raise ValueError(f"Column '{self.column}' does not exist in the DataFrame.")
 
         if self.period <= 0:
             raise ValueError(f"Period must be positive, got {self.period}.")

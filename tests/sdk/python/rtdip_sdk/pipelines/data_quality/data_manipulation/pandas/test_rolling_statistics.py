@@ -137,10 +137,12 @@ def test_rolling_std():
 
 def test_rolling_with_groups():
     """Rolling statistics are computed within groups"""
-    df = pd.DataFrame({
-        "group": ["A", "A", "A", "B", "B", "B"],
-        "value": [10, 20, 30, 100, 200, 300],
-    })
+    df = pd.DataFrame(
+        {
+            "group": ["A", "A", "A", "B", "B", "B"],
+            "value": [10, 20, 30, 100, 200, 300],
+        }
+    )
 
     roller = RollingStatistics(
         df,
@@ -192,11 +194,13 @@ def test_all_statistics():
 
 def test_preserves_other_columns():
     """Other columns are preserved"""
-    df = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=5),
-        "category": ["A", "B", "C", "D", "E"],
-        "value": [10, 20, 30, 40, 50],
-    })
+    df = pd.DataFrame(
+        {
+            "date": pd.date_range("2024-01-01", periods=5),
+            "category": ["A", "B", "C", "D", "E"],
+            "value": [10, 20, 30, 40, 50],
+        }
+    )
 
     roller = RollingStatistics(
         df, value_column="value", windows=[2], statistics=["mean"]

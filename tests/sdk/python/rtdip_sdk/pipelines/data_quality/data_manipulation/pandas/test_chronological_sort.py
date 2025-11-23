@@ -102,10 +102,14 @@ def test_sort_with_groups():
     """Sort within groups"""
     data = {
         "sensor_id": ["A", "A", "B", "B"],
-        "Timestamp": pd.to_datetime([
-            "2024-01-02", "2024-01-01",  # Group A (out of order)
-            "2024-01-02", "2024-01-01",  # Group B (out of order)
-        ]),
+        "Timestamp": pd.to_datetime(
+            [
+                "2024-01-02",
+                "2024-01-01",  # Group A (out of order)
+                "2024-01-02",
+                "2024-01-01",  # Group B (out of order)
+            ]
+        ),
         "Value": [20, 10, 200, 100],
     }
     df = pd.DataFrame(data)
@@ -220,11 +224,13 @@ def test_does_not_modify_original():
 def test_with_microseconds():
     """Sort with microsecond precision"""
     data = {
-        "Timestamp": pd.to_datetime([
-            "2024-01-01 10:00:00.000003",
-            "2024-01-01 10:00:00.000001",
-            "2024-01-01 10:00:00.000002",
-        ]),
+        "Timestamp": pd.to_datetime(
+            [
+                "2024-01-01 10:00:00.000003",
+                "2024-01-01 10:00:00.000001",
+                "2024-01-01 10:00:00.000002",
+            ]
+        ),
         "Value": [3, 1, 2],
     }
     df = pd.DataFrame(data)
@@ -239,16 +245,18 @@ def test_multiple_group_columns():
     data = {
         "region": ["East", "East", "West", "West"],
         "sensor_id": ["A", "A", "A", "A"],
-        "Timestamp": pd.to_datetime([
-            "2024-01-02", "2024-01-01",
-            "2024-01-02", "2024-01-01",
-        ]),
+        "Timestamp": pd.to_datetime(
+            [
+                "2024-01-02",
+                "2024-01-01",
+                "2024-01-02",
+                "2024-01-01",
+            ]
+        ),
         "Value": [20, 10, 200, 100],
     }
     df = pd.DataFrame(data)
-    sorter = ChronologicalSort(
-        df, "Timestamp", group_columns=["region", "sensor_id"]
-    )
+    sorter = ChronologicalSort(df, "Timestamp", group_columns=["region", "sensor_id"])
     result_df = sorter.apply()
 
     # East group first, then West, each sorted by time
@@ -259,9 +267,7 @@ def test_multiple_group_columns():
 def test_stable_sort():
     """Stable sort preserves order of equal timestamps"""
     data = {
-        "Timestamp": pd.to_datetime([
-            "2024-01-01", "2024-01-01", "2024-01-01"
-        ]),
+        "Timestamp": pd.to_datetime(["2024-01-01", "2024-01-01", "2024-01-01"]),
         "Order": [1, 2, 3],  # Original order
         "Value": [10, 20, 30],
     }

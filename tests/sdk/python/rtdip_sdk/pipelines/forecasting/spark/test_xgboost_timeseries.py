@@ -20,8 +20,8 @@ def spark():
     import sys
     import os
 
-    os.environ['PYSPARK_PYTHON'] = sys.executable
-    os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
+    os.environ["PYSPARK_PYTHON"] = sys.executable
+    os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 
     existing_session = SparkSession.getActiveSession()
     if existing_session:
@@ -137,27 +137,27 @@ def test_engineer_features(sample_timeseries_data):
     xgb = XGBoostTimeSeries(prediction_length=5)
 
     df = sample_timeseries_data.toPandas()
-    df = df.sort_values(['item_id', 'timestamp'])
+    df = df.sort_values(["item_id", "timestamp"])
 
     df_with_features = xgb._engineer_features(df)
     # Check time-based features
-    assert 'hour' in df_with_features.columns
-    assert 'day_of_week' in df_with_features.columns
-    assert 'day_of_month' in df_with_features.columns
-    assert 'month' in df_with_features.columns
+    assert "hour" in df_with_features.columns
+    assert "day_of_week" in df_with_features.columns
+    assert "day_of_month" in df_with_features.columns
+    assert "month" in df_with_features.columns
 
     # Check lag features
-    assert 'lag_1' in df_with_features.columns
-    assert 'lag_6' in df_with_features.columns
-    assert 'lag_12' in df_with_features.columns
-    assert 'lag_24' in df_with_features.columns
-    assert 'lag_48' in df_with_features.columns
+    assert "lag_1" in df_with_features.columns
+    assert "lag_6" in df_with_features.columns
+    assert "lag_12" in df_with_features.columns
+    assert "lag_24" in df_with_features.columns
+    assert "lag_48" in df_with_features.columns
 
     # Check rolling features
-    assert 'rolling_mean_12' in df_with_features.columns
-    assert 'rolling_std_12' in df_with_features.columns
-    assert 'rolling_mean_24' in df_with_features.columns
-    assert 'rolling_std_24' in df_with_features.columns
+    assert "rolling_mean_12" in df_with_features.columns
+    assert "rolling_std_12" in df_with_features.columns
+    assert "rolling_mean_24" in df_with_features.columns
+    assert "rolling_std_24" in df_with_features.columns
 
 
 @pytest.mark.slow
@@ -202,6 +202,7 @@ def test_evaluate_without_training(simple_timeseries_data):
     with pytest.raises(ValueError, match="Model not trained"):
         xgb.evaluate(simple_timeseries_data)
 
+
 def test_train_and_predict(sample_timeseries_data):
     """
     Test training and prediction workflow.
@@ -217,12 +218,12 @@ def test_train_and_predict(sample_timeseries_data):
     )
 
     df = sample_timeseries_data.toPandas()
-    df = df.sort_values(['item_id', 'timestamp'])
+    df = df.sort_values(["item_id", "timestamp"])
 
     train_dfs = []
     test_dfs = []
-    for item_id in df['item_id'].unique():
-        item_data = df[df['item_id'] == item_id]
+    for item_id in df["item_id"].unique():
+        item_data = df[df["item_id"] == item_id]
         split_idx = int(len(item_data) * 0.8)
         train_dfs.append(item_data.iloc[:split_idx])
         test_dfs.append(item_data.iloc[split_idx:])
@@ -244,9 +245,9 @@ def test_train_and_predict(sample_timeseries_data):
     # Check prediction columns
     pred_df = predictions.toPandas()
     if len(pred_df) > 0:  # May be empty if insufficient data
-        assert 'item_id' in pred_df.columns
-        assert 'timestamp' in pred_df.columns
-        assert 'predicted' in pred_df.columns
+        assert "item_id" in pred_df.columns
+        assert "timestamp" in pred_df.columns
+        assert "predicted" in pred_df.columns
 
 
 def test_train_and_evaluate(sample_timeseries_data):
@@ -270,7 +271,7 @@ def test_train_and_evaluate(sample_timeseries_data):
     if metrics is not None:
         assert isinstance(metrics, dict)
 
-        expected_metrics = ['MAE', 'RMSE', 'MAPE', 'MASE', 'SMAPE']
+        expected_metrics = ["MAE", "RMSE", "MAPE", "MASE", "SMAPE"]
         for metric in expected_metrics:
             assert metric in metrics
             assert isinstance(metrics[metric], (int, float))
@@ -291,20 +292,20 @@ def test_recursive_forecasting(simple_timeseries_data):
 
     # Train on most of the data
     df = simple_timeseries_data.toPandas()
-    train_df = df.iloc[:-30] 
+    train_df = df.iloc[:-30]
 
     spark = SparkSession.builder.getOrCreate()
     train_spark = spark.createDataFrame(train_df)
 
     xgb.train(train_spark)
 
-    test_spark = spark.createDataFrame(train_df.tail(50))  
+    test_spark = spark.createDataFrame(train_df.tail(50))
     predictions = xgb.predict(test_spark)
 
     pred_df = predictions.toPandas()
 
     # Should generate prediction_length predictions per sensor
-    assert len(pred_df) == xgb.prediction_length * len(train_df['item_id'].unique())
+    assert len(pred_df) == xgb.prediction_length * len(train_df["item_id"].unique())
 
 
 def test_multiple_sensors(sample_timeseries_data):
@@ -322,14 +323,14 @@ def test_multiple_sensors(sample_timeseries_data):
 
     # Check that multiple sensors were processed
     assert len(xgb.item_ids) == 2
-    assert 'sensor_A' in xgb.item_ids
-    assert 'sensor_B' in xgb.item_ids
+    assert "sensor_A" in xgb.item_ids
+    assert "sensor_B" in xgb.item_ids
 
     predictions = xgb.predict(sample_timeseries_data)
     pred_df = predictions.toPandas()
 
-    assert 'sensor_A' in pred_df['item_id'].values
-    assert 'sensor_B' in pred_df['item_id'].values
+    assert "sensor_A" in pred_df["item_id"].values
+    assert "sensor_B" in pred_df["item_id"].values
 
 
 def test_feature_importance(simple_timeseries_data):
@@ -348,7 +349,8 @@ def test_feature_importance(simple_timeseries_data):
     importance = xgb.model.feature_importances_
     assert importance is not None
     assert len(importance) == len(xgb.feature_cols)
-    assert np.sum(importance) > 0  
+    assert np.sum(importance) > 0
+
 
 def test_feature_columns_definition(sample_timeseries_data):
     """
@@ -373,9 +375,11 @@ def test_feature_columns_definition(sample_timeseries_data):
     assert len(xgb.feature_cols) > 0
 
     # Check expected feature types
-    expected_features = ['sensor_encoded', 'hour', 'lag_1', 'rolling_mean_12']
+    expected_features = ["sensor_encoded", "hour", "lag_1", "rolling_mean_12"]
     for feature in expected_features:
-        assert feature in xgb.feature_cols, f"Expected feature {feature} not found in {xgb.feature_cols}"
+        assert (
+            feature in xgb.feature_cols
+        ), f"Expected feature {feature} not found in {xgb.feature_cols}"
 
 
 def test_system_type():
@@ -422,14 +426,16 @@ def test_insufficient_data():
 
     data = []
     base_date = datetime(2024, 1, 1)
-    for i in range(30):  
+    for i in range(30):
         data.append(("A", base_date + timedelta(hours=i), float(100 + i)))
 
-    schema = StructType([
-        StructField("item_id", StringType(), True),
-        StructField("timestamp", TimestampType(), True),
-        StructField("target", FloatType(), True),
-    ])
+    schema = StructType(
+        [
+            StructField("item_id", StringType(), True),
+            StructField("timestamp", TimestampType(), True),
+            StructField("target", FloatType(), True),
+        ]
+    )
 
     minimal_data = spark.createDataFrame(data, schema=schema)
 
@@ -445,7 +451,11 @@ def test_insufficient_data():
         if xgb.model is not None:
             assert True
     except (ValueError, Exception) as e:
-        assert "insufficient" in str(e).lower() or "not enough" in str(e).lower() or "samples" in str(e).lower()
+        assert (
+            "insufficient" in str(e).lower()
+            or "not enough" in str(e).lower()
+            or "samples" in str(e).lower()
+        )
 
 
 def test_time_features_extraction():
@@ -461,11 +471,13 @@ def test_time_features_extraction():
     for i in range(50):
         data.append(("A", timestamp + timedelta(hours=i), float(100 + i)))
 
-    schema = StructType([
-        StructField("item_id", StringType(), True),
-        StructField("timestamp", TimestampType(), True),
-        StructField("target", FloatType(), True),
-    ])
+    schema = StructType(
+        [
+            StructField("item_id", StringType(), True),
+            StructField("timestamp", TimestampType(), True),
+            StructField("target", FloatType(), True),
+        ]
+    )
 
     test_data = spark.createDataFrame(data, schema=schema)
     df = test_data.toPandas()
@@ -475,10 +487,10 @@ def test_time_features_extraction():
 
     # Check first row time features
     first_row = df_features.iloc[0]
-    assert first_row['hour'] == 14
-    assert first_row['day_of_week'] == 0  # Monday
-    assert first_row['day_of_month'] == 1
-    assert first_row['month'] == 1
+    assert first_row["hour"] == 14
+    assert first_row["day_of_week"] == 0  # Monday
+    assert first_row["day_of_month"] == 1
+    assert first_row["month"] == 1
 
 
 def test_sensor_encoding():
@@ -499,16 +511,18 @@ def test_sensor_encoding():
         for i in range(70):
             data.append((sensor, base_date + timedelta(hours=i), float(100 + i)))
 
-    schema = StructType([
-        StructField("item_id", StringType(), True),
-        StructField("timestamp", TimestampType(), True),
-        StructField("target", FloatType(), True),
-    ])
+    schema = StructType(
+        [
+            StructField("item_id", StringType(), True),
+            StructField("timestamp", TimestampType(), True),
+            StructField("target", FloatType(), True),
+        ]
+    )
 
     multi_sensor_data = spark.createDataFrame(data, schema=schema)
     xgb.train(multi_sensor_data)
 
     assert len(xgb.label_encoder.classes_) == 3
-    assert 'sensor_A' in xgb.label_encoder.classes_
-    assert 'sensor_B' in xgb.label_encoder.classes_
-    assert 'sensor_C' in xgb.label_encoder.classes_
+    assert "sensor_A" in xgb.label_encoder.classes_
+    assert "sensor_B" in xgb.label_encoder.classes_
+    assert "sensor_C" in xgb.label_encoder.classes_

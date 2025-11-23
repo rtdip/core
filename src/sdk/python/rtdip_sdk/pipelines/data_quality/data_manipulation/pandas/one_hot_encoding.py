@@ -52,9 +52,7 @@ class OneHotEncoding(PandasDataManipulationBaseInterface):
     column: str
     sparse: bool
 
-    def __init__(
-        self, df: PandasDataFrame, column: str, sparse: bool = False
-    ) -> None:
+    def __init__(self, df: PandasDataFrame, column: str, sparse: bool = False) -> None:
         self.df = df
         self.column = column
         self.sparse = sparse
@@ -91,8 +89,6 @@ class OneHotEncoding(PandasDataManipulationBaseInterface):
             raise ValueError("The DataFrame is empty.")
 
         if self.column not in self.df.columns:
-            raise ValueError(
-                f"Column '{self.column}' does not exist in the DataFrame."
-            )
+            raise ValueError(f"Column '{self.column}' does not exist in the DataFrame.")
 
         return pd.get_dummies(self.df, columns=[self.column], sparse=self.sparse)

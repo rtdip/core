@@ -44,9 +44,7 @@ def test_column_not_exists():
 
 def test_invalid_action():
     """Invalid action parameter"""
-    data = {
-        "Value": [1.0, 2.0, 3.0]
-    }
+    data = {"Value": [1.0, 2.0, 3.0]}
     df = pd.DataFrame(data)
 
     with pytest.raises(ValueError, match="Invalid action"):
@@ -56,9 +54,7 @@ def test_invalid_action():
 
 def test_invalid_n_sigma():
     """Invalid n_sigma parameter"""
-    data = {
-        "Value": [1.0, 2.0, 3.0]
-    }
+    data = {"Value": [1.0, 2.0, 3.0]}
     df = pd.DataFrame(data)
 
     with pytest.raises(ValueError, match="n_sigma must be positive"):
@@ -68,9 +64,7 @@ def test_invalid_n_sigma():
 
 def test_flag_action_detects_outlier():
     """Flag action correctly identifies outliers"""
-    data = {
-        "Value": [10.0, 11.0, 12.0, 10.5, 11.5, 1000000.0]  # Last value is outlier
-    }
+    data = {"Value": [10.0, 11.0, 12.0, 10.5, 11.5, 1000000.0]}  # Last value is outlier
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", n_sigma=3.0, action="flag")
     result_df = detector.apply()
@@ -84,9 +78,7 @@ def test_flag_action_detects_outlier():
 
 def test_flag_action_custom_column_name():
     """Flag action with custom outlier column name"""
-    data = {
-        "Value": [10.0, 11.0, 1000000.0]
-    }
+    data = {"Value": [10.0, 11.0, 1000000.0]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(
         df, "Value", action="flag", outlier_column="is_extreme"
@@ -99,9 +91,7 @@ def test_flag_action_custom_column_name():
 
 def test_replace_action():
     """Replace action replaces outliers with specified value"""
-    data = {
-        "Value": [10.0, 11.0, 12.0, 1000000.0]
-    }
+    data = {"Value": [10.0, 11.0, 12.0, 1000000.0]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(
         df, "Value", n_sigma=3.0, action="replace", replacement_value=-1
@@ -114,9 +104,7 @@ def test_replace_action():
 
 def test_replace_action_default_nan():
     """Replace action uses NaN when no replacement value specified"""
-    data = {
-        "Value": [10.0, 11.0, 12.0, 1000000.0]
-    }
+    data = {"Value": [10.0, 11.0, 12.0, 1000000.0]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", n_sigma=3.0, action="replace")
     result_df = detector.apply()
@@ -126,10 +114,7 @@ def test_replace_action_default_nan():
 
 def test_remove_action():
     """Remove action removes rows with outliers"""
-    data = {
-        "TagName": ["A", "B", "C", "D"],
-        "Value": [10.0, 11.0, 12.0, 1000000.0]
-    }
+    data = {"TagName": ["A", "B", "C", "D"], "Value": [10.0, 11.0, 12.0, 1000000.0]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", n_sigma=3.0, action="remove")
     result_df = detector.apply()
@@ -140,9 +125,7 @@ def test_remove_action():
 
 def test_exclude_values():
     """Excluded values are not considered in MAD calculation"""
-    data = {
-        "Value": [10.0, 11.0, 12.0, -1, -1, 1000000.0]  # -1 are error codes
-    }
+    data = {"Value": [10.0, 11.0, 12.0, -1, -1, 1000000.0]}  # -1 are error codes
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(
         df, "Value", n_sigma=3.0, action="flag", exclude_values=[-1]
@@ -158,9 +141,7 @@ def test_exclude_values():
 
 def test_no_outliers():
     """No outliers in data"""
-    data = {
-        "Value": [10.0, 10.5, 11.0, 10.2, 10.8]
-    }
+    data = {"Value": [10.0, 10.5, 11.0, 10.2, 10.8]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", n_sigma=3.0, action="flag")
     result_df = detector.apply()
@@ -170,9 +151,7 @@ def test_no_outliers():
 
 def test_all_same_values():
     """All values are the same (MAD = 0)"""
-    data = {
-        "Value": [10.0, 10.0, 10.0, 10.0]
-    }
+    data = {"Value": [10.0, 10.0, 10.0, 10.0]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", n_sigma=3.0, action="flag")
     result_df = detector.apply()
@@ -183,9 +162,7 @@ def test_all_same_values():
 
 def test_negative_outliers():
     """Detects negative outliers"""
-    data = {
-        "Value": [10.0, 11.0, 12.0, 10.5, -1000000.0]
-    }
+    data = {"Value": [10.0, 11.0, 12.0, 10.5, -1000000.0]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", n_sigma=3.0, action="flag")
     result_df = detector.apply()
@@ -195,9 +172,7 @@ def test_negative_outliers():
 
 def test_both_direction_outliers():
     """Detects outliers in both directions"""
-    data = {
-        "Value": [-1000000.0, 10.0, 11.0, 12.0, 1000000.0]
-    }
+    data = {"Value": [-1000000.0, 10.0, 11.0, 12.0, 1000000.0]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", n_sigma=3.0, action="flag")
     result_df = detector.apply()
@@ -211,7 +186,7 @@ def test_preserves_other_columns():
     data = {
         "TagName": ["A", "B", "C", "D"],
         "EventTime": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04"],
-        "Value": [10.0, 11.0, 12.0, 1000000.0]
+        "Value": [10.0, 11.0, 12.0, 1000000.0],
     }
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", action="flag")
@@ -224,9 +199,7 @@ def test_preserves_other_columns():
 
 def test_does_not_modify_original():
     """Ensures original DataFrame is not modified"""
-    data = {
-        "Value": [10.0, 11.0, 1000000.0]
-    }
+    data = {"Value": [10.0, 11.0, 1000000.0]}
     df = pd.DataFrame(data)
     original_df = df.copy()
 
@@ -238,9 +211,7 @@ def test_does_not_modify_original():
 
 def test_with_nan_values():
     """NaN values are excluded from MAD calculation"""
-    data = {
-        "Value": [10.0, 11.0, np.nan, 12.0, 1000000.0]
-    }
+    data = {"Value": [10.0, 11.0, np.nan, 12.0, 1000000.0]}
     df = pd.DataFrame(data)
     detector = MADOutlierDetection(df, "Value", n_sigma=3.0, action="flag")
     result_df = detector.apply()
@@ -253,9 +224,7 @@ def test_with_nan_values():
 
 def test_different_n_sigma_values():
     """Different n_sigma values affect outlier detection"""
-    data = {
-        "Value": [10.0, 11.0, 12.0, 13.0, 20.0]  # 20.0 is mildly extreme
-    }
+    data = {"Value": [10.0, 11.0, 12.0, 13.0, 20.0]}  # 20.0 is mildly extreme
     df = pd.DataFrame(data)
 
     # With low n_sigma, 20.0 should be flagged
@@ -267,4 +236,7 @@ def test_different_n_sigma_values():
     result_loose = detector_loose.apply()
 
     # Strict should flag more or equal outliers than loose
-    assert result_strict["Value_is_outlier"].sum() >= result_loose["Value_is_outlier"].sum()
+    assert (
+        result_strict["Value_is_outlier"].sum()
+        >= result_loose["Value_is_outlier"].sum()
+    )

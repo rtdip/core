@@ -132,9 +132,7 @@ class MixedTypeSeparation(PandasDataManipulationBaseInterface):
             raise ValueError("The DataFrame is empty.")
 
         if self.column not in self.df.columns:
-            raise ValueError(
-                f"Column '{self.column}' does not exist in the DataFrame."
-            )
+            raise ValueError(f"Column '{self.column}' does not exist in the DataFrame.")
 
         result_df = self.df.copy()
         string_col_name = f"{self.column}{self.suffix}"

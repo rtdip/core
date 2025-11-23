@@ -104,7 +104,9 @@ class MADOutlierDetection(PandasDataManipulationBaseInterface):
         self.action = action
         self.replacement_value = replacement_value
         self.exclude_values = exclude_values
-        self.outlier_column = outlier_column if outlier_column else f"{column}_is_outlier"
+        self.outlier_column = (
+            outlier_column if outlier_column else f"{column}_is_outlier"
+        )
 
     @staticmethod
     def system_type():
@@ -160,9 +162,7 @@ class MADOutlierDetection(PandasDataManipulationBaseInterface):
             raise ValueError("The DataFrame is empty.")
 
         if self.column not in self.df.columns:
-            raise ValueError(
-                f"Column '{self.column}' does not exist in the DataFrame."
-            )
+            raise ValueError(f"Column '{self.column}' does not exist in the DataFrame.")
 
         valid_actions = ["flag", "replace", "remove"]
         if self.action not in valid_actions:
@@ -198,9 +198,9 @@ class MADOutlierDetection(PandasDataManipulationBaseInterface):
         lower_bound, upper_bound = self._compute_mad_bounds(valid_values)
 
         # Identify outliers (only among included values)
-        outlier_mask = (
-            include_mask &
-            ((result_df[self.column] < lower_bound) | (result_df[self.column] > upper_bound))
+        outlier_mask = include_mask & (
+            (result_df[self.column] < lower_bound)
+            | (result_df[self.column] > upper_bound)
         )
 
         # Apply the specified action
@@ -208,7 +208,9 @@ class MADOutlierDetection(PandasDataManipulationBaseInterface):
             result_df[self.outlier_column] = outlier_mask
 
         elif self.action == "replace":
-            replacement = self.replacement_value if self.replacement_value is not None else np.nan
+            replacement = (
+                self.replacement_value if self.replacement_value is not None else np.nan
+            )
             result_df.loc[outlier_mask, self.column] = replacement
 
         elif self.action == "remove":
