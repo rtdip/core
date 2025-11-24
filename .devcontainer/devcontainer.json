@@ -1,6 +1,6 @@
 {
 	"name": "rtdip",
-	"image": "mcr.microsoft.com/azure-functions/python:4-python3.10-core-tools",
+	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	"forwardPorts": [ 7071, 9091 ],
 
 	"customizations": {
@@ -49,7 +49,7 @@
 		}
 	},
 	
-	"postCreateCommand": "mamba env create -f environment.yml && python -m venv src/api/.venv",
+	"postCreateCommand": "mamba env create --yes -f environment.yml && python -m venv src/api/.venv && npm install -g azure-functions-core-tools@4 ",
 
 	"remoteUser": "vscode",
 	"features": {
@@ -58,6 +58,8 @@
 		"ghcr.io/devcontainers/features/terraform:1": {},
 		// "ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/devcontainers/features/java:1": {"version": "17"},
-		"ghcr.io/rocker-org/devcontainer-features/miniforge:2": {}
+		"ghcr.io/rocker-org/devcontainer-features/miniforge:2": {},
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/devcontainers/features/python:1": { "version": "3.10"} 
 	}
 }
