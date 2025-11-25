@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src", "sdk", "python
 from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
 
 
-DATA_PATH = "ShellData_preprocessed_final.parquet"
+DATA_PATH = os.environ.get("SHELL_DATA_PATH", "ShellData_preprocessed_final.parquet")
 OUTPUT_DIR = "autogluon_results"
 MODEL_SAVE_PATH = os.path.join(OUTPUT_DIR, "autogluon_model")
 

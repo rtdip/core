@@ -52,6 +52,19 @@ def print_stats(df: pd.DataFrame, description: str = "") -> None:
     print(f"  Memory: {df.memory_usage(deep=True).sum() / 1024 / 1024:.2f} MB")
 
 
+def optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+    """Optimize DataFrame memory usage by downcasting numeric types."""
+    float_cols = df.select_dtypes(include=['float64']).columns
+    for col in float_cols:
+        df[col] = pd.to_numeric(df[col], downcast='float')
+
+    int_cols = df.select_dtypes(include=['int64']).columns
+    for col in int_cols:
+        df[col] = pd.to_numeric(df[col], downcast='integer')
+
+    return df
+
+
 def load_data(input_path: str) -> pd.DataFrame:
     """Load data from parquet or CSV file (auto-detected by extension)."""
     print(f"Loading data from {input_path}")
@@ -62,7 +75,9 @@ def load_data(input_path: str) -> pd.DataFrame:
     if extension == ".parquet":
         df = pd.read_parquet(input_path)
     elif extension == ".csv":
-        df = pd.read_csv(input_path)
+        df = pd.read_csv(input_path, dtype={
+            'Value': 'float32',  
+        })
     else:
         raise ValueError(f"Unsupported file format: {extension}. Use .parquet or .csv")
 
@@ -70,7 +85,23 @@ def load_data(input_path: str) -> pd.DataFrame:
         df = df.drop(columns=["Unnamed: 0"])
 
     print_stats(df, "Loaded data:")
+
+    df = optimize_dtypes(df)
+
     return df
+
+
+def sample_data(df: pd.DataFrame, sample_fraction: float) -> pd.DataFrame:
+    """Sample a fraction of the data for memory-constrained systems."""
+    if sample_fraction is None or sample_fraction >= 1.0:
+        return df
+
+    print(f"\nSampling {sample_fraction*100:.1f}% of data for memory efficiency (or for showcasing)")
+    original_len = len(df)
+    df_sampled = df.sample(frac=sample_fraction, random_state=42)
+    print(f"Reduced from {original_len:,} to {len(df_sampled):,} rows")
+
+    return df_sampled
 
 
 def step1_separate_mixed_types(df: pd.DataFrame) -> pd.DataFrame:
@@ -78,7 +109,11 @@ def step1_separate_mixed_types(df: pd.DataFrame) -> pd.DataFrame:
     print_step(1, "Separating text values from numeric Value column")
 
     separator = MixedTypeSeparation(
-        df, column="Value", placeholder=-1, string_fill="NaN", suffix="_str"
+        df,
+        column="Value",
+        placeholder=-1,
+        string_fill="NaN",
+        suffix="_str"
     )
     result = separator.apply()
 
@@ -98,12 +133,12 @@ def step2_convert_datetime(df: pd.DataFrame) -> pd.DataFrame:
         column="EventTime",
         output_column="EventTime_DT",
         strip_trailing_zeros=True,
-        keep_original=True,
+        keep_original=True
     )
     result = converter.apply()
 
     nat_count = result["EventTime_DT"].isna().sum()
-    print(f"  Failed conversions (NaT): {nat_count:,}")
+    print(f"Failed conversions (NaT): {nat_count:,}")
     print_stats(result, "After datetime conversion:")
     return result
 
@@ -112,15 +147,18 @@ def step3_one_hot_encode(df: pd.DataFrame) -> pd.DataFrame:
     """Step 3: One-hot encode Status column."""
     print_step(3, "One-hot encoding Status column")
 
-    encoder = OneHotEncoding(df, column="Status", sparse=False)
+    encoder = OneHotEncoding(
+        df,
+        column="Status",
+        sparse=False
+    )
     result = encoder.apply()
 
     status_cols = [col for col in result.columns if col.startswith("Status_")]
-    print(f"  Status columns created: {status_cols}")
+    print(f"Status columns created: {status_cols}")
 
     print_stats(result, "After one-hot encoding:")
     return result
-
 
 def step4_extract_datetime_features(df: pd.DataFrame) -> pd.DataFrame:
     """Step 4: Extract datetime features."""
@@ -130,18 +168,16 @@ def step4_extract_datetime_features(df: pd.DataFrame) -> pd.DataFrame:
         df,
         datetime_column="EventTime_DT",
         features=["day", "week", "weekday", "day_name"],
-        prefix="EventTime",
+        prefix="EventTime"
     )
     result = extractor.apply()
 
     result["EventTime_month"] = result["EventTime_DT"].dt.month_name()
 
     dt = result["EventTime_DT"].dt
-    result["EventTime_seconds"] = (dt.hour * 3600 + dt.minute * 60 + dt.second).astype(
-        "Int32"
-    )
+    result["EventTime_seconds"] = (dt.hour * 3600 + dt.minute * 60 + dt.second).astype("Int32")
 
-    print(f"  Features added: day, week, weekday, day_name, month, seconds")
+    print(f"Features added: day, week, weekday, day_name, month, seconds")
     print_stats(result, "After feature extraction:")
     return result
 
@@ -154,26 +190,22 @@ def step5_handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
 
     nat_count = df["EventTime_DT"].isna().sum()
     df_clean = df.dropna(subset=["EventTime_DT"]).copy()
-    print(
-        f"  Dropped {nat_count:,} rows with NaT timestamps ({nat_count/initial_rows*100:.4f}%)"
-    )
+    print(f"Dropped {nat_count:,} rows with NaT timestamps ({nat_count/initial_rows*100:.4f}%)")
 
     value_missing = df_clean["Value"].isna().sum()
     if value_missing > 0:
         if value_missing / len(df_clean) < 0.001:
             df_clean = df_clean.dropna(subset=["Value"])
-            print(
-                f"  Dropped {value_missing:,} rows with missing Value ({value_missing/initial_rows*100:.4f}%)"
-            )
+            print(f"Dropped {value_missing:,} rows with missing Value ({value_missing/initial_rows*100:.4f}%)")
         else:
             df_clean["Value"] = df_clean["Value"].fillna(-1)
-            print(f"  Filled {value_missing:,} missing Values with -1")
+            print(f"Filled {value_missing:,} missing Values with -1")
     else:
-        print(f"  No missing Values to handle")
+        print(f"No missing Values to handle")
 
     total_dropped = initial_rows - len(df_clean)
-    print(f"  Total dropped: {total_dropped:,} ({total_dropped/initial_rows*100:.2f}%)")
-    print(f"  Retention rate: {len(df_clean)/initial_rows*100:.2f}%")
+    print(f"Total dropped: {total_dropped:,} ({total_dropped/initial_rows*100:.2f}%)")
+    print(f"Retention rate: {len(df_clean)/initial_rows*100:.2f}%")
 
     print_stats(df_clean, "After missing value handling:")
     return df_clean
@@ -188,14 +220,12 @@ def step6_sort_chronologically(df: pd.DataFrame) -> pd.DataFrame:
         datetime_column="EventTime_DT",
         ascending=True,
         na_position="last",
-        reset_index=True,
+        reset_index=True
     )
     result = sorter.apply()
 
-    print(
-        f"  Date range: {result['EventTime_DT'].min()} to {result['EventTime_DT'].max()}"
-    )
-    print(f"  Is sorted: {result['EventTime_DT'].is_monotonic_increasing}")
+    print(f"Date range: {result['EventTime_DT'].min()} to {result['EventTime_DT'].max()}")
+    print(f"Is sorted: {result['EventTime_DT'].is_monotonic_increasing}")
 
     print_stats(result, "After sorting:")
     return result
@@ -211,7 +241,7 @@ def step7_detect_outliers(df: pd.DataFrame, n_sigma: float = 10.0) -> pd.DataFra
         n_sigma=n_sigma,
         action="replace",
         replacement_value=-1,
-        exclude_values=[-1],  # Exclude existing error values
+        exclude_values=[-1]  # Exclude existing error values
     )
     result = detector.apply()
 
@@ -219,18 +249,16 @@ def step7_detect_outliers(df: pd.DataFrame, n_sigma: float = 10.0) -> pd.DataFra
     new_errors = (result["Value"] == -1).sum()
     outliers_found = new_errors - original_errors
 
-    print(
-        f"  Outliers detected and replaced: {outliers_found:,} ({outliers_found/len(df)*100:.4f}%)"
-    )
+    print(f"Outliers detected and replaced: {outliers_found:,} ({outliers_found/len(df)*100:.4f}%)")
 
     outlier_mask = (df["Value"] != -1) & (result["Value"] == -1)
     result.loc[outlier_mask, "Value_str"] = "Extreme Outlier"
 
     valid_values = result[result["Value"] != -1]["Value"]
     if len(valid_values) > 0:
-        print(f"  Valid values after outlier removal: {len(valid_values):,}")
-        print(f"  Value range: {valid_values.min():.2f} to {valid_values.max():.2f}")
-        print(f"  Mean: {valid_values.mean():.2f}, Median: {valid_values.median():.2f}")
+        print(f"Valid values after outlier removal: {len(valid_values):,}")
+        print(f"Value range: {valid_values.min():.2f} to {valid_values.max():.2f}")
+        print(f"Mean: {valid_values.mean():.2f}, Median: {valid_values.median():.2f}")
 
     print_stats(result, "After outlier detection:")
     return result
@@ -240,7 +268,7 @@ def save_results(
     df: pd.DataFrame,
     output_path: str,
     save_sample: bool = True,
-    save_metadata: bool = True,
+    save_metadata: bool = True
 ) -> None:
     """Save the preprocessed data and optional metadata."""
     print_step(8, "Saving results")
@@ -248,18 +276,18 @@ def save_results(
     output_path = Path(output_path)
     output_dir = output_path.parent
     output_stem = output_path.stem
-
-    print(f"  Saving to {output_path}")
+    
+    print(f"Saving to {output_path}")
     df.to_parquet(output_path, index=False, compression="snappy")
     file_size = os.path.getsize(output_path) / 1024 / 1024
-    print(f"  Saved ({file_size:.2f} MB)")
+    print(f"Saved ({file_size:.2f} MB)")
 
     if save_sample:
         sample_path = output_dir / f"{output_stem}_sample.csv"
         sample_size = min(100_000, len(df))
         sample = df.sample(n=sample_size, random_state=42)
         sample.to_csv(sample_path, index=False)
-        print(f"  Saved {sample_size:,} row sample to {sample_path}")
+        print(f"Saved {sample_size:,} row sample to {sample_path}")
 
     # Save metadata
     if save_metadata:
@@ -275,32 +303,23 @@ def save_results(
                 "date_range_start": str(df["EventTime_DT"].min()),
                 "date_range_end": str(df["EventTime_DT"].max()),
                 "unique_sensors": int(df["TagName"].nunique()),
-                "memory_usage_mb": float(
-                    df.memory_usage(deep=True).sum() / 1024 / 1024
-                ),
+                "memory_usage_mb": float(df.memory_usage(deep=True).sum() / 1024 / 1024)
             },
             "value_statistics": {
                 "valid_values_count": int((df["Value"] != -1).sum()),
-                "valid_values_percent": float(
-                    (df["Value"] != -1).sum() / len(df) * 100
-                ),
+                "valid_values_percent": float((df["Value"] != -1).sum() / len(df) * 100),
                 "error_values_count": int((df["Value"] == -1).sum()),
-                "error_values_percent": float(
-                    (df["Value"] == -1).sum() / len(df) * 100
-                ),
+                "error_values_percent": float((df["Value"] == -1).sum() / len(df) * 100),
                 "mean": float(valid_values.mean()) if len(valid_values) > 0 else None,
-                "median": (
-                    float(valid_values.median()) if len(valid_values) > 0 else None
-                ),
+                "median": float(valid_values.median()) if len(valid_values) > 0 else None,
                 "std": float(valid_values.std()) if len(valid_values) > 0 else None,
                 "min": float(valid_values.min()) if len(valid_values) > 0 else None,
-                "max": float(valid_values.max()) if len(valid_values) > 0 else None,
+                "max": float(valid_values.max()) if len(valid_values) > 0 else None
             },
             "error_breakdown": {str(k): int(v) for k, v in error_breakdown.items()},
             "status_distribution": {
                 col: int(df[col].sum())
-                for col in df.columns
-                if col.startswith("Status_")
+                for col in df.columns if col.startswith("Status_")
             },
             "columns": list(df.columns),
             "column_types": {col: str(dtype) for col, dtype in df.dtypes.items()},
@@ -311,13 +330,13 @@ def save_results(
                 "4. Extracted datetime features (DatetimeFeatures)",
                 "5. Handled missing values (dropped NaT timestamps and missing values)",
                 "6. Sorted chronologically (ChronologicalSort)",
-                "7. Detected and handled outliers using MAD (MADOutlierDetection)",
-            ],
+                "7. Detected and handled outliers using MAD (MADOutlierDetection)"
+            ]
         }
 
         with open(metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
-        print(f"  Saved metadata to {metadata_path}")
+        print(f"Saved metadata to {metadata_path}")
 
 
 def preprocess(
@@ -326,6 +345,7 @@ def preprocess(
     n_sigma: float = 10.0,
     save_sample: bool = True,
     save_metadata: bool = True,
+    sample_fraction: float = None
 ) -> pd.DataFrame:
     """
     Run the full preprocessing pipeline.
@@ -343,6 +363,9 @@ def preprocess(
     print("SHELL DATA PREPROCESSING PIPELINE")
     # Load data
     df = load_data(input_path)
+
+    # Sample data if requested for memory-constrained systems or showcase
+    df = sample_data(df, sample_fraction)
 
     # Step 1: Separate mixed types
     df = step1_separate_mixed_types(df)
@@ -386,30 +409,38 @@ def main():
         description="Preprocess Shell sensor data using RTDIP pipeline components."
     )
     parser.add_argument(
-        "--input",
-        "-i",
+        "--input", "-i",
         type=str,
         default="ShellData.parquet",
-        help="Input file path, supports .parquet or .csv (default: ShellData.parquet)",
+        help="Input file path, supports .parquet or .csv (default: ShellData.parquet)"
     )
     parser.add_argument(
-        "--output",
-        "-o",
+        "--output", "-o",
         type=str,
         default="ShellData_preprocessed.parquet",
-        help="Output parquet file path (default: ShellData_preprocessed.parquet)",
+        help="Output parquet file path (default: ShellData_preprocessed.parquet)"
     )
     parser.add_argument(
         "--n-sigma",
         type=float,
         default=10.0,
-        help="Number of MAD-based std deviations for outlier detection (default: 10.0)",
+        help="Number of MAD-based std deviations for outlier detection (default: 10.0)"
     )
     parser.add_argument(
-        "--no-sample", action="store_true", help="Skip saving CSV sample"
+        "--no-sample",
+        action="store_true",
+        help="Skip saving CSV sample"
     )
     parser.add_argument(
-        "--no-metadata", action="store_true", help="Skip saving metadata JSON"
+        "--no-metadata",
+        action="store_true",
+        help="Skip saving metadata JSON"
+    )
+    parser.add_argument(
+        "--sample",
+        type=float,
+        default=None,
+        help="Sample a fraction of data for testing (e.g., 0.1 for 10%%). Use for memory-constrained systems."
     )
 
     args = parser.parse_args()
@@ -420,6 +451,7 @@ def main():
         n_sigma=args.n_sigma,
         save_sample=not args.no_sample,
         save_metadata=not args.no_metadata,
+        sample_fraction=args.sample
     )
 
 
