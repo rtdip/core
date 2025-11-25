@@ -17,22 +17,24 @@ from ..interfaces import PandasDataManipulationBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
 
-class DropEmptyColumns(PandasDataManipulationBaseInterface):
+class DropEmptyAndUselessColumns(PandasDataManipulationBaseInterface):
     """
-    Removes columns that do not contain any non-NaN values.
+    Removes columns that contain no meaningful information.
 
-    This component scans all DataFrame columns and identifies those where every
-    entry is either missing (NaN) or the column contains zero unique values.
-    Such columns are typically either empty placeholders or improperly loaded
-    fields from upstream data sources.
+    This component scans all DataFrame columns and identifies those where
+    - every value is NaN, **or**
+    - all non-NaN entries are identical (i.e., the column has only one unique value).
 
-    The transformation returns a cleaned DataFrame with only columns that
-    contain at least one valid (non-NaN) entry.
+    Such columns typically contain no informational value (empty placeholders,
+    constant fields, or improperly loaded upstream data).
+
+    The transformation returns a cleaned DataFrame containing only columns that
+    provide variability or meaningful data.
 
     Example
     -------
     ```python
-    from rtdip_sdk.pipelines.data_quality.data_manipulation.pandas.drop_empty_columns import DropEmptyColumns
+    from rtdip_sdk.pipelines.data_quality.data_manipulation.pandas.drop_empty_columns import DropEmptyAndUselessColumns
     import pandas as pd
 
     df = pd.DataFrame({
@@ -40,9 +42,10 @@ class DropEmptyColumns(PandasDataManipulationBaseInterface):
         'b': [None, None, None],       # Empty column
         'c': [5, None, 7],
         'd': [NaN, NaN, NaN]           # Empty column
+        'e': [7, 7, 7],                # Constant column
     })
 
-    cleaner = DropEmptyColumns(df)
+    cleaner = DropEmptyAndUselessColumns(df)
     result_df = cleaner.apply()
 
     # result_df:
@@ -102,7 +105,7 @@ class DropEmptyColumns(PandasDataManipulationBaseInterface):
         n_unique = self.df.nunique(dropna=True)
 
         # Identify columns with zero non-null unique values -> empty columns
-        cols_to_drop = n_unique[n_unique == 0].index.tolist()
+        cols_to_drop = n_unique[n_unique <= 1].index.tolist()
 
         # Create cleaned DataFrame without empty columns
         result_df = self.df.copy()
