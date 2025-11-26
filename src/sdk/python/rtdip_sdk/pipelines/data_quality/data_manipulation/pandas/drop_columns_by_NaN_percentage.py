@@ -108,12 +108,17 @@ class DropByNaNPercentage(PandasDataManipulationBaseInterface):
         if self.nan_threshold < 0:
             raise ValueError("NaN Threshold is negative.")
 
-        row_count = len(self.df.index)
-        nan_ratio = self.df.isna().sum() / row_count
-        cols_to_drop = nan_ratio[nan_ratio >= self.nan_threshold].index.tolist()
-
         # Create cleaned DataFrame without empty columns
         result_df = self.df.copy()
+
+        if self.nan_threshold == 0.0:
+            cols_to_drop = result_df.columns[result_df.isna().any()].tolist()
+        else:
+
+            row_count = len(self.df.index)
+            nan_ratio = self.df.isna().sum() / row_count
+            cols_to_drop = nan_ratio[nan_ratio >= self.nan_threshold].index.tolist()
+
         result_df = result_df.drop(columns=cols_to_drop)
 
         return result_df
