@@ -19,6 +19,10 @@ from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.pandas.ro
     RollingStatistics,
     AVAILABLE_STATISTICS,
 )
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    SystemType,
+    Libraries,
+)
 
 
 def test_empty_df():
@@ -210,3 +214,21 @@ def test_preserves_other_columns():
     assert "date" in result.columns
     assert "category" in result.columns
     assert list(result["category"]) == ["A", "B", "C", "D", "E"]
+
+
+def test_system_type():
+    """Test that system_type returns SystemType.PYTHON"""
+    assert RollingStatistics.system_type() == SystemType.PYTHON
+
+
+def test_libraries():
+    """Test that libraries returns a Libraries instance"""
+    libraries = RollingStatistics.libraries()
+    assert isinstance(libraries, Libraries)
+
+
+def test_settings():
+    """Test that settings returns an empty dict"""
+    settings = RollingStatistics.settings()
+    assert isinstance(settings, dict)
+    assert settings == {}

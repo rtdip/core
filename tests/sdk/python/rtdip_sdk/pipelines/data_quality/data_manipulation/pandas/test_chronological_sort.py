@@ -18,6 +18,10 @@ import numpy as np
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.pandas.chronological_sort import (
     ChronologicalSort,
 )
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    SystemType,
+    Libraries,
+)
 
 
 def test_empty_df():
@@ -277,3 +281,21 @@ def test_stable_sort():
 
     # Original order should be preserved for equal timestamps
     assert list(result_df["Order"]) == [1, 2, 3]
+
+
+def test_system_type():
+    """Test that system_type returns SystemType.PYTHON"""
+    assert ChronologicalSort.system_type() == SystemType.PYTHON
+
+
+def test_libraries():
+    """Test that libraries returns a Libraries instance"""
+    libraries = ChronologicalSort.libraries()
+    assert isinstance(libraries, Libraries)
+
+
+def test_settings():
+    """Test that settings returns an empty dict"""
+    settings = ChronologicalSort.settings()
+    assert isinstance(settings, dict)
+    assert settings == {}
