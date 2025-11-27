@@ -18,6 +18,10 @@ import numpy as np
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.pandas.cyclical_encoding import (
     CyclicalEncoding,
 )
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    SystemType,
+    Libraries,
+)
 
 
 def test_empty_df():
@@ -161,3 +165,21 @@ def test_sin_cos_identity():
 
     sum_of_squares = result["month_sin"] ** 2 + result["month_cos"] ** 2
     assert np.allclose(sum_of_squares, 1.0)
+
+
+def test_system_type():
+    """Test that system_type returns SystemType.PYTHON"""
+    assert CyclicalEncoding.system_type() == SystemType.PYTHON
+
+
+def test_libraries():
+    """Test that libraries returns a Libraries instance"""
+    libraries = CyclicalEncoding.libraries()
+    assert isinstance(libraries, Libraries)
+
+
+def test_settings():
+    """Test that settings returns an empty dict"""
+    settings = CyclicalEncoding.settings()
+    assert isinstance(settings, dict)
+    assert settings == {}

@@ -18,6 +18,10 @@ import numpy as np
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.pandas.mad_outlier_detection import (
     MADOutlierDetection,
 )
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    SystemType,
+    Libraries,
+)
 
 
 def test_empty_df():
@@ -240,3 +244,21 @@ def test_different_n_sigma_values():
         result_strict["Value_is_outlier"].sum()
         >= result_loose["Value_is_outlier"].sum()
     )
+
+
+def test_system_type():
+    """Test that system_type returns SystemType.PYTHON"""
+    assert MADOutlierDetection.system_type() == SystemType.PYTHON
+
+
+def test_libraries():
+    """Test that libraries returns a Libraries instance"""
+    libraries = MADOutlierDetection.libraries()
+    assert isinstance(libraries, Libraries)
+
+
+def test_settings():
+    """Test that settings returns an empty dict"""
+    settings = MADOutlierDetection.settings()
+    assert isinstance(settings, dict)
+    assert settings == {}

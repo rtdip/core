@@ -18,6 +18,10 @@ import numpy as np
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.pandas.datetime_string_conversion import (
     DatetimeStringConversion,
 )
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    SystemType,
+    Libraries,
+)
 
 
 def test_empty_df():
@@ -243,3 +247,21 @@ def test_already_datetime():
     result_df = converter.apply()
 
     assert not result_df["EventTime_DT"].isna().any()
+
+
+def test_system_type():
+    """Test that system_type returns SystemType.PYTHON"""
+    assert DatetimeStringConversion.system_type() == SystemType.PYTHON
+
+
+def test_libraries():
+    """Test that libraries returns a Libraries instance"""
+    libraries = DatetimeStringConversion.libraries()
+    assert isinstance(libraries, Libraries)
+
+
+def test_settings():
+    """Test that settings returns an empty dict"""
+    settings = DatetimeStringConversion.settings()
+    assert isinstance(settings, dict)
+    assert settings == {}

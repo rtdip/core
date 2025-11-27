@@ -91,7 +91,7 @@ class MixedTypeSeparation(PandasDataManipulationBaseInterface):
         Attributes:
             SystemType (Environment): Requires PANDAS
         """
-        return SystemType.PANDAS
+        return SystemType.PYTHON
 
     @staticmethod
     def libraries():

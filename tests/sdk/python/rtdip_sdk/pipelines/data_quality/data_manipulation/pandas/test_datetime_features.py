@@ -18,6 +18,10 @@ from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.pandas.da
     DatetimeFeatures,
     AVAILABLE_FEATURES,
 )
+from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+    SystemType,
+    Libraries,
+)
 
 
 def test_empty_df():
@@ -266,3 +270,21 @@ def test_all_features():
 
     for feature in AVAILABLE_FEATURES:
         assert feature in result_df.columns, f"Feature '{feature}' not found in result"
+
+
+def test_system_type():
+    """Test that system_type returns SystemType.PYTHON"""
+    assert DatetimeFeatures.system_type() == SystemType.PYTHON
+
+
+def test_libraries():
+    """Test that libraries returns a Libraries instance"""
+    libraries = DatetimeFeatures.libraries()
+    assert isinstance(libraries, Libraries)
+
+
+def test_settings():
+    """Test that settings returns an empty dict"""
+    settings = DatetimeFeatures.settings()
+    assert isinstance(settings, dict)
+    assert settings == {}
