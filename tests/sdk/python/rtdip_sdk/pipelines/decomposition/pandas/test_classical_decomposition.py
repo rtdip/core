@@ -178,3 +178,73 @@ def test_settings():
     settings = ClassicalDecomposition.settings()
     assert isinstance(settings, dict)
     assert settings == {}
+
+
+# =========================================================================
+# Grouped Decomposition Tests
+# =========================================================================
+
+
+def test_grouped_single_column():
+    """Test Classical decomposition with single group column."""
+    np.random.seed(42)
+    n_points = 100
+    dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
+
+    data = []
+    for sensor in ["A", "B"]:
+        trend = np.linspace(10, 20, n_points)
+        seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
+        noise = np.random.randn(n_points) * 0.5
+        values = trend + seasonal + noise
+
+        for i in range(n_points):
+            data.append({"timestamp": dates[i], "sensor": sensor, "value": values[i]})
+
+    df = pd.DataFrame(data)
+
+    decomposer = ClassicalDecomposition(
+        df=df,
+        value_column="value",
+        timestamp_column="timestamp",
+        group_columns=["sensor"],
+        model="additive",
+        period=7,
+    )
+
+    result = decomposer.decompose()
+
+    assert "trend" in result.columns
+    assert "seasonal" in result.columns
+    assert set(result["sensor"].unique()) == {"A", "B"}
+
+
+def test_grouped_multiplicative():
+    """Test Classical multiplicative decomposition with groups."""
+    np.random.seed(42)
+    n_points = 100
+    dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
+
+    data = []
+    for sensor in ["A", "B"]:
+        trend = np.linspace(10, 20, n_points)
+        seasonal = 1 + 0.3 * np.sin(2 * np.pi * np.arange(n_points) / 7)
+        noise = 1 + np.random.randn(n_points) * 0.05
+        values = trend * seasonal * noise
+
+        for i in range(n_points):
+            data.append({"timestamp": dates[i], "sensor": sensor, "value": values[i]})
+
+    df = pd.DataFrame(data)
+
+    decomposer = ClassicalDecomposition(
+        df=df,
+        value_column="value",
+        timestamp_column="timestamp",
+        group_columns=["sensor"],
+        model="multiplicative",
+        period=7,
+    )
+
+    result = decomposer.decompose()
+    assert len(result) == len(df)

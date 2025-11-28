@@ -74,6 +74,10 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
     timestamp_column : str, optional
         Name of the column containing timestamps. If provided, will be used
         to set the index. If None, assumes index is already a DatetimeIndex.
+    group_columns : List[str], optional
+        Columns defining separate time series groups (e.g., ['sensor_id']).
+        If provided, decomposition is performed separately for each group.
+        If None, the entire DataFrame is treated as a single time series.
     periods : Union[int, List[int]]
         Seasonal period(s). Can be a single integer or list of integers.
         Examples: 7 for weekly, [24, 168] for daily+weekly in hourly data,
@@ -97,6 +101,7 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         df: PandasDataFrame,
         value_column: str,
         timestamp_column: Optional[str] = None,
+        group_columns: Optional[List[str]] = None,
         periods: Union[int, List[int]] = None,
         windows: Union[int, List[int]] = None,
         iterate: int = 2,
@@ -105,6 +110,7 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         self.df = df.copy()
         self.value_column = value_column
         self.timestamp_column = timestamp_column
+        self.group_columns = group_columns
         self.periods = (
             periods if isinstance(periods, list) else [periods] if periods else [7]
         )
@@ -123,6 +129,11 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         if self.timestamp_column and self.timestamp_column not in self.df.columns:
             raise ValueError(f"Column '{self.timestamp_column}' not found in DataFrame")
 
+        if self.group_columns:
+            missing_cols = [col for col in self.group_columns if col not in self.df.columns]
+            if missing_cols:
+                raise ValueError(f"Group columns {missing_cols} not found in DataFrame")
+
         if not self.periods:
             raise ValueError("At least one period must be specified")
 
@@ -131,7 +142,8 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
                 raise ValueError(f"All periods must be at least 2, got {period}")
 
         max_period = max(self.periods)
-        if len(self.df) < 2 * max_period:
+        # For grouped data, we'll validate length per group during decomposition
+        if not self.group_columns and len(self.df) < 2 * max_period:
             raise ValueError(
                 f"Time series length ({len(self.df)}) must be at least 2 * max_period ({2 * max_period})"
             )
@@ -162,19 +174,39 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
 
         return series
 
-    def decompose(self) -> PandasDataFrame:
+    def _decompose_single_group(self, group_df: PandasDataFrame) -> PandasDataFrame:
         """
-        Perform MSTL decomposition.
+        Decompose a single group (or the entire DataFrame if no grouping).
+
+        Parameters
+        ----------
+        group_df : PandasDataFrame
+            DataFrame for a single group
 
         Returns
         -------
         PandasDataFrame
-            DataFrame containing the original data plus decomposed components:
-            - trend: The trend component
-            - seasonal_{period}: Seasonal component for each period
-            - residual: The residual component
+            DataFrame with decomposition components added
         """
-        series = self._prepare_data()
+        # Validate group size
+        max_period = max(self.periods)
+        if len(group_df) < 2 * max_period:
+            raise ValueError(
+                f"Group has {len(group_df)} observations, but needs at least "
+                f"{2 * max_period} (2 * max_period) for decomposition"
+            )
+
+        # Prepare data
+        if self.timestamp_column:
+            series = group_df.set_index(self.timestamp_column)[self.value_column]
+        else:
+            series = group_df[self.value_column]
+
+        if series.isna().any():
+            raise ValueError(
+                f"Column '{self.value_column}' contains NaN values. "
+                "Please handle missing values before decomposition."
+            )
 
         # Create MSTL object and fit
         mstl = MSTL(
@@ -186,23 +218,62 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         )
         result = mstl.fit()
 
-        # Create result DataFrame with original data
-        self.result_df = self.df.copy()
-        self.result_df["trend"] = result.trend.values
+        # Add components to result
+        result_df = group_df.copy()
+        result_df["trend"] = result.trend.values
 
         # Add each seasonal component
         # Handle both Series (single period) and DataFrame (multiple periods)
         if len(self.periods) == 1:
             seasonal_col = f"seasonal_{self.periods[0]}"
-            self.result_df[seasonal_col] = result.seasonal.values
+            result_df[seasonal_col] = result.seasonal.values
         else:
             for i, period in enumerate(self.periods):
                 seasonal_col = f"seasonal_{period}"
-                self.result_df[seasonal_col] = result.seasonal[
+                result_df[seasonal_col] = result.seasonal[
                     result.seasonal.columns[i]
                 ].values
 
-        self.result_df["residual"] = result.resid.values
+        result_df["residual"] = result.resid.values
+
+        return result_df
+
+    def decompose(self) -> PandasDataFrame:
+        """
+        Perform MSTL decomposition.
+
+        If group_columns is provided, decomposition is performed separately for each group.
+        Each group must have at least 2 * max_period observations.
+
+        Returns
+        -------
+        PandasDataFrame
+            DataFrame containing the original data plus decomposed components:
+            - trend: The trend component
+            - seasonal_{period}: Seasonal component for each period
+            - residual: The residual component
+
+        Raises
+        ------
+        ValueError
+            If any group has insufficient data or contains NaN values
+        """
+        if self.group_columns:
+            # Group by specified columns and decompose each group
+            result_dfs = []
+
+            for group_vals, group_df in self.df.groupby(self.group_columns):
+                try:
+                    decomposed_group = self._decompose_single_group(group_df)
+                    result_dfs.append(decomposed_group)
+                except ValueError as e:
+                    group_str = dict(zip(self.group_columns, group_vals if isinstance(group_vals, tuple) else [group_vals]))
+                    raise ValueError(f"Error in group {group_str}: {str(e)}")
+
+            self.result_df = pd.concat(result_dfs, ignore_index=True)
+        else:
+            # No grouping - decompose entire DataFrame
+            self.result_df = self._decompose_single_group(self.df)
 
         return self.result_df
 

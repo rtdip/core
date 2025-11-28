@@ -64,6 +64,33 @@ def multiplicative_time_series(spark):
     return spark.createDataFrame(pdf)
 
 
+@pytest.fixture
+def multi_sensor_data(spark):
+    """Create multi-sensor time series data."""
+    np.random.seed(42)
+    n_points = 100
+    dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
+
+    data = []
+    for sensor in ["A", "B", "C"]:
+        trend = np.linspace(10, 20, n_points) + np.random.rand() * 5
+        seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
+        noise = np.random.randn(n_points) * 0.5
+        values = trend + seasonal + noise
+
+        for i in range(n_points):
+            data.append(
+                {
+                    "timestamp": dates[i],
+                    "sensor": sensor,
+                    "value": values[i],
+                }
+            )
+
+    pdf = pd.DataFrame(data)
+    return spark.createDataFrame(pdf)
+
+
 def test_additive_decomposition(spark, sample_time_series):
     """Test additive decomposition."""
     decomposer = ClassicalDecomposition(
@@ -136,3 +163,69 @@ def test_settings():
     settings = ClassicalDecomposition.settings()
     assert isinstance(settings, dict)
     assert settings == {}
+
+
+# =========================================================================
+# Grouped Decomposition Tests
+# =========================================================================
+
+
+def test_grouped_single_column(spark, multi_sensor_data):
+    """Test classical decomposition with single group column."""
+    decomposer = ClassicalDecomposition(
+        df=multi_sensor_data,
+        value_column="value",
+        timestamp_column="timestamp",
+        group_columns=["sensor"],
+        model="additive",
+        period=7,
+    )
+
+    result = decomposer.decompose()
+    result_pdf = result.toPandas()
+
+    assert "trend" in result.columns
+    assert "seasonal" in result.columns
+    assert "residual" in result.columns
+    assert set(result_pdf["sensor"].unique()) == {"A", "B", "C"}
+
+    # Verify each group has correct number of observations
+    for sensor in ["A", "B", "C"]:
+        original_count = multi_sensor_data.filter(f"sensor = '{sensor}'").count()
+        result_count = len(result_pdf[result_pdf["sensor"] == sensor])
+        assert original_count == result_count
+
+
+def test_grouped_multiplicative(spark):
+    """Test multiplicative decomposition with grouped data."""
+    np.random.seed(42)
+    n_points = 100
+    dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
+
+    data = []
+    for sensor in ["A", "B"]:
+        trend = np.linspace(10, 20, n_points)
+        seasonal = 1 + 0.3 * np.sin(2 * np.pi * np.arange(n_points) / 7)
+        noise = 1 + np.random.randn(n_points) * 0.05
+        values = trend * seasonal * noise
+
+        for i in range(n_points):
+            data.append({"timestamp": dates[i], "sensor": sensor, "value": values[i]})
+
+    pdf = pd.DataFrame(data)
+    df = spark.createDataFrame(pdf)
+
+    decomposer = ClassicalDecomposition(
+        df=df,
+        value_column="value",
+        timestamp_column="timestamp",
+        group_columns=["sensor"],
+        model="multiplicative",
+        period=7,
+    )
+
+    result = decomposer.decompose()
+
+    assert "trend" in result.columns
+    assert "seasonal" in result.columns
+    assert "residual" in result.columns

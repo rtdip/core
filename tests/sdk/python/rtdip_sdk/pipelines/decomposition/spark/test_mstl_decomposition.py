@@ -65,6 +65,27 @@ def multi_seasonal_time_series(spark):
     return spark.createDataFrame(pdf)
 
 
+@pytest.fixture
+def multi_sensor_data(spark):
+    """Create multi-sensor time series data."""
+    np.random.seed(42)
+    n_points = 100
+    dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
+
+    data = []
+    for sensor in ["A", "B"]:
+        trend = np.linspace(10, 20, n_points)
+        seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
+        noise = np.random.randn(n_points) * 0.5
+        values = trend + seasonal + noise
+
+        for i in range(n_points):
+            data.append({"timestamp": dates[i], "sensor": sensor, "value": values[i]})
+
+    pdf = pd.DataFrame(data)
+    return spark.createDataFrame(pdf)
+
+
 def test_single_period(spark, sample_time_series):
     """Test MSTL with single period."""
     decomposer = MSTLDecomposition(
@@ -150,3 +171,50 @@ def test_settings():
     settings = MSTLDecomposition.settings()
     assert isinstance(settings, dict)
     assert settings == {}
+
+
+# =========================================================================
+# Grouped Decomposition Tests
+# =========================================================================
+
+
+def test_grouped_single_column(spark, multi_sensor_data):
+    """Test MSTL decomposition with single group column."""
+    decomposer = MSTLDecomposition(
+        df=multi_sensor_data,
+        value_column="value",
+        timestamp_column="timestamp",
+        group_columns=["sensor"],
+        periods=7,
+    )
+
+    result = decomposer.decompose()
+    result_pdf = result.toPandas()
+
+    assert "trend" in result.columns
+    assert "seasonal_7" in result.columns
+    assert "residual" in result.columns
+    assert set(result_pdf["sensor"].unique()) == {"A", "B"}
+
+    # Verify each group has correct number of observations
+    for sensor in ["A", "B"]:
+        original_count = multi_sensor_data.filter(f"sensor = '{sensor}'").count()
+        result_count = len(result_pdf[result_pdf["sensor"] == sensor])
+        assert original_count == result_count
+
+
+def test_grouped_single_period(spark, multi_sensor_data):
+    """Test MSTL decomposition with grouped data and single period."""
+    decomposer = MSTLDecomposition(
+        df=multi_sensor_data,
+        value_column="value",
+        timestamp_column="timestamp",
+        group_columns=["sensor"],
+        periods=[7],
+    )
+
+    result = decomposer.decompose()
+
+    assert "trend" in result.columns
+    assert "seasonal_7" in result.columns
+    assert "residual" in result.columns

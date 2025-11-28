@@ -183,3 +183,77 @@ def test_settings():
     settings = MSTLDecomposition.settings()
     assert isinstance(settings, dict)
     assert settings == {}
+
+
+# =========================================================================
+# Grouped Decomposition Tests
+# =========================================================================
+
+
+def test_grouped_single_column():
+    """Test MSTL decomposition with single group column."""
+    np.random.seed(42)
+    n_hours = 24 * 30  # 30 days
+    dates = pd.date_range("2024-01-01", periods=n_hours, freq="h")
+
+    data = []
+    for sensor in ["A", "B"]:
+        daily = 5 * np.sin(2 * np.pi * np.arange(n_hours) / 24)
+        weekly = 3 * np.sin(2 * np.pi * np.arange(n_hours) / 168)
+        trend = np.linspace(10, 15, n_hours)
+        noise = np.random.randn(n_hours) * 0.5
+        values = trend + daily + weekly + noise
+
+        for i in range(n_hours):
+            data.append({"timestamp": dates[i], "sensor": sensor, "value": values[i]})
+
+    df = pd.DataFrame(data)
+
+    decomposer = MSTLDecomposition(
+        df=df,
+        value_column="value",
+        timestamp_column="timestamp",
+        group_columns=["sensor"],
+        periods=[24, 168],
+        windows=[25, 169],
+    )
+
+    result = decomposer.decompose()
+
+    assert "trend" in result.columns
+    assert "seasonal_24" in result.columns
+    assert "seasonal_168" in result.columns
+    assert set(result["sensor"].unique()) == {"A", "B"}
+
+
+def test_grouped_single_period():
+    """Test MSTL with single period and groups."""
+    np.random.seed(42)
+    n_points = 100
+    dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
+
+    data = []
+    for sensor in ["A", "B"]:
+        trend = np.linspace(10, 20, n_points)
+        seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
+        noise = np.random.randn(n_points) * 0.5
+        values = trend + seasonal + noise
+
+        for i in range(n_points):
+            data.append({"timestamp": dates[i], "sensor": sensor, "value": values[i]})
+
+    df = pd.DataFrame(data)
+
+    decomposer = MSTLDecomposition(
+        df=df,
+        value_column="value",
+        timestamp_column="timestamp",
+        group_columns=["sensor"],
+        periods=7,
+    )
+
+    result = decomposer.decompose()
+
+    assert "trend" in result.columns
+    assert "seasonal_7" in result.columns
+    assert "residual" in result.columns

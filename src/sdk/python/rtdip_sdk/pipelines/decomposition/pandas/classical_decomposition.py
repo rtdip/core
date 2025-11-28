@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 import pandas as pd
 from pandas import DataFrame as PandasDataFrame
 from statsmodels.tsa.seasonal import seasonal_decompose
@@ -37,14 +37,13 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
     import numpy as np
     from rtdip_sdk.pipelines.decomposition.pandas import ClassicalDecomposition
 
-    # Create sample time series data
+    # Example 1: Single time series - Additive decomposition
     dates = pd.date_range('2024-01-01', periods=365, freq='D')
     df = pd.DataFrame({
         'timestamp': dates,
         'value': np.sin(np.arange(365) * 2 * np.pi / 7) + np.arange(365) * 0.01 + np.random.randn(365) * 0.1
     })
 
-    # Additive decomposition
     decomposer = ClassicalDecomposition(
         df=df,
         value_column='value',
@@ -54,15 +53,23 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
     )
     result_df = decomposer.decompose()
 
-    # Multiplicative decomposition
-    decomposer = ClassicalDecomposition(
-        df=df,
+    # Example 2: Multiple time series (grouped by sensor)
+    dates = pd.date_range('2024-01-01', periods=100, freq='D')
+    df_multi = pd.DataFrame({
+        'timestamp': dates.tolist() * 3,
+        'sensor': ['A'] * 100 + ['B'] * 100 + ['C'] * 100,
+        'value': np.random.randn(300)
+    })
+
+    decomposer_grouped = ClassicalDecomposition(
+        df=df_multi,
         value_column='value',
         timestamp_column='timestamp',
-        model='multiplicative',
+        group_columns=['sensor'],
+        model='additive',
         period=7
     )
-    result_df = decomposer.decompose()
+    result_df_grouped = decomposer_grouped.decompose()
     ```
 
     Parameters
@@ -74,6 +81,10 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
     timestamp_column : str, optional
         Name of the column containing timestamps. If provided, will be used
         to set the index. If None, assumes index is already a DatetimeIndex.
+    group_columns : List[str], optional
+        Columns defining separate time series groups (e.g., ['sensor_id']).
+        If provided, decomposition is performed separately for each group.
+        If None, the entire DataFrame is treated as a single time series.
     model : {'additive', 'multiplicative'}
         Type of decomposition model:
         - 'additive': Y_t = T_t + S_t + R_t (for constant seasonal variations)
@@ -96,6 +107,7 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         df: PandasDataFrame,
         value_column: str,
         timestamp_column: Optional[str] = None,
+        group_columns: Optional[List[str]] = None,
         model: Literal["additive", "multiplicative"] = "additive",
         period: int = 7,
         two_sided: bool = True,
@@ -104,6 +116,7 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         self.df = df.copy()
         self.value_column = value_column
         self.timestamp_column = timestamp_column
+        self.group_columns = group_columns
         self.model = model.lower()
         self.period = period
         self.two_sided = two_sided
@@ -120,6 +133,11 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         if self.timestamp_column and self.timestamp_column not in self.df.columns:
             raise ValueError(f"Column '{self.timestamp_column}' not found in DataFrame")
 
+        if self.group_columns:
+            missing_cols = [col for col in self.group_columns if col not in self.df.columns]
+            if missing_cols:
+                raise ValueError(f"Group columns {missing_cols} not found in DataFrame")
+
         if self.model not in ["additive", "multiplicative"]:
             raise ValueError(
                 f"Invalid model '{self.model}'. Must be 'additive' or 'multiplicative'"
@@ -128,7 +146,8 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         if self.period < 2:
             raise ValueError(f"Period must be at least 2, got {self.period}")
 
-        if len(self.df) < 2 * self.period:
+        # For grouped data, we'll validate length per group during decomposition
+        if not self.group_columns and len(self.df) < 2 * self.period:
             raise ValueError(
                 f"Time series length ({len(self.df)}) must be at least 2 * period ({2 * self.period})"
             )
@@ -150,19 +169,38 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
 
         return series
 
-    def decompose(self) -> PandasDataFrame:
+    def _decompose_single_group(self, group_df: PandasDataFrame) -> PandasDataFrame:
         """
-        Perform classical decomposition.
+        Decompose a single group (or the entire DataFrame if no grouping).
+
+        Parameters
+        ----------
+        group_df : PandasDataFrame
+            DataFrame for a single group
 
         Returns
         -------
         PandasDataFrame
-            DataFrame containing the original data plus decomposed components:
-            - trend: The trend component
-            - seasonal: The seasonal component
-            - residual: The residual component
+            DataFrame with decomposition components added
         """
-        series = self._prepare_data()
+        # Validate group size
+        if len(group_df) < 2 * self.period:
+            raise ValueError(
+                f"Group has {len(group_df)} observations, but needs at least "
+                f"{2 * self.period} (2 * period) for decomposition"
+            )
+
+        # Prepare data
+        if self.timestamp_column:
+            series = group_df.set_index(self.timestamp_column)[self.value_column]
+        else:
+            series = group_df[self.value_column]
+
+        if series.isna().any():
+            raise ValueError(
+                f"Column '{self.value_column}' contains NaN values. "
+                "Please handle missing values before decomposition."
+            )
 
         # Perform decomposition
         result = seasonal_decompose(
@@ -173,11 +211,50 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
             extrapolate_trend=self.extrapolate_trend,
         )
 
-        # Create result DataFrame with original data
-        self.result_df = self.df.copy()
-        self.result_df["trend"] = result.trend.values
-        self.result_df["seasonal"] = result.seasonal.values
-        self.result_df["residual"] = result.resid.values
+        # Add components to result
+        result_df = group_df.copy()
+        result_df["trend"] = result.trend.values
+        result_df["seasonal"] = result.seasonal.values
+        result_df["residual"] = result.resid.values
+
+        return result_df
+
+    def decompose(self) -> PandasDataFrame:
+        """
+        Perform classical decomposition.
+
+        If group_columns is provided, decomposition is performed separately for each group.
+        Each group must have at least 2 * period observations.
+
+        Returns
+        -------
+        PandasDataFrame
+            DataFrame containing the original data plus decomposed components:
+            - trend: The trend component
+            - seasonal: The seasonal component
+            - residual: The residual component
+
+        Raises
+        ------
+        ValueError
+            If any group has insufficient data or contains NaN values
+        """
+        if self.group_columns:
+            # Group by specified columns and decompose each group
+            result_dfs = []
+
+            for group_vals, group_df in self.df.groupby(self.group_columns):
+                try:
+                    decomposed_group = self._decompose_single_group(group_df)
+                    result_dfs.append(decomposed_group)
+                except ValueError as e:
+                    group_str = dict(zip(self.group_columns, group_vals if isinstance(group_vals, tuple) else [group_vals]))
+                    raise ValueError(f"Error in group {group_str}: {str(e)}")
+
+            self.result_df = pd.concat(result_dfs, ignore_index=True)
+        else:
+            # No grouping - decompose entire DataFrame
+            self.result_df = self._decompose_single_group(self.df)
 
         return self.result_df
 
