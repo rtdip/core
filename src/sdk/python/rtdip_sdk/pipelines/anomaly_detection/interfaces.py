@@ -25,5 +25,5 @@ class AnomalyDetectionInterface(PipelineComponentBaseInterface):
         pass
 
     @abstractmethod
-    def detect(self, df: DataFrame):
-        return self
+    def detect(self, df: DataFrame) -> DataFrame:
+        pass
