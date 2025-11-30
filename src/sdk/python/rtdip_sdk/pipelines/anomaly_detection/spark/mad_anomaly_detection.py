@@ -94,3 +94,74 @@ class MadAnomalyDetection(AnomalyDetectionInterface):
 
         # Pandas → Spark
         return df.sparkSession.createDataFrame(anomalies_pdf)
+
+
+class MadAnomalyDetectionRollingWindow(AnomalyDetectionInterface):
+    """
+    Median Absolute Deviation (MAD) Anomaly Detection with Rolling Window.
+    """
+
+    def __init__(self, threshold: float = 3.5, window_size: int = 30):
+        """
+        Initialize the MAD-based anomaly detector with rolling window.
+
+        The threshold defines how many robust standard deviations (MAD z-score)
+        a data point must deviate from the median to be classified as an anomaly.
+
+        :param threshold:
+            Robust z-score cutoff for anomaly detection.
+            Values with ``abs(mad_zscore) > threshold`` are flagged as anomalies.
+            Default is ``3.5``.
+        :type threshold: float
+
+        :param window_size:
+            Size of the rolling window (in number of data points) to compute
+            median and MAD for anomaly detection.
+            Default is ``30``.
+        :type window_size: int
+        """
+        self.threshold = threshold
+        self.window_size = window_size
+
+    @staticmethod
+    def system_type() -> SystemType:
+        return SystemType.PYSPARK
+
+    @staticmethod
+    def libraries() -> Libraries:
+        return Libraries()
+
+    @staticmethod
+    def settings() -> dict:
+        return {}
+
+    def detect(self, df: DataFrame) -> DataFrame:
+        """
+        Perform rolling MAD anomaly detection.
+
+        Returns only the detected anomalies.
+
+        :param df: Spark DataFrame containing a numeric "value" column.
+        :return: Spark DataFrame containing only anomaly rows.
+        """
+
+        pdf = df.toPandas().sort_values("timestamp")
+
+        # Rolling median & MAD
+        rolling_median = pdf["value"].rolling(self.window_size).median()
+        rolling_mad = (
+            pdf["value"]
+            .rolling(self.window_size)
+            .apply(lambda x: np.median(np.abs(x - np.median(x))), raw=True)
+        )
+
+        rolling_mad = rolling_mad.apply(lambda x: max(x, 1.0))
+
+        # Robust rolling z-score
+        pdf["rolling_mad_z"] = 0.6745 * (pdf["value"] - rolling_median) / rolling_mad
+        pdf["is_anomaly"] = pdf["rolling_mad_z"].abs() > self.threshold
+
+        # keep only anomalies
+        anomalies_pdf = pdf[pdf["is_anomaly"] == True].copy()
+
+        return df.sparkSession.createDataFrame(anomalies_pdf)
