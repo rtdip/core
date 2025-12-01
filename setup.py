@@ -68,6 +68,8 @@ PIPELINE_PACKAGES = [
     "sqlparams>=5.1.0,<6.0.0",
     "entsoe-py>=0.5.10,<1.0.0",
     "numpy>=1.23.4,<2.0.0",
+    "statsmodels>=0.14.1,<0.15.0",
+    "pmdarima>=2.0.4",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
