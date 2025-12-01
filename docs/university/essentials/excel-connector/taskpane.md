@@ -11,8 +11,8 @@ When you click run on the task pane, it inserts a formula with the specified par
 1. Run a `Raw` query by filling in the parameters as you did in the API lesson.
 2. Run an `Interpolate` query in the same way.
 3. Try the shorthand parameters, for example rather than `todays date` you can do `*`, and `yesterdays date` you can do `*-1d`.
-4. Search for a different tag with the tag explorer ![tagsearch](assets/tagsearch-icon.png){width=30px} and add one to your query.
-5. Explore the dashboard ![tagsearch](assets/dashboard-icon.png){width=30px} and `edit`, `delete` or `refresh` one of your queries.
+4. Search for a different tag with the tag explorer ![tagsearch](assets/tagsearch-icon.png){ width="30" } and add one to your query.
+5. Explore the dashboard ![dashboard](assets/dashboard-icon.png){ width="30" } and `edit`, `delete` or `refresh` one of your queries.
 
 
 ## Additional Task
