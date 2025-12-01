@@ -14,7 +14,9 @@ For our final exercise, we will put everything together and create a simple dash
 3. Either with the taskpane `Advanced Parameters` or by editing your formula, set `refreshIntervalSeconds` to a number (min value `10`).
 4. Watch your chart update with live data.
 
-<center> ![Excel](assets/plot.gif){width=100%} </center>
+<figure markdown="span">
+  ![Excel](assets/plot.gif){ width="100%" }
+</figure>
 
 >
 Note: Currently, if you require excel to recognise dates on plots you will need to do `=VALUE(your_date_cell)`.

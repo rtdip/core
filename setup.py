@@ -43,16 +43,6 @@ INSTALL_REQUIRES = [
     "protobuf>=5.29.0,<5.30.0",
 ]
 
-LANGCHAIN_PACKAGES = [
-    "langchain>=0.3.27,<0.4.0",
-    "langchain-community>=0.3.27,<0.4.0",
-    "langchain-core>=0.3.28,<0.4.0",
-    "langchain-text-splitters>=0.3.5,<0.4.0",
-    "openai>=1.59.0,<2.0.0",
-    "statsmodels>=0.14.1,<0.15.0",
-    "pmdarima>=2.0.4",
-]
-
 PYSPARK_PACKAGES = [
     "pyspark>=3.3.0,<3.6.0",
     "delta-spark>=2.2.0,<3.2.1",
@@ -81,7 +71,6 @@ PIPELINE_PACKAGES = [
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
-    "langchain": LANGCHAIN_PACKAGES,
     "pipelines": PIPELINE_PACKAGES,
     "pyspark": PYSPARK_PACKAGES,
 }

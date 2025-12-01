@@ -20,9 +20,4 @@ grpcio>=1.48.1,<1.63.0
 grpcio-status>=1.48.1,<1.63.0
 googleapis-common-protos>=1.56.4
 protobuf>=5.29.0,<5.30.0
-langchain>=0.3.27,<0.4.0
-langchain-community>=0.3.27,<0.4.0
-langchain-core>=0.3.28,<0.4.0
-langchain-text-splitters>=0.3.5,<0.4.0
-openai>=1.59.0,<2.0.0
 pyjwt==2.10.1
