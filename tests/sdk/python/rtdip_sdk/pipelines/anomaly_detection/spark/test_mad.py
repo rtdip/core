@@ -17,6 +17,7 @@ import pytest
 from src.sdk.python.rtdip_sdk.pipelines.anomaly_detection.spark.mad_anomaly_detection import (
     MadAnomalyDetection,
     MadAnomalyDetectionRollingWindow,
+    StlMadAnomalyDetection,
 )
 
 
@@ -121,3 +122,50 @@ def test_mad_anomaly_detection_rolling_window(spark_dataframe_with_anomalies_big
     assert result_df.collect()[0]["value"] == 0.0
     assert result_df.collect()[1]["value"] == 30.0
     assert result_df.collect()[2]["value"] == 40.0
+
+
+@pytest.fixture
+def spark_dataframe_synthetic_stl(spark_session):
+    import numpy as np
+    import pandas as pd
+
+    np.random.seed(42)
+
+    n = 500
+    period = 24
+
+    timestamps = pd.date_range("2025-01-01", periods=n, freq="H")
+    trend = 0.02 * np.arange(n)
+    seasonal = 5 * np.sin(2 * np.pi * np.arange(n) / period)
+    noise = 0.3 * np.random.randn(n)
+
+    values = trend + seasonal + noise
+
+    anomalies = [50, 120, 121, 350, 400]
+    values[anomalies] += np.array([8, -10, 9, 7, -12])
+
+    pdf = pd.DataFrame({"timestamp": timestamps, "value": values})
+
+    return spark_session.createDataFrame(pdf)
+
+
+def test_stl_mad_anomaly_detection(spark_dataframe_synthetic_stl):
+    detector = StlMadAnomalyDetection(
+        period=24,
+        threshold=3.5,
+        timestamp_column="timestamp",
+        value_column="value",
+    )
+
+    result_df = detector.detect(spark_dataframe_synthetic_stl)
+
+    # Expect exactly 5 anomalies (synthetic definition)
+    assert result_df.count() == 5
+
+    detected_values = sorted([row["value"] for row in result_df.collect()])
+
+    # We expect the injected anomalies to be the extreme values
+    # (STL removes season + trend, so residual spikes survive)
+    assert len(detected_values) == 5
+    assert min(detected_values) < -5  # negative anomaly around idx 120
+    assert max(detected_values) > 10  # positive anomaly around idx 50

@@ -1,9 +1,13 @@
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines.anomaly_detection.spark.mad_anomaly_detection import (
     MadAnomalyDetection,
     MadAnomalyDetectionRollingWindow,
+    StlMadAnomalyDetection,
 )
 
 
@@ -37,6 +41,25 @@ def plot_results(df_raw, df_anoms, title, ax):
     ax.set_ylabel("Value")
     ax.legend()
     ax.grid(True, linestyle="--", alpha=0.4)
+
+
+def generate_synthetic_ts(n=500, period=24):
+    np.random.seed(42)
+
+    timestamps = pd.date_range("2025-01-01", periods=n, freq="H")
+
+    trend = 0.02 * np.arange(n)
+    seasonal = 5 * np.sin(2 * np.pi * np.arange(n) / period)
+    noise = 0.3 * np.random.randn(n)
+
+    values = trend + seasonal + noise
+
+    anomalies = [50, 120, 121, 350, 400]
+    values[anomalies] += np.array([8, -10, 9, 7, -12])
+
+    df = pd.DataFrame({"timestamp": timestamps, "value": values})
+
+    return df
 
 
 def main():
@@ -122,6 +145,9 @@ def main():
 
     df_big = spark.createDataFrame(data_big, ["timestamp", "value"])
 
+    df_synth_pd = generate_synthetic_ts()
+    df_synth = spark.createDataFrame(df_synth_pd)
+
     # -----------------------------
     # Run the anomaly detectors
     # -----------------------------
@@ -131,13 +157,25 @@ def main():
     anoms_mad = detector_mad.detect(df_small)
     anoms_rolling = detector_rolling.detect(df_big)
 
+    detector_stl_mad = StlMadAnomalyDetection(
+        period=24,
+        threshold=3.5,
+        timestamp_column="timestamp",
+        value_column="value",
+    )
+
+    anoms_mad = detector_mad.detect(df_small)
+    anoms_rolling = detector_rolling.detect(df_big)
+    anoms_stl_mad = detector_stl_mad.detect(df_synth)
+
     # -----------------------------
     # Visualization
     # -----------------------------
-    fig, axs = plt.subplots(2, 1, figsize=(12, 10))
+    _, axs = plt.subplots(3, 1, figsize=(14, 14))
 
     plot_results(df_small, anoms_mad, "MAD Anomaly Detection", axs[0])
     plot_results(df_big, anoms_rolling, "Rolling MAD Anomaly Detection", axs[1])
+    plot_results(df_synth, anoms_stl_mad, "STL + MAD Anomaly Detection", axs[2])
 
     plt.tight_layout()
     plt.show()

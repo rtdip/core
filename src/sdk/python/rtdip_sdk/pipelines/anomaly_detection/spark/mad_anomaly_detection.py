@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import numpy as np
+
 from pyspark.sql import DataFrame
+from typing import Optional, List
 
 from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
@@ -21,6 +22,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 
 from ..interfaces import AnomalyDetectionInterface
+from ...decomposition.spark.stl_decomposition import STLDecomposition
 
 
 class MadAnomalyDetection(AnomalyDetectionInterface):
@@ -80,7 +82,8 @@ class MadAnomalyDetection(AnomalyDetectionInterface):
         median = pdf["value"].median()
         mad = np.median(np.abs(pdf["value"] - median))
 
-        mad = max(mad, 1.0)  # clamp MAD to prevent over-sensitive detection
+        # clamp MAD to prevent over-sensitive detection
+        mad = float(max(mad, 1.0))
 
         if mad == 0:
             pdf["mad_zscore"] = 0
@@ -162,6 +165,94 @@ class MadAnomalyDetectionRollingWindow(AnomalyDetectionInterface):
         pdf["is_anomaly"] = pdf["rolling_mad_z"].abs() > self.threshold
 
         # keep only anomalies
+        anomalies_pdf = pdf[pdf["is_anomaly"] == True].copy()
+
+        return df.sparkSession.createDataFrame(anomalies_pdf)
+
+
+class StlMadAnomalyDetection(AnomalyDetectionInterface):
+    """
+    STL + MAD anomaly detection.
+
+    1) Apply STL decomposition to remove trend & seasonality
+    2) Apply MAD on the residual column
+    3) Return ONLY rows flagged as anomalies
+    """
+
+    def __init__(
+        self,
+        period: int = 24,
+        threshold: float = 3.5,
+        group_columns: Optional[List[str]] = None,
+        timestamp_column: str = "timestamp",
+        value_column: str = "value",
+    ):
+        """
+        :param period:
+            STL seasonal period (e.g., 24 for hourly daily seasonality)
+        :param threshold:
+            MAD cutoff for marking anomalies
+        :param group_columns:
+            Optional group-by columns for STL decomposition
+        :param timestamp_column:
+            Timestamp column name
+        :param value_column:
+            Value column name
+        """
+
+        self.period = period
+        self.threshold = threshold
+        self.group_columns = group_columns
+        self.timestamp_column = timestamp_column
+        self.value_column = value_column
+
+    # RTDIP required static methods
+    @staticmethod
+    def system_type() -> SystemType:
+        return SystemType.PYSPARK
+
+    @staticmethod
+    def libraries() -> Libraries:
+        return Libraries()
+
+    @staticmethod
+    def settings() -> dict:
+        return {}
+
+    def detect(self, df: DataFrame) -> DataFrame:
+        """
+        Performs STL decomposition and then MAD-based anomaly detection
+        on the STL residual component.
+
+        Returns a Spark DataFrame containing ONLY the anomalies.
+        """
+
+        # Step 1: STL decomposition
+        stl = STLDecomposition(
+            df=df,
+            value_column=self.value_column,
+            timestamp_column=self.timestamp_column,
+            group_columns=self.group_columns,
+            period=self.period,
+        )
+
+        decomposed_df = stl.decompose()
+
+        # Spark -> Pandas
+        pdf = decomposed_df.toPandas()
+        pdf = pdf.sort_values(self.timestamp_column)
+
+        residuals = pdf["residual"].to_numpy(dtype=float)
+
+        median = np.median(residuals)
+        mad = np.median(np.abs(residuals - median))
+
+        mad = float(max(mad, 1.0))
+
+        pdf["mad_zscore"] = 0.6745 * (residuals - median) / mad
+        pdf["is_anomaly"] = pdf["mad_zscore"].abs() > self.threshold
+
+        # keep ONLY anomalies
         anomalies_pdf = pdf[pdf["is_anomaly"] == True].copy()
 
         return df.sparkSession.createDataFrame(anomalies_pdf)
