@@ -6,6 +6,7 @@ This script orchestrates the complete pipeline for Shell sensor data:
 2. Flat Sensor Detection: Analyze sensors for minimal variation
 3. Flat Sensor Filtering: Remove flat sensors from dataset
 4. Training: Train AutoGluon forecasting models
+5. Model Optimization: Tag best model as 'optimized' for deployment
 
 Each step can be skipped if already completed (checkpointing).
 
@@ -87,6 +88,8 @@ class ShellDataPipeline:
         self.detect_flat_script = self.script_dir / "preprocessing" / "detect_flat_sensors.py"
         self.filter_flat_script = self.script_dir / "preprocessing" / "filter_flat_sensors.py"
         self.training_script = self.script_dir / "training" / "train_autogluon_shell.py"
+        self.tag_model_script = self.script_dir / "training" / "tag_optimized_model.py"
+        self.optimized_model_dir = self.training_output_dir / "optimized_model"
 
     def print_header(self, text: str):
         """Print header."""
@@ -354,8 +357,49 @@ class ShellDataPipeline:
         finally:
             os.chdir(original_cwd)
 
+    def run_model_optimization(self):
+        """Run model optimization (tagging) step."""
+        self.print_step(5, "MODEL OPTIMIZATION")
+        if not self.training_output_dir.exists():
+            print(f"Error: Training output directory not found at {self.training_output_dir}")
+            print("Run training first")
+            return False
+
+        if not self.tag_model_script.exists():
+            print(f"Error: Model tagging script not found at {self.tag_model_script}")
+            return False
+        training_data_path = self.filtered_data_path if self.filtered_data_path.exists() else None
+
+        print(f"\nTagging best-performing model as 'optimized'")
+        print(f"Training output: {self.training_output_dir}")
+        if training_data_path:
+            print(f"Training data: {training_data_path}")
+        try:
+            sys.path.insert(0, str(self.tag_model_script.parent))
+            from tag_optimized_model import tag_optimized_model
+            deployment_dir = tag_optimized_model(
+                self.training_output_dir,
+                filtered_data_path=training_data_path
+            )
+
+            if deployment_dir:
+                print("\nModel optimization completed successfully")
+                print(f"Optimized model ready at: {deployment_dir}")
+                return True
+            else:
+                print("\nModel optimization failed")
+                return False
+
+        except Exception as e:
+            print(f"\nModel optimization failed with error: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+        finally:
+            sys.path.pop(0)
+
     def print_summary(self, preprocessing_success: bool, detection_success: bool,
-                      filtering_success: bool, training_success: bool):
+                      filtering_success: bool, training_success: bool, optimization_success: bool):
         """Print pipeline summary."""
         self.print_header("PIPELINE SUMMARY")
 
@@ -364,8 +408,8 @@ class ShellDataPipeline:
         print(f"2. Flat Sensor Detection:   {'Success' if detection_success else 'Failed' if not self.skip_flat_detection else 'Skipped'}")
         print(f"3. Flat Sensor Filtering:   {'Success' if filtering_success else 'Failed' if not self.skip_flat_filtering else 'Skipped'}")
         print(f"4. Training:                {'Success' if training_success else 'Failed'}")
-
-        all_success = preprocessing_success and detection_success and filtering_success and training_success
+        print(f"5. Model Optimization:      {'Success' if optimization_success else 'Failed'}")
+        all_success = preprocessing_success and detection_success and filtering_success and training_success and optimization_success
 
         if all_success:
             print("\nPipeline completed successfully")
@@ -389,6 +433,20 @@ class ShellDataPipeline:
                     if item.is_file():
                         size_mb = item.stat().st_size / (1024 * 1024)
                         print(f"    - {item.name} ({size_mb:.2f} MB)")
+            if self.optimized_model_dir.exists():
+                print(f"\n  Optimized Model for Deployment:")
+                print(f"  • {self.optimized_model_dir.relative_to(self.script_dir)}/")
+                print(f"    Tag: optimized")
+                print(f"    Status: Ready for deployment")
+                metadata_path = self.optimized_model_dir / "deployment_metadata.json"
+                if metadata_path.exists():
+                    import json
+                    with open(metadata_path, 'r') as f:
+                        metadata = json.load(f)
+                    if 'model' in metadata and 'best_model' in metadata['model']:
+                        best = metadata['model']['best_model']
+                        print(f"    Best Model: {best.get('name', 'N/A')}")
+                        print(f"    Score: {best.get('score_val', 'N/A')}")
         else:
             print("\nPipeline completed with errors")
 
@@ -432,12 +490,19 @@ class ShellDataPipeline:
             print("\nSkipping training due to previous failures")
             training_success = False
 
+        # Step 5: Model Optimization (only if training succeeds)
+        if training_success:
+            optimization_success = self.run_model_optimization()
+        else:
+            print("\nSkipping model optimization due to training failure")
+            optimization_success = False
+
         # Summary
-        self.print_summary(preprocessing_success, detection_success, filtering_success, training_success)
+        self.print_summary(preprocessing_success, detection_success, filtering_success, training_success, optimization_success)
 
         print(f"\nEnd time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-        all_success = preprocessing_success and detection_success and filtering_success and training_success
+        all_success = preprocessing_success and detection_success and filtering_success and training_success and optimization_success
         return 0 if all_success else 1
 
 
