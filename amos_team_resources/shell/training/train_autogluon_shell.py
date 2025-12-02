@@ -63,7 +63,7 @@ def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
     print(f"\nOverall time range: {overall_min} to {overall_max}")
 
     # Calculate sensor statistics
-    print("\nAnalyzing sensors by data volume...")
+    print("\nAnalyzing sensors by data volume")
     sensor_time_stats = df.groupby('TagName')['EventTime'].agg(['min', 'max', 'count'])
     sensor_time_stats = sensor_time_stats.rename(columns={'count': 'data_points'})
     sensor_time_stats['duration_days'] = (sensor_time_stats['max'] - sensor_time_stats['min']).dt.total_seconds() / 86400
@@ -103,7 +103,7 @@ def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
     ts_data = ts_data.sort_values(["item_id", "timestamp"]).reset_index(drop=True)
 
     # Filter sensors by minimum data points (preserves irregular high-resolution data)
-    print("\nFiltering sensors by data volume...")
+    print("\nFiltering sensors by data volume")
     min_data_points = 100  # Require at least 100 data points per sensor
 
     sensor_point_counts = ts_data.groupby('item_id').size()
