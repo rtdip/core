@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, List
+from typing import Optional, List, Union
 from pyspark.sql import DataFrame as PySparkDataFrame
 import pandas as pd
 
 from ..interfaces import DecompositionBaseInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from ..pandas.period_utils import calculate_period_from_frequency
 
 
 class ClassicalDecomposition(DecompositionBaseInterface):
@@ -35,13 +36,23 @@ class ClassicalDecomposition(DecompositionBaseInterface):
 
     spark = SparkSession.builder.getOrCreate()
 
-    # Example 1: Single time series
+    # Example 1: Single time series with explicit period
     decomposer = ClassicalDecomposition(
         df=spark_df,
         value_column='value',
         timestamp_column='timestamp',
         model='additive',
-        period=7
+        period=7  # Explicit: 7 days
+    )
+    result = decomposer.decompose()
+
+    # Or using period string (auto-calculated from sampling frequency)
+    decomposer = ClassicalDecomposition(
+        df=spark_df,
+        value_column='value',
+        timestamp_column='timestamp',
+        model='additive',
+        period='weekly'  # Automatically calculated
     )
     result = decomposer.decompose()
 
@@ -52,7 +63,7 @@ class ClassicalDecomposition(DecompositionBaseInterface):
         timestamp_column='timestamp',
         group_columns=['sensor'],
         model='additive',
-        period=7
+        period='weekly'  # Period string
     )
     result_grouped = decomposer_grouped.decompose()
     ```
@@ -65,7 +76,15 @@ class ClassicalDecomposition(DecompositionBaseInterface):
             If provided, decomposition is performed separately for each group.
             If None, the entire DataFrame is treated as a single time series.
         model (str): Type of seasonal component. Must be 'additive' or 'multiplicative'.
-        period (int): Periodicity of the seasonal component.
+        period (Union[int, str]): Seasonal period. Can be:
+            - Integer: Explicit period value (e.g., 7 for weekly, 24 for daily in hourly data)
+            - String: Period name auto-calculated from sampling frequency
+              Supported: 'minutely', 'hourly', 'daily', 'weekly', 'monthly',
+              'quarterly', 'yearly'
+            Examples:
+            - 7 or 'weekly' for weekly patterns in daily data
+            - 24 or 'daily' for daily patterns in hourly data
+            - 720 or 'hourly' for hourly patterns in 5-second data
         two_sided (bool): If True, use a centered moving average for trend estimation.
         extrapolate_trend (int or str): How many periods to extrapolate the trend at the boundaries.
     """
@@ -75,6 +94,7 @@ class ClassicalDecomposition(DecompositionBaseInterface):
     timestamp_column: str
     group_columns: List[str]
     model: str
+    period_input: Union[int, str]
     period: int
     two_sided: bool
     extrapolate_trend: int
@@ -86,7 +106,7 @@ class ClassicalDecomposition(DecompositionBaseInterface):
         timestamp_column: str = None,
         group_columns: Optional[List[str]] = None,
         model: str = "additive",
-        period: int = 7,
+        period: Union[int, str] = 7,
         two_sided: bool = True,
         extrapolate_trend: int = 0,
     ) -> None:
@@ -95,7 +115,8 @@ class ClassicalDecomposition(DecompositionBaseInterface):
         self.timestamp_column = timestamp_column
         self.group_columns = group_columns
         self.model = model
-        self.period = period
+        self.period_input = period  # Store original input
+        self.period = None  # Will be resolved in _resolve_period
         self.two_sided = two_sided
         self.extrapolate_trend = extrapolate_trend
 
@@ -130,6 +151,52 @@ class ClassicalDecomposition(DecompositionBaseInterface):
     def settings() -> dict:
         return {}
 
+    def _resolve_period(self, group_pdf: pd.DataFrame) -> int:
+        """
+        Resolve period specification (string or integer) to integer value.
+
+        Parameters
+        ----------
+        group_pdf : pd.DataFrame
+            Pandas DataFrame for the group (needed to calculate period from frequency)
+
+        Returns
+        -------
+        int
+            Resolved period value
+        """
+        if isinstance(self.period_input, str):
+            # String period name - calculate from sampling frequency
+            if not self.timestamp_column:
+                raise ValueError(
+                    f"timestamp_column must be provided when using period strings like '{self.period_input}'"
+                )
+
+            period = calculate_period_from_frequency(
+                df=group_pdf,
+                timestamp_column=self.timestamp_column,
+                period_name=self.period_input,
+                min_cycles=2,
+            )
+
+            if period is None:
+                raise ValueError(
+                    f"Period '{self.period_input}' is not valid for this data. "
+                    f"Either the calculated period is too small (<2) or there is insufficient "
+                    f"data for at least 2 complete cycles."
+                )
+
+            return period
+        elif isinstance(self.period_input, int):
+            # Integer period - use directly
+            if self.period_input < 2:
+                raise ValueError(f"Period must be at least 2, got {self.period_input}")
+            return self.period_input
+        else:
+            raise ValueError(
+                f"Period must be int or str, got {type(self.period_input).__name__}"
+            )
+
     def _decompose_single_group(self, group_pdf: pd.DataFrame) -> pd.DataFrame:
         """
         Decompose a single group (or the entire DataFrame if no grouping).
@@ -146,11 +213,14 @@ class ClassicalDecomposition(DecompositionBaseInterface):
         """
         from statsmodels.tsa.seasonal import seasonal_decompose
 
+        # Resolve period for this group
+        resolved_period = self._resolve_period(group_pdf)
+
         # Validate group size
-        if len(group_pdf) < 2 * self.period:
+        if len(group_pdf) < 2 * resolved_period:
             raise ValueError(
                 f"Group has {len(group_pdf)} observations, but needs at least "
-                f"{2 * self.period} (2 * period) for decomposition"
+                f"{2 * resolved_period} (2 * period) for decomposition"
             )
 
         # Sort by timestamp if provided
@@ -170,7 +240,7 @@ class ClassicalDecomposition(DecompositionBaseInterface):
         result = seasonal_decompose(
             series,
             model=self.model,
-            period=self.period,
+            period=resolved_period,
             two_sided=self.two_sided,
             extrapolate_trend=self.extrapolate_trend,
         )
@@ -208,7 +278,16 @@ class ClassicalDecomposition(DecompositionBaseInterface):
                     decomposed_group = self._decompose_single_group(group_df)
                     result_dfs.append(decomposed_group)
                 except ValueError as e:
-                    group_str = dict(zip(self.group_columns, group_vals if isinstance(group_vals, tuple) else [group_vals]))
+                    group_str = dict(
+                        zip(
+                            self.group_columns,
+                            (
+                                group_vals
+                                if isinstance(group_vals, tuple)
+                                else [group_vals]
+                            ),
+                        )
+                    )
                     raise ValueError(f"Error in group {group_str}: {str(e)}")
 
             result_pdf = pd.concat(result_dfs, ignore_index=True)

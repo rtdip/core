@@ -134,14 +134,16 @@ def test_list_period_input(spark, sample_time_series):
 
 def test_invalid_windows_length(spark, sample_time_series):
     """Test error handling for mismatched windows length."""
+    decomposer = MSTLDecomposition(
+        df=sample_time_series,
+        value_column="value",
+        timestamp_column="timestamp",
+        periods=[7, 14],
+        windows=[9],
+    )
+
     with pytest.raises(ValueError, match="Length of windows"):
-        MSTLDecomposition(
-            df=sample_time_series,
-            value_column="value",
-            timestamp_column="timestamp",
-            periods=[7, 14],
-            windows=[9],  # Wrong length
-        )
+        decomposer.decompose()
 
 
 def test_invalid_column(spark, sample_time_series):

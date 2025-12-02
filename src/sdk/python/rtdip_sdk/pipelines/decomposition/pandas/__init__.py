@@ -15,3 +15,7 @@
 from .stl_decomposition import STLDecomposition
 from .classical_decomposition import ClassicalDecomposition
 from .mstl_decomposition import MSTLDecomposition
+from .period_utils import (
+    calculate_period_from_frequency,
+    calculate_periods_from_frequency,
+)

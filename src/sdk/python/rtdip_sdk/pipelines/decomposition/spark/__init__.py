@@ -15,9 +15,3 @@
 from .stl_decomposition import STLDecomposition
 from .classical_decomposition import ClassicalDecomposition
 from .mstl_decomposition import MSTLDecomposition
-
-__all__ = [
-    "STLDecomposition",
-    "ClassicalDecomposition",
-    "MSTLDecomposition",
-]

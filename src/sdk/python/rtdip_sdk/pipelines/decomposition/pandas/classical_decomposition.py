@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Literal, List
+from typing import Optional, Literal, List, Union
 import pandas as pd
 from pandas import DataFrame as PandasDataFrame
 from statsmodels.tsa.seasonal import seasonal_decompose
 
 from ..interfaces import PandasDecompositionBaseInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from .period_utils import calculate_period_from_frequency
 
 
 class ClassicalDecomposition(PandasDecompositionBaseInterface):
@@ -44,12 +45,23 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         'value': np.sin(np.arange(365) * 2 * np.pi / 7) + np.arange(365) * 0.01 + np.random.randn(365) * 0.1
     })
 
+    # Using explicit period
     decomposer = ClassicalDecomposition(
         df=df,
         value_column='value',
         timestamp_column='timestamp',
         model='additive',
-        period=7
+        period=7  # Explicit: 7 days
+    )
+    result_df = decomposer.decompose()
+
+    # Or using period string (auto-calculated from sampling frequency)
+    decomposer = ClassicalDecomposition(
+        df=df,
+        value_column='value',
+        timestamp_column='timestamp',
+        model='additive',
+        period='weekly'  # Automatically calculated
     )
     result_df = decomposer.decompose()
 
@@ -89,8 +101,16 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         Type of decomposition model:
         - 'additive': Y_t = T_t + S_t + R_t (for constant seasonal variations)
         - 'multiplicative': Y_t = T_t * S_t * R_t (for proportional seasonal variations)
-    period : int
-        Seasonal period (e.g., 7 for weekly, 24 for hourly daily patterns, 365 for yearly)
+    period : Union[int, str]
+        Seasonal period. Can be:
+        - Integer: Explicit period value (e.g., 7 for weekly, 24 for daily in hourly data)
+        - String: Period name auto-calculated from sampling frequency
+          Supported: 'minutely', 'hourly', 'daily', 'weekly', 'monthly',
+          'quarterly', 'yearly'
+        Examples:
+        - 7 or 'weekly' for weekly patterns in daily data
+        - 24 or 'daily' for daily patterns in hourly data
+        - 720 or 'hourly' for hourly patterns in 5-second data
     two_sided : bool, default=True
         Whether to use centered moving averages
     extrapolate_trend : int or 'freq', default=0
@@ -109,7 +129,7 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         timestamp_column: Optional[str] = None,
         group_columns: Optional[List[str]] = None,
         model: Literal["additive", "multiplicative"] = "additive",
-        period: int = 7,
+        period: Union[int, str] = 7,
         two_sided: bool = True,
         extrapolate_trend: int = 0,
     ):
@@ -118,7 +138,8 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         self.timestamp_column = timestamp_column
         self.group_columns = group_columns
         self.model = model.lower()
-        self.period = period
+        self.period_input = period  # Store original input
+        self.period = None  # Will be resolved in _resolve_period
         self.two_sided = two_sided
         self.extrapolate_trend = extrapolate_trend
         self.result_df = None
@@ -134,7 +155,9 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
             raise ValueError(f"Column '{self.timestamp_column}' not found in DataFrame")
 
         if self.group_columns:
-            missing_cols = [col for col in self.group_columns if col not in self.df.columns]
+            missing_cols = [
+                col for col in self.group_columns if col not in self.df.columns
+            ]
             if missing_cols:
                 raise ValueError(f"Group columns {missing_cols} not found in DataFrame")
 
@@ -143,13 +166,50 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
                 f"Invalid model '{self.model}'. Must be 'additive' or 'multiplicative'"
             )
 
-        if self.period < 2:
-            raise ValueError(f"Period must be at least 2, got {self.period}")
+    def _resolve_period(self, group_df: PandasDataFrame) -> int:
+        """
+        Resolve period specification (string or integer) to integer value.
 
-        # For grouped data, we'll validate length per group during decomposition
-        if not self.group_columns and len(self.df) < 2 * self.period:
+        Parameters
+        ----------
+        group_df : PandasDataFrame
+            DataFrame for the group (needed to calculate period from frequency)
+
+        Returns
+        -------
+        int
+            Resolved period value
+        """
+        if isinstance(self.period_input, str):
+            # String period name - calculate from sampling frequency
+            if not self.timestamp_column:
+                raise ValueError(
+                    f"timestamp_column must be provided when using period strings like '{self.period_input}'"
+                )
+
+            period = calculate_period_from_frequency(
+                df=group_df,
+                timestamp_column=self.timestamp_column,
+                period_name=self.period_input,
+                min_cycles=2,
+            )
+
+            if period is None:
+                raise ValueError(
+                    f"Period '{self.period_input}' is not valid for this data. "
+                    f"Either the calculated period is too small (<2) or there is insufficient "
+                    f"data for at least 2 complete cycles."
+                )
+
+            return period
+        elif isinstance(self.period_input, int):
+            # Integer period - use directly
+            if self.period_input < 2:
+                raise ValueError(f"Period must be at least 2, got {self.period_input}")
+            return self.period_input
+        else:
             raise ValueError(
-                f"Time series length ({len(self.df)}) must be at least 2 * period ({2 * self.period})"
+                f"Period must be int or str, got {type(self.period_input).__name__}"
             )
 
     def _prepare_data(self) -> pd.Series:
@@ -183,11 +243,14 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         PandasDataFrame
             DataFrame with decomposition components added
         """
+        # Resolve period for this group
+        resolved_period = self._resolve_period(group_df)
+
         # Validate group size
-        if len(group_df) < 2 * self.period:
+        if len(group_df) < 2 * resolved_period:
             raise ValueError(
                 f"Group has {len(group_df)} observations, but needs at least "
-                f"{2 * self.period} (2 * period) for decomposition"
+                f"{2 * resolved_period} (2 * period) for decomposition"
             )
 
         # Prepare data
@@ -206,7 +269,7 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
         result = seasonal_decompose(
             series,
             model=self.model,
-            period=self.period,
+            period=resolved_period,
             two_sided=self.two_sided,
             extrapolate_trend=self.extrapolate_trend,
         )
@@ -248,7 +311,16 @@ class ClassicalDecomposition(PandasDecompositionBaseInterface):
                     decomposed_group = self._decompose_single_group(group_df)
                     result_dfs.append(decomposed_group)
                 except ValueError as e:
-                    group_str = dict(zip(self.group_columns, group_vals if isinstance(group_vals, tuple) else [group_vals]))
+                    group_str = dict(
+                        zip(
+                            self.group_columns,
+                            (
+                                group_vals
+                                if isinstance(group_vals, tuple)
+                                else [group_vals]
+                            ),
+                        )
+                    )
                     raise ValueError(f"Error in group {group_str}: {str(e)}")
 
             self.result_df = pd.concat(result_dfs, ignore_index=True)

@@ -146,10 +146,12 @@ def test_insufficient_data():
         }
     )
 
-    with pytest.raises(ValueError, match="Time series length"):
-        STLDecomposition(
-            df=df, value_column="value", timestamp_column="timestamp", period=7
-        )
+    decomposer = STLDecomposition(
+        df=df, value_column="value", timestamp_column="timestamp", period=7
+    )
+
+    with pytest.raises(ValueError, match="needs at least"):
+        decomposer.decompose()
 
 
 def test_preserves_original(sample_time_series):

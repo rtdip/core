@@ -19,6 +19,7 @@ from statsmodels.tsa.seasonal import MSTL
 
 from ..interfaces import PandasDecompositionBaseInterface
 from ..._pipeline_utils.models import Libraries, SystemType
+from .period_utils import calculate_period_from_frequency
 
 
 class MSTLDecomposition(PandasDecompositionBaseInterface):
@@ -52,7 +53,7 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         'value': trend + daily_pattern + weekly_pattern + noise
     })
 
-    # MSTL decomposition with multiple periods
+    # MSTL decomposition with multiple periods (as integers)
     decomposer = MSTLDecomposition(
         df=df,
         value_column='value',
@@ -63,6 +64,15 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
     result_df = decomposer.decompose()
 
     # Result will have: trend, seasonal_24, seasonal_168, residual
+
+    # Alternatively, use period strings (auto-calculated from sampling frequency)
+    decomposer = MSTLDecomposition(
+        df=df,
+        value_column='value',
+        timestamp_column='timestamp',
+        periods=['daily', 'weekly']  # Automatically calculated
+    )
+    result_df = decomposer.decompose()
     ```
 
     Parameters
@@ -78,10 +88,16 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         Columns defining separate time series groups (e.g., ['sensor_id']).
         If provided, decomposition is performed separately for each group.
         If None, the entire DataFrame is treated as a single time series.
-    periods : Union[int, List[int]]
-        Seasonal period(s). Can be a single integer or list of integers.
-        Examples: 7 for weekly, [24, 168] for daily+weekly in hourly data,
-        [7, 365] for weekly+yearly in daily data
+    periods : Union[int, List[int], str, List[str]]
+        Seasonal period(s). Can be:
+        - Integer(s): Explicit period values (e.g., 7 for weekly, [24, 168])
+        - String(s): Period names that are auto-calculated from sampling frequency
+          Supported: 'minutely', 'hourly', 'daily', 'weekly', 'monthly',
+          'quarterly', 'yearly'
+        Examples:
+        - [24, 168] for daily+weekly in hourly data (explicit)
+        - ['hourly', 'daily'] for auto-calculated periods based on sampling
+        - ['daily', 'weekly'] for daily data with weekly+yearly patterns
     windows : Union[int, List[int]], optional
         Length(s) of seasonal smoother(s). Must be odd. If None, defaults based on periods.
         Should have same length as periods if provided as list.
@@ -102,7 +118,7 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         value_column: str,
         timestamp_column: Optional[str] = None,
         group_columns: Optional[List[str]] = None,
-        periods: Union[int, List[int]] = None,
+        periods: Union[int, List[int], str, List[str]] = None,
         windows: Union[int, List[int]] = None,
         iterate: int = 2,
         stl_kwargs: Optional[dict] = None,
@@ -111,9 +127,8 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         self.value_column = value_column
         self.timestamp_column = timestamp_column
         self.group_columns = group_columns
-        self.periods = (
-            periods if isinstance(periods, list) else [periods] if periods else [7]
-        )
+        self.periods_input = periods  # Store original input
+        self.periods = None  # Will be resolved in _resolve_periods
         self.windows = windows
         self.iterate = iterate
         self.stl_kwargs = stl_kwargs or {}
@@ -130,32 +145,92 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
             raise ValueError(f"Column '{self.timestamp_column}' not found in DataFrame")
 
         if self.group_columns:
-            missing_cols = [col for col in self.group_columns if col not in self.df.columns]
+            missing_cols = [
+                col for col in self.group_columns if col not in self.df.columns
+            ]
             if missing_cols:
                 raise ValueError(f"Group columns {missing_cols} not found in DataFrame")
 
-        if not self.periods:
+        if not self.periods_input:
             raise ValueError("At least one period must be specified")
 
-        for period in self.periods:
-            if period < 2:
-                raise ValueError(f"All periods must be at least 2, got {period}")
+    def _resolve_periods(self, group_df: PandasDataFrame) -> List[int]:
+        """
+        Resolve period specifications (strings or integers) to integer values.
 
-        max_period = max(self.periods)
-        # For grouped data, we'll validate length per group during decomposition
-        if not self.group_columns and len(self.df) < 2 * max_period:
+        Parameters
+        ----------
+        group_df : PandasDataFrame
+            DataFrame for the group (needed to calculate periods from frequency)
+
+        Returns
+        -------
+        List[int]
+            List of resolved period values
+        """
+        # Convert to list if single value
+        periods_input = (
+            self.periods_input
+            if isinstance(self.periods_input, list)
+            else [self.periods_input]
+        )
+
+        resolved_periods = []
+
+        for period_spec in periods_input:
+            if isinstance(period_spec, str):
+                # String period name - calculate from sampling frequency
+                if not self.timestamp_column:
+                    raise ValueError(
+                        f"timestamp_column must be provided when using period strings like '{period_spec}'"
+                    )
+
+                period = calculate_period_from_frequency(
+                    df=group_df,
+                    timestamp_column=self.timestamp_column,
+                    period_name=period_spec,
+                    min_cycles=2,
+                )
+
+                if period is None:
+                    raise ValueError(
+                        f"Period '{period_spec}' is not valid for this data. "
+                        f"Either the calculated period is too small (<2) or there is insufficient "
+                        f"data for at least 2 complete cycles."
+                    )
+
+                resolved_periods.append(period)
+            elif isinstance(period_spec, int):
+                # Integer period - use directly
+                if period_spec < 2:
+                    raise ValueError(
+                        f"All periods must be at least 2, got {period_spec}"
+                    )
+                resolved_periods.append(period_spec)
+            else:
+                raise ValueError(
+                    f"Period must be int or str, got {type(period_spec).__name__}"
+                )
+
+        # Validate length requirement
+        max_period = max(resolved_periods)
+        if len(group_df) < 2 * max_period:
             raise ValueError(
-                f"Time series length ({len(self.df)}) must be at least 2 * max_period ({2 * max_period})"
+                f"Time series length ({len(group_df)}) must be at least "
+                f"2 * max_period ({2 * max_period})"
             )
 
+        # Validate windows if provided
         if self.windows is not None:
             windows_list = (
                 self.windows if isinstance(self.windows, list) else [self.windows]
             )
-            if len(windows_list) != len(self.periods):
+            if len(windows_list) != len(resolved_periods):
                 raise ValueError(
-                    f"Length of windows ({len(windows_list)}) must match length of periods ({len(self.periods)})"
+                    f"Length of windows ({len(windows_list)}) must match length of periods ({len(resolved_periods)})"
                 )
+
+        return resolved_periods
 
     def _prepare_data(self) -> pd.Series:
         """Prepare the time series data for decomposition."""
@@ -188,13 +263,8 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         PandasDataFrame
             DataFrame with decomposition components added
         """
-        # Validate group size
-        max_period = max(self.periods)
-        if len(group_df) < 2 * max_period:
-            raise ValueError(
-                f"Group has {len(group_df)} observations, but needs at least "
-                f"{2 * max_period} (2 * max_period) for decomposition"
-            )
+        # Resolve periods for this group
+        resolved_periods = self._resolve_periods(group_df)
 
         # Prepare data
         if self.timestamp_column:
@@ -211,7 +281,7 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         # Create MSTL object and fit
         mstl = MSTL(
             series,
-            periods=self.periods,
+            periods=resolved_periods,
             windows=self.windows,
             iterate=self.iterate,
             stl_kwargs=self.stl_kwargs,
@@ -224,11 +294,11 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
 
         # Add each seasonal component
         # Handle both Series (single period) and DataFrame (multiple periods)
-        if len(self.periods) == 1:
-            seasonal_col = f"seasonal_{self.periods[0]}"
+        if len(resolved_periods) == 1:
+            seasonal_col = f"seasonal_{resolved_periods[0]}"
             result_df[seasonal_col] = result.seasonal.values
         else:
-            for i, period in enumerate(self.periods):
+            for i, period in enumerate(resolved_periods):
                 seasonal_col = f"seasonal_{period}"
                 result_df[seasonal_col] = result.seasonal[
                     result.seasonal.columns[i]
@@ -267,7 +337,16 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
                     decomposed_group = self._decompose_single_group(group_df)
                     result_dfs.append(decomposed_group)
                 except ValueError as e:
-                    group_str = dict(zip(self.group_columns, group_vals if isinstance(group_vals, tuple) else [group_vals]))
+                    group_str = dict(
+                        zip(
+                            self.group_columns,
+                            (
+                                group_vals
+                                if isinstance(group_vals, tuple)
+                                else [group_vals]
+                            ),
+                        )
+                    )
                     raise ValueError(f"Error in group {group_str}: {str(e)}")
 
             self.result_df = pd.concat(result_dfs, ignore_index=True)
