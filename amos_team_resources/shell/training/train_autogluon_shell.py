@@ -16,20 +16,21 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src", "sdk", "python
 from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
 
 
-DATA_PATH = os.environ.get("SHELL_DATA_PATH", "ShellData_preprocessed_final.parquet")
+SCRIPT_DIR = Path(__file__).parent
+DEFAULT_DATA_PATH = SCRIPT_DIR / ".." / "preprocessing" / "ShellData_preprocessed_filtered.parquet"
+DATA_PATH = os.environ.get("SHELL_DATA_PATH", str(DEFAULT_DATA_PATH))
 OUTPUT_DIR = "autogluon_results"
 MODEL_SAVE_PATH = os.path.join(OUTPUT_DIR, "autogluon_model")
 
-# Training Configuration
 TOP_N_SENSORS = 10
-PREDICTION_LENGTH = 24
+PREDICTION_LENGTH = 72  # Forecast horizon in hours (24 = 1 day, 48 = 2 days, 168 = 1 week)
 TRAIN_RATIO = 0.7
 VAL_RATIO = 0.15
 TEST_RATIO = 0.15
 TIME_LIMIT = 600
 EVAL_METRIC = "MAE"
 PRESET = "medium_quality"
-FREQ = "h"
+FREQ = "h"  # Frequency: 'h' = hourly, '30min' = 30 minutes, 'D' = daily
 
 
 def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
@@ -55,16 +56,31 @@ def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
         df = df.sample(frac=sample_ratio, random_state=42)
         print(f"Sampled {sample_ratio*100}% of data: {len(df):,} rows")
 
-    print(f"\nSelecting top {top_n_sensors} sensors by data volume")
+    # Convert timestamps and get basic stats
+    df['EventTime'] = pd.to_datetime(df['EventTime'], format='mixed')
+    overall_min = df['EventTime'].min()
+    overall_max = df['EventTime'].max()
+    print(f"\nOverall time range: {overall_min} to {overall_max}")
+
+    # Calculate sensor statistics
+    print("\nAnalyzing sensors by data volume")
+    sensor_time_stats = df.groupby('TagName')['EventTime'].agg(['min', 'max', 'count'])
+    sensor_time_stats = sensor_time_stats.rename(columns={'count': 'data_points'})
+    sensor_time_stats['duration_days'] = (sensor_time_stats['max'] - sensor_time_stats['min']).dt.total_seconds() / 86400
+
+    # Select top N sensors by data volume
     sensor_counts = df["TagName"].value_counts()
     top_sensors = sensor_counts.head(top_n_sensors).index.tolist()
 
     df_filtered = df[df["TagName"].isin(top_sensors)].copy()
-    print(f"Selected {len(df_filtered):,} rows from {top_n_sensors} sensors")
+    print(f"\nSelected {len(df_filtered):,} rows from {len(top_sensors)} sensors")
 
-    print("\nTop sensors:")
-    for i, (sensor, count) in enumerate(sensor_counts.head(top_n_sensors).items(), 1):
-        print(f"  {i}. {sensor}: {count:,} data points")
+    print("\nSelected sensors (by data volume):")
+    for i, sensor in enumerate(top_sensors, 1):
+        count = sensor_counts[sensor]
+        duration = sensor_time_stats.loc[sensor, 'duration_days']
+        time_range = f"{sensor_time_stats.loc[sensor, 'min'].strftime('%Y-%m-%d')} to {sensor_time_stats.loc[sensor, 'max'].strftime('%Y-%m-%d')}"
+        print(f"  {i}. {sensor}: {count:,} points over {duration:.1f} days, {time_range}")
     ts_data = pd.DataFrame(
         {
             "item_id": df_filtered["TagName"],
@@ -72,8 +88,6 @@ def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
             "target": df_filtered["Value"],
         }
     )
-
-    # Remove any null values in target
     original_len = len(ts_data)
     ts_data = ts_data.dropna(subset=["target"])
     if len(ts_data) < original_len:
@@ -88,7 +102,20 @@ def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
 
     ts_data = ts_data.sort_values(["item_id", "timestamp"]).reset_index(drop=True)
 
-    print(f"Final dataset: {len(ts_data):,} rows")
+    # Filter sensors by minimum data points (preserves irregular high-resolution data)
+    print("\nFiltering sensors by data volume")
+    min_data_points = 100  # Require at least 100 data points per sensor
+
+    sensor_point_counts = ts_data.groupby('item_id').size()
+    valid_sensors = sensor_point_counts[sensor_point_counts >= min_data_points].index.tolist()
+
+    ts_data = ts_data[ts_data['item_id'].isin(valid_sensors)].copy()
+
+    print(f"  Kept {len(valid_sensors)} sensors with >= {min_data_points} data points")
+    print(f"  Total irregular data points: {len(ts_data):,}")
+    print(f"  Note: AutoGluon will resample to hourly frequency during training")
+
+    print(f"\nFinal dataset: {len(ts_data):,} rows")
     print(f"Time range: {ts_data['timestamp'].min()} to {ts_data['timestamp'].max()}")
     print(
         f"Target range: [{ts_data['target'].min():.2f}, {ts_data['target'].max():.2f}]"
@@ -99,7 +126,10 @@ def load_shell_data(data_path, top_n_sensors=10, sample_ratio=None):
 
 def split_timeseries_data(df, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
     """
-    Split time series data into train/val/test sets (time-aware).
+    Split time series data into train/val/test sets (time-aware, per-sensor).
+
+    Each sensor's data is split individually based on its own time range.
+    This ensures all sensors can generate predictions regardless of when they operated.
 
     Args:
         df: DataFrame with columns [item_id, timestamp, target]
@@ -110,28 +140,47 @@ def split_timeseries_data(df, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
     Returns:
         train_df, val_df, test_df
     """
-    print("SPLITTING DATA")
+    print("SPLITTING DATA (per-sensor time-based splitting)")
 
     assert (
         abs(train_ratio + val_ratio + test_ratio - 1.0) < 0.001
     ), "Split ratios must sum to 1.0"
 
-    n = len(df)
-    train_end = int(n * train_ratio)
-    val_end = int(n * (train_ratio + val_ratio))
+    train_dfs = []
+    val_dfs = []
+    test_dfs = []
 
-    train_df = df.iloc[:train_end].copy()
-    val_df = df.iloc[train_end:val_end].copy()
-    test_df = df.iloc[val_end:].copy()
+    sensors = df['item_id'].unique()
+    print(f"Splitting {len(sensors)} sensors individually...")
 
-    print(f"Split ratios: {train_ratio:.0%} / {val_ratio:.0%} / {test_ratio:.0%}")
-    print(f"Train set: {len(train_df):,} rows ({len(train_df)/n:.1%})")
+    for sensor in sensors:
+        sensor_df = df[df['item_id'] == sensor].sort_values('timestamp').reset_index(drop=True)
+        n = len(sensor_df)
+
+        # Skip sensors with insufficient data
+        if n < 10:
+            continue
+
+        train_end = int(n * train_ratio)
+        val_end = int(n * (train_ratio + val_ratio))
+
+        train_dfs.append(sensor_df.iloc[:train_end])
+        val_dfs.append(sensor_df.iloc[train_end:val_end])
+        test_dfs.append(sensor_df.iloc[val_end:])
+
+    train_df = pd.concat(train_dfs, ignore_index=True)
+    val_df = pd.concat(val_dfs, ignore_index=True)
+    test_df = pd.concat(test_dfs, ignore_index=True)
+
+    n_total = len(df)
+    print(f"\nSplit ratios: {train_ratio:.0%} / {val_ratio:.0%} / {test_ratio:.0%}")
+    print(f"Train set: {len(train_df):,} rows ({len(train_df)/n_total:.1%}) across {len(train_dfs)} sensors")
     print(
         f"  Time range: {train_df['timestamp'].min()} to {train_df['timestamp'].max()}"
     )
-    print(f"Val set:   {len(val_df):,} rows ({len(val_df)/n:.1%})")
+    print(f"Val set:   {len(val_df):,} rows ({len(val_df)/n_total:.1%}) across {len(val_dfs)} sensors")
     print(f"  Time range: {val_df['timestamp'].min()} to {val_df['timestamp'].max()}")
-    print(f"Test set:  {len(test_df):,} rows ({len(test_df)/n:.1%})")
+    print(f"Test set:  {len(test_df):,} rows ({len(test_df)/n_total:.1%}) across {len(test_dfs)} sensors")
     print(f"  Time range: {test_df['timestamp'].min()} to {test_df['timestamp'].max()}")
 
     return train_df, val_df, test_df
@@ -295,7 +344,7 @@ def generate_predictions(predictor, test_df, freq="h"):
 
 
 def save_results(
-    predictor, predictions, metrics, leaderboard, output_dir, model_save_path
+    predictor, predictions, metrics, leaderboard, output_dir, model_save_path, test_df=None
 ):
     """
     Save all results to disk.
@@ -307,6 +356,7 @@ def save_results(
         leaderboard: Model leaderboard
         output_dir: Output directory
         model_save_path: Path to save model (not used - AutoGluon manages its own path)
+        test_df: Test data with actual values (optional)
     """
     print("SAVING RESULTS")
 
@@ -329,6 +379,13 @@ def save_results(
     print(f"Saving leaderboard to: {leaderboard_path}")
     leaderboard.to_csv(leaderboard_path, index=False)
     print("Leaderboard saved")
+
+    # Save test actuals for validation visualization
+    if test_df is not None:
+        test_actuals_path = os.path.join(output_dir, "test_actuals.parquet")
+        print(f"Saving test actuals to: {test_actuals_path}")
+        test_df.to_parquet(test_actuals_path, index=False)
+        print("Test actuals saved")
 
     print(f"\nAll results saved to: {output_dir}")
 
@@ -368,7 +425,7 @@ def main():
 
         # 7. Save results
         save_results(
-            predictor, predictions, metrics, leaderboard, OUTPUT_DIR, MODEL_SAVE_PATH
+            predictor, predictions, metrics, leaderboard, OUTPUT_DIR, MODEL_SAVE_PATH, test_df=test_df
         )
 
         print(f"End time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
