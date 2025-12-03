@@ -16,7 +16,6 @@
 name: rtdip-sdk
 channels:
     - conda-forge
-    - defaults
 dependencies:
     - python>=3.9,<3.13
     - importlib-metadata>=7.0.0,<9.0.0
