@@ -7,6 +7,7 @@ This script orchestrates the complete pipeline for Shell sensor data:
 3. Flat Sensor Filtering: Remove flat sensors from dataset
 4. Training: Train AutoGluon forecasting models
 5. Model Optimization: Tag best model as 'optimized' for deployment
+6. Visualization: Generate comprehensive forecast visualizations
 
 Each step can be skipped if already completed (checkpointing).
 
@@ -22,6 +23,12 @@ Usage (CSV needed for now, want to refactor to Parquet later):
 
     # Skip training if already done
     python pipeline_shell_data.py --skip-training
+
+    # Skip visualization
+    python pipeline_shell_data.py --skip-visualization
+
+    # Use Plotly for interactive HTML visualizations
+    python pipeline_shell_data.py --use-plotly
 
     # Custom paths
     python pipeline_shell_data.py --raw-data ShellData.csv --preprocessed-data output.parquet
@@ -51,12 +58,15 @@ class ShellDataPipeline:
         filtered_data_path: str = "preprocessing/ShellData_preprocessed_filtered.parquet",
         flat_sensors_path: str = "preprocessing/flat_sensors.csv",
         training_output_dir: str = "training/autogluon_results",
+        visualization_output_dir: str = "training/forecast_visualizations",
         n_sigma: float = 10.0,
         sample_fraction: float = None,
         skip_preprocessing: bool = False,
         skip_flat_detection: bool = False,
         skip_flat_filtering: bool = False,
         skip_training: bool = False,
+        skip_visualization: bool = False,
+        use_plotly: bool = False,
         std_threshold: float = 0.01,
         unique_ratio_threshold: float = 0.01,
         cv_threshold: float = 0.01,
@@ -70,12 +80,15 @@ class ShellDataPipeline:
         self.filtered_data_path = self.script_dir / filtered_data_path
         self.flat_sensors_path = self.script_dir / flat_sensors_path
         self.training_output_dir = self.script_dir / training_output_dir
+        self.visualization_output_dir = self.script_dir / visualization_output_dir
         self.n_sigma = n_sigma
         self.sample_fraction = sample_fraction
         self.skip_preprocessing = skip_preprocessing
         self.skip_flat_detection = skip_flat_detection
         self.skip_flat_filtering = skip_flat_filtering
         self.skip_training = skip_training
+        self.skip_visualization = skip_visualization
+        self.use_plotly = use_plotly
 
         self.std_threshold = std_threshold
         self.unique_ratio_threshold = unique_ratio_threshold
@@ -398,8 +411,206 @@ class ShellDataPipeline:
         finally:
             sys.path.pop(0)
 
+    def run_visualization(self):
+        """Run visualization step."""
+        self.print_step(6, "VISUALIZATION")
+
+        if self.skip_visualization:
+            print("Skipping visualization (--skip-visualization flag)")
+            return True
+
+        predictions_path = self.training_output_dir / "predictions.parquet"
+        actuals_path = self.training_output_dir / "test_actuals.parquet"
+
+        if not predictions_path.exists():
+            print(f"Error: Predictions not found at {predictions_path}")
+            print("Run training first to generate forecasts")
+            return False
+
+        if not actuals_path.exists():
+            print(f"Warning: Test actuals not found at {actuals_path}")
+            print("Continuing with predictions-only visualization")
+
+        historical_data_path = self.filtered_data_path if self.filtered_data_path.exists() else self.preprocessed_data_path
+
+        if not historical_data_path.exists():
+            print(f"Error: Historical data not found at {historical_data_path}")
+            return False
+
+        backend = "Plotly (interactive HTML)" if self.use_plotly else "Matplotlib (static PNG)"
+        print(f"\nGenerating forecast visualizations using {backend}")
+        print(f"Predictions: {predictions_path.relative_to(self.script_dir)}")
+        print(f"Historical:  {historical_data_path.relative_to(self.script_dir)}")
+        if actuals_path.exists():
+            print(f"Actuals:     {actuals_path.relative_to(self.script_dir)}")
+        print(f"Output:      {self.visualization_output_dir.relative_to(self.script_dir)}")
+
+        viz_module_dir = self.script_dir.parent / "visualization"
+
+        try:
+            sys.path.insert(0, str(viz_module_dir.parent))
+
+            if self.use_plotly:
+                return self._run_plotly_visualization(
+                    predictions_path,
+                    historical_data_path,
+                    actuals_path
+                )
+            else:
+                from visualization.visualize_forecasts import ForecastVisualizer
+
+                config = {
+                    "paths": {
+                        "predictions": str(predictions_path),
+                        "historical": str(historical_data_path),
+                        "actuals": str(actuals_path) if actuals_path.exists() else None,
+                        "output": str(self.visualization_output_dir)
+                    },
+                    "columns": {
+                        "predictions": {
+                            "timestamp": "timestamp",
+                            "sensor_id": "item_id",
+                            "mean": "mean",
+                            "quantile_10": "0.1",
+                            "quantile_20": "0.2",
+                            "quantile_80": "0.8",
+                            "quantile_90": "0.9"
+                        },
+                        "historical": {
+                            "timestamp": "EventTime",
+                            "sensor_id": "TagName",
+                            "value": "Value"
+                        },
+                        "actuals": {
+                            "timestamp": "timestamp",
+                            "sensor_id": "item_id",
+                            "value": "target"
+                        }
+                    },
+                    "settings": {
+                        "lookback_hours": 168,
+                        "max_sensors_overview": 9,
+                        "detailed_sensors": 3,
+                        "datetime_format": "mixed"
+                    }
+                }
+
+                visualizer = ForecastVisualizer(config)
+                visualizer.run()
+
+                print("\nVisualization completed successfully")
+                return True
+
+        except Exception as e:
+            print(f"\nVisualization failed with error: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+        finally:
+            sys.path.pop(0)
+
+    def _run_plotly_visualization(self, predictions_path: Path, historical_data_path: Path, actuals_path: Path):
+        """Run Plotly interactive visualization with configurable column mappings."""
+        import pandas as pd
+        from visualization import forecasting_plotly
+
+        self.visualization_output_dir.mkdir(parents=True, exist_ok=True)
+
+        column_mapping = {
+            "predictions": {
+                "timestamp": "timestamp",
+                "sensor_id": "item_id",
+                "mean": "mean",
+                "quantile_10": "0.1",
+                "quantile_20": "0.2",
+                "quantile_80": "0.8",
+                "quantile_90": "0.9"
+            },
+            "historical": {
+                "timestamp": "EventTime",
+                "sensor_id": "TagName",
+                "value": "Value"
+            },
+            "actuals": {
+                "timestamp": "timestamp",
+                "sensor_id": "item_id",
+                "value": "target"
+            }
+        }
+
+        print("\nLoading data for Plotly visualization")
+        predictions_df = pd.read_parquet(predictions_path)
+        historical_df = pd.read_parquet(historical_data_path)
+        actuals_df = pd.read_parquet(actuals_path) if actuals_path.exists() else None
+
+        pred_sensor_col = column_mapping["predictions"]["sensor_id"]
+        sensors = predictions_df[pred_sensor_col].unique()[:5]
+        print(f"Generating interactive plots for {len(sensors)} sensors")
+
+        for i, sensor_id in enumerate(sensors, 1):
+            print(f"  [{i}/{len(sensors)}] Processing {sensor_id}")
+
+            pred_cols = column_mapping["predictions"]
+            hist_cols = column_mapping["historical"]
+            actual_cols = column_mapping["actuals"]
+
+            sensor_predictions = predictions_df[predictions_df[pred_cols["sensor_id"]] == sensor_id].copy()
+            sensor_historical = historical_df[historical_df[hist_cols["sensor_id"]] == sensor_id].copy()
+
+            sensor_historical['timestamp'] = pd.to_datetime(sensor_historical[hist_cols["timestamp"]])
+            sensor_historical['value'] = sensor_historical[hist_cols["value"]]
+
+            sensor_predictions['timestamp'] = pd.to_datetime(sensor_predictions[pred_cols["timestamp"]])
+
+            forecast_start = sensor_predictions['timestamp'].min()
+
+            forecast_data = pd.DataFrame({
+                'timestamp': sensor_predictions['timestamp'],
+                'mean': sensor_predictions[pred_cols["mean"]]
+            })
+
+            if pred_cols["quantile_10"] in sensor_predictions.columns and pred_cols["quantile_90"] in sensor_predictions.columns:
+                forecast_data['lower_80'] = sensor_predictions[pred_cols["quantile_10"]]
+                forecast_data['upper_80'] = sensor_predictions[pred_cols["quantile_90"]]
+            if pred_cols["quantile_20"] in sensor_predictions.columns and pred_cols["quantile_80"] in sensor_predictions.columns:
+                forecast_data['lower_60'] = sensor_predictions[pred_cols["quantile_20"]]
+                forecast_data['upper_60'] = sensor_predictions[pred_cols["quantile_80"]]
+
+            fig1 = forecasting_plotly.plot_forecast_with_confidence(
+                historical_data=sensor_historical[['timestamp', 'value']],
+                forecast_data=forecast_data,
+                forecast_start=forecast_start,
+                sensor_id=sensor_id,
+                ci_levels=[60, 80]
+            )
+
+            output_file = self.visualization_output_dir / f"forecast_{sensor_id.replace(':', '_')}.html"
+            forecasting_plotly.save_plotly_figure(fig1, output_file, format='html')
+
+            if actuals_df is not None:
+                sensor_actuals = actuals_df[actuals_df[actual_cols["sensor_id"]] == sensor_id].copy()
+                if not sensor_actuals.empty:
+                    sensor_actuals['timestamp'] = pd.to_datetime(sensor_actuals[actual_cols["timestamp"]])
+                    sensor_actuals['value'] = sensor_actuals[actual_cols["value"]]
+
+                    fig2 = forecasting_plotly.plot_forecast_with_actual(
+                        historical_data=sensor_historical[['timestamp', 'value']],
+                        forecast_data=forecast_data,
+                        actual_data=sensor_actuals[['timestamp', 'value']],
+                        forecast_start=forecast_start,
+                        sensor_id=sensor_id
+                    )
+
+                    output_file_actual = self.visualization_output_dir / f"forecast_vs_actual_{sensor_id.replace(':', '_')}.html"
+                    forecasting_plotly.save_plotly_figure(fig2, output_file_actual, format='html')
+
+        print(f"\nPlotly visualization completed successfully")
+        print(f"Open HTML files in browser for interactive exploration")
+        return True
+
     def print_summary(self, preprocessing_success: bool, detection_success: bool,
-                      filtering_success: bool, training_success: bool, optimization_success: bool):
+                      filtering_success: bool, training_success: bool, optimization_success: bool,
+                      visualization_success: bool):
         """Print pipeline summary."""
         self.print_header("PIPELINE SUMMARY")
 
@@ -409,7 +620,8 @@ class ShellDataPipeline:
         print(f"3. Flat Sensor Filtering:   {'Success' if filtering_success else 'Failed' if not self.skip_flat_filtering else 'Skipped'}")
         print(f"4. Training:                {'Success' if training_success else 'Failed'}")
         print(f"5. Model Optimization:      {'Success' if optimization_success else 'Failed'}")
-        all_success = preprocessing_success and detection_success and filtering_success and training_success and optimization_success
+        print(f"6. Visualization:           {'Success' if visualization_success else 'Failed' if not self.skip_visualization else 'Skipped'}")
+        all_success = preprocessing_success and detection_success and filtering_success and training_success and optimization_success and visualization_success
 
         if all_success:
             print("\nPipeline completed successfully")
@@ -447,6 +659,18 @@ class ShellDataPipeline:
                         best = metadata['model']['best_model']
                         print(f"    Best Model: {best.get('name', 'N/A')}")
                         print(f"    Score: {best.get('score_val', 'N/A')}")
+
+            if self.visualization_output_dir.exists():
+                print(f"\n  Forecast Visualizations:")
+                print(f"  • {self.visualization_output_dir.relative_to(self.script_dir)}/")
+                viz_files = list(self.visualization_output_dir.glob('*.png'))
+                if viz_files:
+                    print(f"    Generated {len(viz_files)} visualization files:")
+                    for viz_file in sorted(viz_files)[:5]:  # Show first 5
+                        size_kb = viz_file.stat().st_size / 1024
+                        print(f"    - {viz_file.name} ({size_kb:.1f} KB)")
+                    if len(viz_files) > 5:
+                        print(f"    ... and {len(viz_files) - 5} more files")
         else:
             print("\nPipeline completed with errors")
 
@@ -456,14 +680,15 @@ class ShellDataPipeline:
         print(f"Start time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         print("\nConfiguration:")
-        print(f"  Raw data:        {self.raw_data_path.relative_to(self.script_dir)}")
-        print(f"  Preprocessed:    {self.preprocessed_data_path.relative_to(self.script_dir)}")
-        print(f"  Filtered data:   {self.filtered_data_path.relative_to(self.script_dir)}")
-        print(f"  Flat sensors:    {self.flat_sensors_path.relative_to(self.script_dir)}")
-        print(f"  Training output: {self.training_output_dir.relative_to(self.script_dir)}")
-        print(f"  Outlier n_sigma: {self.n_sigma}")
+        print(f"  Raw data:            {self.raw_data_path.relative_to(self.script_dir)}")
+        print(f"  Preprocessed:        {self.preprocessed_data_path.relative_to(self.script_dir)}")
+        print(f"  Filtered data:       {self.filtered_data_path.relative_to(self.script_dir)}")
+        print(f"  Flat sensors:        {self.flat_sensors_path.relative_to(self.script_dir)}")
+        print(f"  Training output:     {self.training_output_dir.relative_to(self.script_dir)}")
+        print(f"  Visualization output: {self.visualization_output_dir.relative_to(self.script_dir)}")
+        print(f"  Outlier n_sigma:     {self.n_sigma}")
         if self.sample_fraction:
-            print(f"  Sample fraction: {self.sample_fraction*100:.1f}%")
+            print(f"  Sample fraction:     {self.sample_fraction*100:.1f}%")
 
         # Step 1: Preprocessing
         preprocessing_success = self.run_preprocessing()
@@ -497,12 +722,19 @@ class ShellDataPipeline:
             print("\nSkipping model optimization due to training failure")
             optimization_success = False
 
+        # Step 6: Visualization (only if training succeeds)
+        if training_success:
+            visualization_success = self.run_visualization()
+        else:
+            print("\nSkipping visualization due to training failure")
+            visualization_success = False
+
         # Summary
-        self.print_summary(preprocessing_success, detection_success, filtering_success, training_success, optimization_success)
+        self.print_summary(preprocessing_success, detection_success, filtering_success, training_success, optimization_success, visualization_success)
 
         print(f"\nEnd time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-        all_success = preprocessing_success and detection_success and filtering_success and training_success and optimization_success
+        all_success = preprocessing_success and detection_success and filtering_success and training_success and optimization_success and visualization_success
         return 0 if all_success else 1
 
 
@@ -541,6 +773,12 @@ def main():
         type=str,
         default="training/autogluon_results",
         help="Directory for training outputs (relative to script directory, default: training/autogluon_results)"
+    )
+    parser.add_argument(
+        "--visualization-output",
+        type=str,
+        default="training/forecast_visualizations",
+        help="Directory for visualization outputs (relative to script directory, default: training/forecast_visualizations)"
     )
 
     # Preprocessing options
@@ -616,6 +854,16 @@ def main():
         action="store_true",
         help="Skip training step (use existing model)"
     )
+    parser.add_argument(
+        "--skip-visualization",
+        action="store_true",
+        help="Skip visualization step (use existing visualizations)"
+    )
+    parser.add_argument(
+        "--use-plotly",
+        action="store_true",
+        help="Use Plotly for interactive HTML visualizations instead of Matplotlib static PNGs"
+    )
 
     args = parser.parse_args()
 
@@ -625,12 +873,15 @@ def main():
         filtered_data_path=args.filtered_data,
         flat_sensors_path=args.flat_sensors,
         training_output_dir=args.training_output,
+        visualization_output_dir=args.visualization_output,
         n_sigma=args.n_sigma,
         sample_fraction=args.sample,
         skip_preprocessing=args.skip_preprocessing,
         skip_flat_detection=args.skip_flat_detection,
         skip_flat_filtering=args.skip_flat_filtering,
         skip_training=args.skip_training,
+        skip_visualization=args.skip_visualization,
+        use_plotly=args.use_plotly,
         std_threshold=args.std_threshold,
         unique_ratio_threshold=args.unique_ratio_threshold,
         cv_threshold=args.cv_threshold,
