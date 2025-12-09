@@ -65,5 +65,8 @@
     "sonarlint.connectedMode.project": {
         "connectionId": "rtdip",
         "projectKey": "rtdip_core"
-    }
+    },
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "python-envs.pythonProjects": []
 }
