@@ -76,7 +76,6 @@ dependencies:
           - protobuf>=5.29.0,<5.30.0
           # pyarrow constraint must match conda version to avoid upgrades
           - pyarrow>=14.0.1,<17.0.0
-          - urllib3>=2.6.0,<3.0.0
           - databricks-sdk>=0.59.0,<1.0.0
           - dependency-injector>=4.41.0,<5.0.0
           - azure-functions>=1.20.0,<2.0.0
