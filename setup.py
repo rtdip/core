@@ -41,6 +41,7 @@ INSTALL_REQUIRES = [
     "googleapis-common-protos>=1.56.4",
     "pydantic>=2.10.0,<3.0.0",
     "protobuf>=5.29.0,<5.30.0",
+    "urllib3>=2.6.0,<3.0.0",
 ]
 
 PYSPARK_PACKAGES = [
