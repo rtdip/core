@@ -21,9 +21,4 @@ if importlib.util.find_spec("turbodbc") != None:
     from .odbc.turbodbc_sql_connector import *
 if importlib.util.find_spec("pyspark") != None:
     from .grpc.spark_connector import *
-if (
-    importlib.util.find_spec("langchain") != None
-    and importlib.util.find_spec("langchain_community") != None
-):
-    from .llm.chatopenai_databricks_connector import *
 from .models import *

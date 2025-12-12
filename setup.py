@@ -28,29 +28,20 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
-    "databricks-sql-connector>=3.1.0,<3.7.0",
+    "databricks-sql-connector>=3.6.0,<3.7.0",
     "pyarrow>=14.0.1,<17.0.0",
-    "azure-identity>=1.12.0,<2.0.0",
+    "azure-identity>=1.20.0,<2.0.0",
     "pandas>=2.0.1,<2.3.0",
-    "jinja2>=3.1.5,<4.0.0",
-    "importlib_metadata>=7.0.0,<8.0.0",
+    "jinja2>=3.1.6,<4.0.0",
+    "importlib_metadata>=7.0.0,<9.0.0",
     "semver>=3.0.0,<4.0.0",
     "xlrd>=2.0.1,<3.0.0",
-    "grpcio>=1.48.1",
-    "grpcio-status>=1.48.1",
+    "grpcio>=1.48.1,<1.63.0",
+    "grpcio-status>=1.48.1,<1.63.0",
     "googleapis-common-protos>=1.56.4",
-    "pydantic>=2.6.0,<3.0.0",
-    "protobuf>=5.28.2,<5.29.0",
-]
-
-LANGCHAIN_PACKAGES = [
-    "langchain>=0.3.27,<0.4.0",
-    "langchain-community>=0.3.27,<0.4.0",
-    "langchain-core>=0.3.28,<0.4.0",
-    "langchain-text-splitters>=0.3.5,<0.4.0",
-    "openai>=1.59.0,<2.0.0",
-    "statsmodels>=0.14.1,<0.15.0",
-    "pmdarima>=2.0.4",
+    "pydantic>=2.10.0,<3.0.0",
+    "protobuf>=5.29.0,<5.30.0",
+    "urllib3>=2.6.0,<3.0.0",
 ]
 
 PYSPARK_PACKAGES = [
@@ -78,10 +69,11 @@ PIPELINE_PACKAGES = [
     "sqlparams>=5.1.0,<6.0.0",
     "entsoe-py>=0.5.10,<1.0.0",
     "numpy>=1.23.4,<2.0.0",
+    "statsmodels>=0.14.1,<0.15.0",
+    "pmdarima>=2.0.4",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
-    "langchain": LANGCHAIN_PACKAGES,
     "pipelines": PIPELINE_PACKAGES,
     "pyspark": PYSPARK_PACKAGES,
 }
@@ -94,7 +86,6 @@ setup(
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
@@ -108,7 +99,7 @@ setup(
     package_dir={"": "src/sdk/python"},
     include_package_data=True,
     packages=find_packages(where="src/sdk/python"),
-    python_requires=">=3.9, <3.13",
+    python_requires=">=3.10, <3.13",
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_DEPENDENCIES,
     setup_requires=["pytest-runner", "setuptools_scm"],

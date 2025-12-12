@@ -29,7 +29,7 @@ If applicable, add screenshots to help explain your problem.
 **Installation Setup (please complete the following information):**
 
  - OS: [e.g. iOS]
- - Python Version: [e.g. 3.11, 3.9]
+ - Python Version: [e.g. 3.10, 3.11, 3.12]
  - SDK Version: [e.g. 1.0]
 
 **Additional context**
