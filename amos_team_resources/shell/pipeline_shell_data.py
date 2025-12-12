@@ -708,7 +708,7 @@ class ShellDataPipeline:
         training_success: bool,
         optimization_success: bool,
         visualization_success: bool):
-    ):
+       
         """Print pipeline summary."""
         self.print_header("PIPELINE SUMMARY")
 
