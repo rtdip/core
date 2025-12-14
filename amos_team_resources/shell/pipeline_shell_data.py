@@ -504,7 +504,7 @@ class ShellDataPipeline:
             sys.path.pop(0)
 
     def run_visualization(self):
-        """Run visualization step."""
+        """Run visualization step using SDK visualization module."""
         self.print_step(6, "VISUALIZATION")
 
         if self.skip_visualization:
@@ -523,178 +523,323 @@ class ShellDataPipeline:
             print(f"Warning: Test actuals not found at {actuals_path}")
             print("Continuing with predictions-only visualization")
 
-        historical_data_path = self.filtered_data_path if self.filtered_data_path.exists() else self.preprocessed_data_path
+        historical_data_path = (
+            self.filtered_data_path
+            if self.filtered_data_path.exists()
+            else self.preprocessed_data_path
+        )
 
         if not historical_data_path.exists():
             print(f"Error: Historical data not found at {historical_data_path}")
             return False
 
-        backend = "Plotly (interactive HTML)" if self.use_plotly else "Matplotlib (static PNG)"
+        backend = (
+            "Plotly (interactive HTML)" if self.use_plotly else "Matplotlib (static PNG)"
+        )
         print(f"\nGenerating forecast visualizations using {backend}")
         print(f"Predictions: {predictions_path.relative_to(self.script_dir)}")
         print(f"Historical:  {historical_data_path.relative_to(self.script_dir)}")
         if actuals_path.exists():
             print(f"Actuals:     {actuals_path.relative_to(self.script_dir)}")
-        print(f"Output:      {self.visualization_output_dir.relative_to(self.script_dir)}")
-
-        viz_module_dir = self.script_dir.parent / "visualization"
+        print(
+            f"Output:      {self.visualization_output_dir.relative_to(self.script_dir)}"
+        )
 
         try:
-            sys.path.insert(0, str(viz_module_dir.parent))
+            import pandas as pd
 
-            if self.use_plotly:
-                return self._run_plotly_visualization(
-                    predictions_path,
-                    historical_data_path,
-                    actuals_path
-                )
-            else:
-                from visualization.visualize_forecasts import ForecastVisualizer
+            self.visualization_output_dir.mkdir(parents=True, exist_ok=True)
 
-                config = {
-                    "paths": {
-                        "predictions": str(predictions_path),
-                        "historical": str(historical_data_path),
-                        "actuals": str(actuals_path) if actuals_path.exists() else None,
-                        "output": str(self.visualization_output_dir)
-                    },
-                    "columns": {
-                        "predictions": {
-                            "timestamp": "timestamp",
-                            "sensor_id": "item_id",
-                            "mean": "mean",
-                            "quantile_10": "0.1",
-                            "quantile_20": "0.2",
-                            "quantile_80": "0.8",
-                            "quantile_90": "0.9"
-                        },
-                        "historical": {
-                            "timestamp": "EventTime",
-                            "sensor_id": "TagName",
-                            "value": "Value"
-                        },
-                        "actuals": {
-                            "timestamp": "timestamp",
-                            "sensor_id": "item_id",
-                            "value": "target"
-                        }
-                    },
-                    "settings": {
-                        "lookback_hours": 168,
-                        "max_sensors_overview": 9,
-                        "detailed_sensors": 3,
-                        "datetime_format": "mixed"
-                    }
-                }
+            print("\nLoading data")
+            predictions_df = pd.read_parquet(predictions_path)
+            historical_df = pd.read_parquet(historical_data_path)
+            actuals_df = (
+                pd.read_parquet(actuals_path) if actuals_path.exists() else None
+            )
 
-                visualizer = ForecastVisualizer(config)
-                visualizer.run()
-
-                print("\nVisualization completed successfully")
-                return True
-
-        except Exception as e:
-            print(f"\nVisualization failed with error: {e}")
-            import traceback
-            traceback.print_exc()
-            return False
-        finally:
-            sys.path.pop(0)
-
-    def _run_plotly_visualization(self, predictions_path: Path, historical_data_path: Path, actuals_path: Path):
-        """Run Plotly interactive visualization with configurable column mappings."""
-        import pandas as pd
-        from visualization import forecasting_plotly
-
-        self.visualization_output_dir.mkdir(parents=True, exist_ok=True)
-
-        column_mapping = {
-            "predictions": {
+            pred_cols = {
                 "timestamp": "timestamp",
                 "sensor_id": "item_id",
                 "mean": "mean",
                 "quantile_10": "0.1",
-                "quantile_20": "0.2",
-                "quantile_80": "0.8",
-                "quantile_90": "0.9"
-            },
-            "historical": {
+                "quantile_90": "0.9",
+            }
+            hist_cols = {
                 "timestamp": "EventTime",
                 "sensor_id": "TagName",
-                "value": "Value"
-            },
-            "actuals": {
+                "value": "Value",
+            }
+            actual_cols = {
                 "timestamp": "timestamp",
                 "sensor_id": "item_id",
-                "value": "target"
+                "value": "target",
             }
-        }
 
-        print("\nLoading data for Plotly visualization")
-        predictions_df = pd.read_parquet(predictions_path)
-        historical_df = pd.read_parquet(historical_data_path)
-        actuals_df = pd.read_parquet(actuals_path) if actuals_path.exists() else None
+            sensors = predictions_df[pred_cols["sensor_id"]].unique()
+            print(f"Found {len(sensors)} sensors")
 
-        pred_sensor_col = column_mapping["predictions"]["sensor_id"]
-        sensors = predictions_df[pred_sensor_col].unique()[:5]
-        print(f"Generating interactive plots for {len(sensors)} sensors")
+            if self.use_plotly:
+                return self._run_plotly_visualization_sdk(
+                    predictions_df,
+                    historical_df,
+                    actuals_df,
+                    pred_cols,
+                    hist_cols,
+                    actual_cols,
+                    sensors,
+                )
+            else:
+                return self._run_matplotlib_visualization_sdk(
+                    predictions_df,
+                    historical_df,
+                    actuals_df,
+                    pred_cols,
+                    hist_cols,
+                    actual_cols,
+                    sensors,
+                )
 
-        for i, sensor_id in enumerate(sensors, 1):
-            print(f"  [{i}/{len(sensors)}] Processing {sensor_id}")
+        except Exception as e:
+            print(f"\nVisualization failed with error: {e}")
+            import traceback
 
-            pred_cols = column_mapping["predictions"]
-            hist_cols = column_mapping["historical"]
-            actual_cols = column_mapping["actuals"]
+            traceback.print_exc()
+            return False
 
-            sensor_predictions = predictions_df[predictions_df[pred_cols["sensor_id"]] == sensor_id].copy()
-            sensor_historical = historical_df[historical_df[hist_cols["sensor_id"]] == sensor_id].copy()
+    def _run_matplotlib_visualization_sdk(
+        self,
+        predictions_df,
+        historical_df,
+        actuals_df,
+        pred_cols,
+        hist_cols,
+        actual_cols,
+        sensors,
+    ):
+        """Run Matplotlib visualization using RTDIP SDK."""
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        from src.sdk.python.rtdip_sdk.pipelines.visualization import utils as viz_utils
+        from src.sdk.python.rtdip_sdk.pipelines.visualization.matplotlib.forecasting import (
+            MultiSensorForecastPlot,
+            ForecastDashboard,
+        )
 
-            sensor_historical['timestamp'] = pd.to_datetime(sensor_historical[hist_cols["timestamp"]])
-            sensor_historical['value'] = sensor_historical[hist_cols["value"]]
+        viz_utils.setup_plot_style()
 
-            sensor_predictions['timestamp'] = pd.to_datetime(sensor_predictions[pred_cols["timestamp"]])
+        max_sensors = min(9, len(sensors))
+        print(f"\nCreating multi-sensor overview ({max_sensors} sensors)")
 
-            forecast_start = sensor_predictions['timestamp'].min()
+        pred_temp = predictions_df.rename(
+            columns={
+                pred_cols["timestamp"]: "timestamp",
+                pred_cols["sensor_id"]: "item_id",
+                pred_cols["mean"]: "mean",
+            }
+        )
+        hist_temp = historical_df.rename(
+            columns={
+                hist_cols["timestamp"]: "EventTime",
+                hist_cols["sensor_id"]: "TagName",
+                hist_cols["value"]: "Value",
+            }
+        )
 
-            forecast_data = pd.DataFrame({
-                'timestamp': sensor_predictions['timestamp'],
-                'mean': sensor_predictions[pred_cols["mean"]]
-            })
-
-            if pred_cols["quantile_10"] in sensor_predictions.columns and pred_cols["quantile_90"] in sensor_predictions.columns:
-                forecast_data['lower_80'] = sensor_predictions[pred_cols["quantile_10"]]
-                forecast_data['upper_80'] = sensor_predictions[pred_cols["quantile_90"]]
-            if pred_cols["quantile_20"] in sensor_predictions.columns and pred_cols["quantile_80"] in sensor_predictions.columns:
-                forecast_data['lower_60'] = sensor_predictions[pred_cols["quantile_20"]]
-                forecast_data['upper_60'] = sensor_predictions[pred_cols["quantile_80"]]
-
-            fig1 = forecasting_plotly.plot_forecast_with_confidence(
-                historical_data=sensor_historical[['timestamp', 'value']],
-                forecast_data=forecast_data,
-                forecast_start=forecast_start,
-                sensor_id=sensor_id,
-                ci_levels=[60, 80]
+        try:
+            multi_plot = MultiSensorForecastPlot(
+                predictions_df=pred_temp,
+                historical_df=hist_temp,
+                lookback_hours=168,
+                max_sensors=max_sensors,
             )
+            multi_plot.plot()
+            multi_plot.save(
+                self.visualization_output_dir / "overview_all_sensors.png", verbose=False
+            )
+            plt.close("all")
+            print(f"   [OK] Saved overview_all_sensors.png")
+        except Exception as e:
+            print(f"   [WARNING] Multi-sensor overview failed: {e}")
 
-            output_file = self.visualization_output_dir / f"forecast_{sensor_id.replace(':', '_')}.html"
-            forecasting_plotly.save_plotly_figure(fig1, output_file, format='html')
+        n_detailed = min(3, len(sensors))
+        print(f"\nCreating detailed dashboards for {n_detailed} sensors")
 
-            if actuals_df is not None:
-                sensor_actuals = actuals_df[actuals_df[actual_cols["sensor_id"]] == sensor_id].copy()
-                if not sensor_actuals.empty:
-                    sensor_actuals['timestamp'] = pd.to_datetime(sensor_actuals[actual_cols["timestamp"]])
-                    sensor_actuals['value'] = sensor_actuals[actual_cols["value"]]
+        for idx, sensor_id in enumerate(sensors[:n_detailed], 1):
+            print(f"   {idx}. {sensor_id}", end=" ")
 
-                    fig2 = forecasting_plotly.plot_forecast_with_actual(
-                        historical_data=sensor_historical[['timestamp', 'value']],
-                        forecast_data=forecast_data,
-                        actual_data=sensor_actuals[['timestamp', 'value']],
-                        forecast_start=forecast_start,
-                        sensor_id=sensor_id
-                    )
+            try:
+                sensor_pred = predictions_df[
+                    predictions_df[pred_cols["sensor_id"]] == sensor_id
+                ].copy()
+                sensor_hist = historical_df[
+                    historical_df[hist_cols["sensor_id"]] == sensor_id
+                ].copy()
 
-                    output_file_actual = self.visualization_output_dir / f"forecast_vs_actual_{sensor_id.replace(':', '_')}.html"
-                    forecasting_plotly.save_plotly_figure(fig2, output_file_actual, format='html')
+                if len(sensor_pred) == 0 or len(sensor_hist) == 0:
+                    print("[SKIP - No data]")
+                    continue
+
+                sensor_hist["timestamp"] = pd.to_datetime(
+                    sensor_hist[hist_cols["timestamp"]]
+                )
+                sensor_hist["value"] = sensor_hist[hist_cols["value"]]
+                historical_data = sensor_hist[["timestamp", "value"]].sort_values(
+                    "timestamp"
+                )
+
+                sensor_pred["timestamp"] = pd.to_datetime(
+                    sensor_pred[pred_cols["timestamp"]]
+                )
+                forecast_data = pd.DataFrame(
+                    {
+                        "timestamp": sensor_pred["timestamp"],
+                        "mean": sensor_pred[pred_cols["mean"]],
+                    }
+                )
+
+                if pred_cols["quantile_10"] in sensor_pred.columns:
+                    forecast_data["0.1"] = sensor_pred[pred_cols["quantile_10"]]
+                if pred_cols["quantile_90"] in sensor_pred.columns:
+                    forecast_data["0.9"] = sensor_pred[pred_cols["quantile_90"]]
+
+                forecast_start = forecast_data["timestamp"].min()
+                actual_data = None
+                if actuals_df is not None:
+                    sensor_actual = actuals_df[
+                        actuals_df[actual_cols["sensor_id"]] == sensor_id
+                    ].copy()
+                    if len(sensor_actual) > 0:
+                        sensor_actual["timestamp"] = pd.to_datetime(
+                            sensor_actual[actual_cols["timestamp"]]
+                        )
+                        sensor_actual["value"] = sensor_actual[actual_cols["value"]]
+                        actual_data = sensor_actual[["timestamp", "value"]].sort_values(
+                            "timestamp"
+                        )
+
+                safe_name = (
+                    sensor_id.replace("/", "_").replace("\\", "_").replace(":", "_")[
+                        :50
+                    ]
+                )
+                output_path = (
+                    self.visualization_output_dir / f"dashboard_{idx}_{safe_name}.png"
+                )
+
+                dashboard = ForecastDashboard(
+                    historical_data=historical_data,
+                    forecast_data=forecast_data,
+                    actual_data=actual_data,
+                    forecast_start=forecast_start,
+                    sensor_id=sensor_id,
+                )
+                dashboard.plot()
+                dashboard.save(output_path, verbose=False)
+                plt.close("all")
+                print("[OK]")
+
+            except Exception as e:
+                print(f"[ERROR: {e}]")
+
+        print("\nVisualization completed successfully")
+        return True
+
+    def _run_plotly_visualization_sdk(
+        self,
+        predictions_df,
+        historical_df,
+        actuals_df,
+        pred_cols,
+        hist_cols,
+        actual_cols,
+        sensors,
+    ):
+        """Run Plotly interactive visualization using RTDIP SDK."""
+        import pandas as pd
+        from src.sdk.python.rtdip_sdk.pipelines.visualization.plotly.forecasting import (
+            ForecastPlotInteractive,
+            ForecastComparisonPlotInteractive,
+        )
+
+        sensors_to_plot = sensors[:5]
+        print(f"\nGenerating interactive plots for {len(sensors_to_plot)} sensors")
+
+        for i, sensor_id in enumerate(sensors_to_plot, 1):
+            print(f"  [{i}/{len(sensors_to_plot)}] Processing {sensor_id}")
+
+            try:
+                sensor_pred = predictions_df[
+                    predictions_df[pred_cols["sensor_id"]] == sensor_id
+                ].copy()
+                sensor_hist = historical_df[
+                    historical_df[hist_cols["sensor_id"]] == sensor_id
+                ].copy()
+
+                sensor_hist["timestamp"] = pd.to_datetime(
+                    sensor_hist[hist_cols["timestamp"]]
+                )
+                sensor_hist["value"] = sensor_hist[hist_cols["value"]]
+                historical_data = sensor_hist[["timestamp", "value"]].sort_values(
+                    "timestamp"
+                )
+
+                sensor_pred["timestamp"] = pd.to_datetime(
+                    sensor_pred[pred_cols["timestamp"]]
+                )
+                forecast_data = pd.DataFrame(
+                    {
+                        "timestamp": sensor_pred["timestamp"],
+                        "mean": sensor_pred[pred_cols["mean"]],
+                    }
+                )
+
+                if pred_cols["quantile_10"] in sensor_pred.columns:
+                    forecast_data["0.1"] = sensor_pred[pred_cols["quantile_10"]]
+                if pred_cols["quantile_90"] in sensor_pred.columns:
+                    forecast_data["0.9"] = sensor_pred[pred_cols["quantile_90"]]
+
+                forecast_start = forecast_data["timestamp"].min()
+
+                safe_name = (
+                    sensor_id.replace(":", "_").replace("/", "_").replace("\\", "_")
+                )
+                plot = ForecastPlotInteractive(
+                    historical_data=historical_data,
+                    forecast_data=forecast_data,
+                    forecast_start=forecast_start,
+                    sensor_id=sensor_id,
+                )
+                plot.plot()
+                plot.save(self.visualization_output_dir / f"forecast_{safe_name}.html")
+
+                if actuals_df is not None:
+                    sensor_actual = actuals_df[
+                        actuals_df[actual_cols["sensor_id"]] == sensor_id
+                    ].copy()
+                    if not sensor_actual.empty:
+                        sensor_actual["timestamp"] = pd.to_datetime(
+                            sensor_actual[actual_cols["timestamp"]]
+                        )
+                        sensor_actual["value"] = sensor_actual[actual_cols["value"]]
+                        actual_data = sensor_actual[
+                            ["timestamp", "value"]
+                        ].sort_values("timestamp")
+
+                        comparison_plot = ForecastComparisonPlotInteractive(
+                            historical_data=historical_data,
+                            forecast_data=forecast_data,
+                            actual_data=actual_data,
+                            forecast_start=forecast_start,
+                            sensor_id=sensor_id,
+                        )
+                        comparison_plot.plot()
+                        comparison_plot.save(
+                            self.visualization_output_dir
+                            / f"forecast_vs_actual_{safe_name}.html"
+                        )
+
+            except Exception as e:
+                print(f"    [ERROR: {e}]")
 
         print(f"\nPlotly visualization completed successfully")
         print(f"Open HTML files in browser for interactive exploration")
@@ -707,8 +852,7 @@ class ShellDataPipeline:
         filtering_success: bool,
         training_success: bool,
         optimization_success: bool,
-        visualization_success: bool):
-    ):
+        visualization_success: bool):  
         """Print pipeline summary."""
         self.print_header("PIPELINE SUMMARY")
 

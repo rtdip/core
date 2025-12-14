@@ -25,6 +25,7 @@ assignees: ''
 * The work products in the pull requests are reviewed.
 * The corresponding branches are merged and closed.
 * The bill of materials section of the planning documents is updated.
+* The software architecture should be updated based on features changes. 
 * Work needs to be documented in the corresponding wiki section
 * For new features unit test have to be written.
 * Update our forked repository with the latest RTDIP release.
