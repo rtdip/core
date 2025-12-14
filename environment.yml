@@ -75,6 +75,8 @@ dependencies:
     - tensorflow>=2.18.0,<3.0.0
     - scikit-learn>=1.3.0,<2.0.0
     - xgboost>=2.0.0,<3.0.0
+    - plotly>=5.0.0
+    - python-kaleido>=0.2.0
     - pip:
           # protobuf installed via pip to avoid libabseil conflicts with conda libarrow
           - protobuf>=5.29.0,<5.30.0
@@ -98,4 +100,4 @@ dependencies:
           - eth-typing>=5.0.1,<6.0.0
           - pandas>=2.0.1,<2.3.0
           - moto[s3]>=5.0.16,<6.0.0
-          - autogluon.timeseries>=1.1.1,<2.0.0            
+          - autogluon.timeseries>=1.1.1,<2.0.0
