@@ -72,9 +72,6 @@ dependencies:
     - great-expectations>=0.18.8,<1.0.0
     - statsmodels>=0.14.1,<0.15.0
     - pmdarima>=2.0.4
-    - prophet==1.2.1
-    - sktime==0.40.1
-    - catboost==1.2.8
     - pip:
           # protobuf installed via pip to avoid libabseil conflicts with conda libarrow
           - protobuf>=5.29.0,<5.30.0
