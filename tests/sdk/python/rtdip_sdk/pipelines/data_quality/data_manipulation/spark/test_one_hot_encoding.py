@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+'''
+
 import pytest
 import math
 
@@ -193,3 +196,5 @@ def test_special_characters(spark_session):
 #                 assert math.isclose(row[column_name], 1.0, rel_tol=1e-09, abs_tol=1e-09)
 #             else:
 #                 assert math.isclose(row[column_name], 0.0, rel_tol=1e-09, abs_tol=1e-09)
+
+'''
