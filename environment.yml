@@ -77,6 +77,10 @@ dependencies:
     - xgboost>=2.0.0,<3.0.0
     - plotly>=5.0.0
     - python-kaleido>=0.2.0
+    #- prophet==1.2.1
+    #- sktime==0.40.1
+    #- catboost==1.2.8
+    
     - pip:
           # protobuf installed via pip to avoid libabseil conflicts with conda libarrow
           - protobuf>=5.29.0,<5.30.0
@@ -101,3 +105,6 @@ dependencies:
           - pandas>=2.0.1,<2.3.0
           - moto[s3]>=5.0.16,<6.0.0
           - autogluon.timeseries>=1.1.1,<2.0.0
+          #- tensorflow>=2.13.0,<3.0.0
+          #- darts>=0.30.0,<=0.39.0
+          #- torch>=2.4.0,<3.0.0
