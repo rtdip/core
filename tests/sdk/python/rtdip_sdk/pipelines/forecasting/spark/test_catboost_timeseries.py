@@ -1,3 +1,4 @@
+
 import pytest
 from datetime import datetime, timedelta
 
@@ -212,7 +213,9 @@ def test_train_and_predict(longer_timeseries_data):
 
     assert preds is not None
     assert preds.count() == test_df.count()
-    assert "target" in preds.columns, "Predictions should be returned in the target column name"
+    assert (
+        "target" in preds.columns
+    ), "Predictions should be returned in the target column name"
 
 
 def test_predict_without_training(longer_timeseries_data):
@@ -242,7 +245,9 @@ def test_predict_with_none_horizon(longer_timeseries_data):
     """
     Test that predict rejects a None forecasting horizon.
     """
-    cb = CatboostTimeSeries(window_length=12, iterations=10, depth=3, learning_rate=0.1, verbose=False)
+    cb = CatboostTimeSeries(
+        window_length=12, iterations=10, depth=3, learning_rate=0.1, verbose=False
+    )
 
     full_pdf = cb.convert_spark_to_pandas(longer_timeseries_data).reset_index()
     train_pdf, test_pdf = temporal_train_test_split(full_pdf, test_size=0.25)
@@ -264,7 +269,9 @@ def test_predict_with_target_leakage_raises(longer_timeseries_data):
     """
     Test that predict rejects inputs that still contain the target column.
     """
-    cb = CatboostTimeSeries(window_length=12, iterations=10, depth=3, learning_rate=0.1, verbose=False)
+    cb = CatboostTimeSeries(
+        window_length=12, iterations=10, depth=3, learning_rate=0.1, verbose=False
+    )
 
     full_pdf = cb.convert_spark_to_pandas(longer_timeseries_data).reset_index()
     train_pdf, test_pdf = temporal_train_test_split(full_pdf, test_size=0.25)
@@ -363,3 +370,4 @@ def test_settings():
     settings = CatboostTimeSeries.settings()
     assert settings is not None
     assert isinstance(settings, dict)
+

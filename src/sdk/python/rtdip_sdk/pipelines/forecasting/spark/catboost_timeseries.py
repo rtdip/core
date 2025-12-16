@@ -58,6 +58,62 @@ class CatboostTimeSeries(MachineLearningInterface):
         - CatBoost is a tabular regressor. sktime's make_reduction wraps it into a forecaster.
         - The input DataFrame is expected to contain a timestamp column and a target column.
         - All remaining columns are treated as exogenous regressors (X).
+
+        Example:
+    --------
+    ```python
+    import pandas as pd
+    from pyspark.sql import SparkSession
+    from sktime.forecasting.model_selection import temporal_train_test_split
+
+    from rtdip_sdk.pipelines.forecasting.spark.catboost_timeseries import CatboostTimeSeries
+
+    spark = (
+        SparkSession.builder.master("local[2]")
+        .appName("CatBoostTimeSeriesExample")
+        .getOrCreate()
+    )
+
+    # Sample time series data with one exogenous feature column.
+    data = [
+        ("2024-01-01 00:00:00", 100.0, 1.0),
+        ("2024-01-01 01:00:00", 102.0, 1.1),
+        ("2024-01-01 02:00:00", 105.0, 1.2),
+        ("2024-01-01 03:00:00", 103.0, 1.3),
+        ("2024-01-01 04:00:00", 107.0, 1.4),
+        ("2024-01-01 05:00:00", 110.0, 1.5),
+        ("2024-01-01 06:00:00", 112.0, 1.6),
+        ("2024-01-01 07:00:00", 115.0, 1.7),
+        ("2024-01-01 08:00:00", 118.0, 1.8),
+        ("2024-01-01 09:00:00", 120.0, 1.9),
+    ]
+    columns = ["timestamp", "target", "feat1"]
+    pdf = pd.DataFrame(data, columns=columns)
+    pdf["timestamp"] = pd.to_datetime(pdf["timestamp"])
+
+    # Split data into train and test sets (time-ordered).
+    train_pdf, test_pdf = temporal_train_test_split(pdf, test_size=0.2)
+
+    spark_train_df = spark.createDataFrame(train_pdf)
+    spark_test_df = spark.createDataFrame(test_pdf)
+
+    # Initialize and train the model.
+    cb = CatboostTimeSeries(
+        target_col="target",
+        timestamp_col="timestamp",
+        window_length=3,
+        strategy="recursive",
+        iterations=50,
+        learning_rate=0.1,
+        depth=4,
+        verbose=False,
+    )
+    cb.train(spark_train_df)
+
+    # Evaluate on the out-of-sample test set.
+    metrics = cb.evaluate(spark_test_df)
+    print(metrics)
+    ```
     """
     def __init__(
         self,
