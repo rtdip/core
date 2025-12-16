@@ -24,6 +24,12 @@ import numpy as np
 from ..interfaces import MachineLearningInterface
 from ..._pipeline_utils.models import Libraries, SystemType, PyPiLibrary
 
+import sys
+
+# Hide polars from cmdstanpy/prophet import path
+# so cmdstanpy can't import it and should fall back to other parsers.
+sys.modules["polars"] = None
+
 
 class ProphetForecaster(MachineLearningInterface):
     """
@@ -114,17 +120,6 @@ class ProphetForecaster(MachineLearningInterface):
         return SystemType.PYTHON
 
     @staticmethod
-    def libraries():
-        """
-        Defines the required libraries for AutoGluon TimeSeries.
-        """
-        libraries = Libraries()
-        libraries.add_pypi_library(
-            PyPiLibrary(name="autogluon.timeseries", version="1.1.1", repo=None)
-        )
-        return libraries
-
-    @staticmethod
     def settings() -> dict:
         return {}
 
@@ -142,7 +137,9 @@ class ProphetForecaster(MachineLearningInterface):
         pdf = self.convert_spark_to_pandas(train_df)
 
         if pdf.isnull().values.any():
-            raise ValueError("The dataframe contains NaN values. Prophet doesn't allow any NaN or None values")
+            raise ValueError(
+                "The dataframe contains NaN values. Prophet doesn't allow any NaN or None values"
+            )
 
         self.prophet.fit(pdf)
 
@@ -265,7 +262,8 @@ class ProphetForecaster(MachineLearningInterface):
         if self.use_only_timestamp_and_target:
             if self.timestamp_col not in pdf or self.target_col not in pdf:
                 raise ValueError(
-                    f"Required columns {self.timestamp_col} or {self.target_col} are missing in the DataFrame.")
+                    f"Required columns {self.timestamp_col} or {self.target_col} are missing in the DataFrame."
+                )
             pdf = pdf[[self.timestamp_col, self.target_col]]
 
         pdf[self.timestamp_col] = pd.to_datetime(pdf[self.timestamp_col])
