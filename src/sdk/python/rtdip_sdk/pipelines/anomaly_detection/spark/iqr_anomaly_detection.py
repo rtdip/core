@@ -15,7 +15,7 @@
 import numpy as np
 from pyspark.sql import DataFrame
 
-from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
+from rtdip_sdk.pipelines._pipeline_utils.models import (
     Libraries,
     SystemType,
 )
