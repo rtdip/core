@@ -1,0 +1,15 @@
+Title	URL	Assignees	Status	Estimated size	Real size
+Prepare and Demo Project Build Process	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/14		Product Backlog		
+Update our Forked Repository with Latest RTDIP Release	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/15		Product Backlog		
+Perform Data Exploration and Preprocessing on Shell Dataset	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/16		Product Backlog		
+Perform Data Exploration and Preprocessing on Opensource Dataset 1	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/17		Product Backlog		
+Perform Data Exploration and Preprocessing on Opensource Dataset 2	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/18		Product Backlog		
+Research Possible Models Useful for Shell Dataset	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/5		Product Backlog		
+Research Possible Models Useful for Opensource Dataset 1	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/6		Product Backlog		
+Research Possible Models Useful for Opensource Dataset 2	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/19		Product Backlog		
+Initialize software bill of materials	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/8	Perimora	In Progress	2	
+Research about time series forecasting fundamentals	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/4	AbdulHaseeb-SE, BelmontR, Mehdi-kbz, Perimora	In Progress	2	
+Software Architecture	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/13	hpfref, simonselbig	Awaiting Review	2	
+Find open source time series datasets	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/7	AbdulHaseeb-SE, hpfref, simonselbig	Awaiting Review	2	
+Understanding the rtdip software	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/3	AbdulHaseeb-SE, BelmontR, hpfref, Mehdi-kbz, Perimora, simonselbig	Awaiting Review	2	
+Run the software on your own machine	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/2	AbdulHaseeb-SE, BelmontR, hpfref, Mehdi-kbz, Perimora, simonselbig	Awaiting Review	1	

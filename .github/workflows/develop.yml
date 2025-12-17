@@ -16,9 +16,12 @@ name: "Develop"
 
 on:
   # Trigger the workflow on push to develop
-  push:
-    branches:
-      - develop
+  #push:
+  #  branches:
+  #    - develop
+
+  # Disabled automatic trigger - use fork_develop.yml for CI in fork
+  workflow_dispatch:
 
 jobs:
   job_run_unit_tests_previous_versions:

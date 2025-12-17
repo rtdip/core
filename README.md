@@ -1,5 +1,5 @@
 # Real Time Data Ingestion Platform (RTDIP)
-
+ 
 <p align="center"><img src=https://raw.githubusercontent.com/rtdip/core/develop/docs/getting-started/images/rtdip-horizontal-color.png alt="rtdip" width=50% height=50%/></p>
 
 <div align="center">
@@ -83,6 +83,13 @@ See [RTDIP Documentation](https://www.rtdip.io/) for more information on how to 
     conda activate rtdip-sdk
 ```
 You are now ready to start developing your own functions. Please remember to follow RTDIP's development lifecycle to maintain clarity and efficiency for a fully robust self serving platform. 
+
+## Repository Structure
+If you want to implement a new Machine Learning Component, you should use the "MachineLearningInterface" from the src/sdk/python/rtdip_sdk/pipelines/ directory 
+or create a new interface that's implementing the PipelineComponentBaseInterface.
+
+If you want to implement new data manipulation / preprocessing components, please work in the src/sdk/python/rtdip_sdk/pipelines/data_quality/data_manipulation directory.
+If you're working with spark DataFrames, use the DataManipulationBaseInterface, for pandas DataFrames, use the PandasDataManipulationBaseInterface. Create a new interface, if needed.
     
 ## RTDIP Development Lifecycle
 
@@ -117,3 +124,4 @@ Distributed under the Apache License Version 2.0. See [LICENSE.md](https://githu
 
 ### Community
 * Chat with other community members by joining the **#rtdip** Slack channel. [Click here to join our slack community](https://lfenergy.slack.com/archives/C0484R9Q6A0)
+.

@@ -15,10 +15,17 @@
 from abc import abstractmethod
 
 from pyspark.sql import DataFrame
+from pandas import DataFrame as PandasDataFrame
 from ...interfaces import PipelineComponentBaseInterface
 
 
 class DataManipulationBaseInterface(PipelineComponentBaseInterface):
     @abstractmethod
     def filter_data(self) -> DataFrame:
+        pass
+
+
+class PandasDataManipulationBaseInterface(PipelineComponentBaseInterface):
+    @abstractmethod
+    def apply(self) -> PandasDataFrame:
         pass

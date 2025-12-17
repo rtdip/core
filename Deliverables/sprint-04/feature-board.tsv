@@ -1,0 +1,24 @@
+Title	URL	Assignees	Status	Estimated size	Real size
+Create Build Process Video	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/30		Product Backlog		
+Choosing Models, Datasets, Error Measure Metrics	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/35		Product Backlog		
+Model Training and Evaluation with Shell Dataset	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/32		Product Backlog		
+Visualization of Results (Feature importance, etc.)	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/34		Product Backlog		
+Preprocess Opensource Dataset 1	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/33		Product Backlog		
+Perform Data Exploration on Opensource Dataset 2	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/18		Product Backlog		
+PO Homework	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/36		Product Backlog		
+Getting to Know HPC of AMOS	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/23	hpfref, Perimora, simonselbig	In Progress	2	
+Perform Data Exploration on Opensource Dataset 1	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/17	Perimora	In Progress	2	
+Preprocess Shell Dataset	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/22	AbdulHaseeb-SE, BelmontR, simonselbig	In Progress	3	
+Implementing a basic Model pipeline	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/24	BelmontR	In Progress	2	
+Research Possible Models Useful for Opensource Dataset	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/6	AbdulHaseeb-SE	In Progress	2	
+CI/CD Pipeline fail bug	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/25	hpfref	Awaiting Review	3	
+Research Possible Models Useful for Shell Dataset	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/5	BelmontR, hpfref, Mehdi-kbz, Perimora	Feature Archive	2	2
+Prepare and Demo Project Build Process	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/14	hpfref	Feature Archive	1	2
+Perform Data Exploration on Shell Dataset	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/21	BelmontR, hpfref, Mehdi-kbz, Perimora, simonselbig	Feature Archive	3	3
+Research about time series forecasting fundamentals	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/4	AbdulHaseeb-SE, BelmontR, Mehdi-kbz, Perimora	Feature Archive	2	2
+Initialize software bill of materials	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/8	Perimora	Feature Archive	2	2
+Software Architecture	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/13	hpfref, simonselbig	Feature Archive	2	2
+Run the software on your own machine	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/2	AbdulHaseeb-SE, BelmontR, hpfref, Mehdi-kbz, Perimora, simonselbig	Feature Archive	1	1
+Understanding the rtdip software	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/3	AbdulHaseeb-SE, BelmontR, hpfref, Mehdi-kbz, Perimora, simonselbig	Feature Archive	2	2
+Find open source time series datasets	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/7	AbdulHaseeb-SE, hpfref, simonselbig	Feature Archive	2	2
+Update our Forked Repository with Latest RTDIP Release	https://github.com/amosproj/amos2025ws03-rtdip-timeseries-forecasting/issues/15	hpfref	Feature Archive	1	1
