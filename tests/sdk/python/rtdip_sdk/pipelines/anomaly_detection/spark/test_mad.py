@@ -14,10 +14,11 @@
 
 import pytest
 
-from src.sdk.python.rtdip_sdk.pipelines.anomaly_detection.spark.mad_anomaly_detection import (
+from src.sdk.python.rtdip_sdk.pipelines.anomaly_detection.spark.mad.mad_anomaly_detection import (
+    GlobalMadScorer,
+    RollingMadScorer,
     MadAnomalyDetection,
-    MadAnomalyDetectionRollingWindow,
-    StlMadAnomalyDetection,
+    DecompositionMadAnomalyDetection,
 )
 
 
@@ -39,15 +40,16 @@ def spark_dataframe_with_anomalies(spark_session):
     return spark_session.createDataFrame(data, columns)
 
 
-def test_mad_anomaly_detection(spark_dataframe_with_anomalies):
+def test_mad_anomaly_detection_global(spark_dataframe_with_anomalies):
+    scorer = GlobalMadScorer()
     mad_detector = MadAnomalyDetection()
+
     result_df = mad_detector.detect(spark_dataframe_with_anomalies)
 
     # direct anomaly count check
     assert result_df.count() == 1
 
     row = result_df.collect()[0]
-
     assert row["value"] == 30.0
 
 
@@ -110,9 +112,10 @@ def spark_dataframe_with_anomalies_big(spark_session):
     return spark_session.createDataFrame(data, columns)
 
 
-def test_mad_anomaly_detection_rolling_window(spark_dataframe_with_anomalies_big):
+def test_mad_anomaly_detection_rolling(spark_dataframe_with_anomalies_big):
     # Using a smaller window size to detect anomalies in the larger dataset
-    mad_detector = MadAnomalyDetectionRollingWindow(window_size=15)
+    scorer = RollingMadScorer(threshold=3.5, window_size=15)
+    mad_detector = MadAnomalyDetection(scorer=scorer)
     result_df = mad_detector.detect(spark_dataframe_with_anomalies_big)
 
     # assert all 3 anomalies are detected
@@ -149,10 +152,25 @@ def spark_dataframe_synthetic_stl(spark_session):
     return spark_session.createDataFrame(pdf)
 
 
-def test_stl_mad_anomaly_detection(spark_dataframe_synthetic_stl):
-    detector = StlMadAnomalyDetection(
-        period=24,
-        threshold=3.5,
+@pytest.mark.parametrize(
+    "decomposition, period, scorer",
+    [
+        ("stl", 24, GlobalMadScorer(threshold=3.5)),
+        ("stl", 24, RollingMadScorer(threshold=3.5, window_size=30)),
+        ("mstl", 24, GlobalMadScorer(threshold=3.5)),
+        ("mstl", 24, RollingMadScorer(threshold=3.5, window_size=30)),
+    ],
+)
+def test_decomposition_mad_anomaly_detection(
+    spark_dataframe_synthetic_stl,
+    decomposition,
+    period,
+    scorer,
+):
+    detector = DecompositionMadAnomalyDetection(
+        scorer=scorer,
+        decomposition=decomposition,
+        period=period,
         timestamp_column="timestamp",
         value_column="value",
     )
@@ -162,10 +180,9 @@ def test_stl_mad_anomaly_detection(spark_dataframe_synthetic_stl):
     # Expect exactly 5 anomalies (synthetic definition)
     assert result_df.count() == 5
 
-    detected_values = sorted([row["value"] for row in result_df.collect()])
+    detected_values = sorted(row["value"] for row in result_df.collect())
 
-    # We expect the injected anomalies to be the extreme values
-    # (STL removes season + trend, so residual spikes survive)
+    # STL/MSTL removes seasonality + trend, residual spikes survive
     assert len(detected_values) == 5
-    assert min(detected_values) < -5  # negative anomaly around idx 120
-    assert max(detected_values) > 10  # positive anomaly around idx 50
+    assert min(detected_values) < -5  # negative anomaly
+    assert max(detected_values) > 10  # positive anomaly
