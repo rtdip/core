@@ -31,20 +31,3 @@ jobs:
   # - Documentation build test
   job_lint_and_test:
     uses: rtdip/core/.github/workflows/test.yml@develop
-
-  job_devcontainer_tests:
-    name: "Devcontainer - Run Tests/"
-    runs-on: ubuntu-latest
-    needs: job_lint_and_test
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run pytest in devcontainer (tests/)
-        uses: devcontainers/ci@v0.3
-        with:
-          runCmd: |
-            python --version
-            python -m pip --version
-            python -m pytest -q tests

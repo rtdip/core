@@ -17,6 +17,10 @@ jobs:
       - name: Build devcontainer and run tests
         uses: devcontainers/ci@v0.3
         with:
+          env: |
+            TMPDIR=/workspaces/.pip_cache
+            PIP_CACHE_DIR=/workspaces/.pip_cache
           runCmd: |
+            mkdir -p /workspaces/.pip_cache
             python --version
             pytest tests
