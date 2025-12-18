@@ -49,7 +49,8 @@
 		}
 	},
 	
-	"postCreateCommand": "df -h && mkdir -p /tmp/pip-cache && export TMPDIR=/tmp/pip-cache && export PIP_CACHE_DIR=/tmp/pip-cache && mamba env create --yes -f environment.yml && df -h && python -m venv src/api/.venv && npm install -g azure-functions-core-tools@4 && df -h",
+	"postCreateCommand": "df -h && export TMPDIR=/workspaces/amos2025ws03-rtdip-timeseries-forecasting/.pip_cache_test && export PIP_CACHE_DIR=/workspaces/amos2025ws03-rtdip-timeseries-forecasting/.pip_cache_test && mamba env create --yes -f environment.yml && df -h && python -m venv src/api/.venv && npm install -g azure-functions-core-tools@4 && df -h",
+
 
 	"remoteUser": "vscode",
 	"features": {
