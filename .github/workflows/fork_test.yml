@@ -18,9 +18,8 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           env: |
-            TMPDIR=/workspaces/.pip_cache
-            PIP_CACHE_DIR=/workspaces/.pip_cache
+            TMPDIR=/home/vscode/.cache
+            PIP_CACHE_DIR=/home/vscode/.cache/pip
           runCmd: |
-            mkdir -p /workspaces/.pip_cache
             python --version
             pytest tests
