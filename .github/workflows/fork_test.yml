@@ -1,0 +1,22 @@
+name: "Test (Devcontainer)"
+
+on:
+  push:
+    branches:
+      - CI/CD-Fix
+  workflow_dispatch:
+
+jobs:
+  test_in_devcontainer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build devcontainer and run tests
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            python --version
+            pytest tests
