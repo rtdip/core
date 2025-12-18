@@ -34,5 +34,5 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           runCmd: |
-            python --version
-            pytest tests
+            mamba run -n rtdip-sdk python --version
+            mamba run -n rtdip-sdk pytest tests
