@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Speicher auf dem Runner freimachen (WICHTIG)
       - name: Free disk space on runner
         run: |
           echo "Disk usage before cleanup:"
@@ -25,11 +24,9 @@ jobs:
           echo "Disk usage after cleanup:"
           df -h
 
-      # 2) Repository auschecken
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 3) Devcontainer bauen und Tests darin ausführen
       - name: Build devcontainer and run tests
         uses: devcontainers/ci@v0.3
         with:
