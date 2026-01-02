@@ -3,7 +3,7 @@ name: "Test (Devcontainer)"
 on:
   push:
     branches:
-      - CI/CD-Fix
+      - develop
   workflow_dispatch:
 
 jobs:
