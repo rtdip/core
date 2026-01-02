@@ -26,7 +26,7 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def spark():
     """Create a Spark session for testing."""
     spark = SparkSession.builder.master("local[2]").appName("test").getOrCreate()
