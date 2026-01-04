@@ -41,7 +41,6 @@ def spark_dataframe_with_anomalies(spark_session):
 
 
 def test_mad_anomaly_detection_global(spark_dataframe_with_anomalies):
-    scorer = GlobalMadScorer()
     mad_detector = MadAnomalyDetection()
 
     result_df = mad_detector.detect(spark_dataframe_with_anomalies)

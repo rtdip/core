@@ -22,7 +22,7 @@ from pyspark.sql import DataFrame as SparkDataFrame
 from ..interfaces import PlotlyVisualizationInterface
 
 
-class AnomalyDetectionPlotly(PlotlyVisualizationInterface):
+class AnomalyDetectionPlotInteractive(PlotlyVisualizationInterface):
     """
     Plot time series data with detected anomalies highlighted using Plotly.
 
