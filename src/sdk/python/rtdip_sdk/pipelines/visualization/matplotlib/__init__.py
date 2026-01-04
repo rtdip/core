@@ -32,6 +32,8 @@ Classes:
     ModelsOverlayPlot: Overlay multiple model forecasts
     ForecastDistributionPlot: Box plots of forecast distributions
     ComparisonDashboard: Model comparison dashboard
+
+    AnomalyDetectionPlot: Static plot of time series with anomalies
 """
 
 from .forecasting import (
@@ -50,4 +52,7 @@ from .comparison import (
     ModelsOverlayPlot,
     ForecastDistributionPlot,
     ComparisonDashboard,
+)
+from .anomaly_detection import (
+    AnomalyDetectionPlot
 )

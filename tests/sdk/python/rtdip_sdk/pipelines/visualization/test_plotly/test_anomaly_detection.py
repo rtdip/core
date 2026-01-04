@@ -18,7 +18,7 @@ import pytest
 from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines.visualization.plotly.anomaly_detection import (
-    AnomalyDetectionPlotly,
+    AnomalyDetectionPlotInteractive,
 )
 
 
@@ -50,7 +50,7 @@ def test_plotly_creates_figure_with_anomalies(spark: SparkSession):
     ts_df = spark.createDataFrame(ts_data, ["timestamp", "value"])
     ad_df = spark.createDataFrame(ad_data, ["timestamp", "value"])
 
-    plot = AnomalyDetectionPlotly(
+    plot = AnomalyDetectionPlotInteractive(
         ts_data=ts_df,
         ad_data=ad_df,
         sensor_id="TEST_SENSOR",
@@ -72,7 +72,7 @@ def test_plotly_without_anomalies_creates_single_trace(spark: SparkSession):
 
     ts_df = spark.createDataFrame(ts_data, ["timestamp", "value"])
 
-    plot = AnomalyDetectionPlotly(ts_data=ts_df)
+    plot = AnomalyDetectionPlotInteractive(ts_data=ts_df)
 
     fig = plot.plot()
 
@@ -95,7 +95,7 @@ def test_anomaly_hover_template_is_present(spark: SparkSession):
         ["timestamp", "value"],
     )
 
-    plot = AnomalyDetectionPlotly(
+    plot = AnomalyDetectionPlotInteractive(
         ts_data=ts_df,
         ad_data=ad_df,
     )
@@ -118,7 +118,7 @@ def test_title_fallback_with_sensor_id(spark: SparkSession):
         ["timestamp", "value"],
     )
 
-    plot = AnomalyDetectionPlotly(
+    plot = AnomalyDetectionPlotInteractive(
         ts_data=ts_df,
         sensor_id="SENSOR_X",
     )
