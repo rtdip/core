@@ -28,6 +28,8 @@ Classes:
     ModelComparisonPlotInteractive: Interactive model performance comparison
     ModelsOverlayPlotInteractive: Interactive overlay of multiple models
     ForecastDistributionPlotInteractive: Interactive distribution comparison
+
+    AnomalyDetectionPlotInteractive: Interactive plot of time series with anomalies
 """
 
 from .forecasting import (
@@ -41,4 +43,8 @@ from .comparison import (
     ModelComparisonPlotInteractive,
     ModelsOverlayPlotInteractive,
     ForecastDistributionPlotInteractive,
+)
+
+from .anomaly_detection import (
+    AnomalyDetectionPlotInteractive
 )
