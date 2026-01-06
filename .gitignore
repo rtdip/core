@@ -140,3 +140,20 @@ config.share
 
 # JetBrains
 .idea/
+
+
+
+# Notebooks & outputs
+*.ipynb
+outputs/
+
+# Local data
+amos_team_resources/shell/data/
+
+# Python cache
+__pycache__/
+
+
+# Backup folders
+src/sdk/python/rtdip_sdk/pipelines/anomaly_detection/spark/iqr-backup/
+
