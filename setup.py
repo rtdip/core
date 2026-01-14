@@ -30,6 +30,7 @@ long_description = (here / "PYPI-README.md").read_text()
 INSTALL_REQUIRES = [
     "databricks-sql-connector>=3.6.0,<3.7.0",
     "pyarrow>=14.0.1,<17.0.0",
+    "azure-core>=1.38.0,<2.0.0",
     "azure-identity>=1.25.1,<2.0.0",
     "pandas>=2.0.1,<2.3.0",
     "jinja2>=3.1.6,<4.0.0",
