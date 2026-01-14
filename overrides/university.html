@@ -1,0 +1,69 @@
+<!-- {% extends "main.html" %} -->
+
+<!-- Render hero under tabs -->
+{% block tabs %}
+  {{ super() }}
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="../../overrides/university.css">
+
+<div class="container">
+    <section class="intro-section">
+        <div class="intro-header">
+            <h1>Welcome to RTDIP University </h1>
+            <p>Learn how to leverage RTDIP and build robust, production-ready ingestion pipelines and time series queries with ease.</p>
+        </div>
+    </section>
+    <section class="course-section">
+        <div class="course-header">
+            <h3 class="course-title">Courses</h2>
+        </div>
+    </section>
+    <section class="content-section">
+        <div class="linkcard" onclick="location.href='../essentials/overview'" type="button">
+            <div class="linkcard-image-section">
+                <img src="../../overrides/images/university-essential-course.png" class="linkcard-image" />
+            </div>
+            <div class="linkcard-content-section">
+              <h3 class="linkcard-title">RTDIP Essentials</h3>
+              <p class="linkcard-description">In this course, learn the basics of RTDIP, including how to install and use RTDIP SDK time series queries and API functionality. </p>
+              <a class="linkcard-link" href="../essentials/overview">Continue Learning<p class="linkcard-link-arrow">→</p></a>
+            </div>
+        </div>
+        <div class="linkcard" >
+            <div class="linkcard-image-section">
+                <img src="../../overrides/images/university-pipeline-course.png" class="linkcard-image" />
+            </div>
+            <div class="linkcard-content-section">
+              <h3 class="linkcard-title">RTDIP Pipelines</h3>
+              <p class="linkcard-description">Coming soon! </p>
+            </div>
+        </div>
+    </section>
+
+
+    <script> //NOSONAR
+        function toggleDetails(clickedItem) {
+            // Close all other details and reset indicators
+            document.querySelectorAll('.clickable-list-item').forEach(function(item) {
+                if (item !== clickedItem) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Toggle the clicked item's details
+            clickedItem.classList.toggle('active');
+
+            // Reset all indicators
+            document.querySelectorAll('.clickable-list-toggle-indicator').forEach(indicator => {
+                indicator.textContent = '+';
+            });
+            
+            // Toggle the indicator of the clicked item
+            const indicator = clickedItem.querySelector('.clickable-list-toggle-indicator');
+            indicator.textContent = clickedItem.classList.contains('active') ? '-' : '+';
+        }
+    </script>
+</div>
+
+{% endblock %}

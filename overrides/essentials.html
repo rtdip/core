@@ -1,0 +1,275 @@
+<!-- {% extends "main.html" %} -->
+
+<!-- Render hero under tabs -->
+{% block tabs %}
+  {{ super() }}
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="../../../overrides/essentials.css">
+
+<div class="essentials-container">
+    <section class="essentials-intro-section">
+        <div class="essentials-intro-header">
+            <h1>RTDIP Essentials </h1>
+            <p>Learn the basics of RTDIP, a Python-based platfom that enables you to build robust, production-ready ingestion pipelines and the ability to query time series data at ease. In this course, you will learn how to run popular time series queries using the SDK and API's, followed by and introduction to RTDIP's Excel Connector.</p>
+        </div>
+    </section>
+
+    <section class="prerequisites-section">
+        <div class="prerequisites-content-container">
+            <div class="prerequisites-left">
+                <h3>Course <span class="pink-span">Prerequisites</span></h3>
+                <p>This course is geared towards RTDIP beginners.</p>
+            </div>
+            <div class="prerequisites-right">
+                <div class="prerequisites-right-sections"> 
+                    <h3>Python Knowledge </h3>
+                    <p>While you don't need to be a Python expert to get started, you do need some knowledge of Python to complete this course and use RTDIP. 
+                        In lesson 2 we will cover RTDIP specific installation requirements. Here are some Pythonic concepts used, along with resources to learn about them. 
+                    </p>
+                    <ul>
+                        <li>
+                            <a href="https://docs.python.org/3/tutorial/index.html">Python Tutorial</a>
+                        </li>
+                        <li>
+                            <a href="https://realpython.com/">Python Tutorial Courses</a>
+                        </li>
+                        <li>
+                            <a href="https://realpython.com/python-modules-packages/">Python Modules and Packages</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="prerequisites-right-sections">
+                    <h3>SQL Knowledge </h3>
+                    <p>You won't be writing complex SQL, but you will need to understand the concept of select statements, 
+                        what tables are, and basic SQL syntax. If you would like a crash course on SQL, here are some resources to get you started.
+                    </p>
+                    <ul>
+                        <li>
+                            <a href="https://www.geeksforgeeks.org/sql-tutorial/">SQL Tutorial</a>
+                        </li>
+                        <li>
+                            <a href="https://learnsql.com/blog/sql-basics-cheat-sheet/">SQL Basics Cheat sql-basics-cheat-sheet</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="course-curriculum-section">
+        <h1>Course <span class="pink-span"> Curriculum</span></h1>
+        <div class="course-curriculum-container">
+            <div class="course-curriculum-left">
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Lesson 1: Introduction
+                        </span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
+                    </div>
+                    <ul class="clickable-list-details">
+                        <li>
+                            <a href="../../essentials/rtdip/introduction/overview">Introduction to RTDIP</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/rtdip/introduction/prerequisites">Course Prerequisites</a>
+                        </li>
+                        <h3 class="clickable-subtitle">Architecture</h3>
+                        <li>
+                            <a href="../../essentials/rtdip/architecture/queries">Queries</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/rtdip/architecture/pipelines">Pipelines</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/rtdip/architecture/databricks">Databricks</a>
+                        </li>
+                        <h3 class="clickable-subtitle">Getting Started</h3>
+                        <li>
+                            <a href="../../essentials/sdk/getting-started/prerequisites">SDK & API Prerequisites</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/getting-started/installation">Install RTDIP SDK</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/getting-started/exercise">Exercise</a>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Lesson 2: SDK
+                        </span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
+                    </div>
+                    <ul class="clickable-list-details">
+                        <h3 class="clickable-subtitle">Authentication</h3>
+                        <li>
+                            <a href="../../essentials/sdk/authentication/azure">Authentication using Azure Active Directory</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/authentication/databricks">Authentiation using Databricks</a>
+                        </li>
+                        <h3 class="clickable-subtitle">Connectors</h3>
+                        <li>
+                            <a href="../../essentials/sdk/connectors/databricks-sql-connector">Databricks SQL Connector</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/connectors/odbc-connectors">ODBC Connector</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/connectors/spark-connector">Spark Connector</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/connectors/exercise">Exercise</a>
+                        </li>
+                        <h3 class="clickable-subtitle">Queries</h3>
+                        <li>
+                            <a href="../../essentials/sdk/queries/timeseries">Time Series</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/queries/sql">SQL queries</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/queries/sq">Weather</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/sdk/queries/exercise">Exercise</a>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Lesson 3: Power BI
+                        </span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
+                    </div>
+                    <ul class="clickable-list-details">
+                        <li>
+                            <a href="../../essentials/powerbi/overview">Overview</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/powerbi/exercise">Exercise</a>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Lesson 4: API
+                        </span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
+                    </div>
+                    <ul class="clickable-list-details">
+                        <li>
+                            <a href="../../essentials/api/overview">Overview</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/api/authentication">Authentication</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/api/swagger">Swagger</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/api/postman">Postman</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/api/exercise">Exercise</a>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Lesson 5: Excel connector
+                        </span>
+                        <span class="clickable-list-toggle-indicator">
+                            +
+                        </span>
+                    </div>
+                    <ul class="clickable-list-details">
+                        <li>
+                            <a href="../../essentials/excel-connector/overview">Overview</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/excel-connector/getting-started">Getting Started</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/excel-connector/taskpane">Exercise: Exploring the Taskpane</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/excel-connector/functions">Exercise: Exploring the Functions</a>
+                        </li>
+                        <li>
+                            <a href="../../essentials/excel-connector/dashboard">Exercise: Creating a Simple Dashboard with Live Data</a>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+            </div>
+            <div class="course-curriculum-right">
+                <div class="skillcard">
+                    <div class="skillcard-top">
+                        <img src="../../../assets/rtdip-horizontal-color.png">
+                        <h2 class="skillcard-title">RTDIP Essentials</h2>
+                    </div>
+                    <div class="skillcard-bottom">
+                        <ul class="skill-content">
+                            <h3>Skills you'll gain in this course</h3>
+                            <li>
+                                <a>How to use RTDIP SDK</a>
+                            </li>
+                            <li>
+                                <a>How to connect to Power BI</a>
+                            </li>
+                            <li>
+                                <a>How to call RTDIP API's</a>
+                            </li>
+                            <li>
+                                <a>How to use RTDIP Excel Connector</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script> //NOSONAR
+        function toggleDetails(clickedItem) {
+            // Close all other details and reset indicators
+            document.querySelectorAll('.clickable-list-item').forEach(function(item) {
+                if (item !== clickedItem) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Toggle the clicked item's details
+            clickedItem.classList.toggle('active');
+
+            // Reset all indicators
+            document.querySelectorAll('.clickable-list-toggle-indicator').forEach(indicator => {
+                indicator.textContent = '+';
+            });
+            
+            // Toggle the indicator of the clicked item
+            const indicator = clickedItem.querySelector('.clickable-list-toggle-indicator');
+            indicator.textContent = clickedItem.classList.contains('active') ? '-' : '+';
+        }
+    </script>
+</div>
+
+{% endblock %}
