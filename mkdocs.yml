@@ -172,6 +172,7 @@ nav:
                       - Delta Sharing: sdk/code-reference/pipelines/sources/python/delta_sharing.md
                       - ENTSO-E: sdk/code-reference/pipelines/sources/python/entsoe.md
                       - MFFBAS: sdk/code-reference/pipelines/sources/python/mffbas.md
+                      - Azure Blob: sdk/code-reference/pipelines/sources/python/azure_blob.md
               - Transformers:
                   - Spark:
                       - Binary To String: sdk/code-reference/pipelines/transformers/spark/binary_to_string.md
@@ -245,27 +246,85 @@ nav:
                         - Interval Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_interval.md
                         - Pattern Based: sdk/code-reference/pipelines/data_quality/monitoring/spark/identify_missing_data_pattern.md
                       - Moving Average: sdk/code-reference/pipelines/data_quality/monitoring/spark/moving_average.md
-                  - Data Manipulation: 
-                      - Duplicate Detetection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
-                      - Out of Range Value Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
-                      - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
-                      - Gaussian Smoothing: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/gaussian_smoothing.md
-                      - Dimensionality Reduction: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/dimensionality_reduction.md
-                      - Interval Filtering: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/interval_filtering.md
-                      - K-Sigma Anomaly Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/k_sigma_anomaly_detection.md
-                      - Missing Value Imputation: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/missing_value_imputation.md
-                      - Normalization:
-                          - Normalization: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization.md
-                          - Normalization Mean: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_mean.md
-                          - Normalization MinMax: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_minmax.md
-                          - Normalization ZScore: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_zscore.md
-                          - Denormalization: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/denormalization.md
+                  - Data Manipulation:
+                      - Spark:
+                          - Duplicate Detetection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/duplicate_detection.md
+                          - Out of Range Value Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/out_of_range_value_filter.md
+                          - Flatline Filter: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/flatline_filter.md
+                          - Gaussian Smoothing: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/gaussian_smoothing.md
+                          - Dimensionality Reduction: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/dimensionality_reduction.md
+                          - Interval Filtering: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/interval_filtering.md
+                          - K-Sigma Anomaly Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/k_sigma_anomaly_detection.md
+                          - Missing Value Imputation: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/missing_value_imputation.md
+                          - Chronological Sort: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/chronological_sort.md
+                          - Cyclical Encoding: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/cyclical_encoding.md
+                          - Datetime Features: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/datetime_features.md
+                          - Datetime String Conversion: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/datetime_string_conversion.md
+                          - Lag Features: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/lag_features.md
+                          - MAD Outlier Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/mad_outlier_detection.md
+                          - Mixed Type Separation: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/mixed_type_separation.md
+                          - Rolling Statistics: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/rolling_statistics.md
+                          - Drop Empty Columns: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/drop_empty_columns.md
+                          - Drop Columns by NaN Percentage: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/drop_columns_by_nan_percentage.md
+                          - Select Columns by Correlation: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/select_columns_by_correlation.md
+                          - Normalization:
+                              - Normalization: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization.md
+                              - Normalization Mean: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_mean.md
+                              - Normalization MinMax: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_minmax.md
+                              - Normalization ZScore: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/normalization_zscore.md
+                              - Denormalization: sdk/code-reference/pipelines/data_quality/data_manipulation/spark/normalization/denormalization.md
+                      - Pandas:
+                          - Chronological Sort: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/chronological_sort.md
+                          - Cyclical Encoding: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/cyclical_encoding.md
+                          - Datetime Features: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/datetime_features.md
+                          - Datetime String Conversion: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/datetime_string_conversion.md
+                          - Lag Features: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/lag_features.md
+                          - MAD Outlier Detection: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/mad_outlier_detection.md
+                          - Mixed Type Separation: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/mixed_type_separation.md
+                          - One-Hot Encoding: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/one_hot_encoding.md
+                          - Rolling Statistics: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/rolling_statistics.md
+                          - Drop Empty Columns: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/drop_empty_columns.md
+                          - Drop Columns by NaN Percentage: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/drop_columns_by_nan_percentage.md
+                          - Select Columns by Correlation: sdk/code-reference/pipelines/data_quality/data_manipulation/pandas/select_columns_by_correlation.md
               - Forecasting:
                   - Data Binning: sdk/code-reference/pipelines/forecasting/spark/data_binning.md
                   - Linear Regression: sdk/code-reference/pipelines/forecasting/spark/linear_regression.md
                   - Arima: sdk/code-reference/pipelines/forecasting/spark/arima.md
                   - Auto Arima: sdk/code-reference/pipelines/forecasting/spark/auto_arima.md
                   - K Nearest Neighbors: sdk/code-reference/pipelines/forecasting/spark/k_nearest_neighbors.md
+                  - Prophet: sdk/code-reference/pipelines/forecasting/spark/prophet.md
+                  - LSTM TimeSeries: sdk/code-reference/pipelines/forecasting/spark/lstm_timeseries.md
+                  - XGBoost TimeSeries: sdk/code-reference/pipelines/forecasting/spark/xgboost_timeseries.md
+                  - CatBoost TimeSeries: sdk/code-reference/pipelines/forecasting/spark/catboost_timeseries.md
+                  - AutoGluon TimeSeries: sdk/code-reference/pipelines/forecasting/spark/autogluon_timeseries.md
+                  - Prediction Evaluation: sdk/code-reference/pipelines/forecasting/prediction_evaluation.md
+              - Decomposition:
+                  - Pandas:
+                      - Classical Decomposition: sdk/code-reference/pipelines/decomposition/pandas/classical_decomposition.md
+                      - STL Decomposition: sdk/code-reference/pipelines/decomposition/pandas/stl_decomposition.md
+                      - MSTL Decomposition: sdk/code-reference/pipelines/decomposition/pandas/mstl_decomposition.md
+                  - Spark:
+                      - Classical Decomposition: sdk/code-reference/pipelines/decomposition/spark/classical_decomposition.md
+                      - STL Decomposition: sdk/code-reference/pipelines/decomposition/spark/stl_decomposition.md
+                      - MSTL Decomposition: sdk/code-reference/pipelines/decomposition/spark/mstl_decomposition.md
+              - Anomaly Detection:
+                  - Spark:
+                      - IQR:
+                          - IQR Anomaly Detection: sdk/code-reference/pipelines/anomaly_detection/spark/iqr/iqr_anomaly_detection.md
+                          - Decomposition IQR Anomaly Detection: sdk/code-reference/pipelines/anomaly_detection/spark/iqr/decomposition_iqr_anomaly_detection.md
+                      - MAD:
+                          - MAD Anomaly Detection: sdk/code-reference/pipelines/anomaly_detection/spark/mad/mad_anomaly_detection.md
+              - Visualization:
+                  - Matplotlib:
+                      - Anomaly Detection: sdk/code-reference/pipelines/visualization/matplotlib/anomaly_detection.md
+                      - Model Comparison: sdk/code-reference/pipelines/visualization/matplotlib/comparison.md
+                      - Decomposition: sdk/code-reference/pipelines/visualization/matplotlib/decomposition.md
+                      - Forecasting: sdk/code-reference/pipelines/visualization/matplotlib/forecasting.md
+                  - Plotly:
+                      - Anomaly Detection: sdk/code-reference/pipelines/visualization/plotly/anomaly_detection.md
+                      - Model Comparison: sdk/code-reference/pipelines/visualization/plotly/comparison.md
+                      - Decomposition: sdk/code-reference/pipelines/visualization/plotly/decomposition.md
+                      - Forecasting: sdk/code-reference/pipelines/visualization/plotly/forecasting.md
 
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
