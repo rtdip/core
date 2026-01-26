@@ -75,6 +75,7 @@ dependencies:
     - scikit-learn>=1.3.0,<1.6.0
     # ML/Forecasting dependencies added by AMOS team
     - tensorflow>=2.18.0,<3.0.0
+    - tf-keras>=2.15,<2.19
     - xgboost>=2.0.0,<3.0.0
     - plotly>=5.0.0
     - python-kaleido>=0.2.0
