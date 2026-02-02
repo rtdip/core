@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from sklearn.metrics import (
     mean_absolute_error,
     mean_squared_error,
@@ -209,10 +210,10 @@ class ProphetForecaster(MachineLearningInterface):
             "SMAPE": -smape,
         }
 
-        print("\nProphet Metrics:")
-        print("-" * 80)
+        logging.info("Prophet Metrics:")
+        logging.info("-" * 80)
         for metric_name, metric_value in metrics.items():
-            print(f"{metric_name:20s}: {abs(metric_value):.4f}")
+            logging.info("%s: %.4f", metric_name.ljust(20), abs(metric_value))
 
         return metrics
 

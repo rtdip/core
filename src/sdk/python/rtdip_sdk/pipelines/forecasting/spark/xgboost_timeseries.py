@@ -18,6 +18,7 @@ XGBoost Time Series Forecasting for RTDIP
 Implements gradient boosting for multi-sensor time series forecasting with feature engineering.
 """
 
+import logging
 import pandas as pd
 import numpy as np
 from pyspark.sql import DataFrame
@@ -151,7 +152,7 @@ class XGBoostTimeSeries(MachineLearningInterface):
 
     def _engineer_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Apply all feature engineering steps."""
-        print("Engineering features")
+        logging.info("Engineering features")
 
         df = self._create_time_features(df)
         df = self._create_lag_features(df, lags=[1, 6, 12, 24, 48])
@@ -167,11 +168,11 @@ class XGBoostTimeSeries(MachineLearningInterface):
         Args:
             train_df: Spark DataFrame with columns [item_id, timestamp, target]
         """
-        print("TRAINING XGBOOST MODEL")
+        logging.info("TRAINING XGBOOST MODEL")
 
         pdf = train_df.toPandas()
-        print(
-            f"Training data: {len(pdf):,} rows, {pdf[self.item_id_col].nunique()} sensors"
+        logging.info(
+            "Training data: %s rows, %s sensors", len(pdf), pdf[self.item_id_col].nunique()
         )
 
         pdf = self._engineer_features(pdf)
@@ -196,18 +197,18 @@ class XGBoostTimeSeries(MachineLearningInterface):
         ]
 
         pdf_clean = pdf.dropna(subset=self.feature_cols)
-        print(f"After removing NaN rows: {len(pdf_clean):,} rows")
+        logging.info("After removing NaN rows: %s rows", len(pdf_clean))
 
         X_train = pdf_clean[self.feature_cols]
         y_train = pdf_clean[self.target_col]
 
-        print(f"\nTraining XGBoost with {len(X_train):,} samples")
-        print(f"Features: {self.feature_cols}")
-        print(f"Model parameters:")
-        print(f"  max_depth: {self.max_depth}")
-        print(f"  learning_rate: {self.learning_rate}")
-        print(f"  n_estimators: {self.n_estimators}")
-        print(f"  n_jobs: {self.n_jobs}")
+        logging.info("Training XGBoost with %s samples", len(X_train))
+        logging.info("Features: %s", self.feature_cols)
+        logging.info("Model parameters:")
+        logging.info("  max_depth: %s", self.max_depth)
+        logging.info("  learning_rate: %s", self.learning_rate)
+        logging.info("  n_estimators: %s", self.n_estimators)
+        logging.info("  n_jobs: %s", self.n_jobs)
 
         self.model = xgb.XGBRegressor(
             max_depth=self.max_depth,
@@ -221,7 +222,7 @@ class XGBoostTimeSeries(MachineLearningInterface):
 
         self.model.fit(X_train, y_train, verbose=False)
 
-        print("\nTraining completed")
+        logging.info("Training completed")
 
         feature_importance = pd.DataFrame(
             {
@@ -230,8 +231,8 @@ class XGBoostTimeSeries(MachineLearningInterface):
             }
         ).sort_values("importance", ascending=False)
 
-        print("\nTop 5 Most Important Features:")
-        print(feature_importance.head(5).to_string(index=False))
+        logging.info("Top 5 Most Important Features:")
+        logging.info("%s", feature_importance.head(5).to_string(index=False))
 
     def predict(self, test_df: DataFrame) -> DataFrame:
         """
@@ -245,7 +246,7 @@ class XGBoostTimeSeries(MachineLearningInterface):
         Returns:
             Spark DataFrame with predictions [item_id, timestamp, predicted]
         """
-        print("GENERATING XGBOOST PREDICTIONS")
+        logging.info("GENERATING XGBOOST PREDICTIONS")
 
         if self.model is None:
             raise ValueError("Model not trained. Call train() first.")
@@ -273,8 +274,8 @@ class XGBoostTimeSeries(MachineLearningInterface):
                 last_row = current_data.dropna(subset=self.feature_cols).iloc[-1:]
 
                 if len(last_row) == 0:
-                    print(
-                        f"Warning: No valid features for sensor {item_id} at step {step}"
+                    logging.warning(
+                        "No valid features for sensor %s at step %s", item_id, step
                     )
                     break
 
@@ -305,9 +306,9 @@ class XGBoostTimeSeries(MachineLearningInterface):
 
         predictions_df = pd.DataFrame(predictions_list)
 
-        print(f"\nGenerated {len(predictions_df)} predictions")
-        print(f"  Sensors: {predictions_df[self.item_id_col].nunique()}")
-        print(f"  Steps per sensor: {self.prediction_length}")
+        logging.info("Generated %s predictions", len(predictions_df))
+        logging.info("  Sensors: %s", predictions_df[self.item_id_col].nunique())
+        logging.info("  Steps per sensor: %s", self.prediction_length)
 
         return spark.createDataFrame(predictions_df)
 
@@ -321,7 +322,7 @@ class XGBoostTimeSeries(MachineLearningInterface):
         Returns:
             Dictionary of metrics (MAE, RMSE, MAPE, MASE, SMAPE)
         """
-        print("EVALUATING XGBOOST MODEL")
+        logging.info("EVALUATING XGBOOST MODEL")
 
         if self.model is None:
             raise ValueError("Model not trained. Call train() first.")
@@ -333,26 +334,26 @@ class XGBoostTimeSeries(MachineLearningInterface):
         pdf_clean = pdf.dropna(subset=self.feature_cols)
 
         if len(pdf_clean) == 0:
-            print("ERROR: No valid test samples after feature engineering")
+            logging.error("No valid test samples after feature engineering")
             return None
 
-        print(f"Test samples: {len(pdf_clean):,}")
+        logging.info("Test samples: %s", len(pdf_clean))
 
         X_test = pdf_clean[self.feature_cols]
         y_test = pdf_clean[self.target_col]
 
         y_pred = self.model.predict(X_test)
 
-        print(f"Evaluated on {len(y_test)} predictions")
+        logging.info("Evaluated on %s predictions", len(y_test))
 
         metrics = calculate_timeseries_forecasting_metrics(y_test, y_pred)
         r_metrics = calculate_timeseries_robustness_metrics(y_test, y_pred)
 
-        print("\nXGBoost Metrics:")
-        print("-" * 80)
+        logging.info("XGBoost Metrics:")
+        logging.info("-" * 80)
         for metric_name, metric_value in metrics.items():
-            print(f"{metric_name:20s}: {abs(metric_value):.4f}")
-        print("")
+            logging.info("%s: %.4f", metric_name.ljust(20), abs(metric_value))
+        logging.info("")
         for metric_name, metric_value in r_metrics.items():
-            print(f"{metric_name:20s}: {abs(metric_value):.4f}")
+            logging.info("%s: %.4f", metric_name.ljust(20), abs(metric_value))
         return metrics

@@ -135,7 +135,7 @@ class FlatlineDetection(MonitoringBaseInterface, InputValidator):
             pyspark.sql.DataFrame: The original DataFrame with additional flatline detection metadata.
         """
         flatlined_rows = self.check_for_flatlining()
-        print("Flatlined Rows:")
+        logging.info("Flatlined Rows:")
         flatlined_rows.show(truncate=False)
         self.log_flatlining_rows(flatlined_rows)
         return self.df

@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 from pyspark.sql import DataFrame
 import pyspark.ml as ml
 from pyspark.ml.evaluation import RegressionEvaluator
@@ -56,7 +57,7 @@ class LinearRegression(MachineLearningInterface):
     lr.train(train_df)
     predictions = lr.predict(test_df)
     rmse, r2 = lr.evaluate(predictions)
-    print(f"RMSE: {rmse}, R²: {r2}")
+    logging.info("RMSE: %s, R²: %s", rmse, r2)
     ```
 
     """
@@ -137,8 +138,8 @@ class LinearRegression(MachineLearningInterface):
         """
 
         if self.prediction_col not in test_df.columns:
-            print(
-                f"Error: '{self.prediction_col}' column is missing in the test DataFrame."
+            logging.error(
+                "'%s' column is missing in the test DataFrame.", self.prediction_col
             )
             return None
 

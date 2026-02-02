@@ -20,6 +20,7 @@ reduction approach (tabular regressor -> forecaster). Designed for multi-sensor
 setups where additional columns act as exogenous features.
 """
 
+import logging
 import pandas as pd
 import numpy as np
 from pyspark.sql import DataFrame
@@ -117,7 +118,7 @@ class CatboostTimeSeries(MachineLearningInterface):
 
     # Evaluate on the out-of-sample test set.
     metrics = cb.evaluate(spark_test_df)
-    print(metrics)
+    logging.info("%s", metrics)
     ```
     """
 
@@ -332,15 +333,15 @@ class CatboostTimeSeries(MachineLearningInterface):
         metrics = calculate_timeseries_forecasting_metrics(y_test, y_pred)
         r_metrics = calculate_timeseries_robustness_metrics(y_test, y_pred)
 
-        print(f"Evaluated on {len(y_test)} predictions")
+        logging.info("Evaluated on %s predictions", len(y_test))
 
-        print("\nCatboost Metrics:")
-        print("-" * 80)
+        logging.info("Catboost Metrics:")
+        logging.info("-" * 80)
         for metric_name, metric_value in metrics.items():
-            print(f"{metric_name:20s}: {abs(metric_value):.4f}")
-        print("")
+            logging.info("%s: %.4f", metric_name.ljust(20), abs(metric_value))
+        logging.info("")
         for metric_name, metric_value in r_metrics.items():
-            print(f"{metric_name:20s}: {abs(metric_value):.4f}")
+            logging.info("%s: %.4f", metric_name.ljust(20), abs(metric_value))
 
         return metrics
 

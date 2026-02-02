@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import copy
+import logging
 import statistics
 from enum import Enum
 from typing import List, Tuple
@@ -89,7 +90,7 @@ class ArimaPrediction(DataManipulationBaseInterface, InputValidator):
     arima_comp = ArimaPrediction(input_df, to_extend_name='Value', number_of_data_points_to_analyze=h_a_l, number_of_data_points_to_predict=h_a_l,
                          order=(3,0,0), seasonal_order=(3,0,0,62))
     forecasted_df = arima_comp.filter_data().toPandas()
-    print('Done')
+    logging.info('Done')
     ```
 
     Parameters:

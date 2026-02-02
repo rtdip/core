@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from pyspark.sql.types import DataType, StructType
 from pyspark.sql import functions as F
 from pyspark.sql import DataFrame as SparkDataFrame
@@ -69,7 +70,7 @@ class InputValidator(PipelineComponentBaseInterface):
     test_df = spark_session.createDataFrame(test_data, schema=test_schema)
     test_component = MissingValueImputation(spark_session, test_df)
 
-    print(test_component.validate(expected_schema)) # True
+    logging.info("%s", test_component.validate(expected_schema)) # True
 
     ```
 

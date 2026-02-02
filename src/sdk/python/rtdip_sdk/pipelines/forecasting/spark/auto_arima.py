@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 import statistics
 from typing import List, Tuple
 
@@ -62,7 +63,7 @@ class ArimaAutoPrediction(ArimaPrediction):
     arima_comp = ArimaAutoPrediction(input_df, to_extend_name='Value', number_of_data_points_to_analyze=h_a_l, number_of_data_points_to_predict=h_a_l,
                          seasonal=True)
     forecasted_df = arima_comp.filter_data().toPandas()
-    print('Done')
+    logging.info('Done')
     ```
 
     Parameters:

@@ -19,6 +19,7 @@ This module provides an LSTM neural network implementation for multivariate
 time series forecasting using TensorFlow/Keras with sensor embeddings.
 """
 
+import logging
 import numpy as np
 import pandas as pd
 from typing import Dict, Optional, Any
@@ -196,7 +197,7 @@ class LSTMTimeSeries(MachineLearningInterface):
             train_df: Spark DataFrame containing training data with columns:
                       [item_id, timestamp, target]
         """
-        print("TRAINING LSTM MODEL (SINGLE MODEL WITH EMBEDDINGS)")
+        logging.info("Training LSTM model (single model with embeddings)")
 
         pdf = train_df.toPandas()
         pdf[self.timestamp_col] = pd.to_datetime(pdf[self.timestamp_col])
@@ -206,21 +207,25 @@ class LSTMTimeSeries(MachineLearningInterface):
         self.item_ids = self.label_encoder.classes_.tolist()
         self.num_sensors = len(self.item_ids)
 
-        print(f"Training single model for {self.num_sensors} sensors")
-        print(f"Total training samples: {len(pdf)}")
-        print(
-            f"Configuration: {self.num_lstm_layers} LSTM layers, {self.lstm_units} units each"
+        logging.info("Training single model for %d sensors", self.num_sensors)
+        logging.info("Total training samples: %d", len(pdf))
+        logging.info(
+            "Configuration: %d LSTM layers, %d units each",
+            self.num_lstm_layers,
+            self.lstm_units,
         )
-        print(f"Sensor embedding dimension: {self.embedding_dim}")
-        print(
-            f"Lookback window: {self.lookback_window}, Forecast horizon: {self.prediction_length}"
+        logging.info("Sensor embedding dimension: %d", self.embedding_dim)
+        logging.info(
+            "Lookback window: %d, Forecast horizon: %d",
+            self.lookback_window,
+            self.prediction_length,
         )
 
         values = pdf[self.target_col].values.reshape(-1, 1)
         values_scaled = self.scaler.fit_transform(values)
         sensor_ids = pdf["sensor_encoded"].values
 
-        print("\nCreating training sequences")
+        logging.info("Creating training sequences")
         X_values, X_sensors, y = self._create_sequences(
             values_scaled.flatten(),
             sensor_ids,
@@ -229,20 +234,23 @@ class LSTMTimeSeries(MachineLearningInterface):
         )
 
         if len(X_values) == 0:
-            print("ERROR: Not enough data to create sequences")
+            logging.error("Not enough data to create sequences")
             return
 
         X_values = X_values.reshape(X_values.shape[0], X_values.shape[1], 1)
         X_sensors = X_sensors.reshape(-1, 1)
 
-        print(f"Created {len(X_values)} training sequences")
-        print(
-            f"Input shape: {X_values.shape}, Sensor IDs shape: {X_sensors.shape}, Output shape: {y.shape}"
+        logging.info("Created %d training sequences", len(X_values))
+        logging.info(
+            "Input shape: %s, Sensor IDs shape: %s, Output shape: %s",
+            X_values.shape,
+            X_sensors.shape,
+            y.shape,
         )
 
-        print("\nBuilding model")
+        logging.info("Building model")
         self.model = self._build_model()
-        print(self.model.summary())
+        logging.debug("Model summary: %s", self.model.summary())
 
         callbacks = [
             EarlyStopping(
@@ -256,7 +264,7 @@ class LSTMTimeSeries(MachineLearningInterface):
             ),
         ]
 
-        print("\nTraining model")
+        logging.info("Training model")
         history = self.model.fit(
             [X_values, X_sensors],
             y,
@@ -271,9 +279,9 @@ class LSTMTimeSeries(MachineLearningInterface):
 
         final_loss = history.history["val_loss"][-1]
         final_mae = history.history["val_mae"][-1]
-        print(f"\nTraining completed!")
-        print(f"Final validation loss: {final_loss:.4f}")
-        print(f"Final validation MAE: {final_mae:.4f}")
+        logging.info("Training completed!")
+        logging.info("Final validation loss: %.4f", final_loss)
+        logging.info("Final validation MAE: %.4f", final_mae)
 
     def predict(self, predict_df: DataFrame) -> DataFrame:
         """
@@ -300,7 +308,9 @@ class LSTMTimeSeries(MachineLearningInterface):
             item_data = pdf[pdf[self.item_id_col] == item_id].copy()
 
             if len(item_data) < self.lookback_window:
-                print(f"Warning: Not enough data for {item_id} to generate predictions")
+                logging.warning(
+                    "Not enough data for %s to generate predictions", item_id
+                )
                 continue
 
             values = (
@@ -365,7 +375,7 @@ class LSTMTimeSeries(MachineLearningInterface):
         all_predictions = []
         all_actuals = []
 
-        print("\nGenerating rolling predictions for evaluation")
+        logging.info("Generating rolling predictions for evaluation")
 
         batch_values = []
         batch_sensors = []
@@ -410,7 +420,7 @@ class LSTMTimeSeries(MachineLearningInterface):
         if len(batch_values) == 0:
             return None
 
-        print(f"Making batch predictions for {len(batch_values)} samples")
+        logging.info(\"Making batch predictions for %d samples\", len(batch_values))
         X_values_batch = np.array(batch_values)
         X_sensors_batch = np.array(batch_sensors).reshape(-1, 1)
 
@@ -429,18 +439,17 @@ class LSTMTimeSeries(MachineLearningInterface):
         y_true = np.array(all_actuals)
         y_pred = np.array(all_predictions)
 
-        print(f"Evaluated on {len(y_true)} predictions")
+        logging.info(\"Evaluated on %d predictions\", len(y_true))
 
         metrics = calculate_timeseries_forecasting_metrics(y_true, y_pred)
         r_metrics = calculate_timeseries_robustness_metrics(y_true, y_pred)
 
-        print("\nLSTM Metrics:")
-        print("-" * 80)
+        logging.info(\"LSTM Metrics:\")\n        logging.info(\"-\" * 80)
         for metric_name, metric_value in metrics.items():
-            print(f"{metric_name:20s}: {abs(metric_value):.4f}")
-        print("")
+            logging.info(\"%s: %.4f\", metric_name, abs(metric_value))
+        logging.info(\"\")
         for metric_name, metric_value in r_metrics.items():
-            print(f"{metric_name:20s}: {abs(metric_value):.4f}")
+            logging.info(\"%s: %.4f\", metric_name, abs(metric_value))
 
         return metrics
 

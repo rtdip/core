@@ -173,7 +173,8 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
                     still_nat
                     & successfully_parsed.reindex(still_nat.index, fill_value=False)
                 ] = parsed[successfully_parsed]
-            except Exception:
+            except (ValueError, TypeError):
+                # Format not applicable, try next format
                 continue
 
         # Final fallback: try ISO8601 format for any remaining NaT values
@@ -186,7 +187,8 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
                     errors="coerce",
                 )
                 result.loc[still_nat] = parsed
-            except Exception:
+            except (ValueError, TypeError):
+                # ISO8601 format not applicable, continue to next fallback
                 pass
 
         # Last resort: infer format
@@ -199,7 +201,8 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
                     errors="coerce",
                 )
                 result.loc[still_nat] = parsed
-            except Exception:
+            except (ValueError, TypeError):
+                # Mixed format inference failed, leave as NaT
                 pass
 
         result_df[self.output_column] = result

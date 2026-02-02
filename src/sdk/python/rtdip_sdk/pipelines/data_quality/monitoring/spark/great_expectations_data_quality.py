@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import great_expectations as gx
 from pyspark.sql import DataFrame, SparkSession
 from ..interfaces import MonitoringBaseInterface
@@ -92,7 +93,7 @@ class GreatExpectationsDataQuality(MonitoringBaseInterface, InputValidator):
 
     checkpoint_result = GX.check(checkpoint_name, run_name_template, action_list)
 
-    print(checkpoint_result)
+    logging.info("%s", checkpoint_result)
 
     ```
 

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from pyspark.sql import DataFrame
 import pandas as pd
 from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
@@ -70,11 +71,11 @@ class AutoGluonTimeSeries(MachineLearningInterface):
     ag.train(train_df)
     predictions = ag.predict(test_df)
     metrics = ag.evaluate(predictions)
-    print(f"Metrics: {metrics}")
+    logging.info("Metrics: %s", metrics)
 
     # Get model leaderboard
     leaderboard = ag.get_leaderboard()
-    print(leaderboard)
+    logging.info("%s", leaderboard)
     ```
 
     """
@@ -354,6 +355,6 @@ class AutoGluonTimeSeries(MachineLearningInterface):
         """
         self.predictor = TimeSeriesPredictor.load(path)
         self.model = self.predictor
-        print(f"Model loaded from {path}")
+        logging.info("Model loaded from %s", path)
 
         return self
