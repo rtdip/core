@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
+import numpy as np
 from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.mad_outlier_detection import (
@@ -101,8 +102,8 @@ def test_replace_action(spark):
     result_df = detector.filter_data()
 
     rows = result_df.orderBy("TagName").collect()
-    assert rows[3]["Value"] == -1.0
-    assert rows[0]["Value"] == 10.0
+    assert np.isclose(rows[3]["Value"], -1.0, rtol=1e-09, atol=1e-09)
+    assert np.isclose(rows[0]["Value"], 10.0, rtol=1e-09, atol=1e-09)
 
 
 def test_replace_action_default_null(spark):
@@ -141,9 +142,9 @@ def test_exclude_values(spark):
 
     rows = result_df.collect()
     for row in rows:
-        if row["Value"] == -1.0:
+        if np.isclose(row["Value"], -1.0, rtol=1e-09, atol=1e-09):
             assert row["Value_is_outlier"] == False
-        elif row["Value"] == 1000000.0:
+        elif np.isclose(row["Value"], 1000000.0, rtol=1e-09, atol=1e-09):
             assert row["Value_is_outlier"] == True
 
 
@@ -228,7 +229,7 @@ def test_with_null_values(spark):
     for row in rows:
         if row["Value"] is None:
             assert row["Value_is_outlier"] == False
-        elif row["Value"] == 1000000.0:
+        elif np.isclose(row["Value"], 1000000.0, rtol=1e-09, atol=1e-09):
             assert row["Value_is_outlier"] == True
 
 

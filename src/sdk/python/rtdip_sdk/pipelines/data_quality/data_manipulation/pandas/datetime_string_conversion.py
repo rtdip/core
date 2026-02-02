@@ -111,6 +111,51 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
+    def _parse_trailing_zeros(self, s: pd.Series, result: pd.Series) -> pd.Series:
+        """Parse timestamps ending with '.000'."""
+        mask_trailing_zeros = s.str.endswith(".000")
+        if mask_trailing_zeros.any():
+            result.loc[mask_trailing_zeros] = pd.to_datetime(
+                s.loc[mask_trailing_zeros].str[:-4],
+                format="%Y-%m-%d %H:%M:%S",
+                errors="coerce",
+            )
+        return ~mask_trailing_zeros
+
+    def _parse_with_formats(self, s: pd.Series, result: pd.Series, remaining: pd.Series) -> None:
+        """Try parsing with each configured format."""
+        for fmt in self.formats:
+            still_nat = result.isna() & remaining
+            if not still_nat.any():
+                break
+
+            try:
+                parsed = pd.to_datetime(s.loc[still_nat], format=fmt, errors="coerce")
+                successfully_parsed = ~parsed.isna()
+                result.loc[
+                    still_nat & successfully_parsed.reindex(still_nat.index, fill_value=False)
+                ] = parsed[successfully_parsed]
+            except (ValueError, TypeError):
+                continue
+
+    def _parse_fallback(self, s: pd.Series, result: pd.Series) -> None:
+        """Try fallback parsing methods for remaining NaT values."""
+        still_nat = result.isna()
+        if still_nat.any():
+            try:
+                parsed = pd.to_datetime(s.loc[still_nat], format="ISO8601", errors="coerce")
+                result.loc[still_nat] = parsed
+            except (ValueError, TypeError):
+                pass
+
+        still_nat = result.isna()
+        if still_nat.any():
+            try:
+                parsed = pd.to_datetime(s.loc[still_nat], format="mixed", errors="coerce")
+                result.loc[still_nat] = parsed
+            except (ValueError, TypeError):
+                pass
+
     def apply(self) -> PandasDataFrame:
         """
         Converts string timestamps to datetime objects.
@@ -131,79 +176,16 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
             raise ValueError(f"Column '{self.column}' does not exist in the DataFrame.")
 
         result_df = self.df.copy()
-
-        # Convert column to string for consistent processing
         s = result_df[self.column].astype(str)
-
-        # Initialize result with NaT
         result = pd.Series(pd.NaT, index=result_df.index, dtype="datetime64[ns]")
 
         if self.strip_trailing_zeros:
-            # Handle timestamps ending with '.000' separately for better performance
-            mask_trailing_zeros = s.str.endswith(".000")
-
-            if mask_trailing_zeros.any():
-                # Parse without fractional seconds after stripping '.000'
-                result.loc[mask_trailing_zeros] = pd.to_datetime(
-                    s.loc[mask_trailing_zeros].str[:-4],
-                    format="%Y-%m-%d %H:%M:%S",
-                    errors="coerce",
-                )
-
-            # Process remaining values
-            remaining = ~mask_trailing_zeros
+            remaining = self._parse_trailing_zeros(s, result)
         else:
             remaining = pd.Series(True, index=result_df.index)
 
-        # Try each format for remaining unparsed values
-        for fmt in self.formats:
-            still_nat = result.isna() & remaining
-            if not still_nat.any():
-                break
-
-            try:
-                parsed = pd.to_datetime(
-                    s.loc[still_nat],
-                    format=fmt,
-                    errors="coerce",
-                )
-                # Update only successfully parsed values
-                successfully_parsed = ~parsed.isna()
-                result.loc[
-                    still_nat
-                    & successfully_parsed.reindex(still_nat.index, fill_value=False)
-                ] = parsed[successfully_parsed]
-            except (ValueError, TypeError):
-                # Format not applicable, try next format
-                continue
-
-        # Final fallback: try ISO8601 format for any remaining NaT values
-        still_nat = result.isna()
-        if still_nat.any():
-            try:
-                parsed = pd.to_datetime(
-                    s.loc[still_nat],
-                    format="ISO8601",
-                    errors="coerce",
-                )
-                result.loc[still_nat] = parsed
-            except (ValueError, TypeError):
-                # ISO8601 format not applicable, continue to next fallback
-                pass
-
-        # Last resort: infer format
-        still_nat = result.isna()
-        if still_nat.any():
-            try:
-                parsed = pd.to_datetime(
-                    s.loc[still_nat],
-                    format="mixed",
-                    errors="coerce",
-                )
-                result.loc[still_nat] = parsed
-            except (ValueError, TypeError):
-                # Mixed format inference failed, leave as NaT
-                pass
+        self._parse_with_formats(s, result, remaining)
+        self._parse_fallback(s, result)
 
         result_df[self.output_column] = result
 

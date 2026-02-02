@@ -646,7 +646,7 @@ class ForecastDistributionPlot(MatplotlibVisualizationInterface):
             labels=labels,
             patch_artist=True,
             showmeans=self.show_stats,
-            meanprops=dict(marker="D", markerfacecolor="red", markersize=8),
+            meanprops={"marker": "D", "markerfacecolor": "red", "markersize": 8},
         )
 
         for patch, color in zip(bp["boxes"], colors):

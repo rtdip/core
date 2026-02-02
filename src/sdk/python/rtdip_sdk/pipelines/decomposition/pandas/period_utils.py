@@ -38,7 +38,7 @@ def calculate_period_from_frequency(
     timestamp_column: str,
     period_name: str,
     min_cycles: int = 2,
-) -> int:
+) -> int | None:
     """
     Calculate the number of observations in a seasonal period based on sampling frequency.
 

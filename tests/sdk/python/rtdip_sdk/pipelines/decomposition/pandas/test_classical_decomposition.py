@@ -28,12 +28,12 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 @pytest.fixture
 def sample_time_series():
     """Create a sample time series with trend, seasonality, and noise."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 365
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
     trend = np.linspace(10, 20, n_points)
     seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-    noise = np.random.randn(n_points) * 0.5
+    noise = rng.standard_normal(n_points) * 0.5
     value = trend + seasonal + noise
 
     return pd.DataFrame({"timestamp": dates, "value": value})
@@ -42,12 +42,12 @@ def sample_time_series():
 @pytest.fixture
 def multiplicative_time_series():
     """Create a time series suitable for multiplicative decomposition."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 365
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
     trend = np.linspace(10, 20, n_points)
     seasonal = 1 + 0.3 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-    noise = 1 + np.random.randn(n_points) * 0.05
+    noise = 1 + rng.standard_normal(n_points) * 0.05
     value = trend * seasonal * noise
 
     return pd.DataFrame({"timestamp": dates, "value": value})
@@ -128,10 +128,11 @@ def test_nan_values(sample_time_series):
 
 def test_insufficient_data():
     """Test error handling for insufficient data."""
+    rng = np.random.default_rng(seed=42)
     df = pd.DataFrame(
         {
             "timestamp": pd.date_range("2024-01-01", periods=10, freq="D"),
-            "value": np.random.randn(10),
+            "value": rng.standard_normal(10),
         }
     )
 
@@ -189,7 +190,7 @@ def test_settings():
 
 def test_grouped_single_column():
     """Test Classical decomposition with single group column."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 100
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
 
@@ -197,7 +198,7 @@ def test_grouped_single_column():
     for sensor in ["A", "B"]:
         trend = np.linspace(10, 20, n_points)
         seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-        noise = np.random.randn(n_points) * 0.5
+        noise = rng.standard_normal(n_points) * 0.5
         values = trend + seasonal + noise
 
         for i in range(n_points):
@@ -223,7 +224,7 @@ def test_grouped_single_column():
 
 def test_grouped_multiplicative():
     """Test Classical multiplicative decomposition with groups."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 100
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
 
@@ -231,7 +232,7 @@ def test_grouped_multiplicative():
     for sensor in ["A", "B"]:
         trend = np.linspace(10, 20, n_points)
         seasonal = 1 + 0.3 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-        noise = 1 + np.random.randn(n_points) * 0.05
+        noise = 1 + rng.standard_normal(n_points) * 0.05
         values = trend * seasonal * noise
 
         for i in range(n_points):

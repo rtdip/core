@@ -131,6 +131,80 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         if not self.periods_input:
             raise ValueError("At least one period must be specified")
 
+    def _resolve_single_period(self, period_spec: Union[int, str], group_df: PandasDataFrame) -> int:
+        """
+        Resolve a single period specification to an integer value.
+
+        Parameters
+        ----------
+        period_spec : Union[int, str]
+            Period specification (integer or string like 'daily')
+        group_df : PandasDataFrame
+            DataFrame for the group
+
+        Returns
+        -------
+        int
+            Resolved period value
+        """
+        if isinstance(period_spec, str):
+            return self._resolve_string_period(period_spec, group_df)
+        elif isinstance(period_spec, int):
+            return self._resolve_integer_period(period_spec)
+        else:
+            raise ValueError(
+                f"Period must be int or str, got {type(period_spec).__name__}"
+            )
+
+    def _resolve_string_period(self, period_spec: str, group_df: PandasDataFrame) -> int:
+        """Resolve a string period specification."""
+        if not self.timestamp_column:
+            raise ValueError(
+                f"timestamp_column must be provided when using period strings like '{period_spec}'"
+            )
+
+        period = calculate_period_from_frequency(
+            df=group_df,
+            timestamp_column=self.timestamp_column,
+            period_name=period_spec,
+            min_cycles=2,
+        )
+
+        if period is None:
+            raise ValueError(
+                f"Period '{period_spec}' is not valid for this data. "
+                f"Either the calculated period is too small (<2) or there is insufficient "
+                f"data for at least 2 complete cycles."
+            )
+
+        return period
+
+    def _resolve_integer_period(self, period_spec: int) -> int:
+        """Resolve an integer period specification."""
+        if period_spec < 2:
+            raise ValueError(
+                f"All periods must be at least 2, got {period_spec}"
+            )
+        return period_spec
+
+    def _validate_periods_and_windows(self, resolved_periods: List[int], group_df: PandasDataFrame):
+        """Validate resolved periods and windows."""
+        max_period = max(resolved_periods)
+        if len(group_df) < 2 * max_period:
+            raise ValueError(
+                f"Time series length ({len(group_df)}) must be at least "
+                f"2 * max_period ({2 * max_period})"
+            )
+
+        if self.windows is not None:
+            windows_list = (
+                self.windows if isinstance(self.windows, list) else [self.windows]
+            )
+            if len(windows_list) != len(resolved_periods):
+                raise ValueError(
+                    f"Length of windows ({len(windows_list)}) must match length of periods ({len(resolved_periods)})"
+                )
+
     def _resolve_periods(self, group_df: PandasDataFrame) -> List[int]:
         """
         Resolve period specifications (strings or integers) to integer values.
@@ -152,60 +226,12 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
             else [self.periods_input]
         )
 
-        resolved_periods = []
+        resolved_periods = [
+            self._resolve_single_period(period_spec, group_df)
+            for period_spec in periods_input
+        ]
 
-        for period_spec in periods_input:
-            if isinstance(period_spec, str):
-                # String period name - calculate from sampling frequency
-                if not self.timestamp_column:
-                    raise ValueError(
-                        f"timestamp_column must be provided when using period strings like '{period_spec}'"
-                    )
-
-                period = calculate_period_from_frequency(
-                    df=group_df,
-                    timestamp_column=self.timestamp_column,
-                    period_name=period_spec,
-                    min_cycles=2,
-                )
-
-                if period is None:
-                    raise ValueError(
-                        f"Period '{period_spec}' is not valid for this data. "
-                        f"Either the calculated period is too small (<2) or there is insufficient "
-                        f"data for at least 2 complete cycles."
-                    )
-
-                resolved_periods.append(period)
-            elif isinstance(period_spec, int):
-                # Integer period - use directly
-                if period_spec < 2:
-                    raise ValueError(
-                        f"All periods must be at least 2, got {period_spec}"
-                    )
-                resolved_periods.append(period_spec)
-            else:
-                raise ValueError(
-                    f"Period must be int or str, got {type(period_spec).__name__}"
-                )
-
-        # Validate length requirement
-        max_period = max(resolved_periods)
-        if len(group_df) < 2 * max_period:
-            raise ValueError(
-                f"Time series length ({len(group_df)}) must be at least "
-                f"2 * max_period ({2 * max_period})"
-            )
-
-        # Validate windows if provided
-        if self.windows is not None:
-            windows_list = (
-                self.windows if isinstance(self.windows, list) else [self.windows]
-            )
-            if len(windows_list) != len(resolved_periods):
-                raise ValueError(
-                    f"Length of windows ({len(windows_list)}) must match length of periods ({len(resolved_periods)})"
-                )
+        self._validate_periods_and_windows(resolved_periods, group_df)
 
         return resolved_periods
 

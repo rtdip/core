@@ -134,6 +134,30 @@ class DatetimeFeatures(PandasDataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
+    def _extract_feature(self, dt_col: pd.Series, feature: str):
+        """Extract a single datetime feature from a datetime Series."""
+        feature_map = {
+            "year": lambda: dt_col.dt.year,
+            "month": lambda: dt_col.dt.month,
+            "day": lambda: dt_col.dt.day,
+            "hour": lambda: dt_col.dt.hour,
+            "minute": lambda: dt_col.dt.minute,
+            "second": lambda: dt_col.dt.second,
+            "weekday": lambda: dt_col.dt.weekday,
+            "day_name": lambda: dt_col.dt.day_name(),
+            "quarter": lambda: dt_col.dt.quarter,
+            "week": lambda: dt_col.dt.isocalendar().week,
+            "day_of_year": lambda: dt_col.dt.day_of_year,
+            "is_weekend": lambda: dt_col.dt.weekday >= 5,
+            "is_month_start": lambda: dt_col.dt.is_month_start,
+            "is_month_end": lambda: dt_col.dt.is_month_end,
+            "is_quarter_start": lambda: dt_col.dt.is_quarter_start,
+            "is_quarter_end": lambda: dt_col.dt.is_quarter_end,
+            "is_year_start": lambda: dt_col.dt.is_year_start,
+            "is_year_end": lambda: dt_col.dt.is_year_end,
+        }
+        return feature_map[feature]()
+
     def apply(self) -> PandasDataFrame:
         """
         Extracts the specified datetime features from the datetime column.
@@ -169,42 +193,6 @@ class DatetimeFeatures(PandasDataManipulationBaseInterface):
         # Extract each requested feature
         for feature in self.features:
             col_name = f"{self.prefix}_{feature}" if self.prefix else feature
-
-            if feature == "year":
-                result_df[col_name] = dt_col.dt.year
-            elif feature == "month":
-                result_df[col_name] = dt_col.dt.month
-            elif feature == "day":
-                result_df[col_name] = dt_col.dt.day
-            elif feature == "hour":
-                result_df[col_name] = dt_col.dt.hour
-            elif feature == "minute":
-                result_df[col_name] = dt_col.dt.minute
-            elif feature == "second":
-                result_df[col_name] = dt_col.dt.second
-            elif feature == "weekday":
-                result_df[col_name] = dt_col.dt.weekday
-            elif feature == "day_name":
-                result_df[col_name] = dt_col.dt.day_name()
-            elif feature == "quarter":
-                result_df[col_name] = dt_col.dt.quarter
-            elif feature == "week":
-                result_df[col_name] = dt_col.dt.isocalendar().week
-            elif feature == "day_of_year":
-                result_df[col_name] = dt_col.dt.day_of_year
-            elif feature == "is_weekend":
-                result_df[col_name] = dt_col.dt.weekday >= 5
-            elif feature == "is_month_start":
-                result_df[col_name] = dt_col.dt.is_month_start
-            elif feature == "is_month_end":
-                result_df[col_name] = dt_col.dt.is_month_end
-            elif feature == "is_quarter_start":
-                result_df[col_name] = dt_col.dt.is_quarter_start
-            elif feature == "is_quarter_end":
-                result_df[col_name] = dt_col.dt.is_quarter_end
-            elif feature == "is_year_start":
-                result_df[col_name] = dt_col.dt.is_year_start
-            elif feature == "is_year_end":
-                result_df[col_name] = dt_col.dt.is_year_end
+            result_df[col_name] = self._extract_feature(dt_col, feature)
 
         return result_df

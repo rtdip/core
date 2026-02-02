@@ -58,6 +58,9 @@ from ..validation import (
 
 warnings.filterwarnings("ignore")
 
+# Constants
+LEGEND_LOCATION = "upper right"
+
 
 def _get_seasonal_columns(df: PandasDataFrame) -> List[str]:
     """
@@ -236,6 +239,28 @@ class DecompositionPlot(MatplotlibVisualizationInterface):
             "timestamp"
         ).reset_index(drop=True)
 
+    def _plot_component(
+        self, ax: plt.Axes, timestamps: pd.Series, data: pd.Series, 
+        color: str, label: str, ylabel: str, linewidth: float = None, alpha: float = 1.0
+    ) -> None:
+        """Plot a single decomposition component on the given axis."""
+        if linewidth is None:
+            linewidth = config.LINE_SETTINGS["linewidth"]
+        
+        ax.plot(timestamps, data, color=color, linewidth=linewidth, label=label, alpha=alpha)
+        ax.set_ylabel(ylabel)
+        if self.show_legend:
+            ax.legend(loc=LEGEND_LOCATION)
+        utils.add_grid(ax)
+
+    def _get_plot_title(self) -> str:
+        """Generate the plot title based on configuration."""
+        if self.title is not None:
+            return self.title
+        if self.sensor_id:
+            return f"Time Series Decomposition - {self.sensor_id}"
+        return "Time Series Decomposition"
+
     def plot(self, axes: Optional[np.ndarray] = None) -> plt.Figure:
         """
         Generate the decomposition visualization.
@@ -263,30 +288,16 @@ class DecompositionPlot(MatplotlibVisualizationInterface):
         timestamps = self.decomposition_data[self.timestamp_column]
         panel_idx = 0
 
-        self._axes[panel_idx].plot(
-            timestamps,
-            self.decomposition_data[self.value_column],
-            color=config.DECOMPOSITION_COLORS["original"],
-            linewidth=config.LINE_SETTINGS["linewidth"],
-            label="Original",
+        self._plot_component(
+            self._axes[panel_idx], timestamps, self.decomposition_data[self.value_column],
+            config.DECOMPOSITION_COLORS["original"], "Original", "Original"
         )
-        self._axes[panel_idx].set_ylabel("Original")
-        if self.show_legend:
-            self._axes[panel_idx].legend(loc="upper right")
-        utils.add_grid(self._axes[panel_idx])
         panel_idx += 1
 
-        self._axes[panel_idx].plot(
-            timestamps,
-            self.decomposition_data["trend"],
-            color=config.DECOMPOSITION_COLORS["trend"],
-            linewidth=config.LINE_SETTINGS["linewidth"],
-            label="Trend",
+        self._plot_component(
+            self._axes[panel_idx], timestamps, self.decomposition_data["trend"],
+            config.DECOMPOSITION_COLORS["trend"], "Trend", "Trend"
         )
-        self._axes[panel_idx].set_ylabel("Trend")
-        if self.show_legend:
-            self._axes[panel_idx].legend(loc="upper right")
-        utils.add_grid(self._axes[panel_idx])
         panel_idx += 1
 
         for idx, seasonal_col in enumerate(self._seasonal_columns):
@@ -297,45 +308,25 @@ class DecompositionPlot(MatplotlibVisualizationInterface):
                 else config.DECOMPOSITION_COLORS["seasonal"]
             )
             label = _get_period_label(period, self.period_labels)
+            ylabel = label if period else "Seasonal"
 
-            self._axes[panel_idx].plot(
-                timestamps,
-                self.decomposition_data[seasonal_col],
-                color=color,
-                linewidth=config.LINE_SETTINGS["linewidth"],
-                label=label,
+            self._plot_component(
+                self._axes[panel_idx], timestamps, self.decomposition_data[seasonal_col],
+                color, label, ylabel
             )
-            self._axes[panel_idx].set_ylabel(label if period else "Seasonal")
-            if self.show_legend:
-                self._axes[panel_idx].legend(loc="upper right")
-            utils.add_grid(self._axes[panel_idx])
             panel_idx += 1
 
-        self._axes[panel_idx].plot(
-            timestamps,
-            self.decomposition_data["residual"],
-            color=config.DECOMPOSITION_COLORS["residual"],
-            linewidth=config.LINE_SETTINGS["linewidth_thin"],
-            alpha=0.7,
-            label="Residual",
+        self._plot_component(
+            self._axes[panel_idx], timestamps, self.decomposition_data["residual"],
+            config.DECOMPOSITION_COLORS["residual"], "Residual", "Residual",
+            linewidth=config.LINE_SETTINGS["linewidth_thin"], alpha=0.7
         )
-        self._axes[panel_idx].set_ylabel("Residual")
         self._axes[panel_idx].set_xlabel("Time")
-        if self.show_legend:
-            self._axes[panel_idx].legend(loc="upper right")
-        utils.add_grid(self._axes[panel_idx])
 
         utils.format_time_axis(self._axes[-1])
 
-        plot_title = self.title
-        if plot_title is None:
-            if self.sensor_id:
-                plot_title = f"Time Series Decomposition - {self.sensor_id}"
-            else:
-                plot_title = "Time Series Decomposition"
-
         self._fig.suptitle(
-            plot_title,
+            self._get_plot_title(),
             fontsize=config.FONT_SIZES["title"] + 2,
             fontweight="bold",
             y=0.98,
@@ -477,6 +468,108 @@ class MSTLDecompositionPlot(MatplotlibVisualizationInterface):
             "timestamp"
         ).reset_index(drop=True)
 
+    def _plot_original_panel(self, ax: plt.Axes, timestamps: pd.Series, values: pd.Series) -> None:
+        """Plot original signal panel."""
+        ax.plot(
+            timestamps,
+            values,
+            color=config.DECOMPOSITION_COLORS["original"],
+            linewidth=config.LINE_SETTINGS["linewidth"],
+            label="Original",
+        )
+        ax.set_ylabel("Original")
+        if self.show_legend:
+            ax.legend(loc=LEGEND_LOCATION)
+        utils.add_grid(ax)
+
+    def _plot_trend_panel(self, ax: plt.Axes, timestamps: pd.Series) -> None:
+        """Plot trend panel."""
+        ax.plot(
+            timestamps,
+            self.decomposition_data["trend"],
+            color=config.DECOMPOSITION_COLORS["trend"],
+            linewidth=config.LINE_SETTINGS["linewidth"],
+            label="Trend",
+        )
+        ax.set_ylabel("Trend")
+        if self.show_legend:
+            ax.legend(loc=LEGEND_LOCATION)
+        utils.add_grid(ax)
+
+    def _get_seasonal_plot_data(
+        self, seasonal_col: str, timestamps: pd.Series
+    ) -> Tuple[pd.Series, pd.Series, str]:
+        """Get data for plotting a seasonal component, applying zoom if configured."""
+        zoom_n = self.zoom_periods.get(seasonal_col)
+        label_suffix = ""
+        
+        if zoom_n and zoom_n < len(self.decomposition_data):
+            plot_ts = timestamps[:zoom_n]
+            plot_vals = self.decomposition_data[seasonal_col][:zoom_n]
+            label_suffix = " (zoomed)"
+        else:
+            plot_ts = timestamps
+            plot_vals = self.decomposition_data[seasonal_col]
+        
+        return plot_ts, plot_vals, label_suffix
+
+    def _plot_seasonal_panel(
+        self, ax: plt.Axes, timestamps: pd.Series, seasonal_col: str, idx: int
+    ) -> None:
+        """Plot a seasonal component panel."""
+        period = _extract_period_from_column(seasonal_col)
+        color = (
+            config.get_seasonal_color(period, idx)
+            if period
+            else config.DECOMPOSITION_COLORS["seasonal"]
+        )
+        label = _get_period_label(period, self.period_labels)
+        
+        plot_ts, plot_vals, label_suffix = self._get_seasonal_plot_data(seasonal_col, timestamps)
+        label += label_suffix
+
+        ax.plot(
+            plot_ts,
+            plot_vals,
+            color=color,
+            linewidth=config.LINE_SETTINGS["linewidth"],
+            label=label,
+        )
+        ax.set_ylabel(label.replace(" (zoomed)", ""))
+        if self.show_legend:
+            ax.legend(loc=LEGEND_LOCATION)
+        utils.add_grid(ax)
+        utils.format_time_axis(ax)
+
+    def _plot_residual_panel(self, ax: plt.Axes, timestamps: pd.Series) -> None:
+        """Plot residual panel."""
+        ax.plot(
+            timestamps,
+            self.decomposition_data["residual"],
+            color=config.DECOMPOSITION_COLORS["residual"],
+            linewidth=config.LINE_SETTINGS["linewidth_thin"],
+            alpha=0.7,
+            label="Residual",
+        )
+        ax.set_ylabel("Residual")
+        ax.set_xlabel("Time")
+        if self.show_legend:
+            ax.legend(loc=LEGEND_LOCATION)
+        utils.add_grid(ax)
+        utils.format_time_axis(ax)
+
+    def _generate_plot_title(self) -> str:
+        """Generate the plot title based on configuration."""
+        if self.title is not None:
+            return self.title
+        
+        n_patterns = len(self._seasonal_columns)
+        pattern_str = f"{n_patterns} seasonal pattern{'s' if n_patterns > 1 else ''}"
+        
+        if self.sensor_id:
+            return f"MSTL Decomposition ({pattern_str}) - {self.sensor_id}"
+        return f"MSTL Decomposition ({pattern_str})"
+
     def plot(self, axes: Optional[np.ndarray] = None) -> plt.Figure:
         """
         Generate the MSTL decomposition visualization.
@@ -505,90 +598,19 @@ class MSTLDecompositionPlot(MatplotlibVisualizationInterface):
         values = self.decomposition_data[self.value_column]
         panel_idx = 0
 
-        self._axes[panel_idx].plot(
-            timestamps,
-            values,
-            color=config.DECOMPOSITION_COLORS["original"],
-            linewidth=config.LINE_SETTINGS["linewidth"],
-            label="Original",
-        )
-        self._axes[panel_idx].set_ylabel("Original")
-        if self.show_legend:
-            self._axes[panel_idx].legend(loc="upper right")
-        utils.add_grid(self._axes[panel_idx])
+        self._plot_original_panel(self._axes[panel_idx], timestamps, values)
         panel_idx += 1
 
-        self._axes[panel_idx].plot(
-            timestamps,
-            self.decomposition_data["trend"],
-            color=config.DECOMPOSITION_COLORS["trend"],
-            linewidth=config.LINE_SETTINGS["linewidth"],
-            label="Trend",
-        )
-        self._axes[panel_idx].set_ylabel("Trend")
-        if self.show_legend:
-            self._axes[panel_idx].legend(loc="upper right")
-        utils.add_grid(self._axes[panel_idx])
+        self._plot_trend_panel(self._axes[panel_idx], timestamps)
         panel_idx += 1
 
         for idx, seasonal_col in enumerate(self._seasonal_columns):
-            period = _extract_period_from_column(seasonal_col)
-            color = (
-                config.get_seasonal_color(period, idx)
-                if period
-                else config.DECOMPOSITION_COLORS["seasonal"]
-            )
-            label = _get_period_label(period, self.period_labels)
-
-            zoom_n = self.zoom_periods.get(seasonal_col)
-            if zoom_n and zoom_n < len(self.decomposition_data):
-                plot_ts = timestamps[:zoom_n]
-                plot_vals = self.decomposition_data[seasonal_col][:zoom_n]
-                label += " (zoomed)"
-            else:
-                plot_ts = timestamps
-                plot_vals = self.decomposition_data[seasonal_col]
-
-            self._axes[panel_idx].plot(
-                plot_ts,
-                plot_vals,
-                color=color,
-                linewidth=config.LINE_SETTINGS["linewidth"],
-                label=label,
-            )
-            self._axes[panel_idx].set_ylabel(label.replace(" (zoomed)", ""))
-            if self.show_legend:
-                self._axes[panel_idx].legend(loc="upper right")
-            utils.add_grid(self._axes[panel_idx])
-            utils.format_time_axis(self._axes[panel_idx])
+            self._plot_seasonal_panel(self._axes[panel_idx], timestamps, seasonal_col, idx)
             panel_idx += 1
 
-        self._axes[panel_idx].plot(
-            timestamps,
-            self.decomposition_data["residual"],
-            color=config.DECOMPOSITION_COLORS["residual"],
-            linewidth=config.LINE_SETTINGS["linewidth_thin"],
-            alpha=0.7,
-            label="Residual",
-        )
-        self._axes[panel_idx].set_ylabel("Residual")
-        self._axes[panel_idx].set_xlabel("Time")
-        if self.show_legend:
-            self._axes[panel_idx].legend(loc="upper right")
-        utils.add_grid(self._axes[panel_idx])
-        utils.format_time_axis(self._axes[panel_idx])
+        self._plot_residual_panel(self._axes[panel_idx], timestamps)
 
-        plot_title = self.title
-        if plot_title is None:
-            n_patterns = len(self._seasonal_columns)
-            pattern_str = (
-                f"{n_patterns} seasonal pattern{'s' if n_patterns > 1 else ''}"
-            )
-            if self.sensor_id:
-                plot_title = f"MSTL Decomposition ({pattern_str}) - {self.sensor_id}"
-            else:
-                plot_title = f"MSTL Decomposition ({pattern_str})"
-
+        plot_title = self._generate_plot_title()
         self._fig.suptitle(
             plot_title,
             fontsize=config.FONT_SIZES["title"] + 2,
@@ -784,22 +806,11 @@ class DecompositionDashboard(MatplotlibVisualizationInterface):
             self._statistics = self._calculate_statistics()
         return self._statistics
 
-    def plot(self) -> plt.Figure:
-        """
-        Generate the decomposition dashboard.
-
-        Returns:
-            matplotlib.figure.Figure: The generated figure.
-        """
-        utils.setup_plot_style()
-
-        self._statistics = self._calculate_statistics()
-
-        n_seasonal = len(self._seasonal_columns)
+    def _create_figure_layout(self, n_seasonal: int) -> Tuple[plt.Axes, plt.Axes, plt.Axes, plt.Axes, Optional[plt.Axes]]:
+        """Create figure with appropriate layout based on show_statistics setting."""
         if self.show_statistics:
             self._fig = plt.figure(figsize=config.FIGSIZE["decomposition_dashboard"])
             gs = self._fig.add_gridspec(3, 2, hspace=0.35, wspace=0.25)
-
             ax_original = self._fig.add_subplot(gs[0, 0])
             ax_trend = self._fig.add_subplot(gs[0, 1])
             ax_seasonal = self._fig.add_subplot(gs[1, :])
@@ -810,9 +821,11 @@ class DecompositionDashboard(MatplotlibVisualizationInterface):
             self._fig, axes = plt.subplots(4, 1, figsize=figsize, sharex=True)
             ax_original, ax_trend, ax_seasonal, ax_residual = axes
             ax_stats = None
+        
+        return ax_original, ax_trend, ax_seasonal, ax_residual, ax_stats
 
-        timestamps = self.decomposition_data[self.timestamp_column]
-
+    def _plot_original_and_trend(self, ax_original: plt.Axes, ax_trend: plt.Axes, timestamps: pd.Series) -> None:
+        """Plot original signal and trend components."""
         ax_original.plot(
             timestamps,
             self.decomposition_data[self.value_column],
@@ -836,6 +849,8 @@ class DecompositionDashboard(MatplotlibVisualizationInterface):
         utils.add_grid(ax_trend)
         utils.format_time_axis(ax_trend)
 
+    def _plot_seasonal_components(self, ax_seasonal: plt.Axes, timestamps: pd.Series) -> None:
+        """Plot all seasonal components on a single axis."""
         for idx, col in enumerate(self._seasonal_columns):
             period = _extract_period_from_column(col)
             color = (
@@ -863,10 +878,12 @@ class DecompositionDashboard(MatplotlibVisualizationInterface):
             f"Seasonal Components ({total_seasonal_var:.1f}% variance)",
             fontweight="bold",
         )
-        ax_seasonal.legend(loc="upper right")
+        ax_seasonal.legend(loc=LEGEND_LOCATION)
         utils.add_grid(ax_seasonal)
         utils.format_time_axis(ax_seasonal)
 
+    def _plot_residual_panel(self, ax_residual: plt.Axes, timestamps: pd.Series) -> None:
+        """Plot residual component."""
         ax_residual.plot(
             timestamps,
             self.decomposition_data["residual"],
@@ -883,87 +900,131 @@ class DecompositionDashboard(MatplotlibVisualizationInterface):
         utils.add_grid(ax_residual)
         utils.format_time_axis(ax_residual)
 
-        if ax_stats is not None:
-            ax_stats.axis("off")
+    def _create_statistics_table_data(self) -> List[List[str]]:
+        """Generate table data for statistics panel."""
+        table_data = [["Component", "Variance %", "Strength"]]
 
-            table_data = []
+        table_data.append([
+            "Trend",
+            f"{self._statistics['variance_explained']['trend']:.1f}%",
+            "-",
+        ])
 
-            table_data.append(["Component", "Variance %", "Strength"])
-
-            table_data.append(
-                [
-                    "Trend",
-                    f"{self._statistics['variance_explained']['trend']:.1f}%",
-                    "-",
-                ]
+        for col in self._seasonal_columns:
+            period = _extract_period_from_column(col)
+            label = (
+                _get_period_label(period, self.period_labels)
+                if period
+                else "Seasonal"
             )
+            var_pct = self._statistics["variance_explained"].get(col, 0)
+            strength = self._statistics["seasonality_strength"].get(col, 0)
+            table_data.append([label, f"{var_pct:.1f}%", f"{strength:.3f}"])
 
-            for col in self._seasonal_columns:
-                period = _extract_period_from_column(col)
-                label = (
-                    _get_period_label(period, self.period_labels)
-                    if period
-                    else "Seasonal"
-                )
-                var_pct = self._statistics["variance_explained"].get(col, 0)
-                strength = self._statistics["seasonality_strength"].get(col, 0)
-                table_data.append([label, f"{var_pct:.1f}%", f"{strength:.3f}"])
+        table_data.append([
+            "Residual",
+            f"{self._statistics['variance_explained']['residual']:.1f}%",
+            "-",
+        ])
 
-            table_data.append(
-                [
-                    "Residual",
-                    f"{self._statistics['variance_explained']['residual']:.1f}%",
-                    "-",
-                ]
-            )
+        table_data.append(["", "", ""])
+        table_data.append(["Residual Diagnostics", "", ""])
 
-            table_data.append(["", "", ""])
-            table_data.append(["Residual Diagnostics", "", ""])
+        diag = self._statistics["residual_diagnostics"]
+        table_data.extend([
+            ["Mean", f"{diag['mean']:.4f}", ""],
+            ["Std Dev", f"{diag['std']:.4f}", ""],
+            ["Skewness", f"{diag['skewness']:.3f}", ""],
+            ["Kurtosis", f"{diag['kurtosis']:.3f}", ""],
+        ])
 
-            diag = self._statistics["residual_diagnostics"]
-            table_data.append(["Mean", f"{diag['mean']:.4f}", ""])
-            table_data.append(["Std Dev", f"{diag['std']:.4f}", ""])
-            table_data.append(["Skewness", f"{diag['skewness']:.3f}", ""])
-            table_data.append(["Kurtosis", f"{diag['kurtosis']:.3f}", ""])
+        return table_data
 
-            table = ax_stats.table(
-                cellText=table_data,
-                cellLoc="center",
-                loc="center",
-                bbox=[0.05, 0.1, 0.9, 0.85],
-            )
+    def _plot_statistics_table(self, ax_stats: plt.Axes) -> None:
+        """Create and style the statistics table."""
+        ax_stats.axis("off")
 
-            table.auto_set_font_size(False)
-            table.set_fontsize(config.FONT_SIZES["legend"])
-            table.scale(1, 1.5)
+        table_data = self._create_statistics_table_data()
 
-            for i in range(len(table_data[0])):
-                table[(0, i)].set_facecolor("#2C3E50")
-                table[(0, i)].set_text_props(weight="bold", color="white")
+        table = ax_stats.table(
+            cellText=table_data,
+            cellLoc="center",
+            loc="center",
+            bbox=[0.05, 0.1, 0.9, 0.85],
+        )
 
-            for i in [5, 6]:
-                if i < len(table_data):
-                    for j in range(len(table_data[0])):
-                        table[(i, j)].set_facecolor("#f0f0f0")
+        table.auto_set_font_size(False)
+        table.set_fontsize(config.FONT_SIZES["legend"])
+        table.scale(1, 1.5)
 
-            ax_stats.set_title("Decomposition Statistics", fontweight="bold")
+        for i in range(len(table_data[0])):
+            table[(0, i)].set_facecolor("#2C3E50")
+            table[(0, i)].set_text_props(weight="bold", color="white")
 
-        plot_title = self.title
-        if plot_title is None:
-            if self.sensor_id:
-                plot_title = f"Decomposition Dashboard - {self.sensor_id}"
-            else:
-                plot_title = "Decomposition Dashboard"
+        for i in [5, 6]:
+            if i < len(table_data):
+                for j in range(len(table_data[0])):
+                    table[(i, j)].set_facecolor("#f0f0f0")
 
+        ax_stats.set_title("Decomposition Statistics", fontweight="bold")
+
+    def _get_dashboard_title(self) -> str:
+        """Generate dashboard title."""
+        if self.title is not None:
+            return self.title
+        if self.sensor_id:
+            return f"Decomposition Dashboard - {self.sensor_id}"
+        return "Decomposition Dashboard"
+
+    def _setup_dashboard_layout(self) -> Tuple[pd.Series, Tuple[plt.Axes, plt.Axes, plt.Axes, plt.Axes, Optional[plt.Axes]]]:
+        """Setup dashboard layout and return timestamps and axes."""
+        utils.setup_plot_style()
+        self._statistics = self._calculate_statistics()
+
+        n_seasonal = len(self._seasonal_columns)
+        axes = self._create_figure_layout(n_seasonal)
+        timestamps = self.decomposition_data[self.timestamp_column]
+        
+        return timestamps, axes
+
+    def _finalize_dashboard(self) -> None:
+        """Apply final formatting to the dashboard."""
         self._fig.suptitle(
-            plot_title,
+            self._get_dashboard_title(),
             fontsize=config.FONT_SIZES["title"] + 2,
             fontweight="bold",
             y=0.98,
         )
-
         self._fig.subplots_adjust(top=0.93, hspace=0.3, left=0.1, right=0.95)
 
+    def _plot_all_panels(
+        self,
+        timestamps: pd.Series,
+        ax_original: plt.Axes,
+        ax_trend: plt.Axes,
+        ax_seasonal: plt.Axes,
+        ax_residual: plt.Axes,
+        ax_stats: Optional[plt.Axes],
+    ) -> None:
+        """Plot all dashboard panels."""
+        self._plot_original_and_trend(ax_original, ax_trend, timestamps)
+        self._plot_seasonal_components(ax_seasonal, timestamps)
+        self._plot_residual_panel(ax_residual, timestamps)
+
+        if ax_stats is not None:
+            self._plot_statistics_table(ax_stats)
+
+    def plot(self) -> plt.Figure:
+        """
+        Generate the decomposition dashboard.
+
+        Returns:
+            matplotlib.figure.Figure: The generated figure.
+        """
+        timestamps, axes = self._setup_dashboard_layout()
+        self._plot_all_panels(timestamps, *axes)
+        self._finalize_dashboard()
+        
         return self._fig
 
     def save(
@@ -1181,7 +1242,7 @@ class MultiSensorDecompositionPlot(MatplotlibVisualizationInterface):
             ax.set_title(sensor_display, fontsize=config.FONT_SIZES["subtitle"])
 
             if idx == 0:
-                ax.legend(loc="upper right", fontsize=config.FONT_SIZES["annotation"])
+                ax.legend(loc=LEGEND_LOCATION, fontsize=config.FONT_SIZES["annotation"])
 
             utils.add_grid(ax)
             utils.format_time_axis(ax)

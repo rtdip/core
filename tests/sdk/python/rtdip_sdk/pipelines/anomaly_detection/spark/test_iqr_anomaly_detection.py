@@ -47,7 +47,7 @@ def test_iqr_anomaly_detection(spark_dataframe_with_anomalies):
 
     row = result_df.collect()[0]
 
-    assert row["value"] == 30.0
+    assert abs(row["value"] - 30.0) < 1e-9
 
 
 @pytest.fixture
@@ -118,6 +118,6 @@ def test_iqr_anomaly_detection_rolling_window(spark_dataframe_with_anomalies_big
     assert result_df.count() == 3
 
     # check that the detected anomalies are the expected ones
-    assert result_df.collect()[0]["value"] == 0.0
-    assert result_df.collect()[1]["value"] == 30.0
-    assert result_df.collect()[2]["value"] == 40.0
+    assert abs(result_df.collect()[0]["value"] - 0.0) < 1e-9
+    assert abs(result_df.collect()[1]["value"] - 30.0) < 1e-9
+    assert abs(result_df.collect()[2]["value"] - 40.0) < 1e-9

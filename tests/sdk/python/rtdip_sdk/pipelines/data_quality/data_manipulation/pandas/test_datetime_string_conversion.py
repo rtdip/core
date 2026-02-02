@@ -218,7 +218,7 @@ def test_does_not_modify_original():
     original_df = df.copy()
 
     converter = DatetimeStringConversion(df, "EventTime")
-    result_df = converter.apply()
+    converter.apply()
 
     pd.testing.assert_frame_equal(df, original_df)
     assert "EventTime_DT" not in df.columns

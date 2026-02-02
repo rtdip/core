@@ -53,6 +53,13 @@ from ..validation import (
     validate_dataframe,
 )
 
+# Constants
+_ERROR_NO_SEASONAL_COLUMNS = (
+    "decomposition_data must contain at least one seasonal column."
+)
+_HOVERMODE_X_UNIFIED = "x unified"
+_HTML_EXTENSION = ".html"
+
 
 def _get_seasonal_columns(df: PandasDataFrame) -> List[str]:
     """
@@ -203,9 +210,7 @@ class DecompositionPlotInteractive(PlotlyVisualizationInterface):
 
         self._seasonal_columns = _get_seasonal_columns(self.decomposition_data)
         if not self._seasonal_columns:
-            raise VisualizationDataError(
-                "decomposition_data must contain at least one seasonal column."
-            )
+            raise VisualizationDataError(_ERROR_NO_SEASONAL_COLUMNS)
 
         self.decomposition_data = coerce_types(
             self.decomposition_data,
@@ -250,7 +255,7 @@ class DecompositionPlotInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data[self.value_column],
                 mode="lines",
                 name="Original",
-                line=dict(color=config.DECOMPOSITION_COLORS["original"], width=1.5),
+                line={"color": config.DECOMPOSITION_COLORS["original"], "width": 1.5},
                 hovertemplate="<b>Original</b><br>Time: %{x}<br>Value: %{y:.4f}<extra></extra>",
             ),
             row=panel_idx,
@@ -264,7 +269,7 @@ class DecompositionPlotInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data["trend"],
                 mode="lines",
                 name="Trend",
-                line=dict(color=config.DECOMPOSITION_COLORS["trend"], width=2),
+                line={"color": config.DECOMPOSITION_COLORS["trend"], "width": 2},
                 hovertemplate="<b>Trend</b><br>Time: %{x}<br>Value: %{y:.4f}<extra></extra>",
             ),
             row=panel_idx,
@@ -287,7 +292,7 @@ class DecompositionPlotInteractive(PlotlyVisualizationInterface):
                     y=self.decomposition_data[col],
                     mode="lines",
                     name=label,
-                    line=dict(color=color, width=1.5),
+                    line={"color": color, "width": 1.5},
                     hovertemplate=f"<b>{label}</b><br>Time: %{{x}}<br>Value: %{{y:.4f}}<extra></extra>",
                 ),
                 row=panel_idx,
@@ -301,7 +306,7 @@ class DecompositionPlotInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data["residual"],
                 mode="lines",
                 name="Residual",
-                line=dict(color=config.DECOMPOSITION_COLORS["residual"], width=1),
+                line={"color": config.DECOMPOSITION_COLORS["residual"], "width": 1},
                 opacity=0.7,
                 hovertemplate="<b>Residual</b><br>Time: %{x}<br>Value: %{y:.4f}<extra></extra>",
             ),
@@ -319,23 +324,23 @@ class DecompositionPlotInteractive(PlotlyVisualizationInterface):
         height = 200 + n_panels * 150
 
         self._fig.update_layout(
-            title=dict(text=plot_title, font=dict(size=16, color="#2C3E50")),
+            title={"text": plot_title, "font": {"size": 16, "color": "#2C3E50"}},
             height=height,
             showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1,
-            ),
-            hovermode="x unified",
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "right",
+                "x": 1,
+            },
+            hovermode=_HOVERMODE_X_UNIFIED,
             template="plotly_white",
         )
 
         if self.show_rangeslider:
             self._fig.update_xaxes(
-                rangeslider=dict(visible=True, thickness=0.05),
+                rangeslider={"visible": True, "thickness": 0.05},
                 row=n_panels,
                 col=1,
             )
@@ -368,8 +373,8 @@ class DecompositionPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(_HTML_EXTENSION):
+                filepath = filepath.with_suffix(_HTML_EXTENSION)
             self._fig.write_html(filepath)
         elif format == "png":
             if not str(filepath).endswith(".png"):
@@ -464,9 +469,7 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
 
         self._seasonal_columns = _get_seasonal_columns(self.decomposition_data)
         if not self._seasonal_columns:
-            raise VisualizationDataError(
-                "decomposition_data must contain at least one seasonal column."
-            )
+            raise VisualizationDataError(_ERROR_NO_SEASONAL_COLUMNS)
 
         self.decomposition_data = coerce_types(
             self.decomposition_data,
@@ -486,8 +489,7 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
         Returns:
             plotly.graph_objects.Figure: The generated interactive figure.
         """
-        n_seasonal = len(self._seasonal_columns)
-        n_panels = 3 + n_seasonal
+        n_panels = 3 + len(self._seasonal_columns)
 
         subplot_titles = ["Original", "Trend"]
         for col in self._seasonal_columns:
@@ -512,7 +514,7 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data[self.value_column],
                 mode="lines",
                 name="Original",
-                line=dict(color=config.DECOMPOSITION_COLORS["original"], width=1.5),
+                line={"color": config.DECOMPOSITION_COLORS["original"], "width": 1.5},
                 hovertemplate="<b>Original</b><br>Time: %{x}<br>Value: %{y:.4f}<extra></extra>",
             ),
             row=panel_idx,
@@ -526,7 +528,7 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data["trend"],
                 mode="lines",
                 name="Trend",
-                line=dict(color=config.DECOMPOSITION_COLORS["trend"], width=2),
+                line={"color": config.DECOMPOSITION_COLORS["trend"], "width": 2},
                 hovertemplate="<b>Trend</b><br>Time: %{x}<br>Value: %{y:.4f}<extra></extra>",
             ),
             row=panel_idx,
@@ -549,7 +551,7 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
                     y=self.decomposition_data[col],
                     mode="lines",
                     name=label,
-                    line=dict(color=color, width=1.5),
+                    line={"color": color, "width": 1.5},
                     hovertemplate=f"<b>{label}</b><br>Time: %{{x}}<br>Value: %{{y:.4f}}<extra></extra>",
                 ),
                 row=panel_idx,
@@ -563,7 +565,7 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data["residual"],
                 mode="lines",
                 name="Residual",
-                line=dict(color=config.DECOMPOSITION_COLORS["residual"], width=1),
+                line={"color": config.DECOMPOSITION_COLORS["residual"], "width": 1},
                 opacity=0.7,
                 hovertemplate="<b>Residual</b><br>Time: %{x}<br>Value: %{y:.4f}<extra></extra>",
             ),
@@ -574,7 +576,7 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
         plot_title = self.title
         if plot_title is None:
             pattern_str = (
-                f"{n_seasonal} seasonal pattern{'s' if n_seasonal > 1 else ''}"
+                f"{len(self._seasonal_columns)} seasonal pattern{'s' if len(self._seasonal_columns) > 1 else ''}"
             )
             if self.sensor_id:
                 plot_title = f"MSTL Decomposition ({pattern_str}) - {self.sensor_id}"
@@ -584,23 +586,23 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
         height = 200 + n_panels * 140
 
         self._fig.update_layout(
-            title=dict(text=plot_title, font=dict(size=16, color="#2C3E50")),
+            title={"text": plot_title, "font": {"size": 16, "color": "#2C3E50"}},
             height=height,
             showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1,
-            ),
-            hovermode="x unified",
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "right",
+                "x": 1,
+            },
+            hovermode=_HOVERMODE_X_UNIFIED,
             template="plotly_white",
         )
 
         if self.show_rangeslider:
             self._fig.update_xaxes(
-                rangeslider=dict(visible=True, thickness=0.05),
+                rangeslider={"visible": True, "thickness": 0.05},
                 row=n_panels,
                 col=1,
             )
@@ -633,8 +635,8 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(_HTML_EXTENSION):
+                filepath = filepath.with_suffix(_HTML_EXTENSION)
             self._fig.write_html(filepath)
         elif format == "png":
             if not str(filepath).endswith(".png"):
@@ -799,8 +801,6 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
         """
         self._statistics = self._calculate_statistics()
 
-        n_seasonal = len(self._seasonal_columns)
-
         self._fig = make_subplots(
             rows=3,
             cols=2,
@@ -828,7 +828,7 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data[self.value_column],
                 mode="lines",
                 name="Original",
-                line=dict(color=config.DECOMPOSITION_COLORS["original"], width=1.5),
+                line={"color": config.DECOMPOSITION_COLORS["original"], "width": 1.5},
                 hovertemplate="<b>Original</b><br>%{x}<br>%{y:.4f}<extra></extra>",
             ),
             row=1,
@@ -842,7 +842,7 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data["trend"],
                 mode="lines",
                 name=f"Trend ({trend_var:.1f}%)",
-                line=dict(color=config.DECOMPOSITION_COLORS["trend"], width=2),
+                line={"color": config.DECOMPOSITION_COLORS["trend"], "width": 2},
                 hovertemplate="<b>Trend</b><br>%{x}<br>%{y:.4f}<extra></extra>",
             ),
             row=1,
@@ -865,7 +865,7 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
                     y=self.decomposition_data[col],
                     mode="lines",
                     name=f"{label} (str: {strength:.2f})",
-                    line=dict(color=color, width=1.5),
+                    line={"color": color, "width": 1.5},
                     hovertemplate=f"<b>{label}</b><br>%{{x}}<br>%{{y:.4f}}<extra></extra>",
                 ),
                 row=2,
@@ -879,7 +879,7 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
                 y=self.decomposition_data["residual"],
                 mode="lines",
                 name=f"Residual ({resid_var:.1f}%)",
-                line=dict(color=config.DECOMPOSITION_COLORS["residual"], width=1),
+                line={"color": config.DECOMPOSITION_COLORS["residual"], "width": 1},
                 opacity=0.7,
                 hovertemplate="<b>Residual</b><br>%{x}<br>%{y:.4f}<extra></extra>",
             ),
@@ -934,23 +934,23 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
 
         self._fig.add_trace(
             go.Table(
-                header=dict(
-                    values=header_values,
-                    fill_color="#2C3E50",
-                    font=dict(color="white", size=12),
-                    align="center",
-                ),
-                cells=dict(
-                    values=cell_values,
-                    fill_color=[
+                header={
+                    "values": header_values,
+                    "fill_color": "#2C3E50",
+                    "font": {"color": "white", "size": 12},
+                    "align": "center",
+                },
+                cells={
+                    "values": cell_values,
+                    "fill_color": [
                         ["white"] * len(cell_values[0]),
                         ["white"] * len(cell_values[1]),
-                        ["white"] * len(cell_values[2]),
+                        ["white"] * len(cell_values[2])
                     ],
-                    font=dict(size=11),
-                    align="center",
-                    height=25,
-                ),
+                    "font": {"size": 11},
+                    "align": "center",
+                    "height": 25,
+                }
             ),
             row=3,
             col=2,
@@ -964,17 +964,17 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
                 plot_title = "Decomposition Dashboard"
 
         self._fig.update_layout(
-            title=dict(text=plot_title, font=dict(size=18, color="#2C3E50")),
+            title={"text": plot_title, "font": {"size": 18, "color": "#2C3E50"}},
             height=900,
             showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1,
-            ),
-            hovermode="x unified",
+            legend={
+                "orientation": "h",
+                "yanchor": "bottom",
+                "y": 1.02,
+                "xanchor": "right",
+                "x": 1,
+            },
+            hovermode=_HOVERMODE_X_UNIFIED,
             template="plotly_white",
         )
 
@@ -1004,8 +1004,8 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(_HTML_EXTENSION):
+                filepath = filepath.with_suffix(_HTML_EXTENSION)
             self._fig.write_html(filepath)
         elif format == "png":
             if not str(filepath).endswith(".png"):

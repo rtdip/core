@@ -102,7 +102,7 @@ class AnomalyDetectionPlotInteractive(PlotlyVisualizationInterface):
                 y=ts_sorted["value"],
                 mode="lines",
                 name="value",
-                line=dict(color=self.ts_color),
+                line={"color": self.ts_color},
             )
         )
 
@@ -115,10 +115,10 @@ class AnomalyDetectionPlotInteractive(PlotlyVisualizationInterface):
                     y=ad_sorted["value"],
                     mode="markers",
                     name="anomaly",
-                    marker=dict(
-                        color=self.anomaly_color,
-                        size=self.anomaly_marker_size,
-                    ),
+                    marker={
+                        "color": self.anomaly_color,
+                        "size": self.anomaly_marker_size,
+                    },
                     hovertemplate=(
                         "<b>Anomaly</b><br>"
                         "Timestamp: %{x}<br>"

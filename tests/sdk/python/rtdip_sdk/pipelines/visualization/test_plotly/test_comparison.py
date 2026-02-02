@@ -46,7 +46,7 @@ def sample_metrics_dict():
 @pytest.fixture
 def sample_predictions_dict():
     """Create sample predictions dictionary for testing."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     predictions = {}
     for model in ["AutoGluon", "LSTM", "XGBoost"]:
         timestamps = pd.date_range("2024-01-05", periods=24, freq="h")
@@ -54,7 +54,7 @@ def sample_predictions_dict():
             {
                 "item_id": ["SENSOR_001"] * 24,
                 "timestamp": timestamps,
-                "mean": np.random.randn(24),
+                "mean": rng.standard_normal(24),
             }
         )
     return predictions
@@ -125,12 +125,12 @@ class TestModelsOverlayPlotInteractive:
 
     def test_plot_with_actual_data(self, sample_predictions_dict):
         """Test plot with actual data overlay."""
-        np.random.seed(42)
+        rng = np.random.default_rng(seed=42)
         actual_data = pd.DataFrame(
             {
                 "item_id": ["SENSOR_001"] * 24,
                 "timestamp": pd.date_range("2024-01-05", periods=24, freq="h"),
-                "value": np.random.randn(24),
+                "value": rng.standard_normal(24),
             }
         )
 

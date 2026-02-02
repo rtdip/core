@@ -16,6 +16,7 @@
 
 import tempfile
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 
 from pathlib import Path
@@ -168,7 +169,7 @@ class TestAnomalyDetectionPlot:
         assert plot.sensor_id == "SENSOR_002"
         assert plot.title == "Custom Anomaly Plot"
         assert plot.figsize == (20, 8)
-        assert plot.linewidth == 2.0
+        assert np.isclose(plot.linewidth, 2.0, rtol=1e-09, atol=1e-09)
         assert plot.anomaly_marker_size == 100
         assert plot.anomaly_color == "orange"
         assert plot.ts_color == "navy"
@@ -199,7 +200,7 @@ class TestAnomalyDetectionPlot:
         assert plot.anomaly_color == "orange"
         assert plot.ts_color == "steelblue"
         assert plot.sensor_id == "SENSOR_001"
-        assert plot.linewidth == 1.6
+        assert np.isclose(plot.linewidth, 1.6, rtol=1e-09, atol=1e-09)
         assert plot.anomaly_marker_size == 70
 
     def test_plot_returns_figure(self, spark_ts_data, spark_anomaly_data):

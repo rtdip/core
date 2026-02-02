@@ -49,7 +49,7 @@ def test_mad_anomaly_detection_global(spark_dataframe_with_anomalies):
     assert result_df.count() == 1
 
     row = result_df.collect()[0]
-    assert row["value"] == 30.0
+    assert abs(row["value"] - 30.0) < 1e-9
 
 
 @pytest.fixture
@@ -121,9 +121,9 @@ def test_mad_anomaly_detection_rolling(spark_dataframe_with_anomalies_big):
     assert result_df.count() == 3
 
     # check that the detected anomalies are the expected ones
-    assert result_df.collect()[0]["value"] == 0.0
-    assert result_df.collect()[1]["value"] == 30.0
-    assert result_df.collect()[2]["value"] == 40.0
+    assert abs(result_df.collect()[0]["value"] - 0.0) < 1e-9
+    assert abs(result_df.collect()[1]["value"] - 30.0) < 1e-9
+    assert abs(result_df.collect()[2]["value"] - 40.0) < 1e-9
 
 
 @pytest.fixture
@@ -131,7 +131,7 @@ def spark_dataframe_synthetic_stl(spark_session):
     import numpy as np
     import pandas as pd
 
-    np.random.seed(42)
+    rng = np.random.default_rng(42)
 
     n = 500
     period = 24
@@ -139,7 +139,7 @@ def spark_dataframe_synthetic_stl(spark_session):
     timestamps = pd.date_range("2025-01-01", periods=n, freq="H")
     trend = 0.02 * np.arange(n)
     seasonal = 5 * np.sin(2 * np.pi * np.arange(n) / period)
-    noise = 0.3 * np.random.randn(n)
+    noise = 0.3 * rng.standard_normal(n)
 
     values = trend + seasonal + noise
 

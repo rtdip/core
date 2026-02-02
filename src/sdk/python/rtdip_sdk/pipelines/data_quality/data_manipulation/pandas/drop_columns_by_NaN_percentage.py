@@ -107,7 +107,7 @@ class DropByNaNPercentage(PandasDataManipulationBaseInterface):
         # Create cleaned DataFrame without empty columns
         result_df = self.df.copy()
 
-        if self.nan_threshold == 0.0:
+        if self.nan_threshold < 1e-10:
             cols_to_drop = result_df.columns[result_df.isna().any()].tolist()
         else:
 

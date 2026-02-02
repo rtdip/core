@@ -39,12 +39,12 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 @pytest.fixture
 def stl_decomposition_data():
     """Create sample STL/Classical decomposition data."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n = 365
     timestamps = pd.date_range("2024-01-01", periods=n, freq="D")
     trend = np.linspace(10, 20, n)
     seasonal = 5 * np.sin(2 * np.pi * np.arange(n) / 7)
-    residual = np.random.randn(n) * 0.5
+    residual = rng.standard_normal(n) * 0.5
     value = trend + seasonal + residual
 
     return pd.DataFrame(
@@ -61,13 +61,13 @@ def stl_decomposition_data():
 @pytest.fixture
 def mstl_decomposition_data():
     """Create sample MSTL decomposition data with multiple seasonal components."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n = 24 * 60  # 60 days hourly
     timestamps = pd.date_range("2024-01-01", periods=n, freq="h")
     trend = np.linspace(10, 15, n)
     seasonal_24 = 5 * np.sin(2 * np.pi * np.arange(n) / 24)
     seasonal_168 = 3 * np.sin(2 * np.pi * np.arange(n) / 168)
-    residual = np.random.randn(n) * 0.5
+    residual = rng.standard_normal(n) * 0.5
     value = trend + seasonal_24 + seasonal_168 + residual
 
     return pd.DataFrame(

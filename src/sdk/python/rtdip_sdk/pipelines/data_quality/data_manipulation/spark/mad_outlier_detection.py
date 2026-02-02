@@ -147,7 +147,7 @@ class MADOutlierDetection(DataManipulationBaseInterface):
 
         return lower_bound, upper_bound
 
-    def filter_data(self) -> DataFrame:
+    def _validate_inputs(self) -> None:
         if self.df is None:
             raise ValueError("The DataFrame is None.")
 
@@ -163,14 +163,42 @@ class MADOutlierDetection(DataManipulationBaseInterface):
         if self.n_sigma <= 0:
             raise ValueError(f"n_sigma must be positive, got {self.n_sigma}.")
 
-        result_df = self.df
-
+    def _get_include_condition(self):
         include_condition = F.col(self.column).isNotNull()
 
         if self.exclude_values is not None and len(self.exclude_values) > 0:
+            # isin is a PySpark method to check if column values are in a list
             include_condition = include_condition & ~F.col(self.column).isin(
                 self.exclude_values
             )
+
+        return include_condition
+
+    def _apply_outlier_action(self, result_df: DataFrame, is_outlier) -> DataFrame:
+        if self.action == "flag":
+            result_df = result_df.withColumn(self.outlier_column, is_outlier)
+
+        elif self.action == "replace":
+            replacement = (
+                F.lit(self.replacement_value)
+                if self.replacement_value is not None
+                else F.lit(None).cast(DoubleType())
+            )
+            result_df = result_df.withColumn(
+                self.column,
+                F.when(is_outlier, replacement).otherwise(F.col(self.column)),
+            )
+
+        elif self.action == "remove":
+            result_df = result_df.filter(~is_outlier)
+
+        return result_df
+
+    def filter_data(self) -> DataFrame:
+        self._validate_inputs()
+
+        result_df = self.df
+        include_condition = self._get_include_condition()
 
         valid_df = result_df.filter(include_condition)
 
@@ -191,21 +219,6 @@ class MADOutlierDetection(DataManipulationBaseInterface):
             | (F.col(self.column) > F.lit(upper_bound))
         )
 
-        if self.action == "flag":
-            result_df = result_df.withColumn(self.outlier_column, is_outlier)
-
-        elif self.action == "replace":
-            replacement = (
-                F.lit(self.replacement_value)
-                if self.replacement_value is not None
-                else F.lit(None).cast(DoubleType())
-            )
-            result_df = result_df.withColumn(
-                self.column,
-                F.when(is_outlier, replacement).otherwise(F.col(self.column)),
-            )
-
-        elif self.action == "remove":
-            result_df = result_df.filter(~is_outlier)
+        result_df = self._apply_outlier_action(result_df, is_outlier)
 
         return result_df

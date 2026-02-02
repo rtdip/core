@@ -62,6 +62,18 @@ from ..validation import (
     check_data_overlap,
 )
 
+# Error message constants to avoid duplication
+_ERR_ACTUAL_EMPTY = "actual cannot be None or empty. Please provide actual values."
+_ERR_PREDICTED_EMPTY = "predicted cannot be None or empty. Please provide predicted values."
+_ERR_TIMESTAMPS_EMPTY = "timestamps cannot be None or empty. Please provide timestamps."
+_ERR_FORECAST_START_NONE = "forecast_start cannot be None. Please provide a valid timestamp."
+
+# UI/Styling constants to avoid duplication
+_BGCOLOR_WHITE_TRANSPARENT = "rgba(255,255,255,0.8)"
+_HOVERMODE_X_UNIFIED = "x unified"
+_FILE_EXT_HTML = ".html"
+_FILE_EXT_PNG = ".png"
+
 
 class ForecastPlotInteractive(PlotlyVisualizationInterface):
     """
@@ -166,7 +178,7 @@ class ForecastPlotInteractive(PlotlyVisualizationInterface):
                 y=self.historical_data["value"],
                 mode="lines",
                 name="Historical",
-                line=dict(color=config.COLORS["historical"], width=1.5),
+                line={"color": config.COLORS["historical"], "width": 1.5},
                 hovertemplate="<b>Historical</b><br>Time: %{x}<br>Value: %{y:.2f}<extra></extra>",
             )
         )
@@ -177,7 +189,7 @@ class ForecastPlotInteractive(PlotlyVisualizationInterface):
                 y=self.forecast_data["mean"],
                 mode="lines",
                 name="Forecast",
-                line=dict(color=config.COLORS["forecast"], width=2),
+                line={"color": config.COLORS["forecast"], "width": 2},
                 hovertemplate="<b>Forecast</b><br>Time: %{x}<br>Value: %{y:.2f}<extra></extra>",
             )
         )
@@ -198,7 +210,7 @@ class ForecastPlotInteractive(PlotlyVisualizationInterface):
                         x=self.forecast_data["timestamp"],
                         y=self.forecast_data[upper_col],
                         mode="lines",
-                        line=dict(width=0),
+                        line={"width": 0},
                         showlegend=False,
                         hoverinfo="skip",
                     )
@@ -217,7 +229,7 @@ class ForecastPlotInteractive(PlotlyVisualizationInterface):
                             else config.COLORS["ci_80"]
                         ),
                         opacity=0.3 if ci_level == 60 else 0.2,
-                        line=dict(width=0),
+                        line={"width": 0},
                         hovertemplate=f"<b>{ci_level}% CI</b><br>Time: %{{x}}<br>Lower: %{{y:.2f}}<extra></extra>",
                     )
                 )
@@ -229,7 +241,7 @@ class ForecastPlotInteractive(PlotlyVisualizationInterface):
             y0=0,
             y1=1,
             yref="paper",
-            line=dict(color=config.COLORS["forecast_start"], width=2, dash="dash"),
+            line={"color": config.COLORS["forecast_start"], "width": 2, "dash": "dash"},
         )
 
         self._fig.add_annotation(
@@ -249,11 +261,11 @@ class ForecastPlotInteractive(PlotlyVisualizationInterface):
             title=plot_title,
             xaxis_title="Time",
             yaxis_title="Value",
-            hovermode="x unified",
+            hovermode=_HOVERMODE_X_UNIFIED,
             template="plotly_white",
             height=600,
             showlegend=True,
-            legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.8)"),
+            legend={"x": 0.01, "y": 0.99, "bgcolor": _BGCOLOR_WHITE_TRANSPARENT},
         )
 
         return self._fig
@@ -282,12 +294,12 @@ class ForecastPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(_FILE_EXT_HTML):
+                filepath = filepath.with_suffix(_FILE_EXT_HTML)
             self._fig.write_html(filepath)
         elif format == "png":
-            if not str(filepath).endswith(".png"):
-                filepath = filepath.with_suffix(".png")
+            if not str(filepath).endswith(_FILE_EXT_PNG):
+                filepath = filepath.with_suffix(_FILE_EXT_PNG)
             self._fig.write_image(
                 filepath,
                 width=kwargs.get("width", 1200),
@@ -386,9 +398,7 @@ class ForecastComparisonPlotInteractive(PlotlyVisualizationInterface):
         )
 
         if forecast_start is None:
-            raise VisualizationDataError(
-                "forecast_start cannot be None. Please provide a valid timestamp."
-            )
+            raise VisualizationDataError(_ERR_FORECAST_START_NONE)
         self.forecast_start = pd.to_datetime(forecast_start)
 
         check_data_overlap(
@@ -409,7 +419,7 @@ class ForecastComparisonPlotInteractive(PlotlyVisualizationInterface):
                 y=self.historical_data["value"],
                 mode="lines",
                 name="Historical",
-                line=dict(color=config.COLORS["historical"], width=1.5),
+                line={"color": config.COLORS["historical"], "width": 1.5},
                 hovertemplate="<b>Historical</b><br>Time: %{x}<br>Value: %{y:.2f}<extra></extra>",
             )
         )
@@ -420,7 +430,7 @@ class ForecastComparisonPlotInteractive(PlotlyVisualizationInterface):
                 y=self.forecast_data["mean"],
                 mode="lines",
                 name="Forecast",
-                line=dict(color=config.COLORS["forecast"], width=2),
+                line={"color": config.COLORS["forecast"], "width": 2},
                 hovertemplate="<b>Forecast</b><br>Time: %{x}<br>Value: %{y:.2f}<extra></extra>",
             )
         )
@@ -431,8 +441,8 @@ class ForecastComparisonPlotInteractive(PlotlyVisualizationInterface):
                 y=self.actual_data["value"],
                 mode="lines+markers",
                 name="Actual",
-                line=dict(color=config.COLORS["actual"], width=2),
-                marker=dict(size=4),
+                line={"color": config.COLORS["actual"], "width": 2},
+                marker={"size": 4},
                 hovertemplate="<b>Actual</b><br>Time: %{x}<br>Value: %{y:.2f}<extra></extra>",
             )
         )
@@ -444,7 +454,7 @@ class ForecastComparisonPlotInteractive(PlotlyVisualizationInterface):
             y0=0,
             y1=1,
             yref="paper",
-            line=dict(color=config.COLORS["forecast_start"], width=2, dash="dash"),
+            line={"color": config.COLORS["forecast_start"], "width": 2, "dash": "dash"},
         )
 
         self._fig.add_annotation(
@@ -464,11 +474,11 @@ class ForecastComparisonPlotInteractive(PlotlyVisualizationInterface):
             title=plot_title,
             xaxis_title="Time",
             yaxis_title="Value",
-            hovermode="x unified",
+            hovermode=_HOVERMODE_X_UNIFIED,
             template="plotly_white",
             height=600,
             showlegend=True,
-            legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.8)"),
+            legend={"x": 0.01, "y": 0.99, "bgcolor": _BGCOLOR_WHITE_TRANSPARENT},
         )
 
         return self._fig
@@ -487,12 +497,12 @@ class ForecastComparisonPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(_FILE_EXT_HTML):
+                filepath = filepath.with_suffix(_FILE_EXT_HTML)
             self._fig.write_html(filepath)
         elif format == "png":
-            if not str(filepath).endswith(".png"):
-                filepath = filepath.with_suffix(".png")
+            if not str(filepath).endswith(_FILE_EXT_PNG):
+                filepath = filepath.with_suffix(_FILE_EXT_PNG)
             self._fig.write_image(
                 filepath,
                 width=kwargs.get("width", 1200),
@@ -548,17 +558,11 @@ class ResidualPlotInteractive(PlotlyVisualizationInterface):
         title: Optional[str] = None,
     ) -> None:
         if actual is None or len(actual) == 0:
-            raise VisualizationDataError(
-                "actual cannot be None or empty. Please provide actual values."
-            )
+            raise VisualizationDataError(_ERR_ACTUAL_EMPTY)
         if predicted is None or len(predicted) == 0:
-            raise VisualizationDataError(
-                "predicted cannot be None or empty. Please provide predicted values."
-            )
+            raise VisualizationDataError(_ERR_PREDICTED_EMPTY)
         if timestamps is None or len(timestamps) == 0:
-            raise VisualizationDataError(
-                "timestamps cannot be None or empty. Please provide timestamps."
-            )
+            raise VisualizationDataError(_ERR_TIMESTAMPS_EMPTY)
         if len(actual) != len(predicted) or len(actual) != len(timestamps):
             raise VisualizationDataError(
                 f"Length mismatch: actual ({len(actual)}), predicted ({len(predicted)}), "
@@ -584,8 +588,8 @@ class ResidualPlotInteractive(PlotlyVisualizationInterface):
                 y=residuals,
                 mode="lines+markers",
                 name="Residuals",
-                line=dict(color=config.COLORS["anomaly"], width=1.5),
-                marker=dict(size=4),
+                line={"color": config.COLORS["anomaly"], "width": 1.5},
+                marker={"size": 4},
                 hovertemplate="<b>Residual</b><br>Time: %{x}<br>Error: %{y:.2f}<extra></extra>",
             )
         )
@@ -602,7 +606,7 @@ class ResidualPlotInteractive(PlotlyVisualizationInterface):
             title=plot_title,
             xaxis_title="Time",
             yaxis_title="Residual (Actual - Predicted)",
-            hovermode="x unified",
+            hovermode=_HOVERMODE_X_UNIFIED,
             template="plotly_white",
             height=500,
         )
@@ -623,12 +627,12 @@ class ResidualPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(_FILE_EXT_HTML):
+                filepath = filepath.with_suffix(_FILE_EXT_HTML)
             self._fig.write_html(filepath)
         elif format == "png":
-            if not str(filepath).endswith(".png"):
-                filepath = filepath.with_suffix(".png")
+            if not str(filepath).endswith(_FILE_EXT_PNG):
+                filepath = filepath.with_suffix(_FILE_EXT_PNG)
             self._fig.write_image(
                 filepath,
                 width=kwargs.get("width", 1200),
@@ -684,13 +688,9 @@ class ErrorDistributionPlotInteractive(PlotlyVisualizationInterface):
         bins: int = 30,
     ) -> None:
         if actual is None or len(actual) == 0:
-            raise VisualizationDataError(
-                "actual cannot be None or empty. Please provide actual values."
-            )
+            raise VisualizationDataError(_ERR_ACTUAL_EMPTY)
         if predicted is None or len(predicted) == 0:
-            raise VisualizationDataError(
-                "predicted cannot be None or empty. Please provide predicted values."
-            )
+            raise VisualizationDataError(_ERR_PREDICTED_EMPTY)
         if len(actual) != len(predicted):
             raise VisualizationDataError(
                 f"Length mismatch: actual ({len(actual)}) and predicted ({len(predicted)}) "
@@ -743,17 +743,17 @@ class ErrorDistributionPlotInteractive(PlotlyVisualizationInterface):
             template="plotly_white",
             height=500,
             annotations=[
-                dict(
-                    x=0.98,
-                    y=0.98,
-                    xref="paper",
-                    yref="paper",
-                    text=f"MAE: {mae:.2f}<br>RMSE: {rmse:.2f}",
-                    showarrow=False,
-                    bgcolor="rgba(255,255,255,0.8)",
-                    bordercolor="black",
-                    borderwidth=1,
-                )
+                {
+                    "x": 0.98,
+                    "y": 0.98,
+                    "xref": "paper",
+                    "yref": "paper",
+                    "text": f"MAE: {mae:.2f}<br>RMSE: {rmse:.2f}",
+                    "showarrow": False,
+                    "bgcolor": _BGCOLOR_WHITE_TRANSPARENT,
+                    "bordercolor": "black",
+                    "borderwidth": 1,
+                }
             ],
         )
 
@@ -773,12 +773,12 @@ class ErrorDistributionPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(_FILE_EXT_HTML):
+                filepath = filepath.with_suffix(_FILE_EXT_HTML)
             self._fig.write_html(filepath)
         elif format == "png":
-            if not str(filepath).endswith(".png"):
-                filepath = filepath.with_suffix(".png")
+            if not str(filepath).endswith(_FILE_EXT_PNG):
+                filepath = filepath.with_suffix(_FILE_EXT_PNG)
             self._fig.write_image(
                 filepath,
                 width=kwargs.get("width", 1200),
@@ -830,13 +830,9 @@ class ScatterPlotInteractive(PlotlyVisualizationInterface):
         title: Optional[str] = None,
     ) -> None:
         if actual is None or len(actual) == 0:
-            raise VisualizationDataError(
-                "actual cannot be None or empty. Please provide actual values."
-            )
+            raise VisualizationDataError(_ERR_ACTUAL_EMPTY)
         if predicted is None or len(predicted) == 0:
-            raise VisualizationDataError(
-                "predicted cannot be None or empty. Please provide predicted values."
-            )
+            raise VisualizationDataError(_ERR_PREDICTED_EMPTY)
         if len(actual) != len(predicted):
             raise VisualizationDataError(
                 f"Length mismatch: actual ({len(actual)}) and predicted ({len(predicted)}) "
@@ -859,7 +855,7 @@ class ScatterPlotInteractive(PlotlyVisualizationInterface):
                 y=self.predicted,
                 mode="markers",
                 name="Predictions",
-                marker=dict(color=config.COLORS["forecast"], size=8, opacity=0.6),
+                marker={"color": config.COLORS["forecast"], "size": 8, "opacity": 0.6},
                 hovertemplate="<b>Point</b><br>Actual: %{x:.2f}<br>Predicted: %{y:.2f}<extra></extra>",
             )
         )
@@ -873,7 +869,7 @@ class ScatterPlotInteractive(PlotlyVisualizationInterface):
                 y=[min_val, max_val],
                 mode="lines",
                 name="Perfect Prediction",
-                line=dict(color="gray", dash="dash", width=2),
+                line={"color": "gray", "dash": "dash", "width": 2},
                 hoverinfo="skip",
             )
         )
@@ -908,18 +904,18 @@ class ScatterPlotInteractive(PlotlyVisualizationInterface):
             template="plotly_white",
             height=600,
             annotations=[
-                dict(
-                    x=0.98,
-                    y=0.02,
-                    xref="paper",
-                    yref="paper",
-                    text=f"R²: {r2:.4f}<br>MAE: {mae:.2f}<br>RMSE: {rmse:.2f}",
-                    showarrow=False,
-                    bgcolor="rgba(255,255,255,0.8)",
-                    bordercolor="black",
-                    borderwidth=1,
-                    align="left",
-                )
+                {
+                    "x": 0.98,
+                    "y": 0.02,
+                    "xref": "paper",
+                    "yref": "paper",
+                    "text": f"R²: {r2:.4f}<br>MAE: {mae:.2f}<br>RMSE: {rmse:.2f}",
+                    "showarrow": False,
+                    "bgcolor": _BGCOLOR_WHITE_TRANSPARENT,
+                    "bordercolor": "black",
+                    "borderwidth": 1,
+                    "align": "left",
+                }
             ],
         )
 
@@ -941,12 +937,12 @@ class ScatterPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(_FILE_EXT_HTML):
+                filepath = filepath.with_suffix(_FILE_EXT_HTML)
             self._fig.write_html(filepath)
         elif format == "png":
-            if not str(filepath).endswith(".png"):
-                filepath = filepath.with_suffix(".png")
+            if not str(filepath).endswith(_FILE_EXT_PNG):
+                filepath = filepath.with_suffix(_FILE_EXT_PNG)
             self._fig.write_image(
                 filepath,
                 width=kwargs.get("width", 1200),

@@ -116,17 +116,13 @@ def create_figure(
     if n_subplots == 1:
         fig, ax = plt.subplots(figsize=figsize)
         return fig, ax
-    elif layout == "grid":
-        n_rows, n_cols = config.get_grid_layout(n_subplots)
-        fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize)
-        axes = np.array(axes).flatten()
-        return fig, axes
     elif layout == "vertical":
         fig, axes = plt.subplots(n_subplots, 1, figsize=figsize)
         if n_subplots == 1:
             axes = [axes]
         return fig, axes
     else:
+        # Default to grid layout for both explicit 'grid' and unspecified layout
         n_rows, n_cols = config.get_grid_layout(n_subplots)
         fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize)
         axes = np.array(axes).flatten()
@@ -311,7 +307,6 @@ def format_axis(
 def prepare_time_series_data(
     df: PandasDataFrame,
     time_col: str = "timestamp",
-    value_col: str = "value",
     sort: bool = True,
 ) -> PandasDataFrame:
     """
@@ -320,7 +315,6 @@ def prepare_time_series_data(
     Args:
         df: Input dataframe
         time_col: Name of timestamp column
-        value_col: Name of value column
         sort: Whether to sort by timestamp
 
     Returns:
@@ -533,7 +527,7 @@ def add_text_annotation(
 
     bbox_props = None
     if bbox:
-        bbox_props = dict(boxstyle="round,pad=0.5", facecolor="white", alpha=0.7)
+        bbox_props = {"boxstyle": "round,pad=0.5", "facecolor": "white", "alpha": 0.7}
 
     ax.annotate(text, xy=(x, y), fontsize=fontsize, color=color, bbox=bbox_props)
 

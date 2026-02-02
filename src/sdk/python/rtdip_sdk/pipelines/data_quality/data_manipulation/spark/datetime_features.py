@@ -136,6 +136,85 @@ class DatetimeFeatures(DataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
+    def _get_feature_expression(self, feature: str, dt_col):
+        """
+        Get the PySpark expression for a specific datetime feature.
+
+        Args:
+            feature: Name of the feature to extract
+            dt_col: The timestamp column expression
+
+        Returns:
+            PySpark column expression for the feature
+        """
+        feature_map = {
+            "year": F.year(dt_col),
+            "month": F.month(dt_col),
+            "day": F.dayofmonth(dt_col),
+            "hour": F.hour(dt_col),
+            "minute": F.minute(dt_col),
+            "second": F.second(dt_col),
+            "quarter": F.quarter(dt_col),
+            "week": F.weekofyear(dt_col),
+            "day_of_year": F.dayofyear(dt_col),
+        }
+
+        if feature in feature_map:
+            return feature_map[feature]
+        elif feature == "weekday":
+            return (F.dayofweek(dt_col) + 5) % 7
+        elif feature == "day_name":
+            return self._get_day_name_expression(dt_col)
+        elif feature == "is_weekend":
+            return F.dayofweek(dt_col).isin([1, 7])
+        elif feature == "is_month_start":
+            return F.dayofmonth(dt_col) == 1
+        elif feature == "is_month_end":
+            return F.month(dt_col) != F.month(F.date_add(dt_col, 1))
+        elif feature == "is_quarter_start":
+            return (F.month(dt_col).isin([1, 4, 7, 10])) & (F.dayofmonth(dt_col) == 1)
+        elif feature == "is_quarter_end":
+            return (F.month(dt_col).isin([3, 6, 9, 12])) & (
+                F.month(dt_col) != F.month(F.date_add(dt_col, 1))
+            )
+        elif feature == "is_year_start":
+            return (F.month(dt_col) == 1) & (F.dayofmonth(dt_col) == 1)
+        elif feature == "is_year_end":
+            return (F.month(dt_col) == 12) & (F.dayofmonth(dt_col) == 31)
+
+    def _get_day_name_expression(self, dt_col):
+        """Create day name mapping expression."""
+        day_names = {
+            1: "Sunday",
+            2: "Monday",
+            3: "Tuesday",
+            4: "Wednesday",
+            5: "Thursday",
+            6: "Friday",
+            7: "Saturday",
+        }
+        mapping_expr = F.create_map(
+            [F.lit(x) for pair in day_names.items() for x in pair]
+        )
+        return mapping_expr[F.dayofweek(dt_col)]
+
+    def _validate_inputs(self):
+        """Validate DataFrame and column existence."""
+        if self.df is None:
+            raise ValueError("The DataFrame is None.")
+
+        if self.datetime_column not in self.df.columns:
+            raise ValueError(
+                f"Column '{self.datetime_column}' does not exist in the DataFrame."
+            )
+
+        invalid_features = set(self.features) - set(AVAILABLE_FEATURES)
+        if invalid_features:
+            raise ValueError(
+                f"Invalid features: {invalid_features}. "
+                f"Available features: {AVAILABLE_FEATURES}"
+            )
+
     def filter_data(self) -> DataFrame:
         """
         Extracts the specified datetime features from the datetime column.
@@ -147,105 +226,14 @@ class DatetimeFeatures(DataManipulationBaseInterface):
             ValueError: If the DataFrame is empty, column doesn't exist,
                        or invalid features are requested.
         """
-        if self.df is None:
-            raise ValueError("The DataFrame is None.")
-
-        if self.datetime_column not in self.df.columns:
-            raise ValueError(
-                f"Column '{self.datetime_column}' does not exist in the DataFrame."
-            )
-
-        # Validate requested features
-        invalid_features = set(self.features) - set(AVAILABLE_FEATURES)
-        if invalid_features:
-            raise ValueError(
-                f"Invalid features: {invalid_features}. "
-                f"Available features: {AVAILABLE_FEATURES}"
-            )
+        self._validate_inputs()
 
         result_df = self.df
-
-        # Ensure column is timestamp type
         dt_col = F.to_timestamp(F.col(self.datetime_column))
 
-        # Extract each requested feature
         for feature in self.features:
             col_name = f"{self.prefix}_{feature}" if self.prefix else feature
-
-            if feature == "year":
-                result_df = result_df.withColumn(col_name, F.year(dt_col))
-            elif feature == "month":
-                result_df = result_df.withColumn(col_name, F.month(dt_col))
-            elif feature == "day":
-                result_df = result_df.withColumn(col_name, F.dayofmonth(dt_col))
-            elif feature == "hour":
-                result_df = result_df.withColumn(col_name, F.hour(dt_col))
-            elif feature == "minute":
-                result_df = result_df.withColumn(col_name, F.minute(dt_col))
-            elif feature == "second":
-                result_df = result_df.withColumn(col_name, F.second(dt_col))
-            elif feature == "weekday":
-                # PySpark dayofweek returns 1=Sunday, 7=Saturday
-                # We want 0=Monday, 6=Sunday (like pandas)
-                result_df = result_df.withColumn(
-                    col_name, (F.dayofweek(dt_col) + 5) % 7
-                )
-            elif feature == "day_name":
-                # Create day name from dayofweek
-                day_names = {
-                    1: "Sunday",
-                    2: "Monday",
-                    3: "Tuesday",
-                    4: "Wednesday",
-                    5: "Thursday",
-                    6: "Friday",
-                    7: "Saturday",
-                }
-                mapping_expr = F.create_map(
-                    [F.lit(x) for pair in day_names.items() for x in pair]
-                )
-                result_df = result_df.withColumn(
-                    col_name, mapping_expr[F.dayofweek(dt_col)]
-                )
-            elif feature == "quarter":
-                result_df = result_df.withColumn(col_name, F.quarter(dt_col))
-            elif feature == "week":
-                result_df = result_df.withColumn(col_name, F.weekofyear(dt_col))
-            elif feature == "day_of_year":
-                result_df = result_df.withColumn(col_name, F.dayofyear(dt_col))
-            elif feature == "is_weekend":
-                # dayofweek: 1=Sunday, 7=Saturday
-                result_df = result_df.withColumn(
-                    col_name, F.dayofweek(dt_col).isin([1, 7])
-                )
-            elif feature == "is_month_start":
-                result_df = result_df.withColumn(col_name, F.dayofmonth(dt_col) == 1)
-            elif feature == "is_month_end":
-                # Check if day + 1 changes month
-                result_df = result_df.withColumn(
-                    col_name,
-                    F.month(dt_col) != F.month(F.date_add(dt_col, 1)),
-                )
-            elif feature == "is_quarter_start":
-                # First day of quarter: month in (1, 4, 7, 10) and day = 1
-                result_df = result_df.withColumn(
-                    col_name,
-                    (F.month(dt_col).isin([1, 4, 7, 10])) & (F.dayofmonth(dt_col) == 1),
-                )
-            elif feature == "is_quarter_end":
-                # Last day of quarter: month in (3, 6, 9, 12) and is_month_end
-                result_df = result_df.withColumn(
-                    col_name,
-                    (F.month(dt_col).isin([3, 6, 9, 12]))
-                    & (F.month(dt_col) != F.month(F.date_add(dt_col, 1))),
-                )
-            elif feature == "is_year_start":
-                result_df = result_df.withColumn(
-                    col_name, (F.month(dt_col) == 1) & (F.dayofmonth(dt_col) == 1)
-                )
-            elif feature == "is_year_end":
-                result_df = result_df.withColumn(
-                    col_name, (F.month(dt_col) == 12) & (F.dayofmonth(dt_col) == 31)
-                )
+            feature_expr = self._get_feature_expression(feature, dt_col)
+            result_df = result_df.withColumn(col_name, feature_expr)
 
         return result_df

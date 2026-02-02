@@ -113,6 +113,80 @@ class RollingStatistics(DataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
+    def _validate_columns_exist(self, columns: List[str], column_type: str) -> None:
+        """Validates that specified columns exist in the DataFrame."""
+        for col in columns:
+            if col not in self.df.columns:
+                raise ValueError(
+                    f"{column_type} column '{col}' does not exist in the DataFrame."
+                )
+
+    def _validate_inputs(self) -> None:
+        """Validates the input parameters."""
+        if self.df is None:
+            raise ValueError("The DataFrame is None.")
+
+        if self.value_column not in self.df.columns:
+            raise ValueError(
+                f"Column '{self.value_column}' does not exist in the DataFrame."
+            )
+
+        if self.group_columns:
+            self._validate_columns_exist(self.group_columns, "Group")
+
+        if self.order_by_columns:
+            self._validate_columns_exist(self.order_by_columns, "Order by")
+
+        invalid_stats = set(self.statistics) - set(AVAILABLE_STATISTICS)
+        if invalid_stats:
+            raise ValueError(
+                f"Invalid statistics: {invalid_stats}. "
+                f"Available: {AVAILABLE_STATISTICS}"
+            )
+
+        if not self.windows or any(w <= 0 for w in self.windows):
+            raise ValueError("Windows must be a non-empty list of positive integers.")
+
+    def _build_window_spec(self):
+        """Builds the window specification based on group and order columns."""
+        if self.group_columns and self.order_by_columns:
+            return Window.partitionBy(
+                [F.col(c) for c in self.group_columns]
+            ).orderBy([F.col(c) for c in self.order_by_columns])
+        elif self.group_columns:
+            return Window.partitionBy([F.col(c) for c in self.group_columns])
+        elif self.order_by_columns:
+            return Window.orderBy([F.col(c) for c in self.order_by_columns])
+        else:
+            return Window.orderBy(F.monotonically_increasing_id())
+
+    def _compute_statistic(self, stat: str, rolling_window):
+        """Returns the appropriate PySpark expression for a given statistic."""
+        if stat == "mean":
+            return F.avg(F.col(self.value_column)).over(rolling_window)
+        elif stat == "std":
+            return F.stddev(F.col(self.value_column)).over(rolling_window)
+        elif stat == "min":
+            return F.min(F.col(self.value_column)).over(rolling_window)
+        elif stat == "max":
+            return F.max(F.col(self.value_column)).over(rolling_window)
+        elif stat == "sum":
+            return F.sum(F.col(self.value_column)).over(rolling_window)
+        elif stat == "median":
+            return F.expr(f"percentile_approx({self.value_column}, 0.5)").over(
+                rolling_window
+            )
+
+    def _apply_rolling_statistics(self, result_df: DataFrame, base_window) -> DataFrame:
+        """Applies rolling statistics to the DataFrame."""
+        for window_size in self.windows:
+            rolling_window = base_window.rowsBetween(-(window_size - 1), 0)
+            for stat in self.statistics:
+                col_name = f"rolling_{stat}_{window_size}"
+                stat_expr = self._compute_statistic(stat, rolling_window)
+                result_df = result_df.withColumn(col_name, stat_expr)
+        return result_df
+
     def filter_data(self) -> DataFrame:
         """
         Computes rolling statistics for the specified value column.
@@ -125,88 +199,6 @@ class RollingStatistics(DataManipulationBaseInterface):
             ValueError: If the DataFrame is None, columns don't exist,
                 or invalid statistics/windows are specified.
         """
-        if self.df is None:
-            raise ValueError("The DataFrame is None.")
-
-        if self.value_column not in self.df.columns:
-            raise ValueError(
-                f"Column '{self.value_column}' does not exist in the DataFrame."
-            )
-
-        if self.group_columns:
-            for col in self.group_columns:
-                if col not in self.df.columns:
-                    raise ValueError(
-                        f"Group column '{col}' does not exist in the DataFrame."
-                    )
-
-        if self.order_by_columns:
-            for col in self.order_by_columns:
-                if col not in self.df.columns:
-                    raise ValueError(
-                        f"Order by column '{col}' does not exist in the DataFrame."
-                    )
-
-        invalid_stats = set(self.statistics) - set(AVAILABLE_STATISTICS)
-        if invalid_stats:
-            raise ValueError(
-                f"Invalid statistics: {invalid_stats}. "
-                f"Available: {AVAILABLE_STATISTICS}"
-            )
-
-        if not self.windows or any(w <= 0 for w in self.windows):
-            raise ValueError("Windows must be a non-empty list of positive integers.")
-
-        result_df = self.df
-
-        # Define window specification
-        if self.group_columns and self.order_by_columns:
-            base_window = Window.partitionBy(
-                [F.col(c) for c in self.group_columns]
-            ).orderBy([F.col(c) for c in self.order_by_columns])
-        elif self.group_columns:
-            base_window = Window.partitionBy([F.col(c) for c in self.group_columns])
-        elif self.order_by_columns:
-            base_window = Window.orderBy([F.col(c) for c in self.order_by_columns])
-        else:
-            base_window = Window.orderBy(F.monotonically_increasing_id())
-
-        # Compute rolling statistics
-        for window_size in self.windows:
-            # Define rolling window with row-based window frame
-            rolling_window = base_window.rowsBetween(-(window_size - 1), 0)
-
-            for stat in self.statistics:
-                col_name = f"rolling_{stat}_{window_size}"
-
-                if stat == "mean":
-                    result_df = result_df.withColumn(
-                        col_name, F.avg(F.col(self.value_column)).over(rolling_window)
-                    )
-                elif stat == "std":
-                    result_df = result_df.withColumn(
-                        col_name,
-                        F.stddev(F.col(self.value_column)).over(rolling_window),
-                    )
-                elif stat == "min":
-                    result_df = result_df.withColumn(
-                        col_name, F.min(F.col(self.value_column)).over(rolling_window)
-                    )
-                elif stat == "max":
-                    result_df = result_df.withColumn(
-                        col_name, F.max(F.col(self.value_column)).over(rolling_window)
-                    )
-                elif stat == "sum":
-                    result_df = result_df.withColumn(
-                        col_name, F.sum(F.col(self.value_column)).over(rolling_window)
-                    )
-                elif stat == "median":
-                    # Median requires percentile_approx in window function
-                    result_df = result_df.withColumn(
-                        col_name,
-                        F.expr(f"percentile_approx({self.value_column}, 0.5)").over(
-                            rolling_window
-                        ),
-                    )
-
-        return result_df
+        self._validate_inputs()
+        base_window = self._build_window_spec()
+        return self._apply_rolling_statistics(self.df, base_window)

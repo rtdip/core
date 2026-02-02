@@ -171,7 +171,7 @@ def validate_dataframe(
             f"Example: column_mapping={{'{missing_required[0]}': 'your_column_name'}}"
         )
 
-    column_presence = {col: True for col in required_columns}
+    column_presence = dict.fromkeys(required_columns, True)
     if optional_columns:
         for col in optional_columns:
             column_presence[col] = col in df.columns

@@ -220,7 +220,7 @@ def test_does_not_modify_original():
     original_df = df.copy()
 
     sorter = ChronologicalSort(df, "Timestamp")
-    result_df = sorter.apply()
+    sorter.apply()
 
     pd.testing.assert_frame_equal(df, original_df)
 

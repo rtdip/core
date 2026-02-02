@@ -108,18 +108,8 @@ class RollingStatistics(PandasDataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
-    def apply(self) -> PandasDataFrame:
-        """
-        Computes rolling statistics for the specified value column.
-
-        Returns:
-            PandasDataFrame: DataFrame with added rolling statistic columns
-                (e.g., rolling_mean_3, rolling_std_6).
-
-        Raises:
-            ValueError: If the DataFrame is empty, columns don't exist,
-                or invalid statistics/windows are specified.
-        """
+    def _validate_inputs(self) -> None:
+        """Validates input parameters."""
         if self.df is None or self.df.empty:
             raise ValueError("The DataFrame is empty.")
 
@@ -145,26 +135,45 @@ class RollingStatistics(PandasDataManipulationBaseInterface):
         if not self.windows or any(w <= 0 for w in self.windows):
             raise ValueError("Windows must be a non-empty list of positive integers.")
 
+    def _compute_rolling_stat(
+        self, df: PandasDataFrame, window: int, stat: str
+    ) -> pd.Series:
+        """Computes a single rolling statistic."""
+        if self.group_columns:
+            return df.groupby(self.group_columns)[self.value_column].transform(
+                lambda x: getattr(
+                    x.rolling(window=window, min_periods=self.min_periods), stat
+                )()
+            )
+        else:
+            return getattr(
+                df[self.value_column].rolling(
+                    window=window, min_periods=self.min_periods
+                ),
+                stat,
+            )()
+
+    def apply(self) -> PandasDataFrame:
+        """
+        Computes rolling statistics for the specified value column.
+
+        Returns:
+            PandasDataFrame: DataFrame with added rolling statistic columns
+                (e.g., rolling_mean_3, rolling_std_6).
+
+        Raises:
+            ValueError: If the DataFrame is empty, columns don't exist,
+                or invalid statistics/windows are specified.
+        """
+        self._validate_inputs()
+
         result_df = self.df.copy()
 
         for window in self.windows:
             for stat in self.statistics:
                 col_name = f"rolling_{stat}_{window}"
-
-                if self.group_columns:
-                    result_df[col_name] = result_df.groupby(self.group_columns)[
-                        self.value_column
-                    ].transform(
-                        lambda x: getattr(
-                            x.rolling(window=window, min_periods=self.min_periods), stat
-                        )()
-                    )
-                else:
-                    result_df[col_name] = getattr(
-                        result_df[self.value_column].rolling(
-                            window=window, min_periods=self.min_periods
-                        ),
-                        stat,
-                    )()
+                result_df[col_name] = self._compute_rolling_stat(
+                    result_df, window, stat
+                )
 
         return result_df

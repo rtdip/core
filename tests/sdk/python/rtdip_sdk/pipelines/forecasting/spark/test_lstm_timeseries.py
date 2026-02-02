@@ -107,10 +107,10 @@ def test_lstm_custom_initialization():
     assert lstm.lookback_window == 48
     assert lstm.lstm_units == 64
     assert lstm.num_lstm_layers == 3
-    assert lstm.dropout_rate == 0.3
+    assert np.isclose(lstm.dropout_rate, 0.3, rtol=1e-09, atol=1e-09)
     assert lstm.batch_size == 256
     assert lstm.epochs == 20
-    assert lstm.learning_rate == 0.01
+    assert np.isclose(lstm.learning_rate, 0.01, rtol=1e-09, atol=1e-09)
 
 
 def test_model_attributes(sample_timeseries_data):

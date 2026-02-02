@@ -51,9 +51,9 @@ COLORS: Dict[str, str] = {
     "actual": "#2980B9",  # ground truth
     "anomaly": "#E74C3C",  # anomalies/errors
     # Confidence intervals
-    "ci_60": "#27AE60",  # alpha=0.3
-    "ci_80": "#27AE60",  # alpha=0.15
-    "ci_90": "#27AE60",  # alpha=0.1
+    "ci_60": "#27AE60",
+    "ci_80": "#27AE60",
+    "ci_90": "#27AE60",
     # Special markers
     "forecast_start": "#E74C3C",  # forecast start line
     "threshold": "#F39C12",  # thresholds

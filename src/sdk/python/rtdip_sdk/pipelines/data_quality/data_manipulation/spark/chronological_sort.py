@@ -94,7 +94,8 @@ class ChronologicalSort(DataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
-    def filter_data(self) -> DataFrame:
+    def _validate_inputs(self) -> None:
+        """Validate DataFrame and column existence."""
         if self.df is None:
             raise ValueError("The DataFrame is None.")
 
@@ -110,16 +111,17 @@ class ChronologicalSort(DataManipulationBaseInterface):
                         f"Group column '{col}' does not exist in the DataFrame."
                     )
 
+    def _build_datetime_sort_expression(self):
+        """Build the datetime sort expression based on ascending and nulls_last flags."""
         if self.ascending:
-            if self.nulls_last:
-                datetime_sort = F.col(self.datetime_column).asc_nulls_last()
-            else:
-                datetime_sort = F.col(self.datetime_column).asc_nulls_first()
+            return F.col(self.datetime_column).asc_nulls_last() if self.nulls_last else F.col(self.datetime_column).asc_nulls_first()
         else:
-            if self.nulls_last:
-                datetime_sort = F.col(self.datetime_column).desc_nulls_last()
-            else:
-                datetime_sort = F.col(self.datetime_column).desc_nulls_first()
+            return F.col(self.datetime_column).desc_nulls_last() if self.nulls_last else F.col(self.datetime_column).desc_nulls_first()
+
+    def filter_data(self) -> DataFrame:
+        self._validate_inputs()
+        
+        datetime_sort = self._build_datetime_sort_expression()
 
         if self.group_columns:
             sort_expressions = [F.col(c).asc() for c in self.group_columns]

@@ -99,7 +99,7 @@ def test_xgboost_custom_initialization():
     assert xgb.item_id_col == "sensor"
     assert xgb.prediction_length == 12
     assert xgb.max_depth == 7
-    assert xgb.learning_rate == 0.1
+    assert np.isclose(xgb.learning_rate, 0.1, rtol=1e-09, atol=1e-09)
     assert xgb.n_estimators == 200
     assert xgb.n_jobs == 4
 
@@ -418,8 +418,7 @@ def test_insufficient_data(spark_session):
     try:
         xgb.train(minimal_data)
         # If it succeeds, should have a trained model
-        if xgb.model is not None:
-            assert True
+        assert xgb.model is not None, "Model should be trained if no exception is raised"
     except (ValueError, Exception) as e:
         assert (
             "insufficient" in str(e).lower()

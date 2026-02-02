@@ -141,12 +141,12 @@ class CatBoostTimeSeries(MachineLearningInterface):
             # Rolling mean
             df[f"rolling_mean_{window}"] = df.groupby(self.item_id_col)[
                 self.target_col
-            ].transform(lambda x: x.rolling(window=window, min_periods=1).mean())
+            ].transform(lambda x, w=window: x.rolling(window=w, min_periods=1).mean())
 
             # Rolling std
             df[f"rolling_std_{window}"] = df.groupby(self.item_id_col)[
                 self.target_col
-            ].transform(lambda x: x.rolling(window=window, min_periods=1).std())
+            ].transform(lambda x, w=window: x.rolling(window=w, min_periods=1).std())
 
         return df
 
@@ -335,7 +335,7 @@ class CatBoostTimeSeries(MachineLearningInterface):
 
         if len(pdf_clean) == 0:
             logging.error("No valid test samples after feature engineering")
-            return None
+            return {}
 
         logging.info("Test samples: %s", len(pdf_clean))
 

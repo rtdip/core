@@ -37,12 +37,12 @@ def spark():
 @pytest.fixture
 def sample_time_series(spark):
     """Create a sample time series with trend, seasonality, and noise."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 365
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
     trend = np.linspace(10, 20, n_points)
     seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-    noise = np.random.randn(n_points) * 0.5
+    noise = rng.standard_normal(n_points) * 0.5
     value = trend + seasonal + noise
 
     pdf = pd.DataFrame({"timestamp": dates, "value": value})
@@ -52,13 +52,13 @@ def sample_time_series(spark):
 @pytest.fixture
 def multi_seasonal_time_series(spark):
     """Create a time series with multiple seasonal patterns."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 24 * 60  # 60 days of hourly data
     dates = pd.date_range("2024-01-01", periods=n_points, freq="h")
     trend = np.linspace(10, 15, n_points)
     daily_seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 24)
     weekly_seasonal = 3 * np.sin(2 * np.pi * np.arange(n_points) / 168)
-    noise = np.random.randn(n_points) * 0.5
+    noise = rng.standard_normal(n_points) * 0.5
     value = trend + daily_seasonal + weekly_seasonal + noise
 
     pdf = pd.DataFrame({"timestamp": dates, "value": value})
@@ -68,7 +68,7 @@ def multi_seasonal_time_series(spark):
 @pytest.fixture
 def multi_sensor_data(spark):
     """Create multi-sensor time series data."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 100
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
 
@@ -76,7 +76,7 @@ def multi_sensor_data(spark):
     for sensor in ["A", "B"]:
         trend = np.linspace(10, 20, n_points)
         seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-        noise = np.random.randn(n_points) * 0.5
+        noise = rng.standard_normal(n_points) * 0.5
         values = trend + seasonal + noise
 
         for i in range(n_points):

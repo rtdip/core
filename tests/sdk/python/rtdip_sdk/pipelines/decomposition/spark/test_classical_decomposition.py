@@ -37,12 +37,12 @@ def spark():
 @pytest.fixture
 def sample_time_series(spark):
     """Create a sample time series with trend, seasonality, and noise."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 365
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
     trend = np.linspace(10, 20, n_points)
     seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-    noise = np.random.randn(n_points) * 0.5
+    noise = rng.standard_normal(n_points) * 0.5
     value = trend + seasonal + noise
 
     pdf = pd.DataFrame({"timestamp": dates, "value": value})
@@ -52,12 +52,12 @@ def sample_time_series(spark):
 @pytest.fixture
 def multiplicative_time_series(spark):
     """Create a time series suitable for multiplicative decomposition."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 365
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
     trend = np.linspace(10, 20, n_points)
     seasonal = 1 + 0.3 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-    noise = 1 + np.random.randn(n_points) * 0.05
+    noise = 1 + rng.standard_normal(n_points) * 0.05
     value = trend * seasonal * noise
 
     pdf = pd.DataFrame({"timestamp": dates, "value": value})
@@ -67,15 +67,15 @@ def multiplicative_time_series(spark):
 @pytest.fixture
 def multi_sensor_data(spark):
     """Create multi-sensor time series data."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 100
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
 
     data = []
     for sensor in ["A", "B", "C"]:
-        trend = np.linspace(10, 20, n_points) + np.random.rand() * 5
+        trend = np.linspace(10, 20, n_points) + rng.random() * 5
         seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-        noise = np.random.randn(n_points) * 0.5
+        noise = rng.standard_normal(n_points) * 0.5
         values = trend + seasonal + noise
 
         for i in range(n_points):
@@ -198,7 +198,7 @@ def test_grouped_single_column(spark, multi_sensor_data):
 
 def test_grouped_multiplicative(spark):
     """Test multiplicative decomposition with grouped data."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 100
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
 
@@ -206,7 +206,7 @@ def test_grouped_multiplicative(spark):
     for sensor in ["A", "B"]:
         trend = np.linspace(10, 20, n_points)
         seasonal = 1 + 0.3 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-        noise = 1 + np.random.randn(n_points) * 0.05
+        noise = 1 + rng.standard_normal(n_points) * 0.05
         values = trend * seasonal * noise
 
         for i in range(n_points):

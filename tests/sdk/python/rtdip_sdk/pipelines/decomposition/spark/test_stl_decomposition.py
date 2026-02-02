@@ -37,12 +37,12 @@ def spark():
 @pytest.fixture
 def sample_time_series(spark):
     """Create a sample time series with trend, seasonality, and noise."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 365
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
     trend = np.linspace(10, 20, n_points)
     seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-    noise = np.random.randn(n_points) * 0.5
+    noise = rng.standard_normal(n_points) * 0.5
     value = trend + seasonal + noise
 
     pdf = pd.DataFrame({"timestamp": dates, "value": value})
@@ -52,15 +52,15 @@ def sample_time_series(spark):
 @pytest.fixture
 def multi_sensor_data(spark):
     """Create multi-sensor time series data."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 100
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
 
     data = []
     for sensor in ["A", "B", "C"]:
-        trend = np.linspace(10, 20, n_points) + np.random.rand() * 5
+        trend = np.linspace(10, 20, n_points) + rng.random() * 5
         seasonal = 5 * np.sin(2 * np.pi * np.arange(n_points) / 7)
-        noise = np.random.randn(n_points) * 0.5
+        noise = rng.standard_normal(n_points) * 0.5
         values = trend + seasonal + noise
 
         for i in range(n_points):
@@ -206,18 +206,18 @@ def test_multiple_group_columns(spark, multi_sensor_data):
 
 def test_insufficient_data_per_group(spark):
     """Test that error is raised when a group has insufficient data."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
 
     # Sensor A: Enough data
     dates_a = pd.date_range("2024-01-01", periods=100, freq="D")
     df_a = pd.DataFrame(
-        {"timestamp": dates_a, "sensor": "A", "value": np.random.randn(100) + 10}
+        {"timestamp": dates_a, "sensor": "A", "value": rng.standard_normal(100) + 10}
     )
 
     # Sensor B: Insufficient data
     dates_b = pd.date_range("2024-01-01", periods=10, freq="D")
     df_b = pd.DataFrame(
-        {"timestamp": dates_b, "sensor": "B", "value": np.random.randn(10) + 10}
+        {"timestamp": dates_b, "sensor": "B", "value": rng.standard_normal(10) + 10}
     )
 
     pdf = pd.concat([df_a, df_b], ignore_index=True)
@@ -237,17 +237,17 @@ def test_insufficient_data_per_group(spark):
 
 def test_group_with_nans(spark):
     """Test that error is raised when a group contains NaN values."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     n_points = 100
     dates = pd.date_range("2024-01-01", periods=n_points, freq="D")
 
     # Sensor A: Clean data
     df_a = pd.DataFrame(
-        {"timestamp": dates, "sensor": "A", "value": np.random.randn(n_points) + 10}
+        {"timestamp": dates, "sensor": "A", "value": rng.standard_normal(n_points) + 10}
     )
 
     # Sensor B: Data with NaN
-    values_b = np.random.randn(n_points) + 10
+    values_b = rng.standard_normal(n_points) + 10
     values_b[10:15] = np.nan
     df_b = pd.DataFrame({"timestamp": dates, "sensor": "B", "value": values_b})
 
@@ -280,18 +280,18 @@ def test_invalid_group_column(spark, multi_sensor_data):
 
 def test_uneven_group_sizes(spark):
     """Test decomposition with groups of different sizes."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
 
     # Sensor A: 100 points
     dates_a = pd.date_range("2024-01-01", periods=100, freq="D")
     df_a = pd.DataFrame(
-        {"timestamp": dates_a, "sensor": "A", "value": np.random.randn(100) + 10}
+        {"timestamp": dates_a, "sensor": "A", "value": rng.standard_normal(100) + 10}
     )
 
     # Sensor B: 50 points
     dates_b = pd.date_range("2024-01-01", periods=50, freq="D")
     df_b = pd.DataFrame(
-        {"timestamp": dates_b, "sensor": "B", "value": np.random.randn(50) + 10}
+        {"timestamp": dates_b, "sensor": "B", "value": rng.standard_normal(50) + 10}
     )
 
     pdf = pd.concat([df_a, df_b], ignore_index=True)

@@ -108,7 +108,7 @@ def test_catboost_custom_initialization():
     assert cbts.item_id_col == "sensor"
     assert cbts.prediction_length == 12
     assert cbts.max_depth == 7
-    assert cbts.learning_rate == 0.1
+    assert np.isclose(cbts.learning_rate, 0.1, rtol=1e-09, atol=1e-09)
     assert cbts.n_estimators == 200
     assert cbts.n_jobs == 4
 
@@ -253,8 +253,6 @@ def test_train_and_evaluate(sample_timeseries_data):
         for metric in expected_metrics:
             assert metric in metrics
             assert isinstance(metrics[metric], (int, float))
-    else:
-        assert True
 
 
 def test_recursive_forecasting(simple_timeseries_data):
@@ -473,7 +471,7 @@ def test_predict_output_schema_and_horizon(sample_timeseries_data):
     preds = cbts.predict(sample_timeseries_data)
 
     pred_df = preds.toPandas()
-    assert set(["item_id", "timestamp", "predicted"]).issubset(pred_df.columns)
+    assert {"item_id", "timestamp", "predicted"}.issubset(pred_df.columns)
 
     # Exactly prediction_length predictions per sensor (given sufficient data)
     n_sensors = pred_df["item_id"].nunique()

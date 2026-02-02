@@ -45,6 +45,8 @@ from pandas import DataFrame as PandasDataFrame
 from .. import config
 from ..interfaces import PlotlyVisualizationInterface
 
+# Constants
+HTML_EXTENSION = ".html"
 
 class ModelComparisonPlotInteractive(PlotlyVisualizationInterface):
     """
@@ -128,7 +130,7 @@ class ModelComparisonPlotInteractive(PlotlyVisualizationInterface):
             barmode="group",
             template="plotly_white",
             height=500,
-            legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.8)"),
+            legend={"x": 0.01, "y": 0.99, "bgcolor": "rgba(255,255,255,0.8)"},
         )
 
         return self._fig
@@ -147,8 +149,8 @@ class ModelComparisonPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(HTML_EXTENSION):
+                filepath = filepath.with_suffix(HTML_EXTENSION)
             self._fig.write_html(filepath)
         elif format == "png":
             if not str(filepath).endswith(".png"):
@@ -232,8 +234,8 @@ class ModelsOverlayPlotInteractive(PlotlyVisualizationInterface):
                     y=sensor_data[pred_col],
                     mode="lines+markers",
                     name=model_name,
-                    line=dict(color=color, width=2),
-                    marker=dict(symbol=symbol, size=6),
+                    line={"color": color, "width": 2},
+                    marker={"symbol": symbol, "size": 6},
                     hovertemplate=f"<b>{model_name}</b><br>Time: %{{x}}<br>Value: %{{y:.2f}}<extra></extra>",
                 )
             )
@@ -249,7 +251,7 @@ class ModelsOverlayPlotInteractive(PlotlyVisualizationInterface):
                         y=actual_sensor["value"],
                         mode="lines",
                         name="Actual",
-                        line=dict(color="black", width=2, dash="dash"),
+                        line={"color": "black", "width": 2, "dash": "dash"},
                         hovertemplate="<b>Actual</b><br>Time: %{x}<br>Value: %{y:.2f}<extra></extra>",
                     )
                 )
@@ -261,7 +263,7 @@ class ModelsOverlayPlotInteractive(PlotlyVisualizationInterface):
             hovermode="x unified",
             template="plotly_white",
             height=600,
-            legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.8)"),
+            legend={"x": 0.01, "y": 0.99, "bgcolor": "rgba(255,255,255,0.8)"},
         )
 
         return self._fig
@@ -280,8 +282,8 @@ class ModelsOverlayPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(HTML_EXTENSION):
+                filepath = filepath.with_suffix(HTML_EXTENSION)
             self._fig.write_html(filepath)
         elif format == "png":
             if not str(filepath).endswith(".png"):
@@ -376,8 +378,8 @@ class ForecastDistributionPlotInteractive(PlotlyVisualizationInterface):
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         if format == "html":
-            if not str(filepath).endswith(".html"):
-                filepath = filepath.with_suffix(".html")
+            if not str(filepath).endswith(HTML_EXTENSION):
+                filepath = filepath.with_suffix(HTML_EXTENSION)
             self._fig.write_html(filepath)
         elif format == "png":
             if not str(filepath).endswith(".png"):

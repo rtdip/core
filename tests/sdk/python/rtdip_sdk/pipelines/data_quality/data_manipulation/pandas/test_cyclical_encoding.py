@@ -66,7 +66,6 @@ def test_month_encoding():
     assert "month_cos" in result.columns
 
     # January (1) and December (12) should have similar encodings
-    jan_sin = result[result["month"] == 1]["month_sin"].iloc[0]
     dec_sin = result[result["month"] == 12]["month_sin"].iloc[0]
     # sin(2*pi*1/12) ≈ 0.5, sin(2*pi*12/12) = sin(2*pi) = 0
     assert abs(dec_sin - 0) < 0.01  # December sin ≈ 0
@@ -107,7 +106,6 @@ def test_weekday_encoding():
 
     # Monday (0) and Sunday (6) should be close (adjacent in cycle)
     mon_sin = result[result["weekday"] == 0]["weekday_sin"].iloc[0]
-    sun_sin = result[result["weekday"] == 6]["weekday_sin"].iloc[0]
     # They should be close in the sine representation
     assert abs(mon_sin - 0) < 0.01  # Monday sin ≈ 0
 

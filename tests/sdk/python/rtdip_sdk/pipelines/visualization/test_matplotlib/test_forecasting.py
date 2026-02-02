@@ -40,18 +40,18 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 @pytest.fixture
 def sample_historical_data():
     """Create sample historical data for testing."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     timestamps = pd.date_range("2024-01-01", periods=100, freq="h")
-    values = np.sin(np.arange(100) * 0.1) + np.random.randn(100) * 0.1
+    values = np.sin(np.arange(100) * 0.1) + rng.standard_normal(100) * 0.1
     return pd.DataFrame({"timestamp": timestamps, "value": values})
 
 
 @pytest.fixture
 def sample_forecast_data():
     """Create sample forecast data for testing."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     timestamps = pd.date_range("2024-01-05", periods=24, freq="h")
-    mean_values = np.sin(np.arange(100, 124) * 0.1) + np.random.randn(24) * 0.05
+    mean_values = np.sin(np.arange(100, 124) * 0.1) + rng.standard_normal(24) * 0.05
     return pd.DataFrame(
         {
             "timestamp": timestamps,
@@ -67,9 +67,9 @@ def sample_forecast_data():
 @pytest.fixture
 def sample_actual_data():
     """Create sample actual data for testing."""
-    np.random.seed(42)
+    rng = np.random.default_rng(seed=42)
     timestamps = pd.date_range("2024-01-05", periods=24, freq="h")
-    values = np.sin(np.arange(100, 124) * 0.1) + np.random.randn(24) * 0.1
+    values = np.sin(np.arange(100, 124) * 0.1) + rng.standard_normal(24) * 0.1
     return pd.DataFrame({"timestamp": timestamps, "value": values})
 
 
@@ -326,11 +326,11 @@ class TestMultiSensorForecastPlot:
     @pytest.fixture
     def multi_sensor_predictions(self):
         """Create multi-sensor predictions data."""
-        np.random.seed(42)
+        rng = np.random.default_rng(seed=42)
         data = []
         for sensor in ["SENSOR_001", "SENSOR_002", "SENSOR_003"]:
             timestamps = pd.date_range("2024-01-05", periods=24, freq="h")
-            mean_values = np.random.randn(24)
+            mean_values = rng.standard_normal(24)
             for ts, mean in zip(timestamps, mean_values):
                 data.append(
                     {
@@ -346,11 +346,11 @@ class TestMultiSensorForecastPlot:
     @pytest.fixture
     def multi_sensor_historical(self):
         """Create multi-sensor historical data."""
-        np.random.seed(42)
+        rng = np.random.default_rng(seed=42)
         data = []
         for sensor in ["SENSOR_001", "SENSOR_002", "SENSOR_003"]:
             timestamps = pd.date_range("2024-01-01", periods=100, freq="h")
-            values = np.random.randn(100)
+            values = rng.standard_normal(100)
             for ts, val in zip(timestamps, values):
                 data.append({"TagName": sensor, "EventTime": ts, "Value": val})
         return pd.DataFrame(data)

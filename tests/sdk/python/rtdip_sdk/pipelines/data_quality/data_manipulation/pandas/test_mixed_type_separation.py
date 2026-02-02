@@ -87,7 +87,7 @@ def test_mixed_values():
     result_df = separator.apply()
 
     assert "Value_str" in result_df.columns
-    assert result_df.loc[0, "Value"] == 3.14
+    assert np.isclose(result_df.loc[0, "Value"], 3.14, rtol=1e-09, atol=1e-09)
     assert result_df.loc[0, "Value_str"] == "NaN"
     assert result_df.loc[1, "Value"] == -1
     assert result_df.loc[1, "Value_str"] == "Bad"
@@ -107,11 +107,11 @@ def test_numeric_strings():
     separator = MixedTypeSeparation(df, "Value", placeholder=-1)
     result_df = separator.apply()
 
-    assert result_df.loc[0, "Value"] == 3.14
+    assert np.isclose(result_df.loc[0, "Value"], 3.14, rtol=1e-09, atol=1e-09)
     assert result_df.loc[0, "Value_str"] == "NaN"
-    assert result_df.loc[1, "Value"] == 1e-5
+    assert np.isclose(result_df.loc[1, "Value"], 1e-5, rtol=1e-09, atol=1e-09)
     assert result_df.loc[1, "Value_str"] == "NaN"
-    assert result_df.loc[2, "Value"] == -100.0
+    assert np.isclose(result_df.loc[2, "Value"], -100.0, rtol=1e-09, atol=1e-09)
     assert result_df.loc[2, "Value_str"] == "NaN"
     assert result_df.loc[3, "Value"] == -1
     assert result_df.loc[3, "Value_str"] == "Bad"
@@ -187,7 +187,7 @@ def test_null_values():
     separator = MixedTypeSeparation(df, "Value", placeholder=-1)
     result_df = separator.apply()
 
-    assert result_df.loc[0, "Value"] == 1.0
+    assert np.isclose(result_df.loc[0, "Value"], 1.0, rtol=1e-09, atol=1e-09)
     # None is not a non-numeric string, so it stays as-is
     assert pd.isna(result_df.loc[1, "Value"]) or result_df.loc[1, "Value"] is None
     assert result_df.loc[2, "Value"] == -1
@@ -203,7 +203,7 @@ def test_special_string_values():
     separator = MixedTypeSeparation(df, "Value", placeholder=-1)
     result_df = separator.apply()
 
-    assert result_df.loc[0, "Value"] == 1.0
+    assert np.isclose(result_df.loc[0, "Value"], 1.0, rtol=1e-09, atol=1e-09)
     # Empty string and whitespace are non-numeric strings
     assert result_df.loc[1, "Value"] == -1
     assert result_df.loc[1, "Value_str"] == ""
@@ -221,7 +221,7 @@ def test_does_not_modify_original():
     original_df = df.copy()
 
     separator = MixedTypeSeparation(df, "Value")
-    result_df = separator.apply()
+    separator.apply()
 
     pd.testing.assert_frame_equal(df, original_df)
     assert "Value_str" not in df.columns

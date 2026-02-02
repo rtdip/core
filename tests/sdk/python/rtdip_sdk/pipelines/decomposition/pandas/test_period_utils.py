@@ -26,10 +26,11 @@ class TestCalculatePeriodFromFrequency:
 
     def test_hourly_period_from_5_second_data(self):
         """Test calculating hourly period from 5-second sampling data."""
+        rng = np.random.default_rng(seed=42)
         # Create 5-second sampling data (1 day worth)
         n_samples = 24 * 60 * 12  # 24 hours * 60 min * 12 samples/min
         dates = pd.date_range("2024-01-01", periods=n_samples, freq="5s")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(n_samples)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(n_samples)})
 
         period = calculate_period_from_frequency(
             df=df, timestamp_column="timestamp", period_name="hourly"
@@ -40,9 +41,10 @@ class TestCalculatePeriodFromFrequency:
 
     def test_daily_period_from_5_second_data(self):
         """Test calculating daily period from 5-second sampling data."""
+        rng = np.random.default_rng(seed=42)
         n_samples = 3 * 24 * 60 * 12
         dates = pd.date_range("2024-01-01", periods=n_samples, freq="5s")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(n_samples)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(n_samples)})
 
         period = calculate_period_from_frequency(
             df=df, timestamp_column="timestamp", period_name="daily"
@@ -52,8 +54,9 @@ class TestCalculatePeriodFromFrequency:
 
     def test_weekly_period_from_daily_data(self):
         """Test calculating weekly period from daily data."""
+        rng = np.random.default_rng(seed=42)
         dates = pd.date_range("2024-01-01", periods=365, freq="D")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(365)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(365)})
 
         period = calculate_period_from_frequency(
             df=df, timestamp_column="timestamp", period_name="weekly"
@@ -63,8 +66,9 @@ class TestCalculatePeriodFromFrequency:
 
     def test_yearly_period_from_daily_data(self):
         """Test calculating yearly period from daily data."""
+        rng = np.random.default_rng(seed=42)
         dates = pd.date_range("2024-01-01", periods=365 * 3, freq="D")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(365 * 3)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(365 * 3)})
 
         period = calculate_period_from_frequency(
             df=df, timestamp_column="timestamp", period_name="yearly"
@@ -74,9 +78,10 @@ class TestCalculatePeriodFromFrequency:
 
     def test_insufficient_data_returns_none(self):
         """Test that insufficient data returns None."""
+        rng = np.random.default_rng(seed=42)
         # Only 10 samples at 1-second frequency - not enough for hourly (need 7200)
         dates = pd.date_range("2024-01-01", periods=10, freq="1s")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(10)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(10)})
 
         period = calculate_period_from_frequency(
             df=df, timestamp_column="timestamp", period_name="hourly"
@@ -86,9 +91,10 @@ class TestCalculatePeriodFromFrequency:
 
     def test_period_too_small_returns_none(self):
         """Test that period < 2 returns None."""
+        rng = np.random.default_rng(seed=42)
         # Hourly data trying to get minutely period (1 hour / 1 hour = 1)
         dates = pd.date_range("2024-01-01", periods=100, freq="H")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(100)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(100)})
 
         period = calculate_period_from_frequency(
             df=df, timestamp_column="timestamp", period_name="minutely"
@@ -98,13 +104,14 @@ class TestCalculatePeriodFromFrequency:
 
     def test_irregular_timestamps(self):
         """Test with irregular timestamps (uses median)."""
+        rng = np.random.default_rng(seed=42)
         dates = []
         current = pd.Timestamp("2024-01-01")
         for i in range(2000):
             dates.append(current)
             current += pd.Timedelta(seconds=5 if i % 2 == 0 else 10)
 
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(2000)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(2000)})
 
         period = calculate_period_from_frequency(
             df=df, timestamp_column="timestamp", period_name="hourly"
@@ -114,8 +121,9 @@ class TestCalculatePeriodFromFrequency:
 
     def test_invalid_period_name_raises_error(self):
         """Test that invalid period name raises ValueError."""
+        rng = np.random.default_rng(seed=42)
         dates = pd.date_range("2024-01-01", periods=100, freq="5s")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(100)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(100)})
 
         with pytest.raises(ValueError, match="Invalid period_name"):
             calculate_period_from_frequency(
@@ -124,7 +132,8 @@ class TestCalculatePeriodFromFrequency:
 
     def test_missing_timestamp_column_raises_error(self):
         """Test that missing timestamp column raises ValueError."""
-        df = pd.DataFrame({"value": np.random.randn(100)})
+        rng = np.random.default_rng(seed=42)
+        df = pd.DataFrame({"value": rng.standard_normal(100)})
 
         with pytest.raises(ValueError, match="not found in DataFrame"):
             calculate_period_from_frequency(
@@ -133,7 +142,8 @@ class TestCalculatePeriodFromFrequency:
 
     def test_non_datetime_column_raises_error(self):
         """Test that non-datetime timestamp column raises ValueError."""
-        df = pd.DataFrame({"timestamp": range(100), "value": np.random.randn(100)})
+        rng = np.random.default_rng(seed=42)
+        df = pd.DataFrame({"timestamp": range(100), "value": rng.standard_normal(100)})
 
         with pytest.raises(ValueError, match="must be datetime type"):
             calculate_period_from_frequency(
@@ -152,9 +162,10 @@ class TestCalculatePeriodFromFrequency:
 
     def test_min_cycles_parameter(self):
         """Test min_cycles parameter."""
+        rng = np.random.default_rng(seed=42)
         # 10 days of hourly data
         dates = pd.date_range("2024-01-01", periods=10 * 24, freq="H")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(10 * 24)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(10 * 24)})
 
         # Weekly period (168 hours) needs at least 2 weeks (336 hours)
         period = calculate_period_from_frequency(
@@ -174,10 +185,11 @@ class TestCalculatePeriodsFromFrequency:
 
     def test_multiple_periods(self):
         """Test calculating multiple periods at once."""
+        rng = np.random.default_rng(seed=42)
         # 30 days of 5-second data
         n_samples = 30 * 24 * 60 * 12
         dates = pd.date_range("2024-01-01", periods=n_samples, freq="5s")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(n_samples)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(n_samples)})
 
         periods = calculate_periods_from_frequency(
             df=df, timestamp_column="timestamp", period_names=["hourly", "daily"]
@@ -190,8 +202,9 @@ class TestCalculatePeriodsFromFrequency:
 
     def test_single_period_as_string(self):
         """Test passing single period name as string."""
+        rng = np.random.default_rng(seed=42)
         dates = pd.date_range("2024-01-01", periods=2000, freq="5s")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(2000)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(2000)})
 
         periods = calculate_periods_from_frequency(
             df=df, timestamp_column="timestamp", period_names="hourly"
@@ -202,9 +215,10 @@ class TestCalculatePeriodsFromFrequency:
 
     def test_excludes_invalid_periods(self):
         """Test that invalid periods are excluded from results."""
+        rng = np.random.default_rng(seed=42)
         # Short dataset - weekly won't work
         dates = pd.date_range("2024-01-01", periods=100, freq="H")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(100)})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(100)})
 
         periods = calculate_periods_from_frequency(
             df=df,
@@ -219,8 +233,9 @@ class TestCalculatePeriodsFromFrequency:
 
     def test_all_periods_available(self):
         """Test all supported period names."""
+        rng = np.random.default_rng(seed=42)
         dates = pd.date_range("2024-01-01", periods=3 * 365 * 24 * 60, freq="min")
-        df = pd.DataFrame({"timestamp": dates, "value": np.random.randn(len(dates))})
+        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(len(dates))})
 
         periods = calculate_periods_from_frequency(
             df=df,

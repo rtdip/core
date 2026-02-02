@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
+import numpy as np
 from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.pipelines.data_quality.data_manipulation.spark.mixed_type_separation import (
@@ -58,9 +59,9 @@ def test_all_numeric_values(spark):
 
     rows = result_df.orderBy("TagName").collect()
     assert all(row["Value_str"] == "NaN" for row in rows)
-    assert rows[0]["Value"] == 1.0
-    assert rows[1]["Value"] == 2.5
-    assert rows[2]["Value"] == 3.14
+    assert np.isclose(rows[0]["Value"], 1.0, rtol=1e-09, atol=1e-09)
+    assert np.isclose(rows[1]["Value"], 2.5, rtol=1e-09, atol=1e-09)
+    assert np.isclose(rows[2]["Value"], 3.14, rtol=1e-09, atol=1e-09)
 
 
 def test_all_string_values(spark):
@@ -75,7 +76,7 @@ def test_all_string_values(spark):
     assert rows[0]["Value_str"] == "Bad"
     assert rows[1]["Value_str"] == "Error"
     assert rows[2]["Value_str"] == "N/A"
-    assert all(row["Value"] == -1.0 for row in rows)
+    assert all(np.isclose(row["Value"], -1.0, rtol=1e-09, atol=1e-09) for row in rows)
 
 
 def test_mixed_values(spark):
@@ -88,13 +89,13 @@ def test_mixed_values(spark):
     result_df = separator.filter_data()
 
     rows = result_df.orderBy("TagName").collect()
-    assert rows[0]["Value"] == 3.14
+    assert np.isclose(rows[0]["Value"], 3.14, rtol=1e-09, atol=1e-09)
     assert rows[0]["Value_str"] == "NaN"
-    assert rows[1]["Value"] == -1.0
+    assert np.isclose(rows[1]["Value"], -1.0, rtol=1e-09, atol=1e-09)
     assert rows[1]["Value_str"] == "Bad"
-    assert rows[2]["Value"] == 100.0
+    assert np.isclose(rows[2]["Value"], 100.0, rtol=1e-09, atol=1e-09)
     assert rows[2]["Value_str"] == "NaN"
-    assert rows[3]["Value"] == -1.0
+    assert np.isclose(rows[3]["Value"], -1.0, rtol=1e-09, atol=1e-09)
     assert rows[3]["Value_str"] == "Error"
 
 
@@ -108,13 +109,13 @@ def test_numeric_strings(spark):
     result_df = separator.filter_data()
 
     rows = result_df.orderBy("TagName").collect()
-    assert rows[0]["Value"] == 3.14
+    assert np.isclose(rows[0]["Value"], 3.14, rtol=1e-09, atol=1e-09)
     assert rows[0]["Value_str"] == "NaN"
     assert abs(rows[1]["Value"] - 1e-5) < 1e-10
     assert rows[1]["Value_str"] == "NaN"
-    assert rows[2]["Value"] == -100.0
+    assert np.isclose(rows[2]["Value"], -100.0, rtol=1e-09, atol=1e-09)
     assert rows[2]["Value_str"] == "NaN"
-    assert rows[3]["Value"] == -1.0
+    assert np.isclose(rows[3]["Value"], -1.0, rtol=1e-09, atol=1e-09)
     assert rows[3]["Value_str"] == "Bad"
 
 
@@ -125,7 +126,7 @@ def test_custom_placeholder(spark):
     result_df = separator.filter_data()
 
     rows = result_df.orderBy("TagName").collect()
-    assert rows[1]["Value"] == -999.0
+    assert np.isclose(rows[1]["Value"], -999.0, rtol=1e-09, atol=1e-09)
 
 
 def test_custom_string_fill(spark):
@@ -177,9 +178,9 @@ def test_null_values(spark):
     result_df = separator.filter_data()
 
     rows = result_df.orderBy("TagName").collect()
-    assert rows[0]["Value"] == 1.0
+    assert np.isclose(rows[0]["Value"], 1.0, rtol=1e-09, atol=1e-09)
     assert rows[1]["Value"] is None or rows[1]["Value_str"] == "NaN"
-    assert rows[2]["Value"] == -1.0
+    assert np.isclose(rows[2]["Value"], -1.0, rtol=1e-09, atol=1e-09)
     assert rows[2]["Value_str"] == "Bad"
 
 
@@ -192,10 +193,10 @@ def test_special_string_values(spark):
     result_df = separator.filter_data()
 
     rows = result_df.orderBy("TagName").collect()
-    assert rows[0]["Value"] == 1.0
-    assert rows[1]["Value"] == -1.0
+    assert np.isclose(rows[0]["Value"], 1.0, rtol=1e-09, atol=1e-09)
+    assert np.isclose(rows[1]["Value"], -1.0, rtol=1e-09, atol=1e-09)
     assert rows[1]["Value_str"] == ""
-    assert rows[2]["Value"] == -1.0
+    assert np.isclose(rows[2]["Value"], -1.0, rtol=1e-09, atol=1e-09)
     assert rows[2]["Value_str"] == "  "
 
 
@@ -206,7 +207,7 @@ def test_integer_placeholder(spark):
     result_df = separator.filter_data()
 
     rows = result_df.orderBy("TagName").collect()
-    assert rows[1]["Value"] == -1.0
+    assert np.isclose(rows[1]["Value"], -1.0, rtol=1e-09, atol=1e-09)
 
 
 def test_system_type():

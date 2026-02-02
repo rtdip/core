@@ -113,7 +113,7 @@ class TestValidateDataframe:
     def test_none_dataframe(self):
         """Test error raised when DataFrame is None."""
         with pytest.raises(VisualizationDataError) as exc_info:
-            validate_dataframe(None, required_columns=["timestamp"])
+            validate_dataframe(None, required_columns=["timestamp"])  # type: ignore
         assert "is None" in str(exc_info.value)
 
     def test_empty_dataframe(self):
@@ -126,7 +126,7 @@ class TestValidateDataframe:
     def test_not_dataframe(self):
         """Test error raised when input is not a DataFrame."""
         with pytest.raises(VisualizationDataError) as exc_info:
-            validate_dataframe([1, 2, 3], required_columns=["timestamp"])
+            validate_dataframe([1, 2, 3], required_columns=["timestamp"])  # type: ignore
         assert "must be a pandas DataFrame" in str(exc_info.value)
 
     def test_optional_columns(self):
@@ -179,7 +179,7 @@ class TestCoerceNumeric:
         df = pd.DataFrame({"value": ["1.5", "2.5", "3.5"]})
         result = coerce_numeric(df, columns=["value"])
         assert pd.api.types.is_numeric_dtype(result["value"])
-        assert result["value"].iloc[0] == 1.5
+        assert np.isclose(result["value"].iloc[0], 1.5, rtol=1e-09, atol=1e-09)
 
     def test_already_numeric(self):
         """Test that numeric columns are unchanged."""
@@ -238,7 +238,7 @@ class TestPrepareDataframe:
         assert pd.api.types.is_datetime64_any_dtype(result["timestamp"])
         assert pd.api.types.is_numeric_dtype(result["value"])
 
-        assert result["value"].iloc[0] == 2.5
+        assert np.isclose(result["value"].iloc[0], 2.5, rtol=1e-09, atol=1e-09)
 
     def test_missing_column_error(self):
         """Test error when required column missing after mapping."""
@@ -291,16 +291,17 @@ class TestColumnMappingIntegration:
             ForecastPlot,
         )
 
+        rng = np.random.default_rng(seed=42)
         historical_df = pd.DataFrame(
             {
                 "time": pd.date_range("2024-01-01", periods=10, freq="h"),
-                "reading": np.random.randn(10),
+                "reading": rng.standard_normal(10),
             }
         )
         forecast_df = pd.DataFrame(
             {
                 "time": pd.date_range("2024-01-01T10:00:00", periods=5, freq="h"),
-                "prediction": np.random.randn(5),
+                "prediction": rng.standard_normal(5),
             }
         )
 
@@ -327,16 +328,17 @@ class TestColumnMappingIntegration:
             ForecastPlot,
         )
 
+        rng = np.random.default_rng(seed=42)
         historical_df = pd.DataFrame(
             {
                 "time": pd.date_range("2024-01-01", periods=10, freq="h"),
-                "reading": np.random.randn(10),
+                "reading": rng.standard_normal(10),
             }
         )
         forecast_df = pd.DataFrame(
             {
                 "time": pd.date_range("2024-01-01T10:00:00", periods=5, freq="h"),
-                "mean": np.random.randn(5),
+                "mean": rng.standard_normal(5),
             }
         )
 

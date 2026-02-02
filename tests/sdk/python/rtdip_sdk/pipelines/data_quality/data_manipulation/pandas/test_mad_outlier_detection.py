@@ -103,7 +103,7 @@ def test_replace_action():
     result_df = detector.apply()
 
     assert result_df["Value"].iloc[-1] == -1
-    assert result_df["Value"].iloc[0] == 10.0
+    assert result_df["Value"].iloc[0] == pytest.approx(10.0)
 
 
 def test_replace_action_default_nan():
@@ -208,7 +208,7 @@ def test_does_not_modify_original():
     original_df = df.copy()
 
     detector = MADOutlierDetection(df, "Value", action="replace", replacement_value=-1)
-    result_df = detector.apply()
+    detector.apply()
 
     pd.testing.assert_frame_equal(df, original_df)
 

@@ -80,6 +80,8 @@ class AutoGluonTimeSeries(MachineLearningInterface):
 
     """
 
+    _MODEL_NOT_TRAINED_ERROR = "Model has not been trained yet. Call train() first."
+
     def __init__(
         self,
         target_col: str = "target",
@@ -224,7 +226,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
             DataFrame: PySpark DataFrame with predictions added.
         """
         if self.predictor is None:
-            raise ValueError("Model has not been trained yet. Call train() first.")
+            raise ValueError(self._MODEL_NOT_TRAINED_ERROR)
         pred_data = self._prepare_timeseries_dataframe(prediction_df)
 
         predictions = self.predictor.predict(pred_data)
@@ -250,7 +252,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
                                        or None if evaluation fails.
         """
         if self.predictor is None:
-            raise ValueError("Model has not been trained yet. Call train() first.")
+            raise ValueError(self._MODEL_NOT_TRAINED_ERROR)
 
         test_data = self._prepare_timeseries_dataframe(test_df)
 
@@ -283,9 +285,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
                                    or None if no models have been trained.
         """
         if self.predictor is None:
-            raise ValueError(
-                "Error: Model has not been trained yet. Call train() first."
-            )
+            raise ValueError(self._MODEL_NOT_TRAINED_ERROR)
 
         return self.predictor.leaderboard()
 
@@ -312,7 +312,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
                     first_value = leaderboard.iloc[0, 0]
                     if isinstance(first_value, str):
                         return first_value
-            except (KeyError, IndexError) as e:
+            except (KeyError, IndexError):
                 pass
 
         return None
@@ -329,7 +329,7 @@ class AutoGluonTimeSeries(MachineLearningInterface):
             str: Path where the model is saved.
         """
         if self.predictor is None:
-            raise ValueError("Model has not been trained yet. Call train() first.")
+            raise ValueError(self._MODEL_NOT_TRAINED_ERROR)
 
         if path is None:
             return self.predictor.path

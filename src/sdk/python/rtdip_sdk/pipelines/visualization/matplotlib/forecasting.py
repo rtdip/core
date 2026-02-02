@@ -70,6 +70,12 @@ from ..validation import (
 
 warnings.filterwarnings("ignore")
 
+# Error message constants to avoid duplication
+_ERR_ACTUAL_EMPTY = "actual cannot be None or empty. Please provide actual values."
+_ERR_PREDICTED_EMPTY = "predicted cannot be None or empty. Please provide predicted values."
+_ERR_TIMESTAMPS_EMPTY = "timestamps cannot be None or empty. Please provide timestamps."
+_ERR_FORECAST_START_NONE = "forecast_start cannot be None. Please provide a valid timestamp."
+
 
 class ForecastPlot(MatplotlibVisualizationInterface):
     """
@@ -176,9 +182,7 @@ class ForecastPlot(MatplotlibVisualizationInterface):
         )
 
         if forecast_start is None:
-            raise VisualizationDataError(
-                "forecast_start cannot be None. Please provide a valid timestamp."
-            )
+            raise VisualizationDataError(_ERR_FORECAST_START_NONE)
         self.forecast_start = pd.to_datetime(forecast_start)
 
     def plot(self, ax: Optional[plt.Axes] = None) -> plt.Figure:
@@ -396,9 +400,7 @@ class ForecastComparisonPlot(MatplotlibVisualizationInterface):
         )
 
         if forecast_start is None:
-            raise VisualizationDataError(
-                "forecast_start cannot be None. Please provide a valid timestamp."
-            )
+            raise VisualizationDataError(_ERR_FORECAST_START_NONE)
         self.forecast_start = pd.to_datetime(forecast_start)
 
         check_data_overlap(
@@ -719,17 +721,11 @@ class ResidualPlot(MatplotlibVisualizationInterface):
         sensor_id: Optional[str] = None,
     ) -> None:
         if actual is None or len(actual) == 0:
-            raise VisualizationDataError(
-                "actual cannot be None or empty. Please provide actual values."
-            )
+            raise VisualizationDataError(_ERR_ACTUAL_EMPTY)
         if predicted is None or len(predicted) == 0:
-            raise VisualizationDataError(
-                "predicted cannot be None or empty. Please provide predicted values."
-            )
+            raise VisualizationDataError(_ERR_PREDICTED_EMPTY)
         if timestamps is None or len(timestamps) == 0:
-            raise VisualizationDataError(
-                "timestamps cannot be None or empty. Please provide timestamps."
-            )
+            raise VisualizationDataError(_ERR_TIMESTAMPS_EMPTY)
         if len(actual) != len(predicted) or len(actual) != len(timestamps):
             raise VisualizationDataError(
                 f"Length mismatch: actual ({len(actual)}), predicted ({len(predicted)}), "
@@ -868,13 +864,9 @@ class ErrorDistributionPlot(MatplotlibVisualizationInterface):
         bins: int = 30,
     ) -> None:
         if actual is None or len(actual) == 0:
-            raise VisualizationDataError(
-                "actual cannot be None or empty. Please provide actual values."
-            )
+            raise VisualizationDataError(_ERR_ACTUAL_EMPTY)
         if predicted is None or len(predicted) == 0:
-            raise VisualizationDataError(
-                "predicted cannot be None or empty. Please provide predicted values."
-            )
+            raise VisualizationDataError(_ERR_PREDICTED_EMPTY)
         if len(actual) != len(predicted):
             raise VisualizationDataError(
                 f"Length mismatch: actual ({len(actual)}) and predicted ({len(predicted)}) "
@@ -943,7 +935,7 @@ class ErrorDistributionPlot(MatplotlibVisualizationInterface):
             transform=self._ax.transAxes,
             verticalalignment="top",
             horizontalalignment="right",
-            bbox=dict(boxstyle="round", facecolor="white", alpha=0.8),
+            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
             fontsize=config.FONT_SIZES["annotation"],
         )
 
@@ -1024,13 +1016,9 @@ class ScatterPlot(MatplotlibVisualizationInterface):
         show_metrics: bool = True,
     ) -> None:
         if actual is None or len(actual) == 0:
-            raise VisualizationDataError(
-                "actual cannot be None or empty. Please provide actual values."
-            )
+            raise VisualizationDataError(_ERR_ACTUAL_EMPTY)
         if predicted is None or len(predicted) == 0:
-            raise VisualizationDataError(
-                "predicted cannot be None or empty. Please provide predicted values."
-            )
+            raise VisualizationDataError(_ERR_PREDICTED_EMPTY)
         if len(actual) != len(predicted):
             raise VisualizationDataError(
                 f"Length mismatch: actual ({len(actual)}) and predicted ({len(predicted)}) "
@@ -1107,7 +1095,7 @@ class ScatterPlot(MatplotlibVisualizationInterface):
                 metrics_text,
                 transform=self._ax.transAxes,
                 verticalalignment="top",
-                bbox=dict(boxstyle="round", facecolor="white", alpha=0.8),
+                bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
                 fontsize=config.FONT_SIZES["annotation"],
             )
 
@@ -1235,9 +1223,7 @@ class ForecastDashboard(MatplotlibVisualizationInterface):
         )
 
         if forecast_start is None:
-            raise VisualizationDataError(
-                "forecast_start cannot be None. Please provide a valid timestamp."
-            )
+            raise VisualizationDataError(_ERR_FORECAST_START_NONE)
         self.forecast_start = pd.to_datetime(forecast_start)
 
         check_data_overlap(
@@ -1284,6 +1270,7 @@ class ForecastDashboard(MatplotlibVisualizationInterface):
             self.actual_data[["timestamp", "value"]],
             on="timestamp",
             how="inner",
+            validate="1:1",
         )
 
         if len(merged) > 0:

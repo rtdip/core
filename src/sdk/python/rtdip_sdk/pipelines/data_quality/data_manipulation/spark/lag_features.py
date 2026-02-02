@@ -14,7 +14,7 @@
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
-from pyspark.sql.window import Window
+from pyspark.sql.window import Window, WindowSpec
 from typing import List, Optional
 from ..interfaces import DataManipulationBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
@@ -107,6 +107,46 @@ class LagFeatures(DataManipulationBaseInterface):
     def settings() -> dict:
         return {}
 
+    def _validate_inputs(self) -> None:
+        """Validates input parameters."""
+        if self.df is None:
+            raise ValueError("The DataFrame is None.")
+
+        if self.value_column not in self.df.columns:
+            raise ValueError(
+                f"Column '{self.value_column}' does not exist in the DataFrame."
+            )
+
+        self._validate_column_list(self.group_columns, "Group")
+        self._validate_column_list(self.order_by_columns, "Order by")
+
+        if not self.lags or any(lag <= 0 for lag in self.lags):
+            raise ValueError("Lags must be a non-empty list of positive integers.")
+
+    def _validate_column_list(self, columns: Optional[List[str]], column_type: str) -> None:
+        """Validates that columns exist in the DataFrame."""
+        if columns:
+            for col in columns:
+                if col not in self.df.columns:
+                    raise ValueError(
+                        f"{column_type} column '{col}' does not exist in the DataFrame."
+                    )
+
+    def _create_window_spec(self) -> WindowSpec:
+        """Creates the window specification based on group and order columns."""
+        if self.group_columns and self.order_by_columns:
+            return Window.partitionBy(
+                [F.col(c) for c in self.group_columns]
+            ).orderBy([F.col(c) for c in self.order_by_columns])
+        
+        if self.group_columns:
+            return Window.partitionBy([F.col(c) for c in self.group_columns])
+        
+        if self.order_by_columns:
+            return Window.orderBy([F.col(c) for c in self.order_by_columns])
+        
+        return Window.orderBy(F.monotonically_increasing_id())
+
     def filter_data(self) -> DataFrame:
         """
         Creates lag features for the specified value column.
@@ -117,44 +157,10 @@ class LagFeatures(DataManipulationBaseInterface):
         Raises:
             ValueError: If the DataFrame is None, columns don't exist, or lags are invalid.
         """
-        if self.df is None:
-            raise ValueError("The DataFrame is None.")
-
-        if self.value_column not in self.df.columns:
-            raise ValueError(
-                f"Column '{self.value_column}' does not exist in the DataFrame."
-            )
-
-        if self.group_columns:
-            for col in self.group_columns:
-                if col not in self.df.columns:
-                    raise ValueError(
-                        f"Group column '{col}' does not exist in the DataFrame."
-                    )
-
-        if self.order_by_columns:
-            for col in self.order_by_columns:
-                if col not in self.df.columns:
-                    raise ValueError(
-                        f"Order by column '{col}' does not exist in the DataFrame."
-                    )
-
-        if not self.lags or any(lag <= 0 for lag in self.lags):
-            raise ValueError("Lags must be a non-empty list of positive integers.")
-
+        self._validate_inputs()
+        
         result_df = self.df
-
-        # Define window specification
-        if self.group_columns and self.order_by_columns:
-            window_spec = Window.partitionBy(
-                [F.col(c) for c in self.group_columns]
-            ).orderBy([F.col(c) for c in self.order_by_columns])
-        elif self.group_columns:
-            window_spec = Window.partitionBy([F.col(c) for c in self.group_columns])
-        elif self.order_by_columns:
-            window_spec = Window.orderBy([F.col(c) for c in self.order_by_columns])
-        else:
-            window_spec = Window.orderBy(F.monotonically_increasing_id())
+        window_spec = self._create_window_spec()
 
         # Create lag columns
         for lag in self.lags:
