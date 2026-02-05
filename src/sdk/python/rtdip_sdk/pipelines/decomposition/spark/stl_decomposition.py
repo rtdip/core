@@ -294,6 +294,9 @@ class STLDecomposition(DecompositionBaseInterface):
             result_pdf = self._decompose_single_group(pdf)
 
         # Convert back to PySpark DataFrame
+        # Ensure datetime columns have explicit dtype for compatibility with newer pandas/pyspark
+        for col in result_pdf.select_dtypes(include=["datetime64"]).columns:
+            result_pdf[col] = result_pdf[col].astype("datetime64[ns]")
         result_df = self.df.sql_ctx.createDataFrame(result_pdf)
 
         return result_df

@@ -234,7 +234,11 @@ class MadAnomalyDetection(AnomalyDetectionInterface):
         pdf["mad_zscore"] = scores
         pdf["is_anomaly"] = self.scorer.is_anomaly(scores)
 
-        return df.sparkSession.createDataFrame(pdf[pdf["is_anomaly"]].copy())
+        # Ensure datetime columns have explicit dtype for compatibility with newer pandas/pyspark
+        result_pdf = pdf[pdf["is_anomaly"]].copy()
+        for col in result_pdf.select_dtypes(include=["datetime64"]).columns:
+            result_pdf[col] = result_pdf[col].astype("datetime64[ns]")
+        return df.sparkSession.createDataFrame(result_pdf)
 
 
 class DecompositionMadAnomalyDetection(AnomalyDetectionInterface):
@@ -391,4 +395,8 @@ class DecompositionMadAnomalyDetection(AnomalyDetectionInterface):
         pdf["mad_zscore"] = scores
         pdf["is_anomaly"] = self.scorer.is_anomaly(scores)
 
-        return df.sparkSession.createDataFrame(pdf[pdf["is_anomaly"]].copy())
+        # Ensure datetime columns have explicit dtype for compatibility with newer pandas/pyspark
+        result_pdf = pdf[pdf["is_anomaly"]].copy()
+        for col in result_pdf.select_dtypes(include=["datetime64"]).columns:
+            result_pdf[col] = result_pdf[col].astype("datetime64[ns]")
+        return df.sparkSession.createDataFrame(result_pdf)
