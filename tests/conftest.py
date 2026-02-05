@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 import pytest
 import os
 import shutil
+import pandas as pd
 
 from src.sdk.python.rtdip_sdk.connectors.grpc.spark_connector import SparkConnection
 from src.sdk.python.rtdip_sdk.pipelines.destinations import *  # NOSONAR
@@ -33,6 +34,23 @@ SPARK_TESTING_CONFIGURATION = {
 }
 
 datetime_format = "%Y-%m-%dT%H:%M:%S.%f000Z"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def patch_pandas_for_pyspark_compatibility():
+    """Patch pandas DataFrame.iteritems for compatibility with older PySpark versions."""
+    try:
+        # Check if pandas is 2.0+ and PySpark is < 3.4.0
+        import pandas
+        from packaging.version import Version
+
+        if Version(pandas.__version__) >= Version("2.0.0"):
+            # Add iteritems as an alias to items for backward compatibility
+            if not hasattr(pd.DataFrame, "iteritems"):
+                pd.DataFrame.iteritems = pd.DataFrame.items
+    except:
+        pass
+    yield
 
 
 @pytest.fixture(scope="session")

@@ -184,9 +184,11 @@ class SelectColumnsByCorrelation(PandasDataManipulationBaseInterface):
         target_corr = corr[self.target_col_name]
         filtered_corr = target_corr[target_corr.abs() >= self.correlation_threshold]
 
-        columns = []
-        columns.extend(self.columns_to_keep)
-        columns.extend(filtered_corr.keys())
+        # Use a list to maintain order, but avoid duplicates
+        columns = list(self.columns_to_keep)
+        for col in filtered_corr.keys():
+            if col not in columns:
+                columns.append(col)
 
         result_df = self.df.copy()
         result_df = result_df[columns]

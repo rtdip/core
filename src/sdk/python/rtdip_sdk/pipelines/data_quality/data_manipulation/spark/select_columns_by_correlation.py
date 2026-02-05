@@ -93,8 +93,12 @@ class SelectColumnsByCorrelation(DataManipulationBaseInterface):
         self.columns_to_keep = columns_to_keep
         self.target_col_name = target_col_name
         self.correlation_threshold = correlation_threshold
+        # Convert to pandas and ensure datetime columns are in ns precision
+        pdf = df.toPandas()
+        for col in pdf.select_dtypes(include=["datetime64"]).columns:
+            pdf[col] = pdf[col].astype("datetime64[ns]")
         self.pandas_SelectColumnsByCorrelation = PandasSelectColumnsByCorrelation(
-            df.toPandas(), columns_to_keep, target_col_name, correlation_threshold
+            pdf, columns_to_keep, target_col_name, correlation_threshold
         )
 
     @staticmethod
