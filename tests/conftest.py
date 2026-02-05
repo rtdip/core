@@ -28,6 +28,8 @@ SPARK_TESTING_CONFIGURATION = {
     "spark.sql.shuffle.partitions": "4",
     "spark.app.name": "test_app",
     "spark.master": "local[*]",
+    "spark.sql.execution.arrow.pyspark.enabled": "true",
+    "spark.sql.execution.arrow.pyspark.fallback.enabled": "true",
 }
 
 datetime_format = "%Y-%m-%dT%H:%M:%S.%f000Z"
