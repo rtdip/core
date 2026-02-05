@@ -87,7 +87,6 @@ class PolynomialFeatures(TransformerInterface):
         return True
 
     def transform(self):
-
         self.pre_transform_validation()
 
         temp_col = (

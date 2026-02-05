@@ -19,7 +19,6 @@ from ..interfaces import PipelineComponentBaseInterface
 
 
 class AnomalyDetectionInterface(PipelineComponentBaseInterface):
-
     @abstractmethod
     def __init__(self):
         pass

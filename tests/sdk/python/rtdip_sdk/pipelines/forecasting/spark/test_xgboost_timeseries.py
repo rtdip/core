@@ -418,7 +418,9 @@ def test_insufficient_data(spark_session):
     try:
         xgb.train(minimal_data)
         # If it succeeds, should have a trained model
-        assert xgb.model is not None, "Model should be trained if no exception is raised"
+        assert (
+            xgb.model is not None
+        ), "Model should be trained if no exception is raised"
     except (ValueError, Exception) as e:
         assert (
             "insufficient" in str(e).lower()

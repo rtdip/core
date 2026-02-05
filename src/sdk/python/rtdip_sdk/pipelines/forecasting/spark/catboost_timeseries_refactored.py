@@ -172,7 +172,9 @@ class CatBoostTimeSeries(MachineLearningInterface):
 
         pdf = train_df.toPandas()
         logging.info(
-            "Training data: %s rows, %s sensors", len(pdf), pdf[self.item_id_col].nunique()
+            "Training data: %s rows, %s sensors",
+            len(pdf),
+            pdf[self.item_id_col].nunique(),
         )
 
         pdf = self._engineer_features(pdf)

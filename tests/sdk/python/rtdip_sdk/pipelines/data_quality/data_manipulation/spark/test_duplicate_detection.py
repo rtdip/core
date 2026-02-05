@@ -129,7 +129,6 @@ def test_duplicate_detection_large_data_set(spark_session: SparkSession):
 
 
 def test_duplicate_detection_wrong_datatype(spark_session: SparkSession):
-
     expected_schema = StructType(
         [
             StructField("TagName", StringType(), True),

@@ -72,9 +72,13 @@ warnings.filterwarnings("ignore")
 
 # Error message constants to avoid duplication
 _ERR_ACTUAL_EMPTY = "actual cannot be None or empty. Please provide actual values."
-_ERR_PREDICTED_EMPTY = "predicted cannot be None or empty. Please provide predicted values."
+_ERR_PREDICTED_EMPTY = (
+    "predicted cannot be None or empty. Please provide predicted values."
+)
 _ERR_TIMESTAMPS_EMPTY = "timestamps cannot be None or empty. Please provide timestamps."
-_ERR_FORECAST_START_NONE = "forecast_start cannot be None. Please provide a valid timestamp."
+_ERR_FORECAST_START_NONE = (
+    "forecast_start cannot be None. Please provide a valid timestamp."
+)
 
 
 class ForecastPlot(MatplotlibVisualizationInterface):

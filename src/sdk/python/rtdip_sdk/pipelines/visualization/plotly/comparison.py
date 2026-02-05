@@ -48,6 +48,7 @@ from ..interfaces import PlotlyVisualizationInterface
 # Constants
 HTML_EXTENSION = ".html"
 
+
 class ModelComparisonPlotInteractive(PlotlyVisualizationInterface):
     """
     Create interactive bar chart comparing model performance across metrics.

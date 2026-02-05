@@ -150,9 +150,9 @@ class RollingStatistics(DataManipulationBaseInterface):
     def _build_window_spec(self):
         """Builds the window specification based on group and order columns."""
         if self.group_columns and self.order_by_columns:
-            return Window.partitionBy(
-                [F.col(c) for c in self.group_columns]
-            ).orderBy([F.col(c) for c in self.order_by_columns])
+            return Window.partitionBy([F.col(c) for c in self.group_columns]).orderBy(
+                [F.col(c) for c in self.order_by_columns]
+            )
         elif self.group_columns:
             return Window.partitionBy([F.col(c) for c in self.group_columns])
         elif self.order_by_columns:

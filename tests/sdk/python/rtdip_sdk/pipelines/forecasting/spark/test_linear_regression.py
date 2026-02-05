@@ -217,7 +217,6 @@ def test_dataframe_validation(sample_data):
 
 
 def test_invalid_data_handling(spark):
-
     data = [
         ("A2PS64V0J.:ZUX09R", "invalid_date", "Good", "invalid_value"),
         ("A2PS64V0J.:ZUX09R", "2024-01-02 20:03:46.000", "Good", "NaN"),

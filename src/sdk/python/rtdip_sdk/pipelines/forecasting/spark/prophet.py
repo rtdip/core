@@ -97,7 +97,6 @@ class ProphetForecaster(MachineLearningInterface):
         seasonality_prior_scale: float = 10,
         scaling: str = "absmax",  # can be "absmax" or "minmax"
     ) -> None:
-
         self.use_only_timestamp_and_target = use_only_timestamp_and_target
         self.target_col = target_col
         self.timestamp_col = timestamp_col

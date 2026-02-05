@@ -115,7 +115,6 @@ class OneHotEncoding(TransformerInterface):
             raise ValueError("The transformed DataFrame is empty.")
 
     def transform(self) -> PySparkDataFrame:
-
         self.pre_transform_validation()
 
         if not self.values:

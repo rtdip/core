@@ -125,7 +125,6 @@ class GaussianSmoothing(DataManipulationBaseInterface):
         return apply_gaussian
 
     def filter_data(self) -> PySparkDataFrame:
-
         smooth_udf = F.udf(self.create_gaussian_smoother(self.sigma), FloatType())
 
         if self.mode == "temporal":

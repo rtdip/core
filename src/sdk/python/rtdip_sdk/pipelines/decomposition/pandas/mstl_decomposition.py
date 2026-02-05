@@ -131,7 +131,9 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
         if not self.periods_input:
             raise ValueError("At least one period must be specified")
 
-    def _resolve_single_period(self, period_spec: Union[int, str], group_df: PandasDataFrame) -> int:
+    def _resolve_single_period(
+        self, period_spec: Union[int, str], group_df: PandasDataFrame
+    ) -> int:
         """
         Resolve a single period specification to an integer value.
 
@@ -156,7 +158,9 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
                 f"Period must be int or str, got {type(period_spec).__name__}"
             )
 
-    def _resolve_string_period(self, period_spec: str, group_df: PandasDataFrame) -> int:
+    def _resolve_string_period(
+        self, period_spec: str, group_df: PandasDataFrame
+    ) -> int:
         """Resolve a string period specification."""
         if not self.timestamp_column:
             raise ValueError(
@@ -182,12 +186,12 @@ class MSTLDecomposition(PandasDecompositionBaseInterface):
     def _resolve_integer_period(self, period_spec: int) -> int:
         """Resolve an integer period specification."""
         if period_spec < 2:
-            raise ValueError(
-                f"All periods must be at least 2, got {period_spec}"
-            )
+            raise ValueError(f"All periods must be at least 2, got {period_spec}")
         return period_spec
 
-    def _validate_periods_and_windows(self, resolved_periods: List[int], group_df: PandasDataFrame):
+    def _validate_periods_and_windows(
+        self, resolved_periods: List[int], group_df: PandasDataFrame
+    ):
         """Validate resolved periods and windows."""
         max_period = max(resolved_periods)
         if len(group_df) < 2 * max_period:

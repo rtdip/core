@@ -86,7 +86,6 @@ class IdentifyMissingDataInterval(MonitoringBaseInterface, InputValidator):
         mad_multiplier: float = 3,
         min_tolerance: str = "10ms",
     ) -> None:
-
         self.df = df
         self.interval = interval
         self.tolerance = tolerance

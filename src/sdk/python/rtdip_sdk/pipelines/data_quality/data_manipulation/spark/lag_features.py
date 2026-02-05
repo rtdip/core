@@ -123,7 +123,9 @@ class LagFeatures(DataManipulationBaseInterface):
         if not self.lags or any(lag <= 0 for lag in self.lags):
             raise ValueError("Lags must be a non-empty list of positive integers.")
 
-    def _validate_column_list(self, columns: Optional[List[str]], column_type: str) -> None:
+    def _validate_column_list(
+        self, columns: Optional[List[str]], column_type: str
+    ) -> None:
         """Validates that columns exist in the DataFrame."""
         if columns:
             for col in columns:
@@ -135,16 +137,16 @@ class LagFeatures(DataManipulationBaseInterface):
     def _create_window_spec(self) -> WindowSpec:
         """Creates the window specification based on group and order columns."""
         if self.group_columns and self.order_by_columns:
-            return Window.partitionBy(
-                [F.col(c) for c in self.group_columns]
-            ).orderBy([F.col(c) for c in self.order_by_columns])
-        
+            return Window.partitionBy([F.col(c) for c in self.group_columns]).orderBy(
+                [F.col(c) for c in self.order_by_columns]
+            )
+
         if self.group_columns:
             return Window.partitionBy([F.col(c) for c in self.group_columns])
-        
+
         if self.order_by_columns:
             return Window.orderBy([F.col(c) for c in self.order_by_columns])
-        
+
         return Window.orderBy(F.monotonically_increasing_id())
 
     def filter_data(self) -> DataFrame:
@@ -158,7 +160,7 @@ class LagFeatures(DataManipulationBaseInterface):
             ValueError: If the DataFrame is None, columns don't exist, or lags are invalid.
         """
         self._validate_inputs()
-        
+
         result_df = self.df
         window_spec = self._create_window_spec()
 

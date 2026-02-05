@@ -235,7 +235,9 @@ class TestCalculatePeriodsFromFrequency:
         """Test all supported period names."""
         rng = np.random.default_rng(seed=42)
         dates = pd.date_range("2024-01-01", periods=3 * 365 * 24 * 60, freq="min")
-        df = pd.DataFrame({"timestamp": dates, "value": rng.standard_normal(len(dates))})
+        df = pd.DataFrame(
+            {"timestamp": dates, "value": rng.standard_normal(len(dates))}
+        )
 
         periods = calculate_periods_from_frequency(
             df=df,

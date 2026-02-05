@@ -107,7 +107,6 @@ def test_missing_intervals_with_given_interval_multiple_tags(spark, caplog):
 
 
 def test_missing_intervals_with_calculated_interval(spark, caplog):
-
     df = spark.createDataFrame(
         [
             ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),
@@ -155,7 +154,6 @@ def test_missing_intervals_with_calculated_interval(spark, caplog):
 
 
 def test_no_missing_intervals(spark, caplog):
-
     df = spark.createDataFrame(
         [
             ("A2PS64V0J.:ZUX09R", "2024-01-02 00:00:00.000", "Good", "0.129999995"),

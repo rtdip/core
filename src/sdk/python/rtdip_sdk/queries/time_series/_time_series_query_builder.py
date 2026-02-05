@@ -319,7 +319,6 @@ def _build_summary_query(
     include_bad_data=None,
     case_insensitivity_tag_search=None,
 ):
-
     # Select
     summary_query_sql = f"{sql_query_name} AS (SELECT `{tagname_column}`, "
     summary_query_sql = " ".join(
@@ -491,7 +490,6 @@ def _build_output_query(sql_query_list, to_json, limit, offset):
 
 
 def _raw_query(parameters_dict: dict) -> str:
-
     sql_query_list = []
 
     raw_parameters = {
@@ -669,7 +667,6 @@ def _sample_query_parameters(parameters_dict: dict) -> dict:
 
 
 def _sample_query(parameters_dict: dict) -> str:
-
     sample_parameters = _sample_query_parameters(parameters_dict)
 
     sql_query_list = []
@@ -906,7 +903,6 @@ def _plot_query_parameters(parameters_dict: dict) -> dict:
 
 
 def _interpolation_query(parameters_dict: dict) -> str:
-
     parameters_dict["agg_method"] = None
 
     interpolate_parameters = _sample_query_parameters(parameters_dict)
@@ -1043,7 +1039,6 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
 
 def _plot_query(parameters_dict: dict) -> str:
-
     plot_parameters = _plot_query_parameters(parameters_dict)
 
     sql_query_list = []

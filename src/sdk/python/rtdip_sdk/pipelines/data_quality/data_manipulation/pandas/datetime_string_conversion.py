@@ -122,7 +122,9 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
             )
         return ~mask_trailing_zeros
 
-    def _parse_with_formats(self, s: pd.Series, result: pd.Series, remaining: pd.Series) -> None:
+    def _parse_with_formats(
+        self, s: pd.Series, result: pd.Series, remaining: pd.Series
+    ) -> None:
         """Try parsing with each configured format."""
         for fmt in self.formats:
             still_nat = result.isna() & remaining
@@ -133,7 +135,8 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
                 parsed = pd.to_datetime(s.loc[still_nat], format=fmt, errors="coerce")
                 successfully_parsed = ~parsed.isna()
                 result.loc[
-                    still_nat & successfully_parsed.reindex(still_nat.index, fill_value=False)
+                    still_nat
+                    & successfully_parsed.reindex(still_nat.index, fill_value=False)
                 ] = parsed[successfully_parsed]
             except (ValueError, TypeError):
                 continue
@@ -143,7 +146,9 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
         still_nat = result.isna()
         if still_nat.any():
             try:
-                parsed = pd.to_datetime(s.loc[still_nat], format="ISO8601", errors="coerce")
+                parsed = pd.to_datetime(
+                    s.loc[still_nat], format="ISO8601", errors="coerce"
+                )
                 result.loc[still_nat] = parsed
             except (ValueError, TypeError):
                 pass
@@ -151,7 +156,9 @@ class DatetimeStringConversion(PandasDataManipulationBaseInterface):
         still_nat = result.isna()
         if still_nat.any():
             try:
-                parsed = pd.to_datetime(s.loc[still_nat], format="mixed", errors="coerce")
+                parsed = pd.to_datetime(
+                    s.loc[still_nat], format="mixed", errors="coerce"
+                )
                 result.loc[still_nat] = parsed
             except (ValueError, TypeError):
                 pass

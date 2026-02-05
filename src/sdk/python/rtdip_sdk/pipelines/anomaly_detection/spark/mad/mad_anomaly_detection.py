@@ -347,7 +347,6 @@ class DecompositionMadAnomalyDetection(AnomalyDetectionInterface):
         """
 
         if self.decomposition == "stl":
-
             return STLDecomposition(
                 df=df,
                 value_column=self.value_column,
@@ -357,7 +356,6 @@ class DecompositionMadAnomalyDetection(AnomalyDetectionInterface):
             ).decompose()
 
         elif self.decomposition == "mstl":
-
             return MSTLDecomposition(
                 df=df,
                 value_column=self.value_column,
@@ -385,7 +383,7 @@ class DecompositionMadAnomalyDetection(AnomalyDetectionInterface):
                 - `mad_zscore`: MAD-based anomaly score computed on `residual`.
                 - `is_anomaly`: Boolean anomaly flag.
         """
-        
+
         decomposed_df = self._decompose(df)
         pdf = decomposed_df.toPandas().sort_values(self.timestamp_column)
 

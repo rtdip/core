@@ -36,7 +36,6 @@ def spark_session():
 
 
 def test_missing_value_imputation(spark_session: SparkSession):
-
     schema = StructType(
         [
             StructField("TagName", StringType(), True),
@@ -294,7 +293,6 @@ def test_missing_value_imputation(spark_session: SparkSession):
     def assert_dataframe_similar(
         expected_df, actual_df, tolerance=1e-4, time_tolerance_seconds=5
     ):
-
         expected_df = expected_df.orderBy(["TagName", "EventTime"])
         actual_df = actual_df.orderBy(["TagName", "EventTime"])
 
@@ -371,7 +369,6 @@ def test_missing_value_imputation_large_data_set(spark_session: SparkSession):
 
 
 def test_missing_value_imputation_wrong_datatype(spark_session: SparkSession):
-
     expected_schema = StructType(
         [
             StructField("TagName", StringType(), True),

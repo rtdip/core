@@ -366,7 +366,6 @@ def test_single_column_prediction_arima(spark_session: SparkSession, historic_da
 def test_single_column_prediction_auto_arima(
     spark_session: SparkSession, historic_data
 ):
-
     schema = StructType(
         [
             StructField("TagName", StringType(), True),
@@ -413,7 +412,6 @@ def test_single_column_prediction_auto_arima(
 def test_column_based_prediction_arima(
     spark_session: SparkSession, column_based_synthetic_data
 ):
-
     schema = StructType(
         [
             StructField("PrimarySource", StringType(), True),
@@ -485,7 +483,6 @@ def test_arima_large_data_set(spark_session: SparkSession):
 
 
 def test_arima_wrong_datatype(spark_session: SparkSession):
-
     expected_schema = StructType(
         [
             StructField("TagName", StringType(), True),

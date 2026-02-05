@@ -130,7 +130,8 @@ class NormalizationBaseClass(DataManipulationBaseInterface, InputValidator):
 
     @property
     @abstractmethod
-    def NORMALIZED_COLUMN_NAME(self): ...
+    def NORMALIZED_COLUMN_NAME(self):
+        ...
 
     @abstractmethod
     def _normalize_column(self, df: PySparkDataFrame, column: str) -> PySparkDataFrame:

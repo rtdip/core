@@ -575,9 +575,7 @@ class MSTLDecompositionPlotInteractive(PlotlyVisualizationInterface):
 
         plot_title = self.title
         if plot_title is None:
-            pattern_str = (
-                f"{len(self._seasonal_columns)} seasonal pattern{'s' if len(self._seasonal_columns) > 1 else ''}"
-            )
+            pattern_str = f"{len(self._seasonal_columns)} seasonal pattern{'s' if len(self._seasonal_columns) > 1 else ''}"
             if self.sensor_id:
                 plot_title = f"MSTL Decomposition ({pattern_str}) - {self.sensor_id}"
             else:
@@ -945,12 +943,12 @@ class DecompositionDashboardInteractive(PlotlyVisualizationInterface):
                     "fill_color": [
                         ["white"] * len(cell_values[0]),
                         ["white"] * len(cell_values[1]),
-                        ["white"] * len(cell_values[2])
+                        ["white"] * len(cell_values[2]),
                     ],
                     "font": {"size": 11},
                     "align": "center",
                     "height": 25,
-                }
+                },
             ),
             row=3,
             col=2,

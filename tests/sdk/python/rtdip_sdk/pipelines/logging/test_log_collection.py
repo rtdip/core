@@ -122,7 +122,6 @@ def test_unique_dataframes(spark, caplog):
 
 
 def test_file_logging(spark, caplog):
-
     log_collector = RuntimeLogCollector(spark)
     df = spark.createDataFrame(
         [

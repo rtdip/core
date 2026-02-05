@@ -110,7 +110,6 @@ class DropByNaNPercentage(PandasDataManipulationBaseInterface):
         if self.nan_threshold < 1e-10:
             cols_to_drop = result_df.columns[result_df.isna().any()].tolist()
         else:
-
             row_count = len(self.df.index)
             nan_ratio = self.df.isna().sum() / row_count
             cols_to_drop = nan_ratio[nan_ratio >= self.nan_threshold].index.tolist()

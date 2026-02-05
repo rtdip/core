@@ -97,7 +97,6 @@ class IdentifyMissingDataPattern(MonitoringBaseInterface, InputValidator):
         frequency: str = "minutely",
         tolerance: str = "10ms",
     ) -> None:
-
         self.df = df
         self.patterns = patterns
         self.frequency = frequency.lower()

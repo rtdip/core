@@ -147,7 +147,9 @@ class MSTLDecomposition(DecompositionBaseInterface):
     def settings() -> dict:
         return {}
 
-    def _resolve_single_period(self, period_spec: Union[int, str], group_pdf: pd.DataFrame) -> int:
+    def _resolve_single_period(
+        self, period_spec: Union[int, str], group_pdf: pd.DataFrame
+    ) -> int:
         """
         Resolve a single period specification to an integer value.
 
@@ -198,12 +200,12 @@ class MSTLDecomposition(DecompositionBaseInterface):
     def _resolve_integer_period(self, period_spec: int) -> int:
         """Resolve an integer period specification."""
         if period_spec < 2:
-            raise ValueError(
-                f"All periods must be at least 2, got {period_spec}"
-            )
+            raise ValueError(f"All periods must be at least 2, got {period_spec}")
         return period_spec
 
-    def _validate_periods(self, resolved_periods: List[int], group_pdf: pd.DataFrame) -> None:
+    def _validate_periods(
+        self, resolved_periods: List[int], group_pdf: pd.DataFrame
+    ) -> None:
         """Validate resolved periods against data length and windows."""
         max_period = max(resolved_periods)
         if len(group_pdf) < 2 * max_period:

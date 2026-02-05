@@ -63,7 +63,6 @@ def parse_batch_requests(requests):
 
     parsed_requests = []
     for request in requests:
-
         # If required, combine request body and parameters:
         parameters = request["params"]
         if request["method"] == "POST":
@@ -117,7 +116,6 @@ def run_direct_or_lookup(func_name, connection, parameters):
 async def batch_events_get(
     base_query_parameters, base_headers, batch_query_parameters, limit_offset_parameters
 ):
-
     try:
         # Set up connection
         (connection, parameters) = common_api_setup_tasks(
