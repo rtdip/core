@@ -2,6 +2,7 @@ from ..interfaces import DataManipulationBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 from pyspark.sql import DataFrame
 from pandas import DataFrame as PandasDataFrame
+from ....._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 
 from ..pandas.select_columns_by_correlation import (
     SelectColumnsByCorrelation as PandasSelectColumnsByCorrelation,
@@ -155,5 +156,6 @@ class SelectColumnsByCorrelation(DataManipulationBaseInterface):
         # Ensure datetime columns have explicit dtype for compatibility with newer pandas/pyspark
         for col in result_pdf.select_dtypes(include=["datetime64"]).columns:
             result_pdf[col] = result_pdf[col].astype("datetime64[ns]")
+        result_pdf = _prepare_pandas_to_convert_to_spark(result_pdf)
         result_df = spark.createDataFrame(result_pdf)
         return result_df

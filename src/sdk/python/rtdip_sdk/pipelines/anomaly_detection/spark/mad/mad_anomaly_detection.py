@@ -23,6 +23,7 @@ from ...._pipeline_utils.models import (
 )
 
 from ...interfaces import AnomalyDetectionInterface
+from ....._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 from ....decomposition.spark.stl_decomposition import STLDecomposition
 from ....decomposition.spark.mstl_decomposition import MSTLDecomposition
 
@@ -238,6 +239,7 @@ class MadAnomalyDetection(AnomalyDetectionInterface):
         result_pdf = pdf[pdf["is_anomaly"]].copy()
         for col in result_pdf.select_dtypes(include=["datetime64"]).columns:
             result_pdf[col] = result_pdf[col].astype("datetime64[ns]")
+        result_pdf = _prepare_pandas_to_convert_to_spark(result_pdf)
         return df.sparkSession.createDataFrame(result_pdf)
 
 
@@ -399,4 +401,5 @@ class DecompositionMadAnomalyDetection(AnomalyDetectionInterface):
         result_pdf = pdf[pdf["is_anomaly"]].copy()
         for col in result_pdf.select_dtypes(include=["datetime64"]).columns:
             result_pdf[col] = result_pdf[col].astype("datetime64[ns]")
+        result_pdf = _prepare_pandas_to_convert_to_spark(result_pdf)
         return df.sparkSession.createDataFrame(result_pdf)

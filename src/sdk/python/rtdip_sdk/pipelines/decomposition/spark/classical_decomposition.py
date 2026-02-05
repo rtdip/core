@@ -19,6 +19,7 @@ import pandas as pd
 from ..interfaces import DecompositionBaseInterface
 from ..._pipeline_utils.models import Libraries, SystemType
 from ..pandas.period_utils import calculate_period_from_frequency
+from ...._sdk_utils.pandas import _prepare_pandas_to_convert_to_spark
 
 
 class ClassicalDecomposition(DecompositionBaseInterface):
@@ -294,6 +295,7 @@ class ClassicalDecomposition(DecompositionBaseInterface):
         # Ensure datetime columns have explicit dtype for compatibility with newer pandas/pyspark
         for col in result_pdf.select_dtypes(include=["datetime64"]).columns:
             result_pdf[col] = result_pdf[col].astype("datetime64[ns]")
+        result_pdf = _prepare_pandas_to_convert_to_spark(result_pdf)
         result_df = self.df.sql_ctx.createDataFrame(result_pdf)
 
         return result_df
