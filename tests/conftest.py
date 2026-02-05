@@ -14,7 +14,6 @@ from datetime import datetime, timezone
 import pytest
 import os
 import shutil
-from pyspark.sql import SparkSession
 
 from src.sdk.python.rtdip_sdk.connectors.grpc.spark_connector import SparkConnection
 from src.sdk.python.rtdip_sdk.pipelines.destinations import *  # NOSONAR
@@ -36,13 +35,7 @@ datetime_format = "%Y-%m-%dT%H:%M:%S.%f000Z"
 
 @pytest.fixture(scope="session")
 def spark_session():
-    # Create Spark session directly without SparkSessionUtility to avoid
-    # auto-detecting Delta Lake and other dependencies from imported modules
-    builder = SparkSession.builder
-    for key, value in SPARK_TESTING_CONFIGURATION.items():
-        builder = builder.config(key, value)
-    spark = builder.getOrCreate()
-
+    spark = SparkSessionUtility(SPARK_TESTING_CONFIGURATION.copy()).execute()
     path = spark.conf.get("spark.sql.warehouse.dir")
     prefix = "file:"
     if path.startswith(prefix):
@@ -79,7 +72,7 @@ def spark_connection(spark_session: SparkSession):
         },
     ]
     df = spark_session.createDataFrame(data)
-    df.write.mode("overwrite").saveAsTable(table_name)
+    df.write.format("delta").mode("overwrite").saveAsTable(table_name)
     return SparkConnection(spark=spark_session)
 
 

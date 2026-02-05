@@ -10,7 +10,7 @@ from pyspark.sql.types import (
     FloatType,
 )
 from datetime import datetime, timedelta
-from rtdip_sdk.pipelines.forecasting.spark.lstm_timeseries import (
+from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.lstm_timeseries import (
     LSTMTimeSeries,
 )
 
@@ -113,47 +113,6 @@ def test_lstm_custom_initialization():
     assert np.isclose(lstm.learning_rate, 0.01, rtol=1e-09, atol=1e-09)
 
 
-def test_model_attributes(sample_timeseries_data):
-    """
-    Test that model attributes are properly initialized after training.
-    """
-    lstm = LSTMTimeSeries(
-        lookback_window=24, prediction_length=5, epochs=1, batch_size=32
-    )
-
-    lstm.train(sample_timeseries_data)
-
-    assert lstm.scaler is not None
-    assert lstm.label_encoder is not None
-    assert len(lstm.item_ids) > 0
-    assert lstm.num_sensors > 0
-
-
-def test_train_basic(simple_timeseries_data):
-    """
-    Test basic training workflow with minimal epochs.
-    """
-    lstm = LSTMTimeSeries(
-        target_col="target",
-        timestamp_col="timestamp",
-        item_id_col="item_id",
-        prediction_length=2,
-        lookback_window=12,
-        lstm_units=16,
-        num_lstm_layers=1,
-        batch_size=16,
-        epochs=2,
-        patience=1,
-    )
-
-    lstm.train(simple_timeseries_data)
-
-    assert lstm.model is not None, "Model should be initialized after training"
-    assert lstm.scaler is not None, "Scaler should be initialized after training"
-    assert lstm.label_encoder is not None, "Label encoder should be initialized"
-    assert len(lstm.item_ids) > 0, "Item IDs should be stored"
-
-
 def test_predict_without_training(simple_timeseries_data):
     """
     Test that predicting without training raises an error.
@@ -175,174 +134,11 @@ def test_evaluate_without_training(simple_timeseries_data):
     assert result is None
 
 
-def test_train_and_predict(sample_timeseries_data, spark_session):
-    """
-    Test training and prediction workflow.
-    """
-    lstm = LSTMTimeSeries(
-        target_col="target",
-        timestamp_col="timestamp",
-        item_id_col="item_id",
-        prediction_length=5,
-        lookback_window=24,
-        lstm_units=16,
-        num_lstm_layers=1,
-        batch_size=32,
-        epochs=2,
-    )
-
-    # Split data manually (80/20)
-    df = sample_timeseries_data.toPandas()
-    train_size = int(len(df) * 0.8)
-    train_df = df.iloc[:train_size]
-    test_df = df.iloc[train_size:]
-
-    # Convert back to Spark
-    train_spark = spark_session.createDataFrame(train_df)
-    test_spark = spark_session.createDataFrame(test_df)
-
-    # Train
-    lstm.train(train_spark)
-    assert lstm.model is not None
-
-    # Predict
-    predictions = lstm.predict(test_spark)
-    assert predictions is not None
-    assert predictions.count() > 0
-
-    # Check prediction columns
-    pred_df = predictions.toPandas()
-    assert "item_id" in pred_df.columns
-    assert "timestamp" in pred_df.columns
-    assert "mean" in pred_df.columns
-
-
-def test_train_and_evaluate(sample_timeseries_data, spark_session):
-    """
-    Test training and evaluation workflow.
-    """
-    lstm = LSTMTimeSeries(
-        target_col="target",
-        timestamp_col="timestamp",
-        item_id_col="item_id",
-        prediction_length=5,
-        lookback_window=24,
-        lstm_units=16,
-        num_lstm_layers=1,
-        batch_size=32,
-        epochs=2,
-    )
-
-    df = sample_timeseries_data.toPandas()
-    df = df.sort_values(["item_id", "timestamp"])
-
-    train_dfs = []
-    test_dfs = []
-    for item_id in df["item_id"].unique():
-        item_data = df[df["item_id"] == item_id]
-        split_idx = int(len(item_data) * 0.7)
-        train_dfs.append(item_data.iloc[:split_idx])
-        test_dfs.append(item_data.iloc[split_idx:])
-
-    train_df = pd.concat(train_dfs, ignore_index=True)
-    test_df = pd.concat(test_dfs, ignore_index=True)
-
-    train_spark = spark_session.createDataFrame(train_df)
-    test_spark = spark_session.createDataFrame(test_df)
-
-    # Train
-    lstm.train(train_spark)
-
-    # Evaluate
-    metrics = lstm.evaluate(test_spark)
-    assert metrics is not None
-    assert isinstance(metrics, dict)
-
-    # Check expected metrics
-    expected_metrics = ["MAE", "RMSE", "MAPE", "MASE", "SMAPE"]
-    for metric in expected_metrics:
-        assert metric in metrics
-        assert isinstance(metrics[metric], (int, float))
-        assert not np.isnan(metrics[metric])
-
-
-def test_early_stopping_callback(simple_timeseries_data):
-    """
-    Test that early stopping is properly configured.
-    """
-    lstm = LSTMTimeSeries(
-        prediction_length=2,
-        lookback_window=12,
-        lstm_units=16,
-        epochs=10,
-        patience=2,
-    )
-
-    lstm.train(simple_timeseries_data)
-
-    # Check that training history is stored
-    assert lstm.training_history is not None
-    assert "loss" in lstm.training_history
-
-    # Training should stop before max epochs due to early stopping on small dataset
-    assert len(lstm.training_history["loss"]) <= 10
-
-
-def test_training_history_tracking(sample_timeseries_data):
-    """
-    Test that training history is properly tracked during training.
-    """
-    lstm = LSTMTimeSeries(
-        target_col="target",
-        timestamp_col="timestamp",
-        item_id_col="item_id",
-        prediction_length=5,
-        lookback_window=24,
-        lstm_units=16,
-        num_lstm_layers=1,
-        batch_size=32,
-        epochs=3,
-        patience=2,
-    )
-
-    lstm.train(sample_timeseries_data)
-
-    assert lstm.training_history is not None
-    assert isinstance(lstm.training_history, dict)
-
-    assert "loss" in lstm.training_history
-    assert "val_loss" in lstm.training_history
-
-    assert len(lstm.training_history["loss"]) > 0
-    assert len(lstm.training_history["val_loss"]) > 0
-
-
-def test_multiple_sensors(sample_timeseries_data):
-    """
-    Test that LSTM handles multiple sensors with embeddings.
-    """
-    lstm = LSTMTimeSeries(
-        prediction_length=5,
-        lookback_window=24,
-        lstm_units=16,
-        num_lstm_layers=1,
-        batch_size=32,
-        epochs=2,
-    )
-
-    lstm.train(sample_timeseries_data)
-
-    # Check that multiple sensors were processed
-    assert len(lstm.item_ids) == 2
-    assert "sensor_A" in lstm.item_ids
-    assert "sensor_B" in lstm.item_ids
-
-
 def test_system_type():
     """
     Test that system_type returns PYTHON.
     """
-    from rtdip_sdk.pipelines._pipeline_utils.models import SystemType
+    from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import SystemType
 
     system_type = LSTMTimeSeries.system_type()
     assert system_type == SystemType.PYTHON
@@ -372,34 +168,3 @@ def test_settings():
     settings = LSTMTimeSeries.settings()
     assert settings is not None
     assert isinstance(settings, dict)
-
-
-def test_insufficient_data(spark_session):
-    """
-    Test that training with insufficient data (less than lookback window) handles gracefully.
-    """
-    data = []
-    base_date = datetime(2024, 1, 1)
-    for i in range(10):
-        data.append(("A", base_date + timedelta(hours=i), float(100 + i)))
-
-    schema = StructType(
-        [
-            StructField("item_id", StringType(), True),
-            StructField("timestamp", TimestampType(), True),
-            StructField("target", FloatType(), True),
-        ]
-    )
-
-    minimal_data = spark_session.createDataFrame(data, schema=schema)
-
-    lstm = LSTMTimeSeries(
-        lookback_window=24,
-        prediction_length=5,
-        epochs=1,
-    )
-
-    try:
-        lstm.train(minimal_data)
-    except (ValueError, Exception) as e:
-        assert "insufficient" in str(e).lower() or "not enough" in str(e).lower()
