@@ -10,7 +10,7 @@ from pyspark.sql.types import (
     FloatType,
 )
 from datetime import datetime, timedelta
-from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.lstm_timeseries import (
+from rtdip_sdk.pipelines.forecasting.spark.lstm_timeseries import (
     LSTMTimeSeries,
 )
 
@@ -342,7 +342,7 @@ def test_system_type():
     """
     Test that system_type returns PYTHON.
     """
-    from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import SystemType
+    from rtdip_sdk.pipelines._pipeline_utils.models import SystemType
 
     system_type = LSTMTimeSeries.system_type()
     assert system_type == SystemType.PYTHON

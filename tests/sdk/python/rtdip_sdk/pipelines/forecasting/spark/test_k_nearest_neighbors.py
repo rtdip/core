@@ -49,32 +49,20 @@ def spark():
 @pytest.fixture(scope="function")
 def sample_data(spark):
     # Using similar data structure as template but with more varied values
-    data = [
-        (
-            "TAG1",
-            datetime.strptime("2024-01-02 20:03:46.000", "%Y-%m-%d %H:%M:%S.%f"),
-            "Good",
-            0.34,
-        ),
-        (
-            "TAG1",
-            datetime.strptime("2024-01-02 20:04:46.000", "%Y-%m-%d %H:%M:%S.%f"),
-            "Good",
-            0.35,
-        ),
-        (
-            "TAG2",
-            datetime.strptime("2024-01-02 20:05:46.000", "%Y-%m-%d %H:%M:%S.%f"),
-            "Good",
-            0.45,
-        ),
-        (
-            "TAG2",
-            datetime.strptime("2024-01-02 20:06:46.000", "%Y-%m-%d %H:%M:%S.%f"),
-            "Bad",
-            0.55,
-        ),
-    ]
+    # Increased data size to ensure test/train splits are non-empty
+    from datetime import timedelta
+
+    base_time = datetime.strptime("2024-01-02 20:00:00.000", "%Y-%m-%d %H:%M:%S.%f")
+    data = []
+
+    # Generate 20 data points to ensure non-empty splits
+    for i in range(20):
+        tag = "TAG1" if i % 2 == 0 else "TAG2"
+        timestamp = base_time + timedelta(minutes=i)
+        status = "Good" if i % 3 != 0 else "Bad"
+        value = 0.3 + (i * 0.05)
+        data.append((tag, timestamp, status, value))
+
     return spark.createDataFrame(data, schema=SCHEMA)
 
 

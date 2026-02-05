@@ -314,7 +314,7 @@ class CatBoostTimeSeries(MachineLearningInterface):
 
         return spark.createDataFrame(predictions_df)
 
-    def evaluate(self, test_df: DataFrame) -> Dict[str, float]:
+    def evaluate(self, test_df: DataFrame) -> Optional[Dict[str, float]]:
         """
         Evaluate model on test data using rolling window prediction.
 
@@ -322,7 +322,7 @@ class CatBoostTimeSeries(MachineLearningInterface):
             test_df: Spark DataFrame with test data
 
         Returns:
-            Dictionary of metrics (MAE, RMSE, MAPE, MASE, SMAPE)
+            Dictionary of metrics (MAE, RMSE, MAPE, MASE, SMAPE) or None if no valid samples
         """
         logging.info("EVALUATING CATBOOST MODEL")
 
@@ -337,7 +337,7 @@ class CatBoostTimeSeries(MachineLearningInterface):
 
         if len(pdf_clean) == 0:
             logging.error("No valid test samples after feature engineering")
-            return {}
+            return None
 
         logging.info("Test samples: %s", len(pdf_clean))
 

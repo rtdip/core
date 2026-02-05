@@ -420,7 +420,7 @@ class LSTMTimeSeries(MachineLearningInterface):
         if len(batch_values) == 0:
             return None
 
-        logging.info(\"Making batch predictions for %d samples\", len(batch_values))
+        logging.info("Making batch predictions for %d samples", len(batch_values))
         X_values_batch = np.array(batch_values)
         X_sensors_batch = np.array(batch_sensors).reshape(-1, 1)
 
@@ -439,17 +439,18 @@ class LSTMTimeSeries(MachineLearningInterface):
         y_true = np.array(all_actuals)
         y_pred = np.array(all_predictions)
 
-        logging.info(\"Evaluated on %d predictions\", len(y_true))
+        logging.info("Evaluated on %d predictions", len(y_true))
 
         metrics = calculate_timeseries_forecasting_metrics(y_true, y_pred)
         r_metrics = calculate_timeseries_robustness_metrics(y_true, y_pred)
 
-        logging.info(\"LSTM Metrics:\")\n        logging.info(\"-\" * 80)
+        logging.info("LSTM Metrics:")
+        logging.info("-" * 80)
         for metric_name, metric_value in metrics.items():
-            logging.info(\"%s: %.4f\", metric_name, abs(metric_value))
-        logging.info(\"\")
+            logging.info("%s: %.4f", metric_name, abs(metric_value))
+        logging.info("")
         for metric_name, metric_value in r_metrics.items():
-            logging.info(\"%s: %.4f\", metric_name, abs(metric_value))
+            logging.info("%s: %.4f", metric_name, abs(metric_value))
 
         return metrics
 

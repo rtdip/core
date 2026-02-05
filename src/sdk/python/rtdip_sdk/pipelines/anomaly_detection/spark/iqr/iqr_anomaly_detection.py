@@ -1,11 +1,11 @@
 import pandas as pd
 from typing import Optional
 
-from rtdip_sdk.pipelines.interfaces import PipelineComponent
+from rtdip_sdk.pipelines.interfaces import PipelineComponentBaseInterface
 from .interfaces import IQRAnomalyDetectionConfig
 
 
-class IQRAnomalyDetectionComponent(PipelineComponent):
+class IQRAnomalyDetectionComponent(PipelineComponentBaseInterface):
     """
     RTDIP component implementing IQR-based anomaly detection.
 
