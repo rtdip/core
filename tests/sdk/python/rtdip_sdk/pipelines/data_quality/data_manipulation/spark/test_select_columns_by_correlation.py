@@ -27,6 +27,13 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 
 
+def normalize_datetime_precision(pdf):
+    """Convert all datetime columns to ns precision for consistent comparison."""
+    for col in pdf.select_dtypes(include=["datetime64"]).columns:
+        pdf[col] = pdf[col].astype("datetime64[ns]")
+    return pdf
+
+
 @pytest.fixture(scope="session")
 def spark():
     spark = (
@@ -164,7 +171,7 @@ def test_select_columns_by_correlation_basic(spark):
         target_col_name="target",
         correlation_threshold=0.8,
     )
-    result_pdf = selector.filter_data().toPandas()
+    result_pdf = normalize_datetime_precision(selector.filter_data().toPandas())
 
     expected_columns = {"timestamp", "feature_pos", "feature_neg", "target"}
     assert set(result_pdf.columns) == expected_columns
@@ -201,7 +208,7 @@ def test_correlation_filter_includes_only_features_above_threshold(spark):
         target_col_name="target",
         correlation_threshold=0.8,
     )
-    result_pdf = selector.filter_data().toPandas()
+    result_pdf = normalize_datetime_precision(selector.filter_data().toPandas())
 
     assert "keep_col" in result_pdf.columns
     assert "target" in result_pdf.columns
@@ -227,7 +234,7 @@ def test_correlation_filter_uses_absolute_value_for_negative_correlation(spark):
         target_col_name="target",
         correlation_threshold=0.9,
     )
-    result_pdf = selector.filter_data().toPandas()
+    result_pdf = normalize_datetime_precision(selector.filter_data().toPandas())
 
     assert "keep_col" in result_pdf.columns
     assert "target" in result_pdf.columns
@@ -254,7 +261,7 @@ def test_correlation_threshold_zero_keeps_all_numeric_features(spark):
         target_col_name="target",
         correlation_threshold=0.0,
     )
-    result_pdf = selector.filter_data().toPandas()
+    result_pdf = normalize_datetime_precision(selector.filter_data().toPandas())
 
     expected_columns = {"keep_col", "feature_1", "feature_2", "feature_weak", "target"}
     assert set(result_pdf.columns) == expected_columns
@@ -278,7 +285,7 @@ def test_columns_to_keep_can_be_non_numeric(spark):
         target_col_name="target",
         correlation_threshold=0.1,
     )
-    result_pdf = selector.filter_data().toPandas()
+    result_pdf = normalize_datetime_precision(selector.filter_data().toPandas())
 
     assert "id" in result_pdf.columns
     assert "category" in result_pdf.columns
@@ -298,7 +305,7 @@ def test_original_dataframe_not_modified_in_place(spark):
     )
     sdf = spark.createDataFrame(pdf)
 
-    original_pdf = sdf.toPandas().copy(deep=True)
+    original_pdf = normalize_datetime_precision(sdf.toPandas().copy(deep=True))
 
     selector = SelectColumnsByCorrelation(
         df=sdf,
@@ -308,7 +315,7 @@ def test_original_dataframe_not_modified_in_place(spark):
     )
     _ = selector.filter_data()
 
-    after_pdf = sdf.toPandas()
+    after_pdf = normalize_datetime_precision(sdf.toPandas())
     pd.testing.assert_frame_equal(after_pdf, original_pdf)
 
 
@@ -329,7 +336,7 @@ def test_no_numeric_columns_except_target_results_in_keep_only(spark):
         target_col_name="target",
         correlation_threshold=0.5,
     )
-    result_pdf = selector.filter_data().toPandas()
+    result_pdf = normalize_datetime_precision(selector.filter_data().toPandas())
 
     expected_columns = {"timestamp", "target"}
     assert set(result_pdf.columns) == expected_columns
