@@ -37,7 +37,7 @@ def sql_get(
     base_headers,
 ):
     try:
-        (connection, parameters) = common_api_setup_tasks(
+        connection, parameters = common_api_setup_tasks(
             base_query_parameters,
             sql_query_parameters=sql_query_parameters,
             limit_offset_query_parameters=limit_offset_parameters,

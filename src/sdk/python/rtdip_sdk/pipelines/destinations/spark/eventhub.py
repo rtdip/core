@@ -200,10 +200,10 @@ class SparkEventhubDestination(DestinationInterface):
         try:
             if eventhub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options[
-                    eventhub_connection_string
-                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
-                    self.options[eventhub_connection_string]
+                self.options[eventhub_connection_string] = (
+                    sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                        self.options[eventhub_connection_string]
+                    )
                 )
             df = self.prepare_columns()
             return df.write.format("eventhubs").options(**self.options).save()
@@ -228,10 +228,10 @@ class SparkEventhubDestination(DestinationInterface):
             )
             if eventhub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options[
-                    eventhub_connection_string
-                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
-                    self.options[eventhub_connection_string]
+                self.options[eventhub_connection_string] = (
+                    sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                        self.options[eventhub_connection_string]
+                    )
                 )
             df = self.prepare_columns()
             df = self.data.select(

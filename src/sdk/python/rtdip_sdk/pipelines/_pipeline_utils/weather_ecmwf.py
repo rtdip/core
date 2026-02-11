@@ -15,7 +15,6 @@ from pyspark.sql.types import (
     BooleanType,
 )
 
-
 RTDIP_FLOAT_WEATHER_DATA_MODEL = StructType(
     [
         StructField("TagName", StringType(), False),

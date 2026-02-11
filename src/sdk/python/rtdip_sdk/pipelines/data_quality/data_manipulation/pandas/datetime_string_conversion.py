@@ -18,7 +18,6 @@ from typing import List, Optional
 from ..interfaces import PandasDataManipulationBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
-
 # Default datetime formats to try when parsing
 DEFAULT_FORMATS = [
     "%Y-%m-%d %H:%M:%S.%f",  # With microseconds

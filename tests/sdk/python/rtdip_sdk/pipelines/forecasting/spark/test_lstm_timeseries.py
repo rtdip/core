@@ -14,7 +14,6 @@ from src.sdk.python.rtdip_sdk.pipelines.forecasting.spark.lstm_timeseries import
     LSTMTimeSeries,
 )
 
-
 # Note: Uses spark_session fixture from tests/conftest.py
 # Do NOT define a local spark fixture - it causes session conflicts with other tests
 

@@ -238,10 +238,10 @@ class SparkKafkaEventhubDestination(DestinationInterface):
             connection_string = self._connection_string_builder(
                 self.connection_string_properties
             )
-            options[
-                "kafka.sasl.jaas.config"
-            ] = '{} required username="$ConnectionString" password="{}";'.format(
-                kafka_package, connection_string
+            options["kafka.sasl.jaas.config"] = (
+                '{} required username="$ConnectionString" password="{}";'.format(
+                    kafka_package, connection_string
+                )
             )  # NOSONAR
 
         if "kafka.request.timeout.ms" not in options:

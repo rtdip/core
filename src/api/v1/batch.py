@@ -36,7 +36,6 @@ from src.api.v1.common import lookup_before_get
 from concurrent.futures import *
 import pandas as pd
 
-
 ROUTE_FUNCTION_MAPPING = {
     "/events/raw": "raw",
     "/events/latest": "latest",
@@ -118,7 +117,7 @@ async def batch_events_get(
 ):
     try:
         # Set up connection
-        (connection, parameters) = common_api_setup_tasks(
+        connection, parameters = common_api_setup_tasks(
             base_query_parameters=base_query_parameters,
             base_headers=base_headers,
         )

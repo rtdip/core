@@ -154,10 +154,10 @@ class SparkEventhubSource(SourceInterface):
         try:
             if eventhub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options[
-                    eventhub_connection_string
-                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
-                    self.options[eventhub_connection_string]
+                self.options[eventhub_connection_string] = (
+                    sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                        self.options[eventhub_connection_string]
+                    )
                 )
 
             return self.spark.read.format("eventhubs").options(**self.options).load()
@@ -177,10 +177,10 @@ class SparkEventhubSource(SourceInterface):
         try:
             if eventhub_connection_string in self.options:
                 sc = self.spark.sparkContext
-                self.options[
-                    eventhub_connection_string
-                ] = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
-                    self.options[eventhub_connection_string]
+                self.options[eventhub_connection_string] = (
+                    sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(
+                        self.options[eventhub_connection_string]
+                    )
                 )
 
             return (

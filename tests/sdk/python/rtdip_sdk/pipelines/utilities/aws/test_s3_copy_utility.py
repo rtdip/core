@@ -21,7 +21,6 @@ from datetime import datetime
 import boto3
 from moto import mock_aws
 
-
 sys.path.insert(0, ".")
 
 from src.sdk.python.rtdip_sdk.pipelines.utilities.aws.s3_copy_utility import (

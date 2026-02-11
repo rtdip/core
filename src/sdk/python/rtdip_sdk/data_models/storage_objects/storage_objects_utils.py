@@ -49,10 +49,8 @@ def validate_uri(uri: str):
                 return parsed_uri.scheme, parsed_uri.hostname, parsed_uri.path
         except Exception as ex:
             logging.error(ex)
-    raise SystemError(
-        f"Could not convert to valid tuple \
-                      or scheme not supported: {uri} {parsed_uri.scheme}"
-    )
+    raise SystemError(f"Could not convert to valid tuple \
+                      or scheme not supported: {uri} {parsed_uri.scheme}")
 
 
 def get_supported_schema() -> list:

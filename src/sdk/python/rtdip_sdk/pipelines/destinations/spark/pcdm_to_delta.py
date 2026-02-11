@@ -388,9 +388,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
                 if self.destination_string != None:
                     if string_checkpoint_location is not None:
-                        append_options[
-                            "checkpointLocation"
-                        ] = string_checkpoint_location
+                        append_options["checkpointLocation"] = (
+                            string_checkpoint_location
+                        )
 
                     delta_string = SparkDeltaDestination(
                         data=self.data.select(
@@ -407,9 +407,9 @@ class SparkPCDMToDeltaDestination(DestinationInterface):
 
                 if self.destination_integer != None:
                     if integer_checkpoint_location is not None:
-                        append_options[
-                            "checkpointLocation"
-                        ] = integer_checkpoint_location
+                        append_options["checkpointLocation"] = (
+                            integer_checkpoint_location
+                        )
 
                     delta_integer = SparkDeltaDestination(
                         data=self.data.select("TagName", "EventTime", "Status", "Value")

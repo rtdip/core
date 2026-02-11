@@ -19,7 +19,6 @@ from typing import List, Optional
 from ..interfaces import DataManipulationBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
-
 DEFAULT_FORMATS = [
     "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
     "yyyy-MM-dd'T'HH:mm:ss.SSS",

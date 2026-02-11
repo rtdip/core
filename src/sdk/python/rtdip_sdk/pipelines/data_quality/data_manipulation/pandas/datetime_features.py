@@ -18,7 +18,6 @@ from typing import List, Optional
 from ..interfaces import PandasDataManipulationBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
-
 # Available datetime features that can be extracted
 AVAILABLE_FEATURES = [
     "year",

@@ -19,7 +19,6 @@ from typing import Optional, Union, List
 from ..interfaces import DataManipulationBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
-
 # Constant to convert MAD to standard deviation equivalent for normal distributions
 MAD_TO_STD_CONSTANT = 1.4826
 

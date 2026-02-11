@@ -20,7 +20,6 @@ from typing import Union, List, Dict
 import pandas as pd
 from pandas import DataFrame as PandasDataFrame
 
-
 # Mapping of period names to their duration in days
 PERIOD_TIMEDELTAS = {
     "minutely": pd.Timedelta(minutes=1),

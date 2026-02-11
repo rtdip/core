@@ -45,7 +45,7 @@ def resample_events_get(
     base_headers,
 ):
     try:
-        (connection, parameters) = common_api_setup_tasks(
+        connection, parameters = common_api_setup_tasks(
             base_query_parameters,
             raw_query_parameters=raw_query_parameters,
             tag_query_parameters=tag_query_parameters,

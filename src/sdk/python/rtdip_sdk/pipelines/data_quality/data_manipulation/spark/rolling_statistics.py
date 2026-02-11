@@ -19,7 +19,6 @@ from typing import List, Optional
 from ..interfaces import DataManipulationBaseInterface
 from ...._pipeline_utils.models import Libraries, SystemType
 
-
 # Available statistics that can be computed
 AVAILABLE_STATISTICS = ["mean", "std", "min", "max", "sum", "median"]
 
