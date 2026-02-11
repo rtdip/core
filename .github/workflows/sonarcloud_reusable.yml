@@ -82,6 +82,7 @@ jobs:
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
+          cache-environment-key: env-${{ hashFiles('environment.yml') }}
           post-cleanup: none
 
       - name: Test
