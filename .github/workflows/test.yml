@@ -117,6 +117,9 @@ jobs:
           cache-environment-key: env-${{ hashFiles('environment.yml') }}
           post-cleanup: none
  
+      - name: Ensure setuptools is installed
+        run: pip install setuptools
+
       - name: Test
         run: |
           coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
@@ -177,6 +180,9 @@ jobs:
           cache-environment-key: env-${{ hashFiles('environment.yml') }}
           post-cleanup: none
  
+      - name: Ensure setuptools is installed
+        run: pip install setuptools
+
       - name: Mkdocs Test
         run: |
           mkdocs build --strict
