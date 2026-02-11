@@ -81,12 +81,10 @@ jobs:
             python=${{ matrix.python-version }}
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
+            setuptools
           cache-environment: true
           cache-environment-key: env-${{ hashFiles('environment.yml') }}
           post-cleanup: none
-
-      - name: Ensure setuptools is installed
-        run: pip install setuptools
 
       - name: Test
         run: |
