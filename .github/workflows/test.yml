@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+ 
 name: "Reusable Test Workflow"
-
+ 
 on:
   workflow_call:
-
+ 
 jobs:
   job_test_python_pyspark_versions:
     defaults:
@@ -73,22 +73,38 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+ 
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+ 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
+ 
       - name: Install Boost
         run: |
           sudo apt update
           sudo apt install -y libboost-all-dev
-
+ 
       - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
-
+ 
       - name: Install Conda environment with Micromamba
         uses: mamba-org/setup-micromamba@main
         with:
@@ -98,11 +114,11 @@ jobs:
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
-
+ 
       - name: Test
         run: |
           coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
-
+ 
   job_test_mkdocs:
     defaults:
       run:
@@ -120,22 +136,33 @@ jobs:
           repository: ${{ inputs.REPO_NAME }}
           ref: ${{ inputs.HEAD_BRANCH }}
           fetch-depth: 0
-
+ 
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+ 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
+ 
       - name: Install Boost
         run: |
           sudo apt update
           sudo apt install -y libboost-all-dev
-
+ 
       - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
-
+ 
       - name: Install Conda environment with Micromamba
         uses: mamba-org/setup-micromamba@main
         with:
@@ -145,13 +172,15 @@ jobs:
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
-
+ 
       - name: Mkdocs Test
         run: |
           mkdocs build --strict
-
+ 
   job_lint_python_black:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: psf/black@stable
+ 
+ 
