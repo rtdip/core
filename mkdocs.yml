@@ -266,7 +266,15 @@ nav:
                   - Arima: sdk/code-reference/pipelines/forecasting/spark/arima.md
                   - Auto Arima: sdk/code-reference/pipelines/forecasting/spark/auto_arima.md
                   - K Nearest Neighbors: sdk/code-reference/pipelines/forecasting/spark/k_nearest_neighbors.md
-
+              - Decomposition:
+                  - Pandas:
+                      - Classical Decomposition: sdk/code-reference/pipelines/decomposition/pandas/classical_decomposition.md
+                      - STL Decomposition: sdk/code-reference/pipelines/decomposition/pandas/stl_decomposition.md
+                      - MSTL Decomposition: sdk/code-reference/pipelines/decomposition/pandas/mstl_decomposition.md
+                  - Spark:
+                      - Classical Decomposition: sdk/code-reference/pipelines/decomposition/spark/classical_decomposition.md
+                      - STL Decomposition: sdk/code-reference/pipelines/decomposition/spark/stl_decomposition.md
+                      - MSTL Decomposition: sdk/code-reference/pipelines/decomposition/spark/mstl_decomposition.md
           - Jobs: sdk/pipelines/jobs.md
           - Deploy:
               - Databricks Workflows: sdk/pipelines/deploy/databricks.md
