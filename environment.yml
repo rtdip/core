@@ -43,7 +43,7 @@ dependencies:
     - delta-spark>=2.2.0,<3.3.0
     - pyarrow>=14.0.1,<17.0.0
     - libarrow>=14.0.1,<17.0.0
-    - grpcio>=1.48.1,<1.63.0
+    - grpcio>=1.48.1,<1.63.0,!=1.73.*
     - grpcio-status>=1.48.1,<1.63.0
     - googleapis-common-protos>=1.56.4
     - openjdk>=11.0.15,<18.0.0
