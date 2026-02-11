@@ -82,6 +82,7 @@ jobs:
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
+          post-cleanup: none
 
       - name: Test
         run: |

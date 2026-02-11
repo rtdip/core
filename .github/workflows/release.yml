@@ -113,6 +113,7 @@ jobs:
         with:
           environment-file: environment.yml
           cache-environment: true
+          post-cleanup: none
 
       - name: Deploy
         run: |
