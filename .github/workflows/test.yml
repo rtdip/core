@@ -98,6 +98,7 @@ jobs:
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
+          cache-environment-key: environment-2026-02-12-setuptools
 
       - name: Test
         run: |
@@ -145,6 +146,7 @@ jobs:
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
+          cache-environment-key: environment-2026-02-12-setuptools
 
       - name: Mkdocs Test
         run: |
