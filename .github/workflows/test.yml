@@ -112,6 +112,12 @@ jobs:
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
 
+      - name: Clean conda and pip cache
+        run: |
+          micromamba clean --all -y
+          pip cache purge
+          df -h
+
       - name: Test
         run: |
           coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
@@ -171,6 +177,12 @@ jobs:
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
+
+      - name: Clean conda and pip cache
+        run: |
+          micromamba clean --all -y
+          pip cache purge
+          df -h
 
       - name: Mkdocs Test
         run: |
