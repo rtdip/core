@@ -12,7 +12,7 @@ azure-identity==1.25.1
 oauthlib>=3.2.2
 pandas>=2.0.1,<2.3.0
 numpy==1.26.4
-pyarrow>=14.0.1,<17.0.0
+pyarrow>=14.0.1,<18.0.0
 urllib3>=2.6.3,<3.0.0
 werkzeug>=3.1.5,<4.0.0
 jinja2==3.1.6
@@ -23,5 +23,7 @@ packaging==24.2
 grpcio>=1.48.1,<1.63.0
 grpcio-status>=1.48.1,<1.63.0
 googleapis-common-protos>=1.56.4
-protobuf>=5.29.0,<5.30.0
+protobuf>=6.33.5,<7.0.0
 pyjwt==2.10.1
+cryptography>=46.0.5
+pyasn1>=0.6.2,<1.0.0

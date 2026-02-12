@@ -29,7 +29,7 @@ long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
     "databricks-sql-connector>=3.6.0,<3.7.0",
-    "pyarrow>=14.0.1,<17.0.0",
+    "pyarrow>=14.0.1,<18.0.0",
     "azure-core>=1.38.0,<2.0.0",
     "azure-identity>=1.25.1,<2.0.0",
     "pandas>=2.0.1,<2.3.0",
@@ -41,9 +41,11 @@ INSTALL_REQUIRES = [
     "grpcio-status>=1.48.1,<1.63.0",
     "googleapis-common-protos>=1.56.4",
     "pydantic>=2.10.1,<3.0.0",
-    "protobuf>=5.29.0,<5.30.0",
+    "protobuf>=6.33.5,<7.0.0",
     "urllib3>=2.6.3,<3.0.0",
     "werkzeug>=3.1.5,<4.0.0",
+    "cryptography>=46.0.5",
+    "pyasn1>=0.6.2,<1.0.0",
 ]
 
 PYSPARK_PACKAGES = [
