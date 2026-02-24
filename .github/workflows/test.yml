@@ -99,10 +99,6 @@ jobs:
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
 
-      - name: Ensure setuptools is installed
-        run: |
-          micromamba install -y setuptools
-
       - name: Test
         run: |
           coverage run -m pytest --junitxml=xunit-reports/xunit-result-unitttests.xml tests
@@ -149,10 +145,6 @@ jobs:
             pyspark=${{ matrix.pyspark }}
             delta-spark=${{ matrix.delta-spark }}
           cache-environment: true
-
-      - name: Ensure setuptools is installed
-        run: |
-          micromamba install -y setuptools
 
       - name: Mkdocs Test
         run: |

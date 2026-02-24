@@ -15,7 +15,14 @@ import pytest
 import os
 import shutil
 
-from src.sdk.python.rtdip_sdk.connectors.grpc.spark_connector import SparkConnection
+try:
+    from src.sdk.python.rtdip_sdk.connectors.grpc.spark_connector import (
+        SparkConnection,
+    )
+except (ImportError, ModuleNotFoundError):
+    # SparkConnection import may fail if turbodbc dependencies are missing
+    SparkConnection = None
+
 from src.sdk.python.rtdip_sdk.pipelines.destinations import *  # NOSONAR
 from src.sdk.python.rtdip_sdk.pipelines.sources import *  # NOSONAR
 from src.sdk.python.rtdip_sdk.pipelines.utilities.spark.session import (
