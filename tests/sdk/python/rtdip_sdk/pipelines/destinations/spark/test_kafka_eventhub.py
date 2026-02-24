@@ -36,7 +36,6 @@ from pyspark.sql.types import (
     ArrayType,
 )
 
-
 kafka_configuration_dict = {"failOnDataLoss": "true", "startingOffsets": "earliest"}
 
 eventhub_connection_string = "Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test_key;EntityPath=test_eventhub"

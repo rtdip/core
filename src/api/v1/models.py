@@ -30,7 +30,6 @@ from datetime import date
 from src.api.auth.azuread import oauth2_scheme
 from typing import Generic, TypeVar, Optional
 
-
 EXAMPLE_DATE = "2022-01-01"
 EXAMPLE_DATETIME = "2022-01-01T15:00:00"
 EXAMPLE_DATETIME_TIMEZOME = "2022-01-01T15:00:00+00:00"
