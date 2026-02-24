@@ -231,10 +231,10 @@ class AuthQueryParams:
 class BaseQueryParams:
     def __init__(
         self,
-        business_unit: str = Query(None, description="Business Unit Name"),
+        business_unit: str = Query(..., description="Business Unit Name"),
         region: str = Query(..., description="Region"),
-        asset: str = Query(None, description="Asset"),
-        data_security_level: str = Query(None, description="Data Security Level"),
+        asset: str = Query(..., description="Asset"),
+        data_security_level: str = Query(..., description="Data Security Level"),
         authorization: str = Depends(oauth2_scheme),
     ):
         # Additional validation when mapping endpoint not provided - ensure validation error for missing params
@@ -300,7 +300,7 @@ class RawQueryParams:
     def __init__(
         self,
         data_type: str = Query(
-            None,
+            ...,
             description="Data Type can be one of the following options: float, double, integer, string",
             examples=["float", "double", "integer", "string"],
         ),
@@ -447,7 +447,7 @@ class TimeWeightedAverageQueryParams:
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         window_length: int = Query(
-            ..., description="Window Length in days", examples=[1]
+            default=1, description="Window Length in days", examples=[1]
         ),
         step: str = Query(
             default="metadata",
