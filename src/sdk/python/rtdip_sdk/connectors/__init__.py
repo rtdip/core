@@ -17,8 +17,13 @@ from .odbc.db_sql_connector import *
 
 if importlib.util.find_spec("pyodbc") != None:
     from .odbc.pyodbc_sql_connector import *
+
 if importlib.util.find_spec("turbodbc") != None:
-    from .odbc.turbodbc_sql_connector import *
+    try:
+        from .odbc.turbodbc_sql_connector import *
+    except (ImportError, ModuleNotFoundError):
+        pass
+
 if importlib.util.find_spec("pyspark") != None:
     from .grpc.spark_connector import *
 from .models import *
