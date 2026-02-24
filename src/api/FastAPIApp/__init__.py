@@ -65,9 +65,7 @@ Please refer to the following links for further information about these APIs and
 [ReDoc](/redoc)
 
 [Real Time Data Ingestion Platform](https://www.rtdip.io/)
-""".format(
-    os.environ.get("TENANT_ID")
-)
+""".format(os.environ.get("TENANT_ID"))
 
 app = FastAPI(
     title=TITLE,

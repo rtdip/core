@@ -105,15 +105,13 @@ class MiricoJsonToMetadataTransformer(TransformerInterface):
             tag_name_expr.alias("TagName"),
             lit("").alias("Description"),
             lit("").alias("UoM"),
-            expr(
-                """struct(
+            expr("""struct(
                 body.retroAltitude,
                 body.retroLongitude,
                 body.retroLatitude,
                 body.sensorAltitude,
                 body.sensorLongitude,
-                body.sensorLatitude)"""
-            ).alias("Properties"),
+                body.sensorLatitude)""").alias("Properties"),
         ).dropDuplicates(["TagName"])
 
         return df.select("TagName", "Description", "UoM", "Properties")
