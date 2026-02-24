@@ -56,7 +56,9 @@ def spark_session():
 
 
 @pytest.fixture(scope="session")
-def spark_connection(spark_session: SparkSession):
+def spark_connection(spark_session):
+    if SparkConnection is None:
+        pytest.skip("SparkConnection unavailable - turbodbc dependencies missing")
     table_name = "test_table"
     data = [
         {
