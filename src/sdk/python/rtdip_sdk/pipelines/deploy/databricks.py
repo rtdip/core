@@ -395,7 +395,7 @@ class DatabricksSDKDeploy(DeployInterface):
                 module = self._load_module(
                     task.task_key + "file_upload", task.notebook_task.notebook_path
                 )
-                (task_libraries, spark_configuration) = PipelineComponentsGetUtility(
+                task_libraries, spark_configuration = PipelineComponentsGetUtility(
                     module.__name__
                 ).execute()
                 workspace_client.workspace.mkdirs(path=self.workspace_directory)
@@ -415,7 +415,7 @@ class DatabricksSDKDeploy(DeployInterface):
                 module = self._load_module(
                     task.task_key + "file_upload", task.spark_python_task.python_file
                 )
-                (task_libraries, spark_configuration) = PipelineComponentsGetUtility(
+                task_libraries, spark_configuration = PipelineComponentsGetUtility(
                     module
                 ).execute()
                 workspace_client.workspace.mkdirs(path=self.workspace_directory)
