@@ -119,7 +119,7 @@ async def batch_events_get(
 
     try:
         # Set up connection
-        connection, parameters = common_api_setup_tasks(
+        connection, _ = common_api_setup_tasks(
             base_query_parameters=base_query_parameters,
             base_headers=base_headers,
         )
