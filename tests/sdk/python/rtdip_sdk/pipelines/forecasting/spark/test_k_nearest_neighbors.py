@@ -74,6 +74,42 @@ def sample_data(spark):
             "Bad",
             0.55,
         ),
+        (
+            "TAG1",
+            datetime.strptime("2024-01-02 20:07:46.000", "%Y-%m-%d %H:%M:%S.%f"),
+            "Good",
+            0.36,
+        ),
+        (
+            "TAG2",
+            datetime.strptime("2024-01-02 20:08:46.000", "%Y-%m-%d %H:%M:%S.%f"),
+            "Good",
+            0.46,
+        ),
+        (
+            "TAG1",
+            datetime.strptime("2024-01-02 20:09:46.000", "%Y-%m-%d %H:%M:%S.%f"),
+            "Bad",
+            0.37,
+        ),
+        (
+            "TAG2",
+            datetime.strptime("2024-01-02 20:10:46.000", "%Y-%m-%d %H:%M:%S.%f"),
+            "Good",
+            0.56,
+        ),
+        (
+            "TAG1",
+            datetime.strptime("2024-01-02 20:11:46.000", "%Y-%m-%d %H:%M:%S.%f"),
+            "Good",
+            0.38,
+        ),
+        (
+            "TAG2",
+            datetime.strptime("2024-01-02 20:12:46.000", "%Y-%m-%d %H:%M:%S.%f"),
+            "Bad",
+            0.57,
+        ),
     ]
     return spark.createDataFrame(data, schema=SCHEMA)
 

@@ -39,7 +39,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
-        window_length (int): Add longer window time in days for the start or end of specified date to cater for edge cases.
+        window_length (int): Add longer window time in days for the start or end of specified date to cater for edge cases. Optional and defaults to 1 day.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         step (str): data points with step "enabled" or "disabled". The options for step are "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.
         display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
