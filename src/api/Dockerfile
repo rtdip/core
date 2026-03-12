@@ -36,7 +36,6 @@ RUN rm -rf /var/lib/apt/lists/partial \
     && CFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" pip install --no-cache-dir -r /requirements.txt \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* \
     && rm -rf /odbc
- 
 RUN echo '[ODBC Drivers]' > /etc/odbcinst.ini \
     && echo 'Simba Spark ODBC Driver = Installed' >> /etc/odbcinst.ini \
     && echo '[Simba Spark ODBC Driver]' >> /etc/odbcinst.ini \
