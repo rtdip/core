@@ -11,16 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+ 
 FROM mcr.microsoft.com/azure-functions/python:4-python3.10
-
+ 
 RUN adduser --system --group app
-
+ 
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
-
+ 
 COPY src/api/requirements.txt /
-
+ 
 RUN rm -rf /var/lib/apt/lists/partial \
     && apt-get clean \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
@@ -36,13 +36,12 @@ RUN rm -rf /var/lib/apt/lists/partial \
     && CFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" pip install --no-cache-dir -r /requirements.txt \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* \
     && rm -rf /odbc
-
 RUN echo '[ODBC Drivers]' > /etc/odbcinst.ini \
     && echo 'Simba Spark ODBC Driver = Installed' >> /etc/odbcinst.ini \
     && echo '[Simba Spark ODBC Driver]' >> /etc/odbcinst.ini \
     && echo 'Driver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so' >> /etc/odbcinst.ini
-
+ 
 USER app
-
+ 
 COPY src/api/ /home/site/wwwroot
 COPY src /home/site/wwwroot/src
