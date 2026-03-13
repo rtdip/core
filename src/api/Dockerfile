@@ -14,16 +14,12 @@
 
 FROM mcr.microsoft.com/azure-functions/python:4-python3.10
 
-<<<<<<< feature/00960
 # Create non-root user
-=======
->>>>>>> develop
 RUN adduser --system --group app
 
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 
-<<<<<<< feature/00960
 COPY src/api/requirements.txt /requirements.txt
 
 # Install system dependencies
@@ -57,17 +53,6 @@ RUN mkdir -p /odbc \
     && wget --secure-protocol=TLSv1_2 \
        https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.7.7/SimbaSparkODBC-2.7.7.1016-Debian-64bit.zip \
        -P /odbc/ \
-=======
-COPY src/api/requirements.txt /
-
-RUN rm -rf /var/lib/apt/lists/partial \
-    && apt-get clean \
-    && apt-get update -o Acquire::CompressionTypes::Order::=gz \
-    && apt-get --no-install-recommends install -y odbcinst1debian2 libodbc1 odbcinst unixodbc unixodbc-dev libsasl2-dev libsasl2-modules-gssapi-mit libboost-all-dev \
-    && apt-get --no-install-recommends install -y ca-certificates curl python3-pip python3-dev python3-setuptools python3-wheel gcc g++ cmake pkg-config \
-    && apt-get --no-install-recommends install -y zip unzip wget \
-    && wget --secure-protocol=TLSv1_2 --max-redirect=0 https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.7.7/SimbaSparkODBC-2.7.7.1016-Debian-64bit.zip -P /odbc/ \
->>>>>>> develop
     && unzip /odbc/SimbaSparkODBC-2.7.7.1016-Debian-64bit.zip -d /odbc \
     && dpkg -i /odbc/simbaspark_2.7.7.1016-2_amd64.deb
 
@@ -83,7 +68,6 @@ RUN CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" pip install --no-cache-dir -r /require
 RUN echo '[ODBC Drivers]' > /etc/odbcinst.ini \
     && echo 'Simba Spark ODBC Driver=Installed' >> /etc/odbcinst.ini \
     && echo '[Simba Spark ODBC Driver]' >> /etc/odbcinst.ini \
-<<<<<<< feature/00960
     && echo 'Driver=/opt/simba/spark/lib/64/libsparkodbc_sb64.so' >> /etc/odbcinst.ini
 
 # Cleanup
@@ -95,11 +79,6 @@ RUN rm -rf /odbc \
 USER app
 
 # Copy application code
-=======
-    && echo 'Driver = /opt/simba/spark/lib/64/libsparkodbc_sb64.so' >> /etc/odbcinst.ini
 
-USER app
-
->>>>>>> develop
 COPY src/api/ /home/site/wwwroot
 COPY src /home/site/wwwroot/src
