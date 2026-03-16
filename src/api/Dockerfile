@@ -56,6 +56,8 @@ RUN mkdir -p /odbc \
     && unzip /odbc/SimbaSparkODBC-2.7.7.1016-Debian-64bit.zip -d /odbc \
     && dpkg -i /odbc/simbaspark_2.7.7.1016-2_amd64.deb
 
+RUN apt-get update && apt-get install -y cmake pkg-config
+
 # Python dependencies
 RUN pip install --no-cache-dir pyarrow==14.0.2 \
     && pip install --no-cache-dir numpy==1.26.4 \
