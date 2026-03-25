@@ -1039,8 +1039,6 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
     sql_query_list.append({"query_name": "output", "sql_query": output_query})
 
-    print(sql_query_list)
-
     sql_query = _build_sql_cte_statement(sql_query_list)
 
     return sql_query
