@@ -280,7 +280,9 @@ def _build_interpolate_query(
     lag_value_query_sql = f"CASE WHEN `{value_column}` IS NOT NULL THEN NULL ELSE LAG(`{timestamp_column}_{value_column}`) IGNORE NULLS OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}`) END AS Prev{timestamp_column}{value_column}, "
     lead_value_query_sql = f"CASE WHEN `{value_column}` IS NOT NULL THEN NULL ELSE LEAD(`{timestamp_column}_{value_column}`) IGNORE NULLS OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}`) END AS Next{timestamp_column}{value_column}, "
     value_query_sql = f"CASE WHEN `Original{timestamp_column}` = `{timestamp_column}` THEN `{value_column}` WHEN `Prev{timestamp_column}{value_column}` IS NOT NULL AND `Next{timestamp_column}{value_column}` IS NOT NULL THEN `Prev{timestamp_column}{value_column}`.`{value_column}` + ((`Next{timestamp_column}{value_column}`.`{value_column}` - `Prev{timestamp_column}{value_column}`.`{value_column}`) * (unix_timestamp(`{timestamp_column}`) - unix_timestamp(`Prev{timestamp_column}{value_column}`.`{timestamp_column}`)) / (unix_timestamp(`Next{timestamp_column}{value_column}`.`{timestamp_column}`) - unix_timestamp(`Prev{timestamp_column}{value_column}`.`{timestamp_column}`))) WHEN `Prev{timestamp_column}{value_column}` IS NOT NULL THEN `Prev{timestamp_column}{value_column}`.`{value_column}` ELSE NULL END as `{value_column}` FROM {parent_sql_query_name} "
-    interpolate_project_query_sql = f"), {sql_query_name} AS (SELECT `{timestamp_column}`, `{tagname_column}`, `{value_column}` FROM {sql_query_name}_calculate WHERE `Original{timestamp_column}` IS NULL OR `Original{timestamp_column}` = `{timestamp_column}` "
+    
+    # Updated interpolate query using FULL OUTER JOIN instead of WHERE clause
+    interpolate_project_query_sql = f"), {sql_query_name} AS (SELECT COALESCE(i.`{timestamp_column}`, f.`{timestamp_column}`) AS `{timestamp_column}`, COALESCE(i.`{tagname_column}`, f.`{tagname_column}`) AS `{tagname_column}`, COALESCE(i.`{value_column}`, f.`{value_column}`) AS `{value_column}` FROM {sql_query_name}_calculate i FULL OUTER JOIN fill_intervals f ON i.`{timestamp_column}` = f.`{timestamp_column}` AND i.`{tagname_column}` = f.`{tagname_column}` "
 
     interpolate_query_sql = (
         interpolate_calc_query_sql
@@ -1036,6 +1038,8 @@ def _interpolation_query(parameters_dict: dict) -> str:
     )
 
     sql_query_list.append({"query_name": "output", "sql_query": output_query})
+
+    print(sql_query_list)
 
     sql_query = _build_sql_cte_statement(sql_query_list)
 
