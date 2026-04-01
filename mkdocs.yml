@@ -345,6 +345,10 @@ nav:
           - Data Model: domains/weather/data_model.md
   - Integration:
       - Power BI: integration/power-bi.md
+  - Collaboration:
+      - 2025: collaboration/2025-amos-program.md
+      - 2024: collaboration/2024-amos-program.md
+      - 2023: collaboration/2023-amos-program.md
   - Roadmaps:
       - Overview: roadmap/roadmap-overview.md
       - 2023: roadmap/yearly-roadmaps/2023-development-roadmap.md
