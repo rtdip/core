@@ -1,4 +1,4 @@
-<center> <img src="/api/images/rest-api-logo.png" width="50%" alt="rest" /> </center>
+<center> <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/api/images/rest-api-logo.png" width="50%" alt="rest" /> </center>
 
 <!-- --8<-- [start:restapi] -->
 

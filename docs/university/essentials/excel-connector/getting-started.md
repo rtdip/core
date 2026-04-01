@@ -8,7 +8,7 @@
 To get started, open up Microsoft Excel and go to the `Home` tab. On the right you should see the RTDIP Taskpane like this (if not, you may need to click `Add-ins`):
 
 <figure markdown="span">
-  <img src="/university/essentials/excel-connector/assets/home-tab.png" width="200" alt="Excel" />
+  <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/university/essentials/excel-connector/assets/home-tab.png" width="200" alt="Excel" />
 </figure>
 
 
@@ -17,7 +17,7 @@ Once opened, the set-up screen will show and will ask for your API URL. This wil
 After this, you should see our friendly taskpane (you are now completely set-up and ready to make some queries!):
 
 <figure markdown="span">
-  <img src="/university/essentials/excel-connector/assets/taskpane.png" width="40%" alt="Excel" />
+  <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/university/essentials/excel-connector/assets/taskpane.png" width="40%" alt="Excel" />
 </figure>
 
 Let's move onto the next section:

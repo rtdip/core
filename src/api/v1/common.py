@@ -87,7 +87,7 @@ def common_api_setup_tasks(  # NOSONAR
             "You have two options: (1) Use an older RTDIP version prior to v0.14.3, or (2) Manually install turbodbc. "
             "Consider using Databricks SQL Connector instead.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         connection = TURBODBCSQLConnection(
             databricks_server_host_name,

@@ -1,6 +1,6 @@
 # What is Postman?
 
-<center> <img src="/university/essentials/api/assets/postman.png" width="40%" alt="postman" /> </center>
+<center> <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/university/essentials/api/assets/postman.png" width="40%" alt="postman" /> </center>
 
 Postman is an API platform for building and using APIs. Some features of Postman include:
 

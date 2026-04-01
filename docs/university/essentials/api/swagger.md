@@ -21,15 +21,15 @@ To find out more information about Swagger, see [Swagger Documentation](https://
 
 RTDIP REST API documentation is available in a number of formats, as described below. 
 
-<center> <img src="/api/images/open-api.png" width="50%" alt="rest" /> </center>
+<center> <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/api/images/open-api.png" width="50%" alt="rest" /> </center>
 
 --8<-- "api/rest_apis.md:openapi"
 
-<center> <img src="/api/images/swagger.png" width="50%" alt="rest" /> </center>
+<center> <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/api/images/swagger.png" width="50%" alt="rest" /> </center>
 
 --8<-- "api/rest_apis.md:swagger"
 
-<center> <img src="/api/images/redoc-logo.png" width="50%" alt="rest" /> </center>
+<center> <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/api/images/redoc-logo.png" width="50%" alt="rest" /> </center>
 
 --8<-- "api/rest_apis.md:redoc"
 

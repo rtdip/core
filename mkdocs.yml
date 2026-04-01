@@ -118,7 +118,7 @@ markdown_extensions:
         - docs
         - src/sdk
       check_paths: true
-      url_download: false
+      url_download: true
   - pymdownx.tasklist:
       custom_checkbox: true
 

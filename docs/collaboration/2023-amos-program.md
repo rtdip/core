@@ -1,8 +1,8 @@
-# RTDIP AI Pipeline Generation: Our First AMOS Collaboration (2023)
+# RTDIP AI Pipeline Generation: Our First AMOS 2023 Collaboration
 
 <center>
 
-<img src="/blog/images/agile.svg" width="60%" alt="collaboration" />
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/agile.svg" width="60%" alt="collaboration" />
 
 </center>
 

@@ -8,7 +8,7 @@ authors:
 
 <center>
 
-<img src="/blog/images/data-quality.png" width="75%" alt="Data Quality" />
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/data-quality.png" width="75%" alt="Data Quality" />
 
 </center>
 

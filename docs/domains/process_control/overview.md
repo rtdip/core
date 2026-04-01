@@ -42,11 +42,11 @@ A number of connectors are available from various suppliers. Some open source op
 
 Message Brokers support publishing of data from connectors and subscribing(pub/sub) to data from consumers. Popular options used with RTDIP are:
 
-<center><a href="https://kafka.apache.org/"><img src="/domains/process_control/images/kafka-logo-wide.png" width="40%" alt="Kafka" /></a></center>
+<center><a href="https://kafka.apache.org/"><img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/domains/process_control/images/kafka-logo-wide.png" width="40%" alt="Kafka" /></a></center>
 
-<center><a href="https://mqtt.org/"><img src="/domains/process_control/images/mqtt.png" width="40%" alt="MQTT" /></a></center>
+<center><a href="https://mqtt.org/"><img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/domains/process_control/images/mqtt.png" width="40%" alt="MQTT" /></a></center>
 
-<center><a href="https://azure.microsoft.com/en-us/products/iot-hub"><img src="/domains/process_control/images/iot_hub.png" width="40%" alt="Azure IoT Hub" /></a></center>
+<center><a href="https://azure.microsoft.com/en-us/products/iot-hub"><img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/domains/process_control/images/iot_hub.png" width="40%" alt="Azure IoT Hub" /></a></center>
 
 
 ## Real Time Data Ingestion Platform

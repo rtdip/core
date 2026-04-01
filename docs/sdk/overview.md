@@ -1,4 +1,4 @@
-<center><img src="/sdk/images/sdk-logo.png" width="40%" alt="sdk" /></center>
+<center><img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/sdk/images/sdk-logo.png" width="40%" alt="sdk" /></center>
 
 # What is the RTDIP SDK?
 

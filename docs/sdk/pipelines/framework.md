@@ -67,7 +67,7 @@ More Information about Pipeline Jobs can be found [here.](jobs.md)
 
 |Python|Apache Spark|Databricks|Delta Live Tables|
 |---------------------------|----------------------|--------------------------------------------------|-------|
-|<img src="/sdk/pipelines/images/python.png" alt="python" class="image-center" />|<img src="/sdk/pipelines/images/apachespark.png" alt="pyspark" class="image-center" />|<img src="/sdk/pipelines/images/databricks_horizontal.png" alt="databricks" class="image-center" />|<img src="/sdk/pipelines/images/dlt.svg" alt="delta" class="image-center" />
+|<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/sdk/pipelines/images/python.png" alt="python" class="image-center" />|<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/sdk/pipelines/images/apachespark.png" alt="pyspark" class="image-center" />|<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/sdk/pipelines/images/databricks_horizontal.png" alt="databricks" class="image-center" />|<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/sdk/pipelines/images/dlt.svg" alt="delta" class="image-center" />
 
 !!! note "Note"
     </b>RTDIP are continuously adding more to this list. For detailed information on timelines, read this [blog post](../../blog/posts/rtdip_ingestion_pipelines.md) and check back on this page regularly.<br />

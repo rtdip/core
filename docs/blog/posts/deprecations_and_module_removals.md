@@ -5,10 +5,11 @@ authors:
 ---
 
 <center>
-# Important: Module Removals and Deprecations in RTDIP SDK v0.14.3
-
-<img src="/blog/images/framework.png" width="60%" alt="breaking-changes" />
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/framework.png" width="60%" alt="breaking-changes" />
 </center>
+
+# Important: Module Removals and Deprecations in RTDIP SDK v0.14.4
+
 
 We are pleased to announce significant updates to the RTDIP SDK that improve performance and focus the platform on its core strengths. These changes involve the removal of several modules and the deprecation of turbodbc support. This post outlines these changes and provides guidance on migration paths.
 
@@ -45,7 +46,7 @@ All test files for the removed modules have been removed from the test suite, in
 - 6 forecasting tests
 - 1 logging integration test (`test_log_collection.py`)
 
-### 📦 Removed Package Dependencies
+### Removed Package Dependencies
 The following packages, which were only used by the removed modules, have been removed from dependencies:
 
 - `statsmodels>=0.14.1` - Used by ARIMA models

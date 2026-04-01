@@ -2,7 +2,7 @@
 
 <center>
 
-<img src="/blog/images/agile.svg" width="60%" alt="collaboration" />
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/agile.svg" width="60%" alt="collaboration" />
 
 </center>
 
