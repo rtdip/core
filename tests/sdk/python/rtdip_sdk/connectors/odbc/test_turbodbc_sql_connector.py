@@ -17,12 +17,15 @@ import pandas as pd
 import pyarrow as pa
 from pytest_mock import MockerFixture
 
-pytestmark = pytest.mark.skip(
+# Skip this entire test module if turbodbc connector dependencies are not available
+# Turbodbc is deprecated as of v0.14.3 and no longer included in RTDIP dependencies
+pytest.importorskip(
+    "turbodbc",
+    minversion=None,
     reason="Turbodbc connector deprecated as of v0.14.3 and no longer included in RTDIP dependencies. "
     "For turbodbc support, use RTDIP v0.14.3 or earlier, or manually install turbodbc."
 )
 
-# Import statements are after pytestmark to avoid collection errors when turbodbc is not installed
 from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection, TURBODBCSQLCursor
 
 HOST_NAME = "myHostName"
