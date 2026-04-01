@@ -25,7 +25,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     Pi data points will either have step enabled (True) or step disabled (False). You can specify whether you want step to be fetched by "Pi" or you can set the step parameter to True/False in the dictionary below.
 
     Args:
-        connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
+        connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, or deprecated TURBODBC SQL Connect)
         parameters_dict (dict): A dictionary of parameters (see Attributes table below)
 
     Attributes:

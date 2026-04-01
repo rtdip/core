@@ -32,14 +32,14 @@ class SQLQueryBuilder:
         """
         A function to return back raw data by querying databricks SQL Warehouse using a connection specified by the user.
 
-        The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
+        The available connectors by RTDIP are Databricks SQL Connect and PYODBC SQL Connect. TURBODBC SQL Connect is deprecated and no longer inherently supported (use v0.14.3 or earlier if needed).
 
         The available authentication methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
 
         This function requires the user to input a dictionary of parameters. (See Attributes table below)
 
         Args:
-            connection (obj): Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
+            connection (obj): Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, or deprecated TURBODBC SQL Connect)
             sql_query (str): A string of the SQL query to be executed.
             limit (optional int): Limit the number of rows to be returned
             offset (optional int): Offset the start of the rows to be returned

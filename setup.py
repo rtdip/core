@@ -29,6 +29,7 @@ long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
     "setuptools>=68.0.0",
+    # Note: turbodbc is no longer inherently supported. If needed, install manually or use v0.14.3 or under.
     # "turbodbc>=4.5.0",
     "databricks-sql-connector>=3.6.0,<3.7.0",
     "pyarrow>=14.0.1,<17.0.0",

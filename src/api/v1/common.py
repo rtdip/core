@@ -40,6 +40,7 @@ from src.sdk.python.rtdip_sdk.connectors import (
 from src.sdk.python.rtdip_sdk.queries.time_series import batch
 
 if importlib.util.find_spec("turbodbc") != None:
+    import warnings
     from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
 from src.api.auth import azuread
 from .models import BaseHeaders, FieldSchema, LimitOffsetQueryParams, PaginationRow
@@ -81,6 +82,13 @@ def common_api_setup_tasks(  # NOSONAR
     )
 
     if odbc_connection == "turbodbc":
+        warnings.warn(
+            "TURBODBC connector is deprecated and no longer inherently supported in RTDIP (as of v0.14.3). "
+            "You have two options: (1) Use an older RTDIP version prior to v0.14.3, or (2) Manually install turbodbc. "
+            "Consider using Databricks SQL Connector instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         connection = TURBODBCSQLConnection(
             databricks_server_host_name,
             databricks_http_path,

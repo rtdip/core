@@ -308,7 +308,7 @@ nav:
                 - Overview: sdk/queries/connectors.md
                 - Databricks SQL Connector: sdk/code-reference/query/connectors/db-sql-connector.md
                 - PYODBC SQL Connector: sdk/code-reference/query/connectors/pyodbc-sql-connector.md
-                - TURBODBC SQL Connector: sdk/code-reference/query/connectors/turbodbc-sql-connector.md
+                - TURBODBC SQL Connector (Deprecated): sdk/code-reference/query/connectors/turbodbc-sql-connector.md
                 - Spark Connector: sdk/code-reference/query/connectors/spark-connector.md
           - Databricks:
               - Databricks SQL: sdk/queries/databricks/databricks-sql.md
