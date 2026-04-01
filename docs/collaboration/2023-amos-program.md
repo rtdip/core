@@ -2,7 +2,7 @@
 
 <center>
 
-![collaboration](../images/agile.svg){width=60%}
+<img src="/blog/images/agile.svg" width="60%" alt="collaboration" />
 
 </center>
 

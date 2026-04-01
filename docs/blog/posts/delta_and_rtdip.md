@@ -9,7 +9,7 @@ tags:
 
 # Delta Lakehouse and Real Time Data Ingestion Platform
 
-<center> ![Delta Lakehouse](../images/delta-lakehouse.svg){width=50%} </center>
+<center> <img src="/blog/images/delta-lakehouse.svg" width="50%" alt="Delta Lakehouse" /> </center>
 
 Real Time Data Ingestion Platform leverages Delta and the concept of a Lakehouse to ingest, store and manage it's data. There are many benefits to Delta for performing data engineering tasks on files stored in a data lake including ACID transactions, maintenance, SQL query capability and performance at scale. To find out more about Delta Lakehouse please see [here.](https://databricks.com/product/data-lakehouse)
 

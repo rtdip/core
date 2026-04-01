@@ -1,4 +1,4 @@
-<center> ![rest](images/rest-api-logo.png){width=50%} </center>
+<center> <img src="/api/images/rest-api-logo.png" width="50%" alt="rest" /> </center>
 
 <!-- --8<-- [start:restapi] -->
 

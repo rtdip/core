@@ -34,19 +34,19 @@ graph LR
 
 A number of connectors are available from various suppliers. Some open source options include:
 
-<center>[![Fledge](https://www.lfedge.org/wp-content/uploads/2019/09/fledge-horizontal-color.svg){width=40%}](https://www.lfedge.org/projects/fledge/) </center>
+<center><a href="https://www.lfedge.org/projects/fledge/"><img src="https://www.lfedge.org/wp-content/uploads/2019/09/fledge-horizontal-color.svg" width="40%" alt="Fledge" /></a></center>
 
-<center> [![Edge X Foundry](https://github.com/lf-edge/artwork/blob/master/edgexfoundry/horizontal/color/edgexfoundry-horizontal-color.png?raw=true){width=50%}](https://www.lfedge.org/projects/edgexfoundry/) </center>
+<center> <a href="https://www.lfedge.org/projects/edgexfoundry/"><img src="https://github.com/lf-edge/artwork/blob/master/edgexfoundry/horizontal/color/edgexfoundry-horizontal-color.png?raw=true" width="50%" alt="Edge X Foundry" /></a> </center>
 
 ### Message Brokers
 
 Message Brokers support publishing of data from connectors and subscribing(pub/sub) to data from consumers. Popular options used with RTDIP are:
 
-<center>[![Kafka](../process_control/images/kafka-logo-wide.png){width=40%}](https://kafka.apache.org/) </center>
+<center><a href="https://kafka.apache.org/"><img src="/domains/process_control/images/kafka-logo-wide.png" width="40%" alt="Kafka" /></a></center>
 
-<center>[![MQTT](../process_control/images/mqtt.png){width=40%}](https://mqtt.org/) </center>
+<center><a href="https://mqtt.org/"><img src="/domains/process_control/images/mqtt.png" width="40%" alt="MQTT" /></a></center>
 
-<center>[![Azure IoT Hub](../process_control/images/iot_hub.png){width=40%}](https://azure.microsoft.com/en-us/products/iot-hub) </center>
+<center><a href="https://azure.microsoft.com/en-us/products/iot-hub"><img src="/domains/process_control/images/iot_hub.png" width="40%" alt="Azure IoT Hub" /></a></center>
 
 
 ## Real Time Data Ingestion Platform

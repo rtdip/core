@@ -1,4 +1,4 @@
-<center>![sdk](images/sdk-logo.png){width=40%}</center>
+<center><img src="/sdk/images/sdk-logo.png" width="40%" alt="sdk" /></center>
 
 # What is the RTDIP SDK?
 

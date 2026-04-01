@@ -7,7 +7,9 @@ authors:
 # Ensuring Data Quality at Speed with Real Time Data
 
 <center>
-![DataQualityImage](../images/data-quality.png){width=75%} 
+
+<img src="/blog/images/data-quality.png" width="75%" alt="Data Quality" />
+
 </center>
 
 High quality data plays a pivotal role in business success across various dimensions. Accurate and reliable data empowers business leaders to make well informed decisions and achieve operational efficiency, promoting growth and profitability. Data quality encompasses more than just accuracy it also includes completeness, consistency, and relevance. 

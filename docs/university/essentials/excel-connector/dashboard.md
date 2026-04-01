@@ -15,7 +15,7 @@ For our final exercise, we will put everything together and create a simple dash
 4. Watch your chart update with live data.
 
 <figure markdown="span">
-  ![Excel](assets/plot.gif){ width="100%" }
+  <img src="/university/essentials/excel-connector/assets/plot.gif" width="100%" alt="Excel" />
 </figure>
 
 >

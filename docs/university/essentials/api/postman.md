@@ -1,6 +1,6 @@
 # What is Postman?
 
-<center> ![postman](assets/postman.png){width=40%} </center>
+<center> <img src="/university/essentials/api/assets/postman.png" width="40%" alt="postman" /> </center>
 
 Postman is an API platform for building and using APIs. Some features of Postman include:
 
