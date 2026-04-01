@@ -23,7 +23,7 @@ pytest.importorskip(
     "turbodbc",
     minversion=None,
     reason="Turbodbc connector deprecated as of v0.14.3 and no longer included in RTDIP dependencies. "
-    "For turbodbc support, use RTDIP v0.14.3 or earlier, or manually install turbodbc."
+    "For turbodbc support, use RTDIP v0.14.3 or earlier, or manually install turbodbc.",
 )
 
 from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection, TURBODBCSQLCursor
