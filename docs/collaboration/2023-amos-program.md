@@ -19,9 +19,13 @@ The team's mission was ambitious: create an AI-driven system capable of understa
 
 ### The Vision
 The project aimed to lower the barrier to entry for RTDIP users by leveraging AI to:
+
 - **Understand requirements** in natural language
+
 - **Select appropriate components** from the RTDIP component library
+
 - **Configure pipelines** with correct parameters and dependencies
+
 - **Generate valid pipeline definitions** ready for execution
 
 ### The Reality: Lessons from AI-Driven Development
@@ -30,17 +34,24 @@ While the vision was compelling, the project revealed important lessons about th
 
 #### Challenge 1: AI Component Hallucination
 One of the most significant challenges was that the AI system would frequently **invent non-existent components** or suggest components that didn't exist in RTDIP. For example:
+
 - Proposing components with names like `OptimizedDeltaMerge` that weren't in the framework
+
 - Suggesting parameters or configuration options that the actual components didn't support
+
 - Creating entirely fictional transformation pipelines that violated RTDIP's architectural patterns
 
 **Impact:** Extensive validation and correction was needed to ensure generated pipelines were feasible.
 
 #### Challenge 2: Component Configuration Errors
 When selecting real RTDIP components, the AI would often:
+
 - **Incorrectly format component parameters** - Using wrong data types or structures
+
 - **Miss required fields** - Omitting mandatory configuration options
+
 - **Violate component constraints** - Specifying incompatible input/output combinations
+
 - **Misunderstand dependencies** - Creating pipelines where component outputs didn't match expected inputs
 
 **Impact:** Generated pipelines required significant manual correction before execution.

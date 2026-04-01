@@ -4,12 +4,11 @@ authors:
   - GBARAS
 ---
 
+# Important: Module Removals and Deprecations in RTDIP SDK v0.14.4
+
 <center>
 <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/framework.png" width="60%" alt="breaking-changes" />
 </center>
-
-# Important: Module Removals and Deprecations in RTDIP SDK v0.14.4
-
 
 We are pleased to announce significant updates to the RTDIP SDK that improve performance and focus the platform on its core strengths. These changes involve the removal of several modules and the deprecation of turbodbc support. This post outlines these changes and provides guidance on migration paths.
 
@@ -67,7 +66,7 @@ pip install "rtdip-sdk<=0.14.3"
 ```
 
 **Option 2: Manual Installation**
-Install turbodbc v0.14.3 or earlier manually in your environment:
+Install turbodbc manually in your environment:
 ```bash
 pip install "turbodbc"
 ```
@@ -76,7 +75,7 @@ pip install "turbodbc"
 For new projects, we recommend using:
 - **DatabricksSQLConnection** (Default and recommended)
 - **PYODBCSQLConnection** (Lightweight ODBC alternative)
-- **SparkConnection** (For Spark-based workloads)
+- **SparkConnection**
 
 ## Affected Components & Migration Guidance
 
