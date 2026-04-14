@@ -52,6 +52,20 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         DataFrame: A resampled and interpolated dataframe.
 
     !!! warning
+        **Time Gradient Buffering**
+
+        The interpolation query automatically expands the requested date range with a time-based buffer to ensure accurate interpolation at the boundaries. The buffer size depends on the `time_interval_unit`:
+
+        - **minute**: ±5 minutes
+        - **second**: ±60 seconds
+        - **hour**: ±1 hour
+        - **day**: ±1 day
+
+        **Example**: If you request data from 2024-01-01 00:00:00 to 2024-01-01 23:59:59 with minute intervals, the query will fetch data from 2023-12-31 23:55:00 to 2024-01-02 00:04:59. Only data within your requested range will be returned, but the buffer ensures interpolated values at your boundaries are accurate.
+
+        Be aware that this may increase query time and data retrieval volume for boundary data points.
+
+    !!! warning
         Setting `case_insensitivity_tag_search` to True will result in a longer query time.
 
     !!! Note
