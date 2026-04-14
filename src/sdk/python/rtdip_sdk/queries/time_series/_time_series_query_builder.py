@@ -480,7 +480,6 @@ def _build_interpolate_uom_cte(
 
 def _build_interpolate_query(
     sql_query_list,
-    sql_query_name,
     tagname_column,
     timestamp_column,
     value_column,
@@ -497,8 +496,14 @@ def _build_interpolate_query(
     metadata_tagname_column,
     metadata_uom_column,
     case_insensitivity_tag_search,
+    display_uom=False,
 ):
-    """Build the complete interpolate query with all CTEs."""
+    """Build the complete interpolate query with all CTEs.
+    
+    Returns tuple of (query_sql, final_cte_name):
+    - query_sql: The CTE string to be added to sql_query_list
+    - final_cte_name: The name of the final CTE ('interpolate' or 'uom')
+    """
     # Build individual CTEs using dedicated functions
     intervals_query_sql = _build_interpolate_intervals_cte(
         timestamp_column=timestamp_column,
@@ -530,31 +535,35 @@ def _build_interpolate_query(
         value_column=value_column,
     )
 
-    uom_query_sql = _build_interpolate_uom_cte(
-        sql_query_name=sql_query_name,
-        timestamp_column=timestamp_column,
-        tagname_column=tagname_column,
-        value_column=value_column,
-        metadata_source=metadata_source,
-        business_unit=business_unit,
-        asset=asset,
-        data_security_level=data_security_level,
-        metadata_tagname_column=metadata_tagname_column,
-        metadata_uom_column=metadata_uom_column,
-    )
+    # Combine CTEs - conditionally include UOM
+    cte_list = [
+        intervals_query_sql,
+        fill_intervals_query_sql,
+        interpolate_calculate_query_sql,
+        interpolate_query_sql_cte,
+    ]
+    
+    final_cte_name = "interpolate"
+    
+    if display_uom:
+        uom_query_sql = _build_interpolate_uom_cte(
+            sql_query_name="uom",
+            timestamp_column=timestamp_column,
+            tagname_column=tagname_column,
+            value_column=value_column,
+            metadata_source=metadata_source,
+            business_unit=business_unit,
+            asset=asset,
+            data_security_level=data_security_level,
+            metadata_tagname_column=metadata_tagname_column,
+            metadata_uom_column=metadata_uom_column,
+        )
+        cte_list.append(uom_query_sql)
+        final_cte_name = "uom"
 
-    # Combine all CTEs
-    interpolate_query_sql = ", ".join(
-        [
-            intervals_query_sql,
-            fill_intervals_query_sql,
-            interpolate_calculate_query_sql,
-            interpolate_query_sql_cte,
-            uom_query_sql,
-        ]
-    )
+    interpolate_query_sql = ", ".join(cte_list)
 
-    return interpolate_query_sql
+    return interpolate_query_sql, final_cte_name
 
 
 def _build_summary_query(
@@ -1198,9 +1207,8 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
     sql_query_list.append({"query_name": "raw", "sql_query": raw_query})
 
-    interpolate_query = _build_interpolate_query(
+    interpolate_query, final_cte_name = _build_interpolate_query(
         sql_query_list=sql_query_list,
-        sql_query_name="uom",
         tagname_column=interpolate_parameters["tagname_column"],
         timestamp_column=interpolate_parameters["timestamp_column"],
         value_column=interpolate_parameters["value_column"],
@@ -1219,9 +1227,10 @@ def _interpolation_query(parameters_dict: dict) -> str:
         case_insensitivity_tag_search=interpolate_parameters[
             "case_insensitivity_tag_search"
         ],
+        display_uom=interpolate_parameters["display_uom"],
     )
 
-    sql_query_list.append({"query_name": "uom", "sql_query": interpolate_query})
+    sql_query_list.append({"query_name": final_cte_name, "sql_query": interpolate_query})
 
     if interpolate_parameters["pivot"] == True:
         pivot_query = _build_pivot_query(
