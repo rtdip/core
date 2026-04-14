@@ -727,7 +727,9 @@ def _build_uom_query(
     return uom_sql_query + ")"
 
 
-def _build_output_query(sql_query_list, to_json, limit, offset):
+def _build_output_query(
+    sql_query_list, to_json, limit, offset, columns=None, order_by_clause=None
+):
     parent_sql_query_name = sql_query_list[-1]["query_name"]
 
     output_sql_query = f"SELECT"
@@ -741,10 +743,15 @@ def _build_output_query(sql_query_list, to_json, limit, offset):
                 ")) AS Value",
             ]
         )
+    elif columns is not None:
+        output_sql_query = " ".join([output_sql_query, ", ".join(columns)])
     else:
         output_sql_query = " ".join([output_sql_query, "*"])
 
     output_sql_query = " ".join([output_sql_query, f"FROM {parent_sql_query_name}"])
+
+    if order_by_clause is not None:
+        output_sql_query = " ".join([output_sql_query, order_by_clause])
 
     if limit is not None:
         output_sql_query = " ".join([output_sql_query, f"LIMIT {limit}"])
@@ -1250,20 +1257,33 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
         sql_query_list.append({"query_name": "pivot", "sql_query": pivot_query})
 
+    # Build order by clause if needed
+    order_by_clause = None
+    if interpolate_parameters["sort"] and interpolate_parameters["pivot"] == False:
+        order_by_clause = f"ORDER BY `{interpolate_parameters['tagname_column']}`, `{interpolate_parameters['timestamp_column']}`"
+
+    # Build columns list for explicit selection only when final CTE is interpolate
+    # (not uom or pivot, which already have their specific columns)
+    columns = None
+    if (
+        final_cte_name == "interpolate"
+        and interpolate_parameters["display_uom"] == False
+        and interpolate_parameters["pivot"] == False
+    ):
+        columns = [
+            f"`{interpolate_parameters['timestamp_column']}`",
+            f"`{interpolate_parameters['tagname_column']}`",
+            f"`{interpolate_parameters['value_column']}`",
+        ]
+
     output_query = _build_output_query(
         sql_query_list=sql_query_list,
         to_json=interpolate_parameters["to_json_resample"],
         limit=interpolate_parameters["limit"],
         offset=interpolate_parameters["offset"],
+        columns=columns,
+        order_by_clause=order_by_clause,
     )
-
-    if interpolate_parameters["sort"] and interpolate_parameters["pivot"] == False:
-        output_query = " ".join(
-            [
-                output_query,
-                f"ORDER BY `{interpolate_parameters['tagname_column']}`, `{interpolate_parameters['timestamp_column']}`",
-            ]
-        )
 
     sql_query_list.append({"query_name": "output", "sql_query": output_query})
 
