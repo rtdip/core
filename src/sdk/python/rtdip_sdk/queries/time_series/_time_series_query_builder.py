@@ -191,7 +191,6 @@ def _build_raw_query_for_interpolate(
     time_zone,
     time_interval_unit,
     time_interval_rate=None,
-    agg_method=None,
     deduplicate=None,
     source=None,
     business_unit=None,
@@ -230,7 +229,7 @@ def _build_raw_query_for_interpolate(
 
     # Select
     raw_query_sql = f"{sql_query_name} AS (SELECT"
-    if agg_method == "avg" or deduplicate == True:
+    if deduplicate == True:
         raw_query_sql = " ".join([raw_query_sql, "DISTINCT"])
 
     # Event Time
@@ -903,7 +902,7 @@ def _sample_query_parameters(parameters_dict: dict) -> dict:
         "include_bad_data": parameters_dict["include_bad_data"],
         "time_interval_rate": parameters_dict["time_interval_rate"],
         "time_interval_unit": parameters_dict["time_interval_unit"],
-        "agg_method": parameters_dict["agg_method"],
+        "agg_method": parameters_dict.get("agg_method", None),
         "fill": parameters_dict.get("fill", False),
         "time_zone": parameters_dict["time_zone"],
         "pivot": parameters_dict.get("pivot", None),
@@ -1179,8 +1178,6 @@ def _plot_query_parameters(parameters_dict: dict) -> dict:
 
 def _interpolation_query(parameters_dict: dict) -> str:
 
-    parameters_dict["agg_method"] = None
-
     interpolate_parameters = _sample_query_parameters(parameters_dict)
 
     sql_query_list = []
@@ -1196,7 +1193,6 @@ def _interpolation_query(parameters_dict: dict) -> str:
         time_zone=interpolate_parameters.get("time_zone", "+0000"),
         time_interval_unit=interpolate_parameters["time_interval_unit"],
         time_interval_rate=interpolate_parameters["time_interval_rate"],
-        agg_method=interpolate_parameters["agg_method"],
         deduplicate=True,
         source=interpolate_parameters["source"],
         business_unit=interpolate_parameters["business_unit"],
