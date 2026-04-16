@@ -1191,7 +1191,6 @@ def _interpolation_query(parameters_dict: dict) -> str:
         end_date=interpolate_parameters["end_date"],
         time_zone=interpolate_parameters.get("time_zone", "+0000"),
         time_interval_unit=interpolate_parameters["time_interval_unit"],
-        time_interval_rate=interpolate_parameters["time_interval_rate"],
         deduplicate=True,
         source=interpolate_parameters["source"],
         business_unit=interpolate_parameters["business_unit"],
