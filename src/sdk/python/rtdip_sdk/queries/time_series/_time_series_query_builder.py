@@ -190,7 +190,6 @@ def _build_raw_query_for_interpolate(
     end_date,
     time_zone,
     time_interval_unit,
-    time_interval_rate=None,
     deduplicate=None,
     source=None,
     business_unit=None,
