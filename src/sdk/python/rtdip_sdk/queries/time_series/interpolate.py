@@ -63,7 +63,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
         **Example**: If you request data from 2024-01-01 00:00:00 to 2024-01-01 23:59:59 with minute intervals, the query will fetch data from 2023-12-31 23:55:00 to 2024-01-02 00:04:59. Only data within your requested range will be returned, but the buffer ensures interpolated values at your boundaries are accurate.
 
-        Be aware that this may increase query time and data retrieval volume for boundary data points.
+        **Important**: In cases where data collection is infrequent (e.g., sparse sensor data), the default buffer boundaries may not cover sufficient historical/future data points for accurate interpolation. If you encounter interpolation gaps or inaccurate boundary values, consider expanding your query window to include more data around your requested date range. This ensures sufficient data points exist within the buffer for computing accurate interpolated values.
 
     !!! warning
         Setting `case_insensitivity_tag_search` to True will result in a longer query time.
