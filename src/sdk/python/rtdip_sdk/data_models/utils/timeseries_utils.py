@@ -22,7 +22,6 @@ import string
 import random
 import logging
 
-
 type_checks = [
     # (Type, Test)
     (int, int),

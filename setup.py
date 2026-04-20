@@ -28,6 +28,8 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
+    "setuptools>=68.0.0",
+    # "turbodbc>=4.5.0",
     "databricks-sql-connector>=3.6.0,<3.7.0",
     "pyarrow>=14.0.1,<17.0.0",
     "azure-core>=1.38.0,<2.0.0",

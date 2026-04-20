@@ -35,7 +35,7 @@ def latest_retrieval_get(
     query_parameters, metadata_query_parameters, limit_offset_parameters, base_headers
 ):
     try:
-        (connection, parameters) = common_api_setup_tasks(
+        connection, parameters = common_api_setup_tasks(
             query_parameters,
             metadata_query_parameters=metadata_query_parameters,
             limit_offset_query_parameters=limit_offset_parameters,

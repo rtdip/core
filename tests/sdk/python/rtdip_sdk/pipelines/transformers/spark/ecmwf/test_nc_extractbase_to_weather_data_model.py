@@ -7,7 +7,6 @@ from src.sdk.python.rtdip_sdk.pipelines.transformers.spark.ecmwf.nc_extractbase_
     ECMWFExtractBaseToWeatherDataModel,
 )
 
-
 # Sample test data
 load_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_file")
 date_start = "2021-01-01 00:00:00"

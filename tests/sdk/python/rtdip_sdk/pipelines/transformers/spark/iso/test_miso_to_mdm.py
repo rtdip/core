@@ -32,7 +32,6 @@ from src.sdk.python.rtdip_sdk.pipelines._pipeline_utils.models import (
 )
 from pyspark.sql import SparkSession, DataFrame
 
-
 parent_base_path: str = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "test_data"
 )

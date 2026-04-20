@@ -39,7 +39,6 @@ from src.sdk.python.rtdip_sdk.connectors import (
 
 from src.sdk.python.rtdip_sdk.queries.time_series import batch
 
-
 if importlib.util.find_spec("turbodbc") != None:
     from src.sdk.python.rtdip_sdk.connectors import TURBODBCSQLConnection
 from src.api.auth import azuread

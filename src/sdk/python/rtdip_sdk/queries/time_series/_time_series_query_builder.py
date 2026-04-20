@@ -180,6 +180,134 @@ def _build_raw_query(
     return raw_query_sql
 
 
+def _build_raw_query_for_interpolate(
+    sql_query_name,
+    timestamp_column,
+    tagname_column,
+    status_column,
+    value_column,
+    start_date,
+    end_date,
+    time_zone,
+    time_interval_unit,
+    deduplicate=None,
+    source=None,
+    business_unit=None,
+    asset=None,
+    data_security_level=None,
+    data_type=None,
+    tag_names=None,
+    include_status=None,
+    include_bad_data=None,
+    case_insensitivity_tag_search=None,
+    sort=True,
+):
+    """Build raw query for interpolation - same as _build_raw_query but with time gradient buffering.
+
+    Time gradient buffering expands the query range to ensure accurate interpolation at boundaries.
+    For each time_interval_unit, a corresponding buffer is applied:
+    - minute → ±5 minutes
+    - second → ±60 seconds
+    - hour → ±1 hour
+    - day → ±1 day
+
+    This ensures we have data points just outside the requested range for proper linear interpolation
+    at the boundary timestamps. Only data within the original requested range is returned to the user.
+    """
+    # Determine time gradient based on time_interval_unit
+    time_gradient_map = {
+        "minute": (5, "minute"),
+        "second": (60, "second"),
+        "hour": (1, "hour"),
+        "day": (1, "day"),
+    }
+
+    gradient_value, gradient_unit = time_gradient_map.get(
+        time_interval_unit, (5, "minute")
+    )
+
+    # Select
+    raw_query_sql = f"{sql_query_name} AS (SELECT"
+    if deduplicate == True:
+        raw_query_sql = " ".join([raw_query_sql, "DISTINCT"])
+
+    # Event Time
+    raw_query_sql = " ".join(
+        [
+            raw_query_sql,
+            f"from_utc_timestamp(date_trunc('millisecond',`{timestamp_column}`), '{time_zone}') AS `{timestamp_column}`,",
+        ]
+    )
+
+    # Tag Name
+    raw_query_sql = " ".join([raw_query_sql, f"`{tagname_column}`,"])
+
+    # Status
+    if include_status == True:
+        raw_query_sql = " ".join([raw_query_sql, f"`{status_column}`,"])
+    else:
+        raw_query_sql = " ".join([raw_query_sql, "'Good' AS `Status`,"])
+
+    # Value
+    raw_query_sql = " ".join([raw_query_sql, f"`{value_column}` FROM"])
+
+    if source is not None:
+        raw_query_sql = " ".join([raw_query_sql, f"`{source.lower()}`"])
+    else:
+        raw_query_sql = " ".join(
+            [
+                raw_query_sql,
+                f"`{business_unit.lower()}`.`sensors`.`{asset.lower()}_{data_security_level.lower()}_events_{data_type.lower()}`",
+            ]
+        )
+
+    # Where - time gradient buffering for accurate boundary interpolation
+    # Expands query range by ±gradient_value in gradient_unit to fetch data outside the requested range
+    # This ensures linear interpolation at boundary timestamps has sufficient context
+    # Example: for minute intervals, query range is expanded by ±5 minutes = ±300 seconds
+    raw_query_sql = " ".join(
+        [
+            raw_query_sql,
+            f"WHERE `{timestamp_column}` BETWEEN",
+            f"timestampadd({gradient_unit}, -{gradient_value}, to_timestamp('{start_date}'))",
+            f"AND",
+            f"timestampadd({gradient_unit}, {gradient_value}, to_timestamp('{end_date}'))",
+            "AND",
+        ]
+    )
+
+    if case_insensitivity_tag_search == True:
+        quoted_tag_names = "', '".join([tag.upper() for tag in tag_names])
+        raw_query_sql = " ".join(
+            [
+                raw_query_sql,
+                f"UPPER(`{tagname_column}`) IN ('{quoted_tag_names}')",
+            ]
+        )
+    else:
+        quoted_tag_names = "', '".join(tag_names)
+        raw_query_sql = " ".join(
+            [
+                raw_query_sql,
+                f"`{tagname_column}` IN ('{quoted_tag_names}')",
+            ]
+        )
+
+    if include_status == True and include_bad_data == False:
+        raw_query_sql = " ".join([raw_query_sql, f"AND `{status_column}` <> 'Bad'"])
+
+    if sort == True:
+        raw_query_sql = " ".join(
+            [
+                raw_query_sql,
+                f"ORDER BY `{tagname_column}`, `{timestamp_column}`",
+            ]
+        )
+    raw_query_sql += ")"
+
+    return raw_query_sql
+
+
 def _build_resample_query(
     sql_query_list,
     sql_query_name,
@@ -266,39 +394,174 @@ def _build_fill_intervals_query(
     return intervals_query + fill_intervals_query + from_sql + ")"
 
 
-def _build_interpolate_query(
-    sql_query_list,
-    sql_query_name,
-    tagname_column,
+def _build_interpolate_intervals_cte(
     timestamp_column,
-    value_column,
-    sort=True,
+    tagname_column,
+    tag_names,
+    start_date,
+    end_date,
+    time_zone,
+    time_interval_rate,
+    time_interval_unit,
+    case_insensitivity_tag_search,
 ):
-    parent_sql_query_name = sql_query_list[-1]["query_name"]
-
-    interpolate_calc_query_sql = f"{sql_query_name}_calculate AS (SELECT `Original{timestamp_column}`, `{timestamp_column}`, `{tagname_column}`, "
-    lag_value_query_sql = f"CASE WHEN `{value_column}` IS NOT NULL THEN NULL ELSE LAG(`{timestamp_column}_{value_column}`) IGNORE NULLS OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}`) END AS Prev{timestamp_column}{value_column}, "
-    lead_value_query_sql = f"CASE WHEN `{value_column}` IS NOT NULL THEN NULL ELSE LEAD(`{timestamp_column}_{value_column}`) IGNORE NULLS OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}`) END AS Next{timestamp_column}{value_column}, "
-    value_query_sql = f"CASE WHEN `Original{timestamp_column}` = `{timestamp_column}` THEN `{value_column}` WHEN `Prev{timestamp_column}{value_column}` IS NOT NULL AND `Next{timestamp_column}{value_column}` IS NOT NULL THEN `Prev{timestamp_column}{value_column}`.`{value_column}` + ((`Next{timestamp_column}{value_column}`.`{value_column}` - `Prev{timestamp_column}{value_column}`.`{value_column}`) * (unix_timestamp(`{timestamp_column}`) - unix_timestamp(`Prev{timestamp_column}{value_column}`.`{timestamp_column}`)) / (unix_timestamp(`Next{timestamp_column}{value_column}`.`{timestamp_column}`) - unix_timestamp(`Prev{timestamp_column}{value_column}`.`{timestamp_column}`))) WHEN `Prev{timestamp_column}{value_column}` IS NOT NULL THEN `Prev{timestamp_column}{value_column}`.`{value_column}` ELSE NULL END as `{value_column}` FROM {parent_sql_query_name} "
-    interpolate_project_query_sql = f"), {sql_query_name} AS (SELECT `{timestamp_column}`, `{tagname_column}`, `{value_column}` FROM {sql_query_name}_calculate WHERE `Original{timestamp_column}` IS NULL OR `Original{timestamp_column}` = `{timestamp_column}` "
-
-    interpolate_query_sql = (
-        interpolate_calc_query_sql
-        + lag_value_query_sql
-        + lead_value_query_sql
-        + value_query_sql
-        + interpolate_project_query_sql
+    """Build intervals CTE with time sequence and tag explosion."""
+    quoted_tag_names = (
+        "', '".join([tag.upper() for tag in tag_names])
+        if case_insensitivity_tag_search == True
+        else "', '".join(tag_names)
     )
+    return f"intervals AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp('{start_date}'), '{time_zone}'), from_utc_timestamp(to_timestamp('{end_date}'), '{time_zone}'), INTERVAL '{time_interval_rate} {time_interval_unit}')) AS `{timestamp_column}`, explode(array('{quoted_tag_names}')) AS `{tagname_column}`)"
 
-    if sort == True:
-        interpolate_query_sql = " ".join(
+
+def _build_interpolate_fill_intervals_cte(
+    timestamp_column,
+    tagname_column,
+    value_column,
+):
+    """Build fill_intervals CTE that unions raw data with intervals."""
+    return f"fill_intervals AS (SELECT `{timestamp_column}`, `{tagname_column}`, `{value_column}`, 0 AS `SortKey` FROM raw UNION ALL SELECT `{timestamp_column}`, `{tagname_column}`, CAST(NULL AS DOUBLE), 1 AS `SortKey` FROM intervals)"
+
+
+def _build_interpolate_calculate_cte(
+    timestamp_column,
+    tagname_column,
+    value_column,
+):
+    """Build interpolate_calculate CTE that applies LAG/LEAD to capture previous/next values."""
+    return f"interpolate_calculate AS (SELECT `{timestamp_column}`, `{tagname_column}`, `SortKey`, `{value_column}`, LAG(CASE WHEN `SortKey` = 0 THEN struct(`{timestamp_column}` AS `{timestamp_column}`, `{value_column}` AS `{value_column}`) END) IGNORE NULLS OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}`, `SortKey`) AS `Prev`, LEAD(CASE WHEN `SortKey` = 0 THEN struct(`{timestamp_column}` AS `{timestamp_column}`, `{value_column}` AS `{value_column}`) END) IGNORE NULLS OVER (PARTITION BY `{tagname_column}` ORDER BY `{timestamp_column}`, `SortKey`) AS `Next` FROM fill_intervals)"
+
+
+def _build_interpolate_interpolate_cte(
+    timestamp_column,
+    tagname_column,
+    value_column,
+):
+    """Build interpolate CTE that performs linear interpolation using unix_millis."""
+    return f"interpolate AS (SELECT `{timestamp_column}`, `{tagname_column}`, CASE WHEN `Prev` IS NOT NULL AND `Next` IS NOT NULL THEN `Prev`.`{value_column}` + ((`Next`.`{value_column}` - `Prev`.`{value_column}`) * (unix_millis(`{timestamp_column}`) - unix_millis(`Prev`.`{timestamp_column}`)) / (unix_millis(`Next`.`{timestamp_column}`) - unix_millis(`Prev`.`{timestamp_column}`))) WHEN `Prev` IS NOT NULL THEN `Prev`.`{value_column}` ELSE NULL END AS `{value_column}` FROM interpolate_calculate WHERE `SortKey` = 1)"
+
+
+def _build_interpolate_uom_cte(
+    sql_query_name,
+    timestamp_column,
+    tagname_column,
+    value_column,
+    metadata_source,
+    business_unit,
+    asset,
+    data_security_level,
+    metadata_tagname_column,
+    metadata_uom_column,
+):
+    """Build final uom CTE that joins with metadata for UoM."""
+    uom_query_sql = f"{sql_query_name} AS (SELECT i.`{timestamp_column}`, i.`{tagname_column}`, i.`{value_column}`, m.`{metadata_uom_column}` FROM interpolate i LEFT OUTER JOIN"
+
+    if metadata_source:
+        uom_query_sql = " ".join([uom_query_sql, f"{metadata_source}"])
+    else:
+        uom_query_sql = " ".join(
             [
-                interpolate_query_sql,
-                f"ORDER BY `{tagname_column}`, `{timestamp_column}`",
+                uom_query_sql,
+                f"`{business_unit.lower()}`.`sensors`.`{asset.lower()}_{data_security_level.lower()}_metadata`",
             ]
         )
 
-    return interpolate_query_sql + ")"
+    uom_query_sql = " ".join(
+        [
+            uom_query_sql,
+            f"AS m ON i.`{tagname_column}` = m.`{metadata_tagname_column}`)",
+        ]
+    )
+
+    return uom_query_sql
+
+
+def _build_interpolate_query(
+    sql_query_list,
+    tagname_column,
+    timestamp_column,
+    value_column,
+    tag_names,
+    start_date,
+    end_date,
+    time_zone,
+    time_interval_rate,
+    time_interval_unit,
+    metadata_source,
+    business_unit,
+    asset,
+    data_security_level,
+    metadata_tagname_column,
+    metadata_uom_column,
+    case_insensitivity_tag_search,
+    display_uom=False,
+):
+    """Build the complete interpolate query with all CTEs.
+
+    Returns tuple of (query_sql, final_cte_name):
+    - query_sql: The CTE string to be added to sql_query_list
+    - final_cte_name: The name of the final CTE ('interpolate' or 'uom')
+    """
+    # Build individual CTEs using dedicated functions
+    intervals_query_sql = _build_interpolate_intervals_cte(
+        timestamp_column=timestamp_column,
+        tagname_column=tagname_column,
+        tag_names=tag_names,
+        start_date=start_date,
+        end_date=end_date,
+        time_zone=time_zone,
+        time_interval_rate=time_interval_rate,
+        time_interval_unit=time_interval_unit,
+        case_insensitivity_tag_search=case_insensitivity_tag_search,
+    )
+
+    fill_intervals_query_sql = _build_interpolate_fill_intervals_cte(
+        timestamp_column=timestamp_column,
+        tagname_column=tagname_column,
+        value_column=value_column,
+    )
+
+    interpolate_calculate_query_sql = _build_interpolate_calculate_cte(
+        timestamp_column=timestamp_column,
+        tagname_column=tagname_column,
+        value_column=value_column,
+    )
+
+    interpolate_query_sql_cte = _build_interpolate_interpolate_cte(
+        timestamp_column=timestamp_column,
+        tagname_column=tagname_column,
+        value_column=value_column,
+    )
+
+    # Combine CTEs - conditionally include UOM
+    cte_list = [
+        intervals_query_sql,
+        fill_intervals_query_sql,
+        interpolate_calculate_query_sql,
+        interpolate_query_sql_cte,
+    ]
+
+    final_cte_name = "interpolate"
+
+    if display_uom:
+        uom_query_sql = _build_interpolate_uom_cte(
+            sql_query_name="uom",
+            timestamp_column=timestamp_column,
+            tagname_column=tagname_column,
+            value_column=value_column,
+            metadata_source=metadata_source,
+            business_unit=business_unit,
+            asset=asset,
+            data_security_level=data_security_level,
+            metadata_tagname_column=metadata_tagname_column,
+            metadata_uom_column=metadata_uom_column,
+        )
+        cte_list.append(uom_query_sql)
+        final_cte_name = "uom"
+
+    interpolate_query_sql = ", ".join(cte_list)
+
+    return interpolate_query_sql, final_cte_name
 
 
 def _build_summary_query(
@@ -462,7 +725,9 @@ def _build_uom_query(
     return uom_sql_query + ")"
 
 
-def _build_output_query(sql_query_list, to_json, limit, offset):
+def _build_output_query(
+    sql_query_list, to_json, limit, offset, columns=None, order_by_clause=None
+):
     parent_sql_query_name = sql_query_list[-1]["query_name"]
 
     output_sql_query = f"SELECT"
@@ -476,10 +741,15 @@ def _build_output_query(sql_query_list, to_json, limit, offset):
                 ")) AS Value",
             ]
         )
+    elif columns is not None:
+        output_sql_query = " ".join([output_sql_query, ", ".join(columns)])
     else:
         output_sql_query = " ".join([output_sql_query, "*"])
 
     output_sql_query = " ".join([output_sql_query, f"FROM {parent_sql_query_name}"])
+
+    if order_by_clause is not None:
+        output_sql_query = " ".join([output_sql_query, order_by_clause])
 
     if limit is not None:
         output_sql_query = " ".join([output_sql_query, f"LIMIT {limit}"])
@@ -631,7 +901,7 @@ def _sample_query_parameters(parameters_dict: dict) -> dict:
         "include_bad_data": parameters_dict["include_bad_data"],
         "time_interval_rate": parameters_dict["time_interval_rate"],
         "time_interval_unit": parameters_dict["time_interval_unit"],
-        "agg_method": parameters_dict["agg_method"],
+        "agg_method": parameters_dict.get("agg_method", None),
         "fill": parameters_dict.get("fill", False),
         "time_zone": parameters_dict["time_zone"],
         "pivot": parameters_dict.get("pivot", None),
@@ -907,13 +1177,11 @@ def _plot_query_parameters(parameters_dict: dict) -> dict:
 
 def _interpolation_query(parameters_dict: dict) -> str:
 
-    parameters_dict["agg_method"] = None
-
     interpolate_parameters = _sample_query_parameters(parameters_dict)
 
     sql_query_list = []
 
-    raw_query = _build_raw_query(
+    raw_query = _build_raw_query_for_interpolate(
         sql_query_name="raw",
         timestamp_column=interpolate_parameters["timestamp_column"],
         tagname_column=interpolate_parameters["tagname_column"],
@@ -921,10 +1189,9 @@ def _interpolation_query(parameters_dict: dict) -> str:
         value_column=interpolate_parameters["value_column"],
         start_date=interpolate_parameters["start_date"],
         end_date=interpolate_parameters["end_date"],
-        time_interval_rate=interpolate_parameters["time_interval_rate"],
+        time_zone=interpolate_parameters.get("time_zone", "+0000"),
         time_interval_unit=interpolate_parameters["time_interval_unit"],
-        agg_method=None,
-        time_zone=interpolate_parameters["time_zone"],
+        deduplicate=True,
         source=interpolate_parameters["source"],
         business_unit=interpolate_parameters["business_unit"],
         asset=interpolate_parameters["asset"],
@@ -932,6 +1199,7 @@ def _interpolation_query(parameters_dict: dict) -> str:
         data_type=interpolate_parameters["data_type"],
         tag_names=interpolate_parameters["tag_names"],
         include_status=interpolate_parameters["include_status"],
+        include_bad_data=interpolate_parameters["include_bad_data"],
         case_insensitivity_tag_search=interpolate_parameters[
             "case_insensitivity_tag_search"
         ],
@@ -940,32 +1208,10 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
     sql_query_list.append({"query_name": "raw", "sql_query": raw_query})
 
-    # resample_query = _build_resample_query(
-    #     sql_query_list=sql_query_list,
-    #     sql_query_name="resample",
-    #     timestamp_column=interpolate_parameters["timestamp_column"],
-    #     tagname_column=interpolate_parameters["tagname_column"],
-    #     value_column=interpolate_parameters["value_column"],
-    #     tag_names=interpolate_parameters["tag_names"],
-    #     start_date=interpolate_parameters["start_date"],
-    #     end_date=interpolate_parameters["end_date"],
-    #     time_zone=interpolate_parameters["time_zone"],
-    #     time_interval_rate=interpolate_parameters["time_interval_rate"],
-    #     time_interval_unit=interpolate_parameters["time_interval_unit"],
-    #     agg_method=interpolate_parameters["agg_method"],
-    #     case_insensitivity_tag_search=interpolate_parameters[
-    #         "case_insensitivity_tag_search"
-    #     ],
-    #     fill=True,
-    #     sort=False,
-    # )
-
-    # sql_query_list.append({"query_name": "resample", "sql_query": resample_query})
-    fill_intervals_query = _build_fill_intervals_query(
+    interpolate_query, final_cte_name = _build_interpolate_query(
         sql_query_list=sql_query_list,
-        sql_query_name="fill_intervals",
-        timestamp_column=interpolate_parameters["timestamp_column"],
         tagname_column=interpolate_parameters["tagname_column"],
+        timestamp_column=interpolate_parameters["timestamp_column"],
         value_column=interpolate_parameters["value_column"],
         tag_names=interpolate_parameters["tag_names"],
         start_date=interpolate_parameters["start_date"],
@@ -973,29 +1219,21 @@ def _interpolation_query(parameters_dict: dict) -> str:
         time_zone=interpolate_parameters["time_zone"],
         time_interval_rate=interpolate_parameters["time_interval_rate"],
         time_interval_unit=interpolate_parameters["time_interval_unit"],
+        metadata_source=interpolate_parameters["metadata_source"],
+        business_unit=interpolate_parameters["business_unit"],
+        asset=interpolate_parameters["asset"],
+        data_security_level=interpolate_parameters["data_security_level"],
+        metadata_tagname_column=interpolate_parameters["metadata_tagname_column"],
+        metadata_uom_column=interpolate_parameters["metadata_uom_column"],
         case_insensitivity_tag_search=interpolate_parameters[
             "case_insensitivity_tag_search"
         ],
+        display_uom=interpolate_parameters["display_uom"],
     )
 
     sql_query_list.append(
-        {"query_name": "fill_intervals", "sql_query": fill_intervals_query}
+        {"query_name": final_cte_name, "sql_query": interpolate_query}
     )
-
-    interpolate_query = _build_interpolate_query(
-        sql_query_list=sql_query_list,
-        sql_query_name="interpolate",
-        timestamp_column=interpolate_parameters["timestamp_column"],
-        tagname_column=interpolate_parameters["tagname_column"],
-        value_column=interpolate_parameters["value_column"],
-        sort=(
-            interpolate_parameters["sort"]
-            if interpolate_parameters["pivot"] == False
-            else False
-        ),
-    )
-
-    sql_query_list.append({"query_name": "interpolate", "sql_query": interpolate_query})
 
     if interpolate_parameters["pivot"] == True:
         pivot_query = _build_pivot_query(
@@ -1013,26 +1251,32 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
         sql_query_list.append({"query_name": "pivot", "sql_query": pivot_query})
 
-    if interpolate_parameters["display_uom"] == True:
-        uom_query = _build_uom_query(
-            sql_query_list=sql_query_list,
-            sql_query_name="uom",
-            metadata_source=interpolate_parameters["metadata_source"],
-            business_unit=interpolate_parameters["business_unit"],
-            asset=interpolate_parameters["asset"],
-            data_security_level=interpolate_parameters["data_security_level"],
-            tagname_column=interpolate_parameters["tagname_column"],
-            metadata_tagname_column=interpolate_parameters["metadata_tagname_column"],
-            metadata_uom_column=interpolate_parameters["metadata_uom_column"],
-        )
+    # Build order by clause if needed
+    order_by_clause = None
+    if interpolate_parameters["sort"] and interpolate_parameters["pivot"] == False:
+        order_by_clause = f"ORDER BY `{interpolate_parameters['tagname_column']}`, `{interpolate_parameters['timestamp_column']}`"
 
-        sql_query_list.append({"query_name": "uom", "sql_query": uom_query})
+    # Build columns list for explicit selection only when final CTE is interpolate
+    # (not uom or pivot, which already have their specific columns)
+    columns = None
+    if (
+        final_cte_name == "interpolate"
+        and interpolate_parameters["display_uom"] == False
+        and interpolate_parameters["pivot"] == False
+    ):
+        columns = [
+            f"`{interpolate_parameters['timestamp_column']}`",
+            f"`{interpolate_parameters['tagname_column']}`",
+            f"`{interpolate_parameters['value_column']}`",
+        ]
 
     output_query = _build_output_query(
         sql_query_list=sql_query_list,
         to_json=interpolate_parameters["to_json_resample"],
         limit=interpolate_parameters["limit"],
         offset=interpolate_parameters["offset"],
+        columns=columns,
+        order_by_clause=order_by_clause,
     )
 
     sql_query_list.append({"query_name": "output", "sql_query": output_query})
