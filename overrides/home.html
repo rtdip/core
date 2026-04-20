@@ -1,0 +1,374 @@
+<!-- {% extends "main.html" %} -->
+
+<!-- Render hero under tabs -->
+{% block tabs %}
+  {{ super() }}
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="home.css">
+
+<div class="container">
+    <section class="intro-section">
+        <div class="intro-section-content">
+            <div class="intro-left">
+                <h1>Real Time Data Ingestion Platform</h1>
+                <p>RTDIP (Real Time Data Ingestion Platform) is a scalable, industry-standard solution for the ingestion and processing of data from a vast array of sources and provides easy access to high volume, historical and real time process data for analytics applications, engineers, and data scientists wherever they are.</p>
+                <div class="intro-section-content-action">
+                    <a class="a-button" href="./getting-started/installation/">Get Started</a>
+                </div>
+            </div>
+
+            <div class="intro-right">
+                <img src="./images/orb.png" alt="orb image">
+            </div>
+        </div>
+
+        <div class="down-icon-button">
+            <a href="#expect-section"><img src="./images/down-icon.png" alt="Down icon"></a>
+        </div>
+    </section>
+
+    <section class="expect-section" id="expect-section">
+        <h1>What to <span class="purple-span">expect</span></h1>
+        <div class="expect-section-grid">
+            <div class="icon-with-text">
+                <div class="circle-icon">
+                    <img src="./images/pipeline-icon.png" alt="Pipeline icon">
+                </div>
+                <h2>Pipelines</h2>
+                <p>Create streaming and batch ingestion pipelines according to requirements of the source, transforms popular 
+                    industry formats and outputs data according to the needs of the data consumer.</p>
+            </div>
+
+            <div class="icon-with-text">
+                <div class="circle-icon">
+                    <img src="./images/query-icon.png" alt="Query icon">
+                </div>
+                <h2>Queries</h2>
+                <p>Enables users to perform complex real time queries on datasets within the platform.</p>
+            </div>
+
+            <div class="icon-with-text">
+                <div class="circle-icon">
+                    <img src="./images/deployment-icon.png" alt="Deployment icon">
+                </div>
+                <h2>Deployment</h2>
+                <p>Deploy pipelines to popular orchestration engines to schedule and execute jobs according to your preference.</p>
+            </div>
+
+            <div class="icon-with-text">
+                <div class="circle-icon">
+                    <img src="./images/multicloud-icon.png" alt="Multicloud icon">
+                </div>
+                <h2>MultiCloud</h2>
+                <p>RTDIP works seamlessly across multicloud platforms.</p>
+            </div>
+
+            <div class="icon-with-text">
+                <div class="circle-icon">
+                    <img src="./images/opensource-icon.png" alt="Opensource icon">
+                </div>
+                <h2>Open Source</h2>
+                <p>RTDIP is compliant with the Apache Open Source license, enabling maximum flexibility in adaptation and re-use.</p>
+            </div>
+
+            <div class="icon-with-text">
+                <div class="circle-icon">
+                    <img src="./images/ai-icon.png" alt="AI icon">
+                </div>
+                <h2>Artificial Intelligence</h2>
+                <p>RTDIP can provide datasets for intelligent curation and query by AI agents.</p>
+            </div>
+        </div>
+
+    </section>
+
+    <div class="wave-container-expect">
+        <svg viewBox="0 0 500 100" preserveAspectRatio="xMinYMin meet">
+            <!-- Gradient Definition -->
+            <defs>
+                <linearGradient id="pathGradient-expect" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" style="stop-color: rgba(167, 26, 170, 1);"/>
+                    <stop offset="100%" style="stop-color: rgba(187, 31, 161, 1);"/>
+                </linearGradient>
+            </defs>
+        
+            <!-- Path with Gradient Fill -->
+            <path d="M0,40 C150,100 250,0 500,40 L500,00 L0,0 Z" style="stroke: none; fill:url(#pathGradient-expect);"></path>
+        </svg>
+      </div>
+
+
+    <section class="pipeline-section">
+        <h1>Powerful ingestion <span class="pink-span">pipelines</span></h1>
+        <p>RTDIP Ingestion Pipeline framework has been built to simplify ingesting time series data with the ability to create streaming and batch ingestion pipelines according to the requirements of the source of the data and the needs of the consumer.</p>
+
+        <div class="pipeline-section-grid">
+            <div class="pipeline-section-item">
+                <div class="pipeline-item-img">
+                    <img src="./images/sources-image.png" alt="Sources image">
+                </div>
+                <h4 >Sources</h4>
+                <p>RTDIP data ingestion can include time series, alarms, video, photos, audio, and input from hardware including IoT Sensors, Robots, and Drones. 
+                    Sources are components that connect to source systems and extract data from them.</p>
+            </div>
+
+            <div class="pipeline-section-item">
+                <div class="pipeline-item-img">
+                    <img src="./images/transformers-image.png" alt="Transformers image">
+                </div>
+                <h4>Transformers</h4>
+                <p>RTDIP has the components to perform transformations on your data. These will target certain data models and common transformations that sources or destination components require to be performed on data before it can be ingested or consumed.
+
+                </p>
+            </div>
+
+            <div class="pipeline-section-item">
+                <div class="pipeline-item-img">
+                    <img src="./images/destinations-image.png" alt="Destinations image">
+                </div>
+                <h4>Destinations</h4>
+                <p>RTDIP destination components allow for connecting and writing data to destination systems including Delta, Eventhub, Kafka, Kinesis and Rest API. </p>
+            </div>
+        </div>
+        <a class="a-button" href="./sdk/pipelines/components">Learn More</a>
+    </section>
+
+
+    <div class="wave-container-query-top">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1951 92" fill="none" preserveAspectRatio="xMinYMin meet">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M620.78 62.3301C215.04 143.03 0 11.53 0 11.53V92H1950.37V0C1950.37 0 1666.32 99.8701 1439.23 66.5C1212.13 33.1299 890.4 0.0800781 620.78 62.3301Z" fill="url(#paint0_linear_96_9)"/>
+        <defs>
+        <linearGradient id="paint0_linear_96_9" x1="975.18" y1="0" x2="975.18" y2="1252.62" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#4E08C7"/>
+        <stop offset="0.06" stop-color="#590DC3"/>
+        <stop offset="0.38" stop-color="#8E25B5"/>
+        <stop offset="0.65" stop-color="#B436AB"/>
+        <stop offset="0.86" stop-color="#CB41A5"/>
+        <stop offset="1" stop-color="#D445A3"/>
+        </linearGradient>
+        </defs>
+        </svg>
+    </div>
+
+
+    <section class="querybuilder-section">
+        <h1>Query <span class="pink-span">builder</span></h1>
+
+        <div class="querybuilder-content-container">
+            <div class="querybuilder-left">
+                <p>Use RTDIP’s Query Builder feature to perform complex real time queries, including aggregation on datasets within the platform.</p>
+                <img src="./images/querybuilder-image.png" alt="Query builder image">
+            </div>
+            <div class="querybuilder-right">
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Raw
+                        </span>
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Raw facilitates performing raw extracts of time series data.
+                    </p>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        <span class="clickable-title">
+                            Latest
+                        </span>
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Latest queries provides the latest event values.
+                    </p>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        Resample
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Resample enables changing the frequency of time series observations.
+                    </p>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        Interpolate
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Interpolate takes Resample one step further to estimate the values of unknown data points that fall between existing, known data points. The available interpolation methods are forward fill, backward fill and linear interpolaton.
+                    </p>
+                    <hr>
+                </div>
+                
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        Time Weighted Average
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Time Weighted Averages provide an unbiased average when working with irregularly sampled data.
+                    </p>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        Interpolation at Time
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Interpolation at Time works out the linear interpolation at a specific time based on the points before and after.
+                    </p>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        Circular Average
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Circular Averages computes the circular average for samples in a range.
+                    </p>
+                    <hr>
+                </div>
+                <div class="clickable-list-item" onclick="toggleDetails(this)">
+                    <div class="clickable-list-item-title">
+                        Circular Standard Deviation
+                        <span class="clickable-list-toggle-indicator">+</span>
+                    </div>
+                    <p class="clickable-list-details">
+                        Circular Standard Deviations computes the circular standard deviations for samples assumed to be in the range.
+                    </p>
+                    <hr>
+                </div>
+            </div>
+        </div>
+        <a class="a-button" href="./sdk/queries/databricks/databricks-sql">Learn More</a>
+    </section>
+
+    <div class="wave-container-query-bottom">
+        <svg viewBox="0 0 500 500" preserveAspectRatio="xMinYMin meet">
+            <!-- Gradient Definition -->
+            <defs>
+                <linearGradient id="pathGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%"   style="stop-color: rgba(212,69,163,1);"/>
+                    <stop offset="100%" style="stop-color: rgba(203,65,165,1);"/>
+                </linearGradient>
+            </defs>
+        
+            <!-- Path with Gradient Fill -->
+            <path d="M0,20 C150,50 250,0 500,20 L500,00 L0,0 Z" style="stroke: none; fill:url(#pathGradient);"></path>
+        </svg>
+      </div>
+      
+    <section class="bi-section">
+        <div class="bi-left">
+            <h1>Business <span class="pink-span">Intelligence</span></h1>
+            <p>
+                Use RTDIP data to drive intelligent decision making: using your preferred BI tool, understand what needs to be maintained and when, activity on industrial sites, optimal times for power generation, and much more.
+            </p>
+            <a class="a-button" href="./integration/power-bi">Learn More</a>
+        </div>
+
+        <div class="bi-right">
+            <div class="bi-image">
+                <img src="./images/bi-image.png" alt="Business Intelligence Image" >
+            </div>
+        </div>
+    </section>
+
+
+    <section class="industry-section">
+        <h1>Trusted industry section</span></h1>
+        <p>
+            RTDIP is being used on a global scale and is backed by trusted partners including Shell, Databricks, Innowatts and LF Energy. Leverage the benefits of a world class solution.
+        </p>
+    </section>
+
+    <section class="contributor-section">
+        <div class="contributor-left">
+            <h1>Become a <span class="pink-span">contributor</span></h1>
+            <p>
+               Contribute to the development of this world-class platform. Together, we can build a solution that will revolutionise how data is captured, interpreted and leveraged.
+            </p>
+            <a class="a-button" href="https://github.com/rtdip/core/blob/develop/CONTRIBUTING.md">Learn More</a>
+        </div>
+
+        <div class="vertical-divider"></div>
+
+        <div class="contributor-right">
+            <h1>Let's keep in touch</h1>
+
+            <div class="social-line-container">   
+                <div class="social-line">
+                    <a href="https://github.com/rtdip/core"><img src="./images/github-icon.png" alt="GitHub"></a>
+                    <p><strong>RTDIP on GitHub</strong></p>
+                </div>
+
+                <div class="social-line">
+                    <a href="https://hub.docker.com/r/rtdip/api"><img src="./images/docker-icon.png" alt="Docker"></a>
+                    <p><strong>RTDIP on DockerHub</strong></p>
+                </div>
+
+                <div class="social-line">
+                    <a href="https://pypi.org/project/rtdip-sdk/"><img src="./images/pypi-icon.png" alt="PyPI"></a>
+                    <p><strong>RTDIP on PyPI</strong></p>
+                </div>
+
+                <div class="social-line">
+                    <a href="https://lfenergy.slack.com/archives/C0484R9Q6A0"><img src="./images/slack-icon-purple.png" alt="Slack"></a>
+                    <p><strong>RTDIP on Slack</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    <section class="footer">
+        <p>Copyright © 2016 - 2023 RTDIP</p>
+        <div class="footer-icon-row">
+            <img src="./images/github-icon-white.png" alt="GitHub">
+            <img src="./images/docker-icon-white.png" alt="Docker">
+            <img src="./images/pypi-icon-white.png" alt="PyPI">
+            <img src="./images/slack-icon-white.png" alt="Slack">
+
+        </div>
+
+    </section>
+
+
+    <script>
+        function toggleDetails(clickedItem) {
+            // Close all other details and reset indicators
+            document.querySelectorAll('.clickable-list-item').forEach(function(item) {
+                if (item !== clickedItem) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Toggle the clicked item's details
+            clickedItem.classList.toggle('active');
+
+            // Reset all indicators
+            document.querySelectorAll('.clickable-list-toggle-indicator').forEach(indicator => {
+                indicator.textContent = '+';
+            });
+            
+            // Toggle the indicator of the clicked item
+            const indicator = clickedItem.querySelector('.clickable-list-toggle-indicator');
+            indicator.textContent = clickedItem.classList.contains('active') ? '-' : '+';
+        }
+
+    </script>
+
+
+</div>
+
+{% endblock %}

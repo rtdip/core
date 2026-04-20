@@ -1,0 +1,68 @@
+/**
+ * Copyright 2022 RTDIP
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+:root {
+  --md-primary-fg-color: #4e08c7 !important;
+  --md-primary-mg-color: #d445a3 !important;
+  --md-accent-fg-color: #bb1fa4 !important;
+  --md-primary-bg-color: white !important;
+  --md-primary-text-slate: white !important;
+  --md-primary-bg-slate: #2f303e !important;
+}
+
+/* header font colour */
+.md-header {
+  color: white;
+}
+
+.md-search__icon {
+  color: white !important;
+}
+
+.md-tabs__item {
+  color: white !important;
+}
+
+.md-footer-meta {
+  display: none;
+}
+
+.md-nav__item .md-nav__link--active {
+  color: #d445a3;
+}
+
+.image-center {
+  display: block;
+  margin: 0 auto;
+}
+
+
+.mermaid {
+  text-align: center;
+}
+
+.curved-button {
+  color: rgb(66, 66, 66) !important;
+  border-radius: 20px;
+  padding: 10px 20px;
+  background-color: #E9ECF1;
+}
+
+
+.curved-button:hover {
+  background-color: #D3D9E2;
+  color: black !important;
+}
