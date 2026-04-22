@@ -29,7 +29,7 @@ These components were built as modular, extensible pipeline steps designed to he
 
 ## Important Note: Component Status
 
-**Please be aware:** The data quality and forecasting components developed during the AMOS project are no longer integrated into the core RTDIP SDK as of v0.14.3. This decision was made to keep RTDIP focused on its core time-series data ingestion and querying capabilities.
+**Please be aware:** The data quality and forecasting components developed during the AMOS project are no longer integrated into the core RTDIP SDK as of v0.14.4. This decision was made to keep RTDIP focused on its core time-series data ingestion and querying capabilities.
 
 If you're interested in the work completed by the AMOS team and want to use these components, please refer to the **AMOS project repository** where they maintain this work as a separate, specialized extension.
 

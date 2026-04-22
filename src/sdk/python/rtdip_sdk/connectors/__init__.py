@@ -21,8 +21,8 @@ if importlib.util.find_spec("turbodbc") != None:
     import warnings
 
     warnings.warn(
-        "TURBODBC connector is deprecated and no longer inherently supported in RTDIP (as of v0.14.3). "
-        "You have two options: (1) Use an older RTDIP version prior to v0.14.3, or (2) Manually install turbodbc. "
+        "TURBODBC connector is deprecated and no longer inherently supported in RTDIP (as of v0.14.4). "
+        "You have two options: (1) Use an older RTDIP version prior to v0.14.4, or (2) Manually install turbodbc. "
         "Consider using Databricks SQL Connector or PYODBC SQL Connector instead.",
         DeprecationWarning,
         stacklevel=2,

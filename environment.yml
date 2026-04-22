@@ -26,7 +26,7 @@ dependencies:
     - pytest-cov==4.1.0
     - pylint==2.17.4
     - pip>=23.1.2
-    # Note: turbodbc is no longer inherently supported. If needed, manually install v0.14.3 or earlier.
+    # Note: turbodbc is no longer inherently supported. If needed, manually install v0.14.4 or earlier.
     # - turbodbc>=4.5.0
     - numpy>=1.23.4,<2.0.0
     - oauthlib>=3.2.2,<4.0.0

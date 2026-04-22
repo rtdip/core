@@ -63,9 +63,9 @@ Please note that the batch API route calls the lookup under the hood by default.
 For example, 10 requests in the batch with each querying 3 tables means there will be up to 30 simulatanous queries. 
 Therefore, it is recommended to set these parameters for performance optimization.
 
-**Note:** RTDIP no longer provides inherent support for turbodbc (as of v0.14.3). If you require turbodbc connectivity, you have two options:
+**Note:** RTDIP no longer provides inherent support for turbodbc (as of v0.14.4). If you require turbodbc connectivity, you have two options:
 
-1. **Use an older RTDIP version:** Use an RTDIP version prior to v0.14.3 which includes turbodbc support
+1. **Use an older RTDIP version:** Use an RTDIP version prior to v0.14.4 which includes turbodbc support
 2. **Manual Installation:** Manually install turbodbc
 
 For new projects, consider using pyodbc or Databricks SQL Connect instead. If installing manually, follow the [turbodbc installation instructions](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html). On a macbook, this typically includes executing the following commands:

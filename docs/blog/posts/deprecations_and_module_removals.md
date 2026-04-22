@@ -4,7 +4,7 @@ authors:
   - GBARAS
 ---
 
-# Important: Module Removals and Deprecations in RTDIP SDK v0.14.4
+# Important: Module Removals and Deprecations in RTDIP SDK v0.14.5
 
 <center>
 <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/framework.png" width="60%" alt="breaking-changes" />
@@ -18,7 +18,7 @@ We are pleased to announce significant updates to the RTDIP SDK that improve per
 
 ### Removed Modules
 
-The following modules have been completely removed from RTDIP SDK v0.14.4:
+The following modules have been completely removed from RTDIP SDK v0.14.5:
 
 #### 1. Data Quality Module (`rtdip_sdk.pipelines.data_quality`)
 The entire data quality module, including monitoring and data manipulation components, has been removed. This includes:
@@ -55,14 +55,14 @@ The following packages, which were only used by the removed modules, have been r
 
 ### Deprecated: Turbodbc Support
 
-**Turbodbc is no longer inherently supported in RTDIP SDK (as of v0.14.4).** The connector is maintained for backward compatibility, but is deprecated.
+**Turbodbc is no longer inherently supported in RTDIP SDK (as of v0.14.5).** The connector is maintained for backward compatibility, but is deprecated.
 
 #### Migration Options
 If you require turbodbc connectivity, you have two choices:
 
 **Option 1: Use an older RTDIP version**
 ```bash
-pip install "rtdip-sdk<=0.14.3"
+pip install "rtdip-sdk<=0.14.4"
 ```
 
 **Option 2: Manual Installation**
@@ -132,7 +132,7 @@ from rtdip_sdk.connectors import PYODBCSQLConnection
 
 ## When to Update
 
-We recommend updating to v0.14.4 if:
+We recommend updating to v0.14.5 if:
 - You are not using data quality, forecasting, or turbodbc features
 - You are ready to migrate to alternative solutions for removed functionality
 - You want the latest RTDIP updates and improvements
