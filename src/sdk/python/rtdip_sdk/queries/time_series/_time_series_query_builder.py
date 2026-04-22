@@ -589,12 +589,12 @@ def _build_summary_query(
         [
             summary_query_sql,
             f"count(`{value_column}`) as Count,",
-            f"CAST(Avg(`{value_column}`) as decimal(10, 2)) as Avg,",
-            f"CAST(Min(`{value_column}`) as decimal(10, 2)) as Min,",
-            f"CAST(Max(`{value_column}`) as decimal(10, 2)) as Max,",
-            f"CAST(stddev(`{value_column}`) as decimal(10, 2)) as StDev,",
-            f"CAST(sum(`{value_column}`) as decimal(10, 2)) as Sum,",
-            f"CAST(variance(`{value_column}`) as decimal(10, 2)) as Var FROM",
+            f"CAST(Avg(`{value_column}`) as decimal(18, 2)) as Avg,",
+            f"CAST(Min(`{value_column}`) as decimal(18, 2)) as Min,",
+            f"CAST(Max(`{value_column}`) as decimal(18, 2)) as Max,",
+            f"CAST(stddev(`{value_column}`) as decimal(18, 2)) as StDev,",
+            f"CAST(sum(`{value_column}`) as decimal(18, 2)) as Sum,",
+            f"CAST(variance(`{value_column}`) as decimal(18, 2)) as Var FROM",
         ]
     )
 
