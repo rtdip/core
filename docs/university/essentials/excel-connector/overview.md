@@ -6,7 +6,7 @@
 >
 
 <figure markdown="span">
-  ![Excel](assets/Excel-Logo.png){ width="40%" }
+  <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/university/essentials/excel-connector/assets/Excel-Logo.png" width="40%" alt="Excel" />
 </figure>
 
 The RTDIP Excel Add-in is one of the simplest ways to get timeseries data from databricks to Microsoft Excel.
@@ -17,7 +17,7 @@ Behind the scenes the add-in sends requests to the RTDIP API, but as you'll see 
 For now, here's a sneak peak of the task pane:
 
 <figure markdown="span">
-  ![Excel](assets/taskpane.png){ width="40%" }
+  <img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/university/essentials/excel-connector/assets/taskpane.png" width="40%" alt="Excel" />
 </figure>
 
 >

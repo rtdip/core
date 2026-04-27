@@ -36,7 +36,7 @@ The following section describes authentication using [Azure Active Directory.](h
 === "Client Secret Authentication"
         credential = auth.ClientSecretAuth(tenant_id, client_id, client_secret).authenticate()
 
-3\. The methods above will return back a Client Object. The following example will show you how to retrieve the access_token from a credential object. The access token will be used in later steps to connect to RTDIP via the three options (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect).
+3\. The methods above will return back a Client Object. The following example will show you how to retrieve the access_token from a credential object. The access token will be used in later steps to connect to RTDIP via the two main options: Databricks SQL Connect and PYODBC SQL Connect. (TURBODBC SQL Connect is deprecated and no longer inherently supported; use v0.14.4 or earlier if needed)
     
 ### Tokens
 

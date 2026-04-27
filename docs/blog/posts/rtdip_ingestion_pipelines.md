@@ -7,7 +7,7 @@ authors:
 <center>
 # RTDIP Ingestion Pipeline Framework
 
-![blog](../images/framework.png){width=60%}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/framework.png" width="60%" alt="framework" />
 </center>
 
 RTDIP has been built to simplify ingesting and querying time series data. One of the most anticipated features of the Real Time Data Ingestion Platform for 2023 is the ability to create streaming and batch ingestion pipelines according to requirements of the source of the data and needs of the data consumer. Of equal importance is the need to query this data and an article that focuses on egress will follow in due course. 
@@ -62,7 +62,7 @@ As per the above, a pipeline job consists of a list of tasks. Each task consists
 
 |Python|Apache Spark|Databricks|Delta Live Tables|
 |---------------------------|----------------------|--------------------------------------------------|-------|
-|![python](../images/python.png){: .image-center}|![pyspark](../images/apachespark.png){: .image-center}|![databricks](../images/databricks_horizontal.png){: .image-center}|![delta](../images/dlt.svg){: .image-center}
+|<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/python.png" alt="python" class="image-center" />|<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/apachespark.png" alt="pyspark" class="image-center" />|<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/databricks_horizontal.png" alt="databricks" class="image-center" />|<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/dlt.svg" alt="delta" class="image-center" />|
 
 Pipelines will be able to run in multiple environment types. These will include:
 
@@ -79,7 +79,7 @@ Runtimes will take precedence depending on the list of components in a pipeline 
 
 ## Pipeline Clouds
 
-![azure-aws-gcp](../images/aws-azure-gcp.png){: .image-center}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/aws-azure-gcp.png" alt="aws-azure-gcp" class="image-center" />
 
 Certain components are related to cloud providers and in the tables below, it is indicated which cloud provider is related to its specific component. It does not mean that the component can only run in that cloud, instead its highlighting that the component is related to that cloud provider.
 

@@ -21,14 +21,14 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
     A function to return back the metadata by querying databricks SQL Warehouse using a connection specified by the user.
 
-    The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
+    The available connectors by RTDIP are Databricks SQL Connect and PYODBC SQL Connect. TURBODBC SQL Connect is deprecated and no longer inherently supported (use v0.14.4 or earlier if needed).
 
     The available authentcation methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
 
     This function requires the user to input a dictionary of parameters. (See Attributes table below)
 
     Args:
-        connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
+        connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, or deprecated TURBODBC SQL Connect)
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:

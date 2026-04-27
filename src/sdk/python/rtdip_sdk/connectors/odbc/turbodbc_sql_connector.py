@@ -24,6 +24,13 @@ import os
 
 class TURBODBCSQLConnection(ConnectionInterface):
     """
+    **DEPRECATED:** Turbodbc is no longer inherently supported in RTDIP (as of v0.14.4). This connector is maintained for backward compatibility only.
+
+    If you require turbodbc connectivity, you have two options:
+
+    1. Use an older RTDIP version (prior to v0.14.4) that includes turbodbc support
+    2. Manually install turbodbc into your current RTDIP setup
+
     Turbodbc is a python module used to access relational databases through an ODBC interface. It will allow a user to connect to databricks clusters or sql warehouses.
 
     Turbodbc offers built-in NumPy support allowing it to be much faster for processing compared to other connectors.

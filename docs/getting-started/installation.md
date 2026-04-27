@@ -60,16 +60,33 @@ Installing the RTDIP can be done using a package installer, such as [Pip](https:
 <!-- --8<-- [end:prerequisites] -->
 
 ### ODBC
-To use pyodbc or turbodbc python libraries, ensure it is installed as per the below and the ODBC driver is installed as per these [instructions](https://docs.microsoft.com/en-us/azure/databricks/integrations/bi/jdbc-odbc-bi#download-the-odbc-driver).
+To use pyodbc python library, ensure it is installed as per the below and the ODBC driver is installed as per these [instructions](https://docs.microsoft.com/en-us/azure/databricks/integrations/bi/jdbc-odbc-bi#download-the-odbc-driver).
+
+!!! note "Turbodbc Deprecation"
+    Turbodbc is no longer inherently supported in RTDIP SDK (as of v0.14.4). If you require turbodbc connectivity, you have two options:
+    
+    1. **Use an older RTDIP version:** Use an RTDIP version prior to v0.14.4 which includes turbodbc support
+    2. **Manual Installation:** Manually install turbodbc v0.14.4 or earlier into your current RTDIP setup
+    
+    For new projects, consider using pyodbc or Databricks SQL Connect instead.
 
 === "Pyodbc"
     1. If you plan to use pyodbc, Microsoft Visual C++ 14.0 or greater is required. Get it from [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
     1. If you are using linux, install unixodbc as per these [instructions.](https://github.com/mkleehammer/pyodbc/wiki/Install)
     1. Install the `pyodbc` python package into your python environment.
 
-=== "Turbodbc"
+=== "Turbodbc (Deprecated)"
+    !!! warning "No Longer Supported in Current Version"
+        Turbodbc is no longer inherently supported in RTDIP (as of v0.14.4). You have two options:
+        
+        **Option 1: Use Older RTDIP Version**<br>
+        Install an RTDIP version prior to v0.14.4 which includes turbodbc support
+        
+        **Option 2: Manual Installation**<br>
+        Follow the steps below and manually install turbodbc v0.14.4 or earlier
+    
     1. To use turbodbc python library, ensure to follow the [Turbodbc Getting Started](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) section and ensure that [Boost](https://turbodbc.readthedocs.io/en/latest/pages/getting_started.html) is installed correctly. 
-    1. Install the `turbodbc` python package into your python environment.
+    1. Install the `turbodbc` python package into your python environment (v0.14.4 or earlier recommended).
 
 ### Spark Connect
 

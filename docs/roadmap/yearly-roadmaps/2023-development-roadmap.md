@@ -1,6 +1,6 @@
 # RTDIP Development Roadmap in 2023
 
-![roadmap](images/2023.jpeg){: .center}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/roadmap/yearly-roadmaps/images/2023.jpeg" alt="roadmap" class="center" />
 
 Shell’s internally developed Shell Sensor Intelligence Platform was open sourced to LF Energy in 2022 and rebranded to Real Time Data Ingestion Platform. This was a major milestone for that project and has opened a number of strategic doors and expanded how the development roadmap is determined when considering it in an open source context. Below is the roadmap for 2023
 
@@ -20,13 +20,13 @@ We welcome and encourage projects, developers, users and applications to contrib
 
 ## IEC CIM
 
-![iec-cim](images/IEC-CIM.png){: .image-center}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/roadmap/yearly-roadmaps/images/IEC-CIM.png" alt="iec-cim" class="image-center" />
 
 RTDIP will define IEC CIM compliant data models that will be built in the RTDIP SDK for time series data and metering data. This will ensure that RTDIP can support systems that require data modelled to the IEC CIM standard. The data models will be defined and available within the RTDIP SDK so that it can be used in the ingestion and query layers of the RTDIP SDK.
 
 ## Ingestion Framework
 
-![ingestion-framework](images/lakehouse.png){: .image-center}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/roadmap/yearly-roadmaps/images/lakehouse.png" alt="ingestion-framework" class="image-center" />
 
 An ingestion framework will be incorporated into the RTDIP SDK that will facilitate the following:
 - Simple reuse of components
@@ -38,19 +38,19 @@ The ingestion framework will be designed and developed in Q1-Q3 2023 and will be
 
 ## Meter Data
 
-![smart-meter](images/smart-meter.jpeg){: .image-center}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/roadmap/yearly-roadmaps/images/smart-meter.jpeg" alt="smart-meter" class="image-center" />
 
 RTDIP will be extended to incorporate meter data as part of the platform. The ingestion framework above will be used to build ingestion pipelines for meter data. The pipelines will be designed to ingest meter data from a variety of meter data sources and will be designed to support the IEC CIM data model.
 
 ## LF Energy Integration
 
-![lf-energy](images/lfenergy.png){: .image-center}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/roadmap/yearly-roadmaps/images/lfenergy.png" alt="lf-energy" class="image-center" />
 
 Increase integration of RTDIP with other LF Energy components. Data is at the centre of every component in an energy system and a data platform can play a major role in supporting integration across different components. RTDIP will reach out to LF Energy projects to understand which data and integration opportunities exist and support building the necessary components to support this integration. The scope of this will be more clearly defined after connecting with the relevant projects of LF Energy to define opportunities for integration.
 
 ## Microgrid Support
 
-![microgrid](images/microgrid.jpeg){: .image-center}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/roadmap/yearly-roadmaps/images/microgrid.jpeg" alt="microgrid" class="image-center" />
 
 Deployment of RTDIP and related LF Energy components to a Shell pilot microgrid site. This exercise will help to identify how RTDIP supports an energy system better and demonstrate the integration of RTDIP with other LF Energy components in a real world environment.
 
@@ -66,7 +66,7 @@ Adapt RTDIP to cater for a wider audience, particularly to increase RTDIP adopti
 
 ## Multicloud
 
-![multicloud](images/awsazure.png){: .image-center}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/roadmap/yearly-roadmaps/images/awsazure.png" alt="multicloud" class="image-center" />
 
 The target for 2023 is to enable RTDIP components to run in AWS. This includes:
 

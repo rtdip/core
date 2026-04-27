@@ -19,7 +19,7 @@ This Historian system was developed as an ecosystem that provided a comprehensiv
 
 Hyperscalers have become a central part of global IT infrastructure and essential to operations and they also started providing industrial connectivity options out of many in this article I am going to focus on Azure , OPC UA & Open source stack which provides you all the options of data ingestion from OPC UA source to your cloud database.
 
-![blog](../images/opcua-to-deltalake.png){width=100%}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/opcua-to-deltalake.png" width="100%" alt="blog" />
 </center>
 
 ## Components

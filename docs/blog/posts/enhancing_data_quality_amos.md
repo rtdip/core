@@ -8,7 +8,7 @@ authors:
 
 <center>
 
-![blog](../images/agile.svg){width=60%}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/agile.svg" width="60%" alt="blog" />
 <small>1</small>
 </center>
 
@@ -61,9 +61,9 @@ To illustrate this visually, plotting the before-and-after DataFrames reveals th
 
 <center>
 
-![blog](../images/amos_mvi_raw.png){width=70%}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/amos_mvi_raw.png" width="70%" alt="blog" />
 
-![blog](../images/amos_mvi.png){width=70%}
+<img src="https://raw.githubusercontent.com/rtdip/core/develop/docs/blog/images/amos_mvi.png" width="70%" alt="blog" />
 
 </center>
 

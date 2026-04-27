@@ -24,7 +24,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     This function requires the user to input a dictionary of parameters. (See Attributes table below.)
 
     Args:
-        connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
+        connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, or deprecated TURBODBC SQL Connect)
         parameters_dict: A dictionary of parameters (see Attributes table below)
 
     Attributes:

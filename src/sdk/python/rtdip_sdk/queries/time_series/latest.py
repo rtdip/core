@@ -21,7 +21,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     """
     A function to return the latest event values by querying databricks SQL Warehouse using a connection specified by the user.
 
-    The available connectors by RTDIP are Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect.
+    The available connectors by RTDIP are Databricks SQL Connect and PYODBC SQL Connect. TURBODBC SQL Connect is deprecated and no longer inherently supported (use v0.14.4 or earlier if needed).
 
     The available authentcation methods are Certificate Authentication, Client Secret Authentication or Default Authentication. See documentation.
 

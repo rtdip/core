@@ -41,7 +41,7 @@ class WeatherQueryBuilder:
         Specifies the connection to be used for the query
 
         Args:
-            connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, TURBODBC SQL Connect)
+            connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, or deprecated TURBODBC SQL Connect)
         """
         self.connection = connection
         return self

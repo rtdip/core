@@ -18,6 +18,15 @@ from .odbc.db_sql_connector import *
 if importlib.util.find_spec("pyodbc") != None:
     from .odbc.pyodbc_sql_connector import *
 if importlib.util.find_spec("turbodbc") != None:
+    import warnings
+
+    warnings.warn(
+        "TURBODBC connector is deprecated and no longer inherently supported in RTDIP (as of v0.14.4). "
+        "You have two options: (1) Use an older RTDIP version prior to v0.14.4, or (2) Manually install turbodbc. "
+        "Consider using Databricks SQL Connector or PYODBC SQL Connector instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     from .odbc.turbodbc_sql_connector import *
 if importlib.util.find_spec("pyspark") != None:
     from .grpc.spark_connector import *

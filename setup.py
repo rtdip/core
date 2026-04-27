@@ -29,6 +29,7 @@ long_description = (here / "PYPI-README.md").read_text()
 
 INSTALL_REQUIRES = [
     "setuptools>=68.0.0",
+    # Note: turbodbc is no longer inherently supported. If needed, install manually or use v0.14.4 or under.
     # "turbodbc>=4.5.0",
     "databricks-sql-connector>=3.6.0,<3.7.0",
     "pyarrow>=14.0.1,<17.0.0",
@@ -73,8 +74,6 @@ PIPELINE_PACKAGES = [
     "sqlparams>=5.1.0,<6.0.0",
     "entsoe-py>=0.5.10,<1.0.0",
     "numpy>=1.23.4,<2.0.0",
-    "statsmodels>=0.14.1,<0.15.0",
-    "pmdarima>=2.0.4",
 ]
 
 EXTRAS_DEPENDENCIES: dict[str, list[str]] = {
