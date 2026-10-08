@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import json
 import pytest
 from pytest_mock import MockerFixture
 from tests.api.v1.api_test_objects import (
@@ -34,6 +35,7 @@ from src.api.v1 import app
 
 MOCK_METHOD = "src.sdk.python.rtdip_sdk.queries.time_series.raw.get"
 MOCK_API_NAME = "/api/v1/events/raw"
+MOCK_MASKED_API_NAME = "/api/v1/events/rawmasked"
 
 pytestmark = pytest.mark.anyio
 
@@ -139,3 +141,44 @@ async def test_api_raw_post_error(mocker: MockerFixture, api_test_data):
 
     assert response.status_code == 400
     assert actual == '{"detail":"Error Connecting to Database"}'
+
+
+@pytest.mark.parametrize("method", ["get", "post"])
+async def test_api_raw_masked_masks_bad_values(mocker: MockerFixture, method):
+    rows = [
+        {
+            "EventTime": "2022-01-01T00:00:00.000000000Z",
+            "TagName": "TestTag",
+            "Status": "Good",
+            "Value": 1.5,
+        },
+        {
+            "EventTime": "2022-01-01T01:00:00.000000000Z",
+            "TagName": "TestTag",
+            "Status": "Bad",
+            "Value": 999.0,
+        },
+    ]
+    mock_data = {
+        "data": ",".join(json.dumps(row, separators=(",", ":")) for row in rows),
+        "count": len(rows),
+        "sample_row": json.dumps(rows[0], separators=(",", ":")),
+    }
+    mocker_setup(mocker, MOCK_METHOD, mock_data)
+
+    request_kwargs = {
+        "headers": TEST_HEADERS,
+        "params": (
+            RAW_MOCKED_PARAMETER_DICT
+            if method == "get"
+            else RAW_POST_MOCKED_PARAMETER_DICT
+        ),
+    }
+    if method == "post":
+        request_kwargs["json"] = RAW_POST_BODY_MOCKED_PARAMETER_DICT
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE_URL) as ac:
+        response = await getattr(ac, method)(MOCK_MASKED_API_NAME, **request_kwargs)
+
+    assert response.status_code == 200
+    assert response.json()["data"] == [rows[0], {**rows[1], "Value": "Bad Data"}]
