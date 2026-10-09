@@ -12,34 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: "Develop"
+name: "Bad Test"
 
 on:
-  # Trigger the workflow on push to develop
   push:
     branches:
-      - develop
+      - Bad_values
 
 jobs:
-  job_run_unit_tests_previous_versions:
-    uses: rtdip/core/.github/workflows/test.yml@develop
-
-  job_run_unit_tests_and_sonarqube:
-    uses: rtdip/core/.github/workflows/sonarcloud_reusable.yml@develop
-    with:
-      REPO_NAME: ""
-      HEAD_BRANCH: ""
-      HEAD_SHA: ""
-      PR_NUMBER: ""
-      PR_HEAD_REF: ""
-      PR_BASE_REF: ""
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   job_build_python_package_and_docker_container:
     runs-on: ubuntu-latest
-    needs:
-      [job_run_unit_tests_and_sonarqube, job_run_unit_tests_previous_versions]
     permissions:
       packages: write
       contents: read
@@ -111,11 +93,10 @@ jobs:
         with:
           name: rtdip_sdk_whl
           path: ./dist/*.whl
-      - name: Publish distribution 📦 to Test PyPI
+      - name: Publish distribution to Test PyPI
         run: |
           twine upload --repository testpypi --username __token__ --password ${{ secrets.TEST_PYPI_API_TOKEN }} --verbose dist/*
 
-      # Deploy to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -129,7 +110,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v4
         with:
