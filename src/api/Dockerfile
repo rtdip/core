@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM mcr.microsoft.com/azure-functions/python:4-python3.10
+FROM mcr.microsoft.com/azure-functions/python:4-python3.12
 
 RUN adduser --system --group app
 
@@ -24,7 +24,7 @@ COPY src/api/requirements.txt /
 RUN rm -rf /var/lib/apt/lists/partial \
     && apt-get clean \
     && apt-get update -o Acquire::CompressionTypes::Order::=gz \
-    && apt-get --no-install-recommends install -y odbcinst1debian2 libodbc1 odbcinst unixodbc unixodbc-dev libsasl2-dev libsasl2-modules-gssapi-mit libboost-all-dev \
+    && apt-get --no-install-recommends install -y libodbcinst2 libodbc2 odbcinst unixodbc unixodbc-dev libsasl2-dev libsasl2-modules-gssapi-mit libboost-all-dev \
     && apt-get --no-install-recommends install -y ca-certificates curl libbrotli1 python3-pip python3-dev python3-setuptools python3-wheel gcc g++ \
     && apt-get --no-install-recommends install -y zip unzip wget \
     && wget --secure-protocol=TLSv1_2 --max-redirect=0 https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.7.7/SimbaSparkODBC-2.7.7.1016-Debian-64bit.zip -P /odbc/ \

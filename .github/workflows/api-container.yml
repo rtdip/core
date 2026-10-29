@@ -1,0 +1,138 @@
+name: "API Container"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/**"
+      - ".github/workflows/api-container.yml"
+  push:
+    branches-ignore:
+      - Bad_values
+    paths:
+      - "src/**"
+      - ".github/workflows/api-container.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      IMAGE: rtdip-api:ci
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build application image
+        run: docker build --no-cache --platform linux/amd64 --tag "$IMAGE" --file src/api/Dockerfile .
+
+      - name: Check installed dependencies
+        run: |
+          docker run --rm --entrypoint python "$IMAGE" -m pip check
+          docker run --rm --entrypoint sh "$IMAGE" -c 'cat /etc/os-release; dpkg-query -W libbrotli1'
+
+      - name: Check Python imports and native ODBC driver
+        run: |
+          docker run --rm -i --workdir /home/site/wwwroot --entrypoint python "$IMAGE" - <<'PY'
+          import ctypes
+          import sys
+
+          import numpy
+          import pandas
+          import pyarrow
+          import pyodbc
+          from databricks import sql
+          from src.api.v1 import app
+
+          assert sys.version_info[:2] == (3, 12), sys.version
+          assert "Simba Spark ODBC Driver" in pyodbc.drivers(), pyodbc.drivers()
+          ctypes.CDLL("/opt/simba/spark/lib/64/libsparkodbc_sb64.so")
+          schema = app.openapi()
+          assert schema["paths"], "API routes were not registered"
+          print("Python imports, API schema, and native driver loading passed")
+          PY
+
+      - name: Check Functions host and HTTP endpoint
+        run: |
+          docker run --detach --name rtdip-api-ci \
+            --publish 127.0.0.1:8080:80 \
+            --env FUNCTIONS_WORKER_RUNTIME=python \
+            --env AzureWebJobsSecretStorageType=files \
+            "$IMAGE"
+          ready=false
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error --max-time 5 \
+              http://127.0.0.1:8080/api/openapi.json --output openapi.json; then
+              ready=true
+              break
+            fi
+            if [ "$(docker inspect --format '{{.State.Running}}' rtdip-api-ci)" != "true" ]; then
+              echo "Functions container exited before becoming ready"
+              exit 1
+            fi
+            sleep 5
+          done
+          if [ "$ready" != "true" ]; then
+            echo "Functions HTTP endpoint did not become ready"
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+
+          with open("openapi.json") as response:
+              schema = json.load(response)
+          assert schema["openapi"].startswith("3."), schema
+          assert schema["info"]["title"] == "Real Time Data Ingestion Platform", schema
+          assert schema["paths"], "Functions host returned no API routes"
+          print("Functions host served the application OpenAPI schema")
+          PY
+
+      - name: Scan application image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: rtdip-api:ci
+          scanners: vuln
+          format: json
+          output: trivy-results.json
+
+      - name: Reject CVE-2026-111497
+        run: |
+          python - <<'PY'
+          import json
+
+          with open("trivy-results.json") as report:
+              results = json.load(report)["Results"]
+          assert results, "Trivy returned no scan results"
+          findings = [
+              {
+                  "target": result["Target"],
+                  "package": vulnerability["PkgName"],
+                  "installed": vulnerability["InstalledVersion"],
+                  "fixed": vulnerability.get("FixedVersion", "not listed"),
+              }
+              for result in results
+              for vulnerability in (result.get("Vulnerabilities") or [])
+              if vulnerability["VulnerabilityID"] == "CVE-2026-111497"
+          ]
+          if findings:
+              raise SystemExit(json.dumps(findings, indent=2))
+          print("CVE-2026-111497 was not reported in the application image")
+          PY
+
+      - name: Upload vulnerability report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-container-vulnerabilities
+          path: trivy-results.json
+
+      - name: Show container logs and clean up
+        if: always()
+        run: |
+          if docker container inspect rtdip-api-ci > /dev/null 2>&1; then
+            docker logs rtdip-api-ci
+            docker rm --force rtdip-api-ci
+          fi

@@ -20,7 +20,13 @@ on:
       - Bad_values
 
 jobs:
+  job_validate_api_container:
+    uses: ./.github/workflows/api-container.yml
+    permissions:
+      contents: read
+
   job_build_python_package_and_docker_container:
+    needs: job_validate_api_container
     runs-on: ubuntu-latest
     permissions:
       packages: write

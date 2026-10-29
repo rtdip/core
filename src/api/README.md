@@ -24,6 +24,34 @@ docker run --platform linux/amd64 -p 8080:80 -it --env-file .env rtdip-api:v0.1.
 
 REST APIs are then available at `http://localhost:8080/api/v1/{route}`
 
+### Container compatibility and security checks
+
+The API container uses the Azure Functions Python 3.12 base image. This runtime
+choice does not change the SDK's supported Python versions.
+
+The **API Container** GitHub Actions workflow builds the actual application image
+on pushes outside `Bad_values` and pull requests that change source code or the
+workflow. On `Bad_values`, **Bad Test** calls the same checks on every push and
+only proceeds to its package and image publishing job if they pass. It can also
+be started manually from the Actions tab after the workflow is on the default
+branch. Docker is not required on your local machine.
+
+The workflow checks installed Python dependency consistency, key native Python
+imports, Simba ODBC driver registration and loading, and the Functions host's
+HTTP OpenAPI endpoint. It scans the same image with Trivy and fails if
+`CVE-2026-111497` is reported. The full vulnerability report is uploaded as a
+workflow artifact; other vulnerabilities remain visible in that report but do
+not fail this CVE-specific gate. Container logs are printed even if a check fails.
+
+Before deploying a Python or OS base-image migration to production, also validate
+authentication and a representative Databricks/ODBC query in staging using the
+deployment's real settings. The CI smoke checks do not use credentials or prove
+live connectivity. Scan the published release image and deploy that verified
+image digest; this validation workflow does not publish or deploy an image.
+The **Bad Test** publishing job builds its own image after validation, so scan
+the published tag as well; the validation job's temporary image is not promoted
+to the registry.
+
 ### Debugging
 
 It is also possible to debug using the standard debugger in VS Code. The `.vscode` folder contains the relevant settings to automatically start debugging the APIs. **NOTE** that the endpoints for debugger sessions are `http://localhost:7071/api/v1/{route}`
