@@ -14,8 +14,6 @@
 
 FROM mcr.microsoft.com/azure-functions/python:4-python3.12
 
-RUN adduser --system --group app
-
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 
