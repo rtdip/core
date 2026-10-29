@@ -30,6 +30,7 @@ RUN rm -rf /var/lib/apt/lists/partial \
     && dpkg -i /odbc/simbaspark_2.7.7.1016-2_amd64.deb \
     && python -c "import sys; print(sys.executable, sys.version); assert sys.version_info[:2] == (3, 12)" \
     && python -m pip --version \
+    && python -m pip install --no-cache-dir objprint \
     && python -m pip install --no-cache-dir pyarrow==14.0.2 numpy==1.26.4 \
     && python -c "import pyarrow; pyarrow.create_library_symlinks()" \
     && CFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" python -m pip install --no-cache-dir -r /requirements.txt \
