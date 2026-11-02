@@ -22,7 +22,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
     This function requires the input of a pandas dataframe acquired via the rtdip.functions.raw() method and the user to input a dictionary of parameters. (See Attributes table below)
 
-    Pi data points will either have step enabled (True) or step disabled (False). You can specify whether you want step to be fetched by "Pi" or you can set the step parameter to True/False in the dictionary below.
+    Step defaults to each tag's Step value in the RTDIP metadata table. Explicit "true" or "false" values override metadata for all requested tags.
 
     Args:
         connection: Connection chosen by the user (Databricks SQL Connect, PYODBC SQL Connect, or deprecated TURBODBC SQL Connect)
@@ -39,9 +39,9 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         end_date (str): End date (Either a utc date in the format YYYY-MM-DD or a utc datetime in the format YYYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
-        window_length (int): Add longer window time in days for the start or end of specified date to cater for edge cases. Optional and defaults to 1 day.
+        window_length (int): Optional extra-data buffer in days, defaulting to 1. The nearest eligible raw events before and after the requested range are fetched independently of this buffer.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        step (str): data points with step "enabled" or "disabled". The options for step are "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.
+        step (optional str): "true" uses step integration, "false" uses linear integration, and "metadata" uses each tag's Step value. Defaults to "metadata"; missing or null metadata Step values default to linear integration.
         display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
         limit (optional int): The number of rows to be returned
@@ -53,6 +53,8 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
 
     !!! warning
         Setting `case_insensitivity_tag_search` to True will result in a longer query time.
+
+        Boundary lookups search the requested tags without a date limit, which can increase query cost for long histories. If no eligible future event exists, the existing last-value fallback applies.
 
     !!! Note
         `display_uom` True will not work in conjunction with `pivot` set to True.
