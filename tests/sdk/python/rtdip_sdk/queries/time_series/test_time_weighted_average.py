@@ -80,6 +80,43 @@ def test_time_weighted_average_metadata_step(mocker: MockerFixture):
     )
 
 
+def test_time_weighted_average_step_true(mocker: MockerFixture):
+    parameters = MOCKED_TWA_PARAMETER_DICT.copy()
+    parameters["step"] = "true"
+
+    _test_base_succeed(
+        mocker,
+        parameters,
+        TWA_MOCKED_QUERY.replace(
+            ",fill_step AS (SELECT *, false AS Step FROM fill_value)",
+            ",fill_step AS (SELECT *, true AS Step FROM fill_value)",
+        ),
+        time_weighted_average_get,
+    )
+
+
+def test_time_weighted_average_metadata_pi_query():
+    parameters = MOCKED_TWA_PARAMETER_DICT.copy()
+    parameters["step"] = "metadata_pi"
+    parameters["start_date"] = "2011-01-01T00:00:00+00:00"
+    parameters["end_date"] = "2011-01-02T23:59:59+00:00"
+    parameters["time_zone"] = "+0000"
+    parameters["range_join_seconds"] = 900
+    query = _time_weighted_average_query(parameters)
+
+    assert "WITH source_events AS" in query
+    assert "boundary_times AS" in query
+    assert "Previous_Event" in query
+    assert "Next_Event" in query
+    assert "FROM event_bounds" in query
+
+    parameters["step"] = "false"
+    legacy_query = _time_weighted_average_query(parameters)
+    assert "boundary_times AS" not in legacy_query
+    assert "FROM fill_step" in legacy_query
+    assert "lag(`EventTime`)" in legacy_query
+
+
 def test_time_weighted_average_pivot(mocker: MockerFixture):
     MOCKED_TWA_PARAMETER_DICT["step"] = "false"
     MOCKED_TWA_PARAMETER_DICT["pivot"] = True
@@ -143,7 +180,6 @@ def test_time_weighted_average_default_metadata_step(mocker: MockerFixture):
     assert parameters["step"] == "metadata"
 
 
-@pytest.mark.parametrize("step", [None, "false", "true"])
 @pytest.mark.parametrize("window_length", [0, 1, 7])
 @pytest.mark.parametrize(
     "events, linear_values, stepped_values",
@@ -184,7 +220,7 @@ def test_time_weighted_average_default_metadata_step(mocker: MockerFixture):
     ],
 )
 def test_time_weighted_average_sparse_events(
-    spark_session, step, window_length, events, linear_values, stepped_values
+    spark_session, window_length, events, linear_values, stepped_values
 ):
     tag_names = ["linear", "stepped", "null_step", "missing_metadata"]
     spark_session.createDataFrame(
@@ -207,14 +243,12 @@ def test_time_weighted_average_sparse_events(
         "end_date": "2025-10-04T00:00:00+00:00",
         "time_interval_rate": "1",
         "time_interval_unit": "day",
+        "step": "metadata_pi",
         "time_zone": "+0000",
         "range_join_seconds": 86400,
         "window_length": window_length,
         "include_bad_data": False,
     }
-    if step is not None:
-        parameters["step"] = step
-
     try:
         actual = spark_session.sql(
             _time_weighted_average_query(parameters)
@@ -223,8 +257,7 @@ def test_time_weighted_average_sparse_events(
             (tag_name, datetime(2025, 10, day)): values[index]
             for tag_name in tag_names
             for values in [
-                stepped_values
-                if step == "true" or (step is None and tag_name == "stepped")
+                stepped_values if tag_name == "stepped"
                 else linear_values
             ]
             for index, day in enumerate([2, 3])
@@ -238,9 +271,8 @@ def test_time_weighted_average_sparse_events(
         spark_session.catalog.dropTempView("twa_sparse_metadata")
 
 
-@pytest.mark.parametrize("step", [None, "false"])
 @pytest.mark.parametrize("window_length", [0, 1, 7])
-def test_time_weighted_average_pi_october(spark_session, step, window_length):
+def test_time_weighted_average_pi_october(spark_session, window_length):
     """Reproduce the daily PI averages from the October 2025 comparison workbook."""
     events = [
         ("2025-09-27T05:50:59", 3972.0),
@@ -308,14 +340,12 @@ def test_time_weighted_average_pi_october(spark_session, step, window_length):
         "end_date": "2025-10-31T06:00:00+00:00",
         "time_interval_rate": "1",
         "time_interval_unit": "day",
+        "step": "metadata_pi",
         "time_zone": "+0000",
         "range_join_seconds": 86400,
         "window_length": window_length,
         "include_bad_data": False,
     }
-    if step is not None:
-        parameters["step"] = step
-
     try:
         actual = spark_session.sql(
             _time_weighted_average_query(parameters)

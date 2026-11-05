@@ -450,8 +450,8 @@ class TimeWeightedAverageQueryParams:
         ),
         step: str = Query(
             default="metadata",
-            description='Step can be "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.',
-            examples=["true", "false", "metadata"],
+            description='Step can be "true", "false", "metadata" or "metadata_pi". "metadata" reads Step from metadata using legacy interpolation behavior; "metadata_pi" uses metadata-selected step mode with corrected real-event linear interpolation.',
+            examples=["true", "false", "metadata", "metadata_pi"],
         ),
     ):
         self.time_interval_rate = time_interval_rate

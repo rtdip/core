@@ -626,7 +626,7 @@ class TimeSeriesQueryBuilder:
         end_date: str,
         time_interval_rate: str,
         time_interval_unit: str,
-        step: str = "metadata",
+        step: str,
         source_metadata: str = None,
         include_bad_data: bool = False,
         window_length: int = 1,
@@ -672,10 +672,10 @@ class TimeSeriesQueryBuilder:
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             time_interval_rate (str): The time interval rate (numeric input)
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
-            step (optional str): "true" uses step integration, "false" uses linear integration, and "metadata" uses each tag's Step value. Defaults to "metadata"; missing or null metadata Step values default to linear integration.
+            step (str): "true", "false", or "metadata" preserve legacy behavior. "metadata_pi" opts into metadata-selected step behavior with corrected real-event linear interpolation. Missing or null metadata Step values default to linear integration.
             source_metadata (optional str): Legacy metadata source parameter. Configure the tag metadata table using .m_source(...) when step is "metadata".
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
-            window_length (optional int): Extra-data buffer in days. Nearest eligible raw events before and after the requested range are fetched independently of this buffer, even for sparse tags.
+            window_length (optional int): Extra-data buffer in days. In "metadata_pi" mode, nearest events outside this buffer are also fetched for boundary interpolation.
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
