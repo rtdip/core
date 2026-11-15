@@ -17,7 +17,7 @@ name: "Bad Test"
 on:
   push:
     branches:
-      - Bad_values
+      - fix/twa-linear-interpolation-617d1bf
 
 jobs:
   job_validate_api_container:

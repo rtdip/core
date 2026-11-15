@@ -404,9 +404,24 @@ class InterpolateQueryParams:
         self,
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
+        step: Optional[str] = Query(
+            default=None,
+            description='Omit or pass null to retain the current interpolation. Explicit step can be "true", "false", or "metadata".',
+            examples=[None, "true", "false", "metadata"],
+        ),
     ):
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
+        if step is not None and step.lower() == "null":
+            step = None
+        if step is not None:
+            step = step.lower()
+            if step not in ("true", "false", "metadata"):
+                raise HTTPException(
+                    status_code=422,
+                    detail="step must be one of: true, false, metadata, or null",
+                )
+        self.step = step
 
 
 class InterpolationAtTimeQueryParams:

@@ -454,6 +454,7 @@ class TimeSeriesQueryBuilder:
         sort: bool = True,
         limit: int = None,
         offset: int = None,
+        step: str = None,
     ) -> DataFrame:
         """
         The Interpolate function will forward fill, backward fill or linearly interpolate the resampled data depending on the parameters specified.
@@ -491,6 +492,7 @@ class TimeSeriesQueryBuilder:
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             time_interval_rate (str): The time interval rate (numeric input)
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
+            step (optional str): Omit or pass null to retain the current linear interpolation. Explicit true uses step-hold interpolation, false uses linear interpolation, and metadata selects the method from each tag's Step metadata.
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
@@ -510,6 +512,7 @@ class TimeSeriesQueryBuilder:
             "include_bad_data": include_bad_data,
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
+            "step": step,
             "pivot": pivot,
             "display_uom": display_uom,
             "sort": sort,

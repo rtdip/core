@@ -49,6 +49,42 @@ async def test_api_interpolate_get_success(mocker: MockerFixture, api_test_data)
     assert actual == api_test_data["expected_agg"]
 
 
+@pytest.mark.parametrize(
+    "step,expected_step",
+    [
+        (None, None),
+        ("null", None),
+        ("true", "true"),
+        ("false", "false"),
+        ("metadata", "metadata"),
+    ],
+)
+async def test_api_interpolate_step_parameter(
+    mocker: MockerFixture, api_test_data, step, expected_step
+):
+    received_parameters = []
+
+    def capture_parameters(connection, parameters):
+        received_parameters.append(parameters)
+        return api_test_data["mock_data_agg"]
+
+    mocker_setup(
+        mocker,
+        MOCK_METHOD,
+        api_test_data["mock_data_agg"],
+        patch_side_effect=capture_parameters,
+    )
+    params = INTERPOLATE_MOCKED_PARAMETER_DICT.copy()
+    if step is not None:
+        params["step"] = step
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE_URL) as ac:
+        response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=params)
+
+    assert response.status_code == 200
+    assert received_parameters[0]["step"] == expected_step
+
+
 async def test_api_interpolate_get_validation_error(
     mocker: MockerFixture, api_test_data
 ):

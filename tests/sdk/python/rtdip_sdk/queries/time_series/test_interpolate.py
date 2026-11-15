@@ -19,6 +19,9 @@ from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.queries.time_series.interpolate import (
     get as interpolate_get,
 )
+from src.sdk.python.rtdip_sdk.queries.time_series._time_series_query_builder import (
+    _interpolation_query,
+)
 from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
     _test_base_succeed,
     _test_base_fails,
@@ -47,6 +50,38 @@ def test_interpolate(mocker: MockerFixture):
         INTERPOLATE_MOCKED_QUERY,
         interpolate_get,
     )
+
+
+def test_interpolate_step_modes_query():
+    parameters = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    legacy_query = _interpolation_query(parameters)
+    assert legacy_query == INTERPOLATE_MOCKED_QUERY
+    assert _interpolation_query({**parameters, "step": None}) == legacy_query
+
+    linear_query = _interpolation_query({**parameters, "step": "false"})
+    assert "boundary_times AS" in linear_query
+    assert "PreviousEventTime" in linear_query
+    assert "NextEventTime" in linear_query
+
+    step_query = _interpolation_query({**parameters, "step": "true"})
+    assert "CASE WHEN c.`Prev` IS NOT NULL THEN c.`Prev`.`Value`" in step_query
+    assert "boundary_times AS" not in step_query
+
+    metadata_query = _interpolation_query({**parameters, "step": "metadata"})
+    assert "IFNULL(m.`Step`, false)" in metadata_query
+    assert "metadata_modes WHERE Step = false" in metadata_query
+    assert "metadata_modes WHERE Step = true" in metadata_query
+    assert "boundary_times AS" in metadata_query
+    assert "`mocked-asset_mocked-data-security-level_metadata` AS m" in metadata_query
+
+
+def test_interpolate_null_step_uses_legacy_query(mocker: MockerFixture):
+    parameters = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
+    parameters["step"] = "null"
+    _test_base_succeed(
+        mocker, parameters, INTERPOLATE_MOCKED_QUERY, interpolate_get
+    )
+    assert parameters["step"] is None
 
 
 def test_interpolate_uom(mocker: MockerFixture):

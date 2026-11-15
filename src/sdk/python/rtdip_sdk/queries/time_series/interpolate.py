@@ -40,6 +40,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
+        step (optional str): Omit or pass null to retain the current linear interpolation. Explicit true uses step-hold interpolation, false uses linear interpolation, and metadata selects the method from each tag's Step metadata.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
         display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
@@ -78,6 +79,20 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     if "pivot" in parameters_dict and "display_uom" in parameters_dict:
         if parameters_dict["pivot"] is True and parameters_dict["display_uom"] is True:
             raise ValueError("pivot True and display_uom True cannot be used together")
+
+    step = parameters_dict.get("step")
+    if isinstance(step, str):
+        step = None if step.lower() == "null" else step.lower()
+    if step not in (None, "true", "false", "metadata"):
+        raise ValueError("step must be one of: true, false, metadata, or null")
+    parameters_dict["step"] = step
+
+    step = parameters_dict.get("step")
+    if isinstance(step, str):
+        step = None if step.lower() == "null" else step.lower()
+    if step not in (None, "true", "false", "metadata"):
+        raise ValueError("step must be one of: true, false, metadata, or null")
+    parameters_dict["step"] = step
 
     try:
         query = _query_builder(parameters_dict, "interpolate")

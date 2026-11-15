@@ -308,6 +308,142 @@ def _build_raw_query_for_interpolate(
     return raw_query_sql
 
 
+def _build_linear_interpolate_raw_ctes(
+    timestamp_column,
+    tagname_column,
+    status_column,
+    value_column,
+    start_date,
+    end_date,
+    time_zone,
+    time_interval_unit,
+    source,
+    business_unit,
+    asset,
+    data_security_level,
+    data_type,
+    tag_names,
+    include_status,
+    include_bad_data,
+    case_insensitivity_tag_search,
+    step,
+    metadata_source,
+    metadata_tagname_column,
+):
+    """Fetch real interpolation boundaries only for explicit linear modes."""
+    time_gradient_map = {
+        "minute": (5, "minute"),
+        "second": (60, "second"),
+        "hour": (1, "hour"),
+        "day": (1, "day"),
+    }
+    gradient_value, gradient_unit = time_gradient_map.get(
+        time_interval_unit, (5, "minute")
+    )
+    source_table = (
+        f"`{source.lower()}`"
+        if source is not None
+        else f"`{business_unit.lower()}`.`sensors`.`{asset.lower()}_{data_security_level.lower()}_events_{data_type.lower()}`"
+    )
+    metadata_table = (
+        f"{metadata_source.lower()}"
+        if metadata_source is not None
+        else f"`{business_unit.lower()}`.`sensors`.`{asset.lower()}_{data_security_level.lower()}_metadata`"
+    )
+    status_sql = f"`{status_column}`" if include_status else "'Good' AS `Status`"
+    bad_filter = (
+        f" AND `{status_column}` <> 'Bad'"
+        if include_status and not include_bad_data
+        else ""
+    )
+    quoted_tag_names = "', '".join(
+        tag.upper() if case_insensitivity_tag_search else tag for tag in tag_names
+    )
+    if case_insensitivity_tag_search:
+        metadata_tag_filter = f"UPPER(`{tagname_column}`) IN (SELECT UPPER(`{tagname_column}`) FROM metadata_modes WHERE Step = false)"
+        step_tag_filter = f"UPPER(`{tagname_column}`) IN (SELECT UPPER(`{tagname_column}`) FROM metadata_modes WHERE Step = true)"
+    else:
+        metadata_tag_filter = f"`{tagname_column}` IN (SELECT `{tagname_column}` FROM metadata_modes WHERE Step = false)"
+        step_tag_filter = f"`{tagname_column}` IN (SELECT `{tagname_column}` FROM metadata_modes WHERE Step = true)"
+
+    source_events = (
+        f"source_events AS (SELECT DISTINCT `{tagname_column}`, `{timestamp_column}` AS _SourceTime, "
+        f"from_utc_timestamp(date_trunc('millisecond', `{timestamp_column}`), '{time_zone}') AS `{timestamp_column}`, "
+        f"{status_sql}, `{value_column}` FROM {source_table} WHERE "
+    )
+
+    boundary_times = (
+        f"boundary_times AS (SELECT `{tagname_column}`, "
+        f"MAX(CASE WHEN _SourceTime < to_timestamp('{start_date}') THEN _SourceTime END) AS PreviousEventTime, "
+        f"MIN(CASE WHEN _SourceTime > to_timestamp('{end_date}') THEN _SourceTime END) AS NextEventTime "
+        "FROM source_events GROUP BY `" + tagname_column + "`)"
+    )
+
+    buffer_filter = (
+        f"events._SourceTime BETWEEN timestampadd({gradient_unit}, -{gradient_value}, "
+        f"to_timestamp('{start_date}')) AND timestampadd({gradient_unit}, {gradient_value}, "
+        f"to_timestamp('{end_date}'))"
+    )
+    step_buffer_filter = (
+        f"`{timestamp_column}` BETWEEN timestampadd({gradient_unit}, -{gradient_value}, "
+        f"to_timestamp('{start_date}')) AND timestampadd({gradient_unit}, {gradient_value}, "
+        f"to_timestamp('{end_date}'))"
+    )
+    raw_select = (
+        f"SELECT DISTINCT events.`{tagname_column}`, events.`{timestamp_column}`, "
+        f"events.`{status_column if include_status else 'Status'}`, events.`{value_column}` "
+    )
+
+    if step == "false":
+        return (
+            source_events
+            + f"`{tagname_column}` IN ('{quoted_tag_names}')"
+            + bad_filter
+            + "), "
+            + boundary_times
+            + ", raw AS ("
+            + raw_select
+            + f"FROM source_events events LEFT JOIN boundary_times bounds ON events.`{tagname_column}` = bounds.`{tagname_column}` "
+            + f"WHERE {buffer_filter} OR events._SourceTime = bounds.PreviousEventTime OR events._SourceTime = bounds.NextEventTime)"
+        )
+
+    metadata_join = (
+        f"UPPER(requested.`{tagname_column}`) = UPPER(m.`{metadata_tagname_column}`)"
+        if case_insensitivity_tag_search
+        else f"requested.`{tagname_column}` = m.`{metadata_tagname_column}`"
+    )
+    metadata_modes = (
+        f"metadata_modes AS (SELECT requested.`{tagname_column}`, IFNULL(m.`Step`, false) AS Step "
+        f"FROM (SELECT explode(array('{quoted_tag_names}')) AS `{tagname_column}`) requested "
+        f"LEFT JOIN {metadata_table} AS m ON {metadata_join})"
+    )
+    linear_events = (
+        source_events
+        + metadata_tag_filter
+        + bad_filter
+        + "), "
+        + boundary_times
+        + ", linear_raw AS ("
+        + raw_select
+        + f"FROM source_events events LEFT JOIN boundary_times bounds ON events.`{tagname_column}` = bounds.`{tagname_column}` "
+        + f"WHERE {buffer_filter} OR events._SourceTime = bounds.PreviousEventTime OR events._SourceTime = bounds.NextEventTime)"
+    )
+    step_events = (
+        f"step_raw AS (SELECT DISTINCT `{tagname_column}`, "
+        f"from_utc_timestamp(date_trunc('millisecond', `{timestamp_column}`), '{time_zone}') AS `{timestamp_column}`, "
+        f"{status_sql}, `{value_column}` FROM {source_table} WHERE {step_buffer_filter} "
+        f"AND {step_tag_filter}{bad_filter})"
+    )
+    return (
+        metadata_modes
+        + ", "
+        + linear_events
+        + ", "
+        + step_events
+        + ", raw AS (SELECT * FROM linear_raw UNION ALL SELECT * FROM step_raw)"
+    )
+
+
 def _build_resample_query(
     sql_query_list,
     sql_query_name,
@@ -436,9 +572,56 @@ def _build_interpolate_interpolate_cte(
     timestamp_column,
     tagname_column,
     value_column,
+    step=None,
+    metadata_source=None,
+    business_unit=None,
+    asset=None,
+    data_security_level=None,
+    metadata_tagname_column="TagName",
+    case_insensitivity_tag_search=False,
 ):
     """Build interpolate CTE that performs linear interpolation using unix_millis."""
-    return f"interpolate AS (SELECT `{timestamp_column}`, `{tagname_column}`, CASE WHEN `Prev` IS NOT NULL AND `Next` IS NOT NULL THEN `Prev`.`{value_column}` + ((`Next`.`{value_column}` - `Prev`.`{value_column}`) * (unix_millis(`{timestamp_column}`) - unix_millis(`Prev`.`{timestamp_column}`)) / (unix_millis(`Next`.`{timestamp_column}`) - unix_millis(`Prev`.`{timestamp_column}`))) WHEN `Prev` IS NOT NULL THEN `Prev`.`{value_column}` ELSE NULL END AS `{value_column}` FROM interpolate_calculate WHERE `SortKey` = 1)"
+    legacy_sql = f"interpolate AS (SELECT `{timestamp_column}`, `{tagname_column}`, CASE WHEN `Prev` IS NOT NULL AND `Next` IS NOT NULL THEN `Prev`.`{value_column}` + ((`Next`.`{value_column}` - `Prev`.`{value_column}`) * (unix_millis(`{timestamp_column}`) - unix_millis(`Prev`.`{timestamp_column}`)) / (unix_millis(`Next`.`{timestamp_column}`) - unix_millis(`Prev`.`{timestamp_column}`))) WHEN `Prev` IS NOT NULL THEN `Prev`.`{value_column}` ELSE NULL END AS `{value_column}` FROM interpolate_calculate WHERE `SortKey` = 1)"
+
+    if step is None or step == "false":
+        return legacy_sql
+
+    previous_value = (
+        f"CASE WHEN c.`Prev` IS NOT NULL THEN c.`Prev`.`{value_column}` ELSE NULL END"
+    )
+    if step == "true":
+        return (
+            f"interpolate AS (SELECT c.`{timestamp_column}`, c.`{tagname_column}`, "
+            f"{previous_value} AS `{value_column}` FROM interpolate_calculate c "
+            "WHERE c.`SortKey` = 1)"
+        )
+
+    if step != "metadata":
+        raise ValueError("step must be one of: true, false, metadata, or null")
+
+    metadata_table = (
+        metadata_source
+        if metadata_source is not None
+        else f"`{business_unit.lower()}`.`sensors`.`{asset.lower()}_{data_security_level.lower()}_metadata`"
+    )
+    tag_join = (
+        f"UPPER(c.`{tagname_column}`) = UPPER(m.`{metadata_tagname_column}`)"
+        if case_insensitivity_tag_search
+        else f"c.`{tagname_column}` = m.`{metadata_tagname_column}`"
+    )
+    linear_value = (
+        f"CASE WHEN c.`Prev` IS NOT NULL AND c.`Next` IS NOT NULL THEN "
+        f"c.`Prev`.`{value_column}` + ((c.`Next`.`{value_column}` - c.`Prev`.`{value_column}`) * "
+        f"(unix_millis(c.`{timestamp_column}`) - unix_millis(c.`Prev`.`{timestamp_column}`)) / "
+        f"(unix_millis(c.`Next`.`{timestamp_column}`) - unix_millis(c.`Prev`.`{timestamp_column}`))) "
+        f"WHEN c.`Prev` IS NOT NULL THEN c.`Prev`.`{value_column}` ELSE NULL END"
+    )
+    return (
+        f"interpolate AS (SELECT c.`{timestamp_column}`, c.`{tagname_column}`, "
+        f"CASE WHEN IFNULL(m.`Step`, false) THEN {previous_value} ELSE {linear_value} END "
+        f"AS `{value_column}` FROM interpolate_calculate c LEFT JOIN {metadata_table} AS m "
+        f"ON {tag_join} WHERE c.`SortKey` = 1)"
+    )
 
 
 def _build_interpolate_uom_cte(
@@ -495,6 +678,7 @@ def _build_interpolate_query(
     metadata_uom_column,
     case_insensitivity_tag_search,
     display_uom=False,
+    step=None,
 ):
     """Build the complete interpolate query with all CTEs.
 
@@ -531,6 +715,13 @@ def _build_interpolate_query(
         timestamp_column=timestamp_column,
         tagname_column=tagname_column,
         value_column=value_column,
+        step=step,
+        metadata_source=metadata_source,
+        business_unit=business_unit,
+        asset=asset,
+        data_security_level=data_security_level,
+        metadata_tagname_column=metadata_tagname_column,
+        case_insensitivity_tag_search=case_insensitivity_tag_search,
     )
 
     # Combine CTEs - conditionally include UOM
@@ -902,6 +1093,7 @@ def _sample_query_parameters(parameters_dict: dict) -> dict:
         "include_bad_data": parameters_dict["include_bad_data"],
         "time_interval_rate": parameters_dict["time_interval_rate"],
         "time_interval_unit": parameters_dict["time_interval_unit"],
+        "step": parameters_dict.get("step"),
         "agg_method": parameters_dict.get("agg_method", None),
         "fill": parameters_dict.get("fill", False),
         "time_zone": parameters_dict["time_zone"],
@@ -1182,30 +1374,59 @@ def _interpolation_query(parameters_dict: dict) -> str:
 
     sql_query_list = []
 
-    raw_query = _build_raw_query_for_interpolate(
-        sql_query_name="raw",
-        timestamp_column=interpolate_parameters["timestamp_column"],
-        tagname_column=interpolate_parameters["tagname_column"],
-        status_column=interpolate_parameters["status_column"],
-        value_column=interpolate_parameters["value_column"],
-        start_date=interpolate_parameters["start_date"],
-        end_date=interpolate_parameters["end_date"],
-        time_zone=interpolate_parameters.get("time_zone", "+0000"),
-        time_interval_unit=interpolate_parameters["time_interval_unit"],
-        deduplicate=True,
-        source=interpolate_parameters["source"],
-        business_unit=interpolate_parameters["business_unit"],
-        asset=interpolate_parameters["asset"],
-        data_security_level=interpolate_parameters["data_security_level"],
-        data_type=interpolate_parameters["data_type"],
-        tag_names=interpolate_parameters["tag_names"],
-        include_status=interpolate_parameters["include_status"],
-        include_bad_data=interpolate_parameters["include_bad_data"],
-        case_insensitivity_tag_search=interpolate_parameters[
-            "case_insensitivity_tag_search"
-        ],
-        sort=False,
-    )
+    step = interpolate_parameters["step"]
+    if step in ("false", "metadata"):
+        raw_query = _build_linear_interpolate_raw_ctes(
+            timestamp_column=interpolate_parameters["timestamp_column"],
+            tagname_column=interpolate_parameters["tagname_column"],
+            status_column=interpolate_parameters["status_column"],
+            value_column=interpolate_parameters["value_column"],
+            start_date=interpolate_parameters["start_date"],
+            end_date=interpolate_parameters["end_date"],
+            time_zone=interpolate_parameters.get("time_zone", "+0000"),
+            time_interval_unit=interpolate_parameters["time_interval_unit"],
+            source=interpolate_parameters["source"],
+            business_unit=interpolate_parameters["business_unit"],
+            asset=interpolate_parameters["asset"],
+            data_security_level=interpolate_parameters["data_security_level"],
+            data_type=interpolate_parameters["data_type"],
+            tag_names=interpolate_parameters["tag_names"],
+            include_status=interpolate_parameters["include_status"],
+            include_bad_data=interpolate_parameters["include_bad_data"],
+            case_insensitivity_tag_search=interpolate_parameters[
+                "case_insensitivity_tag_search"
+            ],
+            step=step,
+            metadata_source=interpolate_parameters["metadata_source"],
+            metadata_tagname_column=interpolate_parameters[
+                "metadata_tagname_column"
+            ],
+        )
+    else:
+        raw_query = _build_raw_query_for_interpolate(
+            sql_query_name="raw",
+            timestamp_column=interpolate_parameters["timestamp_column"],
+            tagname_column=interpolate_parameters["tagname_column"],
+            status_column=interpolate_parameters["status_column"],
+            value_column=interpolate_parameters["value_column"],
+            start_date=interpolate_parameters["start_date"],
+            end_date=interpolate_parameters["end_date"],
+            time_zone=interpolate_parameters.get("time_zone", "+0000"),
+            time_interval_unit=interpolate_parameters["time_interval_unit"],
+            deduplicate=True,
+            source=interpolate_parameters["source"],
+            business_unit=interpolate_parameters["business_unit"],
+            asset=interpolate_parameters["asset"],
+            data_security_level=interpolate_parameters["data_security_level"],
+            data_type=interpolate_parameters["data_type"],
+            tag_names=interpolate_parameters["tag_names"],
+            include_status=interpolate_parameters["include_status"],
+            include_bad_data=interpolate_parameters["include_bad_data"],
+            case_insensitivity_tag_search=interpolate_parameters[
+                "case_insensitivity_tag_search"
+            ],
+            sort=False,
+        )
 
     sql_query_list.append({"query_name": "raw", "sql_query": raw_query})
 
@@ -1230,6 +1451,7 @@ def _interpolation_query(parameters_dict: dict) -> str:
             "case_insensitivity_tag_search"
         ],
         display_uom=interpolate_parameters["display_uom"],
+        step=interpolate_parameters["step"],
     )
 
     sql_query_list.append(
