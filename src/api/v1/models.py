@@ -25,7 +25,7 @@ from pydantic import (
     BaseModel,
 )
 from typing import Annotated, List, Union, Dict, Any
-from fastapi import Query, Header, Depends, HTTPException
+from fastapi import Query, Header, Depends, HTTPException, Request
 from datetime import date
 from src.api.auth.azuread import oauth2_scheme
 from typing import Generic, TypeVar, Optional
@@ -443,6 +443,7 @@ class InterpolationAtTimeQueryParams:
 class TimeWeightedAverageQueryParams:
     def __init__(
         self,
+        request: Request,
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         window_length: int = Query(
@@ -450,7 +451,7 @@ class TimeWeightedAverageQueryParams:
         ),
         step: str = Query(
             default="metadata",
-            description='Step can be "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.',
+            description='Step can be "true", "false" or "metadata". Omitting step preserves legacy metadata behavior. Explicit "false" applies corrected linear interpolation; explicit "metadata" applies it to tags with false, missing, or null Step metadata.',
             examples=["true", "false", "metadata"],
         ),
     ):
@@ -458,6 +459,7 @@ class TimeWeightedAverageQueryParams:
         self.time_interval_unit = time_interval_unit
         self.window_length = window_length
         self.step = step
+        self.step_was_provided = "step" in request.query_params
 
 
 class CircularAverageQueryParams:

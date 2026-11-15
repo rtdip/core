@@ -672,7 +672,7 @@ class TimeSeriesQueryBuilder:
             end_date (str): End date (Either a date in the format YY-MM-DD or a datetime in the format YYY-MM-DDTHH:MM:SS or specify the timezone offset in the format YYYY-MM-DDTHH:MM:SS+zz:zz)
             time_interval_rate (str): The time interval rate (numeric input)
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
-            step (str): data points with step "enabled" or "disabled". The options for step are "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table
+            step (str): "true" uses legacy step integration; "false" uses corrected linear interpolation. Explicit "metadata" uses corrected interpolation for tags with false, missing, or null Step metadata.
             source_metadata (optional str): if step is set to "metadata", then this parameter must be populated with the source containing the tagname metadata with a column called "Step"
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases
@@ -694,6 +694,7 @@ class TimeSeriesQueryBuilder:
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
             "step": step,
+            "step_was_provided": step is not None,
             "source_metadata": (
                 None
                 if source_metadata is None

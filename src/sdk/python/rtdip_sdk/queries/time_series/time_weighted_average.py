@@ -41,7 +41,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
         window_length (int): Add longer window time in days for the start or end of specified date to cater for edge cases. Optional and defaults to 1 day.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
-        step (str): data points with step "enabled" or "disabled". The options for step are "true", "false" or "metadata". "metadata" will retrieve the step value from the metadata table.
+        step (str): "true" uses legacy step integration; "false" uses corrected linear interpolation. Explicit "metadata" uses corrected interpolation for tags with false, missing, or null Step metadata. Omitting step retains legacy metadata behavior.
         display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
         limit (optional int): The number of rows to be returned
@@ -64,6 +64,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         if parameters_dict["pivot"] is True and parameters_dict["display_uom"] is True:
             raise ValueError("pivot True and display_uom True cannot be used together")
 
+    parameters_dict.setdefault("step_was_provided", "step" in parameters_dict)
     if "step" not in parameters_dict:  # default step to metadata if not provided
         parameters_dict["step"] = "metadata"
 

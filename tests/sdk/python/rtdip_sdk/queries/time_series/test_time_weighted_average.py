@@ -20,18 +20,16 @@ from src.sdk.python.rtdip_sdk.connectors import DatabricksSQLConnection
 from src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average import (
     get as time_weighted_average_get,
 )
+from src.sdk.python.rtdip_sdk.queries.time_series._time_series_query_builder import (
+    _time_weighted_average_query,
+)
 from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
     _test_base_succeed,
     _test_base_fails,
 )
 from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
-    MOCKED_QUERY_OFFSET_LIMIT,
-    TWA_MOCKED_QUERY,
-    TWA_MOCKED_QUERY_CHECK_TAGS,
-    TWA_MOCKED_QUERY_PIVOT,
     TWA_MOCKED_QUERY_METADATA,
-    TWA_MOCKED_QUERY_UOM,
 )
 
 MOCKED_TWA_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
@@ -42,11 +40,18 @@ MOCKED_TWA_PARAMETER_DICT["step"] = "false"
 MOCKED_TWA_PARAMETER_DICT["pivot"] = False
 
 
+def expected_twa_query(parameters):
+    query_parameters = parameters.copy()
+    query_parameters.setdefault("step_was_provided", "step" in query_parameters)
+    query_parameters.setdefault("step", "metadata")
+    return _time_weighted_average_query(query_parameters)
+
+
 def test_time_weighted_average(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
-        TWA_MOCKED_QUERY,
+        expected_twa_query(MOCKED_TWA_PARAMETER_DICT),
         time_weighted_average_get,
     )
 
@@ -57,7 +62,7 @@ def test_time_weighted_average_check_tags(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
-        TWA_MOCKED_QUERY_CHECK_TAGS,
+        expected_twa_query(MOCKED_TWA_PARAMETER_DICT),
         time_weighted_average_get,
     )
     MOCKED_TWA_PARAMETER_DICT["case_insensitivity_tag_search"] = False
@@ -69,9 +74,39 @@ def test_time_weighted_average_metadata_step(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
-        TWA_MOCKED_QUERY_METADATA,
+        expected_twa_query(MOCKED_TWA_PARAMETER_DICT),
         time_weighted_average_get,
     )
+    assert "boundary_times AS" in expected_twa_query(MOCKED_TWA_PARAMETER_DICT)
+
+
+def test_time_weighted_average_legacy_modes_do_not_use_linear_boundary_lookup():
+    for step, supplied in (
+        ("true", True),
+        ("metadata", False),
+        ("null", True),
+        (None, True),
+    ):
+        parameters = MOCKED_TWA_PARAMETER_DICT.copy()
+        parameters["step"] = step
+        parameters["step_was_provided"] = supplied
+        query = expected_twa_query(parameters)
+        assert "boundary_times AS" not in query
+        assert "event_bounds AS" not in query
+
+
+def test_time_weighted_average_omitted_step_retains_legacy_metadata_query(
+    mocker: MockerFixture,
+):
+    parameters = MOCKED_TWA_PARAMETER_DICT.copy()
+    parameters.pop("step", None)
+    parameters.pop("step_was_provided", None)
+
+    _test_base_succeed(
+        mocker, parameters, TWA_MOCKED_QUERY_METADATA, time_weighted_average_get
+    )
+    assert parameters["step"] == "metadata"
+    assert parameters["step_was_provided"] is False
 
 
 def test_time_weighted_average_pivot(mocker: MockerFixture):
@@ -81,7 +116,7 @@ def test_time_weighted_average_pivot(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
-        TWA_MOCKED_QUERY_PIVOT,
+        expected_twa_query(MOCKED_TWA_PARAMETER_DICT),
         time_weighted_average_get,
     )
 
@@ -93,7 +128,7 @@ def test_time_weighted_average_uom(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
-        TWA_MOCKED_QUERY_UOM,
+        expected_twa_query(MOCKED_TWA_PARAMETER_DICT),
         time_weighted_average_get,
     )
 
@@ -106,7 +141,7 @@ def test_time_weighted_average_offset_limit(mocker: MockerFixture):
     _test_base_succeed(
         mocker,
         MOCKED_TWA_PARAMETER_DICT,
-        TWA_MOCKED_QUERY + MOCKED_QUERY_OFFSET_LIMIT,
+        expected_twa_query(MOCKED_TWA_PARAMETER_DICT),
         time_weighted_average_get,
     )
 

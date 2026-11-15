@@ -1675,6 +1675,40 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
     ).strftime("%Y-%m-%dT%H:%M:%S")
 
     time_weighted_average_query = (
+        "{% if step == 'false' %}"
+        'WITH source_events AS (SELECT DISTINCT `{{ tagname_column }}`, `{{ timestamp_column }}` AS _TwaSourceTime, from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} CAST(`{{ value_column }}` AS DOUBLE) AS `{{ value_column }}` FROM '
+        "{% if source is defined and source is not none %}`{{ source|lower }}` {% else %}`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}` {% endif %}"
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
+        "WHERE UPPER(`{{ tagname_column }}`) IN ('{{ tag_names | join('\\', \\'') | upper }}') "
+        "{% else %}"
+        "WHERE `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
+        "{% endif %}"
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}), "
+        'boundary_times AS (SELECT `{{ tagname_column }}`, max(CASE WHEN _TwaSourceTime < to_timestamp("{{ start_date }}") THEN _TwaSourceTime END) AS PreviousEventTime, min(CASE WHEN _TwaSourceTime > to_timestamp("{{ end_date }}") THEN _TwaSourceTime END) AS NextEventTime FROM source_events GROUP BY `{{ tagname_column }}`), '
+        'raw_events AS (SELECT DISTINCT events.`{{ tagname_column }}`, events.`{{ timestamp_column }}`, events.`{{ status_column }}`, events.`{{ value_column }}` FROM source_events events LEFT JOIN boundary_times bounds ON events.`{{ tagname_column }}` = bounds.`{{ tagname_column }}` WHERE to_date(events._TwaSourceTime) BETWEEN date_sub(to_date(to_timestamp("{{ start_date }}")), {{ window_length }}) AND date_add(to_date(to_timestamp("{{ end_date }}")), {{ window_length }}) OR events._TwaSourceTime = bounds.PreviousEventTime OR events._TwaSourceTime = bounds.NextEventTime) '
+        "{% elif step == 'metadata' and step_was_provided %}"
+        "WITH metadata_modes AS (SELECT requested.`{{ tagname_column }}`, IFNULL(m.Step, false) AS Step FROM (SELECT explode(array('"
+        "{{ tag_names | join('\\', \\'') }}"
+        "')) AS `{{ tagname_column }}`) requested LEFT JOIN "
+        "{% if metadata_source is defined and metadata_source is not none %}"
+        "{{ metadata_source|lower }} m ON requested.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}`), "
+        "{% else %}"
+        "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON requested.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}`), "
+        "{% endif %}"
+        'source_events AS (SELECT DISTINCT `{{ tagname_column }}`, `{{ timestamp_column }}` AS _TwaSourceTime, from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} CAST(`{{ value_column }}` AS DOUBLE) AS `{{ value_column }}` FROM {% if source is defined and source is not none %}`{{ source|lower }}`{% else %}`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}`{% endif %} '
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}WHERE UPPER(`{{ tagname_column }}`) IN (SELECT UPPER(`{{ tagname_column }}`) FROM metadata_modes WHERE Step = false) {% else %}WHERE `{{ tagname_column }}` IN (SELECT `{{ tagname_column }}` FROM metadata_modes WHERE Step = false) {% endif %}"
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}), "
+        'boundary_times AS (SELECT `{{ tagname_column }}`, max(CASE WHEN _TwaSourceTime < to_timestamp("{{ start_date }}") THEN _TwaSourceTime END) AS PreviousEventTime, min(CASE WHEN _TwaSourceTime > to_timestamp("{{ end_date }}") THEN _TwaSourceTime END) AS NextEventTime FROM source_events GROUP BY `{{ tagname_column }}`), '
+        'linear_raw_events AS (SELECT DISTINCT events.`{{ tagname_column }}`, events.`{{ timestamp_column }}`, events.`{{ status_column }}`, events.`{{ value_column }}` FROM source_events events LEFT JOIN boundary_times bounds ON events.`{{ tagname_column }}` = bounds.`{{ tagname_column }}` WHERE to_date(events._TwaSourceTime) BETWEEN date_sub(to_date(to_timestamp("{{ start_date }}")), {{ window_length }}) AND date_add(to_date(to_timestamp("{{ end_date }}")), {{ window_length }}) OR events._TwaSourceTime = bounds.PreviousEventTime OR events._TwaSourceTime = bounds.NextEventTime), '
+        'step_raw_events AS (SELECT DISTINCT `{{ tagname_column }}`, from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} CAST(`{{ value_column }}` AS DOUBLE) AS `{{ value_column }}` FROM {% if source is defined and source is not none %}`{{ source|lower }}`{% else %}`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}`{% endif %} '
+        "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
+        "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND UPPER(`{{ tagname_column }}`) IN (SELECT UPPER(`{{ tagname_column }}`) FROM metadata_modes WHERE Step = true) "
+        "{% else %}"
+        "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND `{{ tagname_column }}` IN (SELECT `{{ tagname_column }}` FROM metadata_modes WHERE Step = true) "
+        "{% endif %}"
+        "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}), "
+        "raw_events AS (SELECT * FROM linear_raw_events UNION ALL SELECT * FROM step_raw_events) "
+        "{% else %}"
         'WITH raw_events AS (SELECT DISTINCT `{{ tagname_column }}`, from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} CAST(`{{ value_column }}` AS DOUBLE) AS `{{ value_column }}` FROM '
         "{% if source is defined and source is not none %}"
         "`{{ source|lower }}` "
@@ -1687,6 +1721,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
+        "{% endif %}"
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ',date_array AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events) '
         "{% else %}"
@@ -1715,12 +1750,18 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% else %}"
         ",fill_step AS (SELECT *, {{ step }} AS Step FROM fill_value) "
         "{% endif %}"
+        "{% if step == 'false' or (step == 'metadata' and step_was_provided) %}"
+        ",event_bounds AS (SELECT `{{ tagname_column }}`, `{{ timestamp_column }}`, last_value(CASE WHEN `Good_{{ value_column }}` IS NOT NULL THEN struct(`{{ timestamp_column }}` AS EventTime, `Good_{{ value_column }}` AS Value) END, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Previous_Event, first_value(CASE WHEN `Good_{{ value_column }}` IS NOT NULL THEN struct(`{{ timestamp_column }}` AS EventTime, `Good_{{ value_column }}` AS Value) END, true) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) AS Next_Event FROM fill_step WHERE Step = false) "
+        ",interpolate AS (SELECT f.*, CASE WHEN f.`Step` = false AND f.`{{ status_column }}` IS NULL AND f.`{{ value_column }}` IS NULL THEN b.Previous_Event.EventTime ELSE NULL END AS `Previous_{{ timestamp_column }}`, CASE WHEN f.`Step` = false AND f.`{{ status_column }}` IS NULL AND f.`{{ value_column }}` IS NULL THEN b.Previous_Event.Value ELSE NULL END AS `Previous_Fill_{{ value_column }}`, "
+        "lead(f.`{{ timestamp_column }}`) OVER (PARTITION BY f.`{{ tagname_column }}` ORDER BY f.`{{ timestamp_column }}`) AS `Next_{{ timestamp_column }}`, CASE WHEN f.`Step` = false AND f.`{{ status_column }}` IS NULL AND f.`{{ value_column }}` IS NULL THEN b.Next_Event.Value ELSE NULL END AS `Next_Fill_{{ value_column }}`, CASE WHEN f.`Step` = false AND f.`{{ status_column }}` IS NULL AND f.`{{ value_column }}` IS NULL THEN b.Previous_Event.Value + ((b.Next_Event.Value - b.Previous_Event.Value) * ((CAST(f.`{{ timestamp_column }}` AS DOUBLE) - CAST(b.Previous_Event.EventTime AS DOUBLE)) / (CAST(b.Next_Event.EventTime AS DOUBLE) - CAST(b.Previous_Event.EventTime AS DOUBLE)))) ELSE NULL END AS `Interpolated_{{ value_column }}`, coalesce(`Interpolated_{{ value_column }}`, f.`Fill_{{ value_column }}`) AS `Event_{{ value_column }}` FROM fill_step f LEFT JOIN event_bounds b ON f.`{{ tagname_column }}` = b.`{{ tagname_column }}` AND f.`{{ timestamp_column }}` = b.`{{ timestamp_column }}`)"
+        "{% else %}"
         ",interpolate AS (SELECT *, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lag(`{{ timestamp_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Previous_{{ timestamp_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lag(`Fill_{{ value_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Previous_Fill_{{ value_column }}`, "
         "lead(`{{ timestamp_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) AS `Next_{{ timestamp_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lead(`Fill_{{ value_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Next_Fill_{{ value_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN `Previous_Fill_{{ value_column }}` + ( (`Next_Fill_{{ value_column }}` - `Previous_Fill_{{ value_column }}`) * ( ( CAST(`{{ timestamp_column }}` AS DOUBLE) - CAST(`Previous_{{ timestamp_column }}` AS DOUBLE) ) / ( CAST(`Next_{{ timestamp_column }}` AS DOUBLE) - CAST(`Previous_{{ timestamp_column }}` AS DOUBLE) ) ) ) ELSE NULL END AS `Interpolated_{{ value_column }}`, coalesce(`Interpolated_{{ value_column }}`, `Fill_{{ value_column }}`) as `Event_{{ value_column }}` FROM fill_step )"
         ",twa_calculations AS (SELECT `{{ tagname_column }}`, `{{ timestamp_column }}`, `Window{{ timestamp_column }}`, `Step`, `{{ status_column }}`, `{{ value_column }}`, `Previous_{{ timestamp_column }}`, `Previous_Fill_{{ value_column }}`, `Next_{{ timestamp_column }}`, `Next_Fill_{{ value_column }}`, `Interpolated_{{ value_column }}`, `Fill_{{ status_column }}`, `Fill_{{ value_column }}`, `Event_{{ value_column }}`, lead(`Fill_{{ status_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ status_column }}` "
         ', CASE WHEN `Next_{{ status_column }}` <> "Bad" OR (`Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` = "Bad") THEN lead(`Event_{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) ELSE `{{ value_column }}` END AS `Next_{{ value_column }}_For_{{ status_column }}` '
         ', CASE WHEN `Fill_{{ status_column }}` <> "Bad" THEN `Next_{{ value_column }}_For_{{ status_column }}` ELSE 0 END AS `Next_{{ value_column }}` '
         ', CASE WHEN `Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` <> "Bad" THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) WHEN `Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` = "Bad" THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) ELSE 0 END AS good_minutes '
+        "{% endif %}"
         ", CASE WHEN Step == false THEN ((`Event_{{ value_column }}` + `Next_{{ value_column }}`) * 0.5) * good_minutes ELSE (`Event_{{ value_column }}` * good_minutes) END AS twa_value FROM interpolate) "
         ",twa AS (SELECT `{{ tagname_column }}`, `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, sum(twa_value) / sum(good_minutes) AS `{{ value_column }}` from twa_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
         ',project AS (SELECT * FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) '
@@ -1777,6 +1818,9 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "window_length": parameters_dict["window_length"],
         "include_bad_data": parameters_dict["include_bad_data"],
         "step": parameters_dict["step"],
+        "step_was_provided": parameters_dict.get(
+            "step_was_provided", "step" in parameters_dict
+        ),
         "pivot": parameters_dict.get("pivot", None),
         "display_uom": parameters_dict.get("display_uom", False),
         "limit": parameters_dict.get("limit", None),
