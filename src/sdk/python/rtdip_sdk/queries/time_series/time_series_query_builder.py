@@ -455,6 +455,7 @@ class TimeSeriesQueryBuilder:
         limit: int = None,
         offset: int = None,
         step: str = None,
+        window_length: int = None,
     ) -> DataFrame:
         """
         The Interpolate function will forward fill, backward fill or linearly interpolate the resampled data depending on the parameters specified.
@@ -493,6 +494,7 @@ class TimeSeriesQueryBuilder:
             time_interval_rate (str): The time interval rate (numeric input)
             time_interval_unit (str): The time interval unit (second, minute, day, hour)
             step (optional str): Omit or pass null to retain the current linear interpolation. Explicit true uses step-hold interpolation, false uses linear interpolation, and metadata selects the method from each tag's Step metadata.
+            window_length (optional int): Fixed boundary-search window in days (0-366). When omitted, explicit false/metadata modes expand through 7, 30, 180, and 366 days.
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
@@ -513,6 +515,8 @@ class TimeSeriesQueryBuilder:
             "time_interval_rate": time_interval_rate,
             "time_interval_unit": time_interval_unit,
             "step": step,
+            "window_length": 7 if window_length is None else window_length,
+            "window_length_was_provided": window_length is not None,
             "pivot": pivot,
             "display_uom": display_uom,
             "sort": sort,
@@ -632,7 +636,7 @@ class TimeSeriesQueryBuilder:
         step: str,
         source_metadata: str = None,
         include_bad_data: bool = False,
-        window_length: int = 1,
+        window_length: int = None,
         pivot: bool = False,
         display_uom: bool = False,
         limit: int = None,
@@ -678,7 +682,7 @@ class TimeSeriesQueryBuilder:
             step (str): "true" uses legacy step integration; "false" uses corrected linear interpolation. Explicit "metadata" uses corrected interpolation for tags with false, missing, or null Step metadata.
             source_metadata (optional str): if step is set to "metadata", then this parameter must be populated with the source containing the tagname metadata with a column called "Step"
             include_bad_data (optional bool): Include "Bad" data points with True or remove "Bad" data points with False
-            window_length (optional int): Add longer window time in days for the start or end of specified date to cater for edge cases
+            window_length (optional int): Boundary search window in days (0-366). Defaults to 1 for legacy modes and 7 for explicit linear modes.
             pivot (optional bool): Pivot the data on the timestamp column with True or do not pivot the data with False
             display_uom (optional bool): Display the unit of measure with True or False. Defaults to False. If True, metadata_source must be populated
             limit (optional int): The number of rows to be returned
@@ -703,7 +707,8 @@ class TimeSeriesQueryBuilder:
                 if source_metadata is None
                 else "`.`".join(source_metadata.split("."))
             ),
-            "window_length": window_length,
+            "window_length": 1 if window_length is None else window_length,
+            "window_length_was_provided": window_length is not None,
             "pivot": pivot,
             "display_uom": display_uom,
             "limit": limit,

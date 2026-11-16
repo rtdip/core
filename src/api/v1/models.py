@@ -402,8 +402,15 @@ class LimitOffsetQueryParams:
 class InterpolateQueryParams:
     def __init__(
         self,
+        request: Request,
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
+        window_length: int = Query(
+            default=7,
+            ge=0,
+            le=366,
+            description="Fixed boundary-search window in days (0-366); when omitted, false/metadata modes expand through 7, 30, 180, and 366 days",
+        ),
         step: Optional[str] = Query(
             default=None,
             description='Omit or pass null to retain the current interpolation. Explicit step can be "true", "false", or "metadata".',
@@ -412,6 +419,8 @@ class InterpolateQueryParams:
     ):
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
+        self.window_length = window_length
+        self.window_length_was_provided = "window_length" in request.query_params
         if step is not None and step.lower() == "null":
             step = None
         if step is not None:
@@ -462,7 +471,11 @@ class TimeWeightedAverageQueryParams:
         time_interval_rate: str = DuplicatedQueryParameters.time_interval_rate,
         time_interval_unit: str = DuplicatedQueryParameters.time_interval_unit,
         window_length: int = Query(
-            default=1, description="Window Length in days", examples=[1]
+            default=1,
+            ge=0,
+            le=366,
+            description="Window length in days (0-366)",
+            examples=[1, 7, 30],
         ),
         step: str = Query(
             default="metadata",
@@ -473,6 +486,7 @@ class TimeWeightedAverageQueryParams:
         self.time_interval_rate = time_interval_rate
         self.time_interval_unit = time_interval_unit
         self.window_length = window_length
+        self.window_length_was_provided = "window_length" in request.query_params
         self.step = step
         self.step_was_provided = "step" in request.query_params
 

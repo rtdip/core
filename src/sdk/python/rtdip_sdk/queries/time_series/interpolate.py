@@ -41,6 +41,7 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
         time_interval_rate (str): The time interval rate (numeric input)
         time_interval_unit (str): The time interval unit (second, minute, day, hour)
         step (optional str): Omit or pass null to retain the current linear interpolation. Explicit true uses step-hold interpolation, false uses linear interpolation, and metadata selects the method from each tag's Step metadata.
+        window_length (optional int): Fixed boundary-search window in days (0-366). When omitted, explicit false/metadata modes expand through 7, 30, 180, and 366 days. Omitted/null/true retain the existing time-gradient buffer.
         include_bad_data (bool): Include "Bad" data points with True or remove "Bad" data points with False
         pivot (bool): Pivot the data on timestamp column with True or do not pivot the data with False
         display_uom (optional bool): Display the unit of measure with True or False. Does not apply to pivoted tables. Defaults to False
@@ -86,22 +87,51 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
     if step not in (None, "true", "false", "metadata"):
         raise ValueError("step must be one of: true, false, metadata, or null")
     parameters_dict["step"] = step
-
-    step = parameters_dict.get("step")
-    if isinstance(step, str):
-        step = None if step.lower() == "null" else step.lower()
-    if step not in (None, "true", "false", "metadata"):
-        raise ValueError("step must be one of: true, false, metadata, or null")
-    parameters_dict["step"] = step
+    parameters_dict.setdefault(
+        "window_length_was_provided", "window_length" in parameters_dict
+    )
+    parameters_dict.setdefault("window_length", 7)
+    if not 0 <= parameters_dict["window_length"] <= 366:
+        raise ValueError("window_length must be between 0 and 366 days")
+    adaptive_search = step in ("false", "metadata") and not parameters_dict[
+        "window_length_was_provided"
+    ]
+    search_windows = [7, 30, 180, 366] if adaptive_search else [
+        parameters_dict["window_length"]
+    ]
 
     try:
-        query = _query_builder(parameters_dict, "interpolate")
-
         try:
-            cursor = connection.cursor()
-            cursor.execute(query)
-            df = cursor.fetch_all()
-            cursor.close()
+            df = None
+            for window_length in search_windows:
+                query_parameters = parameters_dict.copy()
+                query_parameters["adaptive_search"] = adaptive_search
+                if adaptive_search:
+                    query_parameters["_linear_window_length"] = window_length
+                query = _query_builder(query_parameters, "interpolate")
+                cursor = connection.cursor()
+                try:
+                    cursor.execute(query)
+                    df = cursor.fetch_all()
+                finally:
+                    cursor.close()
+
+                if (
+                    not adaptive_search
+                    or "_InterpolateBoundarySearchIncomplete" not in df.columns
+                    or not pd.to_numeric(
+                        df["_InterpolateBoundarySearchIncomplete"], errors="coerce"
+                    )
+                    .fillna(0)
+                    .gt(0)
+                    .any()
+                    or window_length == search_windows[-1]
+                ):
+                    break
+
+            if "_InterpolateBoundarySearchIncomplete" in df.columns:
+                df = df.drop(columns=["_InterpolateBoundarySearchIncomplete"])
+
             connection.close()
             return df
         except Exception as e:

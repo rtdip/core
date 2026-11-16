@@ -83,6 +83,45 @@ async def test_api_interpolate_step_parameter(
 
     assert response.status_code == 200
     assert received_parameters[0]["step"] == expected_step
+    assert received_parameters[0]["window_length"] == 7
+    assert received_parameters[0]["window_length_was_provided"] is False
+
+
+@pytest.mark.parametrize("window_length", [0, 7, 366])
+async def test_api_interpolate_window_length(
+    mocker: MockerFixture, api_test_data, window_length
+):
+    received_parameters = []
+
+    def capture_parameters(connection, parameters):
+        received_parameters.append(parameters)
+        return api_test_data["mock_data_agg"]
+
+    mocker_setup(
+        mocker,
+        MOCK_METHOD,
+        api_test_data["mock_data_agg"],
+        patch_side_effect=capture_parameters,
+    )
+    params = INTERPOLATE_MOCKED_PARAMETER_DICT.copy()
+    params["window_length"] = window_length
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE_URL) as ac:
+        response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=params)
+
+    assert response.status_code == 200
+    assert received_parameters[0]["window_length"] == window_length
+    assert received_parameters[0]["window_length_was_provided"] is True
+
+
+async def test_api_interpolate_window_length_rejects_values_over_366():
+    params = INTERPOLATE_MOCKED_PARAMETER_DICT.copy()
+    params["window_length"] = 367
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=BASE_URL) as ac:
+        response = await ac.get(MOCK_API_NAME, headers=TEST_HEADERS, params=params)
+
+    assert response.status_code == 422
 
 
 async def test_api_interpolate_get_validation_error(

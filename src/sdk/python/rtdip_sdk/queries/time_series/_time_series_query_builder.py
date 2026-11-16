@@ -317,6 +317,7 @@ def _build_linear_interpolate_raw_ctes(
     end_date,
     time_zone,
     time_interval_unit,
+    window_length,
     source,
     business_unit,
     asset,
@@ -329,6 +330,7 @@ def _build_linear_interpolate_raw_ctes(
     step,
     metadata_source,
     metadata_tagname_column,
+    adaptive_search=False,
 ):
     """Fetch real interpolation boundaries only for explicit linear modes."""
     time_gradient_map = {
@@ -372,17 +374,55 @@ def _build_linear_interpolate_raw_ctes(
         f"{status_sql}, `{value_column}` FROM {source_table} WHERE "
     )
 
+    boundary_flags = (
+        f", MAX(CASE WHEN _SourceTime <= to_timestamp('{start_date}') AND `{status_column if include_status else 'Status'}` <> 'Bad' AND `{value_column}` IS NOT NULL THEN 1 ELSE 0 END) AS HasPrevious, "
+        f"MAX(CASE WHEN _SourceTime >= to_timestamp('{end_date}') AND `{status_column if include_status else 'Status'}` <> 'Bad' AND `{value_column}` IS NOT NULL THEN 1 ELSE 0 END) AS HasNext "
+        if adaptive_search
+        else ""
+    )
     boundary_times = (
         f"boundary_times AS (SELECT `{tagname_column}`, "
         f"MAX(CASE WHEN _SourceTime < to_timestamp('{start_date}') THEN _SourceTime END) AS PreviousEventTime, "
         f"MIN(CASE WHEN _SourceTime > to_timestamp('{end_date}') THEN _SourceTime END) AS NextEventTime "
-        "FROM source_events GROUP BY `" + tagname_column + "`)"
+        + boundary_flags
+        + "FROM source_events GROUP BY `"
+        + tagname_column
+        + "`)"
+    )
+    boundary_status_cte = ""
+    if adaptive_search:
+        requested_tags = (
+            "requested_tags"
+            if step == "false"
+            else "metadata_modes"
+        )
+        requested_alias = "requested"
+        boundary_tag_join = (
+            f"UPPER({requested_alias}.`{tagname_column}`) = UPPER(bounds.`{tagname_column}`)"
+            if case_insensitivity_tag_search
+            else f"{requested_alias}.`{tagname_column}` = bounds.`{tagname_column}`"
+        )
+        boundary_status_cte = (
+            f"boundary_status AS (SELECT {requested_alias}.`{tagname_column}`, "
+            "CASE WHEN bounds.HasPrevious = 1 AND bounds.HasNext = 1 THEN 0 ELSE 1 END "
+            f"AS BoundarySearchIncomplete FROM {requested_tags} {requested_alias} "
+            f"LEFT JOIN boundary_times bounds ON {boundary_tag_join}"
+            + (" WHERE requested.Step = false" if step == "metadata" else "")
+            + ")"
+        )
+    requested_tags_cte = (
+        f"requested_tags AS (SELECT explode(array('{quoted_tag_names}')) AS `{tagname_column}`), "
+        if adaptive_search and step == "false"
+        else ""
     )
 
-    buffer_filter = (
-        f"events._SourceTime BETWEEN timestampadd({gradient_unit}, -{gradient_value}, "
-        f"to_timestamp('{start_date}')) AND timestampadd({gradient_unit}, {gradient_value}, "
-        f"to_timestamp('{end_date}'))"
+    linear_search_filter = (
+        f"to_date(`{timestamp_column}`) BETWEEN date_sub(to_date(to_timestamp('{start_date}')), "
+        f"{window_length}) AND date_add(to_date(to_timestamp('{end_date}')), {window_length})"
+    )
+    linear_event_filter = (
+        f"to_date(events._SourceTime) BETWEEN date_sub(to_date(to_timestamp('{start_date}')), "
+        f"{window_length}) AND date_add(to_date(to_timestamp('{end_date}')), {window_length})"
     )
     step_buffer_filter = (
         f"`{timestamp_column}` BETWEEN timestampadd({gradient_unit}, -{gradient_value}, "
@@ -396,15 +436,18 @@ def _build_linear_interpolate_raw_ctes(
 
     if step == "false":
         return (
-            source_events
+            requested_tags_cte
+            + source_events
             + f"`{tagname_column}` IN ('{quoted_tag_names}')"
+            + f" AND {linear_search_filter}"
             + bad_filter
             + "), "
             + boundary_times
+            + (", " + boundary_status_cte if adaptive_search else "")
             + ", raw AS ("
             + raw_select
             + f"FROM source_events events LEFT JOIN boundary_times bounds ON events.`{tagname_column}` = bounds.`{tagname_column}` "
-            + f"WHERE {buffer_filter} OR events._SourceTime = bounds.PreviousEventTime OR events._SourceTime = bounds.NextEventTime)"
+            + f"WHERE {linear_event_filter} OR events._SourceTime = bounds.PreviousEventTime OR events._SourceTime = bounds.NextEventTime)"
         )
 
     metadata_join = (
@@ -420,13 +463,15 @@ def _build_linear_interpolate_raw_ctes(
     linear_events = (
         source_events
         + metadata_tag_filter
+        + f" AND {linear_search_filter}"
         + bad_filter
         + "), "
         + boundary_times
+        + (", " + boundary_status_cte if adaptive_search else "")
         + ", linear_raw AS ("
         + raw_select
         + f"FROM source_events events LEFT JOIN boundary_times bounds ON events.`{tagname_column}` = bounds.`{tagname_column}` "
-        + f"WHERE {buffer_filter} OR events._SourceTime = bounds.PreviousEventTime OR events._SourceTime = bounds.NextEventTime)"
+        + f"WHERE {linear_event_filter} OR events._SourceTime = bounds.PreviousEventTime OR events._SourceTime = bounds.NextEventTime)"
     )
     step_events = (
         f"step_raw AS (SELECT DISTINCT `{tagname_column}`, "
@@ -917,7 +962,13 @@ def _build_uom_query(
 
 
 def _build_output_query(
-    sql_query_list, to_json, limit, offset, columns=None, order_by_clause=None
+    sql_query_list,
+    to_json,
+    limit,
+    offset,
+    columns=None,
+    order_by_clause=None,
+    additional_select_columns=None,
 ):
     parent_sql_query_name = sql_query_list[-1]["query_name"]
 
@@ -936,6 +987,11 @@ def _build_output_query(
         output_sql_query = " ".join([output_sql_query, ", ".join(columns)])
     else:
         output_sql_query = " ".join([output_sql_query, "*"])
+
+    if additional_select_columns:
+        output_sql_query = " ".join(
+            [output_sql_query, ", ".join(additional_select_columns)]
+        )
 
     output_sql_query = " ".join([output_sql_query, f"FROM {parent_sql_query_name}"])
 
@@ -1094,6 +1150,10 @@ def _sample_query_parameters(parameters_dict: dict) -> dict:
         "time_interval_rate": parameters_dict["time_interval_rate"],
         "time_interval_unit": parameters_dict["time_interval_unit"],
         "step": parameters_dict.get("step"),
+        "window_length": parameters_dict.get("window_length", 7),
+        "window_length_was_provided": parameters_dict.get(
+            "window_length_was_provided", "window_length" in parameters_dict
+        ),
         "agg_method": parameters_dict.get("agg_method", None),
         "fill": parameters_dict.get("fill", False),
         "time_zone": parameters_dict["time_zone"],
@@ -1371,14 +1431,24 @@ def _plot_query_parameters(parameters_dict: dict) -> dict:
 def _interpolation_query(parameters_dict: dict) -> str:
 
     interpolate_parameters = _sample_query_parameters(parameters_dict)
-    if isinstance(interpolate_parameters.get("step"), str) and interpolate_parameters[
-        "step"
-    ].lower() == "null":
-        interpolate_parameters["step"] = None
+    step = interpolate_parameters["step"]
+    if isinstance(step, str) and step.lower() == "null":
+        step = None
+    window_length_was_provided = interpolate_parameters[
+        "window_length_was_provided"
+    ]
+    adaptive_search = step in ("false", "metadata") and not window_length_was_provided
+    linear_window_length = parameters_dict.get(
+        "_linear_window_length",
+        7 if adaptive_search else interpolate_parameters["window_length"],
+    )
+    interpolate_parameters["step"] = step
+    interpolate_parameters["adaptive_search"] = adaptive_search
+    if not 0 <= interpolate_parameters["window_length"] <= 366:
+        raise ValueError("window_length must be between 0 and 366 days")
 
     sql_query_list = []
 
-    step = interpolate_parameters["step"]
     if step in ("false", "metadata"):
         raw_query = _build_linear_interpolate_raw_ctes(
             timestamp_column=interpolate_parameters["timestamp_column"],
@@ -1400,11 +1470,13 @@ def _interpolation_query(parameters_dict: dict) -> str:
             case_insensitivity_tag_search=interpolate_parameters[
                 "case_insensitivity_tag_search"
             ],
+            window_length=linear_window_length,
             step=step,
             metadata_source=interpolate_parameters["metadata_source"],
             metadata_tagname_column=interpolate_parameters[
                 "metadata_tagname_column"
             ],
+            adaptive_search=adaptive_search,
         )
     else:
         raw_query = _build_raw_query_for_interpolate(
@@ -1504,6 +1576,13 @@ def _interpolation_query(parameters_dict: dict) -> str:
         offset=interpolate_parameters["offset"],
         columns=columns,
         order_by_clause=order_by_clause,
+        additional_select_columns=(
+            [
+                "(SELECT COALESCE(MAX(BoundarySearchIncomplete), 0) FROM boundary_status) AS _InterpolateBoundarySearchIncomplete"
+            ]
+            if adaptive_search
+            else None
+        ),
     )
 
     sql_query_list.append({"query_name": "output", "sql_query": output_query})
@@ -1909,9 +1988,15 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% else %}"
         "WHERE `{{ tagname_column }}` IN ('{{ tag_names | join('\\', \\'') }}') "
         "{% endif %}"
+        "AND to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ linear_window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ linear_window_length }}) "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}), "
-        'boundary_times AS (SELECT `{{ tagname_column }}`, max(CASE WHEN _TwaSourceTime < to_timestamp("{{ start_date }}") THEN _TwaSourceTime END) AS PreviousEventTime, min(CASE WHEN _TwaSourceTime > to_timestamp("{{ end_date }}") THEN _TwaSourceTime END) AS NextEventTime FROM source_events GROUP BY `{{ tagname_column }}`), '
-        'raw_events AS (SELECT DISTINCT events.`{{ tagname_column }}`, events.`{{ timestamp_column }}`, events.`{{ status_column }}`, events.`{{ value_column }}` FROM source_events events LEFT JOIN boundary_times bounds ON events.`{{ tagname_column }}` = bounds.`{{ tagname_column }}` WHERE to_date(events._TwaSourceTime) BETWEEN date_sub(to_date(to_timestamp("{{ start_date }}")), {{ window_length }}) AND date_add(to_date(to_timestamp("{{ end_date }}")), {{ window_length }}) OR events._TwaSourceTime = bounds.PreviousEventTime OR events._TwaSourceTime = bounds.NextEventTime) '
+        'boundary_times AS (SELECT `{{ tagname_column }}`, max(CASE WHEN _TwaSourceTime < to_timestamp("{{ start_date }}") THEN _TwaSourceTime END) AS PreviousEventTime, min(CASE WHEN _TwaSourceTime > to_timestamp("{{ end_date }}") THEN _TwaSourceTime END) AS NextEventTime '
+        "{% if adaptive_linear_search %}"
+        ',boundary_status AS (SELECT `{{ tagname_column }}`, CASE WHEN HasPrevious = 1 AND HasNext = 1 THEN 0 ELSE 1 END AS BoundarySearchIncomplete FROM boundary_times) '
+        "{% endif %}"
+        "{% if adaptive_linear_search %}, max(CASE WHEN _TwaSourceTime <= to_timestamp(\"{{ start_date }}\") AND `{{ status_column }}` <> 'Bad' AND `{{ value_column }}` IS NOT NULL THEN 1 ELSE 0 END) AS HasPrevious, max(CASE WHEN _TwaSourceTime >= to_timestamp(\"{{ end_date }}\") AND `{{ status_column }}` <> 'Bad' AND `{{ value_column }}` IS NOT NULL THEN 1 ELSE 0 END) AS HasNext {% endif %} "
+        'FROM source_events GROUP BY `{{ tagname_column }}`), '
+        'raw_events AS (SELECT DISTINCT events.`{{ tagname_column }}`, events.`{{ timestamp_column }}`, events.`{{ status_column }}`, events.`{{ value_column }}` FROM source_events events LEFT JOIN boundary_times bounds ON events.`{{ tagname_column }}` = bounds.`{{ tagname_column }}` WHERE to_date(events._TwaSourceTime) BETWEEN date_sub(to_date(to_timestamp("{{ start_date }}")), {{ linear_window_length }}) AND date_add(to_date(to_timestamp("{{ end_date }}")), {{ linear_window_length }}) OR events._TwaSourceTime = bounds.PreviousEventTime OR events._TwaSourceTime = bounds.NextEventTime) '
         "{% elif step == 'metadata' and step_was_provided %}"
         "WITH metadata_modes AS (SELECT requested.`{{ tagname_column }}`, IFNULL(m.Step, false) AS Step FROM (SELECT explode(array('"
         "{{ tag_names | join('\\', \\'') }}"
@@ -1923,9 +2008,12 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% endif %}"
         'source_events AS (SELECT DISTINCT `{{ tagname_column }}`, `{{ timestamp_column }}` AS _TwaSourceTime, from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} CAST(`{{ value_column }}` AS DOUBLE) AS `{{ value_column }}` FROM {% if source is defined and source is not none %}`{{ source|lower }}`{% else %}`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}`{% endif %} '
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}WHERE UPPER(`{{ tagname_column }}`) IN (SELECT UPPER(`{{ tagname_column }}`) FROM metadata_modes WHERE Step = false) {% else %}WHERE `{{ tagname_column }}` IN (SELECT `{{ tagname_column }}` FROM metadata_modes WHERE Step = false) {% endif %}"
+        "AND to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ linear_window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ linear_window_length }}) "
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}), "
-        'boundary_times AS (SELECT `{{ tagname_column }}`, max(CASE WHEN _TwaSourceTime < to_timestamp("{{ start_date }}") THEN _TwaSourceTime END) AS PreviousEventTime, min(CASE WHEN _TwaSourceTime > to_timestamp("{{ end_date }}") THEN _TwaSourceTime END) AS NextEventTime FROM source_events GROUP BY `{{ tagname_column }}`), '
-        'linear_raw_events AS (SELECT DISTINCT events.`{{ tagname_column }}`, events.`{{ timestamp_column }}`, events.`{{ status_column }}`, events.`{{ value_column }}` FROM source_events events LEFT JOIN boundary_times bounds ON events.`{{ tagname_column }}` = bounds.`{{ tagname_column }}` WHERE to_date(events._TwaSourceTime) BETWEEN date_sub(to_date(to_timestamp("{{ start_date }}")), {{ window_length }}) AND date_add(to_date(to_timestamp("{{ end_date }}")), {{ window_length }}) OR events._TwaSourceTime = bounds.PreviousEventTime OR events._TwaSourceTime = bounds.NextEventTime), '
+        'boundary_times AS (SELECT `{{ tagname_column }}`, max(CASE WHEN _TwaSourceTime < to_timestamp("{{ start_date }}") THEN _TwaSourceTime END) AS PreviousEventTime, min(CASE WHEN _TwaSourceTime > to_timestamp("{{ end_date }}") THEN _TwaSourceTime END) AS NextEventTime '
+        "{% if adaptive_linear_search %}, max(CASE WHEN _TwaSourceTime <= to_timestamp(\"{{ start_date }}\") AND `{{ status_column }}` <> 'Bad' AND `{{ value_column }}` IS NOT NULL THEN 1 ELSE 0 END) AS HasPrevious, max(CASE WHEN _TwaSourceTime >= to_timestamp(\"{{ end_date }}\") AND `{{ status_column }}` <> 'Bad' AND `{{ value_column }}` IS NOT NULL THEN 1 ELSE 0 END) AS HasNext {% endif %} "
+        'FROM source_events GROUP BY `{{ tagname_column }}`), '
+        'linear_raw_events AS (SELECT DISTINCT events.`{{ tagname_column }}`, events.`{{ timestamp_column }}`, events.`{{ status_column }}`, events.`{{ value_column }}` FROM source_events events LEFT JOIN boundary_times bounds ON events.`{{ tagname_column }}` = bounds.`{{ tagname_column }}` WHERE to_date(events._TwaSourceTime) BETWEEN date_sub(to_date(to_timestamp("{{ start_date }}")), {{ linear_window_length }}) AND date_add(to_date(to_timestamp("{{ end_date }}")), {{ linear_window_length }}) OR events._TwaSourceTime = bounds.PreviousEventTime OR events._TwaSourceTime = bounds.NextEventTime), '
         'step_raw_events AS (SELECT DISTINCT `{{ tagname_column }}`, from_utc_timestamp(date_trunc("millisecond",`{{ timestamp_column }}`), "{{ time_zone }}") AS `{{ timestamp_column }}`, {% if include_status is defined and include_status == true %} `{{ status_column }}`, {% else %} \'Good\' AS `Status`, {% endif %} CAST(`{{ value_column }}` AS DOUBLE) AS `{{ value_column }}` FROM {% if source is defined and source is not none %}`{{ source|lower }}`{% else %}`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_events_{{ data_type|lower }}`{% endif %} '
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         "WHERE to_date(`{{ timestamp_column }}`) BETWEEN date_sub(to_date(to_timestamp(\"{{ start_date }}\")), {{ window_length }}) AND date_add(to_date(to_timestamp(\"{{ end_date }}\")), {{ window_length }}) AND UPPER(`{{ tagname_column }}`) IN (SELECT UPPER(`{{ tagname_column }}`) FROM metadata_modes WHERE Step = true) "
@@ -1948,8 +2036,16 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% endif %}"
         "{% if include_status is defined and include_status == true and include_bad_data is defined and include_bad_data == false %} AND `{{ status_column }}` <> 'Bad' {% endif %}) "
         "{% endif %}"
+        "{% if adaptive_linear_search %}"
+        ',boundary_status AS (SELECT `{{ tagname_column }}`, CASE WHEN HasPrevious = 1 AND HasNext = 1 THEN 0 ELSE 1 END AS BoundarySearchIncomplete FROM boundary_times) '
+        "{% endif %}"
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
+        "{% if adaptive_linear_search %}"
+        ",requested_twa_tags AS (SELECT explode(array('{{ tag_names | join(\"','\") }}')) AS `{{ tagname_column }}`) "
+        ',date_array AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(raw_tags.`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events raw_tags UNION ALL SELECT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(requested.`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM requested_twa_tags requested WHERE NOT EXISTS (SELECT 1 FROM raw_events found WHERE UPPER(found.`{{ tagname_column }}`) = UPPER(requested.`{{ tagname_column }}`))) '
+        "{% else %}"
         ',date_array AS (SELECT DISTINCT explode(sequence(from_utc_timestamp(to_timestamp("{{ start_date }}"), "{{ time_zone }}"), from_utc_timestamp(to_timestamp("{{ end_date }}"), "{{ time_zone }}"), INTERVAL \'{{ time_interval_rate + \' \' + time_interval_unit }}\')) AS `{{ timestamp_column }}`, explode(array(`{{ tagname_column }}`)) AS `{{ tagname_column }}` FROM raw_events) '
+        "{% endif %}"
         "{% else %}"
         ",date_array AS (SELECT explode(sequence(from_utc_timestamp(to_timestamp(\"{{ start_date }}\"), \"{{ time_zone }}\"), from_utc_timestamp(to_timestamp(\"{{ end_date }}\"), \"{{ time_zone }}\"), INTERVAL '{{ time_interval_rate + ' ' + time_interval_unit }}')) AS `{{ timestamp_column }}`, explode(array('{{ tag_names | join('\\', \\'') }}')) AS `{{ tagname_column }}`) "
         "{% endif %}"
@@ -1989,8 +2085,16 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         ', CASE WHEN `Fill_{{ status_column }}` <> "Bad" THEN `Next_{{ value_column }}_For_{{ status_column }}` ELSE 0 END AS `Next_{{ value_column }}` '
         ', CASE WHEN `Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` <> "Bad" THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) WHEN `Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` = "Bad" THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) ELSE 0 END AS good_minutes '
         ", CASE WHEN Step == false THEN ((`Event_{{ value_column }}` + `Next_{{ value_column }}`) * 0.5) * good_minutes ELSE (`Event_{{ value_column }}` * good_minutes) END AS twa_value FROM interpolate) "
+        "{% if adaptive_linear_search %}"
+        ",twa AS (SELECT c.`{{ tagname_column }}`, c.`Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, sum(c.twa_value) / sum(c.good_minutes) AS `{{ value_column }}`, coalesce(max(CASE WHEN c.`Step` = false THEN b.BoundarySearchIncomplete ELSE 0 END), 1) AS BoundarySearchIncomplete FROM twa_calculations c LEFT JOIN boundary_status b ON c.`{{ tagname_column }}` = b.`{{ tagname_column }}` GROUP BY c.`{{ tagname_column }}`, c.`Window{{ timestamp_column }}`) "
+        "{% else %}"
         ",twa AS (SELECT `{{ tagname_column }}`, `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, sum(twa_value) / sum(good_minutes) AS `{{ value_column }}` from twa_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
+        "{% endif %}"
+        "{% if adaptive_linear_search %}"
+        ',project AS (SELECT `{{ tagname_column }}`, `{{ timestamp_column }}`, `{{ value_column }}` FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) '
+        "{% else %}"
         ',project AS (SELECT * FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) '
+        "{% endif %}"
         "{% if pivot is defined and pivot == true %}"
         "{% if case_insensitivity_tag_search is defined and case_insensitivity_tag_search == true %}"
         ",pivot AS (SELECT * FROM (SELECT `{{ timestamp_column }}`, `{{ value_column }}`, UPPER(`{{ tagname_column }}`) AS `{{ tagname_column }}` FROM project) PIVOT (FIRST(`{{ value_column }}`) FOR `{{ tagname_column }}` IN ("
@@ -2003,10 +2107,10 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "'{{ tag_names[i] }}' AS `{{ tag_names[i] }}`{% if not loop.last %}, {% endif %}"
         "{% endfor %}"
         "{% endif %}"
-        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
+        '))) SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %}{% if adaptive_linear_search %}, (SELECT max(BoundarySearchIncomplete) FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) AS _TwaBoundarySearchIncomplete{% endif %} FROM pivot ORDER BY `{{ timestamp_column }}` '
         "{% else %}"
         "{% if display_uom is defined and display_uom == true %}"
-        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %} FROM project p '
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}p.`EventTime`, p.`TagName`, p.`Value`, m.`UoM`{% endif %}{% if adaptive_linear_search %}, (SELECT max(BoundarySearchIncomplete) FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) AS _TwaBoundarySearchIncomplete{% endif %} FROM project p '
         "LEFT OUTER JOIN "
         "{% if metadata_source is defined and metadata_source is not none %}"
         "`{{ metadata_source|lower }}` m ON p.`{{ tagname_column }}` = m.`{{ metadata_tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
@@ -2014,7 +2118,7 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "`{{ business_unit|lower }}`.`sensors`.`{{ asset|lower }}_{{ data_security_level|lower }}_metadata` m ON p.`{{ tagname_column }}` = m.`{{ tagname_column }}` ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` "
         "{% endif %}"
         "{% else%}"
-        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
+        'SELECT {% if to_json is defined and to_json == true %}to_json(struct(*), map("timestampFormat", "yyyy-MM-dd\'T\'HH:mm:ss.SSSSSSSSSXXX")) as Value{% else %}*{% endif %}{% if adaptive_linear_search %}, (SELECT max(BoundarySearchIncomplete) FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) AS _TwaBoundarySearchIncomplete{% endif %} FROM project ORDER BY `{{ tagname_column }}`, `{{ timestamp_column }}` '
         "{% endif %}"
         "{% endif %}"
         "{% if limit is defined and limit is not none %}"
@@ -2042,6 +2146,26 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "time_interval_rate": parameters_dict["time_interval_rate"],
         "time_interval_unit": parameters_dict["time_interval_unit"],
         "window_length": parameters_dict["window_length"],
+        "linear_window_length": (
+            parameters_dict.get(
+                "_linear_window_length",
+                parameters_dict["window_length"]
+                if parameters_dict.get(
+                    "window_length_was_provided", "window_length" in parameters_dict
+                )
+                else 7,
+            )
+        ),
+        "adaptive_linear_search": parameters_dict.get(
+            "adaptive_linear_search", False
+        )
+        and (
+            parameters_dict["step"] == "false"
+            or (
+                parameters_dict["step"] == "metadata"
+                and parameters_dict.get("step_was_provided", False)
+            )
+        ),
         "include_bad_data": parameters_dict["include_bad_data"],
         "step": parameters_dict["step"],
         "step_was_provided": parameters_dict.get(
