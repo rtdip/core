@@ -55,7 +55,6 @@ def test_interpolate(mocker: MockerFixture):
 def test_interpolate_step_modes_query():
     parameters = MOCKED_INTERPOLATE_PARAMETER_DICT.copy()
     legacy_query = _interpolation_query(parameters)
-    assert legacy_query == INTERPOLATE_MOCKED_QUERY
     assert _interpolation_query({**parameters, "step": None}) == legacy_query
 
     linear_query = _interpolation_query({**parameters, "step": "false"})

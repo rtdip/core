@@ -1371,6 +1371,10 @@ def _plot_query_parameters(parameters_dict: dict) -> dict:
 def _interpolation_query(parameters_dict: dict) -> str:
 
     interpolate_parameters = _sample_query_parameters(parameters_dict)
+    if isinstance(interpolate_parameters.get("step"), str) and interpolate_parameters[
+        "step"
+    ].lower() == "null":
+        interpolate_parameters["step"] = None
 
     sql_query_list = []
 
@@ -1979,11 +1983,11 @@ def _time_weighted_average_query(parameters_dict: dict) -> str:
         "{% else %}"
         ",interpolate AS (SELECT *, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lag(`{{ timestamp_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Previous_{{ timestamp_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lag(`Fill_{{ value_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Previous_Fill_{{ value_column }}`, "
         "lead(`{{ timestamp_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) AS `Next_{{ timestamp_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN lead(`Fill_{{ value_column }}`) OVER ( PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}` ) ELSE NULL END AS `Next_Fill_{{ value_column }}`, CASE WHEN `Step` = false AND `{{ status_column }}` IS NULL AND `{{ value_column }}` IS NULL THEN `Previous_Fill_{{ value_column }}` + ( (`Next_Fill_{{ value_column }}` - `Previous_Fill_{{ value_column }}`) * ( ( CAST(`{{ timestamp_column }}` AS DOUBLE) - CAST(`Previous_{{ timestamp_column }}` AS DOUBLE) ) / ( CAST(`Next_{{ timestamp_column }}` AS DOUBLE) - CAST(`Previous_{{ timestamp_column }}` AS DOUBLE) ) ) ) ELSE NULL END AS `Interpolated_{{ value_column }}`, coalesce(`Interpolated_{{ value_column }}`, `Fill_{{ value_column }}`) as `Event_{{ value_column }}` FROM fill_step )"
+        "{% endif %}"
         ",twa_calculations AS (SELECT `{{ tagname_column }}`, `{{ timestamp_column }}`, `Window{{ timestamp_column }}`, `Step`, `{{ status_column }}`, `{{ value_column }}`, `Previous_{{ timestamp_column }}`, `Previous_Fill_{{ value_column }}`, `Next_{{ timestamp_column }}`, `Next_Fill_{{ value_column }}`, `Interpolated_{{ value_column }}`, `Fill_{{ status_column }}`, `Fill_{{ value_column }}`, `Event_{{ value_column }}`, lead(`Fill_{{ status_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) AS `Next_{{ status_column }}` "
         ', CASE WHEN `Next_{{ status_column }}` <> "Bad" OR (`Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` = "Bad") THEN lead(`Event_{{ value_column }}`) OVER (PARTITION BY `{{ tagname_column }}` ORDER BY `{{ timestamp_column }}`) ELSE `{{ value_column }}` END AS `Next_{{ value_column }}_For_{{ status_column }}` '
         ', CASE WHEN `Fill_{{ status_column }}` <> "Bad" THEN `Next_{{ value_column }}_For_{{ status_column }}` ELSE 0 END AS `Next_{{ value_column }}` '
         ', CASE WHEN `Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` <> "Bad" THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) WHEN `Fill_{{ status_column }}` <> "Bad" AND `Next_{{ status_column }}` = "Bad" THEN ((cast(`Next_{{ timestamp_column }}` AS double) - cast(`{{ timestamp_column }}` AS double)) / 60) ELSE 0 END AS good_minutes '
-        "{% endif %}"
         ", CASE WHEN Step == false THEN ((`Event_{{ value_column }}` + `Next_{{ value_column }}`) * 0.5) * good_minutes ELSE (`Event_{{ value_column }}` * good_minutes) END AS twa_value FROM interpolate) "
         ",twa AS (SELECT `{{ tagname_column }}`, `Window{{ timestamp_column }}` AS `{{ timestamp_column }}`, sum(twa_value) / sum(good_minutes) AS `{{ value_column }}` from twa_calculations GROUP BY `{{ tagname_column }}`, `Window{{ timestamp_column }}`) "
         ',project AS (SELECT * FROM twa WHERE `{{ timestamp_column }}` BETWEEN to_timestamp("{{ start_datetime }}") AND to_timestamp("{{ end_datetime }}")) '
