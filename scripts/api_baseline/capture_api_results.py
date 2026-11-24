@@ -29,7 +29,9 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 # ---------------------------------------------------------------- Configuration
-API_BASE_URL = "https://ssip-api.shell.com/api/v1"
+API_BASE_URL = os.getenv(
+    "RTDIP_API_BASE_URL", "https://ssip-api.shell.com/api/v1"
+).rstrip("/")
 
 BUSINESS_UNIT = "downstream"
 REGION = "americas"
@@ -48,7 +50,7 @@ REQUEST_GROUPS = {
 }
 # START_DATE = "2025-05-01T06:00:00.000000000Z"
 # END_DATE = "2025-10-31T06:00:00.000000000Z"
-START_DATE = "2026-05-01T06:00:00.000000000Z"
+START_DATE = "2026-12-01T06:00:00.000000000Z"
 END_DATE = "2026-10-31T06:00:00.000000000Z"
 # Raw returns every event; dense tags (~1/min) over months produce millions of rows.
 RAW_START_DATE = "2026-10-24T06:00:00.000000000Z"

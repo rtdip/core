@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+import json
 import pandas as pd
+import pytest
 
 sys.path.insert(0, ".")
 from pytest_mock import MockerFixture
@@ -22,6 +24,9 @@ from src.sdk.python.rtdip_sdk.queries.time_series.interpolate import (
 )
 from src.sdk.python.rtdip_sdk.queries.time_series._time_series_query_builder import (
     _interpolation_query,
+)
+from src.sdk.python.rtdip_sdk.queries.time_series._boundary_search import (
+    extract_boundary_search_status,
 )
 from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
     _test_base_succeed,
@@ -39,6 +44,8 @@ from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
 MOCKED_INTERPOLATE_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
 MOCKED_INTERPOLATE_PARAMETER_DICT["time_interval_rate"] = "15"
 MOCKED_INTERPOLATE_PARAMETER_DICT["time_interval_unit"] = "minute"
+MOCKED_INTERPOLATE_PARAMETER_DICT["time_zone"] = "+0000"
+MOCKED_INTERPOLATE_PARAMETER_DICT["range_join_seconds"] = 900
 MOCKED_INTERPOLATE_PARAMETER_DICT["pivot"] = False
 
 
@@ -74,11 +81,24 @@ def test_interpolate_step_modes_query():
     assert "IFNULL(m.`Step`, false)" in metadata_query
     assert "metadata_modes WHERE Step = false" in metadata_query
     assert "metadata_modes WHERE Step = true" in metadata_query
+    assert metadata_query.count("`TagName` IN ('mocked-TAGNAME')") >= 2
     assert "boundary_times AS" in metadata_query
     assert "date_sub(to_date(to_timestamp(" in metadata_query
     assert "`mocked-asset_mocked-data-security-level_metadata` AS m" in metadata_query
     assert "_InterpolateBoundarySearchIncomplete" in linear_query
     assert "_InterpolateBoundarySearchIncomplete" in metadata_query
+
+    case_insensitive_query = _interpolation_query(
+        {**parameters, "step": "false", "case_insensitivity_tag_search": True}
+    )
+    assert "UPPER(`TagName`) IN ('MOCKED-TAGNAME')" in case_insensitive_query
+    assert "source_events AS (SELECT DISTINCT UPPER(`TagName`) AS `TagName`" in case_insensitive_query
+
+    api_query = _interpolation_query(
+        {**parameters, "step": "false", "to_json": True}
+    )
+    assert "named_struct('data', struct(*)" in api_query
+    assert "_InterpolateBoundarySearchIncomplete" in api_query
 
 
 def test_interpolate_window_length_validation():
@@ -126,14 +146,16 @@ def test_interpolate_adaptive_boundary_search(
             return None
 
         def fetch_all(self):
-            return pd.DataFrame(
-                {
-                    "EventTime": [pd.Timestamp("2025-01-01T00:00:00Z")],
-                    "TagName": ["mocked-TAGNAME"],
-                    "Value": [1.0],
-                    "_InterpolateBoundarySearchIncomplete": [self.boundary_flag],
-                }
-            )
+            envelope = {
+                "data": {
+                    "EventTime": "2025-01-01T00:00:00Z",
+                    "TagName": "mocked-TAGNAME",
+                    "Value": 1.0,
+                },
+                "_InterpolateBoundarySearchIncomplete": self.boundary_flag,
+            }
+            serialized = json.dumps(envelope, separators=(",", ":"))
+            return {"data": serialized, "sample_row": serialized, "count": 1}
 
         def close(self):
             return None
@@ -151,7 +173,8 @@ def test_interpolate_adaptive_boundary_search(
     result = interpolate_get(Connection(), parameters)
 
     assert executed_windows == expected_windows
-    assert "_InterpolateBoundarySearchIncomplete" not in result.columns
+    result_row = json.loads(f"[{result['data']}]")[0]
+    assert "_InterpolateBoundarySearchIncomplete" not in result_row
 
 
 def test_interpolate_explicit_window_and_legacy_modes_do_not_retry(
@@ -173,7 +196,9 @@ def test_interpolate_explicit_window_and_legacy_modes_do_not_retry(
             return None
 
         def fetch_all(self):
-            return pd.DataFrame({"Value": [1.0]})
+            row = {"EventTime": "2025-01-01T00:00:00Z", "Value": 1.0}
+            serialized = json.dumps(row, separators=(",", ":"))
+            return {"data": serialized, "sample_row": serialized, "count": 1}
 
         def close(self):
             return None
@@ -195,6 +220,31 @@ def test_interpolate_explicit_window_and_legacy_modes_do_not_retry(
 
     assert len(query_parameters) == 2
     assert all(not parameters["adaptive_search"] for parameters in query_parameters)
+
+
+def test_extract_boundary_search_status_from_dataframe_and_string_result():
+    marker = "_InterpolateBoundarySearchIncomplete"
+    frame = pd.DataFrame(
+        {"Value": [json.dumps({"data": {"TagName": "tag"}, marker: 1})]}
+    )
+    cleaned_frame, frame_incomplete = extract_boundary_search_status(frame, marker)
+    assert frame_incomplete
+    assert marker not in cleaned_frame.iloc[0]["Value"]
+
+    envelopes = [
+        {"data": {"TagName": "tag-1"}, marker: 1},
+        {"data": {"TagName": "tag-2"}, marker: 0},
+    ]
+    result = {
+        "data": ",".join(json.dumps(row, separators=(",", ":")) for row in envelopes),
+        "sample_row": json.dumps(envelopes[0]),
+        "count": 2,
+    }
+    cleaned_result, result_incomplete = extract_boundary_search_status(result, marker)
+    cleaned_rows = json.loads(f"[{cleaned_result['data']}]")
+    assert result_incomplete
+    assert len(cleaned_rows) == 2
+    assert all(marker not in row for row in cleaned_rows)
 
 
 def test_interpolate_null_step_uses_legacy_query(mocker: MockerFixture):

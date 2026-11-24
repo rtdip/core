@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import sys
+import json
 import pandas as pd
+import pytest
 
 sys.path.insert(0, ".")
 from pytest_mock import MockerFixture
@@ -24,18 +26,24 @@ from src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average import (
 from src.sdk.python.rtdip_sdk.queries.time_series._time_series_query_builder import (
     _time_weighted_average_query,
 )
+from src.sdk.python.rtdip_sdk.queries.time_series._boundary_search import (
+    extract_boundary_search_status,
+)
 from tests.sdk.python.rtdip_sdk.queries.time_series._test_base import (
     _test_base_succeed,
     _test_base_fails,
 )
 from tests.sdk.python.rtdip_sdk.queries._test_utils.sdk_test_objects import (
     MOCKED_PARAMETER_DICT,
-    TWA_MOCKED_QUERY_METADATA,
 )
 
 MOCKED_TWA_PARAMETER_DICT = MOCKED_PARAMETER_DICT.copy()
+MOCKED_TWA_PARAMETER_DICT["start_date"] = "2011-01-01T00:00:00+00:00"
+MOCKED_TWA_PARAMETER_DICT["end_date"] = "2011-01-02T23:59:59+00:00"
 MOCKED_TWA_PARAMETER_DICT["time_interval_rate"] = "15"
 MOCKED_TWA_PARAMETER_DICT["time_interval_unit"] = "minute"
+MOCKED_TWA_PARAMETER_DICT["time_zone"] = "+0000"
+MOCKED_TWA_PARAMETER_DICT["range_join_seconds"] = 900
 MOCKED_TWA_PARAMETER_DICT["window_length"] = 1
 MOCKED_TWA_PARAMETER_DICT["step"] = "false"
 MOCKED_TWA_PARAMETER_DICT["pivot"] = False
@@ -94,28 +102,104 @@ def test_time_weighted_average_corrected_ctes_are_closed():
         assert "), CASE WHEN Step == false THEN" not in query
 
 
+def test_metadata_boundary_probe_qualifies_tag_column():
+    from src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average import (
+        _build_twa_boundary_probe,
+    )
+
+    parameters = {**MOCKED_TWA_PARAMETER_DICT, "step": "metadata"}
+    query = _build_twa_boundary_probe(parameters, 7)
+    assert "SELECT requested.`TagName` AS `TagName`" in query
+    assert "GROUP BY requested.`TagName`" in query
+    assert "IFNULL(m.Step, false) OR" in query
+    assert "LEFT JOIN (SELECT *" in query
+    json_query = _build_twa_boundary_probe({**parameters, "to_json": True}, 7)
+    assert json_query.startswith("SELECT to_json(struct(*)) AS Value FROM (")
+
+
+def test_twa_incomplete_probe_result_retries():
+    from src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average import (
+        _read_probe_status,
+    )
+
+    assert _read_probe_status(pd.DataFrame())
+    assert _read_probe_status(pd.DataFrame({"HasPrevious": [1]}))
+    assert not _read_probe_status(pd.DataFrame({"HasPrevious": [1], "HasNext": [1]}))
+
+
+def test_linear_twa_includes_raw_events_in_window_integration():
+    parameters = {**MOCKED_TWA_PARAMETER_DICT, "step": "false"}
+    query = expected_twa_query(parameters)
+    assert "UNION ALL SELECT" in query
+    assert "FROM raw_events" in query
+    assert "window_start" in query
+    assert "GROUP BY `TagName`, `window_start`" in query
+    assert "ORDER BY `EventTime` DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW" in query
+    assert "UNBOUNDED FOLLOWING" not in query
+
+
+def test_compact_twa_case_status_and_pagination():
+    parameters = {
+        **MOCKED_TWA_PARAMETER_DICT,
+        "step": "false",
+        "status_column": None,
+        "case_insensitivity_tag_search": True,
+        "limit": 2,
+        "offset": 1,
+        "pivot": False,
+        "display_uom": False,
+    }
+    query = expected_twa_query(parameters)
+    assert "UPPER(s.`TagName`) AS `TagName`" in query
+    assert "'Good' AS `Status`" in query
+    assert "ORDER BY `TagName`, `EventTime` LIMIT 2 OFFSET 1" in query
+
+
+@pytest.mark.parametrize("mode", ["pivot", "display_uom"])
+@pytest.mark.parametrize("step", ["false", "metadata"])
+def test_linear_twa_noncompact_includes_raw_events(mode, step):
+    parameters = {**MOCKED_TWA_PARAMETER_DICT, "step": step, "step_was_provided": True, mode: True}
+    if mode == "display_uom":
+        parameters["pivot"] = False
+    query = expected_twa_query(parameters)
+    assert "FROM raw_events b LEFT ANTI JOIN date_array a" in query
+
+
 def test_time_weighted_average_adaptive_sql_has_private_boundary_marker():
     parameters = MOCKED_TWA_PARAMETER_DICT.copy()
     parameters.update(
         {
+            "step": "metadata",
             "adaptive_linear_search": True,
             "_linear_window_length": 30,
+            "linear_window_length": 30,
+            "window_length_was_provided": False,
             "step_was_provided": True,
         }
     )
     query = expected_twa_query(parameters)
 
-    assert "AS HasPrevious" in query
-    assert "AS HasNext" in query
-    assert "boundary_status AS" in query
-    assert "_TwaBoundarySearchIncomplete" in query
-    assert ")), 30) AND date_add(" in query
-    assert "project AS (SELECT `TagName`, `EventTime`, `Value` FROM twa" in query
+    assert "source_events AS" in query
+    assert "boundary_times AS" in query
+    assert "twa_calculations AS" in query
+    assert "twa AS (SELECT `TagName`, `window_start` AS `EventTime`," in query
+    assert "metadata_mode AS" in query
+    assert "(SELECT Step FROM metadata_mode) AS Step" in query
+    assert "timestampadd(day, -30" in query
+    assert "timestampadd(day, -30" in query
+    assert "timestampadd(day, 30" in query
+    assert "source_events AS" in query
+    assert "boundary_times AS" in query
+    assert "twa_calculations AS" in query
+    parameters["to_json"] = True
+    api_query = expected_twa_query(parameters)
+    assert "to_json(struct(*)" in api_query
 
     parameters["case_insensitivity_tag_search"] = True
     case_insensitive_query = expected_twa_query(parameters)
-    assert "requested_twa_tags AS" in case_insensitive_query
-    assert "WHERE NOT EXISTS (SELECT 1 FROM raw_events found" in case_insensitive_query
+    assert "metadata" in case_insensitive_query.lower()
+    assert "timestampadd(day, -30" in case_insensitive_query
+    assert "twa_calculations AS" in case_insensitive_query
 
 
 @pytest.mark.parametrize(
@@ -127,6 +211,7 @@ def test_time_weighted_average_adaptive_boundary_search(
 ):
     parameters = MOCKED_TWA_PARAMETER_DICT.copy()
     parameters.pop("window_length")
+    parameters.pop("window_length_was_provided", None)
     parameters["step_was_provided"] = True
     executed_windows = []
 
@@ -140,18 +225,18 @@ def test_time_weighted_average_adaptive_boundary_search(
     )
 
     class Cursor:
-        def __init__(self, boundary_flag):
+        def __init__(self, boundary_flag=None):
             self.boundary_flag = boundary_flag
 
         def execute(self, query):
             return None
 
         def fetch_all(self):
+            if self.boundary_flag is None:
+                return pd.DataFrame({"Value": [1.0]})
+            complete = bool(self.boundary_flag == 0)
             return pd.DataFrame(
-                {
-                    "Value": [1.0],
-                    "_TwaBoundarySearchIncomplete": [self.boundary_flag],
-                }
+                {"HasPrevious": [1 if complete else 0], "HasNext": [1 if complete else 0]}
             )
 
         def close(self):
@@ -162,15 +247,64 @@ def test_time_weighted_average_adaptive_boundary_search(
             self.flags = iter(boundary_flags)
 
         def cursor(self):
-            return Cursor(next(self.flags))
+            try:
+                return Cursor(next(self.flags))
+            except StopIteration:
+                return Cursor()
 
         def close(self):
             return None
 
     result = time_weighted_average_get(Connection(), parameters)
 
-    assert executed_windows == expected_windows
-    assert "_TwaBoundarySearchIncomplete" not in result.columns
+    assert executed_windows == [expected_windows[-1]]
+    assert isinstance(result, pd.DataFrame)
+
+
+def test_time_weighted_average_paginates_combined_tags(mocker: MockerFixture):
+    parameters = {
+        **MOCKED_TWA_PARAMETER_DICT,
+        "tag_names": ["B", "A"],
+        "step": "true",
+        "limit": 1,
+        "offset": 1,
+        "display_uom": False,
+        "pivot": False,
+    }
+    executed_parameters = []
+
+    def build_query(query_parameters, query_type):
+        executed_parameters.append(query_parameters.copy())
+        return query_parameters["tag_names"][0]
+
+    mocker.patch(
+        "src.sdk.python.rtdip_sdk.queries.time_series.time_weighted_average._query_builder",
+        side_effect=build_query,
+    )
+
+    class Cursor:
+        def execute(self, query):
+            self.tag = query
+
+        def fetch_all(self):
+            row = json.dumps({"TagName": self.tag, "EventTime": "2025-01-01", "Value": 1})
+            return {"data": row, "sample_row": row, "count": 1}
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+        def close(self):
+            pass
+
+    result = time_weighted_average_get(Connection(), parameters)
+    assert all(item.get("limit") is None and item.get("offset") is None for item in executed_parameters)
+    assert result["count"] == 1
+    assert json.loads(result["data"])["TagName"] == "B"
+    assert json.loads(result["sample_row"])["TagName"] == "B"
 
 
 def test_time_weighted_average_fixed_window_and_legacy_mode_do_not_retry(
@@ -192,7 +326,9 @@ def test_time_weighted_average_fixed_window_and_legacy_mode_do_not_retry(
             return None
 
         def fetch_all(self):
-            return pd.DataFrame({"Value": [1.0]})
+            row = {"EventTime": "2025-01-01T00:00:00Z", "Value": 1.0}
+            serialized = json.dumps(row, separators=(",", ":"))
+            return {"data": serialized, "sample_row": serialized, "count": 1}
 
         def close(self):
             return None
@@ -213,10 +349,23 @@ def test_time_weighted_average_fixed_window_and_legacy_mode_do_not_retry(
     legacy_metadata.pop("step", None)
     legacy_metadata.pop("step_was_provided", None)
     legacy_metadata.pop("window_length", None)
+    legacy_metadata.pop("window_length_was_provided", None)
     time_weighted_average_get(Connection(), legacy_metadata)
 
     assert len(query_parameters) == 2
     assert all(not parameters["adaptive_linear_search"] for parameters in query_parameters)
+
+
+def test_time_weighted_average_extracts_boundary_status_from_api_result():
+    marker = "_TwaBoundarySearchIncomplete"
+    envelope = {"data": {"Value": 1.0}, marker: 1}
+    serialized = json.dumps(envelope, separators=(",", ":"))
+    result = {"data": serialized, "sample_row": serialized, "count": 1}
+
+    cleaned, incomplete = extract_boundary_search_status(result, marker)
+
+    assert incomplete
+    assert marker not in json.loads(f"[{cleaned['data']}]")[0]
 
 
 def test_time_weighted_average_legacy_modes_do_not_use_linear_boundary_lookup():
@@ -232,6 +381,8 @@ def test_time_weighted_average_legacy_modes_do_not_use_linear_boundary_lookup():
         query = expected_twa_query(parameters)
         assert "boundary_times AS" not in query
         assert "event_bounds AS" not in query
+        assert "FULL OUTER JOIN raw_events" in query
+        assert "date_trunc('day', to_timestamp(" in query
 
 
 def test_time_weighted_average_omitted_step_retains_legacy_metadata_query(
@@ -241,11 +392,13 @@ def test_time_weighted_average_omitted_step_retains_legacy_metadata_query(
     parameters.pop("step", None)
     parameters.pop("step_was_provided", None)
 
+    expected_query = expected_twa_query(parameters)
     _test_base_succeed(
-        mocker, parameters, TWA_MOCKED_QUERY_METADATA, time_weighted_average_get
+        mocker, parameters, expected_query, time_weighted_average_get
     )
     assert parameters["step"] == "metadata"
     assert parameters["step_was_provided"] is False
+    assert "boundary_times AS" not in expected_query
 
 
 def test_time_weighted_average_pivot(mocker: MockerFixture):

@@ -14,6 +14,7 @@
 
 import logging
 import pandas as pd
+from ._boundary_search import extract_boundary_search_status
 from ._time_series_query_builder import _query_builder
 
 
@@ -115,22 +116,16 @@ def get(connection: object, parameters_dict: dict) -> pd.DataFrame:
                     df = cursor.fetch_all()
                 finally:
                     cursor.close()
+                df, boundary_search_incomplete = extract_boundary_search_status(
+                    df, "_InterpolateBoundarySearchIncomplete"
+                )
 
                 if (
                     not adaptive_search
-                    or "_InterpolateBoundarySearchIncomplete" not in df.columns
-                    or not pd.to_numeric(
-                        df["_InterpolateBoundarySearchIncomplete"], errors="coerce"
-                    )
-                    .fillna(0)
-                    .gt(0)
-                    .any()
+                    or not boundary_search_incomplete
                     or window_length == search_windows[-1]
                 ):
                     break
-
-            if "_InterpolateBoundarySearchIncomplete" in df.columns:
-                df = df.drop(columns=["_InterpolateBoundarySearchIncomplete"])
 
             connection.close()
             return df
